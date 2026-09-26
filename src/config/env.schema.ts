@@ -26,20 +26,20 @@ export const envSchema = z.object({
   DATABASE_URL: z.string().url(),
   DIRECT_URL: z.string().url(),
 
-  // Biến xác thực — dùng từ M2, optional ở M0 (M2 sẽ siết độ dài/entropy).
-  JWT_ACCESS_SECRET: z.preprocess(emptyToUndefined, z.string().optional()),
-  JWT_ACCESS_TTL: z.preprocess(emptyToUndefined, z.string().optional()),
+  // Biến xác thực — BẮT BUỘC từ M2 (secret ≥32 ký tự ngẫu nhiên).
+  JWT_ACCESS_SECRET: z.string().min(32),
+  JWT_ACCESS_TTL: z.preprocess(emptyToUndefined, z.string().default('15m')),
   JWT_REFRESH_TTL_DAYS: z.preprocess(
     emptyToUndefined,
-    z.coerce.number().int().positive().optional(),
+    z.coerce.number().int().positive().default(30),
   ),
   ARGON2_MEMORY_COST: z.preprocess(
     emptyToUndefined,
-    z.coerce.number().int().positive().optional(),
+    z.coerce.number().int().positive().default(19456),
   ),
   ARGON2_TIME_COST: z.preprocess(
     emptyToUndefined,
-    z.coerce.number().int().positive().optional(),
+    z.coerce.number().int().positive().default(2),
   ),
 
   // Biến AI — dùng từ M10, optional ở M0.

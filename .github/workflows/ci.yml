@@ -42,6 +42,7 @@ jobs:
       NODE_ENV: test
       DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test
       DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test
+      JWT_ACCESS_SECRET: ci-only-secret-0123456789abcdef0123456789
       LOG_LEVEL: error
     steps:
       - uses: actions/checkout@v4
