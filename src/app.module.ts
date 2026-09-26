@@ -4,6 +4,7 @@ import { APP_FILTER, APP_PIPE } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { validateEnv } from './config/env.schema';
+import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
 import { PrismaModule } from './db/prisma.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
@@ -37,6 +38,7 @@ import { HealthModule } from './health/health.module';
     }),
     DbModule,
     PrismaModule,
+    AuthModule,
     DictionaryModule,
     HealthModule,
   ],
