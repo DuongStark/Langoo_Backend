@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-26 (M1 — hoàn thành, chờ review)
+> Cập nhật lần cuối: 2026-09-26 (M2 — hoàn thành, chờ review)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -9,7 +9,7 @@
 |---|-----------|-----------|
 | M0 | Bootstrap & DB ops | ✅ hoàn thành (chờ review) |
 | M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ✅ hoàn thành (chờ review) |
-| M2 | Auth (register/login/refresh/logout/me) | ⬜ chờ |
+| M2 | Auth (register/login/refresh/logout/me) | ✅ hoàn thành (chờ review) |
 | M3 | Profile & settings | ⬜ chờ |
 | M4 | Dictionary (đọc) | ⬜ chờ |
 | M5 | Collections | ⬜ chờ |
@@ -42,6 +42,10 @@
 | 2026-09-26 | Generated client ở `src/generated/prisma` — gitignore + ignore ESLint/Prettier; sinh qua `postinstall` và `npm run prisma:generate` | Prisma 7 bắt buộc `output`; `npm ci` tự sinh client, CI có bước generate tường minh |
 | 2026-09-26 | Schema Prisma chỉ map 32 bảng `app`; uuid **không** khai default (buộc service sinh uuid v7); CHECK constraint/partial index ghi chú, không map | Bất biến #3/#10; Prisma không được dùng để sinh DDL |
 | 2026-09-26 | Repository mẫu `SenseCardRepository` đọc `serve.sense_card` bằng `$queryRaw`; e2e chỉ đọc trên `langoo_test` | Tiêu chí M1; M1 chưa có endpoint nên e2e không đi qua HTTP |
+| 2026-09-26 | `@nestjs/jwt` dùng **v11.0.2** (không dùng v12 như kế hoạch) và `uuid` dùng **v11.1.1** (không dùng v14) | v12/v14 là ESM-only, không hợp dự án CJS + Jest; v11 vẫn đủ API cần (jwt sign/verify, uuid v7) |
+| 2026-09-26 | `JWT_ACCESS_SECRET` bắt buộc ≥32 ký tự; tôi sinh ngẫu nhiên 96 hex vào `.env` (không commit), CI dùng secret riêng | Chủ dự án đồng ý; secret cũ 11 ký tự không đủ an toàn |
+| 2026-09-26 | Access token 15 phút **không tra DB mỗi request**; logout thu hồi session → refresh token chết ngay, access token cũ hết hạn tự nhiên | Chủ dự án chốt; đổi sang "tra session mỗi request" nếu cần thu hồi tức thì |
+| 2026-09-26 | Register chỉ tạo `users` + `user_identity` (+ `device` nếu client gửi) + session | `user_settings`/`study_profile` thuộc M3 (đúng phạm vi milestone) |
 
 ## Backlog
 
@@ -52,4 +56,4 @@
 
 ## Kế tiếp dự kiến
 
-- **M2 — Auth:** register / login / refresh / logout / me; argon2id; `user_session` + device; refresh token opaque (chỉ lưu SHA-256), xoay vòng khi refresh.
+- **M3 — Profile & settings:** CRUD `study_profile` (nhiều khoá học), `user_settings` (timezone, daily_goal, notify); mặc định đúng khi user mới.
