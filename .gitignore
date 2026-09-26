@@ -10,6 +10,9 @@ coverage/
 *.log
 npm-debug.log*
 
+# Prisma Client (sinh tự động bằng `npm run prisma:generate`)
+src/generated/
+
 # Python (tool vận hành nếu dùng bộ đầy đủ)
 .venv/
 __pycache__/
