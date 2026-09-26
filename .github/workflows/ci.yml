@@ -15,6 +15,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Sinh Prisma Client
+        run: npm run prisma:generate
       - run: npm run lint
       - run: npm run build
       - run: npm run test
@@ -48,6 +50,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Sinh Prisma Client
+        run: npm run prisma:generate
       - name: Nạp DB test từ dump mẫu
         run: npm run db:test:reset
       - name: Đảm bảo db:migrate không còn file cần chạy (đủ 025)
