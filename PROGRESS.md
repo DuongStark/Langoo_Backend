@@ -46,6 +46,7 @@
 | 2026-09-26 | `JWT_ACCESS_SECRET` bắt buộc ≥32 ký tự; tôi sinh ngẫu nhiên 96 hex vào `.env` (không commit), CI dùng secret riêng | Chủ dự án đồng ý; secret cũ 11 ký tự không đủ an toàn |
 | 2026-09-26 | Access token 15 phút **không tra DB mỗi request**; logout thu hồi session → refresh token chết ngay, access token cũ hết hạn tự nhiên | Chủ dự án chốt; đổi sang "tra session mỗi request" nếu cần thu hồi tức thì |
 | 2026-09-26 | Register chỉ tạo `users` + `user_identity` (+ `device` nếu client gửi) + session | `user_settings`/`study_profile` thuộc M3 (đúng phạm vi milestone) |
+| 2026-09-26 | Quy ước commit (§1.4 PROMPT-BACKEND.md): 1 commit = 1 đơn vị logic hoàn chỉnh (code + test + docs của cùng một việc), mỗi milestone ~2–4 commit — không tách lẻ từng file, không dồn cả milestone | Chủ dự án yêu cầu cân bằng (M0–M2 commit hơi lẻ) |
 
 ## Backlog
 

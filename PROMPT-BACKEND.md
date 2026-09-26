@@ -50,8 +50,11 @@ các quyết định đã chốt (kèm ngày + lý do), backlog, và "kế tiế
 
 ### 1.4 Git
 
-Commit nhỏ, Conventional Commits (`feat(auth): ...`, `fix(srs): ...`, `docs: ...`), một commit
-một chủ đề. **Tuyệt đối không commit** `.env`, connection string, token, API key.
+Conventional Commits (`feat(auth): ...`, `fix(srs): ...`, `docs: ...`).
+**Một commit = một đơn vị logic hoàn chỉnh** (code + test + docs của cùng một việc) —
+không tách lẻ từng file, không dồn cả milestone vào một commit. Thực tế mỗi milestone
+thường 2–4 commit, ví dụ: `feat(auth): ...` (code + unit/e2e), `docs: ...` (API doc + PROGRESS).
+**Tuyệt đối không commit** `.env`, connection string, token, API key.
 
 ## 2. Stack đã chốt (muốn đổi phải hỏi trước)
 
