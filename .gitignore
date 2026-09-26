@@ -1,0 +1,22 @@
+# Bí mật / cấu hình
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+
+# Python (tool vận hành nếu dùng bộ đầy đủ)
+.venv/
+__pycache__/
+*.pyc
+
+# Hệ điều hành / editor
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
