@@ -16,8 +16,9 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 
 ## Trạng thái
 
-- ✅ CSDL đã xong: 92 bảng + 4 view (schema `public/staging/core/app/serve`), có dữ liệu mẫu.
-- ⬜ Backend: chưa bắt đầu — milestone đầu tiên là **M0 (bootstrap + DB ops)** theo `PROMPT-BACKEND.md`.
+- ✅ CSDL đã xong: 92 bảng + 4 view (schema `public/staging/core/app/serve`), có dữ liệu mẫu (local + cloud Prisma Postgres).
+- ✅ **M0 — Bootstrap & DB ops** đã xong (chờ review): NestJS 11 strict, health check có kiểm tra DB, format lỗi `{code,message,details?}`, logging pino, công cụ DB bằng Node (`db:migrate`, `db:test:reset`, `db:push`), CI GitHub Actions. Xem [`PROGRESS.md`](PROGRESS.md).
+- ⬜ Backend đang chờ duyệt **M1 — Data layer** (`prisma/schema.prisma` chỉ map schema `app`, repository đọc `core`/`serve`).
 
 ## Quy tắc vàng
 
