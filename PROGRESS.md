@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-26 (M0 — hoàn thành, chờ review)
+> Cập nhật lần cuối: 2026-09-26 (M1 — hoàn thành, chờ review)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -8,7 +8,7 @@
 | # | Milestone | Trạng thái |
 |---|-----------|-----------|
 | M0 | Bootstrap & DB ops | ✅ hoàn thành (chờ review) |
-| M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ⬜ chờ |
+| M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ✅ hoàn thành (chờ review) |
 | M2 | Auth (register/login/refresh/logout/me) | ⬜ chờ |
 | M3 | Profile & settings | ⬜ chờ |
 | M4 | Dictionary (đọc) | ⬜ chờ |
@@ -38,12 +38,17 @@
 | 2026-09-26 | `pg_hba.conf` tạm chuyển `trust` cho 2 dòng localhost ~5 giây để tạo role, sau đó khôi phục nguyên trạng | Chủ dự án đồng ý; có backup + reload, không restart |
 | 2026-09-26 | `DATABASE_URL` = `DIRECT_URL` (cùng 1 chuỗi pooled Prisma cấp) | Prisma console chỉ cấp 1 URL; đủ dùng cho M0. Khi cần DDL nặng (M1+) sẽ xem lại direct URL riêng nếu có |
 | 2026-09-26 | Health check cloud đo được `db_latency_ms` ~464ms (pooled, châu Á → Prisma vùng mặc định) | Ghi nhận; theo dõi khi tối ưu tầng đọc |
+| 2026-09-26 | Dùng **Prisma 7.10.0** (pin `^7.10.0`, không dùng `8.0.0-rc` đang là tag `latest`) + **`@prisma/adapter-pg`** — thay đổi so với chốt M0 (thời Prisma 6) | Prisma 7 bắt buộc driver adapter (bỏ Rust engine); dự án giữ CJS nhờ `moduleFormat = "cjs"` |
+| 2026-09-26 | Generated client ở `src/generated/prisma` — gitignore + ignore ESLint/Prettier; sinh qua `postinstall` và `npm run prisma:generate` | Prisma 7 bắt buộc `output`; `npm ci` tự sinh client, CI có bước generate tường minh |
+| 2026-09-26 | Schema Prisma chỉ map 32 bảng `app`; uuid **không** khai default (buộc service sinh uuid v7); CHECK constraint/partial index ghi chú, không map | Bất biến #3/#10; Prisma không được dùng để sinh DDL |
+| 2026-09-26 | Repository mẫu `SenseCardRepository` đọc `serve.sense_card` bằng `$queryRaw`; e2e chỉ đọc trên `langoo_test` | Tiêu chí M1; M1 chưa có endpoint nên e2e không đi qua HTTP |
 
 ## Backlog
 
 - Cân nhắc ghi rõ `sslmode=verify-full` (hoặc `uselibpqcompat=true`) cho URL cloud để hết cảnh báo của `pg` 8.16+ — hiện `sslmode=require` đang được xử lý như `verify-full` (an toàn, chỉ ồn log).
 - CI GitHub Actions đã cấu hình nhưng **chưa chạy** (repo chưa push) — kiểm chứng ở lần push tới.
+- `npm audit`: 4 lỗ `high` nằm trong `mysql2@3.15.3` + `deepmerge-ts` — dependency **của Prisma CLI (dev)**, không thuộc runtime API; theo dõi khi Prisma phát hành bản vá (KHÔNG chạy `npm audit fix --force` vì sẽ kéo về Prisma 6).
 
 ## Kế tiếp dự kiến
 
-- **M1 — Data layer:** `prisma/schema.prisma` chỉ map schema `app`, `PrismaService`, repository đọc `core`/`serve` bằng `$queryRaw` + interface TS.
+- **M2 — Auth:** register / login / refresh / logout / me; argon2id; `user_session` + device; refresh token opaque (chỉ lưu SHA-256), xoay vòng khi refresh.
