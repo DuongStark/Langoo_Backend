@@ -173,3 +173,6 @@ Phiên là **snapshot**:
 - Idempotency theo `(session_id, ordinal)`: retry trả kết quả cũ, XP chỉ cộng một lần với
   khoá `session:<session_id>:<ordinal>`.
 - Suspend (`PATCH /v1/srs/cards`) loại thẻ khỏi queue lẫn mọi phiên mới.
+- XP/streak/thành tích (M8) cập nhật trong cùng transaction qua `GamificationService`:
+  XP theo `xp_rule` + daily cap, bonus ngày học, level, achievement — xem
+  [`docs/api/gamification.md`](api/gamification.md).

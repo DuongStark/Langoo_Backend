@@ -46,7 +46,8 @@ curl -s -X POST http://localhost:3000/v1/srs/reviews \
 - `rating`: `1=Again, 2=Hard, 3=Good, 4=Easy`.
 - `client_review_id` (khuyến nghị): retry mạng cùng id sẽ **trả kết quả cũ**, không cộng log/XP lần hai.
 - Một transaction: `review_log` + cập nhật `srs_state` (Anki: steps/EF/interval) + **burying nội bộ**
-  sibling new/review của cùng item + `xp_event` (+1 XP, idempotent — cap/streak/level thuộc M8).
+  sibling new/review của cùng item + **gamification M8** (`xp_event` theo `xp_rule` + daily cap,
+  `streak_day`, `user_stats`, thành tích — xem [`docs/api/gamification.md`](gamification.md)).
 
 Response `200`:
 
