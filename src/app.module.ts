@@ -9,6 +9,7 @@ import { DbModule } from './db/db.module';
 import { PrismaModule } from './db/prisma.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { CollectionsModule } from './collections/collections.module';
+import { GamificationModule } from './gamification/gamification.module';
 import { HealthModule } from './health/health.module';
 import { SrsModule } from './srs/srs.module';
 import { SessionsModule } from './sessions/sessions.module';
@@ -47,6 +48,7 @@ import { UsersModule } from './users/users.module';
     CollectionsModule,
     SrsModule,
     SessionsModule,
+    GamificationModule,
     UsersModule,
     HealthModule,
   ],

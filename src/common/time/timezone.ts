@@ -46,3 +46,17 @@ export function startOfDayUtc(now: Date, timezone: string): Date {
 export function nextDayStartUtc(now: Date, timezone: string): Date {
   return startOfDayUtc(new Date(now.getTime() + 86_400_000), timezone);
 }
+
+/** Ngày địa phương dạng YYYY-MM-DD (dùng cho streak_day, daily cap XP). */
+export function localDateString(now: Date, timezone: string): string {
+  const dtf = new Intl.DateTimeFormat('en-US', {
+    timeZone: timezone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  const parts = dtf.formatToParts(now);
+  const get = (type: string): string =>
+    parts.find((part) => part.type === type)?.value ?? '';
+  return `${get('year')}-${get('month')}-${get('day')}`;
+}

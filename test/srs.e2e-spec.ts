@@ -246,7 +246,7 @@ describe('SRS (e2e — langoo_test)', () => {
       });
       expect(logCount).toBe(1);
       const xpCount = await prisma.xpEvent.count({
-        where: { userId: userIdA },
+        where: { userId: userIdA, source: 'review' },
       });
       expect(xpCount).toBe(1);
 
@@ -280,9 +280,11 @@ describe('SRS (e2e — langoo_test)', () => {
       expect(await prisma.reviewLog.count({ where: { userId: userIdA } })).toBe(
         1,
       );
-      expect(await prisma.xpEvent.count({ where: { userId: userIdA } })).toBe(
-        1,
-      );
+      expect(
+        await prisma.xpEvent.count({
+          where: { userId: userIdA, source: 'review' },
+        }),
+      ).toBe(1);
     });
 
     it('ôn sớm → 422 SRS_ITEM_NOT_DUE', async () => {

@@ -209,7 +209,9 @@ describe('Sessions (e2e — langoo_test)', () => {
       expect(result.session.answered_count).toBe(1);
 
       const logs = await prisma.reviewLog.count({ where: { userId } });
-      const xp = await prisma.xpEvent.count({ where: { userId } });
+      const xp = await prisma.xpEvent.count({
+        where: { userId, source: 'review' },
+      });
       expect(logs).toBe(1);
       expect(xp).toBe(1);
 
@@ -220,7 +222,9 @@ describe('Sessions (e2e — langoo_test)', () => {
       expect(replay.item.rating).toBe(3); // giữ kết quả cũ
       expect(replay.xp.amount).toBe(1);
       expect(await prisma.reviewLog.count({ where: { userId } })).toBe(1);
-      expect(await prisma.xpEvent.count({ where: { userId } })).toBe(1);
+      expect(
+        await prisma.xpEvent.count({ where: { userId, source: 'review' } }),
+      ).toBe(1);
     });
 
     it('thiếu rating → 400 SESSION_ANSWER_INVALID', async () => {

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { isUniqueViolation } from '../common/errors/prisma-errors';
 import { nextDayStartUtc } from '../common/time/timezone';
+import { GamificationService } from '../gamification/gamification.service';
 import { PrismaService } from '../db/prisma.service';
 import { AnkiScheduler } from './scheduler/anki-scheduler';
 import { CardState, Rating, SchedulerState } from './scheduler/anki.types';
@@ -44,6 +44,8 @@ export interface ApplyRatingParams {
 @Injectable()
 export class ReviewEngine {
   private readonly scheduler = new AnkiScheduler();
+
+  constructor(private readonly gamification: GamificationService) {}
 
   async applyRating(
     tx: TxClient,
@@ -126,30 +128,19 @@ export class ReviewEngine {
       });
     }
 
-    // XP thô (+1 mặc định; cap/streak/level thuộc M8) — idempotent.
-    const rule = await tx.xpRule.findUnique({ where: { code: 'review' } });
-    const amount = rule?.amount ?? 1;
-    const idempotencyKey =
-      params.xpIdempotencyKey ?? `review:${log.id.toString()}`;
-    let xpAmount = 0;
-    try {
-      await tx.xpEvent.create({
-        data: {
-          userId: params.userId,
-          amount,
-          source: 'review',
-          refKind: 'review_log',
-          refId: log.id.toString(),
-          idempotencyKey,
-        },
-      });
-      xpAmount = amount;
-    } catch (error) {
-      if (!isUniqueViolation(error)) {
-        throw error;
-      }
-    }
+    // Gamification (M8): XP theo xp_rule + daily cap + streak_day + user_stats
+    // + thành tích — chạy trong cùng transaction, idempotent theo khoá.
+    const activity = await this.gamification.applyActivity(tx, {
+      userId: params.userId,
+      timezone: params.timezone,
+      now,
+      ruleCode: 'review',
+      source: 'review',
+      refKind: 'review_log',
+      refId: log.id.toString(),
+      idempotencyKey: params.xpIdempotencyKey ?? `review:${log.id.toString()}`,
+    });
 
-    return { log, state: updated, xpAmount };
+    return { log, state: updated, xpAmount: activity.xp_amount };
   }
 }
