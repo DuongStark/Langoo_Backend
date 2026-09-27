@@ -18,12 +18,15 @@ có tối đa **4 thẻ** (2 face × 2 chiều `recognize`/`recall`); các thẻ
 | `learning_step` *(mới)* | Đang ở bước thứ mấy trong learning/relearning steps (NULL nếu ở review) |
 | `introduced_at` *(mới)* | Lần đầu tiên thẻ được trả lời (state rời `new`) — dùng đếm "thẻ mới hôm nay" |
 | `buried_until` *(mới)* | Ẩn nội bộ tới hết ngày (burying) |
-| `reps` / `lapses` | Số lần ôn ở review / số lần quên (Again khi đang review) |
+| `reps` / `lapses` | Tổng số lần đã trả lời thẻ / số lần quên (Again khi đang review) |
 | `scheduled_days` / `elapsed_days` | Khoảng dự định (ngày) / thực tế đã trôi (ngày) |
 | `last_review_at`, `suspended` | Lần ôn gần nhất; tạm ẩn (API suspend thuộc M7) |
 
-`app.review_log` là **sổ cái append-only**; thêm cột `client_review_id` *(mới)* + unique
-`(user_id, client_review_id)` để chống retry mạng cộng 2 lần.
+`app.review_log` là **sổ cái append-only**; có thêm `prev_state` (trạng thái trước khi trả lời —
+phục vụ daily limit & thống kê) và `client_review_id` (chống retry mạng). Vì `review_log` là
+**bảng partition** theo `reviewed_at`, không thể tạo unique `(user_id, client_review_id)`;
+chống trùng bằng **row lock trên `srs_state` + tra cứu index** `(user_id, client_review_id)`:
+request thứ hai cùng id thấy log cũ và trả lại kết quả cũ, không cập nhật lần nữa.
 
 ## 2. Luật lịch (Anki verbatim)
 
@@ -129,12 +132,12 @@ Body: `{ face_id, direction, rating (1..4), elapsed_ms?, mode? (mặc định "f
 `{ due_now, due_today, learning, new_introduced_today, reviews_today, accuracy_7d }`
 (số liệu theo ngày địa phương; `accuracy_7d` = tỉ lệ rating ≥ 3 trên review_log 7 ngày gần nhất).
 
-## 6. Migration 026+ (chờ duyệt — apply local trước, cloud sau)
+## 6. Migration 026 (chờ duyệt apply cloud — local đã chạy khi phát triển)
 
 | Bảng | Thay đổi |
 |---|---|
 | `app.srs_state` | `ease_factor real NOT NULL DEFAULT 2.5 CHECK (ease_factor >= 1.3)`; `learning_step smallint CHECK (learning_step >= 0)`; `introduced_at timestamptz`; `buried_until timestamptz` |
-| `app.review_log` | `client_review_id uuid`; unique index `(user_id, client_review_id) WHERE client_review_id IS NOT NULL` |
+| `app.review_log` | `client_review_id uuid`, `prev_state text CHECK (new/learning/review/relearning)`; index `(user_id, client_review_id) WHERE client_review_id IS NOT NULL` (không unique được vì bảng partition) |
 | `app.user_settings` | `srs_new_per_day smallint NOT NULL DEFAULT 20 CHECK (1..9999)`; `srs_review_per_day smallint NOT NULL DEFAULT 200 CHECK (1..9999)` |
 
 ## 7. Ma trận test (unit cho scheduler thuần + e2e)
