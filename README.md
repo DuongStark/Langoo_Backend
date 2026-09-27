@@ -24,7 +24,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M4 — Dictionary (đọc)** đã hoàn tất cả phần chính và hardening M4.1: nối lexeme→senses, loại links trùng, chặn input biên, cursor search và romaji — xem nhật ký trong [`PROGRESS.md`](PROGRESS.md). Ví dụ curl: [`docs/api/dictionary.md`](docs/api/dictionary.md).
 - ✅ **M5 — Collections** đã xong (chờ review): CRUD bộ sưu tập (archive mềm), thêm từ 1–2 face sinh 2 `srs_state`/face trong transaction, tag, lọc theo ngôn ngữ, clone deck hệ thống; ví dụ curl tại [`docs/api/collections.md`](docs/api/collections.md).
 - ⬜ Backend đang chờ duyệt **M6 — SRS**.
-- 🗺️ Lộ trình mở rộng: **M13 — Admin & Curation** (trọng tâm thống kê vận hành + duyệt nội dung) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
+- 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
 ## Quy tắc vàng
 
