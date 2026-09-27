@@ -9,6 +9,7 @@ import { DbModule } from './db/db.module';
 import { PrismaModule } from './db/prisma.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { HealthModule } from './health/health.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { HealthModule } from './health/health.module';
     PrismaModule,
     AuthModule,
     DictionaryModule,
+    UsersModule,
     HealthModule,
   ],
   providers: [

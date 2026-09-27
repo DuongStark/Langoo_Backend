@@ -6,6 +6,10 @@ import argon2 from 'argon2';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
+import {
+  DEFAULT_DAILY_GOAL,
+  DEFAULT_TIMEZONE,
+} from '../users/settings.constants';
 import { DeviceInfoDto } from './dto/device-info.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
@@ -83,6 +87,14 @@ export class AuthService {
             deviceId,
             refreshTokenHash: hashRefreshToken(refreshToken),
             expiresAt: this.refreshExpiry(),
+          },
+        });
+        await tx.userSettings.create({
+          data: {
+            userId: created.id,
+            timezone: DEFAULT_TIMEZONE,
+            dailyGoal: DEFAULT_DAILY_GOAL,
+            notify: {},
           },
         });
         return created;

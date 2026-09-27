@@ -16,6 +16,7 @@ interface TxMock {
   userIdentity: { create: jest.Mock };
   userSession: { create: jest.Mock };
   device: { create: jest.Mock };
+  userSettings: { create: jest.Mock };
 }
 
 function sha256(value: string): string {
@@ -63,6 +64,7 @@ function createSetup(): {
     userIdentity: { create: jest.fn() },
     userSession: { create: jest.fn() },
     device: { create: jest.fn() },
+    userSettings: { create: jest.fn() },
   };
   const prisma = {
     user: { findFirst: jest.fn(), findUnique: jest.fn(), update: jest.fn() },
@@ -145,6 +147,20 @@ describe('AuthService', () => {
         true,
       );
       expect(capturedSessionHash).toBe(sha256(result.refresh_token));
+      const settingsArgs = firstArg<{
+        data: {
+          userId: bigint;
+          timezone: string;
+          dailyGoal: number;
+          notify: Record<string, unknown>;
+        };
+      }>(tx.userSettings.create);
+      expect(settingsArgs.data).toMatchObject({
+        userId: 1n,
+        timezone: 'Asia/Ho_Chi_Minh',
+        dailyGoal: 20,
+        notify: {},
+      });
       expect(result.user.email).toBe('new@example.com');
       expect(result.expires_in).toBe(900);
     });
