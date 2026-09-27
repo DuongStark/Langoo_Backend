@@ -6,6 +6,7 @@ import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { addDays } from '../src/gamification/rules';
 import { PrismaService } from '../src/db/prisma.service';
+import { safeTestTimezone } from './safe-timezone';
 
 interface StatsBody {
   xp_total: number;
@@ -81,6 +82,12 @@ describe('Gamification (e2e — langoo_test)', () => {
         support_language_id: 3,
       })
       .expect(201);
+    // Giữ giờ địa phương ~12:00 để mốc "hết ngày" không cắt ngang test.
+    await request(server)
+      .patch('/v1/me/settings')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ timezone: safeTestTimezone() })
+      .expect(200);
     const collection = await request(server)
       .post('/v1/collections')
       .set('Authorization', `Bearer ${token}`)

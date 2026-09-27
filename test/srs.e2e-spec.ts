@@ -5,6 +5,7 @@ import request from 'supertest';
 import { v7 as uuidv7 } from 'uuid';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/db/prisma.service';
+import { safeTestTimezone } from './safe-timezone';
 
 interface DueCardBody {
   srs_id: string;
@@ -91,6 +92,12 @@ describe('SRS (e2e — langoo_test)', () => {
         support_language_id: 3,
       })
       .expect(201);
+    // Giữ giờ địa phương ~12:00 để mốc "hết ngày" không cắt ngang test.
+    await request(server)
+      .patch('/v1/me/settings')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ timezone: safeTestTimezone() })
+      .expect(200);
   }
 
   async function createCollectionWithItem(
