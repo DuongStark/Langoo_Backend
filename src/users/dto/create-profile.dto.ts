@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsInt,
@@ -11,6 +12,9 @@ import {
 
 export class CreateProfileDto {
   @ApiProperty({ example: 'Nhật–Việt', maxLength: 80 })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(80)

@@ -9,8 +9,11 @@ interface TxMock {
     updateMany: jest.Mock;
     create: jest.Mock;
     update: jest.Mock;
+    findFirst: jest.Mock;
+    delete: jest.Mock;
   };
-  userSettings: { updateMany: jest.Mock };
+  userSettings: { upsert: jest.Mock };
+  $queryRaw: jest.Mock;
 }
 
 function firstArg<T>(mock: jest.Mock): T {
@@ -53,8 +56,11 @@ function createSetup(): {
       updateMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      findFirst: jest.fn(),
+      delete: jest.fn(),
     },
-    userSettings: { updateMany: jest.fn() },
+    userSettings: { upsert: jest.fn() },
+    $queryRaw: jest.fn(),
   };
   const prisma = {
     studyProfile: {
@@ -65,6 +71,9 @@ function createSetup(): {
     },
     $transaction: jest.fn((fn: (client: TxMock) => Promise<unknown>) => fn(tx)),
   };
+  prisma.studyProfile.findFirst = tx.studyProfile.findFirst;
+  prisma.studyProfile.count = tx.studyProfile.count;
+  prisma.studyProfile.delete = tx.studyProfile.delete;
   const languages = { findExistingIds: jest.fn() };
   const service = new ProfileService(
     prisma as unknown as PrismaService,
@@ -145,9 +154,10 @@ describe('ProfileService', () => {
         /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
       );
       expect(result.id).toBe(args.data.id);
-      expect(tx.userSettings.updateMany).toHaveBeenCalledWith({
+      expect(tx.userSettings.upsert).toHaveBeenCalledWith({
         where: { userId: 1n },
-        data: { activeProfileId: result.id },
+        create: { userId: 1n, activeProfileId: result.id },
+        update: { activeProfileId: result.id },
       });
       expect(result.is_default).toBe(true);
     });
@@ -167,7 +177,7 @@ describe('ProfileService', () => {
       );
       expect(args.data.isDefault).toBe(false);
       expect(tx.studyProfile.updateMany).not.toHaveBeenCalled();
-      expect(tx.userSettings.updateMany).not.toHaveBeenCalled();
+      expect(tx.userSettings.upsert).not.toHaveBeenCalled();
       expect(result.is_default).toBe(false);
     });
 
@@ -188,11 +198,11 @@ describe('ProfileService', () => {
       });
       const settingsArgs = firstArg<{
         where: { userId: bigint };
-        data: { activeProfileId: string };
-      }>(tx.userSettings.updateMany);
+        update: { activeProfileId: string };
+      }>(tx.userSettings.upsert);
       expect(settingsArgs.where).toEqual({ userId: 1n });
-      expect(settingsArgs.data.activeProfileId).toBe(result.id);
-      expect(settingsArgs.data.activeProfileId).toMatch(
+      expect(settingsArgs.update.activeProfileId).toBe(result.id);
+      expect(settingsArgs.update.activeProfileId).toMatch(
         /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/,
       );
     });
@@ -233,9 +243,10 @@ describe('ProfileService', () => {
         where: { userId: 1n, isDefault: true },
         data: { isDefault: false },
       });
-      expect(tx.userSettings.updateMany).toHaveBeenCalledWith({
+      expect(tx.userSettings.upsert).toHaveBeenCalledWith({
         where: { userId: 1n },
-        data: { activeProfileId: 'profile-1' },
+        create: { userId: 1n, activeProfileId: 'profile-1' },
+        update: { activeProfileId: 'profile-1' },
       });
       const args = firstArg<{ data: { isDefault?: boolean } }>(
         tx.studyProfile.update,
@@ -256,8 +267,9 @@ describe('ProfileService', () => {
     });
 
     it('đổi ngôn ngữ gây trùng → PROFILE_LANGUAGES_CONFLICT', async () => {
-      const { service, prisma } = createSetup();
+      const { service, prisma, languages } = createSetup();
       prisma.studyProfile.findFirst.mockResolvedValue(profileRow());
+      languages.findExistingIds.mockResolvedValue(new Set([1, 2, 3]));
 
       await expect(
         service.update(1n, 'profile-1', { secondary_language_id: 3 }),

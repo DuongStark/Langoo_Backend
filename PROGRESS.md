@@ -49,6 +49,7 @@
 | 2026-09-26 | Quy ước commit (§1.4 PROMPT-BACKEND.md): 1 commit = 1 đơn vị logic hoàn chỉnh (code + test + docs của cùng một việc), mỗi milestone ~2–4 commit — không tách lẻ từng file, không dồn cả milestone | Chủ dự án yêu cầu cân bằng (M0–M2 commit hơi lẻ) |
 | 2026-09-27 | Register tạo kèm `user_settings` mặc định (sửa nhỏ M2); user cũ thiếu row: `GET` trả mặc định, `PATCH` upsert | Mọi user mới luôn có settings — M6 (timezone) không phải fallback khắp nơi |
 | 2026-09-27 | Quy tắc xoá profile: không xoá default khi còn hồ sơ khác (409), không xoá hồ sơ duy nhất (409) | Tránh xoá cascade mất collection/SRS do nhầm |
+| 2026-09-27 | M3 hardening: mutation profile/settings khóa dòng `app.users` trong transaction; profile đầu tiên luôn default; settings legacy giữ active profile; DTO chặn null, tên rỗng, UUID sai và timezone numeric offset | Giữ bất biến một default/user và tránh race làm mất active profile hoặc trả lỗi DB 500 |
 | 2026-09-27 | Validate id ngôn ngữ bằng đọc `public.language` qua `$queryRaw` (không hardcode, không map Prisma public) | Đúng bất biến: Prisma chỉ map `app`; ngôn ngữ thêm mới không cần sửa code |
 | 2026-09-27 | `GET /v1/profiles` không phân trang | Mỗi user có vài hồ sơ cố định; pagination chỉ đặt ở tài nguyên lớn (M5+) |
 | 2026-09-27 | `JwtModule` đặt `global: true` trong AuthModule | Module khác (users, srs…) chỉ cần import AuthModule để dùng `JwtAuthGuard` |

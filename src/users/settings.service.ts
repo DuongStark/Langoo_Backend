@@ -6,6 +6,7 @@ import { LanguageRepository } from '../db/repositories/language.repository';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { DEFAULT_DAILY_GOAL, DEFAULT_TIMEZONE } from './settings.constants';
 import { SettingsResponse } from './types/users.types';
+import { lockUser } from './user-lock';
 
 interface SettingsRow {
   timezone: string;
@@ -71,43 +72,69 @@ export class SettingsService {
       }
     }
 
-    if (dto.active_profile_id !== undefined && dto.active_profile_id !== null) {
-      const profile = await this.prisma.studyProfile.findFirst({
-        where: { id: dto.active_profile_id, userId },
-        select: { id: true },
-      });
-      if (!profile) {
-        throw new DomainException(
-          'SETTINGS_ACTIVE_PROFILE_INVALID',
-          'Hồ sơ học không tồn tại hoặc không thuộc bạn',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-    }
+    const row = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
 
-    const row = await this.prisma.userSettings.upsert({
-      where: { userId },
-      create: {
-        userId,
-        timezone: timezone ?? DEFAULT_TIMEZONE,
-        uiLanguageId: dto.ui_language_id ?? null,
-        dailyGoal: dto.daily_goal ?? DEFAULT_DAILY_GOAL,
-        notify: (dto.notify ?? {}) as Prisma.InputJsonValue,
-        activeProfileId: dto.active_profile_id ?? null,
-      },
-      update: {
-        ...(timezone !== undefined ? { timezone } : {}),
-        ...(dto.ui_language_id !== undefined
-          ? { uiLanguageId: dto.ui_language_id }
-          : {}),
-        ...(dto.daily_goal !== undefined ? { dailyGoal: dto.daily_goal } : {}),
-        ...(dto.notify !== undefined
-          ? { notify: dto.notify as Prisma.InputJsonValue }
-          : {}),
-        ...(dto.active_profile_id !== undefined
-          ? { activeProfileId: dto.active_profile_id }
-          : {}),
-      },
+      const existingSettings = await tx.userSettings.findUnique({
+        where: { userId },
+      });
+
+      if (
+        dto.active_profile_id !== undefined &&
+        dto.active_profile_id !== null
+      ) {
+        const profile = await tx.studyProfile.findFirst({
+          where: { id: dto.active_profile_id, userId },
+          select: { id: true },
+        });
+        if (!profile) {
+          throw new DomainException(
+            'SETTINGS_ACTIVE_PROFILE_INVALID',
+            'Hồ sơ học không tồn tại hoặc không thuộc bạn',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+      }
+
+      let activeProfileId: string | null;
+      if (dto.active_profile_id !== undefined) {
+        activeProfileId = dto.active_profile_id;
+      } else if (existingSettings) {
+        activeProfileId = existingSettings.activeProfileId;
+      } else {
+        const defaultProfile = await tx.studyProfile.findFirst({
+          where: { userId, isDefault: true },
+          select: { id: true },
+        });
+        activeProfileId = defaultProfile?.id ?? null;
+      }
+
+      return tx.userSettings.upsert({
+        where: { userId },
+        create: {
+          userId,
+          timezone: timezone ?? DEFAULT_TIMEZONE,
+          uiLanguageId: dto.ui_language_id ?? null,
+          dailyGoal: dto.daily_goal ?? DEFAULT_DAILY_GOAL,
+          notify: (dto.notify ?? {}) as Prisma.InputJsonValue,
+          activeProfileId,
+        },
+        update: {
+          ...(timezone !== undefined ? { timezone } : {}),
+          ...(dto.ui_language_id !== undefined
+            ? { uiLanguageId: dto.ui_language_id }
+            : {}),
+          ...(dto.daily_goal !== undefined
+            ? { dailyGoal: dto.daily_goal }
+            : {}),
+          ...(dto.notify !== undefined
+            ? { notify: dto.notify as Prisma.InputJsonValue }
+            : {}),
+          ...(dto.active_profile_id !== undefined
+            ? { activeProfileId: dto.active_profile_id }
+            : {}),
+        },
+      });
     });
 
     return toSettingsResponse(row);
@@ -116,6 +143,14 @@ export class SettingsService {
 
 /** Kiểm tra múi giờ IANA hợp lệ bằng Intl (không cần thư viện ngoài). */
 export function assertValidTimezone(timezone: string): void {
+  // Numeric offsets are accepted by Intl but are not IANA zone identifiers.
+  if (/^[+-]/.test(timezone)) {
+    throw new DomainException(
+      'SETTINGS_TIMEZONE_INVALID',
+      `Múi giờ không hợp lệ: "${timezone}"`,
+      HttpStatus.BAD_REQUEST,
+    );
+  }
   try {
     new Intl.DateTimeFormat('en-US', { timeZone: timezone });
   } catch {

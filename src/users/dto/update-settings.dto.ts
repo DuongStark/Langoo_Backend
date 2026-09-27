@@ -8,6 +8,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 export class UpdateSettingsDto {
@@ -15,7 +16,7 @@ export class UpdateSettingsDto {
     example: 'Asia/Ho_Chi_Minh',
     description: 'Múi giờ IANA — nguồn tính "ngày học"/streak',
   })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsString()
   @MaxLength(64)
   timezone?: string;
@@ -27,7 +28,7 @@ export class UpdateSettingsDto {
   ui_language_id?: number | null;
 
   @ApiPropertyOptional({ example: 20, minimum: 1, maximum: 500 })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsInt()
   @Min(1)
   @Max(500)
@@ -38,7 +39,7 @@ export class UpdateSettingsDto {
     additionalProperties: true,
     description: 'Tuỳ chọn thông báo (cấu trúc khoá chốt ở M9)',
   })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsObject()
   notify?: Record<string, unknown>;
 

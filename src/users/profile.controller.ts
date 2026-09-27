@@ -29,6 +29,7 @@ import {
   ProfileResponseDto,
 } from './dto/profile-response.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { ProfileIdDto } from './dto/profile-id.dto';
 import { ProfileService } from './profile.service';
 import { DeletedProfileResponse, ProfileResponse } from './types/users.types';
 
@@ -71,9 +72,9 @@ export class ProfileController {
   })
   get(
     @CurrentUser() payload: JwtPayload,
-    @Param('id') id: string,
+    @Param() params: ProfileIdDto,
   ): Promise<ProfileResponse> {
-    return this.profileService.get(BigInt(payload.sub), id);
+    return this.profileService.get(BigInt(payload.sub), params.id);
   }
 
   @Patch(':id')
@@ -82,10 +83,10 @@ export class ProfileController {
   @ApiConflictResponse({ type: ErrorResponseDto })
   update(
     @CurrentUser() payload: JwtPayload,
-    @Param('id') id: string,
+    @Param() params: ProfileIdDto,
     @Body() dto: UpdateProfileDto,
   ): Promise<ProfileResponse> {
-    return this.profileService.update(BigInt(payload.sub), id, dto);
+    return this.profileService.update(BigInt(payload.sub), params.id, dto);
   }
 
   @Delete(':id')
@@ -96,8 +97,8 @@ export class ProfileController {
   @ApiConflictResponse({ type: ErrorResponseDto })
   remove(
     @CurrentUser() payload: JwtPayload,
-    @Param('id') id: string,
+    @Param() params: ProfileIdDto,
   ): Promise<DeletedProfileResponse> {
-    return this.profileService.remove(BigInt(payload.sub), id);
+    return this.profileService.remove(BigInt(payload.sub), params.id);
   }
 }

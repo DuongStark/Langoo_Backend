@@ -1,6 +1,6 @@
 import { PrismaService } from '../db/prisma.service';
 import { LanguageRepository } from '../db/repositories/language.repository';
-import { SettingsService } from './settings.service';
+import { assertValidTimezone, SettingsService } from './settings.service';
 
 function firstArg<T>(mock: jest.Mock): T {
   const call = mock.mock.calls[0] as unknown[];
@@ -25,12 +25,23 @@ function createSetup(): {
   prisma: {
     userSettings: { findUnique: jest.Mock; upsert: jest.Mock };
     studyProfile: { findFirst: jest.Mock };
+    $transaction: jest.Mock;
   };
   languages: { findExistingIds: jest.Mock };
 } {
+  const userSettings = { findUnique: jest.fn(), upsert: jest.fn() };
+  const studyProfile = { findFirst: jest.fn() };
+  const tx = {
+    $queryRaw: jest.fn(),
+    userSettings,
+    studyProfile,
+  };
   const prisma = {
-    userSettings: { findUnique: jest.fn(), upsert: jest.fn() },
-    studyProfile: { findFirst: jest.fn() },
+    userSettings,
+    studyProfile,
+    $transaction: jest.fn((fn: (client: typeof tx) => Promise<unknown>) =>
+      fn(tx),
+    ),
   };
   const languages = { findExistingIds: jest.fn() };
   const service = new SettingsService(
@@ -143,6 +154,29 @@ describe('SettingsService', () => {
         service.update(1n, { timezone: 'Sai/Mui' }),
       ).rejects.toMatchObject({ code: 'SETTINGS_TIMEZONE_INVALID' });
       expect(prisma.userSettings.upsert).not.toHaveBeenCalled();
+    });
+
+    it('từ chối timezone là numeric offset', () => {
+      expect(() => assertValidTimezone('+07:00')).toThrow(
+        'Múi giờ không hợp lệ',
+      );
+      expect(() => assertValidTimezone('Asia/Tokyo')).not.toThrow();
+    });
+
+    it('user cũ chưa có settings → create giữ profile default làm active', async () => {
+      const { service, prisma } = createSetup();
+      prisma.userSettings.findUnique.mockResolvedValue(null);
+      prisma.studyProfile.findFirst.mockResolvedValue({ id: 'profile-1' });
+      prisma.userSettings.upsert.mockResolvedValue(
+        settingsRow({ dailyGoal: 25, activeProfileId: 'profile-1' }),
+      );
+
+      await service.update(1n, { daily_goal: 25 });
+
+      const args = firstArg<{ create: Record<string, unknown> }>(
+        prisma.userSettings.upsert,
+      );
+      expect(args.create.activeProfileId).toBe('profile-1');
     });
 
     it('active_profile_id không thuộc user → SETTINGS_ACTIVE_PROFILE_INVALID', async () => {

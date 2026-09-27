@@ -6,6 +6,7 @@ import { LanguageRepository } from '../db/repositories/language.repository';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { DeletedProfileResponse, ProfileResponse } from './types/users.types';
+import { lockUser } from './user-lock';
 
 interface ProfileRow {
   id: string;
@@ -54,9 +55,10 @@ export class ProfileService {
     ]);
 
     const created = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
       const existingCount = await tx.studyProfile.count({ where: { userId } });
       // Hồ sơ đầu tiên tự động là mặc định (DB có partial unique: 1 default/user).
-      const isDefault = dto.is_default ?? existingCount === 0;
+      const isDefault = existingCount === 0 || dto.is_default === true;
       if (isDefault) {
         await tx.studyProfile.updateMany({
           where: { userId, isDefault: true },
@@ -77,9 +79,10 @@ export class ProfileService {
       });
 
       if (isDefault) {
-        await tx.userSettings.updateMany({
+        await tx.userSettings.upsert({
           where: { userId },
-          data: { activeProfileId: profile.id },
+          create: { userId, activeProfileId: profile.id },
+          update: { activeProfileId: profile.id },
         });
       }
       return profile;
@@ -93,34 +96,46 @@ export class ProfileService {
     profileId: string,
     dto: UpdateProfileDto,
   ): Promise<ProfileResponse> {
-    const existing = await this.findOwned(userId, profileId);
-
-    const primary = dto.primary_language_id ?? existing.primaryLanguageId;
-    const secondary =
-      dto.secondary_language_id === undefined
-        ? existing.secondaryLanguageId
-        : dto.secondary_language_id;
-    const support = dto.support_language_id ?? existing.supportLanguageId;
-
-    assertLanguagesDiffer(primary, secondary, support);
     const languagesTouched =
       dto.primary_language_id !== undefined ||
       dto.secondary_language_id !== undefined ||
       dto.support_language_id !== undefined;
     if (languagesTouched) {
       await this.assertLanguagesExist([
-        primary,
-        ...(secondary != null ? [secondary] : []),
-        support,
+        ...(dto.primary_language_id !== undefined
+          ? [dto.primary_language_id]
+          : []),
+        ...(dto.secondary_language_id != null
+          ? [dto.secondary_language_id]
+          : []),
+        ...(dto.support_language_id !== undefined
+          ? [dto.support_language_id]
+          : []),
       ]);
     }
 
-    if (dto.is_default === false && existing.isDefault) {
-      throw profileIsDefault();
-    }
-
-    const makeDefault = dto.is_default === true && !existing.isDefault;
     const updated = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const existing = await tx.studyProfile.findFirst({
+        where: { id: profileId, userId },
+      });
+      if (!existing) {
+        throw profileNotFound();
+      }
+
+      const primary = dto.primary_language_id ?? existing.primaryLanguageId;
+      const secondary =
+        dto.secondary_language_id === undefined
+          ? existing.secondaryLanguageId
+          : dto.secondary_language_id;
+      const support = dto.support_language_id ?? existing.supportLanguageId;
+
+      assertLanguagesDiffer(primary, secondary, support);
+      if (dto.is_default === false && existing.isDefault) {
+        throw profileIsDefault();
+      }
+
+      const makeDefault = dto.is_default === true && !existing.isDefault;
       if (makeDefault) {
         await tx.studyProfile.updateMany({
           where: { userId, isDefault: true },
@@ -144,9 +159,10 @@ export class ProfileService {
         },
       });
       if (makeDefault) {
-        await tx.userSettings.updateMany({
+        await tx.userSettings.upsert({
           where: { userId },
-          data: { activeProfileId: profileId },
+          create: { userId, activeProfileId: profileId },
+          update: { activeProfileId: profileId },
         });
       }
       return profile;
@@ -159,21 +175,29 @@ export class ProfileService {
     userId: bigint,
     profileId: string,
   ): Promise<DeletedProfileResponse> {
-    const existing = await this.findOwned(userId, profileId);
-    const count = await this.prisma.studyProfile.count({ where: { userId } });
+    await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const existing = await tx.studyProfile.findFirst({
+        where: { id: profileId, userId },
+      });
+      if (!existing) {
+        throw profileNotFound();
+      }
 
-    if (count <= 1) {
-      throw new DomainException(
-        'PROFILE_LAST_CANNOT_DELETE',
-        'Không thể xoá hồ sơ duy nhất',
-        HttpStatus.CONFLICT,
-      );
-    }
-    if (existing.isDefault) {
-      throw profileIsDefault();
-    }
+      const count = await tx.studyProfile.count({ where: { userId } });
+      if (count <= 1) {
+        throw new DomainException(
+          'PROFILE_LAST_CANNOT_DELETE',
+          'Không thể xoá hồ sơ duy nhất',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (existing.isDefault) {
+        throw profileIsDefault();
+      }
 
-    await this.prisma.studyProfile.delete({ where: { id: profileId } });
+      await tx.studyProfile.delete({ where: { id: profileId } });
+    });
     return { id: profileId, deleted_at: new Date().toISOString() };
   }
 
@@ -186,11 +210,7 @@ export class ProfileService {
       where: { id: profileId, userId },
     });
     if (!profile) {
-      throw new DomainException(
-        'PROFILE_NOT_FOUND',
-        'Không tìm thấy hồ sơ học',
-        HttpStatus.NOT_FOUND,
-      );
+      throw profileNotFound();
     }
     return profile;
   }
@@ -232,6 +252,14 @@ function profileIsDefault(): DomainException {
     'PROFILE_IS_DEFAULT',
     'Hồ sơ đang là mặc định — hãy đặt hồ sơ khác làm mặc định trước',
     HttpStatus.CONFLICT,
+  );
+}
+
+function profileNotFound(): DomainException {
+  return new DomainException(
+    'PROFILE_NOT_FOUND',
+    'Không tìm thấy hồ sơ học',
+    HttpStatus.NOT_FOUND,
   );
 }
 

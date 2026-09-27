@@ -141,6 +141,7 @@ describe('Profile & Settings (e2e — langoo_test)', () => {
           primary_language_id: 2,
           secondary_language_id: 1,
           support_language_id: 3,
+          is_default: false,
         })
         .expect(201);
       profile1 = res.body as ProfileBody;
@@ -161,6 +162,17 @@ describe('Profile & Settings (e2e — langoo_test)', () => {
         .set('Authorization', `Bearer ${tokenA}`)
         .expect(200);
       expect((settings.body as SettingsBody).active_profile_id).toBe(
+        profile1.id,
+      );
+
+      // User cũ mất row settings vẫn giữ default profile khi PATCH field khác.
+      await prisma.userSettings.delete({ where: { userId: userIdA } });
+      const legacyPatch = await request(server)
+        .patch('/v1/me/settings')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({ daily_goal: 25 })
+        .expect(200);
+      expect((legacyPatch.body as SettingsBody).active_profile_id).toBe(
         profile1.id,
       );
     });
@@ -277,6 +289,41 @@ describe('Profile & Settings (e2e — langoo_test)', () => {
         .send({ name: 'Lạ', primary_language_id: 99, support_language_id: 3 })
         .expect(400);
       expect(missing.body).toMatchObject({ code: 'LANGUAGE_NOT_FOUND' });
+
+      const invalidName = await request(server)
+        .post('/v1/profiles')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({ name: '   ', primary_language_id: 2, support_language_id: 3 })
+        .expect(400);
+      expect(invalidName.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+      const trimmedName = await request(server)
+        .post('/v1/profiles')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({
+          name: '  Trim me  ',
+          primary_language_id: 1,
+          support_language_id: 3,
+        })
+        .expect(201);
+      expect((trimmedName.body as ProfileBody).name).toBe('Trim me');
+
+      const invalidPatch = await request(server)
+        .patch(`/v1/profiles/${profile1.id}`)
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({ name: null, primary_language_id: null })
+        .expect(400);
+      expect(invalidPatch.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+      for (const method of ['get', 'patch', 'delete'] as const) {
+        const invalidId = request(server)
+          [method](`/v1/profiles/not-a-uuid`)
+          .set('Authorization', `Bearer ${tokenA}`);
+        const response =
+          method === 'patch' ? await invalidId.send({}) : await invalidId;
+        expect(response.status).toBe(400);
+        expect(response.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+      }
     });
   });
 
@@ -309,6 +356,16 @@ describe('Profile & Settings (e2e — langoo_test)', () => {
         daily_goal: 30,
         notify: { review_reminder: true },
       });
+
+      const cleared = await request(server)
+        .patch('/v1/me/settings')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({ ui_language_id: null, active_profile_id: null })
+        .expect(200);
+      expect(cleared.body).toMatchObject({
+        ui_language_id: null,
+        active_profile_id: null,
+      });
     });
 
     it('múi giờ sai → 400 SETTINGS_TIMEZONE_INVALID', async () => {
@@ -318,6 +375,22 @@ describe('Profile & Settings (e2e — langoo_test)', () => {
         .send({ timezone: 'Sai/Mui' })
         .expect(400);
       expect(res.body).toMatchObject({ code: 'SETTINGS_TIMEZONE_INVALID' });
+
+      const offset = await request(server)
+        .patch('/v1/me/settings')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({ timezone: '+07:00' })
+        .expect(400);
+      expect(offset.body).toMatchObject({ code: 'SETTINGS_TIMEZONE_INVALID' });
+
+      for (const body of [{ daily_goal: null }, { notify: null }]) {
+        const invalid = await request(server)
+          .patch('/v1/me/settings')
+          .set('Authorization', `Bearer ${tokenA}`)
+          .send(body)
+          .expect(400);
+        expect(invalid.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+      }
     });
 
     it('active_profile_id của user khác → 400 SETTINGS_ACTIVE_PROFILE_INVALID', async () => {
@@ -330,6 +403,56 @@ describe('Profile & Settings (e2e — langoo_test)', () => {
         code: 'SETTINGS_ACTIVE_PROFILE_INVALID',
       });
     });
+  });
+
+  it('mutation profile đồng thời vẫn giữ đúng một default', async () => {
+    const raceUser = await registerUser(`e2e-m3-race-${runId}@langoo.test`);
+    const concurrentCreates = await Promise.all(
+      [1, 2].map((index) =>
+        request(server)
+          .post('/v1/profiles')
+          .set('Authorization', `Bearer ${raceUser.accessToken}`)
+          .send({
+            name: `Đồng thời ${index}`,
+            primary_language_id: index === 1 ? 2 : 1,
+            support_language_id: 3,
+          }),
+      ),
+    );
+    expect(concurrentCreates.map((response) => response.status)).toEqual([
+      201, 201,
+    ]);
+
+    const profilesResponse = await request(server)
+      .get('/v1/profiles')
+      .set('Authorization', `Bearer ${raceUser.accessToken}`)
+      .expect(200);
+    const profiles = (profilesResponse.body as { data: ProfileBody[] }).data;
+    expect(profiles).toHaveLength(2);
+    expect(profiles.filter((profile) => profile.is_default)).toHaveLength(1);
+
+    const candidate = profiles.find((profile) => !profile.is_default);
+    expect(candidate).toBeDefined();
+    const [setDefault, remove] = await Promise.all([
+      request(server)
+        .patch(`/v1/profiles/${candidate!.id}`)
+        .set('Authorization', `Bearer ${raceUser.accessToken}`)
+        .send({ is_default: true }),
+      request(server)
+        .delete(`/v1/profiles/${candidate!.id}`)
+        .set('Authorization', `Bearer ${raceUser.accessToken}`),
+    ]);
+    expect(
+      `${setDefault.status}/${remove.status}` === '200/409' ||
+        `${setDefault.status}/${remove.status}` === '404/200',
+    ).toBe(true);
+
+    const afterRaceResponse = await request(server)
+      .get('/v1/profiles')
+      .set('Authorization', `Bearer ${raceUser.accessToken}`)
+      .expect(200);
+    const afterRace = (afterRaceResponse.body as { data: ProfileBody[] }).data;
+    expect(afterRace.filter((profile) => profile.is_default)).toHaveLength(1);
   });
 
   it('không có token → 401 AUTH_TOKEN_MISSING', async () => {
