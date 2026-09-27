@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
 import { PrismaModule } from './db/prisma.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
+import { CollectionsModule } from './collections/collections.module';
 import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 
@@ -41,6 +42,7 @@ import { UsersModule } from './users/users.module';
     PrismaModule,
     AuthModule,
     DictionaryModule,
+    CollectionsModule,
     UsersModule,
     HealthModule,
   ],
