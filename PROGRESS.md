@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-27 (M3 — hoàn thành, chờ review)
+> Cập nhật lần cuối: 2026-09-27 (M4 — hoàn thành, chờ review)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -11,7 +11,7 @@
 | M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ✅ hoàn thành (chờ review) |
 | M2 | Auth (register/login/refresh/logout/me) | ✅ hoàn thành (chờ review) |
 | M3 | Profile & settings | ✅ hoàn thành (chờ review) |
-| M4 | Dictionary (đọc) | ⬜ chờ |
+| M4 | Dictionary (đọc) | ✅ hoàn thành (chờ review) |
 | M5 | Collections | ⬜ chờ |
 | M6 | SRS | ⬜ chờ |
 | M7 | Review modes & sessions | ⬜ chờ |
@@ -52,6 +52,12 @@
 | 2026-09-27 | Validate id ngôn ngữ bằng đọc `public.language` qua `$queryRaw` (không hardcode, không map Prisma public) | Đúng bất biến: Prisma chỉ map `app`; ngôn ngữ thêm mới không cần sửa code |
 | 2026-09-27 | `GET /v1/profiles` không phân trang | Mỗi user có vài hồ sơ cố định; pagination chỉ đặt ở tài nguyên lớn (M5+) |
 | 2026-09-27 | `JwtModule` đặt `global: true` trong AuthModule | Module khác (users, srs…) chỉ cần import AuthModule để dùng `JwtAuthGuard` |
+| 2026-09-27 | Dictionary **đọc công khai**; `search` dùng `OptionalJwtAuthGuard` — có Bearer hợp lệ thì ghi lịch sử, token bẩn vẫn 401; history/gloss-report yêu cầu Bearer | Chủ dự án chốt; tra từ trước khi đăng nhập vẫn dùng được |
+| 2026-09-27 | `LanguageRepository` chuyển từ `src/users` sang `src/db/repositories` + DbModule (global) cung cấp | Dùng chung users/dictionary/settings; đúng bất biến chỉ đọc `public.language` |
+| 2026-09-27 | Search dùng `ILIKE` escape wildcard, rank exact → prefix → frequency; chưa có `pg_trgm/unaccent` | PostgreSQL nhúng thiếu extension (CONTEXT §13); production bổ sung index sau |
+| 2026-09-27 | `pronunciations`/`forms` trả theo **lexeme** của sense; `examples` đọc `core.example.sense_id` (không dùng `example_sense` vì chưa chạy mapping) | Đúng dữ liệu hiện có; khi chạy `run_mapping.py` có thể mở rộng |
+| 2026-09-27 | `search_history` chỉ đọc 50 dòng gần nhất; job dọn định kỳ chưa làm | Để M12 (hardening) — đã ghi backlog |
+| 2026-09-27 | M2 hardening: refresh rotation cập nhật nguyên tử có điều kiện; `device` phải là object; `JWT_ACCESS_TTL` dùng parser chung và validate lúc khởi động | Chặn reuse token đồng thời, trả 400 cho input sai kiểu, và tránh ghi DB rồi mới lỗi vì cấu hình TTL |
 
 ## Backlog
 
@@ -61,7 +67,9 @@
 - Prisma 7 dùng connection pool của `pg` (không còn pool mặc định của Prisma) — cấu hình `max`/`connectionTimeoutMillis` cho `PrismaPg` khi vào giai đoạn tải thật (M12 hardening).
 - Rate limit cho `/auth/login` + `/auth/register` (chống brute force) — theo kế hoạch M12, chưa làm ở M2.
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — chốt cùng M9 (reminders).
+- Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
+- Production: bổ sung `pg_trgm` + `unaccent` để tra không dấu/giống âm (CONTEXT §13).
 
 ## Kế tiếp dự kiến
 
-- **M4 — Dictionary (đọc):** search (`serve.dictionary_search`), sense detail (`serve.sense_card` + ví dụ/phát âm/forms), kanji detail (`serve.kanji_card`), sense→cặp song ngữ (`serve.sense_pair`), `search_history`, `gloss_report`.
+- **M5 — Collections:** CRUD collection; thêm item (1–2 face, sinh 2 `srs_state`/face trong transaction); sửa meaning_vi/note/tag; lọc theo ngôn ngữ; clone từ `core.deck`.

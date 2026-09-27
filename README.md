@@ -21,7 +21,8 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M1 — Data layer** đã xong (chờ review): `prisma/schema.prisma` map 32 bảng schema `app` (Prisma 7 + adapter-pg), `PrismaService`, repository mẫu `serve.sense_card` + unit/e2e test. Xem [`PROGRESS.md`](PROGRESS.md).
 - ✅ **M2 — Auth** đã xong (chờ review): register / login / refresh (xoay vòng token) / logout / me; argon2id; refresh token chỉ lưu SHA-256; ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
 - ✅ **M3 — Profile & settings** đã xong (chờ review): CRUD hồ sơ học (default tự động, chống xoá nhầm), cài đặt timezone/daily_goal/notify; ví dụ curl tại [`docs/api/profiles-settings.md`](docs/api/profiles-settings.md).
-- ⬜ Backend đang chờ duyệt **M4 — Dictionary (đọc)**.
+- ✅ **M4 — Dictionary (đọc)** đã xong (chờ review): tra từ (Anh–Việt, Nhật–Việt), chi tiết nghĩa/kanji, cặp song ngữ curated, lịch sử tra từ, báo lỗi gloss; ví dụ curl tại [`docs/api/dictionary.md`](docs/api/dictionary.md).
+- ⬜ Backend đang chờ duyệt **M5 — Collections**.
 
 ## Quy tắc vàng
 
