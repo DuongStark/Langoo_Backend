@@ -21,7 +21,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M1 — Data layer** đã xong (chờ review): `prisma/schema.prisma` map 32 bảng schema `app` (Prisma 7 + adapter-pg), `PrismaService`, repository mẫu `serve.sense_card` + unit/e2e test. Xem [`PROGRESS.md`](PROGRESS.md).
 - ✅ **M2 — Auth** đã xong (chờ review): register / login / refresh (xoay vòng token) / logout / me; argon2id; refresh token chỉ lưu SHA-256; ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
 - ✅ **M3 — Profile & settings** đã xong (chờ review): CRUD hồ sơ học (default tự động, chống xoá nhầm), cài đặt timezone/daily_goal/notify; ví dụ curl tại [`docs/api/profiles-settings.md`](docs/api/profiles-settings.md).
-- ✅ **M4 — Dictionary (đọc)** đã xong phần chính nhưng **đang vá M4.1** theo kết quả review độc lập (7 lỗi: thiếu endpoint lexeme→senses, links trùng, input biên gây 500, cursor search, romaji) — xem Backlog trong [`PROGRESS.md`](PROGRESS.md). Ví dụ curl: [`docs/api/dictionary.md`](docs/api/dictionary.md).
+- ✅ **M4 — Dictionary (đọc)** đã hoàn tất cả phần chính và hardening M4.1: nối lexeme→senses, loại links trùng, chặn input biên, cursor search và romaji — xem nhật ký trong [`PROGRESS.md`](PROGRESS.md). Ví dụ curl: [`docs/api/dictionary.md`](docs/api/dictionary.md).
 - ✅ **M5 — Collections** đã xong (chờ review): CRUD bộ sưu tập (archive mềm), thêm từ 1–2 face sinh 2 `srs_state`/face trong transaction, tag, lọc theo ngôn ngữ, clone deck hệ thống; ví dụ curl tại [`docs/api/collections.md`](docs/api/collections.md).
 - ⬜ Backend đang chờ duyệt **M6 — SRS**.
 
