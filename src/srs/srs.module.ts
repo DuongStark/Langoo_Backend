@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { DueRepository } from './repositories/due.repository';
 import { SrsStatsRepository } from './repositories/srs-stats.repository';
+import { ReviewEngine } from './review-engine.service';
 import { SrsController } from './srs.controller';
 import { SrsService } from './srs.service';
 
@@ -12,7 +13,7 @@ import { SrsService } from './srs.service';
 @Module({
   imports: [AuthModule],
   controllers: [SrsController],
-  providers: [SrsService, DueRepository, SrsStatsRepository],
-  exports: [SrsService],
+  providers: [SrsService, ReviewEngine, DueRepository, SrsStatsRepository],
+  exports: [SrsService, ReviewEngine, DueRepository],
 })
 export class SrsModule {}

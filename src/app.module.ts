@@ -11,6 +11,7 @@ import { DictionaryModule } from './dictionary/dictionary.module';
 import { CollectionsModule } from './collections/collections.module';
 import { HealthModule } from './health/health.module';
 import { SrsModule } from './srs/srs.module';
+import { SessionsModule } from './sessions/sessions.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -45,6 +46,7 @@ import { UsersModule } from './users/users.module';
     DictionaryModule,
     CollectionsModule,
     SrsModule,
+    SessionsModule,
     UsersModule,
     HealthModule,
   ],

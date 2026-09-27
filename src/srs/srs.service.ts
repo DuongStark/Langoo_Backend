@@ -1,6 +1,5 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainException } from '../common/errors/domain.exception';
-import { isUniqueViolation } from '../common/errors/prisma-errors';
 import { decodeDueCursor, encodeDueCursor } from '../common/pagination/cursor';
 import { nextDayStartUtc, startOfDayUtc } from '../common/time/timezone';
 import { PrismaService } from '../db/prisma.service';
@@ -13,9 +12,9 @@ import { CreateReviewDto } from './dto/create-review.dto';
 import { DueQueryDto } from './dto/due-query.dto';
 import { DueRepository, DueRow } from './repositories/due.repository';
 import { SrsStatsRepository } from './repositories/srs-stats.repository';
+import { ReviewEngine } from './review-engine.service';
 import { LEARN_AHEAD_MINUTES } from './scheduler/anki.constants';
-import { AnkiScheduler } from './scheduler/anki-scheduler';
-import { CardState, Rating, SchedulerState } from './scheduler/anki.types';
+import { Rating } from './scheduler/anki.types';
 import { DueBucket, DueCandidate, selectDueQueue } from './scheduler/queue';
 import {
   DueCard,
@@ -40,14 +39,15 @@ interface ResolvedProfile {
   srsReviewPerDay: number;
 }
 
+export type { ResolvedProfile };
+
 @Injectable()
 export class SrsService {
-  private readonly scheduler = new AnkiScheduler();
-
   constructor(
     private readonly prisma: PrismaService,
     private readonly dueRepo: DueRepository,
     private readonly statsRepo: SrsStatsRepository,
+    private readonly reviewEngine: ReviewEngine,
   ) {}
 
   // ------------------------------------------------------------------ due
@@ -177,93 +177,21 @@ export class SrsService {
         );
       }
 
-      const schedulerState: SchedulerState = {
-        state: current.state as CardState,
-        easeFactor: current.easeFactor,
-        learningStep: current.learningStep,
-        intervalDays: current.scheduledDays ?? 0,
-      };
-      const schedule = this.scheduler.schedule(schedulerState, rating, now);
-
-      const log = await tx.reviewLog.create({
-        data: {
-          srsId: current.id,
-          userId,
-          faceId: current.faceId,
-          rating,
-          mode: dto.mode ?? 'flashcard',
-          elapsedMs: dto.elapsed_ms ?? null,
-          reviewedAt: now,
-          prevState: current.state,
-          clientReviewId: dto.client_review_id ?? null,
-        },
-      });
-
-      const updated = await tx.srsState.update({
-        where: { id: current.id },
-        data: {
-          state: schedule.state,
-          dueAt: schedule.dueAt,
-          easeFactor: schedule.easeFactor,
-          learningStep: schedule.learningStep,
-          scheduledDays:
-            schedule.state === 'review' ? schedule.intervalDays : null,
-          elapsedDays: current.lastReviewAt
-            ? Math.floor(
-                (now.getTime() - current.lastReviewAt.getTime()) / 86_400_000,
-              )
+      const result = await this.reviewEngine.applyRating(tx, current, {
+        userId,
+        itemId,
+        rating,
+        mode: dto.mode ?? 'flashcard',
+        elapsedMs: dto.elapsed_ms ?? null,
+        clientReviewId: dto.client_review_id ?? null,
+        xpIdempotencyKey:
+          dto.client_review_id !== undefined
+            ? `review:${dto.client_review_id}`
             : null,
-          reps: { increment: 1 },
-          ...(current.state === 'review' && rating === 1
-            ? { lapses: { increment: 1 } }
-            : {}),
-          introducedAt:
-            current.state === 'new'
-              ? (current.introducedAt ?? now)
-              : current.introducedAt,
-          lastReviewAt: now,
-        },
+        timezone,
+        now,
       });
-
-      // Burying nội bộ (Anki): sibling new/review của cùng item tới hết ngày.
-      await tx.srsState.updateMany({
-        where: {
-          userId,
-          face: { itemId },
-          id: { not: srs.id },
-          state: { in: ['new', 'review'] },
-          OR: [{ buriedUntil: null }, { buriedUntil: { lte: now } }],
-        },
-        data: { buriedUntil: nextDayStartUtc(now, timezone) },
-      });
-
-      // XP thô +1 (cap/streak/level thuộc M8) — idempotent.
-      const rule = await tx.xpRule.findUnique({ where: { code: 'review' } });
-      const amount = rule?.amount ?? 1;
-      const idempotencyKey =
-        dto.client_review_id !== undefined
-          ? `review:${dto.client_review_id}`
-          : `review:${log.id.toString()}`;
-      let xpAmount = 0;
-      try {
-        await tx.xpEvent.create({
-          data: {
-            userId,
-            amount,
-            source: 'review',
-            refKind: 'review_log',
-            refId: log.id.toString(),
-            idempotencyKey,
-          },
-        });
-        xpAmount = amount;
-      } catch (error) {
-        if (!isUniqueViolation(error)) {
-          throw error;
-        }
-      }
-
-      return { log, state: updated, xpAmount };
+      return result;
     });
 
     return {
@@ -322,6 +250,93 @@ export class SrsService {
   }
 
   // ----------------------------------------------------------------- util
+  /** Public cho module sessions dùng chung quy tắc hồ sơ + timezone + daily cap. */
+  getProfileContext(userId: bigint): Promise<ResolvedProfile> {
+    return this.resolveProfile(userId);
+  }
+
+  /**
+   * Thẻ đến hạn (tôn trọng daily cap + learn-ahead) — dùng bởi phiên `review`.
+   * Trả về DueRow đã sắp theo queue Anki.
+   */
+  async collectDueRows(
+    userId: bigint,
+    options: { limit: number; collectionId?: string },
+  ): Promise<DueRow[]> {
+    const profile = await this.resolveProfile(userId);
+    const now = new Date();
+    const dayStart = startOfDayUtc(now, profile.timezone);
+    const dayCounts = await this.dueRepo.getDayCounts({
+      userId,
+      profileId: profile.id,
+      dayStart,
+    });
+    const caps = {
+      newRemaining: Math.max(
+        0,
+        profile.srsNewPerDay - dayCounts.introducedToday,
+      ),
+      reviewRemaining: Math.max(
+        0,
+        profile.srsReviewPerDay - dayCounts.reviewsToday,
+      ),
+    };
+    let candidates = await this.dueRepo.findCandidates({
+      userId,
+      profileId: profile.id,
+      primaryLanguageId: profile.primaryLanguageId,
+      secondaryLanguageId: profile.secondaryLanguageId,
+      now,
+      learnAheadMinutes: LEARN_AHEAD_MINUTES,
+      limit: CANDIDATE_LIMIT,
+    });
+    if (options.collectionId !== undefined) {
+      candidates = candidates.filter(
+        (row) => row.collection_id === options.collectionId,
+      );
+    }
+    const queue = selectDueQueue(
+      candidates.map(toCandidate),
+      caps,
+      null,
+      options.limit,
+    );
+    const bySrs = new Map(
+      candidates.map((row) => [row.srs_id.toString(), row]),
+    );
+    return queue.rows.map((entry) => getRow(bySrs, entry.srsId));
+  }
+
+  /** Bật/tắt suspend một thẻ (M7) — queue M6/M7 đã lọc `suspended = false`. */
+  async setSuspended(
+    userId: bigint,
+    faceId: string,
+    direction: string,
+    suspended: boolean,
+  ): Promise<{ srs_id: string; state: string; suspended: boolean }> {
+    const srs = await this.prisma.srsState.findFirst({
+      where: { faceId, direction, userId },
+      select: { id: true },
+    });
+    if (!srs) {
+      throw new DomainException(
+        'SRS_ITEM_NOT_FOUND',
+        'Không tìm thấy thẻ ôn',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const updated = await this.prisma.srsState.update({
+      where: { id: srs.id },
+      data: { suspended },
+      select: { id: true, state: true, suspended: true },
+    });
+    return {
+      srs_id: updated.id.toString(),
+      state: updated.state,
+      suspended: updated.suspended,
+    };
+  }
+
   private async resolveProfile(userId: bigint): Promise<ResolvedProfile> {
     const settings = await this.prisma.userSettings.findUnique({
       where: { userId },

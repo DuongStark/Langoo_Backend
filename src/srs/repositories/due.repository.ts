@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../db/prisma.service';
+import { Prisma } from '../../generated/prisma/client';
 
 export interface DueRow {
   srs_id: bigint;
@@ -16,6 +17,7 @@ export interface DueRow {
   reading: string | null;
   romanization: string | null;
   pos: string | null;
+  forms: string[];
   direction: string;
   state: string;
   due_at: Date;
@@ -73,6 +75,11 @@ export class DueRepository {
         lx.reading,
         lx.romanization,
         lx.pos,
+        (
+          SELECT coalesce(array_agg(fm.form_text ORDER BY fm.form_order), '{}')
+          FROM core.lexeme_form fm
+          WHERE fm.lexeme_id = lx.id
+        ) AS forms,
         s.direction,
         s.state,
         s.due_at
@@ -98,6 +105,77 @@ export class DueRepository {
             AND s.due_at <= ${learnAhead}
           )
         )
+      ORDER BY
+        CASE s.state
+          WHEN 'learning' THEN 0
+          WHEN 'relearning' THEN 0
+          WHEN 'review' THEN 1
+          ELSE 2
+        END,
+        s.due_at ASC,
+        s.id ASC
+      LIMIT ${limit}
+    `;
+  }
+
+  /** Nguồn thẻ cho phiên `practice` (ôn trước): bỏ điều kiện đến hạn, lọc collection tùy chọn. */
+  async findPracticeCandidates(
+    params: DueQueryParams & { collectionId?: string },
+  ): Promise<DueRow[]> {
+    const {
+      userId,
+      profileId,
+      primaryLanguageId,
+      secondaryLanguageId,
+      limit,
+      collectionId,
+    } = params;
+    const secondary = secondaryLanguageId ?? -1;
+    const collectionFilter =
+      collectionId !== undefined
+        ? Prisma.sql`AND i.collection_id = ${collectionId}::uuid`
+        : Prisma.sql``;
+
+    return this.prisma.$queryRaw<DueRow[]>`
+      SELECT
+        s.id                AS srs_id,
+        f.id                AS face_id,
+        f.item_id,
+        i.collection_id,
+        i.meaning_vi,
+        f.sense_id,
+        f.language_id,
+        f.role,
+        lg.code             AS lang_code,
+        lg.name_vi          AS lang_name_vi,
+        lx.lemma,
+        lx.reading,
+        lx.romanization,
+        lx.pos,
+        (
+          SELECT coalesce(array_agg(fm.form_text ORDER BY fm.form_order), '{}')
+          FROM core.lexeme_form fm
+          WHERE fm.lexeme_id = lx.id
+        ) AS forms,
+        s.direction,
+        s.state,
+        s.due_at
+      FROM app.srs_state s
+      JOIN app.collection_item_face f ON f.id = s.face_id
+      JOIN app.collection_item i ON i.id = f.item_id
+      JOIN app.collection c ON c.id = i.collection_id
+      JOIN core.sense se ON se.id = f.sense_id
+      JOIN core.lexeme lx ON lx.id = se.lexeme_id
+      JOIN public.language lg ON lg.id = f.language_id
+      WHERE s.user_id = ${userId}
+        AND s.profile_id = ${profileId}
+        AND c.profile_id = ${profileId}
+        AND c.archived_at IS NULL
+        AND i.status <> 'paused'
+        AND s.suspended = false
+        AND (s.buried_until IS NULL OR s.buried_until <= ${params.now})
+        AND (f.language_id = ${primaryLanguageId} OR f.language_id = ${secondary})
+        ${collectionFilter}
       ORDER BY
         CASE s.state
           WHEN 'learning' THEN 0

@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -24,6 +25,7 @@ import { JwtPayload } from '../auth/types/auth.types';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { DueQueryDto } from './dto/due-query.dto';
+import { SuspendCardDto } from './dto/suspend-card.dto';
 import {
   DueResultDto,
   ReviewResultDto,
@@ -87,5 +89,28 @@ export class SrsController {
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
   stats(@CurrentUser() payload: JwtPayload): Promise<StatsResult> {
     return this.srsService.stats(BigInt(payload.sub));
+  }
+
+  @Patch('cards')
+  @ApiOperation({ summary: 'Suspend/unsuspend một thẻ (face + direction)' })
+  @ApiOkResponse({
+    schema: {
+      example: { srs_id: '7', state: 'review', suspended: true },
+    },
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'SRS_ITEM_NOT_FOUND',
+  })
+  suspend(
+    @CurrentUser() payload: JwtPayload,
+    @Body() dto: SuspendCardDto,
+  ): Promise<{ srs_id: string; state: string; suspended: boolean }> {
+    return this.srsService.setSuspended(
+      BigInt(payload.sub),
+      dto.face_id,
+      dto.direction,
+      dto.suspended,
+    );
   }
 }
