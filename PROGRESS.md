@@ -11,7 +11,7 @@
 | M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ✅ hoàn thành (chờ review) |
 | M2 | Auth (register/login/refresh/logout/me) | ✅ hoàn thành (chờ review) |
 | M3 | Profile & settings | ✅ hoàn thành (chờ review) |
-| M4 | Dictionary (đọc) | ✅ hoàn thành (chờ review) |
+| M4 | Dictionary (đọc) | 🚧 cần vá M4.1 theo review (agent khác đang làm) |
 | M5 | Collections | ✅ hoàn thành (chờ review) |
 | M6 | SRS | ⬜ chờ |
 | M7 | Review modes & sessions | ⬜ chờ |
@@ -65,6 +65,8 @@
 | 2026-09-27 | Cursor keyset `(position, id)` base64url ở `src/common/pagination/cursor.ts` | Dùng lại cho M6+ (due list, history…), không offset |
 | 2026-09-27 | Tag user-scoped `/v1/tags`; `PATCH item.tag_ids` thay thế toàn bộ (gửi `[]` để bỏ hết) | Đơn giản, tránh nhiều endpoint gắn/gỡ lẻ tẻ |
 | 2026-09-27 | M2 hardening: refresh rotation cập nhật nguyên tử có điều kiện; `device` phải là object; `JWT_ACCESS_TTL` dùng parser chung và validate lúc khởi động | Chặn reuse token đồng thời, trả 400 cho input sai kiểu, và tránh ghi DB rồi mới lỗi vì cấu hình TTL |
+| 2026-09-27 | M3 hardening: mutation profile/settings khoá dòng `app.users` (`FOR UPDATE`) trong transaction; hồ sơ đầu tiên luôn default; upsert giữ active profile cho user cũ; DTO chặn null/rỗng/UUID sai/timezone offset | Giữ bất biến 1 default/user và chống race |
+| 2026-09-27 | **Rút kinh nghiệm sau review M4**: từ M6 trở đi, trước khi báo cáo milestone phải tự chạy "checklist kiểm biên" (xem Backlog) trên **mọi endpoint mới** | Review độc lập phát hiện 7 lỗi lớp input-biên/thiếu luồng/trùng lặp mà e2e cũ không phủ |
 
 ## Backlog
 
@@ -76,6 +78,25 @@
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — chốt cùng M9 (reminders).
 - Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
 - Production: bổ sung `pg_trgm` + `unaccent` để tra không dấu/giống âm (CONTEXT §13).
+
+### M4.1 — vá theo review độc lập (agent khác đang làm)
+
+Đã kiểm chứng trên code + `langoo_test` + server thật (2026-09-27):
+
+1. **[P1]** Thiếu đường nối search→nghĩa: search trả `lexeme_id`, không có endpoint lấy sense theo lexeme. `q=eat` → `lexeme_id:"4"` nhưng `/senses/4` là nghĩa của *run*. → cần `GET /v1/lexemes/:id/senses` (đọc `serve.sense_card`).
+2. **[P2]** `/senses/:id/links` trả **trùng** (`run#2` hai lần): view có cả 2 chiều, repo `UNION ALL` 2 chiều. → sửa còn 1 nhánh + e2e assert count/unique.
+3. **[P2]** `q` toàn khoảng trắng: ẩn danh `200` (20 dòng); có token **500** do `search_history_raw_query_check`. → trim ở DTO + service.
+4. **[P2]** `target_id` toàn khoảng trắng ở gloss-report → vi phạm `gloss_report_target_id_check` → **500**. → trim + validate.
+5. **[P2]** ID vượt `bigint` (`/senses/9223372036854775808`) → **500**. → chặn biên `≤ 9223372036854775807n`; đồng thời thêm validate UUID cho các route id uuid (collections/items/tags — cùng lớp lỗi).
+6. **[P2]** Search chưa phân trang theo §4 (`cursor` → 400, `next_cursor` luôn null, quá 50 dòng không duyệt tiếp). → thêm cursor.
+7. **[P3/romaji]** `q=hashiru` → 0 kết quả (CONTEXT §1.2 yêu cầu tra romaji); demo `core.lexeme.romanization = NULL`. → thêm nhánh khớp romanization; **cần quyết** bổ sung dữ liệu demo hay chờ dữ liệu thật.
+
+**Checklist kiểm biên cho các milestone sau (bắt buộc trước khi báo cáo):**
+- Input: rỗng/khoảng trắng sau trim; số vượt biên (`bigint`), UUID rác, ký tự LIKE `% _ \`.
+- Kết quả: không trùng lặp (đặc biệt khi join/UNION nhiều nguồn); tổng số khớp với DB mẫu.
+- Phân trang: `limit` + `cursor` theo §4; trang cuối `next_cursor = null`.
+- Luồng FE end-to-end: search → chọn nghĩa → lưu; mọi màn hình có API đủ dữ liệu.
+- Lỗi biên phải trả 4xx có mã domain, **không bao giờ 500** vì dữ liệu client.
 
 ## Kế tiếp dự kiến
 
