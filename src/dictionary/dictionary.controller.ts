@@ -1,12 +1,4 @@
-import {
-  BadRequestException,
-  Controller,
-  Get,
-  Param,
-  Query,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -17,8 +9,10 @@ import {
 import type { AuthenticatedRequest } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
+import { parseDictionaryId } from './dictionary-id';
 import { DictionaryService } from './dictionary.service';
 import {
+  LexemeSensesResultDto,
   KanjiCardDto,
   SearchResultDto,
   SenseDetailDto,
@@ -30,6 +24,7 @@ import {
   SearchResult,
   SenseDetailResponse,
   SenseLinksResult,
+  LexemeSensesResult,
 } from './types/dictionary.types';
 
 /**
@@ -60,6 +55,25 @@ export class SearchController {
   }
 }
 
+/** Danh sách nghĩa của một lexeme sau khi người dùng chọn kết quả search. */
+@ApiTags('lexemes')
+@Controller('lexemes')
+export class LexemeController {
+  constructor(private readonly dictionaryService: DictionaryService) {}
+
+  @Get(':id/senses')
+  @ApiOperation({ summary: 'Lấy toàn bộ nghĩa của một từ điển' })
+  @ApiOkResponse({ type: LexemeSensesResultDto })
+  @ApiBadRequestResponse({ type: ErrorResponseDto })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'LEXEME_NOT_FOUND',
+  })
+  senses(@Param('id') id: string): Promise<LexemeSensesResult> {
+    return this.dictionaryService.getLexemeSenses(parseDictionaryId(id));
+  }
+}
+
 /** Chi tiết nghĩa + cặp song ngữ gợi ý — công khai. */
 @ApiTags('senses')
 @Controller('senses')
@@ -76,7 +90,7 @@ export class SenseController {
     description: 'SENSE_NOT_FOUND',
   })
   get(@Param('id') id: string): Promise<SenseDetailResponse> {
-    return this.dictionaryService.getSenseDetail(parseId(id));
+    return this.dictionaryService.getSenseDetail(parseDictionaryId(id));
   }
 
   @Get(':id/links')
@@ -90,7 +104,7 @@ export class SenseController {
     description: 'SENSE_NOT_FOUND',
   })
   links(@Param('id') id: string): Promise<SenseLinksResult> {
-    return this.dictionaryService.getSenseLinks(parseId(id));
+    return this.dictionaryService.getSenseLinks(parseDictionaryId(id));
   }
 }
 
@@ -110,11 +124,4 @@ export class KanjiController {
   get(@Param('literal') literal: string): Promise<KanjiCardResponse> {
     return this.dictionaryService.getKanji(literal);
   }
-}
-
-function parseId(raw: string): bigint {
-  if (!/^\d+$/.test(raw)) {
-    throw new BadRequestException('Id không hợp lệ');
-  }
-  return BigInt(raw);
 }

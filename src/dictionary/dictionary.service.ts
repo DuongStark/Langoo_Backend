@@ -1,7 +1,22 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
+import { toHiragana } from 'wanakana';
 import { DomainException } from '../common/errors/domain.exception';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { SearchQueryDto } from './dto/search-query.dto';
+import {
+  decodeDictionarySearchCursor,
+  encodeDictionarySearchCursor,
+} from './dictionary-search-cursor';
+import {
+  LexemeSensesResult,
+  SearchResult,
+  SenseCardResponse,
+  SenseDetailResponse,
+  SenseLinkItem,
+  SenseLinksResult,
+  KanjiCardResponse,
+  SearchHit,
+} from './types/dictionary.types';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository, KanjiRow } from './repositories/kanji.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
@@ -17,15 +32,6 @@ import {
   SenseLinkRow,
   SensePairRepository,
 } from './repositories/sense-pair.repository';
-import {
-  KanjiCardResponse,
-  SearchHit,
-  SearchResult,
-  SenseCardResponse,
-  SenseDetailResponse,
-  SenseLinkItem,
-  SenseLinksResult,
-} from './types/dictionary.types';
 import { SenseCard } from './types/sense-card';
 
 const EXAMPLES_LIMIT = 5;
@@ -49,7 +55,27 @@ export class DictionaryService {
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
     const query = dto.q.trim();
+    if (query.length === 0) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     const limit = dto.limit ?? DEFAULT_SEARCH_LIMIT;
+    const languageCode = dto.lang ?? null;
+    const cursor =
+      dto.cursor === undefined
+        ? null
+        : decodeDictionarySearchCursor(dto.cursor);
+    if (cursor && (cursor.query !== query || cursor.lang !== languageCode)) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Cursor không thuộc truy vấn hiện tại',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
 
     let languageId: number | null = null;
     if (dto.lang !== undefined) {
@@ -63,15 +89,19 @@ export class DictionaryService {
       }
     }
 
+    const queryVariants = getSearchQueryVariants(query, languageCode);
     const rows = await this.searchRepo.search({
-      raw: query,
-      pattern: escapeLike(query),
-      lang: dto.lang ?? null,
-      limit,
+      queries: queryVariants,
+      patterns: queryVariants.map(escapeLike),
+      lang: languageCode,
+      limit: limit + 1,
+      cursor,
     });
-    const data = rows.map(toSearchHit);
+    const hasNext = rows.length > limit;
+    const pageRows = hasNext ? rows.slice(0, limit) : rows;
+    const data = pageRows.map(toSearchHit);
 
-    if (userId !== undefined) {
+    if (userId !== undefined && cursor === null) {
       await this.historyRepo.create({
         userId,
         rawQuery: dto.q,
@@ -81,7 +111,42 @@ export class DictionaryService {
       });
     }
 
-    return { data, next_cursor: null };
+    const lastRow = pageRows.at(-1);
+    return {
+      data,
+      next_cursor:
+        hasNext && lastRow
+          ? encodeDictionarySearchCursor({
+              version: 1,
+              query,
+              lang: languageCode,
+              exactRank: lastRow.exact_rank,
+              prefixRank: lastRow.prefix_rank,
+              frequencyNullRank: lastRow.frequency_null_rank,
+              frequencyRank: lastRow.frequency_sort,
+              surfaceLength: lastRow.surface_length,
+              lexemeId: lastRow.lexeme_id.toString(),
+              surfaceKind: lastRow.surface_kind,
+              surface: lastRow.surface,
+            })
+          : null,
+    };
+  }
+
+  async getLexemeSenses(lexemeId: bigint): Promise<LexemeSensesResult> {
+    if (!(await this.senseCardRepo.hasLexeme(lexemeId))) {
+      throw new DomainException(
+        'LEXEME_NOT_FOUND',
+        'Không tìm thấy từ điển',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+
+    const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
+    return {
+      data: cards.map(toSenseCardResponse),
+      next_cursor: null,
+    };
   }
 
   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {
@@ -136,6 +201,23 @@ export function escapeLike(value: string): string {
 /** Chuẩn hoá query lưu vào search_history: trim, lowercase, gộp khoảng trắng. */
 export function normalizeQuery(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, ' ');
+}
+
+export function getSearchQueryVariants(
+  query: string,
+  languageCode: string | null,
+): string[] {
+  const variants = [query];
+  if (
+    (languageCode === null || languageCode === 'ja') &&
+    /^[A-Za-z][A-Za-z\s'-]*$/.test(query)
+  ) {
+    const kana = toHiragana(query);
+    if (kana !== query) {
+      variants.push(kana);
+    }
+  }
+  return [...new Set(variants)];
 }
 
 function senseNotFound(): DomainException {

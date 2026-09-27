@@ -37,8 +37,22 @@ curl -s "http://localhost:3000/v1/dictionary/search?q=run" -H "Authorization: Be
 ```
 
 - `lang` ∈ `en|ja|vi|zh-Hans` (kiểm tra tồn tại trong `public.language` → sai thì `400 LANGUAGE_NOT_FOUND`).
-- Xếp hạng: khớp chính xác → khớp đầu chuỗi → tần suất (`NULLS LAST`) → độ dài.
-- `limit` mặc định 20, tối đa 50. `q` 1–100 ký tự (`400 VALIDATION_FAILED` nếu sai).
+- Xếp hạng: khớp chính xác → khớp đầu chuỗi → tần suất (`NULLS LAST`) → độ dài → các khóa ổn định của face.
+- `limit` mặc định 20, tối đa 100. `q` 1–100 ký tự sau khi trim (`400 VALIDATION_FAILED` nếu rỗng).
+- `cursor` là chuỗi opaque trả từ response trước; cursor chỉ dùng lại với cùng `q` và `lang`, sai thì `400 VALIDATION_FAILED`.
+- Khi tìm tiếng Nhật, romaji được chuyển sang kana để tìm thêm. Ví dụ `q=hashiru&lang=ja` tìm được `走る` cả khi `core.lexeme.romanization` chưa có dữ liệu.
+
+## GET /v1/lexemes/:id/senses
+
+Sau khi search trả `lexeme_id`, gọi endpoint này để lấy các nghĩa thuộc đúng lexeme đó. Không dùng
+`lexeme_id` trực tiếp làm `sense_id`, vì một lexeme có thể có nhiều nghĩa.
+
+```bash
+curl -s http://localhost:3000/v1/lexemes/4/senses
+```
+
+Response `{ data, next_cursor }` chứa các `SenseCard` theo `sense_no`. Ví dụ lexeme `eat` trả
+`sense_id: "6"`; sau đó dùng ID này với `/v1/senses/6`.
 
 ## GET /v1/senses/:id
 
@@ -104,6 +118,7 @@ curl -s -X POST http://localhost:3000/v1/gloss-reports \
 ```
 
 `target_kind` ∈ `sense_gloss|concept_gloss|example|translation`; `issue` ∈ `wrong|missing|offensive|other`.
+`target_id` được trim trước khi lưu; giá trị rỗng hoặc chỉ có khoảng trắng trả `400 VALIDATION_FAILED`.
 Response `201`:
 
 ```json

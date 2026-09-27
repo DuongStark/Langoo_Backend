@@ -11,7 +11,7 @@
 | M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ✅ hoàn thành (chờ review) |
 | M2 | Auth (register/login/refresh/logout/me) | ✅ hoàn thành (chờ review) |
 | M3 | Profile & settings | ✅ hoàn thành (chờ review) |
-| M4 | Dictionary (đọc) | 🚧 cần vá M4.1 theo review (agent khác đang làm) |
+| M4 | Dictionary (đọc) | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input |
 | M5 | Collections | ✅ hoàn thành (chờ review) |
 | M6 | SRS | ⬜ chờ |
 | M7 | Review modes & sessions | ⬜ chờ |
@@ -79,7 +79,7 @@
 - Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
 - Production: bổ sung `pg_trgm` + `unaccent` để tra không dấu/giống âm (CONTEXT §13).
 
-### M4.1 — vá theo review độc lập (agent khác đang làm)
+### M4.1 — vá theo review độc lập (đã hoàn tất 2026-09-27)
 
 Đã kiểm chứng trên code + `langoo_test` + server thật (2026-09-27):
 
@@ -89,7 +89,9 @@
 4. **[P2]** `target_id` toàn khoảng trắng ở gloss-report → vi phạm `gloss_report_target_id_check` → **500**. → trim + validate.
 5. **[P2]** ID vượt `bigint` (`/senses/9223372036854775808`) → **500**. → chặn biên `≤ 9223372036854775807n`; đồng thời thêm validate UUID cho các route id uuid (collections/items/tags — cùng lớp lỗi).
 6. **[P2]** Search chưa phân trang theo §4 (`cursor` → 400, `next_cursor` luôn null, quá 50 dòng không duyệt tiếp). → thêm cursor.
-7. **[P3/romaji]** `q=hashiru` → 0 kết quả (CONTEXT §1.2 yêu cầu tra romaji); demo `core.lexeme.romanization = NULL`. → thêm nhánh khớp romanization; **cần quyết** bổ sung dữ liệu demo hay chờ dữ liệu thật.
+7. **[P3/romaji]** `q=hashiru` → 0 kết quả (CONTEXT §1.2 yêu cầu tra romaji); demo `core.lexeme.romanization = NULL`. → đã thêm chuyển romaji sang kana và nhánh khớp `romanization` khi dữ liệu có giá trị.
+
+Đã sửa: search trả cursor keyset có khóa ổn định và giới hạn 100; thêm `GET /v1/lexemes/:id/senses`; loại bỏ cặp sense_pair trùng; trim/chặn query, target_id và bigint id; romaji được chuyển sang kana bằng `wanakana` 5.3.1 và tìm thêm cột romanization khi có dữ liệu. Không thay đổi schema core/serve.
 
 **Checklist kiểm biên cho các milestone sau (bắt buộc trước khi báo cáo):**
 - Input: rỗng/khoảng trắng sau trim; số vượt biên (`bigint`), UUID rác, ký tự LIKE `% _ \`.

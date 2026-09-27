@@ -1,0 +1,35 @@
+import { DomainException } from '../common/errors/domain.exception';
+import {
+  decodeDictionarySearchCursor,
+  encodeDictionarySearchCursor,
+} from './dictionary-search-cursor';
+
+const cursor = {
+  version: 1 as const,
+  query: '走',
+  lang: 'ja',
+  exactRank: 1 as const,
+  prefixRank: 0 as const,
+  frequencyNullRank: 0 as const,
+  frequencyRank: 100,
+  surfaceLength: 2,
+  lexemeId: '1',
+  surfaceKind: 'kanji',
+  surface: '走る',
+};
+
+describe('dictionary search cursor', () => {
+  it('round-trip được toàn bộ khóa sắp xếp', () => {
+    const encoded = encodeDictionarySearchCursor(cursor);
+
+    expect(decodeDictionarySearchCursor(encoded)).toEqual(cursor);
+  });
+
+  it.each([
+    '',
+    'not-base64',
+    Buffer.from('{"v":1}', 'utf8').toString('base64url'),
+  ])('từ chối cursor sai: %s', (value) => {
+    expect(() => decodeDictionarySearchCursor(value)).toThrow(DomainException);
+  });
+});

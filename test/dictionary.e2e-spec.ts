@@ -10,6 +10,7 @@ interface SearchHitBody {
   language_id: number;
   lang_code: string;
   surface: string;
+  surface_kind: string;
   is_exact: boolean;
 }
 
@@ -112,6 +113,67 @@ describe('Dictionary (e2e — langoo_test)', () => {
       expect(res.body).toMatchObject({ code: 'VALIDATION_FAILED' });
     });
 
+    it('q chỉ có khoảng trắng → 400 VALIDATION_FAILED', async () => {
+      const res = await request(server)
+        .get('/v1/dictionary/search')
+        .query({ q: '   ' })
+        .expect(400);
+      expect(res.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+
+    it('romaji hashiru → tìm được 走る qua kana', async () => {
+      const res = await request(server)
+        .get('/v1/dictionary/search')
+        .query({ q: 'hashiru', lang: 'ja' })
+        .expect(200);
+      const body = res.body as { data: SearchHitBody[] };
+
+      expect(body.data.some((hit) => hit.surface === '走る')).toBe(true);
+      expect(
+        body.data.some((hit) => hit.surface === '走る' && hit.is_exact),
+      ).toBe(true);
+    });
+
+    it('search dùng cursor không lặp và không bỏ dòng', async () => {
+      const first = await request(server)
+        .get('/v1/dictionary/search')
+        .query({ q: '走', lang: 'ja', limit: 1 })
+        .expect(200);
+      const firstBody = first.body as {
+        data: SearchHitBody[];
+        next_cursor: string | null;
+      };
+      expect(firstBody.data).toHaveLength(1);
+      expect(firstBody.next_cursor).toEqual(expect.any(String));
+
+      const second = await request(server)
+        .get('/v1/dictionary/search')
+        .query({
+          q: '走',
+          lang: 'ja',
+          limit: 1,
+          cursor: firstBody.next_cursor!,
+        })
+        .expect(200);
+      const secondBody = second.body as {
+        data: SearchHitBody[];
+        next_cursor: string | null;
+      };
+      expect(secondBody.data).toHaveLength(1);
+      expect(
+        `${secondBody.data[0].lexeme_id}:${secondBody.data[0].surface_kind}:${secondBody.data[0].surface}`,
+      ).not.toBe(
+        `${firstBody.data[0].lexeme_id}:${firstBody.data[0].surface_kind}:${firstBody.data[0].surface}`,
+      );
+      expect(secondBody.next_cursor).toBeNull();
+
+      const invalid = await request(server)
+        .get('/v1/dictionary/search')
+        .query({ q: 'run', cursor: firstBody.next_cursor! })
+        .expect(400);
+      expect(invalid.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+
     it('search không token → không ghi lịch sử', async () => {
       await request(server)
         .get('/v1/dictionary/search')
@@ -179,6 +241,42 @@ describe('Dictionary (e2e — langoo_test)', () => {
       const res = await request(server).get('/v1/senses/999999').expect(404);
       expect(res.body).toMatchObject({ code: 'SENSE_NOT_FOUND' });
     });
+
+    it('id vượt bigint hoặc không dương → 400 VALIDATION_FAILED', async () => {
+      const overflow = await request(server)
+        .get('/v1/senses/9223372036854775808')
+        .expect(400);
+      expect(overflow.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+      const zero = await request(server).get('/v1/senses/0').expect(400);
+      expect(zero.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+  });
+
+  describe('lexeme → senses', () => {
+    it('eat lexeme 4 trả sense 6, không dùng lexeme id như sense id', async () => {
+      const res = await request(server).get('/v1/lexemes/4/senses').expect(200);
+      const body = res.body as {
+        data: { sense_id: string; lexeme_id: string; lemma: string }[];
+      };
+
+      expect(body.data).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            sense_id: '6',
+            lexeme_id: '4',
+            lemma: 'eat',
+          }),
+        ]),
+      );
+    });
+
+    it('lexeme không tồn tại → 404 LEXEME_NOT_FOUND', async () => {
+      const res = await request(server)
+        .get('/v1/lexemes/999999/senses')
+        .expect(404);
+      expect(res.body).toMatchObject({ code: 'LEXEME_NOT_FOUND' });
+    });
   });
 
   describe('cặp song ngữ (sense_pair)', () => {
@@ -200,6 +298,7 @@ describe('Dictionary (e2e — langoo_test)', () => {
       expect(run!.language_id).toBe(1);
       expect(run!.confidence).toBeGreaterThanOrEqual(0.7);
       expect(run!.sense_id).toBe('2');
+      expect(data.filter((link) => link.sense_id === '2')).toHaveLength(1);
     });
 
     it('sense không tồn tại → 404 SENSE_NOT_FOUND', async () => {
@@ -275,6 +374,17 @@ describe('Dictionary (e2e — langoo_test)', () => {
         })
         .expect(400);
       expect(invalid.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+      const blankTarget = await request(server)
+        .post('/v1/gloss-reports')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          target_kind: 'sense_gloss',
+          target_id: '   ',
+          issue: 'wrong',
+        })
+        .expect(400);
+      expect(blankTarget.body).toMatchObject({ code: 'VALIDATION_FAILED' });
     });
   });
 });

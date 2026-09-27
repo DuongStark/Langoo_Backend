@@ -109,6 +109,14 @@ export class SenseCardDto {
   concept_id!: string | null;
 }
 
+export class LexemeSensesResultDto {
+  @ApiProperty({ type: [SenseCardDto] })
+  data!: SenseCardDto[];
+
+  @ApiProperty({ nullable: true, example: null })
+  next_cursor!: string | null;
+}
+
 export class SenseGlossDto {
   @ApiProperty({ example: '2' })
   id!: string;

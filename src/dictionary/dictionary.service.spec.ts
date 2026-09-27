@@ -8,6 +8,7 @@ import { SensePairRepository } from './repositories/sense-pair.repository';
 import {
   DictionaryService,
   escapeLike,
+  getSearchQueryVariants,
   normalizeQuery,
 } from './dictionary.service';
 
@@ -43,7 +44,11 @@ function createSetup(): {
   service: DictionaryService;
   repos: {
     search: { search: jest.Mock };
-    senseCard: { getBySenseId: jest.Mock };
+    senseCard: {
+      getBySenseId: jest.Mock;
+      hasLexeme: jest.Mock;
+      getByLexemeId: jest.Mock;
+    };
     content: {
       getGlosses: jest.Mock;
       getExamples: jest.Mock;
@@ -58,7 +63,11 @@ function createSetup(): {
 } {
   const repos = {
     search: { search: jest.fn() },
-    senseCard: { getBySenseId: jest.fn() },
+    senseCard: {
+      getBySenseId: jest.fn(),
+      hasLexeme: jest.fn(),
+      getByLexemeId: jest.fn(),
+    },
     content: {
       getGlosses: jest.fn(),
       getExamples: jest.fn(),
@@ -104,15 +113,17 @@ describe('DictionaryService', () => {
       const result = await service.search({ q: '100%_run\\' });
 
       const args = firstArg<{
-        raw: string;
-        pattern: string;
+        queries: string[];
+        patterns: string[];
         lang: string | null;
         limit: number;
+        cursor: unknown;
       }>(repos.search.search);
-      expect(args.raw).toBe('100%_run\\');
-      expect(args.pattern).toBe('100\\%\\_run\\\\');
+      expect(args.queries).toEqual(['100%_run\\']);
+      expect(args.patterns).toEqual(['100\\%\\_run\\\\']);
       expect(args.lang).toBeNull();
-      expect(args.limit).toBe(20);
+      expect(args.limit).toBe(21);
+      expect(args.cursor).toBeNull();
       expect(result.data[0]).toMatchObject({
         lexeme_id: '2',
         lang_code: 'en',
@@ -148,7 +159,17 @@ describe('DictionaryService', () => {
         repos.search.search,
       );
       expect(searchArgs.lang).toBe('en');
-      expect(searchArgs.limit).toBe(5);
+      expect(searchArgs.limit).toBe(6);
+    });
+
+    it('q chỉ có khoảng trắng → VALIDATION_FAILED và không chạm repository', async () => {
+      const { service, repos } = createSetup();
+
+      await expect(service.search({ q: '   ' })).rejects.toMatchObject({
+        code: 'VALIDATION_FAILED',
+      });
+      expect(repos.search.search).not.toHaveBeenCalled();
+      expect(repos.history.create).not.toHaveBeenCalled();
     });
 
     it('lang không tồn tại → LANGUAGE_NOT_FOUND, không tìm kiếm', async () => {
@@ -159,6 +180,35 @@ describe('DictionaryService', () => {
         service.search({ q: 'run', lang: 'xx' }),
       ).rejects.toMatchObject({ code: 'LANGUAGE_NOT_FOUND' });
       expect(repos.search.search).not.toHaveBeenCalled();
+    });
+
+    it('trang có dòng dư → trả cursor theo khóa cuối', async () => {
+      const { service, repos } = createSetup();
+      repos.search.search.mockResolvedValue([
+        {
+          ...hitRow,
+          exact_rank: 0,
+          prefix_rank: 0,
+          frequency_null_rank: 0,
+          frequency_sort: 110,
+          surface_length: 3,
+        },
+        {
+          ...hitRow,
+          lexeme_id: 3n,
+          surface: 'runner',
+          exact_rank: 1,
+          prefix_rank: 0,
+          frequency_null_rank: 0,
+          frequency_sort: 120,
+          surface_length: 6,
+        },
+      ]);
+
+      const result = await service.search({ q: 'run', limit: 1 });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.next_cursor).toEqual(expect.any(String));
     });
   });
 
@@ -237,6 +287,34 @@ describe('DictionaryService', () => {
         form_text: '走る',
         kind: 'kanji',
       });
+    });
+  });
+
+  describe('getLexemeSenses', () => {
+    it('lexeme không tồn tại → LEXEME_NOT_FOUND', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(false);
+
+      await expect(service.getLexemeSenses(999999n)).rejects.toMatchObject({
+        code: 'LEXEME_NOT_FOUND',
+      });
+      expect(repos.senseCard.getByLexemeId).not.toHaveBeenCalled();
+    });
+
+    it('map danh sách sense theo lexeme', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(true);
+      repos.senseCard.getByLexemeId.mockResolvedValue([senseCard]);
+
+      const result = await service.getLexemeSenses(1n);
+
+      expect(repos.senseCard.getByLexemeId).toHaveBeenCalledWith(1n);
+      expect(result.data[0]).toMatchObject({
+        sense_id: '1',
+        lexeme_id: '1',
+        lemma: '走る',
+      });
+      expect(result.next_cursor).toBeNull();
     });
   });
 
@@ -334,5 +412,13 @@ describe('escapeLike / normalizeQuery', () => {
 
   it('normalize: trim, lowercase, gộp khoảng trắng', () => {
     expect(normalizeQuery('  Run  Đây  ')).toBe('run đây');
+  });
+
+  it('tạo biến thể kana cho romaji tiếng Nhật, giữ nguyên tiếng Anh', () => {
+    expect(getSearchQueryVariants('hashiru', 'ja')).toEqual([
+      'hashiru',
+      'はしる',
+    ]);
+    expect(getSearchQueryVariants('run', 'en')).toEqual(['run']);
   });
 });

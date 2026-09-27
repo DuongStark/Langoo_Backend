@@ -28,11 +28,21 @@ export class SearchQueryDto {
   @MaxLength(10)
   lang?: string;
 
-  @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 50 })
+  @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 100 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  @Max(50)
+  @Max(100)
   limit?: number;
+
+  @ApiPropertyOptional({
+    description: 'Cursor opaque trả về từ trang trước',
+    maxLength: 2000,
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(2000)
+  cursor?: string;
 }

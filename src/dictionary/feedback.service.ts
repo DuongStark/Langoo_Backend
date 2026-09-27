@@ -31,6 +31,15 @@ export class FeedbackService {
     userId: bigint,
     dto: CreateGlossReportDto,
   ): Promise<GlossReportResponse> {
+    const targetId = dto.target_id.trim();
+    if (targetId.length === 0) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'target_id không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
     if (dto.language_id !== undefined) {
       const existing = await this.languages.findExistingIds([dto.language_id]);
       if (!existing.has(dto.language_id)) {
@@ -46,7 +55,7 @@ export class FeedbackService {
       data: {
         userId,
         targetKind: dto.target_kind,
-        targetId: dto.target_id,
+        targetId,
         languageId: dto.language_id ?? null,
         issue: dto.issue,
         comment: dto.comment ?? null,

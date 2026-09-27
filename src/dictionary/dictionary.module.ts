@@ -3,6 +3,7 @@ import { AuthModule } from '../auth/auth.module';
 import { DictionaryService } from './dictionary.service';
 import {
   KanjiController,
+  LexemeController,
   SearchController,
   SenseController,
 } from './dictionary.controller';
@@ -25,6 +26,7 @@ import { SensePairRepository } from './repositories/sense-pair.repository';
   imports: [AuthModule],
   controllers: [
     SearchController,
+    LexemeController,
     SenseController,
     KanjiController,
     SearchHistoryController,

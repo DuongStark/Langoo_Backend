@@ -13,6 +13,11 @@ export interface SearchHit {
 
 export interface SearchResult {
   data: SearchHit[];
+  next_cursor: string | null;
+}
+
+export interface LexemeSensesResult {
+  data: SenseCardResponse[];
   next_cursor: null;
 }
 
