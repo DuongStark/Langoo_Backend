@@ -3,6 +3,7 @@ import { Type } from 'class-transformer';
 import {
   IsEmail,
   IsOptional,
+  IsObject,
   IsString,
   MaxLength,
   MinLength,
@@ -30,6 +31,7 @@ export class RegisterDto {
 
   @ApiPropertyOptional({ type: DeviceInfoDto })
   @IsOptional()
+  @IsObject()
   @ValidateNested()
   @Type(() => DeviceInfoDto)
   device?: DeviceInfoDto;

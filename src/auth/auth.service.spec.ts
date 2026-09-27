@@ -52,12 +52,14 @@ function createSetup(): {
       create: jest.Mock;
       findUnique: jest.Mock;
       update: jest.Mock;
+      updateMany: jest.Mock;
     };
     device: { create: jest.Mock };
     $transaction: jest.Mock;
   };
   tx: TxMock;
   jwt: JwtService;
+  config: ConfigService;
 } {
   const tx: TxMock = {
     user: { create: jest.fn(), update: jest.fn() },
@@ -73,6 +75,7 @@ function createSetup(): {
       create: jest.fn(),
       findUnique: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
     device: { create: jest.fn() },
     $transaction: jest.fn((fn: (client: TxMock) => Promise<unknown>) => fn(tx)),
@@ -100,7 +103,7 @@ function createSetup(): {
     jwt,
     config,
   );
-  return { service, prisma, tx, jwt };
+  return { service, prisma, tx, jwt, config };
 }
 
 function registerDto(overrides: Partial<RegisterDto> = {}): RegisterDto {
@@ -232,6 +235,19 @@ describe('AuthService', () => {
         platform: 'android',
         appVersion: '1.0.0',
       });
+    });
+
+    it('TTL access sai bị phát hiện trước khi ghi user', async () => {
+      const { service, prisma, config } = createSetup();
+      (config.getOrThrow as jest.Mock).mockImplementation((key: string) =>
+        key === 'JWT_ACCESS_TTL' ? 'invalid' : undefined,
+      );
+
+      await expect(service.register(registerDto())).rejects.toThrow(
+        /JWT_ACCESS_TTL/,
+      );
+      expect(prisma.user.findFirst).not.toHaveBeenCalled();
+      expect(prisma.$transaction).not.toHaveBeenCalled();
     });
   });
 
@@ -372,10 +388,10 @@ describe('AuthService', () => {
       const { service, prisma } = createSetup();
       prisma.userSession.findUnique.mockResolvedValue(activeSession);
       let capturedHash = '';
-      prisma.userSession.update.mockImplementation(
+      prisma.userSession.updateMany.mockImplementation(
         (args: { data: { refreshTokenHash: string } }) => {
           capturedHash = args.data.refreshTokenHash;
-          return Promise.resolve({ id: 'session-1' });
+          return Promise.resolve({ count: 1 });
         },
       );
 
@@ -384,11 +400,29 @@ describe('AuthService', () => {
       expect(result.refresh_token).not.toBe('token-cu');
       expect(capturedHash).toBe(sha256(result.refresh_token));
       const updateArgs = firstArg<{
-        where: { id: string };
+        where: {
+          id: string;
+          refreshTokenHash: string;
+          revokedAt: null;
+          expiresAt: { gt: Date };
+        };
         data: { lastUsedAt: Date };
-      }>(prisma.userSession.update);
-      expect(updateArgs.where).toEqual({ id: 'session-1' });
+      }>(prisma.userSession.updateMany);
+      expect(updateArgs.where.id).toBe('session-1');
+      expect(updateArgs.where.refreshTokenHash).toBe(sha256('token-cu'));
+      expect(updateArgs.where.revokedAt).toBeNull();
+      expect(updateArgs.where.expiresAt.gt).toBeInstanceOf(Date);
       expect(updateArgs.data.lastUsedAt).toBeInstanceOf(Date);
+    });
+
+    it('ghi xoay vòng không cập nhật được → AUTH_INVALID_REFRESH_TOKEN', async () => {
+      const { service, prisma } = createSetup();
+      prisma.userSession.findUnique.mockResolvedValue(activeSession);
+      prisma.userSession.updateMany.mockResolvedValue({ count: 0 });
+
+      await expect(service.refresh('token-cu')).rejects.toMatchObject({
+        code: 'AUTH_INVALID_REFRESH_TOKEN',
+      });
     });
 
     it('tài khoản bị khoá → AUTH_ACCOUNT_LOCKED', async () => {

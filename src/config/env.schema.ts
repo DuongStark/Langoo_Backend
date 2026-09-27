@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isValidTtl } from './jwt-ttl';
 
 /** Giá trị rỗng trong .env coi như không khai báo (tránh lỗi min/coerce không cần thiết). */
 function emptyToUndefined(value: unknown): unknown {
@@ -28,7 +29,13 @@ export const envSchema = z.object({
 
   // Biến xác thực — BẮT BUỘC từ M2 (secret ≥32 ký tự ngẫu nhiên).
   JWT_ACCESS_SECRET: z.string().min(32),
-  JWT_ACCESS_TTL: z.preprocess(emptyToUndefined, z.string().default('15m')),
+  JWT_ACCESS_TTL: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .refine(isValidTtl, 'phải là TTL dương dạng 15m, 900s hoặc 900')
+      .default('15m'),
+  ),
   JWT_REFRESH_TTL_DAYS: z.preprocess(
     emptyToUndefined,
     z.coerce.number().int().positive().default(30),

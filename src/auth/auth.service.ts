@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import argon2 from 'argon2';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
+import { parseTtlSeconds } from '../config/jwt-ttl';
 import { PrismaService } from '../db/prisma.service';
 import {
   DEFAULT_DAILY_GOAL,
@@ -20,6 +21,9 @@ import {
   SessionResponse,
   UserResponse,
 } from './types/auth.types';
+
+// Giữ export tương thích cho các caller/test từng dùng helper từ auth.service.
+export { parseTtlSeconds };
 
 /** Các cột của app.users mà tầng auth cần. */
 interface AuthUserRow {
@@ -44,6 +48,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResult> {
+    const expiresIn = this.accessTokenTtl();
     const email = normalizeEmail(dto.email);
     const existing = await this.prisma.user.findFirst({
       where: { email },
@@ -108,11 +113,12 @@ export class AuthService {
 
     return {
       user: toUserResponse(user),
-      ...(await this.issueTokens(user.id, sessionId, refreshToken)),
+      ...(await this.issueTokens(user.id, sessionId, refreshToken, expiresIn)),
     };
   }
 
   async login(dto: LoginDto): Promise<AuthResult> {
+    const expiresIn = this.accessTokenTtl();
     const email = normalizeEmail(dto.email);
     const identity = await this.prisma.userIdentity.findUnique({
       where: {
@@ -157,19 +163,22 @@ export class AuthService {
 
     return {
       user: toUserResponse(user),
-      ...(await this.issueTokens(user.id, sessionId, refreshToken)),
+      ...(await this.issueTokens(user.id, sessionId, refreshToken, expiresIn)),
     };
   }
 
   async refresh(refreshToken: string): Promise<AuthTokens> {
+    const expiresIn = this.accessTokenTtl();
+    const oldTokenHash = hashRefreshToken(refreshToken);
     const session = await this.prisma.userSession.findUnique({
-      where: { refreshTokenHash: hashRefreshToken(refreshToken) },
+      where: { refreshTokenHash: oldTokenHash },
       include: { user: true },
     });
     if (!session || session.revokedAt) {
       throw invalidRefreshToken();
     }
-    if (session.expiresAt.getTime() <= Date.now()) {
+    const now = new Date();
+    if (session.expiresAt <= now) {
       throw new DomainException(
         'AUTH_REFRESH_TOKEN_EXPIRED',
         'Refresh token đã hết hạn, vui lòng đăng nhập lại',
@@ -179,15 +188,23 @@ export class AuthService {
     this.assertUserActive(session.user.status);
 
     const newToken = generateRefreshToken();
-    await this.prisma.userSession.update({
-      where: { id: session.id },
+    const rotated = await this.prisma.userSession.updateMany({
+      where: {
+        id: session.id,
+        refreshTokenHash: oldTokenHash,
+        revokedAt: null,
+        expiresAt: { gt: now },
+      },
       data: {
         refreshTokenHash: hashRefreshToken(newToken),
         lastUsedAt: new Date(),
       },
     });
+    if (rotated.count !== 1) {
+      throw invalidRefreshToken();
+    }
 
-    return this.issueTokens(session.userId, session.id, newToken);
+    return this.issueTokens(session.userId, session.id, newToken, expiresIn);
   }
 
   async logout(payload: JwtPayload): Promise<SessionResponse> {
@@ -240,15 +257,17 @@ export class AuthService {
     userId: bigint,
     sessionId: string,
     refreshToken: string,
+    expiresIn: number,
   ): Promise<AuthTokens> {
-    const expiresIn = parseTtlSeconds(
-      this.config.getOrThrow<string>('JWT_ACCESS_TTL'),
-    );
     const access_token = await this.jwt.signAsync(
       { sub: userId.toString(), sid: sessionId, typ: 'access' },
       { expiresIn },
     );
     return { access_token, refresh_token: refreshToken, expires_in: expiresIn };
+  }
+
+  private accessTokenTtl(): number {
+    return parseTtlSeconds(this.config.getOrThrow<string>('JWT_ACCESS_TTL'));
   }
 
   private async createDevice(
@@ -304,19 +323,6 @@ export function generateRefreshToken(): string {
 
 export function hashRefreshToken(token: string): string {
   return createHash('sha256').update(token).digest('hex');
-}
-
-/** '15m' | '1h' | '900s' | '30d' → số giây. Không hỗ trợ giá trị phức tạp. */
-export function parseTtlSeconds(value: string): number {
-  const match = /^(\d+)([smhd])?$/.exec(value.trim());
-  if (!match) {
-    throw new Error(`JWT_ACCESS_TTL không hợp lệ: "${value}"`);
-  }
-  const amount = Number(match[1]);
-  const unit = match[2] ?? 's';
-  const multiplier =
-    unit === 's' ? 1 : unit === 'm' ? 60 : unit === 'h' ? 3600 : 86400;
-  return amount * multiplier;
 }
 
 function toUserResponse(user: AuthUserRow): UserResponse {

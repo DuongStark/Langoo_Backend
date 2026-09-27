@@ -111,6 +111,52 @@ describe('Auth (e2e — langoo_test)', () => {
     expect(res.body).toMatchObject({ code: 'AUTH_EMAIL_TAKEN' });
   });
 
+  it('refresh đồng thời cùng một token chỉ xoay thành công một lần', async () => {
+    const concurrentEmail = `e2e-auth-race-${Date.now()}@langoo.test`;
+    const registerRes = await request(server)
+      .post('/v1/auth/register')
+      .send({ email: concurrentEmail, password });
+    expect(registerRes.status).toBe(201);
+
+    const token = (registerRes.body as AuthBody).refresh_token;
+    const responses = await Promise.all(
+      Array.from({ length: 8 }, () =>
+        request(server).post('/v1/auth/refresh').send({ refresh_token: token }),
+      ),
+    );
+
+    const successful = responses.filter((response) => response.status === 200);
+    const rejected = responses.filter((response) => response.status === 401);
+    expect(successful).toHaveLength(1);
+    expect(rejected).toHaveLength(7);
+    expect(
+      rejected.every((response) => {
+        const body = response.body as { code?: unknown };
+        return body.code === 'AUTH_INVALID_REFRESH_TOKEN';
+      }),
+    ).toBe(true);
+  });
+
+  it('device phải là object ở register và login', async () => {
+    const invalidEmail = `e2e-auth-device-${Date.now()}@langoo.test`;
+    const invalidRegister = await request(server)
+      .post('/v1/auth/register')
+      .send({ email: invalidEmail, password, device: [] });
+    expect(invalidRegister.status).toBe(400);
+    expect(invalidRegister.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+    const validRegister = await request(server)
+      .post('/v1/auth/register')
+      .send({ email: invalidEmail, password });
+    expect(validRegister.status).toBe(201);
+
+    const invalidLogin = await request(server)
+      .post('/v1/auth/login')
+      .send({ email: invalidEmail, password, device: [{ platform: 'web' }] });
+    expect(invalidLogin.status).toBe(400);
+    expect(invalidLogin.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+  });
+
   it('sai mật khẩu → 401 AUTH_INVALID_CREDENTIALS', async () => {
     const res = await request(server)
       .post('/v1/auth/login')

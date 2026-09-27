@@ -2,7 +2,8 @@
 
 Tất cả endpoint dưới prefix `/v1`. Access token là JWT HS256 sống **15 phút**;
 refresh token opaque 32 byte, server chỉ lưu SHA-256 — gọi `refresh` sẽ **xoay vòng**
-token (token cũ bị từ chối ngay).
+token (token cũ bị từ chối ngay). Nếu nhiều request đồng thời dùng cùng một token,
+chỉ một request thành công; các request còn lại nhận `AUTH_INVALID_REFRESH_TOKEN`.
 
 ## POST /v1/auth/register
 
@@ -39,6 +40,8 @@ Response `201`:
 ```
 
 Lỗi: `409 AUTH_EMAIL_TAKEN` (email đã đăng ký) · `400 VALIDATION_FAILED`.
+`device` nếu gửi phải là object có `platform` (`ios`, `android` hoặc `web`) và tùy chọn
+`app_version`.
 
 ## POST /v1/auth/login
 
@@ -49,7 +52,8 @@ curl -s -X POST http://localhost:3000/v1/auth/login \
 ```
 
 Response `200` giống register (cập nhật `last_login_at`).
-Lỗi: `401 AUTH_INVALID_CREDENTIALS` · `403 AUTH_ACCOUNT_LOCKED` / `AUTH_ACCOUNT_DELETED`.
+Lỗi: `401 AUTH_INVALID_CREDENTIALS` · `403 AUTH_ACCOUNT_LOCKED` / `AUTH_ACCOUNT_DELETED` ·
+`400 VALIDATION_FAILED` nếu `device` không phải object hợp lệ.
 
 ## POST /v1/auth/refresh
 

@@ -57,6 +57,7 @@
 | 2026-09-27 | Search dùng `ILIKE` escape wildcard, rank exact → prefix → frequency; chưa có `pg_trgm/unaccent` | PostgreSQL nhúng thiếu extension (CONTEXT §13); production bổ sung index sau |
 | 2026-09-27 | `pronunciations`/`forms` trả theo **lexeme** của sense; `examples` đọc `core.example.sense_id` (không dùng `example_sense` vì chưa chạy mapping) | Đúng dữ liệu hiện có; khi chạy `run_mapping.py` có thể mở rộng |
 | 2026-09-27 | `search_history` chỉ đọc 50 dòng gần nhất; job dọn định kỳ chưa làm | Để M12 (hardening) — đã ghi backlog |
+| 2026-09-27 | Hardening M2 (chủ dự án thêm, đã review + test 2026-09-27): validate `JWT_ACCESS_TTL` lúc khởi động (fail-fast); xoay refresh token chống race bằng `updateMany` có điều kiện (chỉ 1 request thắng, còn lại 401); `device` phải là object | Tránh double-rotation khi 2 request dùng cùng token; cấu hình sai lộ ngay khi boot |
 | 2026-09-27 | M2 hardening: refresh rotation cập nhật nguyên tử có điều kiện; `device` phải là object; `JWT_ACCESS_TTL` dùng parser chung và validate lúc khởi động | Chặn reuse token đồng thời, trả 400 cho input sai kiểu, và tránh ghi DB rồi mới lỗi vì cấu hình TTL |
 
 ## Backlog

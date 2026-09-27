@@ -31,6 +31,29 @@ describe('validateEnv', () => {
     expect(env.ARGON2_MEMORY_COST).toBe(19456);
   });
 
+  it('chấp nhận TTL hợp lệ và giữ nguyên định dạng cấu hình', () => {
+    for (const ttl of ['15m', '900', '900s', '1h', '1d']) {
+      const env = validateEnv({ ...base, JWT_ACCESS_TTL: ttl });
+      expect(env.JWT_ACCESS_TTL).toBe(ttl);
+    }
+  });
+
+  it('từ chối TTL sai hoặc không dương', () => {
+    for (const ttl of [
+      'invalid',
+      '0',
+      '0m',
+      '-1s',
+      '1.5h',
+      '1w',
+      '999999999999999999999d',
+    ]) {
+      expect(() => validateEnv({ ...base, JWT_ACCESS_TTL: ttl })).toThrow(
+        /JWT_ACCESS_TTL/,
+      );
+    }
+  });
+
   it('thiếu DATABASE_URL → báo lỗi nêu rõ biến', () => {
     expect(() => validateEnv({ DIRECT_URL: base.DIRECT_URL })).toThrow(
       /DATABASE_URL/,
