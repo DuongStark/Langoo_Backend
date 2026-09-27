@@ -159,3 +159,17 @@ Body: `{ face_id, direction, rating (1..4), elapsed_ms?, mode? (mặc định "f
 14. Lọc hồ sơ: face ngôn ngữ không thuộc primary/secondary → không vào queue.
 
 **E2E (theo nghiệm thu prompt):** ôn 1 thẻ → `due_at` đổi, `review_log +1`, XP +1; thẻ bị chặn khi ôn sớm (422); retry mạng không cộng đôi; hai chiều cùng face độc lập; stats khớp số liệu DB.
+
+## 8. Phiên ôn dùng chung engine (M7)
+
+`POST /v1/sessions/:id/answers` (đặc tả riêng: [`docs/api/sessions.md`](api/sessions.md)) áp
+đúng luật §2 qua `ReviewEngine` — cùng `review_log`, burying và XP với `/srs/reviews`.
+Phiên là **snapshot**:
+
+- `kind=review` lấy đúng queue §3 (daily limit + learn-ahead); `kind=practice` lấy mọi thẻ
+  trong bộ (ôn trước) và **không** áp daily limit.
+- Trong phiên **không kiểm tra `due_at`**: thẻ đã vào phiên thì trả lời được (bao trùm tình
+  huống learn-ahead của queue); endpoint review trực tiếp vẫn giữ `422 SRS_ITEM_NOT_DUE`.
+- Idempotency theo `(session_id, ordinal)`: retry trả kết quả cũ, XP chỉ cộng một lần với
+  khoá `session:<session_id>:<ordinal>`.
+- Suspend (`PATCH /v1/srs/cards`) loại thẻ khỏi queue lẫn mọi phiên mới.

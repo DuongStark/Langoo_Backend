@@ -72,4 +72,18 @@ curl -s http://localhost:3000/v1/srs/stats -H "Authorization: Bearer <token>"
 
 `accuracy_7d` = % rating ≥ 3 trên 7 ngày gần nhất (`null` nếu chưa có lượt nào).
 
+## PATCH /v1/srs/cards
+
+Bật/tắt **suspend** một thẻ (face + direction). Thẻ suspended bị loại khỏi `/srs/due`
+và khỏi thẻ nguồn của phiên ôn; unsuspend không đổi `due_at`.
+
+```bash
+curl -s -X PATCH http://localhost:3000/v1/srs/cards \
+  -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"face_id":"<uuid>","direction":"recognize","suspended":true}'
+# → {"srs_id":"7","state":"learning","suspended":true}
+```
+
+Lỗi: `404 SRS_ITEM_NOT_FOUND` (không có thẻ của user) · `400 VALIDATION_FAILED`.
+
 Swagger UI: `http://localhost:3000/docs` (nhóm **srs**).
