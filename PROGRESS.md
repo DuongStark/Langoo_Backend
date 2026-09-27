@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-26 (M2 — hoàn thành, chờ review)
+> Cập nhật lần cuối: 2026-09-27 (M3 — hoàn thành, chờ review)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -10,7 +10,7 @@
 | M0 | Bootstrap & DB ops | ✅ hoàn thành (chờ review) |
 | M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ✅ hoàn thành (chờ review) |
 | M2 | Auth (register/login/refresh/logout/me) | ✅ hoàn thành (chờ review) |
-| M3 | Profile & settings | ⬜ chờ |
+| M3 | Profile & settings | ✅ hoàn thành (chờ review) |
 | M4 | Dictionary (đọc) | ⬜ chờ |
 | M5 | Collections | ⬜ chờ |
 | M6 | SRS | ⬜ chờ |
@@ -47,6 +47,11 @@
 | 2026-09-26 | Access token 15 phút **không tra DB mỗi request**; logout thu hồi session → refresh token chết ngay, access token cũ hết hạn tự nhiên | Chủ dự án chốt; đổi sang "tra session mỗi request" nếu cần thu hồi tức thì |
 | 2026-09-26 | Register chỉ tạo `users` + `user_identity` (+ `device` nếu client gửi) + session | `user_settings`/`study_profile` thuộc M3 (đúng phạm vi milestone) |
 | 2026-09-26 | Quy ước commit (§1.4 PROMPT-BACKEND.md): 1 commit = 1 đơn vị logic hoàn chỉnh (code + test + docs của cùng một việc), mỗi milestone ~2–4 commit — không tách lẻ từng file, không dồn cả milestone | Chủ dự án yêu cầu cân bằng (M0–M2 commit hơi lẻ) |
+| 2026-09-27 | Register tạo kèm `user_settings` mặc định (sửa nhỏ M2); user cũ thiếu row: `GET` trả mặc định, `PATCH` upsert | Mọi user mới luôn có settings — M6 (timezone) không phải fallback khắp nơi |
+| 2026-09-27 | Quy tắc xoá profile: không xoá default khi còn hồ sơ khác (409), không xoá hồ sơ duy nhất (409) | Tránh xoá cascade mất collection/SRS do nhầm |
+| 2026-09-27 | Validate id ngôn ngữ bằng đọc `public.language` qua `$queryRaw` (không hardcode, không map Prisma public) | Đúng bất biến: Prisma chỉ map `app`; ngôn ngữ thêm mới không cần sửa code |
+| 2026-09-27 | `GET /v1/profiles` không phân trang | Mỗi user có vài hồ sơ cố định; pagination chỉ đặt ở tài nguyên lớn (M5+) |
+| 2026-09-27 | `JwtModule` đặt `global: true` trong AuthModule | Module khác (users, srs…) chỉ cần import AuthModule để dùng `JwtAuthGuard` |
 
 ## Backlog
 
@@ -55,7 +60,8 @@
 - `npm audit`: 4 lỗ `high` nằm trong `mysql2@3.15.3` + `deepmerge-ts` — dependency **của Prisma CLI (dev)**, không thuộc runtime API; theo dõi khi Prisma phát hành bản vá (KHÔNG chạy `npm audit fix --force` vì sẽ kéo về Prisma 6).
 - Prisma 7 dùng connection pool của `pg` (không còn pool mặc định của Prisma) — cấu hình `max`/`connectionTimeoutMillis` cho `PrismaPg` khi vào giai đoạn tải thật (M12 hardening).
 - Rate limit cho `/auth/login` + `/auth/register` (chống brute force) — theo kế hoạch M12, chưa làm ở M2.
+- `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — chốt cùng M9 (reminders).
 
 ## Kế tiếp dự kiến
 
-- **M3 — Profile & settings:** CRUD `study_profile` (nhiều khoá học), `user_settings` (timezone, daily_goal, notify); mặc định đúng khi user mới.
+- **M4 — Dictionary (đọc):** search (`serve.dictionary_search`), sense detail (`serve.sense_card` + ví dụ/phát âm/forms), kanji detail (`serve.kanji_card`), sense→cặp song ngữ (`serve.sense_pair`), `search_history`, `gloss_report`.

@@ -20,7 +20,8 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M0 — Bootstrap & DB ops** đã xong (chờ review): NestJS 11 strict, health check có kiểm tra DB, format lỗi `{code,message,details?}`, logging pino, công cụ DB bằng Node (`db:migrate`, `db:test:reset`, `db:push`), CI GitHub Actions. Xem [`PROGRESS.md`](PROGRESS.md).
 - ✅ **M1 — Data layer** đã xong (chờ review): `prisma/schema.prisma` map 32 bảng schema `app` (Prisma 7 + adapter-pg), `PrismaService`, repository mẫu `serve.sense_card` + unit/e2e test. Xem [`PROGRESS.md`](PROGRESS.md).
 - ✅ **M2 — Auth** đã xong (chờ review): register / login / refresh (xoay vòng token) / logout / me; argon2id; refresh token chỉ lưu SHA-256; ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
-- ⬜ Backend đang chờ duyệt **M3 — Profile & settings**.
+- ✅ **M3 — Profile & settings** đã xong (chờ review): CRUD hồ sơ học (default tự động, chống xoá nhầm), cài đặt timezone/daily_goal/notify; ví dụ curl tại [`docs/api/profiles-settings.md`](docs/api/profiles-settings.md).
+- ⬜ Backend đang chờ duyệt **M4 — Dictionary (đọc)**.
 
 ## Quy tắc vàng
 
