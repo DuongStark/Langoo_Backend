@@ -25,6 +25,9 @@ describe('due cursor (SRS)', () => {
       Buffer.from('{"b":1,"t":"2026-09-27T09:00:00.000Z","i":"abc"}').toString(
         'base64url',
       ),
+      Buffer.from(
+        '{"b":1,"t":"2026-09-27T09:00:00.000Z","i":"9223372036854775808"}',
+      ).toString('base64url'),
       Buffer.from('khong-phai-json').toString('base64url'),
     ];
     for (const bad of bads) {

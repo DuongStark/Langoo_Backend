@@ -1,18 +1,29 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainException } from '../common/errors/domain.exception';
-import { decodeDueCursor, encodeDueCursor } from '../common/pagination/cursor';
-import { nextDayStartUtc, startOfDayUtc } from '../common/time/timezone';
+import {
+  decodeDueCursor,
+  DueCursorValue,
+  encodeDueCursor,
+} from '../common/pagination/cursor';
+import {
+  localDateString,
+  nextDayStartUtc,
+  startOfDayUtc,
+} from '../common/time/timezone';
 import { PrismaService } from '../db/prisma.service';
+import { Prisma } from '../generated/prisma/client';
 import {
   DEFAULT_SRS_NEW_PER_DAY,
   DEFAULT_SRS_REVIEW_PER_DAY,
   DEFAULT_TIMEZONE,
 } from '../users/settings.constants';
+import { lockUser } from '../users/user-lock';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { DueQueryDto } from './dto/due-query.dto';
 import { DueRepository, DueRow } from './repositories/due.repository';
 import { SrsStatsRepository } from './repositories/srs-stats.repository';
 import { ReviewEngine } from './review-engine.service';
+import type { TxClient } from './review-engine.service';
 import { LEARN_AHEAD_MINUTES } from './scheduler/anki.constants';
 import { Rating } from './scheduler/anki.types';
 import { DueBucket, DueCandidate, selectDueQueue } from './scheduler/queue';
@@ -25,8 +36,6 @@ import {
   StatsResult,
 } from './types/srs.types';
 
-/** Trần an toàn cho số thẻ lấy từ DB mỗi lượt ghép queue (đã sắp xếp sẵn). */
-const CANDIDATE_LIMIT = 1000;
 const DEFAULT_DUE_LIMIT = 50;
 const ACCURACY_WINDOW_DAYS = 7;
 
@@ -54,12 +63,19 @@ export class SrsService {
   async getDue(userId: bigint, query: DueQueryDto): Promise<DueResult> {
     const profile = await this.resolveProfile(userId);
     const now = new Date();
+    const cursor =
+      query.cursor === undefined ? null : decodeDueCursor(query.cursor);
+    if (cursor !== null) {
+      assertDueCursorContext(cursor, profile, query.collection_id, now);
+    }
+    const dayEnd = nextDayStartUtc(now, profile.timezone);
     const dayStart = startOfDayUtc(now, profile.timezone);
 
     const dayCounts = await this.dueRepo.getDayCounts({
       userId,
       profileId: profile.id,
       dayStart,
+      dayEnd,
     });
     const caps = {
       newRemaining: Math.max(
@@ -72,145 +88,288 @@ export class SrsService {
       ),
     };
 
-    let candidates = await this.dueRepo.findCandidates({
-      userId,
-      profileId: profile.id,
-      primaryLanguageId: profile.primaryLanguageId,
-      secondaryLanguageId: profile.secondaryLanguageId,
-      now,
-      learnAheadMinutes: LEARN_AHEAD_MINUTES,
-      limit: CANDIDATE_LIMIT,
-    });
-    if (query.collection_id !== undefined) {
-      candidates = candidates.filter(
-        (row) => row.collection_id === query.collection_id,
-      );
-    }
-
-    const queue = selectDueQueue(
+    const limit = query.limit ?? DEFAULT_DUE_LIMIT;
+    let phase: 'regular' | 'ahead' = cursor?.phase ?? 'regular';
+    let candidates =
+      phase === 'ahead'
+        ? []
+        : await this.dueRepo.findCandidates({
+            userId,
+            profileId: profile.id,
+            primaryLanguageId: profile.primaryLanguageId,
+            secondaryLanguageId: profile.secondaryLanguageId,
+            now,
+            learnAheadMinutes: LEARN_AHEAD_MINUTES,
+            limit: 0,
+            collectionId: query.collection_id,
+            includeLearnAhead: false,
+          });
+    const normalQueue = selectDueQueue(
       candidates.map(toCandidate),
       caps,
-      query.cursor !== undefined ? decodeDueCursor(query.cursor) : null,
-      query.limit ?? DEFAULT_DUE_LIMIT,
+      cursor,
+      limit,
     );
+    let rows = normalQueue.rows;
+    let counts = normalQueue.counts;
+    let nextCursor = normalQueue.nextCursor;
+    let cursorPhase = phase;
+    // Learn-ahead is a fallback phase. It must not outrank a normal due card.
+    if (
+      phase === 'ahead' ||
+      normalQueue.rows.length === 0 ||
+      normalQueue.nextCursor === null
+    ) {
+      phase = 'ahead';
+      candidates = await this.dueRepo.findCandidates({
+        userId,
+        profileId: profile.id,
+        primaryLanguageId: profile.primaryLanguageId,
+        secondaryLanguageId: profile.secondaryLanguageId,
+        now,
+        learnAheadMinutes: LEARN_AHEAD_MINUTES,
+        limit: 0,
+        collectionId: query.collection_id,
+        includeLearnAhead: true,
+      });
+      const aheadCandidates = candidates.filter((row) =>
+        isLearnAheadRow(row, now, LEARN_AHEAD_MINUTES),
+      );
+      const aheadQueue = selectDueQueue(
+        aheadCandidates.map(toCandidate),
+        caps,
+        cursor?.phase === 'ahead' ? cursor : null,
+        Math.max(0, limit - normalQueue.rows.length),
+      );
+      rows = [...normalQueue.rows, ...aheadQueue.rows];
+      counts = {
+        learning: normalQueue.counts.learning + aheadQueue.counts.learning,
+        review: normalQueue.counts.review + aheadQueue.counts.review,
+        new: normalQueue.counts.new + aheadQueue.counts.new,
+      };
+      if (aheadQueue.nextCursor !== null) {
+        nextCursor = aheadQueue.nextCursor;
+        cursorPhase = 'ahead';
+      } else if (
+        normalQueue.rows.length >= limit &&
+        aheadCandidates.length > 0
+      ) {
+        // Keep a regular-phase cursor as a transition marker when the page
+        // is full of normal cards; the next request will enter ahead phase.
+        nextCursor = toCursorValue(
+          normalQueue.rows[normalQueue.rows.length - 1],
+        );
+        cursorPhase = 'regular';
+      } else {
+        nextCursor = null;
+      }
+    }
     const bySrs = new Map(
       candidates.map((row) => [row.srs_id.toString(), row]),
     );
-    const data = queue.rows.map((entry) =>
-      toDueCard(getRow(bySrs, entry.srsId)),
-    );
+    const data = rows.map((entry) => toDueCard(getRow(bySrs, entry.srsId)));
 
     return {
       data,
       next_cursor:
-        queue.nextCursor !== null ? encodeDueCursor(queue.nextCursor) : null,
-      counts: queue.counts,
+        nextCursor !== null
+          ? encodeDueCursor({
+              ...nextCursor,
+              version: 1,
+              profileId: profile.id,
+              collectionId: query.collection_id ?? null,
+              day: localDateString(now, profile.timezone),
+              phase: cursorPhase,
+            })
+          : null,
+      counts,
     };
   }
 
   // --------------------------------------------------------------- review
   async review(userId: bigint, dto: CreateReviewDto): Promise<ReviewResult> {
-    const now = new Date();
     const rating = dto.rating as Rating;
+    const mode = dto.mode ?? 'flashcard';
+    const elapsedMs = dto.elapsed_ms ?? null;
+    const requestPayload = {
+      face_id: dto.face_id,
+      direction: dto.direction,
+      rating: dto.rating,
+      mode,
+      elapsed_ms: elapsedMs,
+      collection_id: dto.collection_id ?? null,
+    };
 
-    const srs = await this.prisma.srsState.findFirst({
-      where: { faceId: dto.face_id, direction: dto.direction, userId },
-      include: {
-        face: { include: { item: { select: { id: true } } } },
-      },
-    });
-    if (!srs) {
-      throw new DomainException(
-        'SRS_ITEM_NOT_FOUND',
-        'Không tìm thấy thẻ ôn',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-
-    const settings = await this.prisma.userSettings.findUnique({
-      where: { userId },
-    });
-    const timezone = settings?.timezone ?? DEFAULT_TIMEZONE;
-    const itemId = srs.face.item.id;
-
-    const outcome = await this.prisma.$transaction(async (tx) => {
-      // Khoá hàng srs_state: tuần tự hoá 2 request cùng thẻ (kể cả retry).
-      await tx.$queryRaw`SELECT id FROM app.srs_state WHERE id = ${srs.id} FOR UPDATE`;
-      const current = await tx.srsState.findUniqueOrThrow({
-        where: { id: srs.id },
-      });
-
-      // Idempotency trước các kiểm tra khác: retry mạng của lượt đã ghi
-      // phải trả kết quả cũ, không bị chặn bởi due/suspended mới.
-      if (dto.client_review_id !== undefined) {
-        const existingLog = await tx.reviewLog.findFirst({
-          where: { userId, clientReviewId: dto.client_review_id },
-        });
-        if (existingLog) {
-          const xpApplied = await tx.xpEvent.findFirst({
-            where: {
-              userId,
-              idempotencyKey: `review:${dto.client_review_id}`,
-            },
-            select: { amount: true },
-          });
-          return {
-            log: existingLog,
-            state: current,
-            xpAmount: xpApplied?.amount ?? 0,
-          };
+    return this.prisma.$transaction(async (tx) => {
+      // One user lock is the common lock root for direct reviews, sessions and XP.
+      await tx.$queryRaw`SELECT id FROM app.users WHERE id = ${userId} FOR UPDATE`;
+      const profile = await this.resolveProfileFrom(tx, userId);
+      const receipt =
+        dto.client_review_id === undefined
+          ? null
+          : await tx.srsReviewReceipt.findUnique({
+              where: {
+                userId_clientReviewId: {
+                  userId,
+                  clientReviewId: dto.client_review_id,
+                },
+              },
+            });
+      if (receipt !== null) {
+        if (!sameReviewPayload(receipt.requestPayload, requestPayload)) {
+          throw new DomainException(
+            'SRS_IDEMPOTENCY_CONFLICT',
+            'client_review_id đã được dùng cho payload khác',
+            HttpStatus.CONFLICT,
+          );
         }
+        const stored = receipt.responsePayload as {
+          version?: unknown;
+          response?: unknown;
+          review_log?: unknown;
+        };
+        return (
+          stored.version === 1 ? stored.response : stored
+        ) as ReviewResult;
       }
 
-      if (current.suspended) {
+      const locked = await tx.srsState.findFirst({
+        where: {
+          faceId: dto.face_id,
+          direction: dto.direction,
+          userId,
+          profileId: profile.id,
+        },
+        select: { id: true },
+      });
+      if (locked !== null) {
+        await tx.$queryRaw`SELECT id FROM app.srs_state WHERE id = ${locked.id} FOR UPDATE`;
+      }
+      const current = await tx.srsState.findFirst({
+        where: {
+          faceId: dto.face_id,
+          direction: dto.direction,
+          userId,
+          profileId: profile.id,
+        },
+        include: {
+          face: { include: { item: { include: { collection: true } } } },
+        },
+      });
+      if (!current) {
         throw new DomainException(
-          'SRS_ITEM_SUSPENDED',
-          'Thẻ đang tạm ẩn',
+          'SRS_ITEM_NOT_FOUND',
+          'Không tìm thấy thẻ ôn',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const allowedLanguage =
+        current.face.languageId === profile.primaryLanguageId ||
+        current.face.languageId === profile.secondaryLanguageId;
+      if (
+        current.profileId !== profile.id ||
+        current.face.item.collection.profileId !== profile.id ||
+        current.face.item.collection.ownerId !== userId ||
+        current.face.item.collection.archivedAt !== null ||
+        current.face.item.status === 'paused' ||
+        (dto.collection_id !== undefined &&
+          current.face.item.collection.id !== dto.collection_id) ||
+        !allowedLanguage
+      ) {
+        throw new DomainException(
+          'SRS_ITEM_UNAVAILABLE',
+          'Thẻ không thuộc phạm vi hồ sơ đang học',
           HttpStatus.CONFLICT,
         );
       }
-      if (current.dueAt.getTime() > now.getTime()) {
+      const now = new Date();
+      const counts = await this.getDayCountsTx(
+        tx,
+        userId,
+        profile.id,
+        now,
+        profile.timezone,
+      );
+      if (
+        current.suspended ||
+        (current.buriedUntil !== null && current.buriedUntil > now)
+      ) {
         throw new DomainException(
-          'SRS_ITEM_NOT_DUE',
-          'Thẻ chưa đến hạn ôn',
-          HttpStatus.UNPROCESSABLE_ENTITY,
+          current.suspended ? 'SRS_ITEM_SUSPENDED' : 'SRS_ITEM_UNAVAILABLE',
+          'Thẻ hiện không thể ôn',
+          HttpStatus.CONFLICT,
         );
       }
-
-      const result = await this.reviewEngine.applyRating(tx, current, {
+      if (current.dueAt > now) {
+        const ahead =
+          (current.state === 'learning' || current.state === 'relearning') &&
+          !current.learningIsInterday &&
+          current.dueAt.getTime() <=
+            now.getTime() + LEARN_AHEAD_MINUTES * 60_000 &&
+          (await this.countNormalDue(
+            tx,
+            userId,
+            profile,
+            now,
+            current.id,
+            dto.collection_id,
+            counts,
+          )) === 0;
+        if (!ahead) {
+          throw new DomainException(
+            'SRS_ITEM_NOT_DUE',
+            'Thẻ chưa đến hạn ôn',
+            HttpStatus.UNPROCESSABLE_ENTITY,
+          );
+        }
+      }
+      const queueKind = queueKindForState(
+        current.state,
+        current.learningIsInterday,
+      );
+      if (
+        (queueKind === 'new' &&
+          counts.introducedToday >= profile.srsNewPerDay) ||
+        ((queueKind === 'review' || queueKind === 'interday_learning') &&
+          counts.reviewsToday >= profile.srsReviewPerDay)
+      ) {
+        throw new DomainException(
+          'SRS_DAILY_LIMIT_REACHED',
+          'Đã đạt giới hạn ôn trong ngày',
+          HttpStatus.CONFLICT,
+        );
+      }
+      const outcome = await this.reviewEngine.applyRating(tx, current, {
         userId,
-        itemId,
+        profileId: profile.id,
+        itemId: current.face.item.id,
         rating,
-        mode: dto.mode ?? 'flashcard',
-        elapsedMs: dto.elapsed_ms ?? null,
+        mode,
+        elapsedMs,
         clientReviewId: dto.client_review_id ?? null,
         xpIdempotencyKey:
-          dto.client_review_id !== undefined
-            ? `review:${dto.client_review_id}`
-            : null,
-        timezone,
+          dto.client_review_id === undefined
+            ? null
+            : `review:${dto.client_review_id}`,
+        timezone: profile.timezone,
         now,
       });
-      return result;
+      const response = toReviewResult(outcome);
+      if (dto.client_review_id !== undefined) {
+        await tx.srsReviewReceipt.create({
+          data: {
+            userId,
+            clientReviewId: dto.client_review_id,
+            requestPayload,
+            responsePayload: {
+              version: 1,
+              response,
+            } as unknown as Prisma.InputJsonValue,
+          },
+        });
+      }
+      return response;
     });
-
-    return {
-      review_log: {
-        id: outcome.log.id.toString(),
-        rating: outcome.log.rating,
-        mode: outcome.log.mode,
-        prev_state: outcome.log.prevState,
-        reviewed_at: outcome.log.reviewedAt.toISOString(),
-      },
-      srs: {
-        state: outcome.state.state,
-        due_at: outcome.state.dueAt.toISOString(),
-        interval_days: outcome.state.scheduledDays ?? 0,
-        ease_factor: outcome.state.easeFactor,
-        learning_step: outcome.state.learningStep,
-      },
-      xp: { amount: outcome.xpAmount },
-    };
   }
 
   // ---------------------------------------------------------------- stats
@@ -229,10 +388,17 @@ export class SrsService {
         now,
         dayEnd,
       }),
-      this.dueRepo.getDayCounts({ userId, profileId: profile.id, dayStart }),
+      this.dueRepo.getDayCounts({
+        userId,
+        profileId: profile.id,
+        dayStart,
+        dayEnd,
+      }),
       this.statsRepo.getAccuracy7d({
         userId,
+        profileId: profile.id,
         since: new Date(now.getTime() - ACCURACY_WINDOW_DAYS * 86_400_000),
+        until: now,
       }),
     ]);
 
@@ -255,6 +421,44 @@ export class SrsService {
     return this.resolveProfile(userId);
   }
 
+  /** Resolve profile/settings after the caller has acquired its user lock. */
+  getProfileContextInTransaction(
+    tx: TxClient,
+    userId: bigint,
+  ): Promise<ResolvedProfile> {
+    return this.resolveProfileFrom(tx, userId);
+  }
+
+  countNormalDueInTransaction(
+    tx: TxClient,
+    userId: bigint,
+    profile: ResolvedProfile,
+    now: Date,
+    currentId: bigint,
+    collectionId?: string,
+    counts?: { introducedToday: number; reviewsToday: number },
+  ): Promise<number> {
+    return this.countNormalDue(
+      tx,
+      userId,
+      profile,
+      now,
+      currentId,
+      collectionId,
+      counts,
+    );
+  }
+
+  getDayCountsInTransaction(
+    tx: TxClient,
+    userId: bigint,
+    profileId: string,
+    now: Date,
+    timezone: string,
+  ): Promise<{ introducedToday: number; reviewsToday: number }> {
+    return this.getDayCountsTx(tx, userId, profileId, now, timezone);
+  }
+
   /**
    * Thẻ đến hạn (tôn trọng daily cap + learn-ahead) — dùng bởi phiên `review`.
    * Trả về DueRow đã sắp theo queue Anki.
@@ -266,10 +470,12 @@ export class SrsService {
     const profile = await this.resolveProfile(userId);
     const now = new Date();
     const dayStart = startOfDayUtc(now, profile.timezone);
+    const dayEnd = nextDayStartUtc(now, profile.timezone);
     const dayCounts = await this.dueRepo.getDayCounts({
       userId,
       profileId: profile.id,
       dayStart,
+      dayEnd,
     });
     const caps = {
       newRemaining: Math.max(
@@ -288,23 +494,43 @@ export class SrsService {
       secondaryLanguageId: profile.secondaryLanguageId,
       now,
       learnAheadMinutes: LEARN_AHEAD_MINUTES,
-      limit: CANDIDATE_LIMIT,
+      limit: 0,
+      collectionId: options.collectionId,
+      includeLearnAhead: false,
     });
-    if (options.collectionId !== undefined) {
-      candidates = candidates.filter(
-        (row) => row.collection_id === options.collectionId,
-      );
-    }
-    const queue = selectDueQueue(
+    const normalQueue = selectDueQueue(
       candidates.map(toCandidate),
       caps,
       null,
       options.limit,
     );
+    let rows = normalQueue.rows;
+    if (normalQueue.rows.length === 0 || normalQueue.nextCursor === null) {
+      candidates = await this.dueRepo.findCandidates({
+        userId,
+        profileId: profile.id,
+        primaryLanguageId: profile.primaryLanguageId,
+        secondaryLanguageId: profile.secondaryLanguageId,
+        now,
+        learnAheadMinutes: LEARN_AHEAD_MINUTES,
+        limit: 0,
+        collectionId: options.collectionId,
+        includeLearnAhead: true,
+      });
+      const aheadQueue = selectDueQueue(
+        candidates
+          .filter((row) => isLearnAheadRow(row, now, LEARN_AHEAD_MINUTES))
+          .map(toCandidate),
+        caps,
+        null,
+        Math.max(0, options.limit - normalQueue.rows.length),
+      );
+      rows = [...normalQueue.rows, ...aheadQueue.rows];
+    }
     const bySrs = new Map(
       candidates.map((row) => [row.srs_id.toString(), row]),
     );
-    return queue.rows.map((entry) => getRow(bySrs, entry.srsId));
+    return rows.map((entry) => getRow(bySrs, entry.srsId));
   }
 
   /** Bật/tắt suspend một thẻ (M7) — queue M6/M7 đã lọc `suspended = false`. */
@@ -314,21 +540,24 @@ export class SrsService {
     direction: string,
     suspended: boolean,
   ): Promise<{ srs_id: string; state: string; suspended: boolean }> {
-    const srs = await this.prisma.srsState.findFirst({
-      where: { faceId, direction, userId },
-      select: { id: true },
-    });
-    if (!srs) {
-      throw new DomainException(
-        'SRS_ITEM_NOT_FOUND',
-        'Không tìm thấy thẻ ôn',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    const updated = await this.prisma.srsState.update({
-      where: { id: srs.id },
-      data: { suspended },
-      select: { id: true, state: true, suspended: true },
+    const updated = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const srs = await tx.srsState.findFirst({
+        where: { faceId, direction, userId },
+        select: { id: true },
+      });
+      if (!srs) {
+        throw new DomainException(
+          'SRS_ITEM_NOT_FOUND',
+          'Không tìm thấy thẻ ôn',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      return tx.srsState.update({
+        where: { id: srs.id },
+        data: { suspended },
+        select: { id: true, state: true, suspended: true },
+      });
     });
     return {
       srs_id: updated.id.toString(),
@@ -376,10 +605,207 @@ export class SrsService {
       srsReviewPerDay: settings?.srsReviewPerDay ?? DEFAULT_SRS_REVIEW_PER_DAY,
     };
   }
+
+  private async resolveProfileFrom(
+    tx: TxClient,
+    userId: bigint,
+  ): Promise<ResolvedProfile> {
+    const settings = await tx.userSettings.findUnique({ where: { userId } });
+    const timezone = settings?.timezone ?? DEFAULT_TIMEZONE;
+    let profileId = settings?.activeProfileId ?? null;
+    if (profileId === null) {
+      const fallback = await tx.studyProfile.findFirst({
+        where: { userId, isDefault: true },
+        select: { id: true },
+      });
+      profileId = fallback?.id ?? null;
+    }
+    if (profileId === null) {
+      throw new DomainException(
+        'PROFILE_REQUIRED',
+        'Hãy tạo hồ sơ học trước khi ôn tập',
+        HttpStatus.CONFLICT,
+      );
+    }
+    const profile = await tx.studyProfile.findFirst({
+      where: { id: profileId, userId },
+    });
+    if (!profile) {
+      throw new DomainException(
+        'PROFILE_NOT_FOUND',
+        'Không tìm thấy hồ sơ học',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return {
+      id: profile.id,
+      primaryLanguageId: profile.primaryLanguageId,
+      secondaryLanguageId: profile.secondaryLanguageId,
+      timezone,
+      srsNewPerDay: settings?.srsNewPerDay ?? DEFAULT_SRS_NEW_PER_DAY,
+      srsReviewPerDay: settings?.srsReviewPerDay ?? DEFAULT_SRS_REVIEW_PER_DAY,
+    };
+  }
+
+  private async countNormalDue(
+    tx: TxClient,
+    userId: bigint,
+    profile: ResolvedProfile,
+    now: Date,
+    currentId: bigint,
+    collectionId?: string,
+    counts?: { introducedToday: number; reviewsToday: number },
+  ): Promise<number> {
+    const secondary = profile.secondaryLanguageId ?? -1;
+    const collectionFilter =
+      collectionId === undefined
+        ? Prisma.sql``
+        : Prisma.sql`AND i.collection_id = ${collectionId}::uuid`;
+    const newAvailable =
+      counts === undefined || counts.introducedToday < profile.srsNewPerDay;
+    const reviewAvailable =
+      counts === undefined || counts.reviewsToday < profile.srsReviewPerDay;
+    const queueFilter = Prisma.sql`
+      AND (
+        (s.state IN ('learning', 'relearning') AND NOT s.learning_is_interday)
+        OR (
+          ${reviewAvailable}
+          AND (
+            s.state = 'review'
+            OR (s.state IN ('learning', 'relearning') AND s.learning_is_interday)
+          )
+        )
+        OR (${newAvailable} AND s.state = 'new')
+      )`;
+    const rows = await tx.$queryRaw<{ count: bigint }[]>`
+      SELECT count(*) AS count
+      FROM app.srs_state s
+      JOIN app.collection_item_face f ON f.id = s.face_id
+      JOIN app.collection_item i ON i.id = f.item_id
+      JOIN app.collection c ON c.id = i.collection_id
+      WHERE s.id <> ${currentId}
+        AND s.user_id = ${userId}
+        AND s.profile_id = ${profile.id}
+        AND c.profile_id = ${profile.id}
+        AND c.owner_id = ${userId}
+        AND c.archived_at IS NULL
+        ${collectionFilter}
+        AND i.status <> 'paused'
+        AND s.suspended = false
+        AND (s.buried_until IS NULL OR s.buried_until <= ${now})
+        AND (f.language_id = ${profile.primaryLanguageId} OR f.language_id = ${secondary})
+        ${queueFilter}
+        AND s.due_at <= ${now}
+    `;
+    return Number(rows[0]?.count ?? 0n);
+  }
+
+  private async getDayCountsTx(
+    tx: TxClient,
+    userId: bigint,
+    profileId: string,
+    now: Date,
+    timezone: string,
+  ): Promise<{ introducedToday: number; reviewsToday: number }> {
+    const dayStart = startOfDayUtc(now, timezone);
+    const dayEnd = nextDayStartUtc(now, timezone);
+    const rows = await tx.$queryRaw<{ introduced: bigint; reviews: bigint }[]>`
+      SELECT
+        count(*) FILTER (WHERE queue_kind_before = 'new') AS introduced,
+        count(*) FILTER (
+          WHERE queue_kind_before IN ('review', 'interday_learning')
+        ) AS reviews
+      FROM app.review_log
+      WHERE user_id = ${userId}
+        AND profile_id = ${profileId}
+        AND reviewed_at >= ${dayStart}
+        AND reviewed_at < ${dayEnd}
+    `;
+    return {
+      introducedToday: Number(rows[0]?.introduced ?? 0n),
+      reviewsToday: Number(rows[0]?.reviews ?? 0n),
+    };
+  }
 }
 
 function toCandidate(row: DueRow): DueCandidate {
-  return { srsId: row.srs_id, dueAt: row.due_at, bucket: bucketOf(row.state) };
+  return {
+    srsId: row.srs_id,
+    dueAt: row.due_at,
+    dueAtKey: row.due_at_key,
+    bucket: bucketOf(row.state),
+    learningIsInterday: row.learning_is_interday,
+    sortKey:
+      row.state === 'new'
+        ? `${row.collection_id}:${String(row.item_position).padStart(10, '0')}:${row.item_id}:${String(row.srs_id).padStart(20, '0')}`
+        : undefined,
+  };
+}
+
+function assertDueCursorContext(
+  cursor: ReturnType<typeof decodeDueCursor>,
+  profile: ResolvedProfile,
+  collectionId: string | undefined,
+  now: Date,
+): void {
+  const expectedDay = localDateString(now, profile.timezone);
+  if (
+    cursor.version !== 1 ||
+    cursor.profileId !== profile.id ||
+    (cursor.collectionId ?? null) !== (collectionId ?? null) ||
+    cursor.day !== expectedDay ||
+    cursor.phase === undefined
+  ) {
+    throw new DomainException(
+      'VALIDATION_FAILED',
+      'Cursor không còn phù hợp với hàng đợi hiện tại',
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+  if (
+    cursor.bucket === 2
+      ? typeof cursor.sortKey !== 'string' || cursor.sortKey.length === 0
+      : cursor.sortKey !== undefined
+  ) {
+    throw new DomainException(
+      'VALIDATION_FAILED',
+      'Cursor không còn phù hợp với hàng đợi hiện tại',
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+  if (
+    (cursor.bucket === 0 && typeof cursor.interday !== 'boolean') ||
+    (cursor.phase === 'ahead' && cursor.bucket !== 0)
+  ) {
+    throw new DomainException(
+      'VALIDATION_FAILED',
+      'Cursor không còn phù hợp với hàng đợi hiện tại',
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+}
+
+function sameReviewPayload(
+  value: unknown,
+  expected: {
+    face_id: string;
+    direction: string;
+    rating: number;
+    mode: string;
+    elapsed_ms: number | null;
+    collection_id: string | null;
+  },
+): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  const actual = value as Record<string, unknown>;
+  return (
+    actual.face_id === expected.face_id &&
+    actual.direction === expected.direction &&
+    actual.rating === expected.rating &&
+    actual.mode === expected.mode &&
+    actual.elapsed_ms === expected.elapsed_ms &&
+    actual.collection_id === expected.collection_id
+  );
 }
 
 function bucketOf(state: string): DueBucket {
@@ -387,6 +813,27 @@ function bucketOf(state: string): DueBucket {
     return 0;
   }
   return state === 'review' ? 1 : 2;
+}
+
+function isLearnAheadRow(row: DueRow, now: Date, minutes: number): boolean {
+  return (
+    (row.state === 'learning' || row.state === 'relearning') &&
+    !row.learning_is_interday &&
+    row.due_at > now &&
+    row.due_at.getTime() <= now.getTime() + minutes * 60_000
+  );
+}
+
+function toCursorValue(row: DueCandidate): DueCursorValue {
+  return {
+    bucket: row.bucket,
+    dueAt: row.dueAtKey ?? row.dueAt.toISOString(),
+    srsId: row.srsId.toString(),
+    ...(row.dueAtKey === undefined && row.learningIsInterday === undefined
+      ? {}
+      : { interday: row.learningIsInterday ?? false }),
+    ...(row.sortKey === undefined ? {} : { sortKey: row.sortKey }),
+  };
 }
 
 function getRow(bySrs: Map<string, DueRow>, srsId: bigint): DueRow {
@@ -404,7 +851,13 @@ function toDueCard(row: DueRow): DueCard {
     reading: row.reading,
     romanization: row.romanization,
   };
-  const meaning: LocalizedMeaning = { kind: 'meaning', text: row.meaning_vi };
+  const meaning: LocalizedMeaning = {
+    kind: 'meaning',
+    text: row.meaning_vi,
+    meaning_source: row.meaning_source,
+    is_machine_generated:
+      row.meaning_source === 'machine' || row.meaning_source === 'llm',
+  };
   const recognize = row.direction === 'recognize';
 
   return {
@@ -425,5 +878,53 @@ function toDueCard(row: DueRow): DueCard {
     prompt: recognize ? word : meaning,
     answer: recognize ? meaning : word,
     due_at: row.due_at.toISOString(),
+    meaning_source: row.meaning_source,
+    is_machine_generated:
+      row.meaning_source === 'machine' || row.meaning_source === 'llm',
+  };
+}
+
+function queueKindForState(
+  state: string,
+  interday: boolean,
+): 'new' | 'intraday_learning' | 'interday_learning' | 'review' {
+  if (state === 'new') return 'new';
+  if (state === 'review') return 'review';
+  return interday ? 'interday_learning' : 'intraday_learning';
+}
+
+function toReviewResult(outcome: {
+  log: {
+    id: bigint;
+    rating: number;
+    mode: string;
+    prevState: string | null;
+    reviewedAt: Date;
+  };
+  state: {
+    state: string;
+    dueAt: Date;
+    scheduledDays: number | null;
+    easeFactor: number;
+    learningStep: number | null;
+  };
+  xpAmount: number;
+}): ReviewResult {
+  return {
+    review_log: {
+      id: outcome.log.id.toString(),
+      rating: outcome.log.rating,
+      mode: outcome.log.mode,
+      prev_state: outcome.log.prevState,
+      reviewed_at: outcome.log.reviewedAt.toISOString(),
+    },
+    srs: {
+      state: outcome.state.state,
+      due_at: outcome.state.dueAt.toISOString(),
+      interval_days: outcome.state.scheduledDays ?? 0,
+      ease_factor: outcome.state.easeFactor,
+      learning_step: outcome.state.learningStep,
+    },
+    xp: { amount: outcome.xpAmount },
   };
 }

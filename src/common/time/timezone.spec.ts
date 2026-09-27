@@ -27,4 +27,18 @@ describe('timezone util', () => {
       '2026-09-26T17:00:00.000Z',
     );
   });
+
+  it('America/New_York: rollover mùa thu dài 25 giờ', () => {
+    const now = new Date('2026-11-01T04:30:00.000Z');
+    expect(nextDayStartUtc(now, 'America/New_York').toISOString()).toBe(
+      '2026-11-02T05:00:00.000Z',
+    );
+  });
+
+  it('America/New_York: rollover mùa xuân ngắn 23 giờ', () => {
+    const now = new Date('2026-03-08T04:30:00.000Z');
+    expect(nextDayStartUtc(now, 'America/New_York').toISOString()).toBe(
+      '2026-03-08T05:00:00.000Z',
+    );
+  });
 });

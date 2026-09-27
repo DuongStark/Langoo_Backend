@@ -3,10 +3,12 @@ import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import { LEARN_AHEAD_MINUTES } from '../srs/scheduler/anki.constants';
 import { mathRng } from '../srs/scheduler/fuzz';
 import { DueRepository, DueRow } from '../srs/repositories/due.repository';
 import { ReviewEngine } from '../srs/review-engine.service';
 import { SrsService } from '../srs/srs.service';
+import { lockUser } from '../users/user-lock';
 import { AnswerSessionDto } from './dto/answer-session.dto';
 import { CreateSessionDto } from './dto/create-session.dto';
 import { SessionSourceRepository } from './repositories/session-source.repository';
@@ -46,6 +48,7 @@ interface SessionRow {
   id: string;
   kind: string;
   mode: string;
+  profileId: string;
   collectionId: string | null;
   status: string;
   itemCount: number;
@@ -202,58 +205,28 @@ export class SessionsService {
     sessionId: string,
     dto: AnswerSessionDto,
   ): Promise<AnswerResultResponse> {
-    const session = await this.findOwned(userId, sessionId);
-    const item = (session.items ?? []).find(
-      (entry) => entry.ordinal === dto.ordinal,
-    );
-    if (!item) {
-      throw new DomainException(
-        'SESSION_ITEM_NOT_FOUND',
-        'Không tìm thấy câu hỏi trong phiên',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    // Replay (retry mạng): trả lại kết quả đã ghi, không áp lần nữa.
-    if (item.answeredAt !== null) {
-      return this.buildReplay(userId, session.id, item);
-    }
-    if (session.status !== 'in_progress') {
-      throw new DomainException(
-        'SESSION_CLOSED',
-        'Phiên đã kết thúc',
-        HttpStatus.CONFLICT,
-      );
-    }
-
-    const graded = gradeAnswer(
-      session.mode as SessionMode,
-      item.correctAnswer as Record<string, unknown>,
-      {
-        rating: dto.rating,
-        optionIndex: dto.option_index,
-        answerText: dto.answer_text,
-      },
-    );
-    if (!graded) {
-      throw new DomainException(
-        'SESSION_ANSWER_INVALID',
-        `Câu trả lời không hợp lệ cho chế độ ${session.mode}`,
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    if (item.srsId === null || item.faceId === null) {
-      throw new DomainException(
-        'SESSION_ITEM_NOT_FOUND',
-        'Câu hỏi không gắn với thẻ ôn',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    const srsId = item.srsId;
-
-    const profile = await this.srs.getProfileContext(userId);
-    const now = new Date();
-
     const outcome = await this.prisma.$transaction(async (tx) => {
+      // Match direct review lock order: user → session → session item → SRS.
+      await tx.$queryRaw`SELECT id FROM app.users WHERE id = ${userId} FOR UPDATE`;
+      const session = await tx.studySession.findFirst({
+        where: { id: sessionId, userId },
+        include: { items: { orderBy: { ordinal: 'asc' } } },
+      });
+      if (!session) {
+        throw new DomainException(
+          'SESSION_NOT_FOUND',
+          'Không tìm thấy phiên ôn',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const item = session.items.find((entry) => entry.ordinal === dto.ordinal);
+      if (!item) {
+        throw new DomainException(
+          'SESSION_ITEM_NOT_FOUND',
+          'Không tìm thấy câu hỏi trong phiên',
+          HttpStatus.NOT_FOUND,
+        );
+      }
       await tx.$queryRaw`SELECT id FROM app.study_session_item WHERE id = ${item.id} FOR UPDATE`;
       const freshItem = await tx.studySessionItem.findUniqueOrThrow({
         where: { id: item.id },
@@ -262,11 +235,129 @@ export class SessionsService {
         return { replay: true as const, item: freshItem };
       }
 
+      if (session.status !== 'in_progress') {
+        throw new DomainException(
+          'SESSION_CLOSED',
+          'Phiên đã kết thúc',
+          HttpStatus.CONFLICT,
+        );
+      }
+      const graded = gradeAnswer(
+        session.mode as SessionMode,
+        freshItem.correctAnswer as Record<string, unknown>,
+        {
+          rating: dto.rating,
+          optionIndex: dto.option_index,
+          answerText: dto.answer_text,
+        },
+      );
+      if (!graded) {
+        throw new DomainException(
+          'SESSION_ANSWER_INVALID',
+          `Câu trả lời không hợp lệ cho chế độ ${session.mode}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (freshItem.srsId === null || freshItem.faceId === null) {
+        throw new DomainException(
+          'SESSION_ITEM_NOT_FOUND',
+          'Câu hỏi không gắn với thẻ ôn',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const profile = await this.srs.getProfileContextInTransaction(tx, userId);
+      const srsId = freshItem.srsId;
+
       await tx.$queryRaw`SELECT id FROM app.srs_state WHERE id = ${srsId} FOR UPDATE`;
       const srsRow = await tx.srsState.findUniqueOrThrow({
         where: { id: srsId },
-        include: { face: { select: { itemId: true } } },
+        include: {
+          face: { include: { item: { include: { collection: true } } } },
+        },
       });
+      const nowInTransaction = new Date();
+      const reviewCounts =
+        session.kind === 'review'
+          ? await this.srs.getDayCountsInTransaction(
+              tx,
+              userId,
+              profile.id,
+              nowInTransaction,
+              profile.timezone,
+            )
+          : null;
+      const allowedLanguage =
+        srsRow.face.languageId === profile.primaryLanguageId ||
+        srsRow.face.languageId === profile.secondaryLanguageId;
+      const aheadEligible =
+        (srsRow.state === 'learning' || srsRow.state === 'relearning') &&
+        !srsRow.learningIsInterday &&
+        srsRow.dueAt.getTime() <=
+          nowInTransaction.getTime() + LEARN_AHEAD_MINUTES * 60_000 &&
+        (await this.srs.countNormalDueInTransaction(
+          tx,
+          userId,
+          profile,
+          nowInTransaction,
+          srsRow.id,
+          session.collectionId ?? undefined,
+          reviewCounts ?? undefined,
+        )) === 0;
+      const unavailable =
+        srsRow.userId !== userId ||
+        profile.id !== session.profileId ||
+        srsRow.profileId !== session.profileId ||
+        srsRow.faceId !== freshItem.faceId ||
+        srsRow.face.item.collection.ownerId !== userId ||
+        srsRow.face.item.collection.profileId !== session.profileId ||
+        (session.collectionId !== null &&
+          srsRow.face.item.collection.id !== session.collectionId) ||
+        srsRow.face.item.collection.archivedAt !== null ||
+        srsRow.face.item.status === 'paused' ||
+        !allowedLanguage ||
+        srsRow.suspended ||
+        (srsRow.buriedUntil !== null && srsRow.buriedUntil > nowInTransaction);
+      const notDue =
+        session.kind === 'review' &&
+        srsRow.dueAt > nowInTransaction &&
+        !aheadEligible;
+      if (unavailable) {
+        throw new DomainException(
+          'SRS_ITEM_UNAVAILABLE',
+          'Thẻ hiện không thể ôn trong phiên này',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (notDue) {
+        throw new DomainException(
+          'SRS_ITEM_NOT_DUE',
+          'Thẻ hiện không thể ôn trong phiên này',
+          HttpStatus.UNPROCESSABLE_ENTITY,
+        );
+      }
+      if (session.kind === 'review') {
+        const counts = reviewCounts!;
+        const queueKind =
+          srsRow.state === 'new'
+            ? 'new'
+            : srsRow.state === 'review'
+              ? 'review'
+              : srsRow.learningIsInterday
+                ? 'interday_learning'
+                : 'intraday_learning';
+        if (
+          (queueKind === 'new' &&
+            counts.introducedToday >= profile.srsNewPerDay) ||
+          ((queueKind === 'review' || queueKind === 'interday_learning') &&
+            counts.reviewsToday >= profile.srsReviewPerDay)
+        ) {
+          throw new DomainException(
+            'SRS_DAILY_LIMIT_REACHED',
+            'Đã đạt giới hạn ôn trong ngày',
+            HttpStatus.CONFLICT,
+          );
+        }
+      }
       const engine = await this.reviewEngine.applyRating(
         tx,
         {
@@ -278,9 +369,13 @@ export class SessionsService {
           scheduledDays: srsRow.scheduledDays,
           lastReviewAt: srsRow.lastReviewAt,
           introducedAt: srsRow.introducedAt,
+          dueAt: srsRow.dueAt,
+          profileId: srsRow.profileId,
+          learningIsInterday: srsRow.learningIsInterday,
         },
         {
           userId,
+          profileId: srsRow.profileId,
           itemId: srsRow.face.itemId,
           rating: graded.rating,
           mode: session.mode,
@@ -288,18 +383,18 @@ export class SessionsService {
           clientReviewId: null,
           xpIdempotencyKey: `session:${session.id}:${item.ordinal}`,
           timezone: profile.timezone,
-          now,
+          now: nowInTransaction,
         },
       );
 
       const updatedItem = await tx.studySessionItem.update({
-        where: { id: item.id },
+        where: { id: freshItem.id },
         data: {
           userAnswer: graded.userAnswer as Prisma.InputJsonValue,
           isCorrect: graded.isCorrect,
           rating: graded.rating,
           elapsedMs: dto.elapsed_ms ?? null,
-          answeredAt: now,
+          answeredAt: nowInTransaction,
         },
       });
 
@@ -318,7 +413,7 @@ export class SessionsService {
           where: { id: session.id },
           data: {
             status: 'completed',
-            finishedAt: now,
+            finishedAt: nowInTransaction,
             score: Math.round(
               (updatedSession.correctCount / updatedSession.itemCount) * 100,
             ),
@@ -337,7 +432,7 @@ export class SessionsService {
     });
 
     if (outcome.replay) {
-      return this.buildReplay(userId, session.id, outcome.item);
+      return this.buildReplay(userId, sessionId, outcome.item);
     }
     return {
       item: toItemResponse(outcome.item, true),
@@ -355,25 +450,38 @@ export class SessionsService {
 
   // ---------------------------------------------------------------- finish
   async finish(userId: bigint, sessionId: string): Promise<SessionResponse> {
-    const session = await this.findOwned(userId, sessionId);
-    const answered = (session.items ?? []).filter(
-      (item) => item.answeredAt !== null,
-    ).length;
-    if (session.status !== 'in_progress') {
-      return toSessionResponse(session, answered);
-    }
-    const completed = answered >= session.itemCount;
-    const updated = await this.prisma.studySession.update({
-      where: { id: session.id },
-      data: {
-        status: completed ? 'completed' : 'abandoned',
-        finishedAt: new Date(),
-        score: completed
-          ? Math.round((session.correctCount / session.itemCount) * 100)
-          : null,
-      },
+    return this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const session = await tx.studySession.findFirst({
+        where: { id: sessionId, userId },
+        include: { items: { orderBy: { ordinal: 'asc' } } },
+      });
+      if (!session) {
+        throw new DomainException(
+          'SESSION_NOT_FOUND',
+          'Không tìm thấy phiên ôn',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const answered = session.items.filter(
+        (item) => item.answeredAt !== null,
+      ).length;
+      if (session.status !== 'in_progress') {
+        return toSessionResponse(session, answered);
+      }
+      const completed = answered >= session.itemCount;
+      const updated = await tx.studySession.update({
+        where: { id: session.id },
+        data: {
+          status: completed ? 'completed' : 'abandoned',
+          finishedAt: new Date(),
+          score: completed
+            ? Math.round((session.correctCount / session.itemCount) * 100)
+            : null,
+        },
+      });
+      return toSessionResponse(updated, answered);
     });
-    return toSessionResponse(updated, answered);
   }
 
   // ----------------------------------------------------------------- util
@@ -457,6 +565,9 @@ function toCardContent(row: DueRow): CardContent {
     reading: row.reading,
     romanization: row.romanization,
     meaningVi: row.meaning_vi,
+    meaningSource: row.meaning_source,
+    isMachineGenerated:
+      row.meaning_source === 'machine' || row.meaning_source === 'llm',
     forms: row.forms ?? [],
   };
 }

@@ -19,6 +19,8 @@ export interface SchedulerState {
   learningStep: number | null;
   /** Interval hiện tại tính bằng ngày (scheduled_days; 0 nếu còn ở bước học). */
   intervalDays: number;
+  /** Instant at which the current state became due; used for overdue bonus. */
+  dueAt?: Date;
 }
 
 /** Kết quả xếp lịch — service map vào srs_state. */
@@ -33,4 +35,6 @@ export interface ScheduleResult {
   dueAt: Date;
   /** true khi thẻ rời khỏi state 'new' (phục vụ đếm new/ngày). */
   introduced: boolean;
+  /** True when a learning step is scheduled after the user's local day. */
+  learningIsInterday?: boolean;
 }

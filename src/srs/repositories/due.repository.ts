@@ -7,7 +7,9 @@ export interface DueRow {
   face_id: string;
   item_id: string;
   collection_id: string;
+  item_position: number;
   meaning_vi: string;
+  meaning_source: string;
   sense_id: bigint;
   language_id: number;
   role: string;
@@ -20,7 +22,10 @@ export interface DueRow {
   forms: string[];
   direction: string;
   state: string;
+  learning_is_interday: boolean;
   due_at: Date;
+  /** Six-digit UTC key from PostgreSQL; Date alone loses sub-millisecond data. */
+  due_at_key: string;
 }
 
 export interface DueQueryParams {
@@ -31,6 +36,8 @@ export interface DueQueryParams {
   now: Date;
   learnAheadMinutes: number;
   limit: number;
+  collectionId?: string;
+  includeLearnAhead?: boolean;
 }
 
 export interface DayCounts {
@@ -38,103 +45,55 @@ export interface DayCounts {
   reviewsToday: number;
 }
 
-/**
- * Hàng đợi SRS: đọc `app.srs_state` + join core/public để lấy nội dung thẻ.
- * Thứ tự + lọc theo Anki (docs/srs.md §3); daily cap do service áp sau khi đếm.
- */
+/** Reads the complete eligible set; queue/cursor selection happens in one place. */
 @Injectable()
 export class DueRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findCandidates(params: DueQueryParams): Promise<DueRow[]> {
-    const {
-      userId,
-      profileId,
-      primaryLanguageId,
-      secondaryLanguageId,
-      now,
-      learnAheadMinutes,
-      limit,
-    } = params;
-    const secondary = secondaryLanguageId ?? -1;
-    const learnAhead = new Date(now.getTime() + learnAheadMinutes * 60_000);
-
-    return this.prisma.$queryRaw<DueRow[]>`
-      SELECT
-        s.id                AS srs_id,
-        f.id                AS face_id,
-        f.item_id,
-        i.collection_id,
-        i.meaning_vi,
-        f.sense_id,
-        f.language_id,
-        f.role,
-        lg.code             AS lang_code,
-        lg.name_vi          AS lang_name_vi,
-        lx.lemma,
-        lx.reading,
-        lx.romanization,
-        lx.pos,
-        (
-          SELECT coalesce(array_agg(fm.form_text ORDER BY fm.form_order), '{}')
-          FROM core.lexeme_form fm
-          WHERE fm.lexeme_id = lx.id
-        ) AS forms,
-        s.direction,
-        s.state,
-        s.due_at
-      FROM app.srs_state s
-      JOIN app.collection_item_face f ON f.id = s.face_id
-      JOIN app.collection_item i ON i.id = f.item_id
-      JOIN app.collection c ON c.id = i.collection_id
-      JOIN core.sense se ON se.id = f.sense_id
-      JOIN core.lexeme lx ON lx.id = se.lexeme_id
-      JOIN public.language lg ON lg.id = f.language_id
-      WHERE s.user_id = ${userId}
-        AND s.profile_id = ${profileId}
-        AND c.profile_id = ${profileId}
-        AND c.archived_at IS NULL
-        AND i.status <> 'paused'
-        AND s.suspended = false
-        AND (s.buried_until IS NULL OR s.buried_until <= ${now})
-        AND (f.language_id = ${primaryLanguageId} OR f.language_id = ${secondary})
-        AND (
-          s.due_at <= ${now}
-          OR (
-            s.state IN ('learning', 'relearning')
-            AND s.due_at <= ${learnAhead}
-          )
-        )
-      ORDER BY
-        CASE s.state
-          WHEN 'learning' THEN 0
-          WHEN 'relearning' THEN 0
-          WHEN 'review' THEN 1
-          ELSE 2
-        END,
-        s.due_at ASC,
-        s.id ASC
-      LIMIT ${limit}
-    `;
+  findCandidates(params: DueQueryParams): Promise<DueRow[]> {
+    return this.findRows(params, true);
   }
 
-  /** Nguồn thẻ cho phiên `practice` (ôn trước): bỏ điều kiện đến hạn, lọc collection tùy chọn. */
-  async findPracticeCandidates(
+  /** Source for `practice`: ownership and suspension still apply, due/cap does not. */
+  findPracticeCandidates(
     params: DueQueryParams & { collectionId?: string },
   ): Promise<DueRow[]> {
-    const {
-      userId,
-      profileId,
-      primaryLanguageId,
-      secondaryLanguageId,
-      limit,
-      collectionId,
-    } = params;
-    const secondary = secondaryLanguageId ?? -1;
+    return this.findRows(params, false);
+  }
+
+  private async findRows(
+    params: DueQueryParams,
+    dueOnly: boolean,
+  ): Promise<DueRow[]> {
+    const secondary = params.secondaryLanguageId ?? -1;
+    const learnAhead = new Date(
+      params.now.getTime() + params.learnAheadMinutes * 60_000,
+    );
     const collectionFilter =
-      collectionId !== undefined
-        ? Prisma.sql`AND i.collection_id = ${collectionId}::uuid`
-        : Prisma.sql``;
+      params.collectionId === undefined
+        ? Prisma.sql``
+        : Prisma.sql`AND i.collection_id = ${params.collectionId}::uuid`;
+    const dueFilter = dueOnly
+      ? Prisma.sql`
+        AND (
+          s.due_at <= ${params.now}
+          ${
+            params.includeLearnAhead === false
+              ? Prisma.sql``
+              : Prisma.sql`OR (
+            s.state IN ('learning', 'relearning')
+            AND NOT s.learning_is_interday
+            AND s.due_at <= ${learnAhead}
+          )`
+          }
+        )`
+      : Prisma.sql``;
+    // Practice intentionally has a bounded snapshot; regular due retrieval
+    // returns the full eligible set so the queue can apply caps and cursors
+    // without silently dropping cards at an arbitrary SQL limit.
+    const limitClause = dueOnly
+      ? Prisma.sql``
+      : Prisma.sql`LIMIT ${params.limit}`;
 
     return this.prisma.$queryRaw<DueRow[]>`
       SELECT
@@ -142,7 +101,9 @@ export class DueRepository {
         f.id                AS face_id,
         f.item_id,
         i.collection_id,
+        i.position          AS item_position,
         i.meaning_vi,
+        i.meaning_source,
         f.sense_id,
         f.language_id,
         f.role,
@@ -159,7 +120,12 @@ export class DueRepository {
         ) AS forms,
         s.direction,
         s.state,
-        s.due_at
+        s.learning_is_interday,
+        s.due_at,
+        to_char(
+          s.due_at AT TIME ZONE 'UTC',
+          'YYYY-MM-DD"T"HH24:MI:SS.US"Z"'
+        ) AS due_at_key
       FROM app.srs_state s
       JOIN app.collection_item_face f ON f.id = s.face_id
       JOIN app.collection_item i ON i.id = f.item_id
@@ -167,53 +133,56 @@ export class DueRepository {
       JOIN core.sense se ON se.id = f.sense_id
       JOIN core.lexeme lx ON lx.id = se.lexeme_id
       JOIN public.language lg ON lg.id = f.language_id
-      WHERE s.user_id = ${userId}
-        AND s.profile_id = ${profileId}
-        AND c.profile_id = ${profileId}
+      WHERE s.user_id = ${params.userId}
+        AND s.profile_id = ${params.profileId}
+        AND c.profile_id = ${params.profileId}
+        AND c.owner_id = ${params.userId}
         AND c.archived_at IS NULL
         AND i.status <> 'paused'
         AND s.suspended = false
         AND (s.buried_until IS NULL OR s.buried_until <= ${params.now})
-        AND (f.language_id = ${primaryLanguageId} OR f.language_id = ${secondary})
+        AND (f.language_id = ${params.primaryLanguageId} OR f.language_id = ${secondary})
         ${collectionFilter}
+        ${dueFilter}
       ORDER BY
-        CASE s.state
-          WHEN 'learning' THEN 0
-          WHEN 'relearning' THEN 0
-          WHEN 'review' THEN 1
-          ELSE 2
+        CASE
+          WHEN s.state IN ('learning', 'relearning') AND NOT s.learning_is_interday THEN 0
+          WHEN s.state IN ('learning', 'relearning') THEN 1
+          WHEN s.state = 'review' THEN 2
+          ELSE 3
         END,
+        CASE WHEN s.state = 'new' THEN i.collection_id END ASC,
+        CASE WHEN s.state = 'new' THEN i.position END ASC,
+        CASE WHEN s.state = 'new' THEN i.id END ASC,
         s.due_at ASC,
         s.id ASC
-      LIMIT ${limit}
+      ${limitClause}
     `;
   }
 
-  /** Số thẻ mới giới thiệu hôm nay + số lượt review (không tính lượt thẻ mới) hôm nay. */
   async getDayCounts(params: {
     userId: bigint;
     profileId: string;
     dayStart: Date;
+    dayEnd: Date;
   }): Promise<DayCounts> {
-    const introduced = await this.prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT count(*) AS count
-      FROM app.srs_state
-      WHERE user_id = ${params.userId}
-        AND profile_id = ${params.profileId}
-        AND introduced_at IS NOT NULL
-        AND introduced_at >= ${params.dayStart}
-    `;
-    const reviews = await this.prisma.$queryRaw<{ count: bigint }[]>`
-      SELECT count(*) AS count
+    const rows = await this.prisma.$queryRaw<
+      { introduced: bigint; reviews: bigint }[]
+    >`
+      SELECT
+        count(*) FILTER (WHERE queue_kind_before = 'new') AS introduced,
+        count(*) FILTER (
+          WHERE queue_kind_before IN ('review', 'interday_learning')
+        ) AS reviews
       FROM app.review_log
       WHERE user_id = ${params.userId}
+        AND profile_id = ${params.profileId}
         AND reviewed_at >= ${params.dayStart}
-        AND prev_state IS NOT NULL
-        AND prev_state <> 'new'
+        AND reviewed_at < ${params.dayEnd}
     `;
     return {
-      introducedToday: Number(introduced[0]?.count ?? 0n),
-      reviewsToday: Number(reviews[0]?.count ?? 0n),
+      introducedToday: Number(rows[0]?.introduced ?? 0n),
+      reviewsToday: Number(rows[0]?.reviews ?? 0n),
     };
   }
 }

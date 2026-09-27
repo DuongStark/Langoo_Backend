@@ -7,6 +7,9 @@ export interface DueCandidate {
   srsId: bigint;
   dueAt: Date;
   bucket: DueBucket;
+  dueAtKey?: string;
+  learningIsInterday?: boolean;
+  sortKey?: string;
 }
 
 export interface DueCaps {
@@ -39,10 +42,17 @@ export function selectDueQueue(
 ): DueQueueResult {
   const counts: DueCounts = { learning: 0, review: 0, new: 0 };
   const eligible: DueCandidate[] = [];
+  let reviewQuotaUsed = 0;
 
   for (const row of candidates) {
-    if (row.bucket === 1 && counts.review >= caps.reviewRemaining) {
+    const consumesReviewQuota =
+      row.bucket === 1 ||
+      (row.bucket === 0 && (row.learningIsInterday ?? false));
+    if (consumesReviewQuota && reviewQuotaUsed >= caps.reviewRemaining) {
       continue;
+    }
+    if (consumesReviewQuota) {
+      reviewQuotaUsed += 1;
     }
     if (row.bucket === 2 && counts.new >= caps.newRemaining) {
       continue;
@@ -71,8 +81,13 @@ export function selectDueQueue(
       hasMore && last !== undefined
         ? {
             bucket: last.bucket,
-            dueAt: last.dueAt.toISOString(),
+            dueAt: last.dueAtKey ?? dateKey(last.dueAt),
             srsId: last.srsId.toString(),
+            ...(last.dueAtKey === undefined &&
+            last.learningIsInterday === undefined
+              ? {}
+              : { interday: last.learningIsInterday ?? false }),
+            ...(last.sortKey === undefined ? {} : { sortKey: last.sortKey }),
           }
         : null,
     counts,
@@ -83,9 +98,34 @@ function isAfterCursor(row: DueCandidate, cursor: DueCursorValue): boolean {
   if (row.bucket !== cursor.bucket) {
     return row.bucket > cursor.bucket;
   }
-  const cursorDueAt = new Date(cursor.dueAt).getTime();
-  if (row.dueAt.getTime() !== cursorDueAt) {
-    return row.dueAt.getTime() > cursorDueAt;
+  if (row.bucket === 2 && cursor.sortKey !== undefined) {
+    return (row.sortKey ?? '') > cursor.sortKey;
+  }
+  if (
+    row.bucket === 0 &&
+    (row.learningIsInterday ?? false) !== (cursor.interday ?? false)
+  ) {
+    return (row.learningIsInterday ?? false) && !(cursor.interday ?? false);
+  }
+  const rowDueAt = normalizeDateKey(row.dueAtKey ?? dateKey(row.dueAt));
+  const cursorDueAt = normalizeDateKey(cursor.dueAt);
+  if (rowDueAt !== cursorDueAt) {
+    return rowDueAt > cursorDueAt;
   }
   return row.srsId > BigInt(cursor.srsId);
+}
+
+function dateKey(date: Date): string {
+  return date.toISOString();
+}
+
+function normalizeDateKey(value: string): string {
+  const match = value.match(
+    /^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.(\d{1,6})Z$/,
+  );
+  if (match) {
+    return `${match[1]}.${match[2].padEnd(6, '0')}Z`;
+  }
+  const date = new Date(value);
+  return dateKey(date);
 }

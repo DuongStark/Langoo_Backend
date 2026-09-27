@@ -175,6 +175,7 @@ describe('Gamification (e2e — langoo_test)', () => {
       collectionId = ctx.collectionId;
       await addItem(token, collectionId, '1', '2', 'chạy');
       await addItem(token, collectionId, '5', '6', 'ăn');
+      await addItem(token, collectionId, '7', '8', 'đi');
     });
 
     it('user chưa hoạt động → defaults, không tạo rác', async () => {
@@ -239,8 +240,8 @@ describe('Gamification (e2e — langoo_test)', () => {
     it('lượt thứ hai cùng ngày: chỉ +1 XP review, bonus ngày không lặp', async () => {
       const cards = await cardsOf(userId);
       const second = await review(token, {
-        face_id: cards[1].faceId,
-        direction: cards[1].direction,
+        face_id: cards[4].faceId,
+        direction: cards[4].direction,
         rating: 3,
       });
       expect(second.xp.amount).toBe(1);
@@ -259,17 +260,17 @@ describe('Gamification (e2e — langoo_test)', () => {
       const cards = await cardsOf(userId);
       const key = randomUUID();
       await review(token, {
-        face_id: cards[2].faceId,
-        direction: cards[2].direction,
+        face_id: cards[8].faceId,
+        direction: cards[8].direction,
         rating: 3,
         client_review_id: key,
       });
       const before = await getStats(token);
 
       await review(token, {
-        face_id: cards[2].faceId,
-        direction: cards[2].direction,
-        rating: 1,
+        face_id: cards[8].faceId,
+        direction: cards[8].direction,
+        rating: 3,
         client_review_id: key,
       });
       const after = await getStats(token);
@@ -285,6 +286,7 @@ describe('Gamification (e2e — langoo_test)', () => {
       const ctx = await setupUser('cap');
       await addItem(ctx.token, ctx.collectionId, '1', '2', 'chạy');
       await addItem(ctx.token, ctx.collectionId, '5', '6', 'ăn');
+      await addItem(ctx.token, ctx.collectionId, '7', '8', 'đi');
       const cards = await cardsOf(ctx.userId);
 
       await prisma.xpRule.update({
@@ -298,13 +300,13 @@ describe('Gamification (e2e — langoo_test)', () => {
           rating: 3,
         });
         const second = await review(ctx.token, {
-          face_id: cards[1].faceId,
-          direction: cards[1].direction,
+          face_id: cards[4].faceId,
+          direction: cards[4].direction,
           rating: 3,
         });
         const third = await review(ctx.token, {
-          face_id: cards[2].faceId,
-          direction: cards[2].direction,
+          face_id: cards[8].faceId,
+          direction: cards[8].direction,
           rating: 3,
         });
         expect([first.xp.amount, second.xp.amount, third.xp.amount]).toEqual([
@@ -334,6 +336,7 @@ describe('Gamification (e2e — langoo_test)', () => {
       await addItem(ctx.token, ctx.collectionId, '1', '2', 'chạy');
       await addItem(ctx.token, ctx.collectionId, '5', '6', 'ăn');
       await addItem(ctx.token, ctx.collectionId, '7', '8', 'đi');
+      await addItem(ctx.token, ctx.collectionId, '9', '10', 'nước');
       const cards = await cardsOf(ctx.userId);
 
       await review(ctx.token, {
@@ -352,8 +355,8 @@ describe('Gamification (e2e — langoo_test)', () => {
         },
       });
       await review(ctx.token, {
-        face_id: cards[1].faceId,
-        direction: cards[1].direction,
+        face_id: cards[4].faceId,
+        direction: cards[4].direction,
         rating: 3,
       });
       stats = await getStats(ctx.token);
@@ -366,8 +369,8 @@ describe('Gamification (e2e — langoo_test)', () => {
         },
       });
       await review(ctx.token, {
-        face_id: cards[2].faceId,
-        direction: cards[2].direction,
+        face_id: cards[8].faceId,
+        direction: cards[8].direction,
         rating: 3,
       });
       stats = await getStats(ctx.token);
@@ -380,8 +383,8 @@ describe('Gamification (e2e — langoo_test)', () => {
         .send({ daily_goal: 1 })
         .expect(200);
       await review(ctx.token, {
-        face_id: cards[3].faceId,
-        direction: cards[3].direction,
+        face_id: cards[12].faceId,
+        direction: cards[12].direction,
         rating: 3,
       });
       stats = await getStats(ctx.token);
@@ -420,7 +423,7 @@ describe('Gamification (e2e — langoo_test)', () => {
 
     it('đủ ngưỡng → mở khoá 1 lần + thưởng XP; tiến độ seeded tăng', async () => {
       const cards = await cardsOf(userId);
-      for (const card of cards.slice(0, 3)) {
+      for (const card of [cards[0], cards[4], cards[8]]) {
         await review(token, {
           face_id: card.faceId,
           direction: card.direction,
@@ -457,8 +460,8 @@ describe('Gamification (e2e — langoo_test)', () => {
     it('lượt tiếp theo không thưởng lại; seen đánh dấu đã xem', async () => {
       const cards = await cardsOf(userId);
       await review(token, {
-        face_id: cards[3].faceId,
-        direction: cards[3].direction,
+        face_id: cards[12].faceId,
+        direction: cards[12].direction,
         rating: 3,
       });
       expect(
@@ -486,6 +489,15 @@ describe('Gamification (e2e — langoo_test)', () => {
       const ctx = await setupUser('session');
       await addItem(ctx.token, ctx.collectionId, '1', '2', 'chạy');
       await addItem(ctx.token, ctx.collectionId, '5', '6', 'ăn');
+
+      // Practice still enforces bury/eligibility at answer time. Keep the
+      // snapshot on two different items so the first answer cannot bury the
+      // second fixture card.
+      const practiceCards = await cardsOf(ctx.userId);
+      await prisma.srsState.updateMany({
+        where: { id: { in: practiceCards.slice(1, 4).map((card) => card.id) } },
+        data: { suspended: true },
+      });
 
       const created = await request(server)
         .post('/v1/sessions')

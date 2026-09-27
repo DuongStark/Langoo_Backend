@@ -1,4 +1,5 @@
 import { config as loadDotenv } from 'dotenv';
+import { withUtcTimezone } from '../src/db/connection-url';
 
 // Nạp .env sớm nhất có thể (trước khi AppModule khởi tạo ConfigModule).
 loadDotenv();
@@ -12,10 +13,18 @@ if (testUrl === undefined || testUrl.trim() === '') {
 
 function assertTestDb(rawUrl: string, label: string): string {
   let database: string;
+  let hostname: string;
   try {
-    database = decodeURIComponent(new URL(rawUrl).pathname.replace(/^\//, ''));
+    const url = new URL(rawUrl);
+    database = decodeURIComponent(url.pathname.replace(/^\//, ''));
+    hostname = url.hostname.toLowerCase();
   } catch {
     throw new Error(`${label} không phải URL hợp lệ`);
+  }
+  if (!['localhost', '127.0.0.1', '::1'].includes(hostname)) {
+    throw new Error(
+      `An toàn: e2e chỉ chạy trên PostgreSQL local — ${label} đang trỏ host "${hostname}".`,
+    );
   }
   if (!/_test$/.test(database)) {
     throw new Error(
@@ -26,14 +35,19 @@ function assertTestDb(rawUrl: string, label: string): string {
   return rawUrl;
 }
 
-process.env.DATABASE_URL = assertTestDb(
-  testUrl,
-  'TEST_DATABASE_URL/DATABASE_URL',
+const testDatabaseUrl = withUtcTimezone(
+  assertTestDb(testUrl, 'TEST_DATABASE_URL/DATABASE_URL'),
 );
-process.env.DIRECT_URL = assertTestDb(
-  process.env.TEST_DIRECT_URL ?? process.env.DIRECT_URL ?? testUrl,
-  'TEST_DIRECT_URL/DIRECT_URL',
+// Never fall back to the production DIRECT_URL for test setup. A separate
+// test direct URL is allowed, but it must point at the same safe DB class.
+const testDirectUrl = withUtcTimezone(
+  assertTestDb(
+    process.env.TEST_DIRECT_URL ?? testUrl,
+    'TEST_DIRECT_URL/TEST_DATABASE_URL',
+  ),
 );
+process.env.DATABASE_URL = testDatabaseUrl;
+process.env.DIRECT_URL = testDirectUrl;
 process.env.NODE_ENV = 'test';
 if (process.env.LOG_LEVEL === undefined) {
   process.env.LOG_LEVEL = 'error';

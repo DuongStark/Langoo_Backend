@@ -16,6 +16,7 @@ interface TxMock {
   srsState: { createMany: jest.Mock };
   collectionItemTag: { deleteMany: jest.Mock; createMany: jest.Mock };
   collection: { update: jest.Mock };
+  $queryRaw: jest.Mock;
 }
 
 function firstArg<T>(mock: jest.Mock): T {
@@ -81,6 +82,7 @@ function createSetup(): {
     srsState: { createMany: jest.fn() },
     collectionItemTag: { deleteMany: jest.fn(), createMany: jest.fn() },
     collection: { update: jest.fn() },
+    $queryRaw: jest.fn(),
   };
   const prisma = {
     collection: { findFirst: jest.fn() },

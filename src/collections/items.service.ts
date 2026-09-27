@@ -6,6 +6,7 @@ import { decodeCursor, encodeCursor } from '../common/pagination/cursor';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import { lockUser } from '../users/user-lock';
 import { CreateItemDto } from './dto/create-item.dto';
 import { ListItemsQueryDto } from './dto/list-items-query.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
@@ -309,6 +310,7 @@ export class ItemsService {
     }
 
     await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
       await tx.collectionItem.update({
         where: { id: itemId },
         data: {
@@ -343,6 +345,7 @@ export class ItemsService {
     await this.findOwnedCollection(userId, collectionId);
     const deletedAt = new Date();
     await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
       const deleted = await tx.collectionItem.deleteMany({
         where: { id: itemId, collectionId },
       });

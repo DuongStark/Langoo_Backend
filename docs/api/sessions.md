@@ -6,17 +6,18 @@ bao giờ gửi `is_correct`/điểm (gửi lên sẽ bị `400 VALIDATION_FAILE
 
 Mọi lượt trả lời đi qua **cùng một engine với `POST /v1/srs/reviews`** (`ReviewEngine`):
 scheduler Anki → `review_log` → `srs_state` → burying sibling → XP thô. Khác biệt duy nhất:
-phiên ôn **không kiểm tra `due_at`** (thẻ đã được chọn vào phiên là hợp lệ), còn endpoint
-review trực tiếp thì có.
+`practice` được ôn trước và miễn due/daily cap; `review` áp due, learn-ahead và quota như
+`/srs/due`. Cả hai loại vẫn kiểm tra lại ownership, profile, ngôn ngữ, archive/paused,
+suspend và bury trong transaction khi trả lời.
 
 ## Chế độ & cách chấm
 
-| `mode` | Client gửi | Server chấm | Rating quy đổi |
-|---|---|---|---|
-| `flashcard` | `rating` 1–4 (tự đánh giá) | `rating ≥ 3` = đúng | chính `rating` |
-| `multiple_choice` | `option_index` | so với đáp án đúng đã sinh | đúng → 3, sai → 1 |
-| `matching` | `option_index` | như MCQ (FE bày dạng ghép cặp) | đúng → 3, sai → 1 |
-| `typing` | `answer_text` | chuẩn hoá `trim + lowercase`, so danh sách chấp nhận | đúng → 3, sai → 1 |
+| `mode`            | Client gửi                 | Server chấm                                          | Rating quy đổi    |
+| ----------------- | -------------------------- | ---------------------------------------------------- | ----------------- |
+| `flashcard`       | `rating` 1–4 (tự đánh giá) | `rating ≥ 3` = đúng                                  | chính `rating`    |
+| `multiple_choice` | `option_index`             | so với đáp án đúng đã sinh                           | đúng → 3, sai → 1 |
+| `matching`        | `option_index`             | như MCQ (FE bày dạng ghép cặp)                       | đúng → 3, sai → 1 |
+| `typing`          | `answer_text`              | chuẩn hoá `trim + lowercase`, so danh sách chấp nhận | đúng → 3, sai → 1 |
 
 - `typing` theo chiều thẻ: **recognize** hỏi từ → gõ nghĩa; **recall** hỏi nghĩa → gõ từ
   (chấp nhận lemma, reading kana, romaji, mọi form của lexeme).
@@ -39,25 +40,45 @@ curl -s -X POST http://localhost:3000/v1/sessions \
 ```json
 {
   "session": {
-    "id": "01a0…", "kind": "review", "mode": "multiple_choice",
-    "status": "in_progress", "item_count": 16, "answered_count": 0,
-    "correct_count": 0, "score": null, "xp_awarded": 0,
-    "settings": { "option_count": 4 }, "started_at": "…", "finished_at": null
+    "id": "01a0…",
+    "kind": "review",
+    "mode": "multiple_choice",
+    "status": "in_progress",
+    "item_count": 16,
+    "answered_count": 0,
+    "correct_count": 0,
+    "score": null,
+    "xp_awarded": 0,
+    "settings": { "option_count": 4 },
+    "started_at": "…",
+    "finished_at": null
   },
-  "items": [{
-    "id": "12", "ordinal": 1, "srs_id": "7", "face_id": "…",
-    "prompt": {
-      "kind": "multiple_choice", "direction": "recognize",
-      "language": { "id": 2, "code": "ja", "name_vi": "Tiếng Nhật" },
-      "question": { "kind": "word", "text": "走る", "reading": "はしる" },
-      "options": [{ "index": 0, "text": "chạy" }, { "index": 1, "text": "ăn" }]
-    },
-    "is_correct": null, "rating": null, "answered_at": null
-  }]
+  "items": [
+    {
+      "id": "12",
+      "ordinal": 1,
+      "srs_id": "7",
+      "face_id": "…",
+      "prompt": {
+        "kind": "multiple_choice",
+        "direction": "recognize",
+        "language": { "id": 2, "code": "ja", "name_vi": "Tiếng Nhật" },
+        "question": { "kind": "word", "text": "走る", "reading": "はしる" },
+        "options": [
+          { "index": 0, "text": "chạy" },
+          { "index": 1, "text": "ăn" }
+        ]
+      },
+      "is_correct": null,
+      "rating": null,
+      "answered_at": null
+    }
+  ]
 }
 ```
 
-- **`correct_answer` bị ẩn** với câu chưa trả lời; chỉ hiện trong item đã trả lời.
+- **`correct_answer` bị ẩn** với câu chưa trả lời; chỉ hiện trong item đã trả lời. Nếu câu hỏi
+  nghĩa được dùng, snapshot giữ `meaning_source` và `is_machine_generated`.
 - Lỗi: `409 SESSION_NO_CARDS` (không có thẻ phù hợp) · `409 PROFILE_REQUIRED`.
 
 ## GET /v1/sessions/:id
@@ -72,8 +93,8 @@ Danh sách câu **đã trả lời**, kèm `correct_answer` để xem lại. Đ�
 
 ## POST /v1/sessions/:id/answers
 
-Mỗi câu trả lời đúng **một lần**: transaction khóa dòng item + `srs_state`, chấm ở server,
-áp scheduler, ghi `review_log`, cập nhật tiến độ phiên. Lặp lại cùng `ordinal`
+Mỗi câu trả lời đúng **một lần**: transaction khóa user → item → `srs_state`, chấm ở server,
+kiểm tra eligibility/quota (đối với `review`), áp scheduler, ghi `review_log`, cập nhật tiến độ phiên. Lặp lại cùng `ordinal`
 (retry mạng) → **trả nguyên kết quả cũ**, không áp lần hai, không cộng XP lần hai
 (idempotency key `session:<session_id>:<ordinal>`).
 
@@ -98,20 +119,36 @@ Response `200`:
 
 ```json
 {
-  "item": { "ordinal": 1, "is_correct": true, "rating": 3,
-            "user_answer": { "option_index": 2 }, "correct_answer": { "index": 2, "text": "chạy" },
-            "answered_at": "…" },
-  "srs": { "state": "learning", "due_at": "…", "interval_days": 0,
-           "ease_factor": 2.5, "learning_step": 1 },
+  "item": {
+    "ordinal": 1,
+    "is_correct": true,
+    "rating": 3,
+    "user_answer": { "option_index": 2 },
+    "correct_answer": { "index": 2, "text": "chạy" },
+    "answered_at": "…"
+  },
+  "srs": {
+    "state": "learning",
+    "due_at": "…",
+    "interval_days": 0,
+    "ease_factor": 2.5,
+    "learning_step": 1
+  },
   "xp": { "amount": 1 },
-  "session": { "answered_count": 1, "correct_count": 1, "status": "in_progress" }
+  "session": {
+    "answered_count": 1,
+    "correct_count": 1,
+    "status": "in_progress"
+  }
 }
 ```
 
 - Trả lời **câu cuối** → phiên tự `completed`, ghi `finished_at` + `score` (% đúng).
 - Lỗi: `400 SESSION_ANSWER_INVALID` (thiếu/sai trường theo mode) ·
   `404 SESSION_ITEM_NOT_FOUND` (ordinal không có) · `409 SESSION_CLOSED` (phiên đã đóng;
-  replay câu đã trả lời vẫn trả `200`).
+  replay câu đã trả lời vẫn trả `200`) · `409 SRS_ITEM_UNAVAILABLE`/`SRS_DAILY_LIMIT_REACHED`
+  khi eligibility hoặc quota thay đổi · `422 SRS_ITEM_NOT_DUE` khi review chưa đến hạn và
+  không đủ điều kiện learn-ahead. Câu bị chặn không được đánh dấu đã trả lời.
 
 ## POST /v1/sessions/:id/finish
 

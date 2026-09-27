@@ -47,6 +47,7 @@ model User {
   collectionShares   CollectionShare[]
   srsStates          SrsState[]
   reviewLogs         ReviewLog[]
+  srsReviewReceipts  SrsReviewReceipt[]
   studySessions      StudySession[]
   quizzes            Quiz[]
   xpEvents           XpEvent[]
@@ -324,10 +325,11 @@ model SrsState {
   lastReviewAt  DateTime? @map("last_review_at") @db.Timestamptz(6)
   suspended     Boolean   @default(false)
   // Scheduler Anki (migration 026) — xem docs/srs.md
-  easeFactor    Float     @default(2.5) @map("ease_factor") @db.Real
+  easeFactor    Float     @default(2.5) @map("ease_factor") @db.DoublePrecision
   learningStep  Int?      @map("learning_step") @db.SmallInt
   introducedAt  DateTime? @map("introduced_at") @db.Timestamptz(6)
   buriedUntil   DateTime? @map("buried_until") @db.Timestamptz(6)
+  learningIsInterday Boolean @default(false) @map("learning_is_interday")
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
 
@@ -354,6 +356,8 @@ model ReviewLog {
   // M6: idempotency + trạng thái trước khi trả lời (partition nên không unique được)
   clientReviewId String? @map("client_review_id") @db.Uuid
   prevState      String? @map("prev_state") // new | learning | review | relearning
+  profileId      String? @map("profile_id") @db.Uuid
+  queueKindBefore String? @map("queue_kind_before")
 
   srs  SrsState? @relation(fields: [srsId], references: [id], onDelete: SetNull)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -361,6 +365,20 @@ model ReviewLog {
   // Bảng partition theo tháng (app.review_log_YYYY_MM) — DB tự định tuyến.
   @@id([id, reviewedAt])
   @@map("review_log")
+  @@schema("app")
+}
+
+model SrsReviewReceipt {
+  userId          BigInt   @map("user_id")
+  clientReviewId  String   @map("client_review_id") @db.Uuid
+  requestPayload  Json     @map("request_payload")
+  responsePayload Json     @map("response_payload")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, clientReviewId])
+  @@map("srs_review_receipt")
   @@schema("app")
 }
 

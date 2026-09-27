@@ -57,7 +57,7 @@ async function main(): Promise<void> {
     await db.end();
   }
 
-  // Dump là "schema nền"; áp thêm các migration mới hơn (ví dụ 026) để DB test
+  // Dump là "schema nền"; áp thêm các migration mới hơn (ví dụ 026/027) để DB test
   // luôn khớp schema hiện tại — giống bước CI (reset → migrate).
   await applyPendingMigrations(parsed.raw, SCRIPT);
 

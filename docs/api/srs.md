@@ -5,10 +5,10 @@ Tất cả endpoint cần **Bearer token**; số liệu "ngày" tính theo `user
 
 ## GET /v1/srs/due
 
-Hàng đợi hôm nay: thứ tự **learning → review → new**; có **learn-ahead 20 phút** (thẻ đang học
-sẽ quay lại ngay trong phiên khi tới hạn); tôn trọng **daily limit** (`srs_new_per_day` /
-`srs_review_per_day` trong `/me/settings`); lọc theo hồ sơ đang hoạt động; **thẻ anh em (sibling)
-đang bị "bury" trong ngày sẽ tự ẩn**.
+Hàng đợi hôm nay: thứ tự **intraday learning → interday learning → review → new**; có
+**learn-ahead 20 phút** chỉ khi toàn bộ queue thường trong phạm vi đã cạn; tôn trọng **daily
+limit** (`srs_new_per_day` / `srs_review_per_day` trong `/me/settings`); lọc theo hồ sơ đang
+hoạt động; **thẻ anh em (sibling) đang bị "bury" trong ngày sẽ tự ẩn**.
 
 ```bash
 curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <token>"
@@ -16,15 +16,31 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
 
 ```json
 {
-  "data": [{
-    "srs_id": "7", "face_id": "…", "item_id": "…", "collection_id": "…",
-    "direction": "recall", "state": "learning",
-    "language": { "id": 2, "code": "ja", "name_vi": "Tiếng Nhật" },
-    "instruction": "Nhớ lại từ Tiếng Nhật",
-    "prompt": { "kind": "meaning", "text": "chạy" },
-    "answer": { "kind": "word", "text": "走る", "reading": "はしる", "romanization": null },
-    "due_at": "2026-09-27T02:10:00.000Z"
-  }],
+  "data": [
+    {
+      "srs_id": "7",
+      "face_id": "…",
+      "item_id": "…",
+      "collection_id": "…",
+      "direction": "recall",
+      "state": "learning",
+      "language": { "id": 2, "code": "ja", "name_vi": "Tiếng Nhật" },
+      "instruction": "Nhớ lại từ Tiếng Nhật",
+      "prompt": {
+        "kind": "meaning",
+        "text": "chạy",
+        "meaning_source": "machine",
+        "is_machine_generated": true
+      },
+      "answer": {
+        "kind": "word",
+        "text": "走る",
+        "reading": "はしる",
+        "romanization": null
+      },
+      "due_at": "2026-09-27T02:10:00.000Z"
+    }
+  ],
   "next_cursor": null,
   "counts": { "learning": 3, "review": 7, "new": 2 }
 }
@@ -32,7 +48,12 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
 
 - `prompt.kind`: `word` khi **recognize** (nhìn từ → nhớ nghĩa) / `meaning` khi **recall**
   (nhìn nghĩa → nhớ từ; FE hiện nhãn ngôn ngữ đích từ `language` + `instruction`).
-- Phân trang: `?limit` (mặc định 50, tối đa 100) + `?cursor` (keyset `due_at, srs_id`).
+- Nghĩa luôn có `meaning_source` (`user`, `source`, `machine`, `llm`) và
+  `is_machine_generated`; cờ chỉ phản ánh nguồn dữ liệu, không hàm ý đã kiểm duyệt.
+- Phân trang: `?limit` (mặc định 50, tối đa 100) + cursor version 1 bind với profile,
+  collection, ngày địa phương, phase và microsecond UTC. Đổi context hoặc qua ngày trả 400.
+- `counts` là tổng sau filter và cap, trước `limit`/cursor; intraday learning không tiêu review
+  quota, còn interday learning tiêu quota review.
 - Lỗi: `409 PROFILE_REQUIRED` (chưa có hồ sơ học) · `400 VALIDATION_FAILED` (cursor/limit sai).
 
 ## POST /v1/srs/reviews
@@ -44,7 +65,10 @@ curl -s -X POST http://localhost:3000/v1/srs/reviews \
 ```
 
 - `rating`: `1=Again, 2=Hard, 3=Good, 4=Easy`.
-- `client_review_id` (khuyến nghị): retry mạng cùng id sẽ **trả kết quả cũ**, không cộng log/XP lần hai.
+- `client_review_id` (khuyến nghị): cùng key + payload chuẩn hóa sẽ **trả snapshot cũ**, không cộng
+  log/XP lần hai; cùng key + payload khác trả `409 SRS_IDEMPOTENCY_CONFLICT`. `null` bị từ chối 400.
+- `collection_id` tùy chọn giữ cùng phạm vi với GET `/srs/due`; bỏ qua nghĩa là toàn profile.
+- Không nhận `reviewed_at`; server luôn lấy thời điểm sau khi giữ lock user.
 - Một transaction: `review_log` + cập nhật `srs_state` (Anki: steps/EF/interval) + **burying nội bộ**
   sibling new/review của cùng item + **gamification M8** (`xp_event` theo `xp_rule` + daily cap,
   `streak_day`, `user_stats`, thành tích — xem [`docs/api/gamification.md`](gamification.md)).
@@ -53,15 +77,27 @@ Response `200`:
 
 ```json
 {
-  "review_log": { "id": "42", "rating": 3, "mode": "flashcard", "prev_state": "new", "reviewed_at": "…" },
-  "srs": { "state": "learning", "due_at": "2026-09-27T02:15:00.000Z", "interval_days": 0,
-           "ease_factor": 2.5, "learning_step": 1 },
+  "review_log": {
+    "id": "42",
+    "rating": 3,
+    "mode": "flashcard",
+    "prev_state": "new",
+    "reviewed_at": "…"
+  },
+  "srs": {
+    "state": "learning",
+    "due_at": "2026-09-27T02:15:00.000Z",
+    "interval_days": 0,
+    "ease_factor": 2.5,
+    "learning_step": 1
+  },
   "xp": { "amount": 1 }
 }
 ```
 
-Lỗi: `404 SRS_ITEM_NOT_FOUND` · `409 SRS_ITEM_SUSPENDED` · `422 SRS_ITEM_NOT_DUE`
-(ôn sớm; **replay** cùng `client_review_id` không bị lỗi này).
+Lỗi: `404 SRS_ITEM_NOT_FOUND` · `409 SRS_ITEM_UNAVAILABLE`/`SRS_ITEM_SUSPENDED`/`SRS_DAILY_LIMIT_REACHED`
+· `422 SRS_ITEM_NOT_DUE`. Learn-ahead chỉ áp dụng cho learning/relearning trong 20 phút khi
+queue thường đã cạn; **replay** cùng `client_review_id` không bị kiểm tra lại eligibility.
 
 ## GET /v1/srs/stats
 

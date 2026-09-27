@@ -17,12 +17,16 @@ export interface SrsRowForEngine {
   easeFactor: number;
   learningStep: number | null;
   scheduledDays: number | null;
+  dueAt: Date;
   lastReviewAt: Date | null;
   introducedAt: Date | null;
+  profileId: string;
+  learningIsInterday: boolean;
 }
 
 export interface ApplyRatingParams {
   userId: bigint;
+  profileId: string;
   /** Item chứa face — phục vụ burying sibling. */
   itemId: string;
   rating: Rating;
@@ -57,6 +61,8 @@ export class ReviewEngine {
       rating: number;
       mode: string;
       prevState: string | null;
+      profileId: string | null;
+      queueKindBefore: string | null;
       reviewedAt: Date;
     };
     state: {
@@ -74,8 +80,14 @@ export class ReviewEngine {
       easeFactor: srs.easeFactor,
       learningStep: srs.learningStep,
       intervalDays: srs.scheduledDays ?? 0,
+      dueAt: srs.dueAt,
     };
     const schedule = this.scheduler.schedule(schedulerState, rating, now);
+    const queueKindBefore = queueKind(srs);
+    const learningIsInterday =
+      schedule.state === 'learning' || schedule.state === 'relearning'
+        ? schedule.dueAt >= nextDayStartUtc(now, params.timezone)
+        : false;
 
     const log = await tx.reviewLog.create({
       data: {
@@ -88,6 +100,8 @@ export class ReviewEngine {
         reviewedAt: now,
         prevState: srs.state,
         clientReviewId: params.clientReviewId,
+        profileId: params.profileId,
+        queueKindBefore,
       },
     });
 
@@ -99,7 +113,10 @@ export class ReviewEngine {
         easeFactor: schedule.easeFactor,
         learningStep: schedule.learningStep,
         scheduledDays:
-          schedule.state === 'review' ? schedule.intervalDays : null,
+          schedule.state === 'review' || schedule.state === 'relearning'
+            ? schedule.intervalDays
+            : null,
+        learningIsInterday,
         elapsedDays: srs.lastReviewAt
           ? Math.floor(
               (now.getTime() - srs.lastReviewAt.getTime()) / 86_400_000,
@@ -119,6 +136,7 @@ export class ReviewEngine {
       await tx.srsState.updateMany({
         where: {
           userId: params.userId,
+          profileId: params.profileId,
           face: { itemId: params.itemId },
           id: { not: srs.id },
           state: { in: ['new', 'review'] },
@@ -141,6 +159,18 @@ export class ReviewEngine {
       idempotencyKey: params.xpIdempotencyKey ?? `review:${log.id.toString()}`,
     });
 
-    return { log, state: updated, xpAmount: activity.xp_amount };
+    return {
+      log: { ...log, profileId: log.profileId, queueKindBefore },
+      state: updated,
+      xpAmount: activity.xp_amount,
+    };
   }
+}
+
+function queueKind(
+  srs: SrsRowForEngine,
+): 'new' | 'intraday_learning' | 'interday_learning' | 'review' {
+  if (srs.state === 'new') return 'new';
+  if (srs.state === 'review') return 'review';
+  return srs.learningIsInterday ? 'interday_learning' : 'intraday_learning';
 }

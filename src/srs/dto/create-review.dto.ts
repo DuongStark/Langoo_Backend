@@ -2,11 +2,11 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsIn,
   IsInt,
-  IsISO8601,
   IsOptional,
   IsUUID,
   Max,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 export const REVIEW_MODES = [
@@ -54,14 +54,15 @@ export class CreateReviewDto {
     format: 'uuid',
     description: 'FE sinh (uuid v7) để retry mạng không cộng đôi',
   })
-  @IsOptional()
+  @ValidateIf((_, value) => value !== undefined)
   @IsUUID()
   client_review_id?: string;
 
   @ApiPropertyOptional({
-    description: 'ISO 8601 nếu client muốn ghi giờ trả lời',
+    format: 'uuid',
+    description: 'Giới hạn lượt ôn vào bộ sưu tập tương ứng với GET /srs/due',
   })
   @IsOptional()
-  @IsISO8601()
-  reviewed_at?: string;
+  @IsUUID()
+  collection_id?: string;
 }

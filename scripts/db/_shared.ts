@@ -1,5 +1,6 @@
 import { config as loadDotenv } from 'dotenv';
 import { Client } from 'pg';
+import { withUtcTimezone } from '../../src/db/connection-url';
 
 /** Nạp .env cho script CLI (process.env có sẵn luôn thắng dotenv). */
 export function loadScriptEnv(): void {
@@ -49,6 +50,11 @@ export function assertTestDatabase(parsed: ParsedDbUrl): void {
       `Tên DB "${parsed.database}" chứa ký tự không an toàn, từ chối thực hiện.`,
     );
   }
+  if (!['localhost', '127.0.0.1', '::1'].includes(parsed.url.hostname)) {
+    throw new Error(
+      `An toàn: DB test phải là local (host nhận được "${parsed.url.hostname}").`,
+    );
+  }
 }
 
 export function databaseUrlWithName(
@@ -60,15 +66,14 @@ export function databaseUrlWithName(
   return url.toString();
 }
 
-/** URL direct dành cho DB test: TEST_DIRECT_URL → TEST_DATABASE_URL → DIRECT_URL. */
+/** URL direct dành cho DB test: TEST_DIRECT_URL → TEST_DATABASE_URL. */
 export function resolveTestDirectUrl(): ParsedDbUrl {
   const raw =
     process.env.TEST_DIRECT_URL ??
-    process.env.TEST_DATABASE_URL ??
-    process.env.DIRECT_URL;
+    process.env.TEST_DATABASE_URL;
   if (raw === undefined || raw.trim() === '') {
     throw new Error(
-      'Thiếu TEST_DIRECT_URL (hoặc TEST_DATABASE_URL/DIRECT_URL) để thao tác DB test',
+      'Thiếu TEST_DIRECT_URL hoặc TEST_DATABASE_URL để thao tác DB test',
     );
   }
   return parseDbUrl(raw);
@@ -79,7 +84,7 @@ export async function connect(
   applicationName: string,
 ): Promise<Client> {
   const client = new Client({
-    connectionString,
+    connectionString: withUtcTimezone(connectionString),
     application_name: applicationName,
   });
   await client.connect();

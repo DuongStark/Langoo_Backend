@@ -44,7 +44,7 @@ export class SrsController {
   @Get('due')
   @ApiOperation({
     summary:
-      'Hàng đợi ôn hôm nay (learning → review → new; learn-ahead 20 phút; daily limit theo settings)',
+      'Hàng đợi ôn hôm nay (intraday → interday → review → new; learn-ahead fallback; daily limit theo settings)',
   })
   @ApiOkResponse({ type: DueResultDto })
   @ApiConflictResponse({
@@ -70,7 +70,8 @@ export class SrsController {
   })
   @ApiConflictResponse({
     type: ErrorResponseDto,
-    description: 'SRS_ITEM_SUSPENDED',
+    description:
+      'SRS_ITEM_SUSPENDED / SRS_ITEM_UNAVAILABLE / SRS_DAILY_LIMIT_REACHED / SRS_IDEMPOTENCY_CONFLICT',
   })
   @ApiUnprocessableEntityResponse({
     type: ErrorResponseDto,

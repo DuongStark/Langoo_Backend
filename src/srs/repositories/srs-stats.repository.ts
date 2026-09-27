@@ -48,6 +48,7 @@ export class SrsStatsRepository {
       WHERE s.user_id = ${params.userId}
         AND s.profile_id = ${params.profileId}
         AND c.profile_id = ${params.profileId}
+        AND c.owner_id = ${params.userId}
         AND c.archived_at IS NULL
         AND i.status <> 'paused'
         AND s.suspended = false
@@ -59,7 +60,9 @@ export class SrsStatsRepository {
 
   async getAccuracy7d(params: {
     userId: bigint;
+    profileId: string;
     since: Date;
+    until: Date;
   }): Promise<Accuracy7d> {
     const rows = await this.prisma.$queryRaw<
       { total: number; passed: number }[]
@@ -69,7 +72,9 @@ export class SrsStatsRepository {
         count(*) FILTER (WHERE rating >= 3)::int AS passed
       FROM app.review_log
       WHERE user_id = ${params.userId}
+        AND profile_id = ${params.profileId}
         AND reviewed_at >= ${params.since}
+        AND reviewed_at < ${params.until}
     `;
     return rows[0] ?? { total: 0, passed: 0 };
   }

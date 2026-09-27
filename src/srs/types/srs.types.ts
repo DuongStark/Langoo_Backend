@@ -8,6 +8,8 @@ export interface LocalizedWord {
 export interface LocalizedMeaning {
   kind: 'meaning';
   text: string;
+  meaning_source: string;
+  is_machine_generated: boolean;
 }
 
 export interface DueCard {
@@ -22,6 +24,8 @@ export interface DueCard {
   prompt: LocalizedWord | LocalizedMeaning;
   answer: LocalizedWord | LocalizedMeaning;
   due_at: string;
+  meaning_source: string;
+  is_machine_generated: boolean;
 }
 
 export interface DueResult {

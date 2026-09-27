@@ -128,6 +128,24 @@ export class AnkiScheduler {
     now: Date,
   ): ScheduleResult {
     const interval = Math.max(current.intervalDays, MIN_INTERVAL_DAYS);
+    const daysLate = current.dueAt
+      ? Math.max(
+          0,
+          Math.floor((now.getTime() - current.dueAt.getTime()) / 86_400_000),
+        )
+      : 0;
+    const hardInterval = this.nextReviewInterval(
+      interval * HARD_INTERVAL_MULT,
+      interval + 1,
+    );
+    const goodInterval = this.nextReviewInterval(
+      (interval + daysLate / 2) * current.easeFactor,
+      hardInterval + 1,
+    );
+    const easyInterval = this.nextReviewInterval(
+      (interval + daysLate) * current.easeFactor * EASY_BONUS,
+      goodInterval + 1,
+    );
     switch (rating) {
       case RATING.Again: {
         const delay = this.learningDelay(RELEARNING_STEPS_MINUTES[0]);
@@ -144,24 +162,21 @@ export class AnkiScheduler {
       case RATING.Hard:
         return this.reviewResult(
           current,
-          this.nextReviewInterval(interval * HARD_INTERVAL_MULT, interval),
+          hardInterval,
           this.clampEase(current.easeFactor + EASE_DELTA_HARD),
           now,
         );
       case RATING.Good:
         return this.reviewResult(
           current,
-          this.nextReviewInterval(interval * current.easeFactor, interval),
+          goodInterval,
           current.easeFactor,
           now,
         );
       case RATING.Easy:
         return this.reviewResult(
           current,
-          this.nextReviewInterval(
-            interval * current.easeFactor * EASY_BONUS,
-            interval,
-          ),
+          easyInterval,
           this.clampEase(current.easeFactor + EASE_DELTA_EASY),
           now,
         );
@@ -194,7 +209,6 @@ export class AnkiScheduler {
         );
       // New interval của Anki mặc định 0.00 → tốt nghiệp về min 1 ngày.
       case RATING.Good:
-      case RATING.Easy:
         return {
           state: 'review',
           easeFactor: current.easeFactor,
@@ -204,6 +218,21 @@ export class AnkiScheduler {
           dueAt: this.daysFromNow(now, MIN_INTERVAL_DAYS),
           introduced: false,
         };
+      case RATING.Easy: {
+        const interval = Math.min(
+          MAX_INTERVAL_DAYS,
+          Math.max(MIN_INTERVAL_DAYS, (current.intervalDays || 0) + 1),
+        );
+        return {
+          state: 'review',
+          easeFactor: current.easeFactor,
+          learningStep: null,
+          intervalDays: interval,
+          delayMinutes: null,
+          dueAt: this.daysFromNow(now, interval),
+          introduced: false,
+        };
+      }
     }
   }
 
@@ -261,14 +290,13 @@ export class AnkiScheduler {
     };
   }
 
-  /** Anki: interval mới tối thiểu = interval cũ + 1; kẹp [1, 36.500]; rồi fuzz. */
-  private nextReviewInterval(computed: number, previous: number): number {
-    const base = Math.max(
-      MIN_INTERVAL_DAYS,
-      Math.round(computed),
-      previous + 1,
+  /** Apply Anki's lower bound before fuzz, then retain ordering after fuzz. */
+  private nextReviewInterval(computed: number, minimum: number): number {
+    const base = Math.max(MIN_INTERVAL_DAYS, Math.round(computed), minimum);
+    return Math.min(
+      MAX_INTERVAL_DAYS,
+      Math.max(minimum, fuzzReviewInterval(base, this.rng)),
     );
-    return Math.min(MAX_INTERVAL_DAYS, fuzzReviewInterval(base, this.rng));
   }
 
   /** Hard ở bước > 0: lặp đúng bước hiện tại; nếu chuỗi chỉ 1 bước thì 1.5× (Anki). */

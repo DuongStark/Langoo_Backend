@@ -46,6 +46,36 @@ describe('selectDueQueue', () => {
     expect(result.counts).toEqual({ learning: 2, review: 0, new: 0 });
   });
 
+  it('interday learning tiêu review quota và đứng sau intraday', () => {
+    const rows: DueCandidate[] = [
+      { srsId: 41n, dueAt: T0, bucket: 0, learningIsInterday: false },
+      { srsId: 42n, dueAt: T1, bucket: 0, learningIsInterday: true },
+      { srsId: 43n, dueAt: T2, bucket: 1 },
+    ];
+
+    const first = selectDueQueue(
+      rows,
+      { newRemaining: 10, reviewRemaining: 1 },
+      null,
+      50,
+    );
+    expect(first.rows.map((row) => row.srsId)).toEqual([41n, 42n]);
+    expect(first.counts).toEqual({ learning: 2, review: 0, new: 0 });
+
+    const afterIntraday = selectDueQueue(
+      rows,
+      { newRemaining: 10, reviewRemaining: 1 },
+      {
+        bucket: 0,
+        dueAt: T0.toISOString(),
+        srsId: '41',
+        interday: false,
+      },
+      50,
+    );
+    expect(afterIntraday.rows.map((row) => row.srsId)).toEqual([42n]);
+  });
+
   it('cursor keyset (bucket, dueAt, srsId) — không lặp dòng', () => {
     const result = selectDueQueue(
       candidates,

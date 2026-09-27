@@ -4,6 +4,7 @@ import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import { lockUser } from '../users/user-lock';
 import { CloneFromDeckDto } from './dto/clone-from-deck.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
@@ -183,9 +184,12 @@ export class CollectionsService {
       };
     }
     const archivedAt = new Date();
-    const row = await this.prisma.collection.update({
-      where: { id: collectionId },
-      data: { archivedAt },
+    const row = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      return tx.collection.update({
+        where: { id: collectionId },
+        data: { archivedAt },
+      });
     });
     return {
       id: row.id,

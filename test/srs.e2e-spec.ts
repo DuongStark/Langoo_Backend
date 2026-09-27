@@ -13,8 +13,19 @@ interface DueCardBody {
   state: string;
   language: { id: number; code: string; name_vi: string };
   instruction: string;
-  prompt: { kind: string; text: string; reading?: string | null };
-  answer: { kind: string; text: string };
+  prompt: {
+    kind: string;
+    text: string;
+    reading?: string | null;
+    meaning_source?: string;
+    is_machine_generated?: boolean;
+  };
+  answer: {
+    kind: string;
+    text: string;
+    meaning_source?: string;
+    is_machine_generated?: boolean;
+  };
 }
 
 interface DueBody {
@@ -184,6 +195,8 @@ describe('SRS (e2e — langoo_test)', () => {
       expect(jaRecall.language).toMatchObject({ id: 2, code: 'ja' });
       expect(jaRecall.instruction).toContain('Nhật');
       expect(jaRecall.prompt).toMatchObject({ kind: 'meaning', text: 'chạy' });
+      expect(typeof jaRecall.prompt.meaning_source).toBe('string');
+      expect(typeof jaRecall.prompt.is_machine_generated).toBe('boolean');
       expect(jaRecall.answer).toMatchObject({ kind: 'word', text: '走る' });
 
       const jaRecognize = body.data.find(
@@ -272,6 +285,7 @@ describe('SRS (e2e — langoo_test)', () => {
           direction: 'recognize',
           rating: 3,
           client_review_id: clientReviewId,
+          elapsed_ms: 3200,
         })
         .expect(200);
       const repeated = res.body as ReviewBody;
@@ -287,7 +301,21 @@ describe('SRS (e2e — langoo_test)', () => {
       ).toBe(1);
     });
 
-    it('ôn sớm → 422 SRS_ITEM_NOT_DUE', async () => {
+    it('payload khác cùng client_review_id → 409 SRS_IDEMPOTENCY_CONFLICT', async () => {
+      const res = await request(server)
+        .post('/v1/srs/reviews')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({
+          face_id: faceJa,
+          direction: 'recognize',
+          rating: 4,
+          client_review_id: clientReviewId,
+        })
+        .expect(409);
+      expect(res.body).toMatchObject({ code: 'SRS_IDEMPOTENCY_CONFLICT' });
+    });
+
+    it('ôn sớm trong 20 phút khi queue thường cạn → learn-ahead được nhận', async () => {
       const res = await request(server)
         .post('/v1/srs/reviews')
         .set('Authorization', `Bearer ${tokenA}`)
@@ -297,11 +325,11 @@ describe('SRS (e2e — langoo_test)', () => {
           rating: 3,
           client_review_id: uuidv7(),
         })
-        .expect(422);
-      expect(res.body).toMatchObject({ code: 'SRS_ITEM_NOT_DUE' });
+        .expect(200);
+      expect((res.body as ReviewBody).srs.state).toBe('review');
     });
 
-    it('Good ở bước cuối → tốt nghiệp review +1 ngày', async () => {
+    it('Good sau bước cuối → tốt nghiệp review với interval tăng dần', async () => {
       await forceDue(reviewedSrsId);
       const res = await request(server)
         .post('/v1/srs/reviews')
@@ -316,7 +344,7 @@ describe('SRS (e2e — langoo_test)', () => {
       const body = res.body as ReviewBody;
 
       expect(body.srs.state).toBe('review');
-      expect(body.srs.interval_days).toBe(1);
+      expect(body.srs.interval_days).toBeGreaterThan(1);
       expect(body.srs.learning_step).toBeNull();
     });
 
@@ -433,7 +461,7 @@ describe('SRS (e2e — langoo_test)', () => {
       const body = res.body as StatsBody;
 
       expect(body.new_introduced_today).toBeGreaterThanOrEqual(2);
-      expect(body.reviews_today).toBeGreaterThanOrEqual(3);
+      expect(body.reviews_today).toBeGreaterThanOrEqual(2);
       expect(typeof body.accuracy_7d).toBe('number');
     });
 
@@ -475,6 +503,30 @@ describe('SRS (e2e — langoo_test)', () => {
         .send({ face_id: 'khong-phai-uuid', direction: 'recognize', rating: 3 })
         .expect(400);
       expect(face.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+      const nullKey = await request(server)
+        .post('/v1/srs/reviews')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({
+          face_id: faceJa,
+          direction: 'recognize',
+          rating: 3,
+          client_review_id: null,
+        })
+        .expect(400);
+      expect(nullKey.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+
+      const clientTime = await request(server)
+        .post('/v1/srs/reviews')
+        .set('Authorization', `Bearer ${tokenA}`)
+        .send({
+          face_id: faceJa,
+          direction: 'recognize',
+          rating: 3,
+          reviewed_at: '2026-09-27T00:00:00.000Z',
+        })
+        .expect(400);
+      expect(clientTime.body).toMatchObject({ code: 'VALIDATION_FAILED' });
     });
 
     it('user chưa có hồ sơ → 409 PROFILE_REQUIRED; không token → 401', async () => {

@@ -204,10 +204,10 @@ describe('AnkiScheduler', () => {
       });
     });
 
-    it('Easy → về review 1 ngày (mirror Anki — ghi chú docs/srs.md)', () => {
+    it('Easy → về review với interval cũ + 1 ngày theo Anki', () => {
       expect(neutral.schedule(lapse, EASY, NOW)).toMatchObject({
         state: 'review',
-        intervalDays: 1,
+        intervalDays: 11,
       });
     });
   });

@@ -23,6 +23,12 @@ export class LocalizedContentDto {
 
   @ApiProperty({ nullable: true, example: 'hashiru' })
   romanization?: string | null;
+
+  @ApiProperty({ enum: ['user', 'source', 'machine', 'llm'] })
+  meaning_source?: string;
+
+  @ApiProperty({ example: false })
+  is_machine_generated?: boolean;
 }
 
 export class DueCardDto {
@@ -58,6 +64,12 @@ export class DueCardDto {
 
   @ApiProperty({ example: '2026-09-27T02:10:00.000Z' })
   due_at!: string;
+
+  @ApiProperty({ enum: ['user', 'source', 'machine', 'llm'] })
+  meaning_source!: string;
+
+  @ApiProperty({ example: false })
+  is_machine_generated!: boolean;
 }
 
 export class DueCountsDto {

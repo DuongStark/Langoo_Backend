@@ -3,6 +3,13 @@
 > Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-09-24 19:59** · PostgreSQL 16.2.
 > KHÔNG sửa tay — chạy lại script sau mỗi migration.
 
+> **M6.1 addendum (2026-09-27):** snapshot này được sinh trước migration 026/027 nên phần
+> bảng SRS bên dưới chưa phản ánh các cột mới. Local đã áp dụng `026_srs_scheduler.sql` và
+> `027_srs_review_integrity.sql`; schema hiện tại thêm `srs_state.learning_is_interday`,
+> đổi `srs_state.ease_factor` sang `double precision`, thêm `review_log.profile_id` /
+> `queue_kind_before` và bảng `app.srs_review_receipt` với khóa `(user_id, client_review_id)`.
+> Không chỉnh sửa lịch sử bảng sinh tự động; cần chạy lại công cụ dump sau khi duyệt rollout.
+
 Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 ## Mục lục

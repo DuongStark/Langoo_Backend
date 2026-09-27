@@ -4,10 +4,11 @@ import { CollectionsService } from './collections.service';
 import { DeckRepository, DeckRow } from './repositories/deck.repository';
 
 interface TxMock {
-  collection: { create: jest.Mock };
+  collection: { create: jest.Mock; update: jest.Mock };
   collectionItem: { createMany: jest.Mock };
   collectionItemFace: { createMany: jest.Mock };
   srsState: { createMany: jest.Mock };
+  $queryRaw: jest.Mock;
 }
 
 function firstArg<T>(mock: jest.Mock): T {
@@ -57,10 +58,11 @@ function createSetup(): {
   };
 } {
   const tx: TxMock = {
-    collection: { create: jest.fn() },
+    collection: { create: jest.fn(), update: jest.fn() },
     collectionItem: { createMany: jest.fn() },
     collectionItemFace: { createMany: jest.fn() },
     srsState: { createMany: jest.fn() },
+    $queryRaw: jest.fn(),
   };
   const prisma = {
     collection: {
@@ -149,9 +151,9 @@ describe('CollectionsService', () => {
     });
 
     it('archive mềm: set archived_at và trả resource', async () => {
-      const { service, prisma } = createSetup();
+      const { service, prisma, tx } = createSetup();
       prisma.collection.findFirst.mockResolvedValue(collectionRow());
-      prisma.collection.update.mockResolvedValue(
+      tx.collection.update.mockResolvedValue(
         collectionRow({ archivedAt: NOW }),
       );
 
@@ -161,7 +163,7 @@ describe('CollectionsService', () => {
       );
 
       const args = firstArg<{ data: { archivedAt: Date } }>(
-        prisma.collection.update,
+        tx.collection.update,
       );
       expect(args.data.archivedAt).toBeInstanceOf(Date);
       expect(result.archived_at).toBe(NOW.toISOString());

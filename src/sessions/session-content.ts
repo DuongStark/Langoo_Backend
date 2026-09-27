@@ -13,6 +13,8 @@ export interface CardContent {
   reading: string | null;
   romanization: string | null;
   meaningVi: string;
+  meaningSource?: string;
+  isMachineGenerated?: boolean;
   /** Các form_text của lexeme (kanji/kana) — dùng cho typing. */
   forms: string[];
 }
@@ -62,7 +64,12 @@ export function buildSessionItem(
     reading: card.reading,
     romanization: card.romanization,
   };
-  const meaning = { kind: 'meaning', text: card.meaningVi };
+  const meaning = {
+    kind: 'meaning',
+    text: card.meaningVi,
+    meaning_source: card.meaningSource,
+    is_machine_generated: card.isMachineGenerated,
+  };
   const question = card.direction === 'recognize' ? word : meaning;
   const answer = card.direction === 'recognize' ? meaning : word;
 

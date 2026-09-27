@@ -5,14 +5,14 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 
 ## Bắt đầu đọc ở đâu
 
-| File | Nội dung |
-|------|----------|
-| [`CONTEXT-DU-AN.md`](CONTEXT-DU-AN.md) | **Đọc đầu tiên** — ngữ cảnh toàn dự án: sản phẩm, kiến trúc, CSDL theo tầng, quy ước, luồng nghiệp vụ, lộ trình |
-| [`PROMPT-BACKEND.md`](PROMPT-BACKEND.md) | Quy trình làm việc + prompt để dán vào agent (làm từng milestone, dừng chờ review) |
-| [`CSDL-THAM-CHIEU.md`](CSDL-THAM-CHIEU.md) | Tham chiếu CSDL đầy đủ (bảng/cột/FK/index) — sinh tự động |
-| `db/migrations/` | Nguồn sự thật schema, hiện 001–025; migration mới bắt đầu từ **026** |
-| `db/exports/langoo-min-full-inserts.sql` | Dump DB mẫu (~15 MB khi restore) để dựng `langoo_test` chạy e2e |
-| `.env.example` | Mẫu biến môi trường (copy thành `.env`, **không commit**) |
+| File                                       | Nội dung                                                                                                        |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| [`CONTEXT-DU-AN.md`](CONTEXT-DU-AN.md)     | **Đọc đầu tiên** — ngữ cảnh toàn dự án: sản phẩm, kiến trúc, CSDL theo tầng, quy ước, luồng nghiệp vụ, lộ trình |
+| [`PROMPT-BACKEND.md`](PROMPT-BACKEND.md)   | Quy trình làm việc + prompt để dán vào agent (làm từng milestone, dừng chờ review)                              |
+| [`CSDL-THAM-CHIEU.md`](CSDL-THAM-CHIEU.md) | Tham chiếu CSDL đầy đủ (bảng/cột/FK/index) — sinh tự động                                                       |
+| `db/migrations/`                           | Nguồn sự thật schema, hiện 001–027; migration mới tiếp tục từ **028**                                           |
+| `db/exports/langoo-min-full-inserts.sql`   | Dump DB mẫu (~15 MB khi restore) để dựng `langoo_test` chạy e2e                                                 |
+| `.env.example`                             | Mẫu biến môi trường (copy thành `.env`, **không commit**)                                                       |
 
 ## Trạng thái
 
@@ -23,8 +23,8 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M3 — Profile & settings** đã xong (chờ review); **M3.1** đã vá race default/active profile, profile đầu tiên, DTO biên và timezone; ví dụ curl tại [`docs/api/profiles-settings.md`](docs/api/profiles-settings.md).
 - ✅ **M4 — Dictionary (đọc)** đã hoàn tất cả phần chính và hardening M4.1: nối lexeme→senses, loại links trùng, chặn input biên, cursor search và romaji — xem nhật ký trong [`PROGRESS.md`](PROGRESS.md). Ví dụ curl: [`docs/api/dictionary.md`](docs/api/dictionary.md).
 - ✅ **M5 — Collections** đã xong (chờ review); **M5.1** đã vá theo review (cổng curated, validation biên, phân trang, chống race) — xem nhật ký trong [`PROGRESS.md`](PROGRESS.md). Ví dụ curl tại [`docs/api/collections.md`](docs/api/collections.md).
-- ✅ **M6 — SRS** đã xong (chờ review): scheduler **Anki verbatim** (`src/srs/scheduler`), `GET /srs/due`, `POST /srs/reviews` (transaction + idempotency), `GET /srs/stats`, daily limit 20/200; đặc tả [`docs/srs.md`](docs/srs.md) · ví dụ curl [`docs/api/srs.md`](docs/api/srs.md). Migration `026` đã chạy local (**cloud chờ duyệt**).
-- ⬜ Backend đang chờ duyệt **M7 — Review modes & sessions**.
+- ✅ **M6.1 — SRS fixes** đã triển khai theo [kế hoạch 14 phát hiện + ENV-01](docs/plans/m6.1-srs-fixes.md): migration `027`, queue/cursor/cap/learn-ahead, transaction lock + receipt idempotency, scheduler/DST và metadata nguồn nghĩa. Local đã nghiệm thu build/lint/unit/e2e; migration cloud vẫn chờ duyệt.
+- ✅ **M7 — Review modes & sessions** dùng chung `ReviewEngine`; review session kiểm tra lại eligibility/quota lúc trả lời, practice chỉ miễn due/cap.
 - 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
 ## Quy tắc vàng

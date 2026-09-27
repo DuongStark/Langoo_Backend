@@ -40,8 +40,10 @@ jobs:
           --health-retries 10
     env:
       NODE_ENV: test
-      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test
-      DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test?options=-c%20timezone%3DUTC
+      DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test?options=-c%20timezone%3DUTC
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test?options=-c%20timezone%3DUTC
+      TEST_DIRECT_URL: postgresql://postgres:postgres@127.0.0.1:5432/langoo_test?options=-c%20timezone%3DUTC
       JWT_ACCESS_SECRET: ci-only-secret-0123456789abcdef0123456789
       LOG_LEVEL: error
     steps:
@@ -55,6 +57,6 @@ jobs:
         run: npm run prisma:generate
       - name: Nạp DB test từ dump mẫu
         run: npm run db:test:reset
-      - name: Đảm bảo db:migrate không còn file cần chạy (đủ 025)
+      - name: Đảm bảo db:migrate không còn file cần chạy (đủ 027)
         run: npm run db:migrate
       - run: npm run test:e2e

@@ -17,6 +17,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -104,7 +105,12 @@ export class SessionsController {
   @ApiOkResponse({ type: AnswerResultResponseDto })
   @ApiConflictResponse({
     type: ErrorResponseDto,
-    description: 'SESSION_CLOSED',
+    description:
+      'SESSION_CLOSED / SRS_ITEM_UNAVAILABLE / SRS_DAILY_LIMIT_REACHED',
+  })
+  @ApiUnprocessableEntityResponse({
+    type: ErrorResponseDto,
+    description: 'SRS_ITEM_NOT_DUE khi review chưa đủ điều kiện learn-ahead',
   })
   answer(
     @CurrentUser() payload: JwtPayload,
