@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-27 (M4 — hoàn thành, chờ review)
+> Cập nhật lần cuối: 2026-09-27 (M5 — hoàn thành, chờ review)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -12,7 +12,7 @@
 | M2 | Auth (register/login/refresh/logout/me) | ✅ hoàn thành (chờ review) |
 | M3 | Profile & settings | ✅ hoàn thành (chờ review) |
 | M4 | Dictionary (đọc) | ✅ hoàn thành (chờ review) |
-| M5 | Collections | ⬜ chờ |
+| M5 | Collections | ✅ hoàn thành (chờ review) |
 | M6 | SRS | ⬜ chờ |
 | M7 | Review modes & sessions | ⬜ chờ |
 | M8 | Gamification | ⬜ chờ |
@@ -58,6 +58,11 @@
 | 2026-09-27 | `pronunciations`/`forms` trả theo **lexeme** của sense; `examples` đọc `core.example.sense_id` (không dùng `example_sense` vì chưa chạy mapping) | Đúng dữ liệu hiện có; khi chạy `run_mapping.py` có thể mở rộng |
 | 2026-09-27 | `search_history` chỉ đọc 50 dòng gần nhất; job dọn định kỳ chưa làm | Để M12 (hardening) — đã ghi backlog |
 | 2026-09-27 | Hardening M2 (chủ dự án thêm, đã review + test 2026-09-27): validate `JWT_ACCESS_TTL` lúc khởi động (fail-fast); xoay refresh token chống race bằng `updateMany` có điều kiện (chỉ 1 request thắng, còn lại 401); `device` phải là object | Tránh double-rotation khi 2 request dùng cùng token; cấu hình sai lộ ngay khi boot |
+| 2026-09-27 | `DELETE /collections/:id` = **archive mềm** (`archived_at`), không xoá cứng | Giữ nguyên `srs_state`/`review_log` — tránh mất dữ liệu học do nhầm |
+| 2026-09-27 | Item 1–2 face; server tự suy ngôn ngữ từ `core.sense→lexeme`; mặt phụ phải khác ngôn ngữ; `position = max+1`; `item_count` do service giữ trong transaction (DB không có trigger) | Bất biến §5.9 + §1.3 (client không gửi chuỗi/ngôn ngữ để đoán nghĩa) |
+| 2026-09-27 | Clone deck dùng `createMany` + uuid v7 sinh trước + transaction timeout 30s; nghĩa từ gloss vi→en→lemma với `meaning_source` `machine` khi gloss máy chưa duyệt | Deck thật có thể vài trăm–nghìn item; tránh timeout 5s mặc định của Prisma |
+| 2026-09-27 | Cursor keyset `(position, id)` base64url ở `src/common/pagination/cursor.ts` | Dùng lại cho M6+ (due list, history…), không offset |
+| 2026-09-27 | Tag user-scoped `/v1/tags`; `PATCH item.tag_ids` thay thế toàn bộ (gửi `[]` để bỏ hết) | Đơn giản, tránh nhiều endpoint gắn/gỡ lẻ tẻ |
 | 2026-09-27 | M2 hardening: refresh rotation cập nhật nguyên tử có điều kiện; `device` phải là object; `JWT_ACCESS_TTL` dùng parser chung và validate lúc khởi động | Chặn reuse token đồng thời, trả 400 cho input sai kiểu, và tránh ghi DB rồi mới lỗi vì cấu hình TTL |
 
 ## Backlog
@@ -73,4 +78,4 @@
 
 ## Kế tiếp dự kiến
 
-- **M5 — Collections:** CRUD collection; thêm item (1–2 face, sinh 2 `srs_state`/face trong transaction); sửa meaning_vi/note/tag; lọc theo ngôn ngữ; clone từ `core.deck`.
+- **M6 — SRS:** `GET /srs/due`, `POST /srs/reviews`, `GET /srs/stats`; scheduler SM-2 tách module thuần có unit test (interface sẵn để đổi FSRS).

@@ -22,7 +22,8 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M2 — Auth** đã xong (chờ review): register / login / refresh (xoay vòng token) / logout / me; argon2id; refresh token chỉ lưu SHA-256; ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
 - ✅ **M3 — Profile & settings** đã xong (chờ review): CRUD hồ sơ học (default tự động, chống xoá nhầm), cài đặt timezone/daily_goal/notify; ví dụ curl tại [`docs/api/profiles-settings.md`](docs/api/profiles-settings.md).
 - ✅ **M4 — Dictionary (đọc)** đã xong (chờ review): tra từ (Anh–Việt, Nhật–Việt), chi tiết nghĩa/kanji, cặp song ngữ curated, lịch sử tra từ, báo lỗi gloss; ví dụ curl tại [`docs/api/dictionary.md`](docs/api/dictionary.md).
-- ⬜ Backend đang chờ duyệt **M5 — Collections**.
+- ✅ **M5 — Collections** đã xong (chờ review): CRUD bộ sưu tập (archive mềm), thêm từ 1–2 face sinh 2 `srs_state`/face trong transaction, tag, lọc theo ngôn ngữ, clone deck hệ thống; ví dụ curl tại [`docs/api/collections.md`](docs/api/collections.md).
+- ⬜ Backend đang chờ duyệt **M6 — SRS**.
 
 ## Quy tắc vàng
 
