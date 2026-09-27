@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-27 (đã ghi nhận hardening M2–M4.1; M5 hoàn thành, chờ review)
+> Cập nhật lần cuối: 2026-09-27 (đã ghi nhận M2.1–M4.1; M5 hoàn thành, chờ review)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -10,7 +10,9 @@
 | M0 | Bootstrap & DB ops | ✅ hoàn thành (chờ review) |
 | M1 | Data layer (Prisma schema `app` + repository `core`/`serve`) | ✅ hoàn thành (chờ review) |
 | M2 | Auth (register/login/refresh/logout/me) | ✅ hoàn thành (chờ review) |
+| M2.1 | Auth fixes sau review | ✅ hoàn thành |
 | M3 | Profile & settings | ✅ hoàn thành (chờ review) |
+| M3.1 | Profile & settings fixes sau review | ✅ hoàn thành |
 | M4 | Dictionary (đọc) | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input |
 | M5 | Collections | ✅ hoàn thành (chờ review) |
 | M6 | SRS | ⬜ chờ |
@@ -48,9 +50,9 @@
 | 2026-09-26 | Access token 15 phút **không tra DB mỗi request**; logout thu hồi session → refresh token chết ngay, access token cũ hết hạn tự nhiên | Chủ dự án chốt; đổi sang "tra session mỗi request" nếu cần thu hồi tức thì |
 | 2026-09-26 | Register chỉ tạo `users` + `user_identity` (+ `device` nếu client gửi) + session | `user_settings`/`study_profile` thuộc M3 (đúng phạm vi milestone) |
 | 2026-09-26 | Quy ước commit (§1.4 PROMPT-BACKEND.md): 1 commit = 1 đơn vị logic hoàn chỉnh (code + test + docs của cùng một việc), mỗi milestone ~2–4 commit — không tách lẻ từng file, không dồn cả milestone | Chủ dự án yêu cầu cân bằng (M0–M2 commit hơi lẻ) |
-| 2026-09-27 | Register tạo kèm `user_settings` mặc định (sửa nhỏ M2); user cũ thiếu row: `GET` trả mặc định, `PATCH` upsert | Mọi user mới luôn có settings — M6 (timezone) không phải fallback khắp nơi |
+| 2026-09-27 | M2.1: register tạo kèm `user_settings` mặc định; user cũ thiếu row: `GET` trả mặc định, `PATCH` upsert | Mọi user mới luôn có settings — M6 (timezone) không phải fallback khắp nơi |
 | 2026-09-27 | Quy tắc xoá profile: không xoá default khi còn hồ sơ khác (409), không xoá hồ sơ duy nhất (409) | Tránh xoá cascade mất collection/SRS do nhầm |
-| 2026-09-27 | M3 hardening: mutation profile/settings khóa dòng `app.users` trong transaction; profile đầu tiên luôn default; settings legacy giữ active profile; DTO chặn null, tên rỗng, UUID sai và timezone numeric offset | Giữ bất biến một default/user và tránh race làm mất active profile hoặc trả lỗi DB 500 |
+| 2026-09-27 | M3.1: mutation profile/settings khóa dòng `app.users` trong transaction; profile đầu tiên luôn default; settings legacy giữ active profile; DTO chặn null, tên rỗng, UUID sai và timezone numeric offset | Giữ bất biến một default/user và tránh race làm mất active profile hoặc trả lỗi DB 500 |
 | 2026-09-27 | Validate id ngôn ngữ bằng đọc `public.language` qua `$queryRaw` (không hardcode, không map Prisma public) | Đúng bất biến: Prisma chỉ map `app`; ngôn ngữ thêm mới không cần sửa code |
 | 2026-09-27 | `GET /v1/profiles` không phân trang | Mỗi user có vài hồ sơ cố định; pagination chỉ đặt ở tài nguyên lớn (M5+) |
 | 2026-09-27 | `JwtModule` đặt `global: true` trong AuthModule | Module khác (users, srs…) chỉ cần import AuthModule để dùng `JwtAuthGuard` |
@@ -59,27 +61,27 @@
 | 2026-09-27 | Search dùng `ILIKE` escape wildcard, rank exact → prefix → frequency; chưa có `pg_trgm/unaccent` | PostgreSQL nhúng thiếu extension (CONTEXT §13); production bổ sung index sau |
 | 2026-09-27 | `pronunciations`/`forms` trả theo **lexeme** của sense; `examples` đọc `core.example.sense_id` (không dùng `example_sense` vì chưa chạy mapping) | Đúng dữ liệu hiện có; khi chạy `run_mapping.py` có thể mở rộng |
 | 2026-09-27 | `search_history` chỉ đọc 50 dòng gần nhất; job dọn định kỳ chưa làm | Để M12 (hardening) — đã ghi backlog |
-| 2026-09-27 | Hardening M2 (chủ dự án thêm, đã review + test 2026-09-27): validate `JWT_ACCESS_TTL` lúc khởi động (fail-fast); xoay refresh token chống race bằng `updateMany` có điều kiện (chỉ 1 request thắng, còn lại 401); `device` phải là object | Tránh double-rotation khi 2 request dùng cùng token; cấu hình sai lộ ngay khi boot |
+| 2026-09-27 | M2.1 (chủ dự án thêm, đã review + test 2026-09-27): validate `JWT_ACCESS_TTL` lúc khởi động (fail-fast); xoay refresh token chống race bằng `updateMany` có điều kiện (chỉ 1 request thắng, còn lại 401); `device` phải là object | Tránh double-rotation khi 2 request dùng cùng token; cấu hình sai lộ ngay khi boot |
 | 2026-09-27 | `DELETE /collections/:id` = **archive mềm** (`archived_at`), không xoá cứng | Giữ nguyên `srs_state`/`review_log` — tránh mất dữ liệu học do nhầm |
 | 2026-09-27 | Item 1–2 face; server tự suy ngôn ngữ từ `core.sense→lexeme`; mặt phụ phải khác ngôn ngữ; `position = max+1`; `item_count` do service giữ trong transaction (DB không có trigger) | Bất biến §5.9 + §1.3 (client không gửi chuỗi/ngôn ngữ để đoán nghĩa) |
 | 2026-09-27 | Clone deck dùng `createMany` + uuid v7 sinh trước + transaction timeout 30s; nghĩa từ gloss vi→en→lemma với `meaning_source` `machine` khi gloss máy chưa duyệt | Deck thật có thể vài trăm–nghìn item; tránh timeout 5s mặc định của Prisma |
 | 2026-09-27 | Cursor keyset `(position, id)` base64url ở `src/common/pagination/cursor.ts` | Dùng lại cho M6+ (due list, history…), không offset |
 | 2026-09-27 | Tag user-scoped `/v1/tags`; `PATCH item.tag_ids` thay thế toàn bộ (gửi `[]` để bỏ hết) | Đơn giản, tránh nhiều endpoint gắn/gỡ lẻ tẻ |
-| 2026-09-27 | M2 hardening: refresh rotation cập nhật nguyên tử có điều kiện; `device` phải là object; `JWT_ACCESS_TTL` dùng parser chung và validate lúc khởi động | Chặn reuse token đồng thời, trả 400 cho input sai kiểu, và tránh ghi DB rồi mới lỗi vì cấu hình TTL |
-| 2026-09-27 | M3 hardening: mutation profile/settings khoá dòng `app.users` (`FOR UPDATE`) trong transaction; hồ sơ đầu tiên luôn default; upsert giữ active profile cho user cũ; DTO chặn null/rỗng/UUID sai/timezone offset | Giữ bất biến 1 default/user và chống race |
+| 2026-09-27 | M2.1: refresh rotation cập nhật nguyên tử có điều kiện; `device` phải là object; `JWT_ACCESS_TTL` dùng parser chung và validate lúc khởi động | Chặn reuse token đồng thời, trả 400 cho input sai kiểu, và tránh ghi DB rồi mới lỗi vì cấu hình TTL |
+| 2026-09-27 | M3.1: mutation profile/settings khoá dòng `app.users` (`FOR UPDATE`) trong transaction; hồ sơ đầu tiên luôn default; upsert giữ active profile cho user cũ; DTO chặn null/rỗng/UUID sai/timezone offset | Giữ bất biến 1 default/user và chống race |
 | 2026-09-27 | **Rút kinh nghiệm sau review M4**: từ M6 trở đi, trước khi báo cáo milestone phải tự chạy "checklist kiểm biên" (xem Backlog) trên **mọi endpoint mới** | Review độc lập phát hiện 7 lỗi lớp input-biên/thiếu luồng/trùng lặp mà e2e cũ không phủ |
 | 2026-09-27 | Bổ sung **M13 — Admin & Curation** vào lộ trình (sau M12), **trọng tâm là thống kê vận hành**; vai admin sẽ cần migration 026+ (`app.users.role` hoặc bảng `app.staff`); nếu cho admin ghi `core` (curate gloss/concept) phải ghi rõ ngoại lệ + audit, quyết định khi làm M13 | Chủ dự án yêu cầu: cần thống kê mới nắm được tình hình; hiện API không có vai admin và curation đang làm bằng script |
 
 ## Nhật ký sửa lỗi theo milestone
 
-### M2 — Auth hardening
+### M2.1 — Auth fixes sau review
 
 - `JWT_ACCESS_SECRET` phải có tối thiểu 32 ký tự; `JWT_ACCESS_TTL` được parse và kiểm tra ngay lúc khởi động để cấu hình sai fail-fast.
 - Refresh token được xoay bằng cập nhật nguyên tử có điều kiện (`updateMany`); khi hai request dùng cùng token đồng thời, chỉ một request thành công, request còn lại nhận `401`.
 - DTO `device` chỉ nhận object hợp lệ; đăng ký user mới tạo `user_settings` mặc định, còn user cũ thiếu row được `GET` fallback và `PATCH` upsert.
 - Đã kiểm chứng bằng unit/e2e luồng register → login → refresh → logout và các ca input sai. Commit liên quan: `c47ccbf`, `6b7a2d5`, `a0f4ab1`.
 
-### M3 — Profile & settings hardening
+### M3.1 — Profile & settings fixes sau review
 
 - Mutation profile/settings khóa dòng `app.users` bằng `FOR UPDATE` trong transaction để không mất default hoặc active profile khi request chạy đồng thời.
 - Profile đầu tiên luôn là default dù client gửi `is_default: false`; không cho xóa profile default khi còn profile khác hoặc xóa profile duy nhất.
