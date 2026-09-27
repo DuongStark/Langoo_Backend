@@ -72,6 +72,10 @@
 | 2026-09-27 | **Rút kinh nghiệm sau review M4**: từ M6 trở đi, trước khi báo cáo milestone phải tự chạy "checklist kiểm biên" (xem Backlog) trên **mọi endpoint mới** | Review độc lập phát hiện 7 lỗi lớp input-biên/thiếu luồng/trùng lặp mà e2e cũ không phủ |
 | 2026-09-27 | Bổ sung **M13 — Admin, Curation & Feedback** vào lộ trình (sau M12), **trọng tâm là thống kê vận hành**; vai admin sẽ cần migration 026+ (`app.users.role` hoặc bảng `app.staff`); nếu cho admin ghi `core` (curate gloss/concept) phải ghi rõ ngoại lệ + audit, quyết định khi làm M13 | Chủ dự án yêu cầu: cần thống kê mới nắm được tình hình; hiện API không có vai admin và curation đang làm bằng script |
 | 2026-09-27 | **Chính sách quyền riêng tư M13**: admin chỉ xem **số liệu tổng hợp**; không endpoint đọc nội dung collection/item/chat cá nhân; ngoại lệ duy nhất là dữ liệu user **chủ động gửi** (`gloss_report`, `feedback`); debug ca cụ thể cần user đồng ý + audit log | Chủ dự án yêu cầu; tránh "admin soi dữ liệu riêng tư" |
+| 2026-09-27 | **M6 chốt mô hình SRS = Anki verbatim** (steps `1m 10m`, Hard = TB 2 bước, Easy tốt nghiệp 4d, EF Anki ±0.15/0.20 sàn 1.3, relearning `10m` → về review 1 ngày, max interval 36.500 ngày, fuzz ±5% với RNG injectable, learn-ahead 20m, thứ tự queue learning→review→new) — đặc tả đầy đủ tại [`docs/srs.md`](docs/srs.md) | Chủ dự án chốt "bê nguyên Anki" sau khi đối chiếu manual Anki |
+| 2026-09-27 | Burying: **cơ chế nội bộ**, bật cho new + review siblings, hết ngày theo timezone user; **không** API unbury, không lộ số thẻ bị bury cho user | Chủ dự án chốt: user không cần biết |
+| 2026-09-27 | Daily limits **làm ở M6** (liên quan trực tiếp SRS): `srs_new_per_day` 20, `srs_review_per_day` 200 — đề xuất lưu ở `user_settings` (chốt trong kế hoạch M6); semantics Anki: intraday learning không bị giới hạn | Chủ dự án chốt |
+| 2026-09-27 | API suspend/unsuspend thẻ để **M7** (queue M6 vẫn lọc `suspended = false`) | Chủ dự án chốt |
 | 2026-09-27 | **Feedback (gộp vào M13)**: bắt buộc đăng nhập; user xem lại + thấy trạng thái (`GET /me/feedback`); ảnh lưu qua `StorageService` trừu tượng `local` (dev) / `s3` (khi có key) — giống pattern `AI_PROVIDER=stub`; tối đa 3 ảnh ≤5MB (jpeg/png/webp, kiểm magic bytes); admin xem ảnh qua route xác thực admin, không public URL | Chủ dự án chốt qua bộ câu hỏi ngày 2026-09-27 |
 
 ## Nhật ký sửa lỗi theo milestone
@@ -131,7 +135,7 @@
 
 ## Kế tiếp dự kiến
 
-- **M6 — SRS:** `GET /srs/due`, `POST /srs/reviews`, `GET /srs/stats`; scheduler SM-2 tách module thuần có unit test (interface sẵn để đổi FSRS).
+- **M6 — SRS (đang lập kế hoạch, chờ duyệt):** `GET /v1/srs/due`, `POST /v1/srs/reviews`, `GET /v1/srs/stats`; scheduler **Anki-verbatim** (module thuần, RNG injectable) + daily limits + burying nội bộ; đặc tả đầy đủ [`docs/srs.md`](docs/srs.md); cần **migration 026** (chờ duyệt, apply local trước).
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)
 
