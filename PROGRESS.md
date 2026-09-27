@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-27 (đã triển khai và kiểm chứng M5.1; M6 đang phát triển song song)
+> Cập nhật lần cuối: 2026-09-27 (M6 đã hoàn thành, chờ review; migration 026 đã chạy local — cloud chờ duyệt)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -16,7 +16,7 @@
 | M4 | Dictionary (đọc) | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input |
 | M5 | Collections | ✅ hoàn thành cùng M5.1 |
 | M5.1 | Collections fixes sau review | ✅ hoàn thành |
-| M6 | SRS | ⬜ chờ |
+| M6 | SRS | ✅ hoàn thành (chờ review) |
 | M7 | Review modes & sessions | ⬜ chờ |
 | M8 | Gamification | ⬜ chờ |
 | M9 | Reminders | ⬜ chờ |
@@ -110,6 +110,14 @@
 - Kiểm chứng M5.1: build pass, TypeScript pass, full lint pass, 20 suite/151 unit test pass, lint phạm vi M5.1 pass, 17 e2e M5/M5.1 pass và full e2e 8 suite/82 test pass.
 - Kế hoạch chi tiết và tiêu chí nghiệm thu: [`docs/plans/m5.1-collections-fixes.md`](docs/plans/m5.1-collections-fixes.md).
 
+### M6 — SRS (đã hoàn tất 2026-09-27, chờ review)
+
+- Scheduler **Anki verbatim** trong module thuần `src/srs/scheduler` (steps `1m 10m`, Hard = TB 2 bước, Easy 4d, EF ±0.15/0.20 sàn 1.3, relearning `10m` → 1 ngày, max 36.500 ngày, fuzz ±5% RNG injectable, learn-ahead 20m) — đặc tả [`docs/srs.md`](docs/srs.md).
+- API `GET /srs/due` (queue learning→review→new + cursor keyset `due_at,srs_id` + counts), `POST /srs/reviews` (1 transaction: `review_log` + `srs_state` + burying + XP idempotent), `GET /srs/stats`; daily limit `srs_new_per_day` 20 / `srs_review_per_day` 200 trong `user_settings`.
+- Idempotency retry mạng: `client_review_id` + row lock `srs_state`; thẻ bị bury (sibling new/review) là cơ chế nội bộ, không lộ API.
+- Migration `026_srs_scheduler.sql` đã chạy **local** (tự chạy trong `db:test:reset` sau dump) — **chưa apply cloud, chờ duyệt**.
+- Kiểm chứng: build/lint sạch, **151 unit** (scheduler 22 + queue/timezone/cursor 10 + toàn bộ cũ) và **82 e2e / 8 suite** trên DB reset (SRS 15 kịch bản: queue/nhãn ngôn ngữ, cursor, Good/Again/Easy, lapse, burying, idempotency, daily limit, stats, biên). Commits: `926c9f0`, `88cd98f`.
+
 ## Backlog
 
 - Cân nhắc ghi rõ `sslmode=verify-full` (hoặc `uselibpqcompat=true`) cho URL cloud để hết cảnh báo của `pg` 8.16+ — hiện `sslmode=require` đang được xử lý như `verify-full` (an toàn, chỉ ồn log).
@@ -120,6 +128,7 @@
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — chốt cùng M9 (reminders).
 - Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
 - Production: bổ sung `pg_trgm` + `unaccent` để tra không dấu/giống âm (CONTEXT §13).
+- **Migration 026 (`srs_scheduler`) chưa apply lên cloud** — chờ chủ dự án duyệt (`npm run db:migrate` với DIRECT_URL cloud), theo đúng quy trình migration cloud.
 
 ### M4.1 — vá theo review độc lập (đã hoàn tất 2026-09-27)
 
@@ -144,7 +153,7 @@
 
 ## Kế tiếp dự kiến
 
-- **M6 — SRS (đang lập kế hoạch, chờ duyệt):** `GET /v1/srs/due`, `POST /v1/srs/reviews`, `GET /v1/srs/stats`; scheduler **Anki-verbatim** (module thuần, RNG injectable) + daily limits + burying nội bộ; đặc tả đầy đủ [`docs/srs.md`](docs/srs.md); cần **migration 026** (chờ duyệt, apply local trước).
+- **M7 — Review modes & sessions (chờ duyệt):** session lifecycle (`study_session`/`study_session_item`); flashcard / multiple_choice / matching / typing; đáp án chấm server-side; màn "câu sai"; kèm **suspend/unsuspend thẻ** (đã chốt dời từ M6).
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)
 

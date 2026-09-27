@@ -22,8 +22,9 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M2 — Auth** đã xong (chờ review); **M2.1** đã vá các lỗi sau review: refresh rotation chống race, validate TTL/device và settings mặc định; ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
 - ✅ **M3 — Profile & settings** đã xong (chờ review); **M3.1** đã vá race default/active profile, profile đầu tiên, DTO biên và timezone; ví dụ curl tại [`docs/api/profiles-settings.md`](docs/api/profiles-settings.md).
 - ✅ **M4 — Dictionary (đọc)** đã hoàn tất cả phần chính và hardening M4.1: nối lexeme→senses, loại links trùng, chặn input biên, cursor search và romaji — xem nhật ký trong [`PROGRESS.md`](PROGRESS.md). Ví dụ curl: [`docs/api/dictionary.md`](docs/api/dictionary.md).
-- ✅ **M5 — Collections** đã xong (chờ review): CRUD bộ sưu tập (archive mềm), thêm từ 1–2 face sinh 2 `srs_state`/face trong transaction, tag, lọc theo ngôn ngữ, clone deck hệ thống; ví dụ curl tại [`docs/api/collections.md`](docs/api/collections.md).
-- ⬜ Backend đang chờ duyệt **M6 — SRS**.
+- ✅ **M5 — Collections** đã xong (chờ review); **M5.1** đã vá theo review (cổng curated, validation biên, phân trang, chống race) — xem nhật ký trong [`PROGRESS.md`](PROGRESS.md). Ví dụ curl tại [`docs/api/collections.md`](docs/api/collections.md).
+- ✅ **M6 — SRS** đã xong (chờ review): scheduler **Anki verbatim** (`src/srs/scheduler`), `GET /srs/due`, `POST /srs/reviews` (transaction + idempotency), `GET /srs/stats`, daily limit 20/200; đặc tả [`docs/srs.md`](docs/srs.md) · ví dụ curl [`docs/api/srs.md`](docs/api/srs.md). Migration `026` đã chạy local (**cloud chờ duyệt**).
+- ⬜ Backend đang chờ duyệt **M7 — Review modes & sessions**.
 - 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
 ## Quy tắc vàng
