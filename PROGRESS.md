@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-27 (đã triển khai và kiểm chứng M6.1 local; cloud chờ duyệt migration)
+> Cập nhật lần cuối: 2026-09-27 (M6.1 đã apply cloud 026/027; M8 xong; chuẩn bị deploy Render)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -17,7 +17,7 @@
 | M5   | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                            |
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                      |
 | M6   | SRS                                                                       | ⚠️ chưa đạt nghiệm thu: [14 phát hiện sau review](docs/reviews/m6-review.md)                       |
-| M6.1 | SRS fixes sau review                                                      | ✅ Đã sửa 14 phát hiện + ENV-01; local nghiệm thu build/lint/unit/e2e, cloud chờ migration 026/027 |
+| M6.1 | SRS fixes sau review                                                      | ✅ Đã sửa 14 phát hiện + ENV-01; local nghiệm thu build/lint/unit/e2e, **cloud đã apply 026/027 (2026-09-27)** |
 | M7   | Review modes & sessions                                                   | ✅ ReviewEngine dùng chung; review answer re-check eligibility/quota, practice chỉ miễn due/cap    |
 | M8   | Gamification                                                              | ✅ Regression e2e chạy cùng M6.1, giữ XP/streak/achievement trong transaction                      |
 | M9   | Reminders                                                                 | ⬜ chờ                                                                                             |
@@ -79,6 +79,7 @@
 | 2026-09-27 | Daily limits **làm ở M6** (liên quan trực tiếp SRS): `srs_new_per_day` 20, `srs_review_per_day` 200 — đề xuất lưu ở `user_settings` (chốt trong kế hoạch M6); semantics Anki: intraday learning không bị giới hạn                                                                                                                | Chủ dự án chốt                                                                                                       |
 | 2026-09-27 | API suspend/unsuspend thẻ để **M7** (queue M6 vẫn lọc `suspended = false`)                                                                                                                                                                                                                                                       | Chủ dự án chốt                                                                                                       |
 | 2026-09-27 | **Feedback (gộp vào M13)**: bắt buộc đăng nhập; user xem lại + thấy trạng thái (`GET /me/feedback`); ảnh lưu qua `StorageService` trừu tượng `local` (dev) / `s3` (khi có key) — giống pattern `AI_PROVIDER=stub`; tối đa 3 ảnh ≤5MB (jpeg/png/webp, kiểm magic bytes); admin xem ảnh qua route xác thực admin, không public URL | Chủ dự án chốt qua bộ câu hỏi ngày 2026-09-27                                                                        |
+| 2026-09-27 | Host API trên **Render**: blueprint `render.yaml` (build `npm ci --include=dev && npm run build`, start `npm run start:prod`, health `/v1/health`); CORS tuỳ chọn qua `CORS_ORIGINS` (trống = tắt); migration chạy tay từ local trước deploy | Chủ dự án muốn host; migration 026/027 đã apply cloud cùng ngày |
 
 ## Nhật ký sửa lỗi theo milestone
 
@@ -128,7 +129,8 @@
 - ENV-01: `withUtcTimezone()` áp cho Prisma/pg/scripts; bootstrap e2e kiểm tra DB local `_test`, session `TimeZone=UTC` và Date bind với literal UTC. `.env.example` và CI dùng startup option UTC; cloud chưa đổi.
 - M7 dùng cùng `ReviewEngine`; review session kiểm tra lại due/ahead/quota và mọi eligibility trong transaction, practice chỉ miễn due/cap. M8 XP/streak/achievement vẫn nằm trong transaction.
 - Regression hợp đồng: retry cùng payload trả snapshot nguyên vẹn, payload khác trả 409; `reviewed_at` bị từ chối; learn-ahead chỉ nhận khi queue thường cạn; sibling bury và metadata nguồn nghĩa được giữ qua due/session.
-- Kiểm chứng local ngày 2026-09-27: **23 suite/180 unit test**, **10 suite/107 e2e**, `npm run lint`, `npm run build`, và reset DB + migrations 026/027 đều pass. Cloud chưa apply migration và chưa được đánh dấu production-ready.
+- Kiểm chứng local ngày 2026-09-27: **23 suite/180 unit test**, **10 suite/107 e2e**, `npm run lint`, `npm run build`, và reset DB + migrations 026/027 đều pass.
+- **Cloud đã apply 026 + 027 ngày 2026-09-27** (xác minh chỉ-đọc: `schema_migration` có 2 bản ghi, `ease_factor` = double precision, có `learning_is_interday`, `srs_review_receipt`, cột settings và review_log mới). Kèm chuẩn bị deploy Render: `render.yaml`, CORS `CORS_ORIGINS`, README hướng dẫn.
 
 ## Backlog
 

@@ -49,6 +49,9 @@ export const envSchema = z.object({
     z.coerce.number().int().positive().default(2),
   ),
 
+  // CORS cho web FE khi deploy (danh sách origin cách nhau dấu phẩy; trống = tắt).
+  CORS_ORIGINS: z.preprocess(emptyToUndefined, z.string().optional()),
+
   // Biến AI — dùng từ M10, optional ở M0.
   AI_PROVIDER: z.preprocess(
     emptyToUndefined,

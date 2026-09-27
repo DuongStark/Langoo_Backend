@@ -1,0 +1,37 @@
+# Render Blueprint — Langoo API (NestJS 11 + Prisma Postgres)
+# Deploy: Render Dashboard → New → Blueprint → chọn repo này (branch main).
+# Biến `sync: false` sẽ được hỏi khi tạo Blueprint (điền sau trong Environment cũng được).
+services:
+  - type: web
+    name: langoo-api
+    runtime: node
+    plan: free
+    region: singapore
+    branch: main
+    # Build cần devDependencies (@nestjs/cli, prisma…) nên ép include=dev
+    # kể cả khi NODE_ENV=production.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: 22
+      - key: LOG_LEVEL
+        value: info
+      # Pooled (runtime API) — Prisma console → Connection strings.
+      - key: DATABASE_URL
+        sync: false
+      # Direct (migration/DDL; `npm run db:migrate` chạy từ local trước deploy).
+      - key: DIRECT_URL
+        sync: false
+      # Bắt buộc ≥32 ký tự ngẫu nhiên (xem .env.example).
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      # Tuỳ chọn: origin FE cách nhau dấu phẩy; bỏ trống = tắt CORS.
+      - key: CORS_ORIGINS
+        sync: false
+    # Nếu gói Render hỗ trợ pre-deploy command, có thể tự động migrate:
+    # preDeployCommand: npm run db:migrate

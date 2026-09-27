@@ -25,6 +25,16 @@ async function bootstrap(): Promise<void> {
   );
 
   const configService = app.get(ConfigService);
+  const corsOrigins = configService.get<string>('CORS_ORIGINS');
+  if (corsOrigins !== undefined && corsOrigins.trim() !== '') {
+    app.enableCors({
+      origin: corsOrigins
+        .split(',')
+        .map((origin) => origin.trim())
+        .filter((origin) => origin !== ''),
+      credentials: true,
+    });
+  }
   const port = Number(configService.getOrThrow('PORT'));
   await app.listen(port, '0.0.0.0');
 
