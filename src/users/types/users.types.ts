@@ -20,5 +20,7 @@ export interface SettingsResponse {
   daily_goal: number;
   notify: Record<string, unknown>;
   active_profile_id: string | null;
+  srs_new_per_day: number;
+  srs_review_per_day: number;
   updated_at: string | null;
 }

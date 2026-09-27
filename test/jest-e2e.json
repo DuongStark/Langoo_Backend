@@ -7,5 +7,6 @@
     "^.+\\.(t|j)s$": "ts-jest"
   },
   "setupFiles": ["<rootDir>/test/setup-env.ts"],
+  "testPathIgnorePatterns": ["/node_modules/", "<rootDir>/.kilo/"],
   "testTimeout": 60000
 }

@@ -9,6 +9,7 @@ import {
   logStep,
   resolveTestDirectUrl,
 } from './_shared';
+import { applyPendingMigrations } from './migrations';
 
 const SCRIPT = 'db:test:reset';
 
@@ -55,6 +56,10 @@ async function main(): Promise<void> {
   } finally {
     await db.end();
   }
+
+  // Dump là "schema nền"; áp thêm các migration mới hơn (ví dụ 026) để DB test
+  // luôn khớp schema hiện tại — giống bước CI (reset → migrate).
+  await applyPendingMigrations(parsed.raw, SCRIPT);
 
   logStep(SCRIPT, `Xong: DB test "${parsed.database}" đã sẵn sàng.`);
 }

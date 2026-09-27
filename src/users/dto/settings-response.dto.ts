@@ -10,6 +10,12 @@ export class SettingsResponseDto {
   @ApiProperty({ example: 20, minimum: 1, maximum: 500 })
   daily_goal!: number;
 
+  @ApiProperty({ example: 20, minimum: 1, maximum: 9999 })
+  srs_new_per_day!: number;
+
+  @ApiProperty({ example: 200, minimum: 1, maximum: 9999 })
+  srs_review_per_day!: number;
+
   @ApiProperty({
     type: 'object',
     additionalProperties: true,

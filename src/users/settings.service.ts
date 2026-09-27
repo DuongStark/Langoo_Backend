@@ -4,7 +4,12 @@ import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
-import { DEFAULT_DAILY_GOAL, DEFAULT_TIMEZONE } from './settings.constants';
+import {
+  DEFAULT_DAILY_GOAL,
+  DEFAULT_SRS_NEW_PER_DAY,
+  DEFAULT_SRS_REVIEW_PER_DAY,
+  DEFAULT_TIMEZONE,
+} from './settings.constants';
 import { SettingsResponse } from './types/users.types';
 import { lockUser } from './user-lock';
 
@@ -14,6 +19,8 @@ interface SettingsRow {
   dailyGoal: number;
   notify: unknown;
   activeProfileId: string | null;
+  srsNewPerDay: number;
+  srsReviewPerDay: number;
   updatedAt: Date;
 }
 
@@ -46,6 +53,8 @@ export class SettingsService {
       daily_goal: DEFAULT_DAILY_GOAL,
       notify: {},
       active_profile_id: defaultProfile?.id ?? null,
+      srs_new_per_day: DEFAULT_SRS_NEW_PER_DAY,
+      srs_review_per_day: DEFAULT_SRS_REVIEW_PER_DAY,
       updated_at: null,
     };
   }
@@ -118,6 +127,8 @@ export class SettingsService {
           dailyGoal: dto.daily_goal ?? DEFAULT_DAILY_GOAL,
           notify: (dto.notify ?? {}) as Prisma.InputJsonValue,
           activeProfileId,
+          srsNewPerDay: dto.srs_new_per_day ?? DEFAULT_SRS_NEW_PER_DAY,
+          srsReviewPerDay: dto.srs_review_per_day ?? DEFAULT_SRS_REVIEW_PER_DAY,
         },
         update: {
           ...(timezone !== undefined ? { timezone } : {}),
@@ -132,6 +143,12 @@ export class SettingsService {
             : {}),
           ...(dto.active_profile_id !== undefined
             ? { activeProfileId: dto.active_profile_id }
+            : {}),
+          ...(dto.srs_new_per_day !== undefined
+            ? { srsNewPerDay: dto.srs_new_per_day }
+            : {}),
+          ...(dto.srs_review_per_day !== undefined
+            ? { srsReviewPerDay: dto.srs_review_per_day }
             : {}),
         },
       });
@@ -169,6 +186,8 @@ function toSettingsResponse(row: SettingsRow): SettingsResponse {
     daily_goal: row.dailyGoal,
     notify: (row.notify ?? {}) as Record<string, unknown>,
     active_profile_id: row.activeProfileId,
+    srs_new_per_day: row.srsNewPerDay,
+    srs_review_per_day: row.srsReviewPerDay,
     updated_at: row.updatedAt.toISOString(),
   };
 }

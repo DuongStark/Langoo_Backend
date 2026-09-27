@@ -143,6 +143,8 @@ model UserSettings {
   timezone        String   @default("Asia/Ho_Chi_Minh")
   uiLanguageId    Int?     @map("ui_language_id") @db.SmallInt
   dailyGoal       Int      @default(20) @map("daily_goal") @db.SmallInt
+  srsNewPerDay    Int      @default(20) @map("srs_new_per_day") @db.SmallInt
+  srsReviewPerDay Int      @default(200) @map("srs_review_per_day") @db.SmallInt
   notify          Json     @default("{}")
   activeProfileId String?  @map("active_profile_id") @db.Uuid
   updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
@@ -321,6 +323,11 @@ model SrsState {
   elapsedDays   Int?      @map("elapsed_days")
   lastReviewAt  DateTime? @map("last_review_at") @db.Timestamptz(6)
   suspended     Boolean   @default(false)
+  // Scheduler Anki (migration 026) — xem docs/srs.md
+  easeFactor    Float     @default(2.5) @map("ease_factor") @db.Real
+  learningStep  Int?      @map("learning_step") @db.SmallInt
+  introducedAt  DateTime? @map("introduced_at") @db.Timestamptz(6)
+  buriedUntil   DateTime? @map("buried_until") @db.Timestamptz(6)
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
 
@@ -344,6 +351,9 @@ model ReviewLog {
   mode       String   @default("flashcard") // flashcard | multiple_choice | matching | typing | listening
   elapsedMs  Int?     @map("elapsed_ms")
   reviewedAt DateTime @default(now()) @map("reviewed_at") @db.Timestamptz(6)
+  // M6: idempotency + trạng thái trước khi trả lời (partition nên không unique được)
+  clientReviewId String? @map("client_review_id") @db.Uuid
+  prevState      String? @map("prev_state") // new | learning | review | relearning
 
   srs  SrsState? @relation(fields: [srsId], references: [id], onDelete: SetNull)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)

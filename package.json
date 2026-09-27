@@ -77,6 +77,10 @@
     ],
     "rootDir": ".",
     "testRegex": "src/.*\\.spec\\.ts$",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "<rootDir>/.kilo/"
+    ],
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },

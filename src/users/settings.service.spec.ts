@@ -15,6 +15,8 @@ function settingsRow(overrides: Record<string, unknown> = {}) {
     dailyGoal: 20,
     notify: {},
     activeProfileId: null,
+    srsNewPerDay: 20,
+    srsReviewPerDay: 200,
     updatedAt: new Date('2026-09-26T00:00:00.000Z'),
     ...overrides,
   };
@@ -66,6 +68,8 @@ describe('SettingsService', () => {
         daily_goal: 20,
         notify: {},
         active_profile_id: 'profile-1',
+        srs_new_per_day: 20,
+        srs_review_per_day: 200,
         updated_at: null,
       });
     });

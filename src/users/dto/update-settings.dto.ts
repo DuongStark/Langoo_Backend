@@ -35,6 +35,30 @@ export class UpdateSettingsDto {
   daily_goal?: number;
 
   @ApiPropertyOptional({
+    example: 20,
+    minimum: 1,
+    maximum: 9999,
+    description: 'Số thẻ MỚI tối đa mỗi ngày (Anki new cards/day)',
+  })
+  @ValidateIf((_, value: unknown) => value !== undefined)
+  @IsInt()
+  @Min(1)
+  @Max(9999)
+  srs_new_per_day?: number;
+
+  @ApiPropertyOptional({
+    example: 200,
+    minimum: 1,
+    maximum: 9999,
+    description: 'Số lượt ôn tối đa mỗi ngày (Anki max reviews/day)',
+  })
+  @ValidateIf((_, value: unknown) => value !== undefined)
+  @IsInt()
+  @Min(1)
+  @Max(9999)
+  srs_review_per_day?: number;
+
+  @ApiPropertyOptional({
     type: 'object',
     additionalProperties: true,
     description: 'Tuỳ chọn thông báo (cấu trúc khoá chốt ở M9)',
