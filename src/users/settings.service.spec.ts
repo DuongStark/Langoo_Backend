@@ -1,5 +1,5 @@
 import { PrismaService } from '../db/prisma.service';
-import { LanguageRepository } from './language.repository';
+import { LanguageRepository } from '../db/repositories/language.repository';
 import { SettingsService } from './settings.service';
 
 function firstArg<T>(mock: jest.Mock): T {

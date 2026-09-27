@@ -1,5 +1,5 @@
 import { PrismaService } from '../db/prisma.service';
-import { LanguageRepository } from './language.repository';
+import { LanguageRepository } from '../db/repositories/language.repository';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { ProfileService } from './profile.service';
 

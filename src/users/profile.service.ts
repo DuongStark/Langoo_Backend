@@ -2,9 +2,9 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
+import { LanguageRepository } from '../db/repositories/language.repository';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
-import { LanguageRepository } from './language.repository';
 import { DeletedProfileResponse, ProfileResponse } from './types/users.types';
 
 interface ProfileRow {

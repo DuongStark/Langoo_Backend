@@ -2,8 +2,8 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import { LanguageRepository } from '../db/repositories/language.repository';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
-import { LanguageRepository } from './language.repository';
 import { DEFAULT_DAILY_GOAL, DEFAULT_TIMEZONE } from './settings.constants';
 import { SettingsResponse } from './types/users.types';
 

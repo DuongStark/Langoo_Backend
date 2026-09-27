@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../db/prisma.service';
-import { Prisma } from '../generated/prisma/client';
+import { PrismaService } from '../prisma.service';
+import { Prisma } from '../../generated/prisma/client';
 
 /**
  * Đọc metadata ngôn ngữ từ `public.language` (schema public KHÔNG map trong Prisma).
@@ -19,5 +19,13 @@ export class LanguageRepository {
       SELECT id FROM public.language WHERE id IN (${Prisma.join(ids)})
     `;
     return new Set(rows.map((row) => row.id));
+  }
+
+  /** Id theo mã ngôn ngữ ('en' | 'ja' | 'vi' | 'zh-Hans'); null nếu không tồn tại. */
+  async findIdByCode(code: string): Promise<number | null> {
+    const rows = await this.prisma.$queryRaw<{ id: number }[]>`
+      SELECT id FROM public.language WHERE code = ${code}
+    `;
+    return rows[0]?.id ?? null;
   }
 }
