@@ -123,6 +123,7 @@ thường 2–4 commit, ví dụ: `feat(auth): ...` (code + unit/e2e), `docs: ..
 | M10 | AI Chatbot | `AI_PROVIDER=stub` mặc định (không cần key); chat_session/chat_message; ai_usage + quota | e2e với stub: tạo phiên, gửi tin, lịch sử đúng; quota chặn khi vượt |
 | M11 | AI Quiz | sinh quiz từ collection (stub provider), lưu quiz/quiz_question; làm bài qua session kind='quiz' | e2e: sinh 3 câu → trả lời → điểm/câu sai đúng |
 | M12 | Hardening | rate limit, CORS, OpenAPI đầy đủ, seed script demo API, e2e tổng, đọc lại blacklist | toàn bộ e2e xanh; Swagger mô tả đủ 8 nhóm chức năng |
+| M13 | Admin & Curation (thêm 2026-09-27) | Thống kê vận hành (user/học tập/nội dung/AI) + hàng chờ duyệt gloss & curation + quản lý user nhẹ; vai admin cần migration 026+ (`role` hoặc bảng `staff`) | chốt chi tiết khi tới M13 (kèm quyết định "admin ghi core") |
 
 ## 6. Definition of Done cho mỗi milestone
 

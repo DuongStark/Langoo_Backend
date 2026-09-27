@@ -20,6 +20,7 @@
 | M10 | AI Chatbot | ⬜ chờ |
 | M11 | AI Quiz | ⬜ chờ |
 | M12 | Hardening | ⬜ chờ |
+| M13 | Admin & Curation (thống kê vận hành + duyệt nội dung) | ⬜ chờ (thêm 2026-09-27) |
 
 ## Quyết định đã chốt
 
@@ -67,6 +68,7 @@
 | 2026-09-27 | M2 hardening: refresh rotation cập nhật nguyên tử có điều kiện; `device` phải là object; `JWT_ACCESS_TTL` dùng parser chung và validate lúc khởi động | Chặn reuse token đồng thời, trả 400 cho input sai kiểu, và tránh ghi DB rồi mới lỗi vì cấu hình TTL |
 | 2026-09-27 | M3 hardening: mutation profile/settings khoá dòng `app.users` (`FOR UPDATE`) trong transaction; hồ sơ đầu tiên luôn default; upsert giữ active profile cho user cũ; DTO chặn null/rỗng/UUID sai/timezone offset | Giữ bất biến 1 default/user và chống race |
 | 2026-09-27 | **Rút kinh nghiệm sau review M4**: từ M6 trở đi, trước khi báo cáo milestone phải tự chạy "checklist kiểm biên" (xem Backlog) trên **mọi endpoint mới** | Review độc lập phát hiện 7 lỗi lớp input-biên/thiếu luồng/trùng lặp mà e2e cũ không phủ |
+| 2026-09-27 | Bổ sung **M13 — Admin & Curation** vào lộ trình (sau M12), **trọng tâm là thống kê vận hành**; vai admin sẽ cần migration 026+ (`app.users.role` hoặc bảng `app.staff`); nếu cho admin ghi `core` (curate gloss/concept) phải ghi rõ ngoại lệ + audit, quyết định khi làm M13 | Chủ dự án yêu cầu: cần thống kê mới nắm được tình hình; hiện API không có vai admin và curation đang làm bằng script |
 
 ## Nhật ký sửa lỗi theo milestone
 
@@ -126,3 +128,16 @@
 ## Kế tiếp dự kiến
 
 - **M6 — SRS:** `GET /srs/due`, `POST /srs/reviews`, `GET /srs/stats`; scheduler SM-2 tách module thuần có unit test (interface sẵn để đổi FSRS).
+
+## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)
+
+Trọng tâm: **thống kê vận hành chỉ-đọc** (tổng hợp từ `app.*`, `core.*`, `serve.*`, `ai_usage`):
+
+- **Người dùng**: đăng ký mới theo ngày/tuần, user theo `status`, tỉ lệ quay lại (`last_login_at`).
+- **Học tập**: lượt ôn/ngày, XP, phân bố streak, số collection/item, quiz đã làm, backlog SRS đến hạn.
+- **Nội dung**: hàng chờ `gloss_report` (open / theo `issue` / theo `target_kind`), tiến độ concept `draft→curated`, tỉ lệ gloss máy vs đã duyệt, độ phủ `serve.sense_pair`.
+- **AI**: `ai_usage` (request/token/chi phí theo ngày, theo feature), số lần chạm quota.
+
+Kèm (nếu bạn duyệt khi làm M13): duyệt gloss (`reviewed_by`), xử lý `gloss_report`, khoá/mở user, quản lý deck.
+
+Yêu cầu kiến trúc: migration 026+ thêm vai admin + JWT claim + `AdminGuard`; route `/v1/admin/*`; mọi thao tác ghi `core` (nếu có) phải là ngoại lệ được duyệt và có audit.
