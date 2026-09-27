@@ -1,7 +1,10 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainException } from '../common/errors/domain.exception';
+import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
 import { PrismaService } from '../db/prisma.service';
 import { CreateTagDto } from './dto/create-tag.dto';
+import { ListTagsQueryDto } from './dto/list-tags-query.dto';
+import { decodeTagListCursor, encodeTagListCursor } from './list-cursors';
 import {
   DeletedResponse,
   TagListResult,
@@ -20,16 +23,54 @@ interface TagRow {
 export class TagsService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(userId: bigint): Promise<TagListResult> {
+  async list(
+    userId: bigint,
+    query: ListTagsQueryDto = {},
+  ): Promise<TagListResult> {
+    const cursor =
+      query.cursor === undefined
+        ? undefined
+        : decodeTagListCursor(query.cursor);
+    const limit = query.limit ?? 20;
     const rows = await this.prisma.tag.findMany({
-      where: { userId },
-      orderBy: { name: 'asc' },
+      where: {
+        userId,
+        ...(cursor
+          ? {
+              OR: [
+                { name: { gt: cursor.name } },
+                {
+                  name: cursor.name,
+                  id: { gt: parsePositivePostgresBigInt(cursor.id, 'tag_id') },
+                },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ name: 'asc' }, { id: 'asc' }],
+      take: limit + 1,
     });
-    return { data: rows.map(toTagResponse), next_cursor: null };
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    return {
+      data: page.map(toTagResponse),
+      next_cursor:
+        hasMore && last !== undefined
+          ? encodeTagListCursor({ name: last.name, id: last.id.toString() })
+          : null,
+    };
   }
 
   async create(userId: bigint, dto: CreateTagDto): Promise<TagResponse> {
     const name = dto.name.trim();
+    if (name.length === 0) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Tên tag không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const existing = await this.prisma.tag.findFirst({
       where: { userId, name: { equals: name, mode: 'insensitive' } },
       select: { id: true },
@@ -52,19 +93,18 @@ export class TagsService {
   }
 
   async remove(userId: bigint, tagId: string): Promise<DeletedResponse> {
-    const tag = await this.prisma.tag.findFirst({
-      where: { id: BigInt(tagId), userId },
-      select: { id: true },
+    const id = parsePositivePostgresBigInt(tagId, 'tag_id');
+    const deleted = await this.prisma.tag.deleteMany({
+      where: { id, userId },
     });
-    if (!tag) {
+    if (deleted.count === 0) {
       throw new DomainException(
         'TAG_NOT_FOUND',
         'Không tìm thấy tag',
         HttpStatus.NOT_FOUND,
       );
     }
-    await this.prisma.tag.delete({ where: { id: tag.id } });
-    return { id: tag.id.toString(), deleted_at: new Date().toISOString() };
+    return { id: id.toString(), deleted_at: new Date().toISOString() };
   }
 }
 

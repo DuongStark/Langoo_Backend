@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
+import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
 import { decodeCursor, encodeCursor } from '../common/pagination/cursor';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { PrismaService } from '../db/prisma.service';
@@ -16,6 +17,7 @@ import {
 } from './types/collections.types';
 
 const DEFAULT_ITEMS_LIMIT = 20;
+const MAX_POSITION = 2147483647;
 
 interface CollectionOwnedRow {
   id: string;
@@ -120,10 +122,13 @@ export class ItemsService {
   ): Promise<ItemResponse> {
     const collection = await this.findOwnedCollection(userId, collectionId);
 
-    const anchorId = BigInt(dto.sense_id);
+    const anchorId = parsePositivePostgresBigInt(dto.sense_id, 'sense_id');
     const secondaryId =
       dto.secondary_sense_id !== undefined
-        ? BigInt(dto.secondary_sense_id)
+        ? parsePositivePostgresBigInt(
+            dto.secondary_sense_id,
+            'secondary_sense_id',
+          )
         : null;
     const ids = secondaryId !== null ? [anchorId, secondaryId] : [anchorId];
     const uniqueIds = [...new Set(ids.map((id) => id.toString()))].map((id) =>
@@ -155,19 +160,44 @@ export class ItemsService {
     }
 
     let conceptId: bigint | null = anchor.concept_id ?? null;
-    if (dto.concept_id !== undefined) {
-      conceptId = BigInt(dto.concept_id);
-      const exists = await this.senseLookup.conceptExists(conceptId);
-      if (!exists) {
+    if (secondary !== null) {
+      const pair = await this.senseLookup.findCuratedPair(
+        anchorId,
+        secondary.sense_id,
+      );
+      if (!pair) {
         throw new DomainException(
-          'CONCEPT_NOT_FOUND',
-          'Không tìm thấy khái niệm',
-          HttpStatus.NOT_FOUND,
+          'COLLECTION_SENSE_PAIR_INVALID',
+          'Hai mặt không phải là một cặp nghĩa đã được duyệt',
+          HttpStatus.BAD_REQUEST,
         );
       }
+      conceptId = pair.concept_id;
+      if (dto.concept_id !== undefined) {
+        const requestedConceptId = parsePositivePostgresBigInt(
+          dto.concept_id,
+          'concept_id',
+        );
+        if (requestedConceptId !== pair.concept_id) {
+          throw conceptInvalid();
+        }
+      }
+    } else if (dto.concept_id !== undefined) {
+      const requestedConceptId = parsePositivePostgresBigInt(
+        dto.concept_id,
+        'concept_id',
+      );
+      const valid = await this.senseLookup.hasCuratedConceptMapping(
+        anchorId,
+        requestedConceptId,
+      );
+      if (!valid) {
+        throw conceptInvalid();
+      }
+      conceptId = requestedConceptId;
     }
 
-    const tagIds = dto.tag_ids?.map((id) => BigInt(id)) ?? [];
+    const tagIds = uniqueBigInts(dto.tag_ids ?? []);
     await this.assertTagsOwned(userId, tagIds);
 
     const itemId = uuidv7();
@@ -181,6 +211,9 @@ export class ItemsService {
           where: { collectionId },
           _max: { position: true },
         });
+        if (maxPosition._max.position === MAX_POSITION) {
+          throw positionLimitReached();
+        }
         const position = (maxPosition._max.position ?? 0) + 1;
 
         await tx.collectionItem.create({
@@ -271,7 +304,7 @@ export class ItemsService {
 
     let tagIds: bigint[] | null = null;
     if (dto.tag_ids !== undefined) {
-      tagIds = dto.tag_ids.map((id) => BigInt(id));
+      tagIds = uniqueBigInts(dto.tag_ids);
       await this.assertTagsOwned(userId, tagIds);
     }
 
@@ -282,6 +315,7 @@ export class ItemsService {
           ...(dto.meaning_vi !== undefined
             ? { meaningVi: dto.meaning_vi.trim() }
             : {}),
+          ...(dto.meaning_vi !== undefined ? { meaningSource: 'user' } : {}),
           ...(dto.note !== undefined ? { note: dto.note } : {}),
           ...(dto.status !== undefined ? { status: dto.status } : {}),
           ...(dto.position !== undefined ? { position: dto.position } : {}),
@@ -307,11 +341,14 @@ export class ItemsService {
     itemId: string,
   ): Promise<DeletedResponse> {
     await this.findOwnedCollection(userId, collectionId);
-    await this.assertItemExists(collectionId, itemId);
-
     const deletedAt = new Date();
     await this.prisma.$transaction(async (tx) => {
-      await tx.collectionItem.delete({ where: { id: itemId } });
+      const deleted = await tx.collectionItem.deleteMany({
+        where: { id: itemId, collectionId },
+      });
+      if (deleted.count === 0) {
+        throw itemNotFound();
+      }
       await tx.collection.update({
         where: { id: collectionId },
         data: { itemCount: { decrement: 1 } },
@@ -402,6 +439,27 @@ function itemNotFound(): DomainException {
     'Không tìm thấy từ trong bộ sưu tập',
     HttpStatus.NOT_FOUND,
   );
+}
+
+function conceptInvalid(): DomainException {
+  return new DomainException(
+    'COLLECTION_CONCEPT_INVALID',
+    'Khái niệm không thuộc nghĩa đã được duyệt của mặt này',
+    HttpStatus.BAD_REQUEST,
+  );
+}
+
+function positionLimitReached(): DomainException {
+  return new DomainException(
+    'COLLECTION_POSITION_LIMIT_REACHED',
+    'Bộ sưu tập đã đạt giới hạn vị trí của item',
+    HttpStatus.CONFLICT,
+  );
+}
+
+function uniqueBigInts(rawIds: string[]): bigint[] {
+  const values = rawIds.map((id) => parsePositivePostgresBigInt(id, 'tag_id'));
+  return [...new Map(values.map((id) => [id.toString(), id])).values()];
 }
 
 function isUniqueViolation(error: unknown): boolean {

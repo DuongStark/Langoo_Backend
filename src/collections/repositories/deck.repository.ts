@@ -71,4 +71,21 @@ export class DeckRepository {
       ORDER BY di.position ASC, di.anchor_sense_id ASC
     `;
   }
+
+  async hasCuratedConceptMapping(
+    senseId: bigint,
+    conceptId: bigint,
+  ): Promise<boolean> {
+    const rows = await this.prisma.$queryRaw<{ ok: number }[]>`
+      SELECT 1 AS ok
+      FROM core.sense_concept sc
+      JOIN core.concept c ON c.id = sc.concept_id
+      WHERE sc.sense_id = ${senseId}
+        AND sc.concept_id = ${conceptId}
+        AND c.status = 'curated'
+        AND sc.confidence >= 0.7
+      LIMIT 1
+    `;
+    return rows.length > 0;
+  }
 }

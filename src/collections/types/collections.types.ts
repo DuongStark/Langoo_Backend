@@ -16,7 +16,7 @@ export interface CollectionResponse {
 
 export interface CollectionListResult {
   data: CollectionResponse[];
-  next_cursor: null;
+  next_cursor: string | null;
 }
 
 export interface ArchivedResponse {
@@ -38,7 +38,7 @@ export interface TagResponse {
 
 export interface TagListResult {
   data: TagResponse[];
-  next_cursor: null;
+  next_cursor: string | null;
 }
 
 export interface ItemFaceResponse {

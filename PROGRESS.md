@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-27 (đã ghi nhận M2.1–M4.1; M5 hoàn thành, chờ review)
+> Cập nhật lần cuối: 2026-09-27 (đã triển khai và kiểm chứng M5.1; M6 đang phát triển song song)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -14,7 +14,8 @@
 | M3 | Profile & settings | ✅ hoàn thành (chờ review) |
 | M3.1 | Profile & settings fixes sau review | ✅ hoàn thành |
 | M4 | Dictionary (đọc) | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input |
-| M5 | Collections | ✅ hoàn thành (chờ review) |
+| M5 | Collections | ✅ hoàn thành cùng M5.1 |
+| M5.1 | Collections fixes sau review | ✅ hoàn thành |
 | M6 | SRS | ⬜ chờ |
 | M7 | Review modes & sessions | ⬜ chờ |
 | M8 | Gamification | ⬜ chờ |
@@ -100,6 +101,14 @@
 - Chặn query/target chỉ có khoảng trắng, bigint ID vượt biên và cursor sai; search dùng keyset cursor ổn định, tối đa 100 dòng/trang.
 - Bổ sung romaji → kana và tìm `romanization` khi có dữ liệu; cập nhật regression unit/e2e và tài liệu API.
 - Đã kiểm chứng build, lint, 112 unit test và 62 e2e test. Commit: `411e65f`.
+
+### M5.1 — Collections fixes sau review (đã hoàn tất 2026-09-27)
+
+- Review xác nhận 7 nhóm lỗi: ghép sai sense/concept; thiếu cổng curated/confidence; validation gây 500; tag trùng; sửa nghĩa không đổi nguồn; collections/tags chưa phân trang; xóa đồng thời gây 500.
+- Đã bổ sung cổng chất lượng cho mapping, kiểm tra cặp sense/concept trước khi ghi, validation UUID/bigint/null/whitespace/position/cursor, khử tag trùng, cập nhật `meaning_source`, keyset pagination cho collections/tags và xóa có điều kiện chống race.
+- Đã thêm regression unit/e2e riêng tại `src/collections/list-cursors.spec.ts` và `test/collections-m51.e2e-spec.ts`; tài liệu API và kế hoạch đã cập nhật theo hành vi thực tế.
+- Kiểm chứng M5.1: build pass, TypeScript pass, full lint pass, 20 suite/151 unit test pass, lint phạm vi M5.1 pass, 17 e2e M5/M5.1 pass và full e2e 8 suite/82 test pass.
+- Kế hoạch chi tiết và tiêu chí nghiệm thu: [`docs/plans/m5.1-collections-fixes.md`](docs/plans/m5.1-collections-fixes.md).
 
 ## Backlog
 

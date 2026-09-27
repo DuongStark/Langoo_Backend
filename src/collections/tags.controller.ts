@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -19,6 +20,7 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtPayload } from '../auth/types/auth.types';
+import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
 import {
   DeletedResponseDto,
@@ -26,6 +28,7 @@ import {
   TagResponseDto,
 } from './dto/collection-response.dto';
 import { CreateTagDto } from './dto/create-tag.dto';
+import { ListTagsQueryDto } from './dto/list-tags-query.dto';
 import { TagsService } from './tags.service';
 import {
   DeletedResponse,
@@ -43,8 +46,11 @@ export class TagsController {
   @Get()
   @ApiOperation({ summary: 'Danh sách tag của tôi' })
   @ApiOkResponse({ type: TagListResponseDto })
-  list(@CurrentUser() payload: JwtPayload): Promise<TagListResult> {
-    return this.tagsService.list(BigInt(payload.sub));
+  list(
+    @CurrentUser() payload: JwtPayload,
+    @Query() query: ListTagsQueryDto,
+  ): Promise<TagListResult> {
+    return this.tagsService.list(BigInt(payload.sub), query);
   }
 
   @Post()
@@ -69,6 +75,9 @@ export class TagsController {
     @CurrentUser() payload: JwtPayload,
     @Param('id') id: string,
   ): Promise<DeletedResponse> {
-    return this.tagsService.remove(BigInt(payload.sub), id);
+    return this.tagsService.remove(
+      BigInt(payload.sub),
+      parsePositivePostgresBigInt(id, 'tag_id').toString(),
+    );
   }
 }

@@ -22,6 +22,7 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtPayload } from '../auth/types/auth.types';
+import { parseUuidParam } from '../common/ids/postgres-id';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
 import { CollectionsService } from './collections.service';
 import { CloneFromDeckDto } from './dto/clone-from-deck.dto';
@@ -54,7 +55,7 @@ export class CollectionsController {
     @CurrentUser() payload: JwtPayload,
     @Query() query: ListCollectionsQueryDto,
   ): Promise<CollectionListResult> {
-    return this.collectionsService.list(BigInt(payload.sub), query.profile_id);
+    return this.collectionsService.list(BigInt(payload.sub), query);
   }
 
   @Post()
@@ -95,7 +96,10 @@ export class CollectionsController {
     @CurrentUser() payload: JwtPayload,
     @Param('id') id: string,
   ): Promise<CollectionResponse> {
-    return this.collectionsService.get(BigInt(payload.sub), id);
+    return this.collectionsService.get(
+      BigInt(payload.sub),
+      parseUuidParam(id, 'collection_id'),
+    );
   }
 
   @Patch(':id')
@@ -106,7 +110,11 @@ export class CollectionsController {
     @Param('id') id: string,
     @Body() dto: UpdateCollectionDto,
   ): Promise<CollectionResponse> {
-    return this.collectionsService.update(BigInt(payload.sub), id, dto);
+    return this.collectionsService.update(
+      BigInt(payload.sub),
+      parseUuidParam(id, 'collection_id'),
+      dto,
+    );
   }
 
   @Delete(':id')
@@ -116,6 +124,9 @@ export class CollectionsController {
     @CurrentUser() payload: JwtPayload,
     @Param('id') id: string,
   ): Promise<ArchivedResponse> {
-    return this.collectionsService.archive(BigInt(payload.sub), id);
+    return this.collectionsService.archive(
+      BigInt(payload.sub),
+      parseUuidParam(id, 'collection_id'),
+    );
   }
 }

@@ -10,6 +10,7 @@ interface TxMock {
     aggregate: jest.Mock;
     update: jest.Mock;
     delete: jest.Mock;
+    deleteMany: jest.Mock;
   };
   collectionItemFace: { create: jest.Mock };
   srsState: { createMany: jest.Mock };
@@ -61,7 +62,11 @@ function createSetup(): {
     $transaction: jest.Mock;
   };
   tx: TxMock;
-  senseLookup: { findManyByIds: jest.Mock; conceptExists: jest.Mock };
+  senseLookup: {
+    findManyByIds: jest.Mock;
+    findCuratedPair: jest.Mock;
+    hasCuratedConceptMapping: jest.Mock;
+  };
   languages: { findExistingIds: jest.Mock };
 } {
   const tx: TxMock = {
@@ -70,6 +75,7 @@ function createSetup(): {
       aggregate: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
+      deleteMany: jest.fn(),
     },
     collectionItemFace: { create: jest.fn() },
     srsState: { createMany: jest.fn() },
@@ -82,7 +88,14 @@ function createSetup(): {
     tag: { findMany: jest.fn() },
     $transaction: jest.fn((fn: (client: TxMock) => Promise<unknown>) => fn(tx)),
   };
-  const senseLookup = { findManyByIds: jest.fn(), conceptExists: jest.fn() };
+  const senseLookup = {
+    findManyByIds: jest.fn(),
+    findCuratedPair: jest.fn().mockResolvedValue({
+      concept_id: 1n,
+      confidence: 1,
+    }),
+    hasCuratedConceptMapping: jest.fn().mockResolvedValue(true),
+  };
   const languages = { findExistingIds: jest.fn() };
   const service = new ItemsService(
     prisma as unknown as PrismaService,
@@ -184,6 +197,42 @@ describe('ItemsService', () => {
           meaning_vi: 'chạy',
         }),
       ).rejects.toMatchObject({ code: 'COLLECTION_FACE_LANGUAGE_DUPLICATE' });
+    });
+
+    it('hai sense khác ngôn ngữ nhưng không cùng cặp curated → 400', async () => {
+      const { service, prisma, senseLookup } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      senseLookup.findManyByIds.mockResolvedValue([
+        { sense_id: 1n, language_id: 2, lemma: '走る', concept_id: 1n },
+        { sense_id: 6n, language_id: 1, lemma: 'eat', concept_id: 3n },
+      ]);
+      senseLookup.findCuratedPair.mockResolvedValue(null);
+
+      await expect(
+        service.add(1n, COLLECTION_ID, {
+          sense_id: '1',
+          secondary_sense_id: '6',
+          meaning_vi: 'chạy',
+        }),
+      ).rejects.toMatchObject({ code: 'COLLECTION_SENSE_PAIR_INVALID' });
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('concept chỉ được dùng khi thuộc mapping curated của anchor', async () => {
+      const { service, prisma, senseLookup } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      senseLookup.findManyByIds.mockResolvedValue([
+        { sense_id: 1n, language_id: 2, lemma: '走る', concept_id: 1n },
+      ]);
+      senseLookup.hasCuratedConceptMapping.mockResolvedValue(false);
+
+      await expect(
+        service.add(1n, COLLECTION_ID, {
+          sense_id: '1',
+          concept_id: '3',
+          meaning_vi: 'chạy',
+        }),
+      ).rejects.toMatchObject({ code: 'COLLECTION_CONCEPT_INVALID' });
     });
 
     it('sense không tồn tại → 404 SENSE_NOT_FOUND', async () => {
@@ -335,12 +384,12 @@ describe('ItemsService', () => {
         id: 'item-1',
         collectionId: COLLECTION_ID,
       });
-      tx.collectionItem.delete.mockResolvedValue({ id: 'item-1' });
+      tx.collectionItem.deleteMany.mockResolvedValue({ count: 1 });
 
       const result = await service.remove(1n, COLLECTION_ID, 'item-1');
 
-      expect(tx.collectionItem.delete).toHaveBeenCalledWith({
-        where: { id: 'item-1' },
+      expect(tx.collectionItem.deleteMany).toHaveBeenCalledWith({
+        where: { id: 'item-1', collectionId: COLLECTION_ID },
       });
       const countArgs = firstArg<{
         data: { itemCount: { decrement: number } };

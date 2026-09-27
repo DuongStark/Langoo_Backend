@@ -1,10 +1,17 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
+import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
+import { Prisma } from '../generated/prisma/client';
 import { CloneFromDeckDto } from './dto/clone-from-deck.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import {
+  decodeCollectionListCursor,
+  encodeCollectionListCursor,
+} from './list-cursors';
 import { DeckRepository } from './repositories/deck.repository';
 import {
   ArchivedResponse,
@@ -26,6 +33,24 @@ interface CollectionRow {
   createdAt: Date;
   updatedAt: Date;
   archivedAt: Date | null;
+  updatedAtCursor?: string;
+}
+
+interface CollectionDbRow {
+  id: string;
+  profile_id: string;
+  owner_id: bigint;
+  name: string;
+  description: string | null;
+  kind: string;
+  cloned_from_deck_id: bigint | null;
+  cloned_from_collection_id: string | null;
+  is_public: boolean;
+  item_count: number;
+  created_at: Date;
+  updated_at: Date;
+  archived_at: Date | null;
+  updated_at_cursor: string;
 }
 
 const CLONE_TRANSACTION_TIMEOUT_MS = 30_000;
@@ -39,20 +64,70 @@ export class CollectionsService {
 
   async list(
     userId: bigint,
-    profileId?: string,
+    query: ListCollectionsQueryDto = {},
   ): Promise<CollectionListResult> {
+    const profileId = query.profile_id;
     if (profileId !== undefined) {
       await this.assertProfileOwned(userId, profileId);
     }
-    const rows = await this.prisma.collection.findMany({
-      where: {
-        ownerId: userId,
-        archivedAt: null,
-        ...(profileId !== undefined ? { profileId } : {}),
-      },
-      orderBy: { updatedAt: 'desc' },
-    });
-    return { data: rows.map(toCollectionResponse), next_cursor: null };
+    const cursor =
+      query.cursor === undefined
+        ? undefined
+        : decodeCollectionListCursor(query.cursor);
+    if (cursor && cursor.profileId !== (profileId ?? null)) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Cursor không khớp với bộ lọc profile_id',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const limit = query.limit ?? 20;
+    const profilePredicate =
+      profileId === undefined
+        ? Prisma.sql``
+        : Prisma.sql`AND c.profile_id = ${profileId}::uuid`;
+    const cursorPredicate =
+      cursor === undefined
+        ? Prisma.sql``
+        : Prisma.sql`AND (c.updated_at, c.id) < (${cursor.updatedAt}::timestamptz, ${cursor.id}::uuid)`;
+    const rows = await this.prisma.$queryRaw<CollectionDbRow[]>(Prisma.sql`
+      SELECT
+        c.id,
+        c.profile_id,
+        c.owner_id,
+        c.name,
+        c.description,
+        c.kind,
+        c.cloned_from_deck_id,
+        c.cloned_from_collection_id,
+        c.is_public,
+        c.item_count,
+        c.created_at,
+        c.updated_at,
+        c.archived_at,
+        to_char(c.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS updated_at_cursor
+      FROM app.collection c
+      WHERE c.owner_id = ${userId}
+        AND c.archived_at IS NULL
+        ${profilePredicate}
+        ${cursorPredicate}
+      ORDER BY c.updated_at DESC, c.id DESC
+      LIMIT ${limit + 1}
+    `);
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page[page.length - 1];
+    return {
+      data: page.map((row) => toCollectionResponse(fromDbRow(row))),
+      next_cursor:
+        hasMore && last !== undefined
+          ? encodeCollectionListCursor({
+              updatedAt: last.updated_at_cursor,
+              id: last.id,
+              profileId: profileId ?? null,
+            })
+          : null,
+    };
   }
 
   async create(
@@ -127,7 +202,7 @@ export class CollectionsService {
     dto: CloneFromDeckDto,
   ): Promise<CollectionResponse> {
     const profileId = await this.resolveProfileId(userId, dto.profile_id);
-    const deckId = BigInt(dto.deck_id);
+    const deckId = parsePositivePostgresBigInt(dto.deck_id, 'deck_id');
 
     const deck = await this.deckRepo.findPublished(deckId);
     if (!deck || !deck.is_published) {
@@ -138,6 +213,21 @@ export class CollectionsService {
       );
     }
     const deckItems = await this.deckRepo.findItems(deckId);
+    for (const deckItem of deckItems) {
+      if (
+        deckItem.concept_id !== null &&
+        !(await this.deckRepo.hasCuratedConceptMapping(
+          deckItem.anchor_sense_id,
+          deckItem.concept_id,
+        ))
+      ) {
+        throw new DomainException(
+          'DECK_CONCEPT_INVALID',
+          'Deck chứa concept chưa được duyệt cho một nghĩa',
+          HttpStatus.CONFLICT,
+        );
+      }
+    }
 
     const collectionId = uuidv7();
     const now = new Date();
@@ -294,5 +384,24 @@ function toCollectionResponse(row: CollectionRow): CollectionResponse {
     created_at: row.createdAt.toISOString(),
     updated_at: row.updatedAt.toISOString(),
     archived_at: row.archivedAt?.toISOString() ?? null,
+  };
+}
+
+function fromDbRow(row: CollectionDbRow): CollectionRow {
+  return {
+    id: row.id,
+    profileId: row.profile_id,
+    ownerId: row.owner_id,
+    name: row.name,
+    description: row.description,
+    kind: row.kind,
+    clonedFromDeckId: row.cloned_from_deck_id,
+    clonedFromCollectionId: row.cloned_from_collection_id,
+    isPublic: row.is_public,
+    itemCount: row.item_count,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    archivedAt: row.archived_at,
+    updatedAtCursor: row.updated_at_cursor,
   };
 }

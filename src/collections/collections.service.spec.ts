@@ -50,7 +50,11 @@ function createSetup(): {
     $transaction: jest.Mock;
   };
   tx: TxMock;
-  deck: { findPublished: jest.Mock; findItems: jest.Mock };
+  deck: {
+    findPublished: jest.Mock;
+    findItems: jest.Mock;
+    hasCuratedConceptMapping: jest.Mock;
+  };
 } {
   const tx: TxMock = {
     collection: { create: jest.fn() },
@@ -72,7 +76,11 @@ function createSetup(): {
       return run(tx);
     }),
   };
-  const deck = { findPublished: jest.fn(), findItems: jest.fn() };
+  const deck = {
+    findPublished: jest.fn(),
+    findItems: jest.fn(),
+    hasCuratedConceptMapping: jest.fn().mockResolvedValue(true),
+  };
   const service = new CollectionsService(
     prisma as unknown as PrismaService,
     deck as unknown as DeckRepository,
@@ -195,6 +203,30 @@ describe('CollectionsService', () => {
       await expect(
         service.cloneFromDeck(1n, { deck_id: '999' }),
       ).rejects.toMatchObject({ code: 'DECK_NOT_FOUND' });
+    });
+
+    it('concept deck chưa curated → 409 DECK_CONCEPT_INVALID trước transaction', async () => {
+      const { service, prisma, tx, deck } = createSetup();
+      prisma.userSettings.findUnique.mockResolvedValue({
+        activeProfileId: '01a0dc8a-718f-7acd-a588-2cf077898399',
+      });
+      deck.findPublished.mockResolvedValue(deckRow);
+      deck.findItems.mockResolvedValue([
+        {
+          anchor_sense_id: 1n,
+          concept_id: 99n,
+          position: 1,
+          sense_language_id: 2,
+          meaning_vi: 'chạy',
+          meaning_source: 'source',
+        },
+      ]);
+      deck.hasCuratedConceptMapping.mockResolvedValue(false);
+
+      await expect(
+        service.cloneFromDeck(1n, { deck_id: '1' }),
+      ).rejects.toMatchObject({ code: 'DECK_CONCEPT_INVALID' });
+      expect(tx.collection.create).not.toHaveBeenCalled();
     });
 
     it('tạo collection cloned + items/faces/srs_state qua createMany', async () => {

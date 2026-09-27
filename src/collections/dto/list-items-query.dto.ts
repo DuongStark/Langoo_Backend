@@ -3,11 +3,11 @@ import { Type } from 'class-transformer';
 import {
   IsIn,
   IsInt,
-  IsOptional,
   IsString,
   Max,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 
 export class ListItemsQueryDto {
@@ -15,19 +15,20 @@ export class ListItemsQueryDto {
     example: 2,
     description: 'Lọc item có mặt (face) ngôn ngữ này',
   })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(32767)
   language_id?: number;
 
   @ApiPropertyOptional({ enum: ['learning', 'paused', 'known'] })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsIn(['learning', 'paused', 'known'])
   status?: string;
 
   @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 100 })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @Type(() => Number)
   @IsInt()
   @Min(1)
@@ -35,7 +36,7 @@ export class ListItemsQueryDto {
   limit?: number;
 
   @ApiPropertyOptional({ maxLength: 500 })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsString()
   @MaxLength(500)
   cursor?: string;

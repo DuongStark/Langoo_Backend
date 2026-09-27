@@ -1,13 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform } from 'class-transformer';
 import {
   ArrayMaxSize,
   IsArray,
   IsIn,
-  IsOptional,
   IsString,
   Matches,
   MaxLength,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 
 const ID_PATTERN = /^\d+$/;
@@ -25,12 +26,15 @@ export class CreateItemDto {
     example: '2',
     description: 'sense mặt phụ (khác ngôn ngữ với mặt chính)',
   })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsString()
   @Matches(ID_PATTERN)
   secondary_sense_id?: string;
 
   @ApiProperty({ example: 'chạy', maxLength: 200 })
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(200)
@@ -40,24 +44,24 @@ export class CreateItemDto {
     example: '1',
     description: 'Mặc định: concept curated tốt nhất của sense',
   })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsString()
   @Matches(ID_PATTERN)
   concept_id?: string;
 
   @ApiPropertyOptional({ maxLength: 500 })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined && value !== null)
   @IsString()
   @MaxLength(500)
   note?: string;
 
   @ApiPropertyOptional({ enum: ['learning', 'paused', 'known'] })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsIn(['learning', 'paused', 'known'])
   status?: string;
 
   @ApiPropertyOptional({ type: [String], example: ['5'] })
-  @IsOptional()
+  @ValidateIf((_, value: unknown) => value !== undefined)
   @IsArray()
   @ArrayMaxSize(20)
   @IsString({ each: true })

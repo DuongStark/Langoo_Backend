@@ -22,6 +22,7 @@ import {
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtPayload } from '../auth/types/auth.types';
+import { parseUuidParam } from '../common/ids/postgres-id';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
 import {
   DeletedResponseDto,
@@ -56,7 +57,11 @@ export class ItemsController {
     @Param('collectionId') collectionId: string,
     @Query() query: ListItemsQueryDto,
   ): Promise<ItemListResult> {
-    return this.itemsService.list(BigInt(payload.sub), collectionId, query);
+    return this.itemsService.list(
+      BigInt(payload.sub),
+      parseUuidParam(collectionId, 'collection_id'),
+      query,
+    );
   }
 
   @Post()
@@ -75,7 +80,11 @@ export class ItemsController {
     @Param('collectionId') collectionId: string,
     @Body() dto: CreateItemDto,
   ): Promise<ItemResponse> {
-    return this.itemsService.add(BigInt(payload.sub), collectionId, dto);
+    return this.itemsService.add(
+      BigInt(payload.sub),
+      parseUuidParam(collectionId, 'collection_id'),
+      dto,
+    );
   }
 
   @Patch(':itemId')
@@ -94,8 +103,8 @@ export class ItemsController {
   ): Promise<ItemResponse> {
     return this.itemsService.update(
       BigInt(payload.sub),
-      collectionId,
-      itemId,
+      parseUuidParam(collectionId, 'collection_id'),
+      parseUuidParam(itemId, 'item_id'),
       dto,
     );
   }
@@ -109,6 +118,10 @@ export class ItemsController {
     @Param('collectionId') collectionId: string,
     @Param('itemId') itemId: string,
   ): Promise<DeletedResponse> {
-    return this.itemsService.remove(BigInt(payload.sub), collectionId, itemId);
+    return this.itemsService.remove(
+      BigInt(payload.sub),
+      parseUuidParam(collectionId, 'collection_id'),
+      parseUuidParam(itemId, 'item_id'),
+    );
   }
 }

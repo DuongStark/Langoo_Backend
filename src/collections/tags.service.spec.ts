@@ -16,6 +16,7 @@ function createSetup(): {
       findFirst: jest.Mock;
       create: jest.Mock;
       delete: jest.Mock;
+      deleteMany: jest.Mock;
     };
   };
 } {
@@ -25,6 +26,7 @@ function createSetup(): {
       findFirst: jest.fn(),
       create: jest.fn(),
       delete: jest.fn(),
+      deleteMany: jest.fn(),
     },
   };
   const service = new TagsService(prisma as unknown as PrismaService);
@@ -72,17 +74,18 @@ describe('TagsService', () => {
 
   it('xoá tag không thuộc user → 404 TAG_NOT_FOUND; xoá thành công trả deleted_at', async () => {
     const { service, prisma } = createSetup();
-    prisma.tag.findFirst.mockResolvedValue(null);
+    prisma.tag.deleteMany.mockResolvedValue({ count: 0 });
 
     await expect(service.remove(1n, '99')).rejects.toMatchObject({
       code: 'TAG_NOT_FOUND',
     });
 
-    prisma.tag.findFirst.mockResolvedValue({ id: 5n });
-    prisma.tag.delete.mockResolvedValue({ id: 5n });
+    prisma.tag.deleteMany.mockResolvedValue({ count: 1 });
 
     const result = await service.remove(1n, '5');
-    expect(prisma.tag.delete).toHaveBeenCalledWith({ where: { id: 5n } });
+    expect(prisma.tag.deleteMany).toHaveBeenCalledWith({
+      where: { id: 5n, userId: 1n },
+    });
     expect(result.id).toBe('5');
     expect(typeof result.deleted_at).toBe('string');
   });

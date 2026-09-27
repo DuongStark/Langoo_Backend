@@ -12,8 +12,10 @@ thì trả `409 PROFILE_REQUIRED`.
 curl -s -X POST localhost:3000/v1/collections -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" -d '{"name":"Bộ của tôi"}'
 
-# Danh sách / chi tiết / đổi tên
-curl -s localhost:3000/v1/collections -H "Authorization: Bearer <token>"
+# Danh sách / chi tiết / đổi tên (mặc định 20, tối đa 100)
+curl -s "localhost:3000/v1/collections?limit=20" -H "Authorization: Bearer <token>"
+# trang sau: truyền next_cursor nguyên vẹn vào cursor
+curl -s "localhost:3000/v1/collections?limit=20&cursor=<next_cursor>" -H "Authorization: Bearer <token>"
 curl -s localhost:3000/v1/collections/<id> -H "Authorization: Bearer <token>"
 curl -s -X PATCH localhost:3000/v1/collections/<id> -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" -d '{"name":"Tên mới"}'
@@ -52,7 +54,14 @@ curl -s -X POST localhost:3000/v1/collections/<id>/items \
 ```
 
 Lỗi: `409 ITEM_ALREADY_EXISTS` (từ đã có) · `400 COLLECTION_FACE_LANGUAGE_DUPLICATE` ·
-`404 SENSE_NOT_FOUND` / `TAG_NOT_FOUND` / `CONCEPT_NOT_FOUND`.
+`400 COLLECTION_SENSE_PAIR_INVALID` (hai sense không phải cặp đã duyệt) ·
+`400 COLLECTION_CONCEPT_INVALID` · `404 SENSE_NOT_FOUND` / `404 TAG_NOT_FOUND`.
+
+Khi gửi hai face, server chỉ chấp nhận cặp có trong `serve.sense_pair` và cả hai
+mapping có `concept.status = curated`, confidence tối thiểu `0.7`. Concept gửi
+từ client (nếu có) phải đúng concept của cặp; nếu chỉ có một face thì concept
+phải là mapping curated của sense đó. Sense chưa có mapping hợp lệ vẫn có thể
+được lưu một face với `concept_id: null`.
 
 ## Danh sách từ (lọc + phân trang cursor)
 
@@ -79,14 +88,18 @@ curl -s -X DELETE localhost:3000/v1/collections/<id>/items/<itemId> \
 # → {"id":"...","deleted_at":"..."}  (xoá cascade face + srs_state, item_count giảm)
 ```
 
-`tag_ids` **thay thế toàn bộ** tag của item (gửi `[]` để bỏ hết).
+`tag_ids` **thay thế toàn bộ** tag của item (gửi `[]` để bỏ hết). ID lặp trong
+request được khử trùng trước khi ghi. Khi sửa `meaning_vi`, `meaning_source`
+được chuyển thành `user`; sửa riêng note/tag/status/position giữ nguyên nguồn.
 
 ## Tags
 
 ```bash
 curl -s -X POST localhost:3000/v1/tags -H "Authorization: Bearer <token>" \
   -H "Content-Type: application/json" -d '{"name":"#n5","color":"#4f46e5"}'
-curl -s localhost:3000/v1/tags -H "Authorization: Bearer <token>"
+curl -s "localhost:3000/v1/tags?limit=20" -H "Authorization: Bearer <token>"
+# trang sau:
+curl -s "localhost:3000/v1/tags?limit=20&cursor=<next_cursor>" -H "Authorization: Bearer <token>"
 curl -s -X DELETE localhost:3000/v1/tags/<id> -H "Authorization: Bearer <token>"
 ```
 
@@ -103,6 +116,12 @@ curl -s -X POST localhost:3000/v1/collections/from-deck \
 
 Mỗi `deck_item` → 1 item (face anchor) + 2 `srs_state`; `meaning_vi` lấy gloss vi
 (gloss máy chưa duyệt → `meaning_source="machine"`, còn lại `"source"`),
-fallback en → lemma. Deck sai/chưa publish → `404 DECK_NOT_FOUND`.
+fallback en → lemma. Deck sai/chưa publish → `404 DECK_NOT_FOUND`; concept của
+deck item không còn là mapping curated confidence ≥ 0.7 → `409 DECK_CONCEPT_INVALID`.
+
+Các danh sách dùng keyset cursor, mặc định 20 dòng và tối đa 100 dòng/trang.
+Cursor gắn với bộ lọc hiện tại; cursor sai, hết hạn hình dạng hoặc dùng với
+`profile_id` khác trả `400 VALIDATION_FAILED`. UUID, bigint ngoài miền PostgreSQL,
+null hoặc chuỗi chỉ có khoảng trắng đều bị từ chối bằng lỗi 4xx trước khi chạm DB.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **collections**, **tags**).
