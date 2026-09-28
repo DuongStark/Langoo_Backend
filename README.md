@@ -26,7 +26,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M6.1 — SRS fixes** đã triển khai theo [kế hoạch 14 phát hiện + ENV-01](docs/plans/m6.1-srs-fixes.md): migration `027`, queue/cursor/cap/learn-ahead, transaction lock + receipt idempotency, scheduler/DST và metadata nguồn nghĩa. Local đã nghiệm thu build/lint/unit/e2e; **migration 026/027 đã apply cloud (2026-09-27)**.
 - ✅ **M7 — Review modes & sessions** dùng chung `ReviewEngine`; review session kiểm tra lại eligibility/quota lúc trả lời, practice chỉ miễn due/cap.
 - ✅ **M8 — Gamification** đã xong: XP theo `xp_rule` + daily cap, streak/level/thành tích trong cùng transaction; `GET /me/stats`, `GET /me/achievements`, `POST /me/achievements/seen` — ví dụ curl tại [`docs/api/gamification.md`](docs/api/gamification.md).
-- ✅ **M2.2 — Đăng nhập Google (OAuth2 ID token)** đã xong: `POST /v1/auth/oauth/google` (verify JWKS, tự động liên kết theo email đã xác thực, cấu hình `GOOGLE_OAUTH_CLIENT_IDS`) — ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
+- ✅ **M2.2 — Đăng nhập Google (OAuth2 ID token)** đã xong: `POST /v1/auth/oauth/google` (verify JWKS, không auto-link theo email; liên kết chủ động qua `POST /v1/auth/oauth/google/link`, challenge dùng một lần tùy chọn qua `POST /v1/auth/oauth/google/challenge`, cấu hình `GOOGLE_OAUTH_CLIENT_IDS`) — ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
 - 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
 ## Deploy lên Render
@@ -39,6 +39,7 @@ Repo có sẵn [`render.yaml`](render.yaml) (Blueprint):
    - `JWT_ACCESS_SECRET` — ≥32 ký tự ngẫu nhiên (xem `.env.example`)
    - `CORS_ORIGINS` — `*` cho mọi origin, hoặc danh sách origin FE cách nhau dấu phẩy (bỏ trống = tắt CORS)
    - `GOOGLE_OAUTH_CLIENT_IDS` — tuỳ chọn: client ID Google (web/iOS/Android) cách nhau dấu phẩy (bỏ trống = tắt đăng nhập Google)
+   - `GOOGLE_OAUTH_REQUIRE_CHALLENGE` — mặc định `false`; chỉ bật sau khi client đã tích hợp challenge OAuth dùng một lần.
 3. Sau deploy: kiểm tra `GET https://<service>.onrender.com/v1/health` và Swagger `/docs`.
 
 Ghi chú:

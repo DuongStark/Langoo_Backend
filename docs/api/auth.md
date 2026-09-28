@@ -74,15 +74,76 @@ curl -s -X POST http://localhost:3000/v1/auth/oauth/google \
 Response `200` giống login (`user` + `access_token` + `refresh_token` + `expires_in`).
 
 - Lần đầu với `sub` mới → tạo user + `user_settings` mặc định (+ `user_identity` provider `google`).
-- Email Google **đã xác thực** trùng tài khoản password có sẵn → **tự động liên kết** vào cùng user
-  (cả hai cách đăng nhập đều vào một tài khoản).
-- `nonce`: nếu ID token chứa claim `nonce` thì request **bắt buộc** gửi `nonce` khớp (chống replay).
+- Email Google **đã xác thực** trùng tài khoản đã có → trả `409 AUTH_OAUTH_LINK_REQUIRED`,
+  không tự động liên kết và không tạo session mới.
+- Liên kết chủ động dùng `POST /v1/auth/oauth/google/link` sau khi đăng nhập tài khoản password;
+  endpoint yêu cầu access token, mật khẩu hiện tại và ID token Google có cùng email.
+- `nonce`: nếu ID token chứa claim `nonce` thì request **bắt buộc** gửi `nonce` khớp với lượt
+  SDK đã khởi tạo. Mặc định backend vẫn dùng mô hình bearer của đợt A. Client có thể dùng
+  challenge dùng một lần bên dưới; chỉ khi bật `GOOGLE_OAUTH_REQUIRE_CHALLENGE=true` thì
+  `challenge_id` và `binding_secret` mới bắt buộc.
 - Cấu hình: `GOOGLE_OAUTH_CLIENT_IDS` — các client id được chấp nhận (web/iOS/Android, cách nhau
   dấu phẩy). Bỏ trống → endpoint trả `503`.
 
 Lỗi: `401 AUTH_OAUTH_TOKEN_INVALID` (token/nonce không hợp lệ) · `403 AUTH_OAUTH_EMAIL_UNVERIFIED` ·
-`403 AUTH_ACCOUNT_LOCKED` / `AUTH_ACCOUNT_DELETED` · `409 AUTH_OAUTH_CONFLICT` (đua ghi, hiếm) ·
-`503 AUTH_OAUTH_NOT_CONFIGURED` · `400 VALIDATION_FAILED`.
+`403 AUTH_ACCOUNT_LOCKED` / `AUTH_ACCOUNT_DELETED` · `409 AUTH_OAUTH_LINK_REQUIRED` ·
+`409 AUTH_OAUTH_CONFLICT` (đua ghi, hiếm) · `503 AUTH_OAUTH_NOT_CONFIGURED` ·
+`503 AUTH_OAUTH_PROVIDER_UNAVAILABLE` · `401 AUTH_OAUTH_CHALLENGE_INVALID` ·
+`400 VALIDATION_FAILED`.
+
+## POST /v1/auth/oauth/google/challenge
+
+Tạo challenge dùng một lần trong PostgreSQL. Với `purpose=login`, endpoint công khai; với
+`purpose=link`, phải gửi access token của phiên hiện tại. Client dùng `nonce` để khởi tạo
+Google Sign-In SDK và giữ `binding_secret` để gửi lại backend. Hai giá trị bí mật chỉ xuất hiện
+trong response này.
+
+```bash
+curl -s -X POST http://localhost:3000/v1/auth/oauth/google/challenge \
+  -H "Content-Type: application/json" \
+  -d '{ "purpose": "login" }'
+```
+
+Response `200`:
+
+```json
+{
+  "challenge_id": "019...",
+  "nonce": "nonce-ngau-nhien",
+  "binding_secret": "secret-ngau-nhien",
+  "expires_in": 300
+}
+```
+
+Khi gửi `POST /oauth/google` hoặc `/oauth/google/link`, thêm `challenge_id` và
+`binding_secret`. Challenge được consume cùng transaction với session/identity; dùng lại,
+hết hạn, sai purpose, sai user/session hoặc sai binding đều trả `401 AUTH_OAUTH_CHALLENGE_INVALID`.
+Khi đã dùng challenge, client **không bắt buộc** gửi lại `nonce` (token nonce được đối chiếu
+với challenge); nếu vẫn gửi thì phải khớp token.
+Bật bắt buộc sau khi mọi client đã tích hợp bằng `GOOGLE_OAUTH_REQUIRE_CHALLENGE=true`.
+Nếu `GOOGLE_OAUTH_CLIENT_IDS` trống, endpoint trả `503 AUTH_OAUTH_NOT_CONFIGURED`.
+
+## POST /v1/auth/oauth/google/link
+
+Liên kết Google vào tài khoản hiện tại. Request phải dùng access token của phiên password,
+mật khẩu hiện tại và ID token Google có email trùng tài khoản. Endpoint không tạo session mới.
+
+```bash
+curl -s -X POST http://localhost:3000/v1/auth/oauth/google/link \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id_token": "eyJhbGciOiJSUzI1NiIs...",
+    "nonce": "nonce-da-dung-khi-lay-token",
+    "password": "matkhau12345"
+  }'
+```
+
+Response `200`: `{ "provider": "google", "linked_at": "..." }`.
+Lỗi: `401 AUTH_TOKEN_INVALID` / `AUTH_INVALID_CREDENTIALS` · `403 AUTH_ACCOUNT_LOCKED` /
+`AUTH_ACCOUNT_DELETED` / `AUTH_OAUTH_EMAIL_UNVERIFIED` · `409 AUTH_OAUTH_EMAIL_MISMATCH` /
+`AUTH_OAUTH_IDENTITY_TAKEN` / `AUTH_OAUTH_LINK_PASSWORD_REQUIRED` ·
+`401 AUTH_OAUTH_CHALLENGE_INVALID`.
 
 ## POST /v1/auth/refresh
 

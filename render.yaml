@@ -37,5 +37,8 @@ services:
       # (bỏ trống = endpoint trả 503 AUTH_OAUTH_NOT_CONFIGURED).
       - key: GOOGLE_OAUTH_CLIENT_IDS
         sync: false
+      # Chỉ bật sau khi web/iOS/Android đã tích hợp one-time challenge.
+      - key: GOOGLE_OAUTH_REQUIRE_CHALLENGE
+        value: 'false'
     # Nếu gói Render hỗ trợ pre-deploy command, có thể tự động migrate:
     # preDeployCommand: npm run db:migrate

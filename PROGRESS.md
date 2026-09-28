@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-28 (M2.2 Google OAuth xong; CORS Render bật `*`; M6.1 đã apply cloud 026/027; M8 xong; chuẩn bị deploy Render)
+> Cập nhật lần cuối: 2026-09-28 (M2.3 đợt A + hạ tầng C opt-in đã triển khai; B và bật C còn chờ; M2.2 Google OAuth xong; M6.1 đã apply cloud 026/027; M8 xong)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -12,6 +12,7 @@
 | M2   | Auth (register/login/refresh/logout/me)                                   | ✅ hoàn thành (chờ review)                                                                         |
 | M2.1 | Auth fixes sau review                                                     | ✅ hoàn thành                                                                                      |
 | M2.2 | Đăng nhập Google (OAuth2 ID token)                                        | ✅ hoàn thành (chờ review)                                                                         |
+| M2.3 | Sửa Google OAuth sau review                                               | 🛠️ A + C backend opt-in đã triển khai; B và rollout C còn chờ ([kế hoạch](docs/plans/m2.3-google-oauth-fixes.md)) |
 | M3   | Profile & settings                                                        | ✅ hoàn thành (chờ review)                                                                         |
 | M3.1 | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                      |
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                              |
@@ -83,7 +84,7 @@
 | 2026-09-27 | Host API trên **Render**: blueprint `render.yaml` (build `npm ci --include=dev && npm run build`, start `npm run start:prod`, health `/v1/health`); CORS tuỳ chọn qua `CORS_ORIGINS` (trống = tắt); migration chạy tay từ local trước deploy | Chủ dự án muốn host; migration 026/027 đã apply cloud cùng ngày |
 | 2026-09-28 | CORS API Render bật `CORS_ORIGINS=*` (mọi origin) khi chưa chốt domain FE — code hiểu `*` = phản chiếu origin của request kèm credentials; khi có FE sẽ siết về danh sách origin | Chủ dự án chốt 2026-09-28 |
 | 2026-09-28 | **M2.2 — OAuth2 chỉ Google**, luồng **ID token từ SDK** (`POST /v1/auth/oauth/google`): backend verify JWKS/`iss`/`aud`/`exp`/nonce rồi cấp JWT nội bộ; không làm luồng authorization-code/redirect | Chủ dự án chốt qua bộ câu hỏi 2026-09-28 |
-| 2026-09-28 | M2.2 — email Google đã xác thực trùng tài khoản password thì **tự động liên kết** (chỉ nhận khi `email_verified=true`); chấp nhận rủi ro vì đăng ký chưa xác thực email → đưa xác thực email vào backlog M12 | Chủ dự án chốt 2026-09-28 |
+| 2026-09-28 | M2.2 — chính sách auto-link theo email được thay bằng yêu cầu link chủ động sau review; không gộp tài khoản chỉ vì email trùng | Kế hoạch M2.3, đợt A |
 | 2026-09-28 | M2.2 — dùng thư viện chính chủ `google-auth-library` ^11 để verify ID token (cache/xoay JWKS); chưa cấu hình `GOOGLE_OAUTH_CLIENT_IDS` thì endpoint trả `503 AUTH_OAUTH_NOT_CONFIGURED` (không fail-fast lúc boot) | Đề xuất trong [kế hoạch M2.2](docs/plans/m2.2-google-oauth.md), chủ dự án duyệt "OK" |
 
 ## Nhật ký sửa lỗi theo milestone
@@ -140,10 +141,35 @@
 ### M2.2 — Đăng nhập Google (OAuth2 ID token) (đã triển khai, chờ review)
 
 - Endpoint `POST /v1/auth/oauth/google`: client gửi ID token từ Google Sign-In SDK; backend verify chữ ký JWKS + `iss`/`aud`/`exp` (thư viện chính chủ `google-auth-library`), kiểm `nonce` khi client gửi kèm, map `sub/email/email_verified/name/picture`.
-- Tạo user mới (kèm `user_settings` mặc định + session + device) hoặc **tự động liên kết** tài khoản password theo email đã xác thực; đua ghi P2002 → retry 1 lần, hết đường trả `409 AUTH_OAUTH_CONFLICT`.
+- Tạo user mới (kèm `user_settings` mặc định + session + device); nếu email đã có user thì không auto-link.
 - Tách helper dùng chung `src/auth/session.helpers.ts` (refresh token/device/assert active/toUserResponse) cho cả `AuthService` lẫn `GoogleOauthService`; không đổi hành vi login/register/refresh/logout cũ.
 - Cấu hình `GOOGLE_OAUTH_CLIENT_IDS` (nhiều client id web/iOS/Android); trống → `503 AUTH_OAUTH_NOT_CONFIGURED`.
 - Kiểm chứng local (2026-09-28, DB nhúng PG16 `langoo_test`): build/lint sạch, **26 suite/198 unit**, **11 suite/115 e2e** — 8 kịch bản OAuth mới (tạo user, login lại, auto-link, email chưa verify, token sai, nonce lệch, device sai kiểu, tài khoản khoá).
+
+### M2.3 — Đợt A sửa Google OAuth (đã triển khai local, chờ review)
+
+- `POST /v1/auth/oauth/google` không còn auto-link theo email; email trùng user trả `409 AUTH_OAUTH_LINK_REQUIRED` trước khi tạo identity/session/device.
+- Thêm `POST /v1/auth/oauth/google/link`: yêu cầu access token của user, mật khẩu hiện tại và Google ID token cùng email; link idempotent và không tạo session mới.
+- Verifier map claim `hd`, phân biệt lỗi tải khóa/provider 503 `AUTH_OAUTH_PROVIDER_UNAVAILABLE` với token invalid 401; không log token hoặc body.
+- Cập nhật DTO, Swagger, API docs, README và regression unit/e2e. Đợt B (email verification/recovery) vẫn chưa triển khai.
+
+### M2.3 — Hạ tầng C one-time nonce challenge (đã triển khai opt-in, chờ client)
+
+- Thêm migration `029_google_oauth_challenges.sql` và model Prisma `GoogleOAuthChallenge`; challenge lưu hash nonce/binding secret, hết hạn sau 5 phút, consume có điều kiện trong cùng transaction login/link.
+- Thêm `POST /v1/auth/oauth/google/challenge` cho purpose `login|link`; link bind theo user + session đang sống. Client gửi lại `challenge_id` + `binding_secret`; bật bắt buộc bằng `GOOGLE_OAUTH_REQUIRE_CHALLENGE=true` sau rollout SDK.
+- Unit test challenge tạo/consume/replay/binding và login integration đã pass; migration `029` đã apply local qua `db:test:reset` (2026-09-28).
+- Kiểm chứng trên Node 22.22 + PostgreSQL nhúng 16 (`langoo_test`): `npm run build`, `npm run lint`, **27 suite/213 unit**, **11 suite/116 e2e** — e2e phủ thêm ca "email trùng tài khoản khoá → 409" và "identity đã liên kết bị khoá → 403".
+- Challenge không bắt client gửi lại `nonce`: khi có `challenge_id`/`binding_secret`, token nonce được đối chiếu hash với challenge trong `consume()`; nếu client vẫn gửi `nonce` thì phải khớp token.
+
+### M2.3 — Kế hoạch sửa Google OAuth sau review (2026-09-28, còn B và rollout C)
+
+- Kế hoạch: [m2.3-google-oauth-fixes.md](docs/plans/m2.3-google-oauth-fixes.md). A đã đổi chính sách auto-link M2.2; C đã có backend tắt mặc định; B và việc bật C còn chờ điều kiện triển khai.
+- Đợt A: chặn auto-link mọi email, lỗi trùng email trả `AUTH_OAUTH_LINK_REQUIRED`; phân biệt lỗi tải khóa Google 503 với token sai 401; sửa mô tả nonce, cấu hình và regression. Không migration.
+- Đợt B: xác thực email password, recovery và endpoint link có session/password/email proof; migration dự kiến 028. Đề xuất guard kiểm session để thu hồi có hiệu lực ngay; cần dịch vụ email và cập nhật client.
+- Đợt C: nonce/challenge dùng một lần, có binding riêng và PostgreSQL dùng chung; backend đã sẵn sàng qua migration 029, cần SDK/client sẵn sàng trước khi bật.
+- Baseline review: build/lint + 50 unit auth/config đạt; E2E chưa xác minh do DB local `127.0.0.1:55432` không hoạt động. Google client IDs local đang trống; không coi đây là chứng nhận deployment thật.
+- Bổ sung 2026-09-28: DB local đã dựng lại (PostgreSQL nhúng 16, cổng 55432); migration 029 + full e2e đã chạy trên `langoo_test`.
+- Tài khoản từng auto-link cần audit chỉ đọc và recovery có xác nhận; không tự unlink/xóa hoặc đánh dấu email cũ đã verified. B vẫn là tài liệu và hạ tầng email/client chưa có trong workspace.
 
 ## Backlog
 
@@ -155,7 +181,8 @@
 - Rate limit cho `/auth/login` + `/auth/register` (chống brute force) — theo kế hoạch M12, chưa làm ở M2.
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — chốt cùng M9 (reminders).
 - Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
-- **Xác thực email cho tài khoản password** (M12) — nền tảng để chính sách liên kết OAuth an toàn hơn (auto-link khi email đã xác thực phía người dùng).
+- **Xác thực email + recovery cho tài khoản password** — đề xuất đưa lên đợt B của [M2.3](docs/plans/m2.3-google-oauth-fixes.md) thay vì đợi M12; cần dịch vụ email/client và migration được duyệt, chưa triển khai.
+- **Nonce OAuth dùng một lần** — backend challenge đã có ở đợt C của M2.3 nhưng tắt mặc định; cần apply migration 029 và hỗ trợ SDK/client trước khi bật.
 - **Apple Sign In** — bắt buộc cho iOS App Store nếu app có social login khác; dùng lại hạ tầng session tách ở M2.2.
 - Unlink identity + liệt kê identity trong `GET /auth/me` (chưa cần cho MVP).
 - Production: bổ sung `pg_trgm` + `unaccent` để tra không dấu/giống âm (CONTEXT §13).
@@ -185,6 +212,7 @@
 
 ## Kế tiếp dự kiến
 
+- **M2.3 — Sửa OAuth:** A đã triển khai; C có backend opt-in, migration 029 đã apply **local** (chưa apply cloud); B (email verification/recovery/session guard) cần chốt dịch vụ email và client trước.
 - **M12 — Hardening:** kiểm tra cloud/pool/reconnect và chuẩn bị rollout 026→027 sau khi được duyệt; không chạy migration cloud trong local task.
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)
