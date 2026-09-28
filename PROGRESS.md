@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-28 (CORS Render bật `*`; M6.1 đã apply cloud 026/027; M8 xong; chuẩn bị deploy Render)
+> Cập nhật lần cuối: 2026-09-28 (M2.2 Google OAuth xong; CORS Render bật `*`; M6.1 đã apply cloud 026/027; M8 xong; chuẩn bị deploy Render)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -11,6 +11,7 @@
 | M1   | Data layer (Prisma schema `app` + repository `core`/`serve`)              | ✅ hoàn thành (chờ review)                                                                         |
 | M2   | Auth (register/login/refresh/logout/me)                                   | ✅ hoàn thành (chờ review)                                                                         |
 | M2.1 | Auth fixes sau review                                                     | ✅ hoàn thành                                                                                      |
+| M2.2 | Đăng nhập Google (OAuth2 ID token)                                        | ✅ hoàn thành (chờ review)                                                                         |
 | M3   | Profile & settings                                                        | ✅ hoàn thành (chờ review)                                                                         |
 | M3.1 | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                      |
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                              |
@@ -81,6 +82,9 @@
 | 2026-09-27 | **Feedback (gộp vào M13)**: bắt buộc đăng nhập; user xem lại + thấy trạng thái (`GET /me/feedback`); ảnh lưu qua `StorageService` trừu tượng `local` (dev) / `s3` (khi có key) — giống pattern `AI_PROVIDER=stub`; tối đa 3 ảnh ≤5MB (jpeg/png/webp, kiểm magic bytes); admin xem ảnh qua route xác thực admin, không public URL | Chủ dự án chốt qua bộ câu hỏi ngày 2026-09-27                                                                        |
 | 2026-09-27 | Host API trên **Render**: blueprint `render.yaml` (build `npm ci --include=dev && npm run build`, start `npm run start:prod`, health `/v1/health`); CORS tuỳ chọn qua `CORS_ORIGINS` (trống = tắt); migration chạy tay từ local trước deploy | Chủ dự án muốn host; migration 026/027 đã apply cloud cùng ngày |
 | 2026-09-28 | CORS API Render bật `CORS_ORIGINS=*` (mọi origin) khi chưa chốt domain FE — code hiểu `*` = phản chiếu origin của request kèm credentials; khi có FE sẽ siết về danh sách origin | Chủ dự án chốt 2026-09-28 |
+| 2026-09-28 | **M2.2 — OAuth2 chỉ Google**, luồng **ID token từ SDK** (`POST /v1/auth/oauth/google`): backend verify JWKS/`iss`/`aud`/`exp`/nonce rồi cấp JWT nội bộ; không làm luồng authorization-code/redirect | Chủ dự án chốt qua bộ câu hỏi 2026-09-28 |
+| 2026-09-28 | M2.2 — email Google đã xác thực trùng tài khoản password thì **tự động liên kết** (chỉ nhận khi `email_verified=true`); chấp nhận rủi ro vì đăng ký chưa xác thực email → đưa xác thực email vào backlog M12 | Chủ dự án chốt 2026-09-28 |
+| 2026-09-28 | M2.2 — dùng thư viện chính chủ `google-auth-library` ^11 để verify ID token (cache/xoay JWKS); chưa cấu hình `GOOGLE_OAUTH_CLIENT_IDS` thì endpoint trả `503 AUTH_OAUTH_NOT_CONFIGURED` (không fail-fast lúc boot) | Đề xuất trong [kế hoạch M2.2](docs/plans/m2.2-google-oauth.md), chủ dự án duyệt "OK" |
 
 ## Nhật ký sửa lỗi theo milestone
 
@@ -133,6 +137,14 @@
 - Kiểm chứng local ngày 2026-09-27: **23 suite/180 unit test**, **10 suite/107 e2e**, `npm run lint`, `npm run build`, và reset DB + migrations 026/027 đều pass.
 - **Cloud đã apply 026 + 027 ngày 2026-09-27** (xác minh chỉ-đọc: `schema_migration` có 2 bản ghi, `ease_factor` = double precision, có `learning_is_interday`, `srs_review_receipt`, cột settings và review_log mới). Kèm chuẩn bị deploy Render: `render.yaml`, CORS `CORS_ORIGINS`, README hướng dẫn.
 
+### M2.2 — Đăng nhập Google (OAuth2 ID token) (đã triển khai, chờ review)
+
+- Endpoint `POST /v1/auth/oauth/google`: client gửi ID token từ Google Sign-In SDK; backend verify chữ ký JWKS + `iss`/`aud`/`exp` (thư viện chính chủ `google-auth-library`), kiểm `nonce` khi client gửi kèm, map `sub/email/email_verified/name/picture`.
+- Tạo user mới (kèm `user_settings` mặc định + session + device) hoặc **tự động liên kết** tài khoản password theo email đã xác thực; đua ghi P2002 → retry 1 lần, hết đường trả `409 AUTH_OAUTH_CONFLICT`.
+- Tách helper dùng chung `src/auth/session.helpers.ts` (refresh token/device/assert active/toUserResponse) cho cả `AuthService` lẫn `GoogleOauthService`; không đổi hành vi login/register/refresh/logout cũ.
+- Cấu hình `GOOGLE_OAUTH_CLIENT_IDS` (nhiều client id web/iOS/Android); trống → `503 AUTH_OAUTH_NOT_CONFIGURED`.
+- Kiểm chứng local (2026-09-28, DB nhúng PG16 `langoo_test`): build/lint sạch, **26 suite/198 unit**, **11 suite/115 e2e** — 8 kịch bản OAuth mới (tạo user, login lại, auto-link, email chưa verify, token sai, nonce lệch, device sai kiểu, tài khoản khoá).
+
 ## Backlog
 
 - **M12 — ENV-01 còn lại:** kiểm tra pool/reconnect/runtime/direct cloud, phát hiện timezone drift sau deploy; timezone ngày học vẫn theo settings user. M6.1 đã chuẩn hóa URL test với `options=-c%20timezone%3DUTC` và kiểm tra session thực tế. Chi tiết: [plan M6.1](docs/plans/m6.1-srs-fixes.md).
@@ -143,6 +155,9 @@
 - Rate limit cho `/auth/login` + `/auth/register` (chống brute force) — theo kế hoạch M12, chưa làm ở M2.
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — chốt cùng M9 (reminders).
 - Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
+- **Xác thực email cho tài khoản password** (M12) — nền tảng để chính sách liên kết OAuth an toàn hơn (auto-link khi email đã xác thực phía người dùng).
+- **Apple Sign In** — bắt buộc cho iOS App Store nếu app có social login khác; dùng lại hạ tầng session tách ở M2.2.
+- Unlink identity + liệt kê identity trong `GET /auth/me` (chưa cần cho MVP).
 - Production: bổ sung `pg_trgm` + `unaccent` để tra không dấu/giống âm (CONTEXT §13).
 - **Migration 026 + 027 (`srs_scheduler`, `srs_review_integrity`) chưa apply lên cloud** — chờ chủ dự án duyệt (`npm run db:migrate` với DIRECT_URL cloud), theo đúng quy trình migration cloud.
 

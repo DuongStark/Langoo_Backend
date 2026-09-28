@@ -55,6 +55,35 @@ Response `200` giống register (cập nhật `last_login_at`).
 Lỗi: `401 AUTH_INVALID_CREDENTIALS` · `403 AUTH_ACCOUNT_LOCKED` / `AUTH_ACCOUNT_DELETED` ·
 `400 VALIDATION_FAILED` nếu `device` không phải object hợp lệ.
 
+## POST /v1/auth/oauth/google
+
+Đăng nhập/đăng ký bằng **Google ID token** (OAuth2). Client lấy ID token từ Google Sign-In SDK
+(web: Google Identity Services; Android/iOS: Google Sign-In), backend xác minh chữ ký JWKS
+(`iss`/`aud`/`exp`) rồi cấp cặp token nội bộ như login.
+
+```bash
+curl -s -X POST http://localhost:3000/v1/auth/oauth/google \
+  -H "Content-Type: application/json" \
+  -d '{
+    "id_token": "eyJhbGciOiJSUzI1NiIs...",
+    "nonce": "nonce-da-dung-khi-lay-token",
+    "device": { "platform": "android", "app_version": "1.0.0" }
+  }'
+```
+
+Response `200` giống login (`user` + `access_token` + `refresh_token` + `expires_in`).
+
+- Lần đầu với `sub` mới → tạo user + `user_settings` mặc định (+ `user_identity` provider `google`).
+- Email Google **đã xác thực** trùng tài khoản password có sẵn → **tự động liên kết** vào cùng user
+  (cả hai cách đăng nhập đều vào một tài khoản).
+- `nonce`: nếu ID token chứa claim `nonce` thì request **bắt buộc** gửi `nonce` khớp (chống replay).
+- Cấu hình: `GOOGLE_OAUTH_CLIENT_IDS` — các client id được chấp nhận (web/iOS/Android, cách nhau
+  dấu phẩy). Bỏ trống → endpoint trả `503`.
+
+Lỗi: `401 AUTH_OAUTH_TOKEN_INVALID` (token/nonce không hợp lệ) · `403 AUTH_OAUTH_EMAIL_UNVERIFIED` ·
+`403 AUTH_ACCOUNT_LOCKED` / `AUTH_ACCOUNT_DELETED` · `409 AUTH_OAUTH_CONFLICT` (đua ghi, hiếm) ·
+`503 AUTH_OAUTH_NOT_CONFIGURED` · `400 VALIDATION_FAILED`.
+
 ## POST /v1/auth/refresh
 
 ```bash

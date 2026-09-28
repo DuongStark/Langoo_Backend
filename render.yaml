@@ -30,9 +30,12 @@ services:
       # Bắt buộc ≥32 ký tự ngẫu nhiên (xem .env.example).
       - key: JWT_ACCESS_SECRET
         sync: false
-      # "*" = cho phép mọi origin (chưa chốt domain FE); khi có FE thì đổi thành
-      # danh sách origin cách nhau dấu phẩy, bỏ trống = tắt CORS.
+      # Tuỳ chọn: origin FE cách nhau dấu phẩy; bỏ trống = tắt CORS.
       - key: CORS_ORIGINS
         value: '*'
+      # Đăng nhập Google (OAuth2): client ID web/iOS/Android cách nhau dấu phẩy
+      # (bỏ trống = endpoint trả 503 AUTH_OAUTH_NOT_CONFIGURED).
+      - key: GOOGLE_OAUTH_CLIENT_IDS
+        sync: false
     # Nếu gói Render hỗ trợ pre-deploy command, có thể tự động migrate:
     # preDeployCommand: npm run db:migrate
