@@ -18,7 +18,8 @@ const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
  * (Tùy chọn) Đẩy dump DB mẫu lên DIRECT_URL của cloud.
  *
  * LƯU Ý:
- * - Dump tạo bảng trực tiếp (không IF NOT EXISTS) → chỉ dùng cho DB ĐÍCH TRỐNG.
+ * - Dump tạo bảng trực tiếp (không IF NOT EXISTS) → chỉ dùng cho DB ĐÍCH TRỐNG,
+ *   hoặc thêm --reset để xoá app/core/serve/staging/public trước khi nạp.
  * - Đây là thao tác ghi lên cloud, luôn cần cờ --yes (và chủ dự án đồng ý).
  * - Không chạy nhầm vào DB local.
  */
@@ -26,6 +27,7 @@ async function main(): Promise<void> {
   loadScriptEnv();
   const directUrl = requireEnv('DIRECT_URL');
   const parsed = parseDbUrl(directUrl);
+  const reset = process.argv.includes('--reset');
 
   if (LOCAL_HOSTS.has(parsed.url.hostname)) {
     throw new Error(
@@ -34,7 +36,9 @@ async function main(): Promise<void> {
   }
   if (!process.argv.includes('--yes')) {
     throw new Error(
-      `Đây là thao tác GHI dump lên ${parsed.url.hostname}/${parsed.database}. Thêm cờ --yes để xác nhận.`,
+      `Đây là thao tác GHI dump lên ${parsed.url.hostname}/${parsed.database}` +
+        `${reset ? ' (--reset: XOÁ app/core/serve/staging/public trước khi nạp)' : ''}. ` +
+        'Thêm cờ --yes để xác nhận.',
     );
   }
 
@@ -47,6 +51,13 @@ async function main(): Promise<void> {
 
   const client = await connect(directUrl, 'langoo-db-push');
   try {
+    if (reset) {
+      logStep(SCRIPT, 'Xoá schema app/core/serve/staging/public trên đích ...');
+      for (const schema of ['app', 'core', 'serve', 'staging', 'public']) {
+        await client.query(`DROP SCHEMA IF EXISTS ${schema} CASCADE`);
+      }
+      await client.query('CREATE SCHEMA public');
+    }
     await client.query(sql);
   } finally {
     await client.end();

@@ -7,9 +7,15 @@ import { connect, logStep } from './_shared';
  * theo thứ tự tên; mỗi file + bản ghi migration nằm trong 1 transaction.
  * Dùng chung cho CLI `db:migrate` và `db:test:reset` (dump + migration).
  */
+export interface MigrationOptions {
+  /** Chỉ áp file có số thứ tự <= giá trị này (vd "027") — dùng cho rollout từng phần. */
+  upto?: string;
+}
+
 export async function applyPendingMigrations(
   directUrl: string,
   script: string,
+  options: MigrationOptions = {},
 ): Promise<void> {
   const migrationsDir = path.resolve(process.cwd(), 'db', 'migrations');
   const files = (await readdir(migrationsDir))
@@ -34,7 +40,13 @@ export async function applyPendingMigrations(
     );
     const applied = new Set(result.rows.map((row) => row.name));
     const known = new Set(files);
-    const pending = files.filter((file) => !applied.has(file));
+    const allPending = files.filter((file) => !applied.has(file));
+    const upto = options.upto === undefined ? null : Number(options.upto);
+    const pending =
+      upto === null
+        ? allPending
+        : allPending.filter((file) => migrationOrdinal(file) <= upto);
+    const skipped = allPending.length - pending.length;
     const unknown = result.rows
       .map((row) => row.name)
       .filter((name) => !known.has(name));
@@ -51,6 +63,7 @@ export async function applyPendingMigrations(
         script,
         `Đã cập nhật đủ ${files.length} file migration (${files[0]} → ${files[files.length - 1]}), không cần chạy thêm.`,
       );
+      logSkipped(script, skipped, options.upto);
       return;
     }
 
@@ -75,7 +88,26 @@ export async function applyPendingMigrations(
       }
     }
     logStep(script, `Hoàn tất: đã chạy ${pending.length} file migration.`);
+    logSkipped(script, skipped, options.upto);
   } finally {
     await client.end();
+  }
+}
+
+function migrationOrdinal(file: string): number {
+  const match = /^(\d+)_/.exec(file);
+  return match ? Number(match[1]) : Number.MAX_SAFE_INTEGER;
+}
+
+function logSkipped(
+  script: string,
+  skipped: number,
+  upto: string | undefined,
+): void {
+  if (skipped > 0) {
+    logStep(
+      script,
+      `Bỏ qua ${skipped} file sau --upto ${upto ?? ''} (chờ rollout).`,
+    );
   }
 }
