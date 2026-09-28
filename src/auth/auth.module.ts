@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
+import { GoogleOAuthChallengeService } from './oauth/google-oauth-challenge.service';
 import { GoogleIdTokenVerifier } from './oauth/google-id-token.verifier';
 import { GoogleOauthService } from './oauth/google-oauth.service';
 
@@ -22,6 +23,7 @@ import { GoogleOauthService } from './oauth/google-oauth.service';
   providers: [
     AuthService,
     GoogleOauthService,
+    GoogleOAuthChallengeService,
     GoogleIdTokenVerifier,
     JwtAuthGuard,
     OptionalJwtAuthGuard,

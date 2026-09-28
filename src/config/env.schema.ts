@@ -6,6 +6,22 @@ function emptyToUndefined(value: unknown): unknown {
   return typeof value === 'string' && value.trim() === '' ? undefined : value;
 }
 
+function booleanEnv(value: unknown): unknown {
+  const normalized = emptyToUndefined(value);
+  if (normalized === undefined || typeof normalized === 'boolean') {
+    return normalized;
+  }
+  if (typeof normalized === 'string') {
+    if (['true', '1', 'yes', 'on'].includes(normalized.toLowerCase())) {
+      return true;
+    }
+    if (['false', '0', 'no', 'off'].includes(normalized.toLowerCase())) {
+      return false;
+    }
+  }
+  return normalized;
+}
+
 /**
  * Schema biến môi trường (validate bằng zod khi app khởi động).
  *
@@ -57,6 +73,11 @@ export const envSchema = z.object({
   GOOGLE_OAUTH_CLIENT_IDS: z.preprocess(
     emptyToUndefined,
     z.string().optional(),
+  ),
+  // Chỉ bật sau khi web/iOS/Android đã gửi challenge_id + binding_secret.
+  GOOGLE_OAUTH_REQUIRE_CHALLENGE: z.preprocess(
+    booleanEnv,
+    z.boolean().default(false),
   ),
 
   // Biến AI — dùng từ M10, optional ở M0.

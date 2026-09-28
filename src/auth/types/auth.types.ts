@@ -31,6 +31,18 @@ export interface AuthResult extends AuthTokens {
   user: UserResponse;
 }
 
+export interface GoogleLinkResult {
+  provider: 'google';
+  linked_at: string;
+}
+
+export interface GoogleOAuthChallengeResult {
+  challenge_id: string;
+  nonce: string;
+  binding_secret: string;
+  expires_in: number;
+}
+
 export interface SessionResponse {
   id: string;
   revoked_at: string | null;

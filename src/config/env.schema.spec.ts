@@ -16,6 +16,7 @@ describe('validateEnv', () => {
     expect(env.JWT_REFRESH_TTL_DAYS).toBe(30);
     expect(env.ARGON2_MEMORY_COST).toBe(19456);
     expect(env.ARGON2_TIME_COST).toBe(2);
+    expect(env.GOOGLE_OAUTH_REQUIRE_CHALLENGE).toBe(false);
   });
 
   it('coerce PORT và các biến số từ chuỗi', () => {
@@ -99,6 +100,20 @@ describe('validateEnv', () => {
     expect(env.GOOGLE_OAUTH_CLIENT_IDS).toBe(
       'web-client.apps.googleusercontent.com,ios-client',
     );
+  });
+
+  it('parse cờ bắt buộc Google OAuth challenge', () => {
+    expect(
+      validateEnv({ ...base, GOOGLE_OAUTH_REQUIRE_CHALLENGE: 'true' })
+        .GOOGLE_OAUTH_REQUIRE_CHALLENGE,
+    ).toBe(true);
+    expect(
+      validateEnv({ ...base, GOOGLE_OAUTH_REQUIRE_CHALLENGE: '0' })
+        .GOOGLE_OAUTH_REQUIRE_CHALLENGE,
+    ).toBe(false);
+    expect(() =>
+      validateEnv({ ...base, GOOGLE_OAUTH_REQUIRE_CHALLENGE: 'maybe' }),
+    ).toThrow(/GOOGLE_OAUTH_REQUIRE_CHALLENGE/);
   });
 
   it('JWT_ACCESS_SECRET thiếu hoặc quá ngắn → báo lỗi', () => {

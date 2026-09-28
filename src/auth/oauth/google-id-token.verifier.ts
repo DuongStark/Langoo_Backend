@@ -11,6 +11,8 @@ export interface GoogleIdentity {
   emailVerified: boolean;
   name: string | null;
   picture: string | null;
+  /** Google Workspace hosted domain, nếu ID token có claim `hd`. */
+  hostedDomain: string | null;
   nonce: string | null;
 }
 
@@ -22,7 +24,21 @@ export interface GoogleIdentity {
 @Injectable()
 export class GoogleIdTokenVerifier {
   private readonly audiences: string[];
-  private readonly client = new OAuth2Client();
+  private readonly client = new OAuth2Client({
+    transporterOptions: {
+      timeout: 5000,
+      retryConfig: {
+        retry: 1,
+        noResponseRetries: 1,
+        retryDelay: 100,
+        httpMethodsToRetry: ['GET'],
+        statusCodesToRetry: [
+          [429, 429],
+          [500, 599],
+        ],
+      },
+    },
+  });
 
   constructor(config: ConfigService) {
     const raw = config.get<string>('GOOGLE_OAUTH_CLIENT_IDS') ?? '';
@@ -48,7 +64,10 @@ export class GoogleIdTokenVerifier {
         audience: this.audiences,
       });
       payload = ticket.getPayload();
-    } catch {
+    } catch (error) {
+      if (isProviderUnavailable(error)) {
+        throw providerUnavailable();
+      }
       throw invalidGoogleToken();
     }
 
@@ -68,6 +87,7 @@ export class GoogleIdTokenVerifier {
       emailVerified: payload.email_verified === true,
       name: cleanClaim(payload.name),
       picture: cleanClaim(payload.picture),
+      hostedDomain: cleanClaim(payload.hd),
       nonce:
         typeof payload.nonce === 'string' && payload.nonce !== ''
           ? payload.nonce
@@ -86,4 +106,53 @@ function invalidGoogleToken(): DomainException {
     'Google ID token không hợp lệ hoặc đã hết hạn',
     HttpStatus.UNAUTHORIZED,
   );
+}
+
+function providerUnavailable(): DomainException {
+  return new DomainException(
+    'AUTH_OAUTH_PROVIDER_UNAVAILABLE',
+    'Dịch vụ xác minh Google hiện không khả dụng, vui lòng thử lại',
+    HttpStatus.SERVICE_UNAVAILABLE,
+  );
+}
+
+/**
+ * Google Auth Library wraps network/API failures differently across transports.
+ * Use structured status/code fields only; malformed or rejected JWTs remain 401.
+ */
+function isProviderUnavailable(error: unknown): boolean {
+  if (typeof error !== 'object' || error === null) {
+    return false;
+  }
+
+  const record = error as {
+    code?: unknown;
+    response?: { status?: unknown; statusCode?: unknown };
+    status?: unknown;
+    statusCode?: unknown;
+  };
+  const code = typeof record.code === 'string' ? record.code : null;
+  if (
+    code !== null &&
+    new Set([
+      'ECONNABORTED',
+      'ECONNREFUSED',
+      'ECONNRESET',
+      'EAI_AGAIN',
+      'ENETUNREACH',
+      'ENOTFOUND',
+      'ETIMEDOUT',
+      'EHOSTUNREACH',
+    ]).has(code)
+  ) {
+    return true;
+  }
+
+  const status = Number(
+    record.response?.status ??
+      record.response?.statusCode ??
+      record.status ??
+      record.statusCode,
+  );
+  return status === 429 || status >= 500;
 }

@@ -30,6 +30,7 @@ function stubIdentity(token: string): GoogleIdentity {
     emailVerified: verified === 'true',
     name: null,
     picture: null,
+    hostedDomain: null,
     nonce: nonce === undefined || nonce === '' ? null : nonce,
   };
 }
@@ -149,7 +150,7 @@ describe('Google OAuth (e2e — langoo_test)', () => {
     expect(sessionCount).toBe(2);
   });
 
-  it('email trùng tài khoản password → tự động liên kết, cả hai cách đăng nhập vào một user', async () => {
+  it('email trùng tài khoản password → yêu cầu link chủ động rồi cả hai cách đăng nhập vào một user', async () => {
     const email = `e2e-oauth-link-${runId}@langoo.test`;
     const password = 'matkhau-e2e-123';
 
@@ -158,12 +159,29 @@ describe('Google OAuth (e2e — langoo_test)', () => {
       .send({ email, password })
       .expect(201);
     const registered = registerRes.body as AuthBody;
+    const linkedSub = nextSub();
 
     const oauthRes = await request(server)
       .post('/v1/auth/oauth/google')
-      .send({ id_token: `stub|${nextSub()}|${email}|true` })
+      .send({ id_token: `stub|${linkedSub}|${email}|true` })
+      .expect(409);
+    expect(oauthRes.body).toMatchObject({ code: 'AUTH_OAUTH_LINK_REQUIRED' });
+
+    const linkRes = await request(server)
+      .post('/v1/auth/oauth/google/link')
+      .set('Authorization', `Bearer ${registered.access_token}`)
+      .send({
+        id_token: `stub|${linkedSub}|${email}|true`,
+        password,
+      })
       .expect(200);
-    const oauthBody = oauthRes.body as AuthBody;
+    expect(linkRes.body).toMatchObject({ provider: 'google' });
+
+    const linkedOauthRes = await request(server)
+      .post('/v1/auth/oauth/google')
+      .send({ id_token: `stub|${linkedSub}|${email}|true` })
+      .expect(200);
+    const oauthBody = linkedOauthRes.body as AuthBody;
     expect(oauthBody.user.id).toBe(registered.user.id);
 
     const loginRes = await request(server)
@@ -222,7 +240,7 @@ describe('Google OAuth (e2e — langoo_test)', () => {
     expect(res.body).toMatchObject({ code: 'VALIDATION_FAILED' });
   });
 
-  it('tài khoản bị khoá → 403 AUTH_ACCOUNT_LOCKED', async () => {
+  it('email trùng tài khoản bị khoá (chưa liên kết) → 409 AUTH_OAUTH_LINK_REQUIRED', async () => {
     const email = `e2e-oauth-locked-${runId}@langoo.test`;
     const registerRes = await request(server)
       .post('/v1/auth/register')
@@ -238,6 +256,29 @@ describe('Google OAuth (e2e — langoo_test)', () => {
     const res = await request(server)
       .post('/v1/auth/oauth/google')
       .send({ id_token: `stub|${nextSub()}|${email}|true` })
+      .expect(409);
+
+    expect(res.body).toMatchObject({ code: 'AUTH_OAUTH_LINK_REQUIRED' });
+  });
+
+  it('Google identity đã liên kết nhưng user bị khoá → 403 AUTH_ACCOUNT_LOCKED', async () => {
+    const sub = nextSub();
+    const email = `e2e-oauth-linked-locked-${runId}@langoo.test`;
+
+    const first = await request(server)
+      .post('/v1/auth/oauth/google')
+      .send({ id_token: `stub|${sub}|${email}|true` })
+      .expect(200);
+    const userId = BigInt((first.body as AuthBody).user.id);
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { status: 'locked' },
+    });
+
+    const res = await request(server)
+      .post('/v1/auth/oauth/google')
+      .send({ id_token: `stub|${sub}|${email}|true` })
       .expect(403);
 
     expect(res.body).toMatchObject({ code: 'AUTH_ACCOUNT_LOCKED' });

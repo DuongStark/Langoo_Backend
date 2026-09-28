@@ -37,6 +37,7 @@ model User {
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
 
   identities         UserIdentity[]
+  googleChallenges   GoogleOAuthChallenge[]
   userSessions       UserSession[]
   devices            Device[]
   studyProfiles      StudyProfile[]
@@ -78,6 +79,26 @@ model UserIdentity {
 
   @@unique([provider, providerUid])
   @@map("user_identity")
+  @@schema("app")
+}
+
+// One-time backend challenge for Google login/link. Raw nonce and binding
+// secret are returned only at creation time; PostgreSQL stores SHA-256 hashes.
+model GoogleOAuthChallenge {
+  id           String    @id @db.Uuid
+  purpose      String    // login | link
+  userId       BigInt?   @map("user_id")
+  sessionId    String?   @map("session_id") @db.Uuid
+  nonceHash    String    @map("nonce_hash")
+  bindingHash  String    @map("binding_hash")
+  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt   DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([purpose, expiresAt, consumedAt])
+  @@map("google_oauth_challenge")
   @@schema("app")
 }
 

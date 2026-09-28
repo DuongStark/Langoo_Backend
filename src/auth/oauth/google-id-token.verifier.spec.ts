@@ -44,6 +44,7 @@ describe('GoogleIdTokenVerifier', () => {
         email_verified: true,
         name: '  An  ',
         picture: 'https://img.example/avatar.png',
+        hd: 'example.com',
         nonce: 'nonce-1',
       }),
     });
@@ -63,6 +64,7 @@ describe('GoogleIdTokenVerifier', () => {
       emailVerified: true,
       name: 'An',
       picture: 'https://img.example/avatar.png',
+      hostedDomain: 'example.com',
       nonce: 'nonce-1',
     });
   });
@@ -74,6 +76,7 @@ describe('GoogleIdTokenVerifier', () => {
         email: 'user@example.com',
         name: '   ',
         picture: undefined,
+        hd: undefined,
         nonce: '',
       }),
     });
@@ -84,6 +87,7 @@ describe('GoogleIdTokenVerifier', () => {
     expect(identity.emailVerified).toBe(false);
     expect(identity.name).toBeNull();
     expect(identity.picture).toBeNull();
+    expect(identity.hostedDomain).toBeNull();
     expect(identity.nonce).toBeNull();
   });
 
@@ -91,6 +95,35 @@ describe('GoogleIdTokenVerifier', () => {
     mockVerifyIdToken.mockRejectedValue(new Error('Wrong recipient'));
     const verifier = new GoogleIdTokenVerifier(configWith('client-web'));
 
+    await expect(verifier.verify('id-token')).rejects.toMatchObject({
+      code: 'AUTH_OAUTH_TOKEN_INVALID',
+    });
+  });
+
+  it('lỗi tải khóa Google → 503 AUTH_OAUTH_PROVIDER_UNAVAILABLE', async () => {
+    mockVerifyIdToken.mockRejectedValue(
+      Object.assign(new Error('network'), { code: 'ETIMEDOUT' }),
+    );
+    const verifier = new GoogleIdTokenVerifier(configWith('client-web'));
+
+    await expect(verifier.verify('id-token')).rejects.toMatchObject({
+      code: 'AUTH_OAUTH_PROVIDER_UNAVAILABLE',
+    });
+  });
+
+  it('Google trả lỗi HTTP 5xx → 503, lỗi HTTP 4xx vẫn là token invalid', async () => {
+    const verifier = new GoogleIdTokenVerifier(configWith('client-web'));
+
+    mockVerifyIdToken.mockRejectedValue(
+      Object.assign(new Error('upstream'), { response: { status: 503 } }),
+    );
+    await expect(verifier.verify('id-token')).rejects.toMatchObject({
+      code: 'AUTH_OAUTH_PROVIDER_UNAVAILABLE',
+    });
+
+    mockVerifyIdToken.mockRejectedValue(
+      Object.assign(new Error('bad token'), { response: { status: 400 } }),
+    );
     await expect(verifier.verify('id-token')).rejects.toMatchObject({
       code: 'AUTH_OAUTH_TOKEN_INVALID',
     });

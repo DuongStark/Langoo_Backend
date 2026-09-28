@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -24,19 +25,24 @@ import {
   SessionResponseDto,
   UserResponseDto,
 } from './dto/auth-response.dto';
-import { GoogleLoginDto } from './dto/google-login.dto';
+import { GoogleLinkDto, GoogleLoginDto } from './dto/google-login.dto';
+import { GoogleOAuthChallengeDto } from './dto/google-oauth-challenge.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
-import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { AuthenticatedRequest, JwtAuthGuard } from './guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { GoogleOauthService } from './oauth/google-oauth.service';
+import { GoogleOAuthChallengeService } from './oauth/google-oauth-challenge.service';
 import {
   AuthResult,
   AuthTokens,
   JwtPayload,
   SessionResponse,
   UserResponse,
+  GoogleLinkResult,
+  GoogleOAuthChallengeResult,
 } from './types/auth.types';
 
 @ApiTags('auth')
@@ -45,6 +51,7 @@ export class AuthController {
   constructor(
     private readonly authService: AuthService,
     private readonly googleOauthService: GoogleOauthService,
+    private readonly googleChallengeService: GoogleOAuthChallengeService,
   ) {}
 
   @Post('register')
@@ -75,8 +82,8 @@ export class AuthController {
   @ApiOperation({
     summary: 'Đăng nhập/đăng ký bằng Google ID token (OAuth2)',
     description:
-      'Client lấy ID token từ Google Sign-In SDK và gửi lên. Email Google đã xác thực ' +
-      'trùng tài khoản password sẽ được tự động liên kết.',
+      'Client lấy ID token từ Google Sign-In SDK và gửi lên. Email chỉ dùng để phát hiện ' +
+      'xung đột; tài khoản đã tồn tại phải liên kết chủ động qua endpoint link.',
   })
   @ApiOkResponse({ type: AuthResultDto })
   @ApiUnauthorizedResponse({
@@ -85,6 +92,48 @@ export class AuthController {
   })
   oauthGoogle(@Body() dto: GoogleLoginDto): Promise<AuthResult> {
     return this.googleOauthService.login(dto);
+  }
+
+  @Post('oauth/google/challenge')
+  @UseGuards(OptionalJwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Tạo challenge dùng một lần cho Google login/link',
+    description:
+      'Client dùng nonce trả về để khởi tạo Google Sign-In SDK. Link cần bearer token; ' +
+      'login có thể gọi công khai.',
+  })
+  @ApiOkResponse({ description: 'Challenge và secret dùng một lần' })
+  oauthGoogleChallenge(
+    @Req() request: AuthenticatedRequest,
+    @Body() dto: GoogleOAuthChallengeDto,
+  ): Promise<GoogleOAuthChallengeResult> {
+    const payload = request.user;
+    return this.googleChallengeService.create(
+      dto.purpose,
+      dto.purpose === 'link' && payload ? BigInt(payload.sub) : undefined,
+      dto.purpose === 'link' ? payload?.sid : undefined,
+    );
+  }
+
+  @Post('oauth/google/link')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Liên kết Google vào tài khoản hiện tại sau khi xác nhận mật khẩu',
+  })
+  @ApiOkResponse({ description: 'Google identity đã được liên kết' })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description:
+      'AUTH_OAUTH_EMAIL_MISMATCH / AUTH_OAUTH_IDENTITY_TAKEN / AUTH_OAUTH_LINK_PASSWORD_REQUIRED',
+  })
+  oauthGoogleLink(
+    @CurrentUser() payload: JwtPayload,
+    @Body() dto: GoogleLinkDto,
+  ): Promise<GoogleLinkResult> {
+    return this.googleOauthService.link(BigInt(payload.sub), dto, payload.sid);
   }
 
   @Post('refresh')

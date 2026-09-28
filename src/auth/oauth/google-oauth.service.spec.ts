@@ -1,11 +1,13 @@
 import { createHash } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import argon2 from 'argon2';
 import { PrismaService } from '../../db/prisma.service';
 import {
   GoogleIdTokenVerifier,
   GoogleIdentity,
 } from './google-id-token.verifier';
+import { GoogleOAuthChallengeService } from './google-oauth-challenge.service';
 import { GoogleOauthService } from './google-oauth.service';
 
 const TEST_SECRET = 'unit-test-secret-0123456789abcdef0123456789';
@@ -16,6 +18,7 @@ interface TxMock {
   userSettings: { create: jest.Mock };
   userSession: { create: jest.Mock };
   device: { create: jest.Mock };
+  googleOAuthChallenge: { findUnique: jest.Mock; updateMany: jest.Mock };
 }
 
 function sha256(value: string): string {
@@ -44,14 +47,20 @@ function googleIdentity(
     emailVerified: true,
     name: 'An',
     picture: 'https://img.example/avatar.png',
+    hostedDomain: null,
     nonce: null,
     ...overrides,
   };
 }
 
-function createSetup(): {
+function createSetup(requireChallenge = false): {
   service: GoogleOauthService;
-  prisma: { $transaction: jest.Mock };
+  prisma: {
+    user: { findUnique: jest.Mock };
+    userIdentity: { findUnique: jest.Mock };
+    googleOAuthChallenge: { create: jest.Mock };
+    $transaction: jest.Mock;
+  };
   tx: TxMock;
   jwt: JwtService;
   verifier: { verify: jest.Mock };
@@ -62,14 +71,19 @@ function createSetup(): {
     userSettings: { create: jest.fn() },
     userSession: { create: jest.fn() },
     device: { create: jest.fn() },
+    googleOAuthChallenge: { findUnique: jest.fn(), updateMany: jest.fn() },
   };
   const prisma = {
+    user: { findUnique: jest.fn() },
+    userIdentity: { findUnique: jest.fn() },
+    googleOAuthChallenge: { create: jest.fn() },
     $transaction: jest.fn((fn: (client: TxMock) => Promise<unknown>) => fn(tx)),
   };
-  const values: Record<string, string | number> = {
+  const values: Record<string, string | number | boolean> = {
     JWT_ACCESS_SECRET: TEST_SECRET,
     JWT_ACCESS_TTL: '15m',
     JWT_REFRESH_TTL_DAYS: 30,
+    GOOGLE_OAUTH_REQUIRE_CHALLENGE: requireChallenge,
   };
   const config = {
     get: jest.fn((key: string) => values[key]),
@@ -88,6 +102,7 @@ function createSetup(): {
     jwt,
     config,
     verifier as unknown as GoogleIdTokenVerifier,
+    new GoogleOAuthChallengeService(prisma as unknown as PrismaService, config),
   );
   return { service, prisma, tx, jwt, verifier };
 }
@@ -211,46 +226,97 @@ describe('GoogleOauthService', () => {
     expect(result.user.id).toBe('7');
   });
 
-  it('email trùng tài khoản password → tự động liên kết, không tạo user mới', async () => {
+  it('email trùng tài khoản password → yêu cầu liên kết chủ động, không tạo session', async () => {
     const { service, tx, verifier } = createSetup();
     verifier.verify.mockResolvedValue(googleIdentity());
     tx.userIdentity.findUnique.mockResolvedValue(null);
     tx.user.findFirst.mockResolvedValue(
       userRow({ id: 3n, avatarUrl: 'https://old.example/avatar.png' }),
     );
-    tx.user.update.mockResolvedValue(userRow({ id: 3n }));
-
-    const result = await service.login({ id_token: 'id-token' });
-
-    expect(tx.user.create).not.toHaveBeenCalled();
-    const identityArgs = firstArg<{
-      data: { userId: bigint; providerUid: string };
-    }>(tx.userIdentity.create);
-    expect(identityArgs.data).toMatchObject({
-      userId: 3n,
-      providerUid: 'google-sub-1',
-    });
-    const updateArgs = firstArg<{ where: { id: bigint }; data: unknown }>(
-      tx.user.update,
+    await expect(service.login({ id_token: 'id-token' })).rejects.toMatchObject(
+      {
+        code: 'AUTH_OAUTH_LINK_REQUIRED',
+      },
     );
-    expect(updateArgs.where).toEqual({ id: 3n });
-    expect(updateArgs.data).not.toHaveProperty('avatarUrl');
-    expect(result.user.id).toBe('3');
+    expect(tx.user.create).not.toHaveBeenCalled();
+    expect(tx.userIdentity.create).not.toHaveBeenCalled();
+    expect(tx.userSession.create).not.toHaveBeenCalled();
+    expect(tx.user.update).not.toHaveBeenCalled();
   });
 
-  it('user cũ chưa có avatar → điền avatar Google', async () => {
+  it('liên kết chủ động yêu cầu mật khẩu và không tạo session mới', async () => {
+    const { service, prisma, tx, verifier } = createSetup();
+    const passwordHash = await argon2.hash('matkhau12345', {
+      type: argon2.argon2id,
+      memoryCost: 4096,
+      timeCost: 1,
+    });
+    verifier.verify.mockResolvedValue(googleIdentity());
+    prisma.user.findUnique.mockResolvedValue({
+      ...userRow({ id: 3n }),
+      identities: [
+        {
+          provider: 'password',
+          passwordHash,
+        },
+      ],
+    });
+    tx.userIdentity.findUnique.mockResolvedValue(null);
+    tx.userIdentity.create.mockResolvedValue({
+      createdAt: new Date('2026-09-28T02:00:00.000Z'),
+    });
+
+    const result = await service.link(3n, {
+      id_token: 'id-token',
+      password: 'matkhau12345',
+    });
+
+    expect(result).toEqual({
+      provider: 'google',
+      linked_at: '2026-09-28T02:00:00.000Z',
+    });
+    const calls = tx.userIdentity.create.mock.calls as unknown[][];
+    const createArgs = calls[0]?.[0] as {
+      data: { userId: bigint; provider: string; providerUid: string };
+    };
+    expect(createArgs.data).toMatchObject({
+      userId: 3n,
+      provider: 'google',
+      providerUid: 'google-sub-1',
+    });
+    expect(tx.userSession.create).not.toHaveBeenCalled();
+  });
+
+  it('liên kết chủ động sai mật khẩu → không ghi identity', async () => {
+    const { service, prisma, tx, verifier } = createSetup();
+    const passwordHash = await argon2.hash('matkhau-khac', {
+      type: argon2.argon2id,
+      memoryCost: 4096,
+      timeCost: 1,
+    });
+    verifier.verify.mockResolvedValue(googleIdentity());
+    prisma.user.findUnique.mockResolvedValue({
+      ...userRow({ id: 3n }),
+      identities: [{ provider: 'password', passwordHash }],
+    });
+
+    await expect(
+      service.link(3n, { id_token: 'id-token', password: 'matkhau12345' }),
+    ).rejects.toMatchObject({ code: 'AUTH_INVALID_CREDENTIALS' });
+    expect(tx.userIdentity.create).not.toHaveBeenCalled();
+  });
+
+  it('email trùng user chưa có avatar vẫn yêu cầu link, không ghi đè user', async () => {
     const { service, tx, verifier } = createSetup();
     verifier.verify.mockResolvedValue(googleIdentity());
     tx.userIdentity.findUnique.mockResolvedValue(null);
     tx.user.findFirst.mockResolvedValue(userRow({ id: 3n, avatarUrl: null }));
-    tx.user.update.mockResolvedValue(userRow({ id: 3n }));
-
-    await service.login({ id_token: 'id-token' });
-
-    const updateArgs = firstArg<{
-      data: { avatarUrl?: string | null };
-    }>(tx.user.update);
-    expect(updateArgs.data.avatarUrl).toBe('https://img.example/avatar.png');
+    await expect(service.login({ id_token: 'id-token' })).rejects.toMatchObject(
+      {
+        code: 'AUTH_OAUTH_LINK_REQUIRED',
+      },
+    );
+    expect(tx.user.update).not.toHaveBeenCalled();
   });
 
   it('email chưa xác thực → 403 AUTH_OAUTH_EMAIL_UNVERIFIED, không chạm DB', async () => {
@@ -295,6 +361,98 @@ describe('GoogleOauthService', () => {
     });
 
     expect(result.user.id).toBe('1');
+  });
+
+  it('challenge login hợp lệ được consume trong transaction cấp session', async () => {
+    const { service, tx, verifier } = createSetup(true);
+    const nonce = 'nonce-from-challenge';
+    const bindingSecret = 'binding-secret-from-challenge-0123456789';
+    verifier.verify.mockResolvedValue(googleIdentity({ nonce }));
+    tx.googleOAuthChallenge.findUnique.mockResolvedValue({
+      id: 'challenge-1',
+      purpose: 'login',
+      userId: null,
+      sessionId: null,
+      nonceHash: sha256(nonce),
+      bindingHash: sha256(bindingSecret),
+      expiresAt: new Date(Date.now() + 60_000),
+      consumedAt: null,
+    });
+    tx.googleOAuthChallenge.updateMany.mockResolvedValue({ count: 1 });
+    tx.userIdentity.findUnique.mockResolvedValue({
+      userId: 1n,
+      user: userRow(),
+    });
+    tx.user.update.mockResolvedValue(userRow());
+
+    await service.login({
+      id_token: 'id-token',
+      nonce,
+      challenge_id: 'challenge-1',
+      binding_secret: bindingSecret,
+    });
+
+    expect(tx.googleOAuthChallenge.updateMany).toHaveBeenCalled();
+    expect(tx.userSession.create).toHaveBeenCalled();
+  });
+
+  it('challenge login không cần client gửi lại nonce (token nonce đối chiếu qua challenge)', async () => {
+    const { service, tx, verifier } = createSetup();
+    const nonce = 'nonce-from-challenge';
+    const bindingSecret = 'binding-secret-from-challenge-0123456789';
+    verifier.verify.mockResolvedValue(googleIdentity({ nonce }));
+    tx.googleOAuthChallenge.findUnique.mockResolvedValue({
+      id: 'challenge-1',
+      purpose: 'login',
+      userId: null,
+      sessionId: null,
+      nonceHash: sha256(nonce),
+      bindingHash: sha256(bindingSecret),
+      expiresAt: new Date(Date.now() + 60_000),
+      consumedAt: null,
+    });
+    tx.googleOAuthChallenge.updateMany.mockResolvedValue({ count: 1 });
+    tx.userIdentity.findUnique.mockResolvedValue({
+      userId: 1n,
+      user: userRow(),
+    });
+    tx.user.update.mockResolvedValue(userRow());
+
+    const result = await service.login({
+      id_token: 'id-token',
+      challenge_id: 'challenge-1',
+      binding_secret: bindingSecret,
+    });
+
+    expect(result.user.id).toBe('1');
+    expect(tx.googleOAuthChallenge.updateMany).toHaveBeenCalledTimes(1);
+    expect(tx.userSession.create).toHaveBeenCalledTimes(1);
+  });
+
+  it('challenge + nonce gửi kèm lệch token → 401', async () => {
+    const { service, verifier } = createSetup();
+    verifier.verify.mockResolvedValue(googleIdentity({ nonce: 'nonce-token' }));
+
+    await expect(
+      service.login({
+        id_token: 'id-token',
+        nonce: 'nonce-khac',
+        challenge_id: 'challenge-1',
+        binding_secret: 'binding-secret-from-challenge-0123456789',
+      }),
+    ).rejects.toMatchObject({ code: 'AUTH_OAUTH_TOKEN_INVALID' });
+  });
+
+  it('bật bắt buộc challenge → thiếu challenge bị từ chối trước transaction', async () => {
+    const { service, tx, verifier } = createSetup(true);
+    verifier.verify.mockResolvedValue(googleIdentity());
+
+    await expect(service.login({ id_token: 'id-token' })).rejects.toMatchObject(
+      {
+        code: 'AUTH_OAUTH_CHALLENGE_INVALID',
+      },
+    );
+    expect(tx.userSession.create).not.toHaveBeenCalled();
   });
 
   it('tài khoản locked/deleted → 403', async () => {
