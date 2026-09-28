@@ -36,7 +36,7 @@ Repo có sẵn [`render.yaml`](render.yaml) (Blueprint):
 2. Điền biến bí mật khi Render hỏi (hoặc sửa sau trong **Environment**):
    - `DATABASE_URL` — pooled (runtime) · `DIRECT_URL` — direct (migration/DDL)
    - `JWT_ACCESS_SECRET` — ≥32 ký tự ngẫu nhiên (xem `.env.example`)
-   - `CORS_ORIGINS` — tuỳ chọn: origin FE cách nhau dấu phẩy (bỏ trống = tắt CORS)
+   - `CORS_ORIGINS` — `*` cho mọi origin, hoặc danh sách origin FE cách nhau dấu phẩy (bỏ trống = tắt CORS)
 3. Sau deploy: kiểm tra `GET https://<service>.onrender.com/v1/health` và Swagger `/docs`.
 
 Ghi chú:

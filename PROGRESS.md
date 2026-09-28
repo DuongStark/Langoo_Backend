@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-27 (M6.1 đã apply cloud 026/027; M8 xong; chuẩn bị deploy Render)
+> Cập nhật lần cuối: 2026-09-28 (CORS Render bật `*`; M6.1 đã apply cloud 026/027; M8 xong; chuẩn bị deploy Render)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -80,6 +80,7 @@
 | 2026-09-27 | API suspend/unsuspend thẻ để **M7** (queue M6 vẫn lọc `suspended = false`)                                                                                                                                                                                                                                                       | Chủ dự án chốt                                                                                                       |
 | 2026-09-27 | **Feedback (gộp vào M13)**: bắt buộc đăng nhập; user xem lại + thấy trạng thái (`GET /me/feedback`); ảnh lưu qua `StorageService` trừu tượng `local` (dev) / `s3` (khi có key) — giống pattern `AI_PROVIDER=stub`; tối đa 3 ảnh ≤5MB (jpeg/png/webp, kiểm magic bytes); admin xem ảnh qua route xác thực admin, không public URL | Chủ dự án chốt qua bộ câu hỏi ngày 2026-09-27                                                                        |
 | 2026-09-27 | Host API trên **Render**: blueprint `render.yaml` (build `npm ci --include=dev && npm run build`, start `npm run start:prod`, health `/v1/health`); CORS tuỳ chọn qua `CORS_ORIGINS` (trống = tắt); migration chạy tay từ local trước deploy | Chủ dự án muốn host; migration 026/027 đã apply cloud cùng ngày |
+| 2026-09-28 | CORS API Render bật `CORS_ORIGINS=*` (mọi origin) khi chưa chốt domain FE — code hiểu `*` = phản chiếu origin của request kèm credentials; khi có FE sẽ siết về danh sách origin | Chủ dự án chốt 2026-09-28 |
 
 ## Nhật ký sửa lỗi theo milestone
 

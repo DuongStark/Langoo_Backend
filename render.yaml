@@ -30,8 +30,9 @@ services:
       # Bắt buộc ≥32 ký tự ngẫu nhiên (xem .env.example).
       - key: JWT_ACCESS_SECRET
         sync: false
-      # Tuỳ chọn: origin FE cách nhau dấu phẩy; bỏ trống = tắt CORS.
+      # "*" = cho phép mọi origin (chưa chốt domain FE); khi có FE thì đổi thành
+      # danh sách origin cách nhau dấu phẩy, bỏ trống = tắt CORS.
       - key: CORS_ORIGINS
-        sync: false
+        value: '*'
     # Nếu gói Render hỗ trợ pre-deploy command, có thể tự động migrate:
     # preDeployCommand: npm run db:migrate

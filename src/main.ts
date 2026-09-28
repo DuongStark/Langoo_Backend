@@ -3,6 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
+import { parseCorsOrigins } from './config/cors';
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
@@ -25,20 +26,21 @@ async function bootstrap(): Promise<void> {
   );
 
   const configService = app.get(ConfigService);
-  const corsOrigins = configService.get<string>('CORS_ORIGINS');
-  if (corsOrigins !== undefined && corsOrigins.trim() !== '') {
-    app.enableCors({
-      origin: corsOrigins
-        .split(',')
-        .map((origin) => origin.trim())
-        .filter((origin) => origin !== ''),
-      credentials: true,
-    });
+  const logger = app.get(Logger);
+  const corsOrigin = parseCorsOrigins(
+    configService.get<string>('CORS_ORIGINS'),
+  );
+  if (corsOrigin !== null) {
+    app.enableCors({ origin: corsOrigin, credentials: true });
+    logger.log(
+      corsOrigin === true
+        ? 'CORS: cho phép mọi origin (*)'
+        : `CORS: cho phép ${corsOrigin.join(', ')}`,
+    );
   }
   const port = Number(configService.getOrThrow('PORT'));
   await app.listen(port, '0.0.0.0');
 
-  const logger = app.get(Logger);
   logger.log(
     `Langoo API đang chạy tại http://localhost:${port}/v1 (Swagger: http://localhost:${port}/docs)`,
   );
