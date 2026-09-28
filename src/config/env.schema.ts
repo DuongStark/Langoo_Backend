@@ -52,6 +52,13 @@ export const envSchema = z.object({
   // CORS cho web FE khi deploy (danh sách origin cách nhau dấu phẩy; trống = tắt).
   CORS_ORIGINS: z.preprocess(emptyToUndefined, z.string().optional()),
 
+  // Đăng nhập Google (M2.2): danh sách client ID được chấp nhận (web/iOS/Android,
+  // cách nhau dấu phẩy). Trống = tắt endpoint OAuth (trả 503).
+  GOOGLE_OAUTH_CLIENT_IDS: z.preprocess(
+    emptyToUndefined,
+    z.string().optional(),
+  ),
+
   // Biến AI — dùng từ M10, optional ở M0.
   AI_PROVIDER: z.preprocess(
     emptyToUndefined,

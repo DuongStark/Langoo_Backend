@@ -1,4 +1,3 @@
-import { createHash, randomBytes } from 'node:crypto';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
@@ -11,9 +10,21 @@ import {
   DEFAULT_DAILY_GOAL,
   DEFAULT_TIMEZONE,
 } from '../users/settings.constants';
-import { DeviceInfoDto } from './dto/device-info.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import {
+  accessTokenTtl,
+  assertUserActive,
+  AuthUserRow,
+  createDevice,
+  generateRefreshToken,
+  hashRefreshToken,
+  isUniqueViolation,
+  issueTokens,
+  normalizeEmail,
+  refreshExpiry,
+  toUserResponse,
+} from './session.helpers';
 import {
   AuthResult,
   AuthTokens,
@@ -24,20 +35,7 @@ import {
 
 // Giữ export tương thích cho các caller/test từng dùng helper từ auth.service.
 export { parseTtlSeconds };
-
-/** Các cột của app.users mà tầng auth cần. */
-interface AuthUserRow {
-  id: bigint;
-  email: string;
-  displayName: string | null;
-  avatarUrl: string | null;
-  status: string;
-  createdAt: Date;
-  lastLoginAt: Date | null;
-}
-
-/** Client Prisma trong transaction. */
-type TxClient = Parameters<Parameters<PrismaService['$transaction']>[0]>[0];
+export { generateRefreshToken, hashRefreshToken, normalizeEmail };
 
 @Injectable()
 export class AuthService {
@@ -48,7 +46,7 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResult> {
-    const expiresIn = this.accessTokenTtl();
+    const expiresIn = accessTokenTtl(this.config);
     const email = normalizeEmail(dto.email);
     const existing = await this.prisma.user.findFirst({
       where: { email },
@@ -80,18 +78,14 @@ export class AuthService {
             passwordHash,
           },
         });
-        const deviceId = await this.createDevice(
-          tx,
-          created.id,
-          dto.device ?? null,
-        );
+        const deviceId = await createDevice(tx, created.id, dto.device ?? null);
         await tx.userSession.create({
           data: {
             id: sessionId,
             userId: created.id,
             deviceId,
             refreshTokenHash: hashRefreshToken(refreshToken),
-            expiresAt: this.refreshExpiry(),
+            expiresAt: refreshExpiry(this.config),
           },
         });
         await tx.userSettings.create({
@@ -113,12 +107,18 @@ export class AuthService {
 
     return {
       user: toUserResponse(user),
-      ...(await this.issueTokens(user.id, sessionId, refreshToken, expiresIn)),
+      ...(await issueTokens(
+        this.jwt,
+        user.id,
+        sessionId,
+        refreshToken,
+        expiresIn,
+      )),
     };
   }
 
   async login(dto: LoginDto): Promise<AuthResult> {
-    const expiresIn = this.accessTokenTtl();
+    const expiresIn = accessTokenTtl(this.config);
     const email = normalizeEmail(dto.email);
     const identity = await this.prisma.userIdentity.findUnique({
       where: {
@@ -134,7 +134,7 @@ export class AuthService {
     if (!passwordOk) {
       throw invalidCredentials();
     }
-    this.assertUserActive(identity.user.status);
+    assertUserActive(identity.user.status);
 
     const sessionId = uuidv7();
     const refreshToken = generateRefreshToken();
@@ -144,7 +144,7 @@ export class AuthService {
         where: { id: identity.userId },
         data: { lastLoginAt: new Date() },
       });
-      const deviceId = await this.createDevice(
+      const deviceId = await createDevice(
         tx,
         identity.userId,
         dto.device ?? null,
@@ -155,7 +155,7 @@ export class AuthService {
           userId: identity.userId,
           deviceId,
           refreshTokenHash: hashRefreshToken(refreshToken),
-          expiresAt: this.refreshExpiry(),
+          expiresAt: refreshExpiry(this.config),
         },
       });
       return updated;
@@ -163,12 +163,18 @@ export class AuthService {
 
     return {
       user: toUserResponse(user),
-      ...(await this.issueTokens(user.id, sessionId, refreshToken, expiresIn)),
+      ...(await issueTokens(
+        this.jwt,
+        user.id,
+        sessionId,
+        refreshToken,
+        expiresIn,
+      )),
     };
   }
 
   async refresh(refreshToken: string): Promise<AuthTokens> {
-    const expiresIn = this.accessTokenTtl();
+    const expiresIn = accessTokenTtl(this.config);
     const oldTokenHash = hashRefreshToken(refreshToken);
     const session = await this.prisma.userSession.findUnique({
       where: { refreshTokenHash: oldTokenHash },
@@ -185,7 +191,7 @@ export class AuthService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    this.assertUserActive(session.user.status);
+    assertUserActive(session.user.status);
 
     const newToken = generateRefreshToken();
     const rotated = await this.prisma.userSession.updateMany({
@@ -204,7 +210,13 @@ export class AuthService {
       throw invalidRefreshToken();
     }
 
-    return this.issueTokens(session.userId, session.id, newToken, expiresIn);
+    return issueTokens(
+      this.jwt,
+      session.userId,
+      session.id,
+      newToken,
+      expiresIn,
+    );
   }
 
   async logout(payload: JwtPayload): Promise<SessionResponse> {
@@ -252,89 +264,6 @@ export class AuthService {
       parallelism: 1,
     });
   }
-
-  private async issueTokens(
-    userId: bigint,
-    sessionId: string,
-    refreshToken: string,
-    expiresIn: number,
-  ): Promise<AuthTokens> {
-    const access_token = await this.jwt.signAsync(
-      { sub: userId.toString(), sid: sessionId, typ: 'access' },
-      { expiresIn },
-    );
-    return { access_token, refresh_token: refreshToken, expires_in: expiresIn };
-  }
-
-  private accessTokenTtl(): number {
-    return parseTtlSeconds(this.config.getOrThrow<string>('JWT_ACCESS_TTL'));
-  }
-
-  private async createDevice(
-    tx: TxClient,
-    userId: bigint,
-    device: DeviceInfoDto | null,
-  ): Promise<string | null> {
-    if (!device) {
-      return null;
-    }
-    const id = uuidv7();
-    await tx.device.create({
-      data: {
-        id,
-        userId,
-        platform: device.platform,
-        appVersion: device.app_version ?? null,
-      },
-    });
-    return id;
-  }
-
-  private refreshExpiry(): Date {
-    const days = this.config.getOrThrow<number>('JWT_REFRESH_TTL_DAYS');
-    return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
-  }
-
-  private assertUserActive(status: string): void {
-    if (status === 'locked') {
-      throw new DomainException(
-        'AUTH_ACCOUNT_LOCKED',
-        'Tài khoản đã bị khoá',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-    if (status === 'deleted') {
-      throw new DomainException(
-        'AUTH_ACCOUNT_DELETED',
-        'Tài khoản đã bị xoá',
-        HttpStatus.FORBIDDEN,
-      );
-    }
-  }
-}
-
-export function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
-}
-
-export function generateRefreshToken(): string {
-  return randomBytes(32).toString('base64url');
-}
-
-export function hashRefreshToken(token: string): string {
-  return createHash('sha256').update(token).digest('hex');
-}
-
-function toUserResponse(user: AuthUserRow): UserResponse {
-  return {
-    id: user.id.toString(),
-    email: user.email,
-    display_name: user.displayName,
-    avatar_url: user.avatarUrl,
-    status: user.status,
-    created_at: user.createdAt.toISOString(),
-    last_login_at: user.lastLoginAt?.toISOString() ?? null,
-  };
 }
 
 function emailTaken(): DomainException {
@@ -358,14 +287,5 @@ function invalidRefreshToken(): DomainException {
     'AUTH_INVALID_REFRESH_TOKEN',
     'Refresh token không hợp lệ hoặc đã bị thu hồi',
     HttpStatus.UNAUTHORIZED,
-  );
-}
-
-function isUniqueViolation(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'code' in error &&
-    (error as { code?: unknown }).code === 'P2002'
   );
 }

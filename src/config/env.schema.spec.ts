@@ -82,10 +82,23 @@ describe('validateEnv', () => {
       JWT_ACCESS_TTL: '',
       AI_API_KEY: '',
       AI_DAILY_REQUEST_LIMIT: '',
+      GOOGLE_OAUTH_CLIENT_IDS: '',
     });
     expect(env.JWT_ACCESS_TTL).toBe('15m');
     expect(env.AI_API_KEY).toBeUndefined();
     expect(env.AI_DAILY_REQUEST_LIMIT).toBeUndefined();
+    expect(env.GOOGLE_OAUTH_CLIENT_IDS).toBeUndefined();
+  });
+
+  it('GOOGLE_OAUTH_CLIENT_IDS nhận danh sách client id cách nhau dấu phẩy', () => {
+    const env = validateEnv({
+      ...base,
+      GOOGLE_OAUTH_CLIENT_IDS:
+        'web-client.apps.googleusercontent.com,ios-client',
+    });
+    expect(env.GOOGLE_OAUTH_CLIENT_IDS).toBe(
+      'web-client.apps.googleusercontent.com,ios-client',
+    );
   });
 
   it('JWT_ACCESS_SECRET thiếu hoặc quá ngắn → báo lỗi', () => {

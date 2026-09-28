@@ -5,6 +5,8 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
+import { GoogleIdTokenVerifier } from './oauth/google-id-token.verifier';
+import { GoogleOauthService } from './oauth/google-oauth.service';
 
 @Module({
   imports: [
@@ -17,7 +19,13 @@ import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtAuthGuard, OptionalJwtAuthGuard],
+  providers: [
+    AuthService,
+    GoogleOauthService,
+    GoogleIdTokenVerifier,
+    JwtAuthGuard,
+    OptionalJwtAuthGuard,
+  ],
   exports: [AuthService, JwtAuthGuard, OptionalJwtAuthGuard],
 })
 export class AuthModule {}

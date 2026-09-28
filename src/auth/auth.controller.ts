@@ -24,11 +24,13 @@ import {
   SessionResponseDto,
   UserResponseDto,
 } from './dto/auth-response.dto';
+import { GoogleLoginDto } from './dto/google-login.dto';
 import { LoginDto } from './dto/login.dto';
 import { RefreshDto } from './dto/refresh.dto';
 import { RegisterDto } from './dto/register.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { GoogleOauthService } from './oauth/google-oauth.service';
 import {
   AuthResult,
   AuthTokens,
@@ -40,7 +42,10 @@ import {
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly googleOauthService: GoogleOauthService,
+  ) {}
 
   @Post('register')
   @ApiOperation({ summary: 'Đăng ký tài khoản mới (tự đăng nhập)' })
@@ -63,6 +68,23 @@ export class AuthController {
   })
   login(@Body() dto: LoginDto): Promise<AuthResult> {
     return this.authService.login(dto);
+  }
+
+  @Post('oauth/google')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Đăng nhập/đăng ký bằng Google ID token (OAuth2)',
+    description:
+      'Client lấy ID token từ Google Sign-In SDK và gửi lên. Email Google đã xác thực ' +
+      'trùng tài khoản password sẽ được tự động liên kết.',
+  })
+  @ApiOkResponse({ type: AuthResultDto })
+  @ApiUnauthorizedResponse({
+    type: ErrorResponseDto,
+    description: 'AUTH_OAUTH_TOKEN_INVALID (token/nonce không hợp lệ)',
+  })
+  oauthGoogle(@Body() dto: GoogleLoginDto): Promise<AuthResult> {
+    return this.googleOauthService.login(dto);
   }
 
   @Post('refresh')
