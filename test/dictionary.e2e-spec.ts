@@ -254,8 +254,8 @@ describe('Dictionary (e2e — langoo_test)', () => {
   });
 
   describe('lexeme → senses', () => {
-    it('eat lexeme 4 trả sense 6, không dùng lexeme id như sense id', async () => {
-      const res = await request(server).get('/v1/lexemes/4/senses').expect(200);
+    it('eat lexeme 5 trả sense 6, không dùng lexeme id như sense id', async () => {
+      const res = await request(server).get('/v1/lexemes/5/senses').expect(200);
       const body = res.body as {
         data: { sense_id: string; lexeme_id: string; lemma: string }[];
       };
@@ -264,7 +264,7 @@ describe('Dictionary (e2e — langoo_test)', () => {
         expect.arrayContaining([
           expect.objectContaining({
             sense_id: '6',
-            lexeme_id: '4',
+            lexeme_id: '5',
             lemma: 'eat',
           }),
         ]),

@@ -48,7 +48,7 @@ Sau khi search trả `lexeme_id`, gọi endpoint này để lấy các nghĩa th
 `lexeme_id` trực tiếp làm `sense_id`, vì một lexeme có thể có nhiều nghĩa.
 
 ```bash
-curl -s http://localhost:3000/v1/lexemes/4/senses
+curl -s http://localhost:3000/v1/lexemes/5/senses
 ```
 
 Response `{ data, next_cursor }` chứa các `SenseCard` theo `sense_no`. Ví dụ lexeme `eat` trả

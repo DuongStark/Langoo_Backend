@@ -3460,91 +3460,91 @@ INSERT INTO app.achievement VALUES ('quiz_100', '100 câu đúng', 'Trả lời 
 -- Data for Name: ai_usage; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.ai_usage VALUES (4, '2026-09-26', 'chat', 4, 11, 22, 0.000026);
+INSERT INTO app.ai_usage VALUES (6, '2026-09-28', 'chat', 4, 11, 22, 0.000026);
 
 
 --
 -- Data for Name: chat_message; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.chat_message VALUES (1, '01a0dc8a-71cf-7f93-a846-e75ee25ede44', 'user', '注文をお願いします。', '{}', NULL, 6, 0, 0.000002, 'demo-model', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.chat_message VALUES (2, '01a0dc8a-71cf-7f93-a846-e75ee25ede44', 'assistant', 'はい、ご注文をどうぞ。何になさいますか？', '{}', NULL, 0, 12, 0.000012, 'demo-model', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.chat_message VALUES (3, '01a0dc8a-71cf-7f93-a846-e75ee25ede44', 'user', 'ラーメンをお願いします。', '{}', NULL, 5, 0, 0.000002, 'demo-model', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.chat_message VALUES (4, '01a0dc8a-71cf-7f93-a846-e75ee25ede44', 'assistant', 'ラーメンですね。少々お待ちください。', '{}', NULL, 0, 10, 0.000010, 'demo-model', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.chat_message VALUES (1, '01a0e625-15a5-7e1e-8551-8595c0c405e9', 'user', '注文をお願いします。', '{}', NULL, 6, 0, 0.000002, 'demo-model', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.chat_message VALUES (2, '01a0e625-15a5-7e1e-8551-8595c0c405e9', 'assistant', 'はい、ご注文をどうぞ。何になさいますか？', '{}', NULL, 0, 12, 0.000012, 'demo-model', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.chat_message VALUES (3, '01a0e625-15a5-7e1e-8551-8595c0c405e9', 'user', 'ラーメンをお願いします。', '{}', NULL, 5, 0, 0.000002, 'demo-model', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.chat_message VALUES (4, '01a0e625-15a5-7e1e-8551-8595c0c405e9', 'assistant', 'ラーメンですね。少々お待ちください。', '{}', NULL, 0, 10, 0.000010, 'demo-model', '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: chat_session; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.chat_session VALUES ('01a0dc8a-71cf-7f93-a846-e75ee25ede44', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 2, 'restaurant', 'Luyện hội thoại nhà hàng', 'demo-model', NULL, NULL, 4, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07', NULL);
+INSERT INTO app.chat_session VALUES ('01a0e625-15a5-7e1e-8551-8595c0c405e9', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 2, 'restaurant', 'Luyện hội thoại nhà hàng', 'demo-model', NULL, NULL, 4, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07', NULL);
 
 
 --
 -- Data for Name: collection; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.collection VALUES ('01a0dc8a-718f-7acd-a588-2cf077898399', '01a0dc8a-718a-7acf-bd0c-90114c061f04', 4, 'JLPT N5 — bộ mẫu', 'Dữ liệu demo lấy từ core', 'personal', NULL, NULL, false, 11, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07', NULL);
+INSERT INTO app.collection VALUES ('01a0e625-1550-7942-9cf6-7b9434c2dbdc', '01a0e625-1544-7b89-a5a9-f94bff665b1f', 6, 'JLPT N5 — bộ mẫu', 'Dữ liệu demo lấy từ core', 'personal', NULL, NULL, false, 11, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07', NULL);
 
 
 --
 -- Data for Name: collection_item; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.collection_item VALUES ('01a0dc8a-7191-7e18-93b0-32e8378986fe', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 1, 'to run', 'source', NULL, 'learning', 1, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-7197-7f76-92c3-d759a6a4e110', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 5, 'to eat', 'source', NULL, 'learning', 2, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-7199-7161-8e40-c23bc389953d', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 7, 'to go', 'source', NULL, 'learning', 3, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719a-7350-8df1-60ed71873a00', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 9, 'water', 'source', NULL, 'learning', 4, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719b-70a2-a85a-afff115acb2f', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 11, 'day; sun', 'source', NULL, 'learning', 5, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719b-77a7-b011-ef4664c92e21', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 13, 'book', 'source', NULL, 'learning', 6, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719c-7e32-b722-ec3e3d9d2ecd', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 15, 'student', 'source', NULL, 'learning', 7, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719d-7aa6-bd37-5b4df23df4a8', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 17, 'school', 'source', NULL, 'learning', 8, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719d-7b45-92cc-b08147529e15', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 19, 'teacher', 'source', NULL, 'learning', 9, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719e-7ed1-8a7c-97b3a888b354', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 21, 'big; large', 'source', NULL, 'learning', 10, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item VALUES ('01a0dc8a-719e-702b-8f4f-9fa56d414598', '01a0dc8a-718f-7acd-a588-2cf077898399', NULL, 25, 'study', 'source', NULL, 'learning', 11, NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1552-7573-b34e-13567527b08d', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 1, 'to run', 'source', NULL, 'learning', 1, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1557-7444-8f4a-80547e3ef747', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 5, 'to eat', 'source', NULL, 'learning', 2, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-155b-7c8e-9e56-9e04121ea1a9', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 7, 'to go', 'source', NULL, 'learning', 3, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-155e-79f5-86f1-a0c46e28a217', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 9, 'water', 'source', NULL, 'learning', 4, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1560-7207-86e9-96608c047641', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 11, 'day; sun', 'source', NULL, 'learning', 5, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1562-7d40-8265-1bacac8bbed4', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 13, 'book', 'source', NULL, 'learning', 6, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1564-70a7-a4c7-aba8c439b7ee', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 15, 'student', 'source', NULL, 'learning', 7, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1565-72b6-9fd1-9f5d358c14ed', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 17, 'school', 'source', NULL, 'learning', 8, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1566-7fdd-a7eb-634cccc7f105', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 19, 'teacher', 'source', NULL, 'learning', 9, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-1568-73df-9ceb-87a75595b7b4', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 21, 'big; large', 'source', NULL, 'learning', 10, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item VALUES ('01a0e625-156a-7dbd-b08a-1592d335bd9f', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', NULL, 25, 'study', 'source', NULL, 'learning', 11, NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: collection_item_face; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-7191-70cc-9856-670bfbaa0b76', '01a0dc8a-7191-7e18-93b0-32e8378986fe', 1, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-7197-777d-b5fb-275bbf8d6c22', '01a0dc8a-7197-7f76-92c3-d759a6a4e110', 5, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-7199-7d68-9d6b-b8727e3d677d', '01a0dc8a-7199-7161-8e40-c23bc389953d', 7, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719a-77e4-844f-ea2816ddbe79', '01a0dc8a-719a-7350-8df1-60ed71873a00', 9, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719b-779f-9d03-fd99ea156059', '01a0dc8a-719b-70a2-a85a-afff115acb2f', 11, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719c-7bb9-918e-74af8ee5a83e', '01a0dc8a-719b-77a7-b011-ef4664c92e21', 13, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719c-7c60-bb40-c1c135704ec2', '01a0dc8a-719c-7e32-b722-ec3e3d9d2ecd', 15, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719d-7aae-96b7-5a3b46bca5a4', '01a0dc8a-719d-7aa6-bd37-5b4df23df4a8', 17, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719d-7d89-8a00-5fff713acacd', '01a0dc8a-719d-7b45-92cc-b08147529e15', 19, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719e-7a4a-af7b-ed5e5cc88388', '01a0dc8a-719e-7ed1-8a7c-97b3a888b354', 21, 2, 'primary', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.collection_item_face VALUES ('01a0dc8a-719e-7c6c-b98f-f7fd9ee0d79a', '01a0dc8a-719e-702b-8f4f-9fa56d414598', 25, 2, 'primary', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1552-7c88-ba7b-5a3a7e67cd46', '01a0e625-1552-7573-b34e-13567527b08d', 1, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1557-7352-bdde-a6dcfa01ff92', '01a0e625-1557-7444-8f4a-80547e3ef747', 5, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-155b-796e-ba52-3a4f2ec5fe5e', '01a0e625-155b-7c8e-9e56-9e04121ea1a9', 7, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-155e-714f-adab-5a964e2e71df', '01a0e625-155e-79f5-86f1-a0c46e28a217', 9, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1560-7002-aa70-c0f9e84afc98', '01a0e625-1560-7207-86e9-96608c047641', 11, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1562-7661-9323-61ce67b3b03a', '01a0e625-1562-7d40-8265-1bacac8bbed4', 13, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1564-7120-b177-7d2594130eff', '01a0e625-1564-70a7-a4c7-aba8c439b7ee', 15, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1565-75ca-8ffe-e103363d2307', '01a0e625-1565-72b6-9fd1-9f5d358c14ed', 17, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1566-7128-a198-d098b4bb1c40', '01a0e625-1566-7fdd-a7eb-634cccc7f105', 19, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-1569-7bae-a251-6ab69a872306', '01a0e625-1568-73df-9ceb-87a75595b7b4', 21, 2, 'primary', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.collection_item_face VALUES ('01a0e625-156a-75c1-96d7-927308edfc51', '01a0e625-156a-7dbd-b08a-1592d335bd9f', 25, 2, 'primary', '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: collection_item_tag; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.collection_item_tag VALUES ('01a0dc8a-7191-7e18-93b0-32e8378986fe', 5);
-INSERT INTO app.collection_item_tag VALUES ('01a0dc8a-7197-7f76-92c3-d759a6a4e110', 5);
-INSERT INTO app.collection_item_tag VALUES ('01a0dc8a-7199-7161-8e40-c23bc389953d', 5);
-INSERT INTO app.collection_item_tag VALUES ('01a0dc8a-719a-7350-8df1-60ed71873a00', 5);
-INSERT INTO app.collection_item_tag VALUES ('01a0dc8a-719b-70a2-a85a-afff115acb2f', 5);
+INSERT INTO app.collection_item_tag VALUES ('01a0e625-1552-7573-b34e-13567527b08d', 8);
+INSERT INTO app.collection_item_tag VALUES ('01a0e625-1557-7444-8f4a-80547e3ef747', 8);
+INSERT INTO app.collection_item_tag VALUES ('01a0e625-155b-7c8e-9e56-9e04121ea1a9', 8);
+INSERT INTO app.collection_item_tag VALUES ('01a0e625-155e-79f5-86f1-a0c46e28a217', 8);
+INSERT INTO app.collection_item_tag VALUES ('01a0e625-1560-7207-86e9-96608c047641', 8);
 
 
 --
 -- Data for Name: collection_share; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.collection_share VALUES ('01a0dc8a-71d6-7c8e-b79f-f114b0d513dd', '01a0dc8a-718f-7acd-a588-2cf077898399', 'demo-2affe0f2b5dc', 'clone', 4, NULL, NULL, '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.collection_share VALUES ('01a0e625-15af-7a1f-bc5b-f436cba4dd26', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', 'demo-60df004ac573', 'clone', 6, NULL, NULL, '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: device; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.device VALUES ('993a53c1-ab6f-484c-99fe-26289c97d8b5', 4, 'android', 'fcm', 'demo-token-android', NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07', NULL);
-INSERT INTO app.device VALUES ('8a5636d8-2296-43e7-bffc-8ea42083f532', 4, 'web', 'webpush', 'demo-token-web', NULL, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07', NULL);
+INSERT INTO app.device VALUES ('ee86d15b-8528-4ac4-8af1-b6cafc4a344b', 6, 'android', 'fcm', 'demo-token-android', NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07', NULL);
+INSERT INTO app.device VALUES ('022dcec9-459f-4f08-b09c-586ceb058fcd', 6, 'web', 'webpush', 'demo-token-web', NULL, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07', NULL);
 
 
 --
@@ -3569,54 +3569,54 @@ INSERT INTO app.device VALUES ('8a5636d8-2296-43e7-bffc-8ea42083f532', 4, 'web',
 -- Data for Name: quiz; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.quiz VALUES ('01a0dc8a-71cc-710d-bea4-61d090693a67', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', '01a0dc8a-718f-7acd-a588-2cf077898399', 'multiple_choice', 'easy', 3, '{"model": "seed", "prompt_version": "v1"}', 'ready', '2026-09-26 14:07:35.660843+07', NULL);
+INSERT INTO app.quiz VALUES ('01a0e625-15a1-7ebc-9cd2-3e5c4afdd6cd', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', '01a0e625-1550-7942-9cf6-7b9434c2dbdc', 'multiple_choice', 'easy', 3, '{"model": "seed", "prompt_version": "v1"}', 'ready', '2026-09-28 10:53:05.029871+07', NULL);
 
 
 --
 -- Data for Name: quiz_question; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.quiz_question VALUES (1, '01a0dc8a-71cc-710d-bea4-61d090693a67', 1, 'multiple_choice', 'Nghĩa của 「学生」 là gì?', '[{"key": "A", "text": "big; large"}, {"key": "B", "text": "student"}, {"key": "C", "text": "to go"}, {"key": "D", "text": "to eat"}]', '{"key": "B"}', 'Dữ liệu demo — chưa có giải thích từ AI.', 2, NULL, '01a0dc8a-719c-7e32-b722-ec3e3d9d2ecd');
-INSERT INTO app.quiz_question VALUES (2, '01a0dc8a-71cc-710d-bea4-61d090693a67', 2, 'multiple_choice', 'Nghĩa của 「水」 là gì?', '[{"key": "A", "text": "to go"}, {"key": "B", "text": "water"}, {"key": "C", "text": "to run"}, {"key": "D", "text": "teacher"}]', '{"key": "B"}', 'Dữ liệu demo — chưa có giải thích từ AI.', 2, NULL, '01a0dc8a-719a-7350-8df1-60ed71873a00');
-INSERT INTO app.quiz_question VALUES (3, '01a0dc8a-71cc-710d-bea4-61d090693a67', 3, 'multiple_choice', 'Nghĩa của 「行く」 là gì?', '[{"key": "A", "text": "water"}, {"key": "B", "text": "student"}, {"key": "C", "text": "to go"}, {"key": "D", "text": "school"}]', '{"key": "C"}', 'Dữ liệu demo — chưa có giải thích từ AI.', 2, NULL, '01a0dc8a-7199-7161-8e40-c23bc389953d');
+INSERT INTO app.quiz_question VALUES (1, '01a0e625-15a1-7ebc-9cd2-3e5c4afdd6cd', 1, 'multiple_choice', 'Nghĩa của 「学生」 là gì?', '[{"key": "A", "text": "big; large"}, {"key": "B", "text": "student"}, {"key": "C", "text": "to go"}, {"key": "D", "text": "to eat"}]', '{"key": "B"}', 'Dữ liệu demo — chưa có giải thích từ AI.', 2, NULL, '01a0e625-1564-70a7-a4c7-aba8c439b7ee');
+INSERT INTO app.quiz_question VALUES (2, '01a0e625-15a1-7ebc-9cd2-3e5c4afdd6cd', 2, 'multiple_choice', 'Nghĩa của 「水」 là gì?', '[{"key": "A", "text": "to go"}, {"key": "B", "text": "water"}, {"key": "C", "text": "to run"}, {"key": "D", "text": "teacher"}]', '{"key": "B"}', 'Dữ liệu demo — chưa có giải thích từ AI.', 2, NULL, '01a0e625-155e-79f5-86f1-a0c46e28a217');
+INSERT INTO app.quiz_question VALUES (3, '01a0e625-15a1-7ebc-9cd2-3e5c4afdd6cd', 3, 'multiple_choice', 'Nghĩa của 「行く」 là gì?', '[{"key": "A", "text": "water"}, {"key": "B", "text": "student"}, {"key": "C", "text": "to go"}, {"key": "D", "text": "school"}]', '{"key": "C"}', 'Dữ liệu demo — chưa có giải thích từ AI.', 2, NULL, '01a0e625-155b-7c8e-9e56-9e04121ea1a9');
 
 
 --
 -- Data for Name: reminder; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.reminder VALUES ('01a0dc8a-71d2-78aa-9d9d-909e92c898e3', 4, 'Học buổi tối', '20:00:00', 'Asia/Ho_Chi_Minh', '{1,2,3,4,5,6,7}', '{push}', true, false, 2, '2026-09-26 20:07:35.660843+07', '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.reminder VALUES ('01a0e625-15aa-7381-8d84-2c83abf5bfd4', 6, 'Học buổi tối', '20:00:00', 'Asia/Ho_Chi_Minh', '{1,2,3,4,5,6,7}', '{push}', true, false, 2, '2026-09-28 16:53:05.029871+07', '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: review_log_2026_09; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.review_log_2026_09 VALUES (1, 5, 4, '01a0dc8a-719c-7c60-bb40-c1c135704ec2', 2, 'flashcard', 1393, '2026-09-22 21:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (2, 18, 4, '01a0dc8a-7197-777d-b5fb-275bbf8d6c22', 3, 'flashcard', 1275, '2026-09-22 16:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (3, 7, 4, '01a0dc8a-7191-70cc-9856-670bfbaa0b76', 2, 'flashcard', 4352, '2026-09-22 14:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (4, 3, 4, '01a0dc8a-719a-77e4-844f-ea2816ddbe79', 2, 'flashcard', 4277, '2026-09-22 08:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (5, 19, 4, '01a0dc8a-7197-777d-b5fb-275bbf8d6c22', 3, 'flashcard', 1306, '2026-09-22 17:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (6, 13, 4, '01a0dc8a-7191-70cc-9856-670bfbaa0b76', 3, 'flashcard', 1181, '2026-09-23 16:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (7, 5, 4, '01a0dc8a-719b-779f-9d03-fd99ea156059', 4, 'flashcard', 1981, '2026-09-23 16:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (8, 4, 4, '01a0dc8a-719e-7a4a-af7b-ed5e5cc88388', 3, 'flashcard', 2280, '2026-09-23 09:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (9, 19, 4, '01a0dc8a-719e-7a4a-af7b-ed5e5cc88388', 3, 'flashcard', 3850, '2026-09-23 09:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (10, 18, 4, '01a0dc8a-7197-777d-b5fb-275bbf8d6c22', 2, 'flashcard', 2487, '2026-09-23 15:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (11, 22, 4, '01a0dc8a-719d-7d89-8a00-5fff713acacd', 4, 'flashcard', 3373, '2026-09-23 15:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (12, 19, 4, '01a0dc8a-719d-7aae-96b7-5a3b46bca5a4', 3, 'flashcard', 3255, '2026-09-23 11:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (13, 8, 4, '01a0dc8a-7197-777d-b5fb-275bbf8d6c22', 3, 'flashcard', 4855, '2026-09-24 13:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (14, 15, 4, '01a0dc8a-719b-779f-9d03-fd99ea156059', 2, 'flashcard', 1767, '2026-09-24 16:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (15, 14, 4, '01a0dc8a-7199-7d68-9d6b-b8727e3d677d', 3, 'flashcard', 2045, '2026-09-24 15:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (16, 14, 4, '01a0dc8a-7191-70cc-9856-670bfbaa0b76', 2, 'flashcard', 3370, '2026-09-24 13:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (17, 20, 4, '01a0dc8a-719d-7aae-96b7-5a3b46bca5a4', 4, 'flashcard', 1363, '2026-09-25 21:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (18, 3, 4, '01a0dc8a-719b-779f-9d03-fd99ea156059', 4, 'flashcard', 1332, '2026-09-25 08:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (19, 10, 4, '01a0dc8a-719e-7c6c-b98f-f7fd9ee0d79a', 4, 'flashcard', 3131, '2026-09-25 19:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (20, 13, 4, '01a0dc8a-719e-7c6c-b98f-f7fd9ee0d79a', 3, 'flashcard', 984, '2026-09-25 15:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (21, 12, 4, '01a0dc8a-7199-7d68-9d6b-b8727e3d677d', 2, 'flashcard', 4844, '2026-09-25 08:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (22, 10, 4, '01a0dc8a-7199-7d68-9d6b-b8727e3d677d', 3, 'flashcard', 4059, '2026-09-26 14:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (23, 16, 4, '01a0dc8a-7197-777d-b5fb-275bbf8d6c22', 3, 'flashcard', 4479, '2026-09-26 14:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (24, 18, 4, '01a0dc8a-719b-779f-9d03-fd99ea156059', 3, 'flashcard', 4326, '2026-09-26 21:00:00+07');
-INSERT INTO app.review_log_2026_09 VALUES (25, 18, 4, '01a0dc8a-719b-779f-9d03-fd99ea156059', 4, 'flashcard', 3739, '2026-09-26 18:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (1, 5, 6, '01a0e625-1564-7120-b177-7d2594130eff', 2, 'flashcard', 1393, '2026-09-24 21:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (2, 18, 6, '01a0e625-1557-7352-bdde-a6dcfa01ff92', 3, 'flashcard', 1275, '2026-09-24 16:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (3, 7, 6, '01a0e625-1552-7c88-ba7b-5a3a7e67cd46', 2, 'flashcard', 4352, '2026-09-24 14:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (4, 3, 6, '01a0e625-155e-714f-adab-5a964e2e71df', 2, 'flashcard', 4277, '2026-09-24 08:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (5, 19, 6, '01a0e625-1557-7352-bdde-a6dcfa01ff92', 3, 'flashcard', 1306, '2026-09-24 17:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (6, 13, 6, '01a0e625-1552-7c88-ba7b-5a3a7e67cd46', 3, 'flashcard', 1181, '2026-09-25 16:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (7, 5, 6, '01a0e625-1560-7002-aa70-c0f9e84afc98', 4, 'flashcard', 1981, '2026-09-25 16:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (8, 4, 6, '01a0e625-1569-7bae-a251-6ab69a872306', 3, 'flashcard', 2280, '2026-09-25 09:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (9, 19, 6, '01a0e625-1569-7bae-a251-6ab69a872306', 3, 'flashcard', 3850, '2026-09-25 09:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (10, 18, 6, '01a0e625-1557-7352-bdde-a6dcfa01ff92', 2, 'flashcard', 2487, '2026-09-25 15:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (11, 22, 6, '01a0e625-1566-7128-a198-d098b4bb1c40', 4, 'flashcard', 3373, '2026-09-25 15:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (12, 19, 6, '01a0e625-1565-75ca-8ffe-e103363d2307', 3, 'flashcard', 3255, '2026-09-25 11:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (13, 8, 6, '01a0e625-1557-7352-bdde-a6dcfa01ff92', 3, 'flashcard', 4855, '2026-09-26 13:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (14, 15, 6, '01a0e625-1560-7002-aa70-c0f9e84afc98', 2, 'flashcard', 1767, '2026-09-26 16:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (15, 14, 6, '01a0e625-155b-796e-ba52-3a4f2ec5fe5e', 3, 'flashcard', 2045, '2026-09-26 15:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (16, 14, 6, '01a0e625-1552-7c88-ba7b-5a3a7e67cd46', 2, 'flashcard', 3370, '2026-09-26 13:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (17, 20, 6, '01a0e625-1565-75ca-8ffe-e103363d2307', 4, 'flashcard', 1363, '2026-09-27 21:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (18, 3, 6, '01a0e625-1560-7002-aa70-c0f9e84afc98', 4, 'flashcard', 1332, '2026-09-27 08:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (19, 10, 6, '01a0e625-156a-75c1-96d7-927308edfc51', 4, 'flashcard', 3131, '2026-09-27 19:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (20, 13, 6, '01a0e625-156a-75c1-96d7-927308edfc51', 3, 'flashcard', 984, '2026-09-27 15:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (21, 12, 6, '01a0e625-155b-796e-ba52-3a4f2ec5fe5e', 2, 'flashcard', 4844, '2026-09-27 08:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (22, 10, 6, '01a0e625-155b-796e-ba52-3a4f2ec5fe5e', 3, 'flashcard', 4059, '2026-09-28 14:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (23, 16, 6, '01a0e625-1557-7352-bdde-a6dcfa01ff92', 3, 'flashcard', 4479, '2026-09-28 14:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (24, 18, 6, '01a0e625-1560-7002-aa70-c0f9e84afc98', 3, 'flashcard', 4326, '2026-09-28 21:00:00+07');
+INSERT INTO app.review_log_2026_09 VALUES (25, 18, 6, '01a0e625-1560-7002-aa70-c0f9e84afc98', 4, 'flashcard', 3739, '2026-09-28 18:00:00+07');
 
 
 --
@@ -3833,55 +3833,55 @@ INSERT INTO app.review_log_2026_09 VALUES (25, 18, 4, '01a0dc8a-719b-779f-9d03-f
 -- Data for Name: search_history; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.search_history VALUES (1, 4, '走る', NULL, 2, 1, 15, '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.search_history VALUES (2, 4, 'たべる', NULL, 2, 5, 18, '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.search_history VALUES (3, 4, 'JLPT N5', NULL, 2, NULL, 13, '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.search_history VALUES (1, 6, '走る', NULL, 2, 1, 15, '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.search_history VALUES (2, 6, 'たべる', NULL, 2, 5, 18, '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.search_history VALUES (3, 6, 'JLPT N5', NULL, 2, NULL, 13, '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: srs_state; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.srs_state VALUES (1, '01a0dc8a-7191-70cc-9856-670bfbaa0b76', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'learning', '2026-09-26 14:07:35.660843+07', 1.5, 5, 0, 0, 0, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (2, '01a0dc8a-7191-70cc-9856-670bfbaa0b76', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'learning', '2026-09-26 14:07:35.660843+07', 1.5, 5, 0, 0, 0, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (3, '01a0dc8a-7197-777d-b5fb-275bbf8d6c22', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'learning', '2026-09-26 11:07:35.660843+07', 1.5, 5, 1, 0, 1, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (4, '01a0dc8a-7197-777d-b5fb-275bbf8d6c22', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'learning', '2026-09-26 11:07:35.660843+07', 1.5, 5, 1, 0, 1, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (5, '01a0dc8a-7199-7d68-9d6b-b8727e3d677d', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'learning', '2026-09-26 08:07:35.660843+07', 1.5, 5, 2, 0, 2, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (6, '01a0dc8a-7199-7d68-9d6b-b8727e3d677d', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'learning', '2026-09-26 08:07:35.660843+07', 1.5, 5, 2, 0, 2, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (7, '01a0dc8a-719a-77e4-844f-ea2816ddbe79', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'learning', '2026-09-26 05:07:35.660843+07', 1.5, 5, 3, 0, 3, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (8, '01a0dc8a-719a-77e4-844f-ea2816ddbe79', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'learning', '2026-09-26 05:07:35.660843+07', 1.5, 5, 3, 0, 3, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (9, '01a0dc8a-719b-779f-9d03-fd99ea156059', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'new', '2026-10-01 14:07:35.660843+07', 1.5, 5, 4, 0, 4, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (10, '01a0dc8a-719b-779f-9d03-fd99ea156059', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'new', '2026-10-01 14:07:35.660843+07', 1.5, 5, 4, 0, 4, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (11, '01a0dc8a-719c-7bb9-918e-74af8ee5a83e', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'new', '2026-10-02 14:07:35.660843+07', 1.5, 5, 5, 0, 5, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (12, '01a0dc8a-719c-7bb9-918e-74af8ee5a83e', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'new', '2026-10-02 14:07:35.660843+07', 1.5, 5, 5, 0, 5, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (13, '01a0dc8a-719c-7c60-bb40-c1c135704ec2', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'new', '2026-10-03 14:07:35.660843+07', 1.5, 5, 6, 0, 6, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (14, '01a0dc8a-719c-7c60-bb40-c1c135704ec2', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'new', '2026-10-03 14:07:35.660843+07', 1.5, 5, 6, 0, 6, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (15, '01a0dc8a-719d-7aae-96b7-5a3b46bca5a4', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'new', '2026-10-04 14:07:35.660843+07', 1.5, 5, 7, 0, 7, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (16, '01a0dc8a-719d-7aae-96b7-5a3b46bca5a4', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'new', '2026-10-04 14:07:35.660843+07', 1.5, 5, 7, 0, 7, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (17, '01a0dc8a-719d-7d89-8a00-5fff713acacd', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'new', '2026-10-05 14:07:35.660843+07', 1.5, 5, 8, 0, 8, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (18, '01a0dc8a-719d-7d89-8a00-5fff713acacd', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'new', '2026-10-05 14:07:35.660843+07', 1.5, 5, 8, 0, 8, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (19, '01a0dc8a-719e-7a4a-af7b-ed5e5cc88388', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'new', '2026-10-06 14:07:35.660843+07', 1.5, 5, 9, 0, 9, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (20, '01a0dc8a-719e-7a4a-af7b-ed5e5cc88388', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'new', '2026-10-06 14:07:35.660843+07', 1.5, 5, 9, 0, 9, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (21, '01a0dc8a-719e-7c6c-b98f-f7fd9ee0d79a', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recognize', 'new', '2026-10-07 14:07:35.660843+07', 1.5, 5, 10, 0, 10, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.srs_state VALUES (22, '01a0dc8a-719e-7c6c-b98f-f7fd9ee0d79a', 4, '01a0dc8a-718a-7acf-bd0c-90114c061f04', 'recall', 'new', '2026-10-07 14:07:35.660843+07', 1.5, 5, 10, 0, 10, NULL, '2026-09-25 14:07:35.660843+07', false, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.srs_state VALUES (1, '01a0e625-1552-7c88-ba7b-5a3a7e67cd46', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'learning', '2026-09-28 10:53:05.029871+07', 1.5, 5, 0, 0, 0, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (2, '01a0e625-1552-7c88-ba7b-5a3a7e67cd46', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'learning', '2026-09-28 10:53:05.029871+07', 1.5, 5, 0, 0, 0, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (3, '01a0e625-1557-7352-bdde-a6dcfa01ff92', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'learning', '2026-09-28 07:53:05.029871+07', 1.5, 5, 1, 0, 1, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (4, '01a0e625-1557-7352-bdde-a6dcfa01ff92', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'learning', '2026-09-28 07:53:05.029871+07', 1.5, 5, 1, 0, 1, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (5, '01a0e625-155b-796e-ba52-3a4f2ec5fe5e', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'learning', '2026-09-28 04:53:05.029871+07', 1.5, 5, 2, 0, 2, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (6, '01a0e625-155b-796e-ba52-3a4f2ec5fe5e', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'learning', '2026-09-28 04:53:05.029871+07', 1.5, 5, 2, 0, 2, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (7, '01a0e625-155e-714f-adab-5a964e2e71df', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'learning', '2026-09-28 01:53:05.029871+07', 1.5, 5, 3, 0, 3, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (8, '01a0e625-155e-714f-adab-5a964e2e71df', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'learning', '2026-09-28 01:53:05.029871+07', 1.5, 5, 3, 0, 3, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (9, '01a0e625-1560-7002-aa70-c0f9e84afc98', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'new', '2026-10-03 10:53:05.029871+07', 1.5, 5, 4, 0, 4, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (10, '01a0e625-1560-7002-aa70-c0f9e84afc98', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'new', '2026-10-03 10:53:05.029871+07', 1.5, 5, 4, 0, 4, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (11, '01a0e625-1562-7661-9323-61ce67b3b03a', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'new', '2026-10-04 10:53:05.029871+07', 1.5, 5, 5, 0, 5, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (12, '01a0e625-1562-7661-9323-61ce67b3b03a', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'new', '2026-10-04 10:53:05.029871+07', 1.5, 5, 5, 0, 5, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (13, '01a0e625-1564-7120-b177-7d2594130eff', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'new', '2026-10-05 10:53:05.029871+07', 1.5, 5, 6, 0, 6, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (14, '01a0e625-1564-7120-b177-7d2594130eff', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'new', '2026-10-05 10:53:05.029871+07', 1.5, 5, 6, 0, 6, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (15, '01a0e625-1565-75ca-8ffe-e103363d2307', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'new', '2026-10-06 10:53:05.029871+07', 1.5, 5, 7, 0, 7, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (16, '01a0e625-1565-75ca-8ffe-e103363d2307', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'new', '2026-10-06 10:53:05.029871+07', 1.5, 5, 7, 0, 7, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (17, '01a0e625-1566-7128-a198-d098b4bb1c40', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'new', '2026-10-07 10:53:05.029871+07', 1.5, 5, 8, 0, 8, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (18, '01a0e625-1566-7128-a198-d098b4bb1c40', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'new', '2026-10-07 10:53:05.029871+07', 1.5, 5, 8, 0, 8, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (19, '01a0e625-1569-7bae-a251-6ab69a872306', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'new', '2026-10-08 10:53:05.029871+07', 1.5, 5, 9, 0, 9, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (20, '01a0e625-1569-7bae-a251-6ab69a872306', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'new', '2026-10-08 10:53:05.029871+07', 1.5, 5, 9, 0, 9, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (21, '01a0e625-156a-75c1-96d7-927308edfc51', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recognize', 'new', '2026-10-09 10:53:05.029871+07', 1.5, 5, 10, 0, 10, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.srs_state VALUES (22, '01a0e625-156a-75c1-96d7-927308edfc51', 6, '01a0e625-1544-7b89-a5a9-f94bff665b1f', 'recall', 'new', '2026-10-09 10:53:05.029871+07', 1.5, 5, 10, 0, 10, NULL, '2026-09-27 10:53:05.029871+07', false, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: streak_day; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.streak_day VALUES (4, '2026-09-22', 5, 5, true);
-INSERT INTO app.streak_day VALUES (4, '2026-09-23', 7, 7, true);
-INSERT INTO app.streak_day VALUES (4, '2026-09-24', 4, 4, false);
-INSERT INTO app.streak_day VALUES (4, '2026-09-25', 5, 5, true);
-INSERT INTO app.streak_day VALUES (4, '2026-09-26', 4, 4, false);
+INSERT INTO app.streak_day VALUES (6, '2026-09-24', 5, 5, true);
+INSERT INTO app.streak_day VALUES (6, '2026-09-25', 7, 7, true);
+INSERT INTO app.streak_day VALUES (6, '2026-09-26', 4, 4, false);
+INSERT INTO app.streak_day VALUES (6, '2026-09-27', 5, 5, true);
+INSERT INTO app.streak_day VALUES (6, '2026-09-28', 4, 4, false);
 
 
 --
 -- Data for Name: study_profile; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.study_profile VALUES ('01a0dc8a-718a-7acf-bd0c-90114c061f04', 4, 'Nhật–Việt', 2, 1, 3, true, '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.study_profile VALUES ('01a0e625-1544-7b89-a5a9-f94bff665b1f', 6, 'Nhật–Việt', 2, 1, 3, true, '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
 
 
 --
@@ -3900,24 +3900,24 @@ INSERT INTO app.study_profile VALUES ('01a0dc8a-718a-7acf-bd0c-90114c061f04', 4,
 -- Data for Name: tag; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.tag VALUES (5, 4, '#n5', '#4f46e5', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.tag VALUES (6, 4, '#cần-ôn', '#dc2626', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.tag VALUES (8, 6, '#n5', '#4f46e5', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.tag VALUES (9, 6, '#cần-ôn', '#dc2626', '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: user_achievement; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.user_achievement VALUES (4, 'words_100', 11.00, NULL, NULL);
-INSERT INTO app.user_achievement VALUES (4, 'streak_7', 5.00, NULL, NULL);
-INSERT INTO app.user_achievement VALUES (4, 'reviews_1000', 30.00, NULL, NULL);
+INSERT INTO app.user_achievement VALUES (6, 'words_100', 11.00, NULL, NULL);
+INSERT INTO app.user_achievement VALUES (6, 'streak_7', 5.00, NULL, NULL);
+INSERT INTO app.user_achievement VALUES (6, 'reviews_1000', 30.00, NULL, NULL);
 
 
 --
 -- Data for Name: user_identity; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.user_identity VALUES (4, 4, 'password', 'demo@langoo.local', 'demo-placeholder-hash', '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.user_identity VALUES (6, 6, 'password', 'demo@langoo.local', 'demo-placeholder-hash', '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07');
 
 
 --
@@ -3930,33 +3930,33 @@ INSERT INTO app.user_identity VALUES (4, 4, 'password', 'demo@langoo.local', 'de
 -- Data for Name: user_settings; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.user_settings VALUES (4, 'Asia/Ho_Chi_Minh', NULL, 15, '{}', '01a0dc8a-718a-7acf-bd0c-90114c061f04', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.user_settings VALUES (6, 'Asia/Ho_Chi_Minh', NULL, 15, '{}', '01a0e625-1544-7b89-a5a9-f94bff665b1f', '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: user_stats; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.user_stats VALUES (4, 27, 3, 5, 5, '2026-09-26', 11, 30, '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.user_stats VALUES (6, 27, 3, 5, 5, '2026-09-28', 11, 30, '2026-09-28 10:53:05.029871+07');
 
 
 --
 -- Data for Name: users; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.users VALUES (4, 'demo@langoo.local', 'Demo Langoo', NULL, 'active', '2026-09-26 14:07:35.660843+07', '2026-09-26 14:07:35.660843+07', NULL);
+INSERT INTO app.users VALUES (6, 'demo@langoo.local', 'Demo Langoo', NULL, 'active', '2026-09-28 10:53:05.029871+07', '2026-09-28 10:53:05.029871+07', NULL);
 
 
 --
 -- Data for Name: xp_event; Type: TABLE DATA; Schema: app; Owner: -
 --
 
-INSERT INTO app.xp_event VALUES (9, 4, 5, 'review', 'seed', NULL, 'seed:2026-09-22', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.xp_event VALUES (10, 4, 7, 'review', 'seed', NULL, 'seed:2026-09-23', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.xp_event VALUES (11, 4, 4, 'review', 'seed', NULL, 'seed:2026-09-24', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.xp_event VALUES (12, 4, 5, 'review', 'seed', NULL, 'seed:2026-09-25', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.xp_event VALUES (13, 4, 4, 'review', 'seed', NULL, 'seed:2026-09-26', '2026-09-26 14:07:35.660843+07');
-INSERT INTO app.xp_event VALUES (14, 4, 2, 'streak', 'seed', NULL, 'seed:streak-bonus', '2026-09-26 14:07:35.660843+07');
+INSERT INTO app.xp_event VALUES (16, 6, 5, 'review', 'seed', NULL, 'seed:2026-09-24', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.xp_event VALUES (17, 6, 7, 'review', 'seed', NULL, 'seed:2026-09-25', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.xp_event VALUES (18, 6, 4, 'review', 'seed', NULL, 'seed:2026-09-26', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.xp_event VALUES (19, 6, 5, 'review', 'seed', NULL, 'seed:2026-09-27', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.xp_event VALUES (20, 6, 4, 'review', 'seed', NULL, 'seed:2026-09-28', '2026-09-28 10:53:05.029871+07');
+INSERT INTO app.xp_event VALUES (21, 6, 2, 'streak', 'seed', NULL, 'seed:streak-bonus', '2026-09-28 10:53:05.029871+07');
 
 
 --
@@ -3972,51 +3972,51 @@ INSERT INTO app.xp_rule VALUES ('streak_day', 'Duy trì ngày học có ôn tậ
 -- Data for Name: concept; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.concept VALUES (1, NULL, 'verb', 'move fast on foot', 'di chuyển nhanh bằng chân', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (2, NULL, 'verb', 'be in charge of a business', 'điều hành tổ chức', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (3, NULL, 'verb', 'take food', 'ăn uống', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (4, NULL, 'verb', 'move to a place', 'di chuyển tới một nơi', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (5, NULL, 'noun', 'liquid essential to life', 'chất lỏng thiết yếu', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (6, NULL, 'noun', 'daytime or the sun', 'ban ngày hoặc mặt trời', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (7, NULL, 'noun', 'written work', 'tác phẩm viết', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (8, NULL, 'noun', 'person who studies', 'người đi học', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (9, NULL, 'noun', 'place for learning', 'nơi học tập', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (10, NULL, 'noun', 'person who teaches', 'người dạy học', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (11, NULL, 'adjective', 'of great size', 'kích thước lớn', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (12, NULL, 'noun', 'small domestic animal', 'động vật nuôi nhỏ', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept VALUES (13, NULL, 'noun', 'act of learning', 'hoạt động học', NULL, 'curated', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.concept VALUES (1, NULL, 'verb', 'move fast on foot', 'di chuyển nhanh bằng chân', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (2, NULL, 'verb', 'be in charge of a business', 'điều hành tổ chức', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (3, NULL, 'verb', 'take food', 'ăn uống', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (4, NULL, 'verb', 'move to a place', 'di chuyển tới một nơi', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (5, NULL, 'noun', 'liquid essential to life', 'chất lỏng thiết yếu', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (6, NULL, 'noun', 'daytime or the sun', 'ban ngày hoặc mặt trời', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (7, NULL, 'noun', 'written work', 'tác phẩm viết', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (8, NULL, 'noun', 'person who studies', 'người đi học', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (9, NULL, 'noun', 'place for learning', 'nơi học tập', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (10, NULL, 'noun', 'person who teaches', 'người dạy học', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (11, NULL, 'adjective', 'of great size', 'kích thước lớn', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (12, NULL, 'noun', 'small domestic animal', 'động vật nuôi nhỏ', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept VALUES (13, NULL, 'noun', 'act of learning', 'hoạt động học', NULL, 'curated', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
 -- Data for Name: concept_gloss; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.concept_gloss VALUES (1, 1, 1, 'move fast on foot', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (1, 3, 1, 'di chuyển nhanh bằng chân', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (2, 1, 1, 'be in charge of a business', false, 100, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (2, 3, 1, 'điều hành tổ chức', true, 100, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (3, 1, 1, 'take food', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (3, 3, 1, 'ăn uống', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (4, 1, 1, 'move to a place', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (4, 3, 1, 'di chuyển tới một nơi', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (5, 1, 1, 'liquid essential to life', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (5, 3, 1, 'chất lỏng thiết yếu', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (6, 1, 1, 'daytime or the sun', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (6, 3, 1, 'ban ngày hoặc mặt trời', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (7, 1, 1, 'written work', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (7, 3, 1, 'tác phẩm viết', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (8, 1, 1, 'person who studies', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (8, 3, 1, 'người đi học', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (9, 1, 1, 'place for learning', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (9, 3, 1, 'nơi học tập', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (10, 1, 1, 'person who teaches', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (10, 3, 1, 'người dạy học', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (11, 1, 1, 'of great size', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (11, 3, 1, 'kích thước lớn', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (12, 1, 1, 'small domestic animal', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (12, 3, 1, 'động vật nuôi nhỏ', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (13, 1, 1, 'act of learning', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.concept_gloss VALUES (13, 3, 1, 'hoạt động học', false, NULL, NULL, NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.concept_gloss VALUES (1, 1, 1, 'move fast on foot', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (1, 3, 1, 'di chuyển nhanh bằng chân', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (2, 1, 1, 'be in charge of a business', false, 100, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (2, 3, 1, 'điều hành tổ chức', true, 100, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (3, 1, 1, 'take food', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (3, 3, 1, 'ăn uống', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (4, 1, 1, 'move to a place', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (4, 3, 1, 'di chuyển tới một nơi', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (5, 1, 1, 'liquid essential to life', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (5, 3, 1, 'chất lỏng thiết yếu', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (6, 1, 1, 'daytime or the sun', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (6, 3, 1, 'ban ngày hoặc mặt trời', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (7, 1, 1, 'written work', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (7, 3, 1, 'tác phẩm viết', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (8, 1, 1, 'person who studies', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (8, 3, 1, 'người đi học', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (9, 1, 1, 'place for learning', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (9, 3, 1, 'nơi học tập', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (10, 1, 1, 'person who teaches', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (10, 3, 1, 'người dạy học', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (11, 1, 1, 'of great size', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (11, 3, 1, 'kích thước lớn', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (12, 1, 1, 'small domestic animal', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (12, 3, 1, 'động vật nuôi nhỏ', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (13, 1, 1, 'act of learning', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.concept_gloss VALUES (13, 3, 1, 'hoạt động học', false, NULL, NULL, NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
@@ -4035,8 +4035,8 @@ INSERT INTO core.concept_gloss VALUES (13, 3, 1, 'hoạt động học', false, 
 -- Data for Name: deck; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.deck VALUES (1, 'jlpt-n5-demo', 'JLPT N5 (demo)', 'Bộ mẫu để code API', 2, 'N5', true, 11, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.deck VALUES (2, 'en-core-demo', 'English A1 (demo)', 'Bộ mẫu để code API', 1, 'A1', true, 6, '2026-09-26 14:07:33.199548+07');
+INSERT INTO core.deck VALUES (1, 'jlpt-n5-demo', 'JLPT N5 (demo)', 'Bộ mẫu để code API', 2, 'N5', true, 11, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.deck VALUES (2, 'en-core-demo', 'English A1 (demo)', 'Bộ mẫu để code API', 1, 'A1', true, 6, '2026-09-28 10:53:03.188667+07');
 
 
 --
@@ -4066,30 +4066,32 @@ INSERT INTO core.deck_item VALUES (2, 14, 7, 6);
 -- Data for Name: example; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.example VALUES (1, 1, 2, '毎朝、公園を走ります。', '{"en": "I run in the park every morning.", "vi": "Tôi chạy trong công viên mỗi sáng."}', 'demo:ex:ja:走る', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (2, 2, 1, 'I run in the park every morning.', '{"ja": "毎朝、公園を走ります。", "vi": "Tôi chạy trong công viên mỗi sáng."}', 'demo:ex:en:run', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (3, 5, 2, 'りんごを食べます。', '{"en": "I eat an apple.", "vi": "Tôi ăn một quả táo."}', 'demo:ex:ja:食べる', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (4, 6, 1, 'I eat an apple.', '{"ja": "りんごを食べます。", "vi": "Tôi ăn một quả táo."}', 'demo:ex:en:eat', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (5, 7, 2, '学校へ行きます。', '{"en": "I go to school.", "vi": "Tôi đi đến trường."}', 'demo:ex:ja:行く', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (6, 8, 1, 'I go to school.', '{"ja": "学校へ行きます。", "vi": "Tôi đi đến trường."}', 'demo:ex:en:go', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (7, 9, 2, '水を飲みます。', '{"en": "I drink water.", "vi": "Tôi uống nước."}', 'demo:ex:ja:水', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (8, 10, 1, 'I drink water.', '{"ja": "水を飲みます。", "vi": "Tôi uống nước."}', 'demo:ex:en:water', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (9, 11, 2, '今日はいい日です。', '{"en": "Today is a good day.", "vi": "Hôm nay là một ngày tốt."}', 'demo:ex:ja:日', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (10, 12, 1, 'Today is a good day.', '{"ja": "今日はいい日です。", "vi": "Hôm nay là một ngày tốt."}', 'demo:ex:en:day', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (11, 13, 2, '本を読みます。', '{"en": "I read a book.", "vi": "Tôi đọc sách."}', 'demo:ex:ja:本', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (12, 14, 1, 'I read a book.', '{"ja": "本を読みます。", "vi": "Tôi đọc sách."}', 'demo:ex:en:book', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (13, 15, 2, '私は学生です。', '{"en": "I am a student.", "vi": "Tôi là học sinh."}', 'demo:ex:ja:学生', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (14, 16, 1, 'I am a student.', '{"ja": "私は学生です。", "vi": "Tôi là học sinh."}', 'demo:ex:en:student', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (15, 17, 2, '学校は駅の近くです。', '{"en": "The school is near the station.", "vi": "Trường học ở gần nhà ga."}', 'demo:ex:ja:学校', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (16, 18, 1, 'The school is near the station.', '{"ja": "学校は駅の近くです。", "vi": "Trường học ở gần nhà ga."}', 'demo:ex:en:school', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (17, 19, 2, '先生は親切です。', '{"en": "The teacher is kind.", "vi": "Giáo viên rất tốt bụng."}', 'demo:ex:ja:先生', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (18, 20, 1, 'The teacher is kind.', '{"ja": "先生は親切です。", "vi": "Giáo viên rất tốt bụng."}', 'demo:ex:en:teacher', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (19, 21, 2, 'この犬は大きいです。', '{"en": "This dog is big.", "vi": "Con chó này to."}', 'demo:ex:ja:大きい', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (20, 22, 1, 'This dog is big.', '{"ja": "この犬は大きいです。", "vi": "Con chó này to."}', 'demo:ex:en:big', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (21, 23, 2, '猫が好きです。', '{"en": "I like cats.", "vi": "Tôi thích mèo."}', 'demo:ex:ja:猫', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (22, 24, 1, 'I like cats.', '{"ja": "猫が好きです。", "vi": "Tôi thích mèo."}', 'demo:ex:en:cat', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (23, 25, 2, '毎日日本語を勉強します。', '{"en": "I study Japanese every day.", "vi": "Tôi học tiếng Nhật mỗi ngày."}', 'demo:ex:ja:勉強', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example VALUES (24, 26, 1, 'I study Japanese every day.', '{"ja": "毎日日本語を勉強します。", "vi": "Tôi học tiếng Nhật mỗi ngày."}', 'demo:ex:en:study', NULL, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.example VALUES (1, 1, 2, '毎朝、公園を走ります。', '{"en": "I run in the park every morning.", "vi": "Tôi chạy trong công viên mỗi sáng."}', 'demo:ex:ja:走る', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (2, 2, 1, 'I run in the park every morning.', '{"ja": "毎朝、公園を走ります。", "vi": "Tôi chạy trong công viên mỗi sáng."}', 'demo:ex:en:run', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (3, 3, 2, '父は小さな会社を経営しています。', '{"en": "My father runs a small company.", "vi": "Bố tôi điều hành một công ty nhỏ."}', 'demo:ex:ja:経営する', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (4, 4, 1, 'My father runs a small company.', '{"ja": "父は小さな会社を経営しています。", "vi": "Bố tôi điều hành một công ty nhỏ."}', 'demo:ex:en:run', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (5, 5, 2, 'りんごを食べます。', '{"en": "I eat an apple.", "vi": "Tôi ăn một quả táo."}', 'demo:ex:ja:食べる', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (6, 6, 1, 'I eat an apple.', '{"ja": "りんごを食べます。", "vi": "Tôi ăn một quả táo."}', 'demo:ex:en:eat', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (7, 7, 2, '学校へ行きます。', '{"en": "I go to school.", "vi": "Tôi đi đến trường."}', 'demo:ex:ja:行く', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (8, 8, 1, 'I go to school.', '{"ja": "学校へ行きます。", "vi": "Tôi đi đến trường."}', 'demo:ex:en:go', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (9, 9, 2, '水を飲みます。', '{"en": "I drink water.", "vi": "Tôi uống nước."}', 'demo:ex:ja:水', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (10, 10, 1, 'I drink water.', '{"ja": "水を飲みます。", "vi": "Tôi uống nước."}', 'demo:ex:en:water', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (11, 11, 2, '今日はいい日です。', '{"en": "Today is a good day.", "vi": "Hôm nay là một ngày tốt."}', 'demo:ex:ja:日', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (12, 12, 1, 'Today is a good day.', '{"ja": "今日はいい日です。", "vi": "Hôm nay là một ngày tốt."}', 'demo:ex:en:day', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (13, 13, 2, '本を読みます。', '{"en": "I read a book.", "vi": "Tôi đọc sách."}', 'demo:ex:ja:本', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (14, 14, 1, 'I read a book.', '{"ja": "本を読みます。", "vi": "Tôi đọc sách."}', 'demo:ex:en:book', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (15, 15, 2, '私は学生です。', '{"en": "I am a student.", "vi": "Tôi là học sinh."}', 'demo:ex:ja:学生', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (16, 16, 1, 'I am a student.', '{"ja": "私は学生です。", "vi": "Tôi là học sinh."}', 'demo:ex:en:student', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (17, 17, 2, '学校は駅の近くです。', '{"en": "The school is near the station.", "vi": "Trường học ở gần nhà ga."}', 'demo:ex:ja:学校', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (18, 18, 1, 'The school is near the station.', '{"ja": "学校は駅の近くです。", "vi": "Trường học ở gần nhà ga."}', 'demo:ex:en:school', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (19, 19, 2, '先生は親切です。', '{"en": "The teacher is kind.", "vi": "Giáo viên rất tốt bụng."}', 'demo:ex:ja:先生', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (20, 20, 1, 'The teacher is kind.', '{"ja": "先生は親切です。", "vi": "Giáo viên rất tốt bụng."}', 'demo:ex:en:teacher', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (21, 21, 2, 'この犬は大きいです。', '{"en": "This dog is big.", "vi": "Con chó này to."}', 'demo:ex:ja:大きい', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (22, 22, 1, 'This dog is big.', '{"ja": "この犬は大きいです。", "vi": "Con chó này to."}', 'demo:ex:en:big', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (23, 23, 2, '猫が好きです。', '{"en": "I like cats.", "vi": "Tôi thích mèo."}', 'demo:ex:ja:猫', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (24, 24, 1, 'I like cats.', '{"ja": "猫が好きです。", "vi": "Tôi thích mèo."}', 'demo:ex:en:cat', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (25, 25, 2, '毎日日本語を勉強します。', '{"en": "I study Japanese every day.", "vi": "Tôi học tiếng Nhật mỗi ngày."}', 'demo:ex:ja:勉強', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example VALUES (26, 26, 1, 'I study Japanese every day.', '{"ja": "毎日日本語を勉強します。", "vi": "Tôi học tiếng Nhật mỗi ngày."}', 'demo:ex:en:study', NULL, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
@@ -4114,30 +4116,32 @@ INSERT INTO core.example VALUES (24, 26, 1, 'I study Japanese every day.', '{"ja
 -- Data for Name: example_translation; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.example_translation VALUES (1, 2, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (2, 1, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (3, 4, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (4, 3, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (5, 6, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (6, 5, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (7, 8, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (8, 7, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (9, 10, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (10, 9, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (11, 12, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (12, 11, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (13, 14, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (14, 13, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (15, 16, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (16, 15, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (17, 18, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (18, 17, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (19, 20, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (20, 19, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (21, 22, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (22, 21, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (23, 24, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.example_translation VALUES (24, 23, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.example_translation VALUES (1, 2, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (2, 1, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (3, 4, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (4, 3, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (5, 6, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (6, 5, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (7, 8, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (8, 7, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (9, 10, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (10, 9, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (11, 12, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (12, 11, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (13, 14, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (14, 13, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (15, 16, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (16, 15, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (17, 18, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (18, 17, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (19, 20, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (20, 19, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (21, 22, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (22, 21, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (23, 24, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (24, 23, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (25, 26, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.example_translation VALUES (26, 25, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
@@ -4150,20 +4154,20 @@ INSERT INTO core.example_translation VALUES (24, 23, '662e11af-93ae-4262-8c0b-6c
 -- Data for Name: kanji; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.kanji VALUES ('走', 36208, 2, 7, NULL, 3, 156, '{"ja_on": ["ソウ"], "ja_kun": ["はし.る"], "vietnam": ["Tẩu"]}', '{"en": ["run"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 4, NULL);
-INSERT INTO core.kanji VALUES ('食', 39135, 2, 9, NULL, 3, 184, '{"ja_on": ["ショク", "ジキ"], "ja_kun": ["た.べる", "く.う"], "vietnam": ["Thực"]}', '{"en": ["eat", "food"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('行', 34892, 2, 6, NULL, 3, 144, '{"ja_on": ["コウ", "ギョウ"], "ja_kun": ["い.く", "おこな.う"], "vietnam": ["Hành"]}', '{"en": ["go", "carry out"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('水', 27700, 1, 4, NULL, 4, 85, '{"ja_on": ["スイ"], "ja_kun": ["みず"], "vietnam": ["Thuỷ"]}', '{"en": ["water"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('日', 26085, 1, 4, NULL, 4, 72, '{"ja_on": ["ニチ", "ジツ"], "ja_kun": ["ひ", "か"], "vietnam": ["Nhật"]}', '{"en": ["day", "sun"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('本', 26412, 1, 5, NULL, 4, 75, '{"ja_on": ["ホン"], "ja_kun": ["もと"], "vietnam": ["Bản"]}', '{"en": ["book", "origin"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('学', 23398, 1, 8, NULL, 4, 39, '{"ja_on": ["ガク"], "ja_kun": ["まな.ぶ"], "vietnam": ["Học"]}', '{"en": ["study", "learning"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('生', 29983, 1, 5, NULL, 4, 100, '{"ja_on": ["セイ", "ショウ"], "ja_kun": ["い.きる", "なま"], "vietnam": ["Sinh"]}', '{"en": ["life", "birth", "raw"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('校', 26657, 1, 10, NULL, 4, 75, '{"ja_on": ["コウ"], "ja_kun": [], "vietnam": ["Hiệu"]}', '{"en": ["school"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('先', 20808, 1, 6, NULL, 4, 10, '{"ja_on": ["セン"], "ja_kun": ["さき"], "vietnam": ["Tiên"]}', '{"en": ["previous", "ahead"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('大', 22823, 1, 3, NULL, 4, 37, '{"ja_on": ["ダイ", "タイ"], "ja_kun": ["おお.きい"], "vietnam": ["Đại"]}', '{"en": ["big", "large"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 5, NULL);
-INSERT INTO core.kanji VALUES ('猫', 29483, 8, 11, NULL, NULL, 94, '{"ja_on": ["ビョウ"], "ja_kun": ["ねこ"], "vietnam": ["Miêu"]}', '{"en": ["cat"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.kanji VALUES ('勉', 21193, 3, 10, NULL, 2, 19, '{"ja_on": ["ベン"], "ja_kun": ["つと.める"], "vietnam": ["Miễn"]}', '{"en": ["diligence", "effort"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.kanji VALUES ('強', 24375, 2, 11, NULL, 3, 57, '{"ja_on": ["キョウ"], "ja_kun": ["つよ.い"], "vietnam": ["Cường"]}', '{"en": ["strong"]}', '[]', '{}', '[]', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 4, NULL);
+INSERT INTO core.kanji VALUES ('走', 36208, 2, 7, NULL, 3, 156, '{"ja_on": ["ソウ"], "ja_kun": ["はし.る"], "vietnam": ["Tẩu"]}', '{"en": ["run"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 4, NULL);
+INSERT INTO core.kanji VALUES ('食', 39135, 2, 9, NULL, 3, 184, '{"ja_on": ["ショク", "ジキ"], "ja_kun": ["た.べる", "く.う"], "vietnam": ["Thực"]}', '{"en": ["eat", "food"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('行', 34892, 2, 6, NULL, 3, 144, '{"ja_on": ["コウ", "ギョウ"], "ja_kun": ["い.く", "おこな.う"], "vietnam": ["Hành"]}', '{"en": ["go", "carry out"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('水', 27700, 1, 4, NULL, 4, 85, '{"ja_on": ["スイ"], "ja_kun": ["みず"], "vietnam": ["Thuỷ"]}', '{"en": ["water"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('日', 26085, 1, 4, NULL, 4, 72, '{"ja_on": ["ニチ", "ジツ"], "ja_kun": ["ひ", "か"], "vietnam": ["Nhật"]}', '{"en": ["day", "sun"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('本', 26412, 1, 5, NULL, 4, 75, '{"ja_on": ["ホン"], "ja_kun": ["もと"], "vietnam": ["Bản"]}', '{"en": ["book", "origin"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('学', 23398, 1, 8, NULL, 4, 39, '{"ja_on": ["ガク"], "ja_kun": ["まな.ぶ"], "vietnam": ["Học"]}', '{"en": ["study", "learning"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('生', 29983, 1, 5, NULL, 4, 100, '{"ja_on": ["セイ", "ショウ"], "ja_kun": ["い.きる", "なま"], "vietnam": ["Sinh"]}', '{"en": ["life", "birth", "raw"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('校', 26657, 1, 10, NULL, 4, 75, '{"ja_on": ["コウ"], "ja_kun": [], "vietnam": ["Hiệu"]}', '{"en": ["school"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('先', 20808, 1, 6, NULL, 4, 10, '{"ja_on": ["セン"], "ja_kun": ["さき"], "vietnam": ["Tiên"]}', '{"en": ["previous", "ahead"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('大', 22823, 1, 3, NULL, 4, 37, '{"ja_on": ["ダイ", "タイ"], "ja_kun": ["おお.きい"], "vietnam": ["Đại"]}', '{"en": ["big", "large"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 5, NULL);
+INSERT INTO core.kanji VALUES ('猫', 29483, 8, 11, NULL, NULL, 94, '{"ja_on": ["ビョウ"], "ja_kun": ["ねこ"], "vietnam": ["Miêu"]}', '{"en": ["cat"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.kanji VALUES ('勉', 21193, 3, 10, NULL, 2, 19, '{"ja_on": ["ベン"], "ja_kun": ["つと.める"], "vietnam": ["Miễn"]}', '{"en": ["diligence", "effort"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.kanji VALUES ('強', 24375, 2, 11, NULL, 3, 57, '{"ja_on": ["キョウ"], "ja_kun": ["つよ.い"], "vietnam": ["Cường"]}', '{"en": ["strong"]}', '[]', '{}', '[]', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 4, NULL);
 
 
 --
@@ -4176,91 +4180,93 @@ INSERT INTO core.kanji VALUES ('強', 24375, 2, 11, NULL, 3, 57, '{"ja_on": ["�
 -- Data for Name: kanji_radical; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.kanji_radical VALUES ('走', '走', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('食', '食', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('行', '行', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('水', '水', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('日', '日', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('本', '木', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('本', '一', 2, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('学', '子', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('学', '冖', 2, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('学', 'ツ', 3, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('生', '生', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('校', '木', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('校', '交', 2, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('先', '儿', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('先', '土', 2, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('先', 'ノ', 3, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('大', '大', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('猫', '犭', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('猫', '艹', 2, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('猫', '田', 3, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('勉', '免', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('勉', '力', 2, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('強', '弓', 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('強', '虫', 2, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.kanji_radical VALUES ('強', '厶', 3, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.kanji_radical VALUES ('走', '走', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('食', '食', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('行', '行', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('水', '水', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('日', '日', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('本', '木', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('本', '一', 2, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('学', '子', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('学', '冖', 2, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('学', 'ツ', 3, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('生', '生', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('校', '木', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('校', '交', 2, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('先', '儿', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('先', '土', 2, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('先', 'ノ', 3, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('大', '大', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('猫', '犭', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('猫', '艹', 2, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('猫', '田', 3, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('勉', '免', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('勉', '力', 2, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('強', '弓', 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('強', '虫', 2, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.kanji_radical VALUES ('強', '厶', 3, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
 -- Data for Name: lexeme; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.lexeme VALUES (1, 2, '走る', 'verb', 'はしる', NULL, 1, 100, '{"common": true}', 'demo:ja:走る', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (2, 1, 'run', 'verb', NULL, NULL, 1, 110, '{"common": true}', 'demo:en:run', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (3, 2, '食べる', 'verb', 'たべる', NULL, 1, 110, '{"common": true}', 'demo:ja:食べる', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (4, 1, 'eat', 'verb', NULL, NULL, 1, 120, '{"common": true}', 'demo:en:eat', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (5, 2, '行く', 'verb', 'いく', NULL, 1, 120, '{"common": true}', 'demo:ja:行く', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (6, 1, 'go', 'verb', NULL, NULL, 1, 130, '{"common": true}', 'demo:en:go', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (7, 2, '水', 'noun', 'みず', NULL, 1, 130, '{"common": true}', 'demo:ja:水', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (8, 1, 'water', 'noun', NULL, NULL, 1, 140, '{"common": true}', 'demo:en:water', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (9, 2, '日', 'noun', 'ひ', NULL, 1, 140, '{"common": true}', 'demo:ja:日', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (10, 1, 'day', 'noun', NULL, NULL, 1, 150, '{"common": true}', 'demo:en:day', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (11, 2, '本', 'noun', 'ほん', NULL, 1, 150, '{"common": true}', 'demo:ja:本', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (12, 1, 'book', 'noun', NULL, NULL, 1, 160, '{"common": true}', 'demo:en:book', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (13, 2, '学生', 'noun', 'がくせい', NULL, 1, 160, '{"common": true}', 'demo:ja:学生', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (14, 1, 'student', 'noun', NULL, NULL, 1, 170, '{"common": true}', 'demo:en:student', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (15, 2, '学校', 'noun', 'がっこう', NULL, 1, 170, '{"common": true}', 'demo:ja:学校', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (16, 1, 'school', 'noun', NULL, NULL, 1, 180, '{"common": true}', 'demo:en:school', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (17, 2, '先生', 'noun', 'せんせい', NULL, 1, 180, '{"common": true}', 'demo:ja:先生', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (18, 1, 'teacher', 'noun', NULL, NULL, 1, 190, '{"common": true}', 'demo:en:teacher', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (19, 2, '大きい', 'adjective', 'おおきい', NULL, 1, 190, '{"common": true}', 'demo:ja:大きい', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (20, 1, 'big', 'adjective', NULL, NULL, 1, 200, '{"common": true}', 'demo:en:big', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (21, 2, '猫', 'noun', 'ねこ', NULL, 1, 200, '{"common": true}', 'demo:ja:猫', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (22, 1, 'cat', 'noun', NULL, NULL, 1, 210, '{"common": true}', 'demo:en:cat', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (23, 2, '勉強', 'noun', 'べんきょう', NULL, 1, 210, '{"common": true}', 'demo:ja:勉強', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
-INSERT INTO core.lexeme VALUES (24, 1, 'study', 'noun', NULL, NULL, 1, 220, '{"common": true}', 'demo:en:study', 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, '2026-09-26 14:07:33.199548+07');
+INSERT INTO core.lexeme VALUES (1, 2, '走る', 'verb', 'はしる', NULL, 1, 100, '{"common": true}', 'demo:ja:走る', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (2, 1, 'run', 'verb', NULL, NULL, 1, 110, '{"common": true}', 'demo:en:run', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (3, 2, '経営する', 'verb', 'けいえいする', NULL, 1, 110, '{"common": true}', 'demo:ja:経営する', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (4, 2, '食べる', 'verb', 'たべる', NULL, 1, 120, '{"common": true}', 'demo:ja:食べる', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (5, 1, 'eat', 'verb', NULL, NULL, 1, 130, '{"common": true}', 'demo:en:eat', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (6, 2, '行く', 'verb', 'いく', NULL, 1, 130, '{"common": true}', 'demo:ja:行く', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (7, 1, 'go', 'verb', NULL, NULL, 1, 140, '{"common": true}', 'demo:en:go', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (8, 2, '水', 'noun', 'みず', NULL, 1, 140, '{"common": true}', 'demo:ja:水', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (9, 1, 'water', 'noun', NULL, NULL, 1, 150, '{"common": true}', 'demo:en:water', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (10, 2, '日', 'noun', 'ひ', NULL, 1, 150, '{"common": true}', 'demo:ja:日', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (11, 1, 'day', 'noun', NULL, NULL, 1, 160, '{"common": true}', 'demo:en:day', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (12, 2, '本', 'noun', 'ほん', NULL, 1, 160, '{"common": true}', 'demo:ja:本', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (13, 1, 'book', 'noun', NULL, NULL, 1, 170, '{"common": true}', 'demo:en:book', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (14, 2, '学生', 'noun', 'がくせい', NULL, 1, 170, '{"common": true}', 'demo:ja:学生', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (15, 1, 'student', 'noun', NULL, NULL, 1, 180, '{"common": true}', 'demo:en:student', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (16, 2, '学校', 'noun', 'がっこう', NULL, 1, 180, '{"common": true}', 'demo:ja:学校', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (17, 1, 'school', 'noun', NULL, NULL, 1, 190, '{"common": true}', 'demo:en:school', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (18, 2, '先生', 'noun', 'せんせい', NULL, 1, 190, '{"common": true}', 'demo:ja:先生', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (19, 1, 'teacher', 'noun', NULL, NULL, 1, 200, '{"common": true}', 'demo:en:teacher', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (20, 2, '大きい', 'adjective', 'おおきい', NULL, 1, 200, '{"common": true}', 'demo:ja:大きい', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (21, 1, 'big', 'adjective', NULL, NULL, 1, 210, '{"common": true}', 'demo:en:big', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (22, 2, '猫', 'noun', 'ねこ', NULL, 1, 210, '{"common": true}', 'demo:ja:猫', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (23, 1, 'cat', 'noun', NULL, NULL, 1, 220, '{"common": true}', 'demo:en:cat', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (24, 2, '勉強', 'noun', 'べんきょう', NULL, 1, 220, '{"common": true}', 'demo:ja:勉強', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
+INSERT INTO core.lexeme VALUES (25, 1, 'study', 'noun', NULL, NULL, 1, 230, '{"common": true}', 'demo:en:study', 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, '2026-09-28 10:53:03.188667+07');
 
 
 --
 -- Data for Name: lexeme_form; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.lexeme_form VALUES (1, 1, 'kanji', '走る', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (2, 1, 'kana', 'はしる', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (3, 3, 'kanji', '食べる', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (4, 3, 'kana', 'たべる', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (5, 5, 'kanji', '行く', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (6, 5, 'kana', 'いく', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (7, 7, 'kanji', '水', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (8, 7, 'kana', 'みず', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (9, 9, 'kanji', '日', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (10, 9, 'kana', 'ひ', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (11, 11, 'kanji', '本', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (12, 11, 'kana', 'ほん', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (13, 13, 'kanji', '学生', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (14, 13, 'kana', 'がくせい', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (15, 15, 'kanji', '学校', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (16, 15, 'kana', 'がっこう', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (17, 17, 'kanji', '先生', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (18, 17, 'kana', 'せんせい', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (19, 19, 'kanji', '大きい', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (20, 19, 'kana', 'おおきい', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (21, 21, 'kanji', '猫', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (22, 21, 'kana', 'ねこ', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (23, 23, 'kanji', '勉強', 1, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_form VALUES (24, 23, 'kana', 'べんきょう', 2, true, '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.lexeme_form VALUES (1, 1, 'kanji', '走る', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (2, 1, 'kana', 'はしる', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (3, 3, 'kana', 'けいえいする', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (4, 4, 'kanji', '食べる', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (5, 4, 'kana', 'たべる', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (6, 6, 'kanji', '行く', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (7, 6, 'kana', 'いく', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (8, 8, 'kanji', '水', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (9, 8, 'kana', 'みず', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (10, 10, 'kanji', '日', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (11, 10, 'kana', 'ひ', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (12, 12, 'kanji', '本', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (13, 12, 'kana', 'ほん', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (14, 14, 'kanji', '学生', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (15, 14, 'kana', 'がくせい', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (16, 16, 'kanji', '学校', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (17, 16, 'kana', 'がっこう', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (18, 18, 'kanji', '先生', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (19, 18, 'kana', 'せんせい', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (20, 20, 'kanji', '大きい', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (21, 20, 'kana', 'おおきい', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (22, 22, 'kanji', '猫', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (23, 22, 'kana', 'ねこ', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (24, 24, 'kanji', '勉強', 1, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_form VALUES (25, 24, 'kana', 'べんきょう', 2, true, '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
@@ -4277,46 +4283,50 @@ INSERT INTO core.lexeme_form_char VALUES (1, 1, '走', 36208, 'kanji', '走');
 INSERT INTO core.lexeme_form_char VALUES (1, 2, 'る', 12427, 'kana', NULL);
 INSERT INTO core.lexeme_form_char VALUES (2, 1, '走', 36208, 'kanji', '走');
 INSERT INTO core.lexeme_form_char VALUES (2, 2, 'る', 12427, 'kana', NULL);
-INSERT INTO core.lexeme_form_char VALUES (3, 1, '食', 39135, 'kanji', '食');
-INSERT INTO core.lexeme_form_char VALUES (3, 2, 'べ', 12409, 'kana', NULL);
-INSERT INTO core.lexeme_form_char VALUES (3, 3, 'る', 12427, 'kana', NULL);
+INSERT INTO core.lexeme_form_char VALUES (3, 1, '経', 32076, 'latin', NULL);
+INSERT INTO core.lexeme_form_char VALUES (3, 2, '営', 21942, 'latin', NULL);
+INSERT INTO core.lexeme_form_char VALUES (3, 3, 'す', 12377, 'kana', NULL);
+INSERT INTO core.lexeme_form_char VALUES (3, 4, 'る', 12427, 'kana', NULL);
 INSERT INTO core.lexeme_form_char VALUES (4, 1, '食', 39135, 'kanji', '食');
 INSERT INTO core.lexeme_form_char VALUES (4, 2, 'べ', 12409, 'kana', NULL);
 INSERT INTO core.lexeme_form_char VALUES (4, 3, 'る', 12427, 'kana', NULL);
-INSERT INTO core.lexeme_form_char VALUES (5, 1, '行', 34892, 'kanji', '行');
-INSERT INTO core.lexeme_form_char VALUES (5, 2, 'く', 12367, 'kana', NULL);
+INSERT INTO core.lexeme_form_char VALUES (5, 1, '食', 39135, 'kanji', '食');
+INSERT INTO core.lexeme_form_char VALUES (5, 2, 'べ', 12409, 'kana', NULL);
+INSERT INTO core.lexeme_form_char VALUES (5, 3, 'る', 12427, 'kana', NULL);
 INSERT INTO core.lexeme_form_char VALUES (6, 1, '行', 34892, 'kanji', '行');
 INSERT INTO core.lexeme_form_char VALUES (6, 2, 'く', 12367, 'kana', NULL);
-INSERT INTO core.lexeme_form_char VALUES (7, 1, '水', 27700, 'kanji', '水');
+INSERT INTO core.lexeme_form_char VALUES (7, 1, '行', 34892, 'kanji', '行');
+INSERT INTO core.lexeme_form_char VALUES (7, 2, 'く', 12367, 'kana', NULL);
 INSERT INTO core.lexeme_form_char VALUES (8, 1, '水', 27700, 'kanji', '水');
-INSERT INTO core.lexeme_form_char VALUES (9, 1, '日', 26085, 'kanji', '日');
+INSERT INTO core.lexeme_form_char VALUES (9, 1, '水', 27700, 'kanji', '水');
 INSERT INTO core.lexeme_form_char VALUES (10, 1, '日', 26085, 'kanji', '日');
-INSERT INTO core.lexeme_form_char VALUES (11, 1, '本', 26412, 'kanji', '本');
+INSERT INTO core.lexeme_form_char VALUES (11, 1, '日', 26085, 'kanji', '日');
 INSERT INTO core.lexeme_form_char VALUES (12, 1, '本', 26412, 'kanji', '本');
-INSERT INTO core.lexeme_form_char VALUES (13, 1, '学', 23398, 'kanji', '学');
-INSERT INTO core.lexeme_form_char VALUES (13, 2, '生', 29983, 'kanji', '生');
+INSERT INTO core.lexeme_form_char VALUES (13, 1, '本', 26412, 'kanji', '本');
 INSERT INTO core.lexeme_form_char VALUES (14, 1, '学', 23398, 'kanji', '学');
 INSERT INTO core.lexeme_form_char VALUES (14, 2, '生', 29983, 'kanji', '生');
 INSERT INTO core.lexeme_form_char VALUES (15, 1, '学', 23398, 'kanji', '学');
-INSERT INTO core.lexeme_form_char VALUES (15, 2, '校', 26657, 'kanji', '校');
+INSERT INTO core.lexeme_form_char VALUES (15, 2, '生', 29983, 'kanji', '生');
 INSERT INTO core.lexeme_form_char VALUES (16, 1, '学', 23398, 'kanji', '学');
 INSERT INTO core.lexeme_form_char VALUES (16, 2, '校', 26657, 'kanji', '校');
-INSERT INTO core.lexeme_form_char VALUES (17, 1, '先', 20808, 'kanji', '先');
-INSERT INTO core.lexeme_form_char VALUES (17, 2, '生', 29983, 'kanji', '生');
+INSERT INTO core.lexeme_form_char VALUES (17, 1, '学', 23398, 'kanji', '学');
+INSERT INTO core.lexeme_form_char VALUES (17, 2, '校', 26657, 'kanji', '校');
 INSERT INTO core.lexeme_form_char VALUES (18, 1, '先', 20808, 'kanji', '先');
 INSERT INTO core.lexeme_form_char VALUES (18, 2, '生', 29983, 'kanji', '生');
-INSERT INTO core.lexeme_form_char VALUES (19, 1, '大', 22823, 'kanji', '大');
-INSERT INTO core.lexeme_form_char VALUES (19, 2, 'き', 12365, 'kana', NULL);
-INSERT INTO core.lexeme_form_char VALUES (19, 3, 'い', 12356, 'kana', NULL);
+INSERT INTO core.lexeme_form_char VALUES (19, 1, '先', 20808, 'kanji', '先');
+INSERT INTO core.lexeme_form_char VALUES (19, 2, '生', 29983, 'kanji', '生');
 INSERT INTO core.lexeme_form_char VALUES (20, 1, '大', 22823, 'kanji', '大');
 INSERT INTO core.lexeme_form_char VALUES (20, 2, 'き', 12365, 'kana', NULL);
 INSERT INTO core.lexeme_form_char VALUES (20, 3, 'い', 12356, 'kana', NULL);
-INSERT INTO core.lexeme_form_char VALUES (21, 1, '猫', 29483, 'kanji', '猫');
+INSERT INTO core.lexeme_form_char VALUES (21, 1, '大', 22823, 'kanji', '大');
+INSERT INTO core.lexeme_form_char VALUES (21, 2, 'き', 12365, 'kana', NULL);
+INSERT INTO core.lexeme_form_char VALUES (21, 3, 'い', 12356, 'kana', NULL);
 INSERT INTO core.lexeme_form_char VALUES (22, 1, '猫', 29483, 'kanji', '猫');
-INSERT INTO core.lexeme_form_char VALUES (23, 1, '勉', 21193, 'kanji', '勉');
-INSERT INTO core.lexeme_form_char VALUES (23, 2, '強', 24375, 'kanji', '強');
+INSERT INTO core.lexeme_form_char VALUES (23, 1, '猫', 29483, 'kanji', '猫');
 INSERT INTO core.lexeme_form_char VALUES (24, 1, '勉', 21193, 'kanji', '勉');
 INSERT INTO core.lexeme_form_char VALUES (24, 2, '強', 24375, 'kanji', '強');
+INSERT INTO core.lexeme_form_char VALUES (25, 1, '勉', 21193, 'kanji', '勉');
+INSERT INTO core.lexeme_form_char VALUES (25, 2, '強', 24375, 'kanji', '強');
 
 
 --
@@ -4325,36 +4335,36 @@ INSERT INTO core.lexeme_form_char VALUES (24, 2, '強', 24375, 'kanji', '強');
 
 INSERT INTO core.lexeme_form_kanji_char VALUES (1, 1, '走');
 INSERT INTO core.lexeme_form_kanji_char VALUES (2, 1, '走');
-INSERT INTO core.lexeme_form_kanji_char VALUES (3, 1, '食');
 INSERT INTO core.lexeme_form_kanji_char VALUES (4, 1, '食');
-INSERT INTO core.lexeme_form_kanji_char VALUES (5, 1, '行');
+INSERT INTO core.lexeme_form_kanji_char VALUES (5, 1, '食');
 INSERT INTO core.lexeme_form_kanji_char VALUES (6, 1, '行');
-INSERT INTO core.lexeme_form_kanji_char VALUES (7, 1, '水');
+INSERT INTO core.lexeme_form_kanji_char VALUES (7, 1, '行');
 INSERT INTO core.lexeme_form_kanji_char VALUES (8, 1, '水');
-INSERT INTO core.lexeme_form_kanji_char VALUES (9, 1, '日');
+INSERT INTO core.lexeme_form_kanji_char VALUES (9, 1, '水');
 INSERT INTO core.lexeme_form_kanji_char VALUES (10, 1, '日');
-INSERT INTO core.lexeme_form_kanji_char VALUES (11, 1, '本');
+INSERT INTO core.lexeme_form_kanji_char VALUES (11, 1, '日');
 INSERT INTO core.lexeme_form_kanji_char VALUES (12, 1, '本');
-INSERT INTO core.lexeme_form_kanji_char VALUES (13, 1, '学');
-INSERT INTO core.lexeme_form_kanji_char VALUES (13, 2, '生');
+INSERT INTO core.lexeme_form_kanji_char VALUES (13, 1, '本');
 INSERT INTO core.lexeme_form_kanji_char VALUES (14, 1, '学');
 INSERT INTO core.lexeme_form_kanji_char VALUES (14, 2, '生');
 INSERT INTO core.lexeme_form_kanji_char VALUES (15, 1, '学');
-INSERT INTO core.lexeme_form_kanji_char VALUES (15, 2, '校');
+INSERT INTO core.lexeme_form_kanji_char VALUES (15, 2, '生');
 INSERT INTO core.lexeme_form_kanji_char VALUES (16, 1, '学');
 INSERT INTO core.lexeme_form_kanji_char VALUES (16, 2, '校');
-INSERT INTO core.lexeme_form_kanji_char VALUES (17, 1, '先');
-INSERT INTO core.lexeme_form_kanji_char VALUES (17, 2, '生');
+INSERT INTO core.lexeme_form_kanji_char VALUES (17, 1, '学');
+INSERT INTO core.lexeme_form_kanji_char VALUES (17, 2, '校');
 INSERT INTO core.lexeme_form_kanji_char VALUES (18, 1, '先');
 INSERT INTO core.lexeme_form_kanji_char VALUES (18, 2, '生');
-INSERT INTO core.lexeme_form_kanji_char VALUES (19, 1, '大');
+INSERT INTO core.lexeme_form_kanji_char VALUES (19, 1, '先');
+INSERT INTO core.lexeme_form_kanji_char VALUES (19, 2, '生');
 INSERT INTO core.lexeme_form_kanji_char VALUES (20, 1, '大');
-INSERT INTO core.lexeme_form_kanji_char VALUES (21, 1, '猫');
+INSERT INTO core.lexeme_form_kanji_char VALUES (21, 1, '大');
 INSERT INTO core.lexeme_form_kanji_char VALUES (22, 1, '猫');
-INSERT INTO core.lexeme_form_kanji_char VALUES (23, 1, '勉');
-INSERT INTO core.lexeme_form_kanji_char VALUES (23, 2, '強');
+INSERT INTO core.lexeme_form_kanji_char VALUES (23, 1, '猫');
 INSERT INTO core.lexeme_form_kanji_char VALUES (24, 1, '勉');
 INSERT INTO core.lexeme_form_kanji_char VALUES (24, 2, '強');
+INSERT INTO core.lexeme_form_kanji_char VALUES (25, 1, '勉');
+INSERT INTO core.lexeme_form_kanji_char VALUES (25, 2, '強');
 
 
 --
@@ -4367,18 +4377,19 @@ INSERT INTO core.lexeme_form_kanji_char VALUES (24, 2, '強');
 -- Data for Name: lexeme_level; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.lexeme_level VALUES (1, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (3, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (5, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (7, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (9, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (11, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (13, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (15, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (17, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (19, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (21, 'JLPT', 3, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.lexeme_level VALUES (23, 'JLPT', 5, 'form_reading', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.lexeme_level VALUES (1, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (3, 'JLPT', 3, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (4, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (6, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (8, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (10, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (12, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (14, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (16, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (18, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (20, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (22, 'JLPT', 3, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.lexeme_level VALUES (24, 'JLPT', 5, 'form_reading', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
@@ -4397,94 +4408,95 @@ INSERT INTO core.lexeme_level VALUES (23, 'JLPT', 5, 'form_reading', 100, '662e1
 -- Data for Name: pronunciation; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.pronunciation VALUES (1, 2, 'rʌn', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (2, 1, NULL, 'demo/audio/ja/はしる.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (3, 4, 'iːt', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (4, 3, NULL, 'demo/audio/ja/たべる.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (5, 6, 'ɡoʊ', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (6, 5, NULL, 'demo/audio/ja/いく.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (7, 8, 'ˈwɔːtər', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (8, 7, NULL, 'demo/audio/ja/みず.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (9, 10, 'deɪ', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (10, 9, NULL, 'demo/audio/ja/ひ.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (11, 12, 'bʊk', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (12, 11, NULL, 'demo/audio/ja/ほん.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (13, 14, 'ˈstuːdənt', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (14, 13, NULL, 'demo/audio/ja/がくせい.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (15, 16, 'skuːl', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (16, 15, NULL, 'demo/audio/ja/がっこう.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (17, 18, 'ˈtiːtʃər', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (18, 17, NULL, 'demo/audio/ja/せんせい.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (19, 20, 'bɪɡ', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (20, 19, NULL, 'demo/audio/ja/おおきい.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (21, 22, 'kæt', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (22, 21, NULL, 'demo/audio/ja/ねこ.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (23, 24, 'ˈstʌdi', NULL, 'US', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.pronunciation VALUES (24, 23, NULL, 'demo/audio/ja/べんきょう.mp3', 'Tokyo', 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.pronunciation VALUES (1, 2, 'rʌn', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (2, 1, NULL, 'demo/audio/ja/はしる.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (3, 3, NULL, 'demo/audio/ja/けいえいする.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (4, 5, 'iːt', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (5, 4, NULL, 'demo/audio/ja/たべる.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (6, 7, 'ɡoʊ', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (7, 6, NULL, 'demo/audio/ja/いく.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (8, 9, 'ˈwɔːtər', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (9, 8, NULL, 'demo/audio/ja/みず.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (10, 11, 'deɪ', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (11, 10, NULL, 'demo/audio/ja/ひ.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (12, 13, 'bʊk', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (13, 12, NULL, 'demo/audio/ja/ほん.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (14, 15, 'ˈstuːdənt', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (15, 14, NULL, 'demo/audio/ja/がくせい.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (16, 17, 'skuːl', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (17, 16, NULL, 'demo/audio/ja/がっこう.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (18, 19, 'ˈtiːtʃər', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (19, 18, NULL, 'demo/audio/ja/せんせい.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (20, 21, 'bɪɡ', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (21, 20, NULL, 'demo/audio/ja/おおきい.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (22, 23, 'kæt', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (23, 22, NULL, 'demo/audio/ja/ねこ.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (24, 25, 'ˈstʌdi', NULL, 'US', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.pronunciation VALUES (25, 24, NULL, 'demo/audio/ja/べんきょう.mp3', 'Tokyo', 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
 -- Data for Name: sense; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.sense VALUES (1, 1, 1, 'to run', NULL, NULL, true, 'demo:ja:走る:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (2, 2, 1, 'move fast on foot', NULL, NULL, true, 'demo:en:run:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (3, 1, 2, 'to operate (a business)', NULL, NULL, false, 'demo:ja:走る:2', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (4, 2, 2, 'be in charge of a business', NULL, NULL, false, 'demo:en:run:2', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (5, 3, 1, 'to eat', NULL, NULL, true, 'demo:ja:食べる:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (6, 4, 1, 'take food', NULL, NULL, true, 'demo:en:eat:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (7, 5, 1, 'to go', NULL, NULL, true, 'demo:ja:行く:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (8, 6, 1, 'move to a place', NULL, NULL, true, 'demo:en:go:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (9, 7, 1, 'water', NULL, NULL, true, 'demo:ja:水:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (10, 8, 1, 'liquid essential to life', NULL, NULL, true, 'demo:en:water:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (11, 9, 1, 'day; sun', NULL, NULL, true, 'demo:ja:日:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (12, 10, 1, 'daytime or the sun', NULL, NULL, true, 'demo:en:day:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (13, 11, 1, 'book', NULL, NULL, true, 'demo:ja:本:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (14, 12, 1, 'written work', NULL, NULL, true, 'demo:en:book:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (15, 13, 1, 'student', NULL, NULL, true, 'demo:ja:学生:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (16, 14, 1, 'person who studies', NULL, NULL, true, 'demo:en:student:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (17, 15, 1, 'school', NULL, NULL, true, 'demo:ja:学校:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (18, 16, 1, 'place for learning', NULL, NULL, true, 'demo:en:school:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (19, 17, 1, 'teacher', NULL, NULL, true, 'demo:ja:先生:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (20, 18, 1, 'person who teaches', NULL, NULL, true, 'demo:en:teacher:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (21, 19, 1, 'big; large', NULL, NULL, true, 'demo:ja:大きい:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (22, 20, 1, 'of great size', NULL, NULL, true, 'demo:en:big:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (23, 21, 1, 'cat', NULL, NULL, true, 'demo:ja:猫:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (24, 22, 1, 'small domestic animal', NULL, NULL, true, 'demo:en:cat:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (25, 23, 1, 'study', NULL, NULL, true, 'demo:ja:勉強:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
-INSERT INTO core.sense VALUES (26, 24, 1, 'act of learning', NULL, NULL, true, 'demo:en:study:1', '{}', 100, '662e11af-93ae-4262-8c0b-6cf103033702', 1);
+INSERT INTO core.sense VALUES (1, 1, 1, 'to run', NULL, NULL, true, 'demo:ja:走る:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (2, 2, 1, 'move fast on foot', NULL, NULL, true, 'demo:en:run:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (3, 3, 1, 'to operate (a business)', NULL, NULL, true, 'demo:ja:経営する:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (4, 2, 2, 'be in charge of a business', NULL, NULL, false, 'demo:en:run:2', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (5, 4, 1, 'to eat', NULL, NULL, true, 'demo:ja:食べる:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (6, 5, 1, 'take food', NULL, NULL, true, 'demo:en:eat:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (7, 6, 1, 'to go', NULL, NULL, true, 'demo:ja:行く:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (8, 7, 1, 'move to a place', NULL, NULL, true, 'demo:en:go:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (9, 8, 1, 'water', NULL, NULL, true, 'demo:ja:水:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (10, 9, 1, 'liquid essential to life', NULL, NULL, true, 'demo:en:water:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (11, 10, 1, 'day; sun', NULL, NULL, true, 'demo:ja:日:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (12, 11, 1, 'daytime or the sun', NULL, NULL, true, 'demo:en:day:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (13, 12, 1, 'book', NULL, NULL, true, 'demo:ja:本:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (14, 13, 1, 'written work', NULL, NULL, true, 'demo:en:book:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (15, 14, 1, 'student', NULL, NULL, true, 'demo:ja:学生:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (16, 15, 1, 'person who studies', NULL, NULL, true, 'demo:en:student:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (17, 16, 1, 'school', NULL, NULL, true, 'demo:ja:学校:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (18, 17, 1, 'place for learning', NULL, NULL, true, 'demo:en:school:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (19, 18, 1, 'teacher', NULL, NULL, true, 'demo:ja:先生:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (20, 19, 1, 'person who teaches', NULL, NULL, true, 'demo:en:teacher:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (21, 20, 1, 'big; large', NULL, NULL, true, 'demo:ja:大きい:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (22, 21, 1, 'of great size', NULL, NULL, true, 'demo:en:big:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (23, 22, 1, 'cat', NULL, NULL, true, 'demo:ja:猫:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (24, 23, 1, 'small domestic animal', NULL, NULL, true, 'demo:en:cat:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (25, 24, 1, 'study', NULL, NULL, true, 'demo:ja:勉強:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
+INSERT INTO core.sense VALUES (26, 25, 1, 'act of learning', NULL, NULL, true, 'demo:en:study:1', '{}', 100, '29b1dd26-2709-4952-9197-17177f550ad1', 1);
 
 
 --
 -- Data for Name: sense_concept; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.sense_concept VALUES (1, 1, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (2, 1, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (3, 2, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (4, 2, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (5, 3, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (6, 3, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (7, 4, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (8, 4, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (9, 5, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (10, 5, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (11, 6, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (12, 6, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (13, 7, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (14, 7, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (15, 8, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (16, 8, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (17, 9, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (18, 9, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (19, 10, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (20, 10, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (21, 11, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (22, 11, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (23, 12, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (24, 12, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (25, 13, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
-INSERT INTO core.sense_concept VALUES (26, 13, 'exact', 1, 'manual', true, 100, '662e11af-93ae-4262-8c0b-6cf103033702', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (1, 1, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (2, 1, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (3, 2, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (4, 2, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (5, 3, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (6, 3, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (7, 4, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (8, 4, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (9, 5, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (10, 5, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (11, 6, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (12, 6, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (13, 7, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (14, 7, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (15, 8, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (16, 8, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (17, 9, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (18, 9, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (19, 10, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (20, 10, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (21, 11, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (22, 11, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (23, 12, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (24, 12, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (25, 13, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
+INSERT INTO core.sense_concept VALUES (26, 13, 'exact', 1, 'manual', true, 100, '29b1dd26-2709-4952-9197-17177f550ad1', NULL, NULL);
 
 
 --
@@ -4505,75 +4517,74 @@ INSERT INTO core.sense_concept VALUES (26, 13, 'exact', 1, 'manual', true, 100, 
 
 INSERT INTO core.sense_form VALUES (1, 1);
 INSERT INTO core.sense_form VALUES (1, 2);
-INSERT INTO core.sense_form VALUES (3, 1);
-INSERT INTO core.sense_form VALUES (3, 2);
-INSERT INTO core.sense_form VALUES (5, 3);
+INSERT INTO core.sense_form VALUES (3, 3);
 INSERT INTO core.sense_form VALUES (5, 4);
-INSERT INTO core.sense_form VALUES (7, 5);
+INSERT INTO core.sense_form VALUES (5, 5);
 INSERT INTO core.sense_form VALUES (7, 6);
-INSERT INTO core.sense_form VALUES (9, 7);
+INSERT INTO core.sense_form VALUES (7, 7);
 INSERT INTO core.sense_form VALUES (9, 8);
-INSERT INTO core.sense_form VALUES (11, 9);
+INSERT INTO core.sense_form VALUES (9, 9);
 INSERT INTO core.sense_form VALUES (11, 10);
-INSERT INTO core.sense_form VALUES (13, 11);
+INSERT INTO core.sense_form VALUES (11, 11);
 INSERT INTO core.sense_form VALUES (13, 12);
-INSERT INTO core.sense_form VALUES (15, 13);
+INSERT INTO core.sense_form VALUES (13, 13);
 INSERT INTO core.sense_form VALUES (15, 14);
-INSERT INTO core.sense_form VALUES (17, 15);
+INSERT INTO core.sense_form VALUES (15, 15);
 INSERT INTO core.sense_form VALUES (17, 16);
-INSERT INTO core.sense_form VALUES (19, 17);
+INSERT INTO core.sense_form VALUES (17, 17);
 INSERT INTO core.sense_form VALUES (19, 18);
-INSERT INTO core.sense_form VALUES (21, 19);
+INSERT INTO core.sense_form VALUES (19, 19);
 INSERT INTO core.sense_form VALUES (21, 20);
-INSERT INTO core.sense_form VALUES (23, 21);
+INSERT INTO core.sense_form VALUES (21, 21);
 INSERT INTO core.sense_form VALUES (23, 22);
-INSERT INTO core.sense_form VALUES (25, 23);
+INSERT INTO core.sense_form VALUES (23, 23);
 INSERT INTO core.sense_form VALUES (25, 24);
+INSERT INTO core.sense_form VALUES (25, 25);
 
 
 --
 -- Data for Name: sense_gloss; Type: TABLE DATA; Schema: core; Owner: -
 --
 
-INSERT INTO core.sense_gloss VALUES (1, 1, 1, 'to run', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (2, 1, 3, 'chạy', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (3, 2, 3, 'chạy', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (4, 3, 1, 'to operate (a business)', NULL, true, NULL, NULL, 100, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (5, 3, 3, 'điều hành', NULL, true, NULL, NULL, 100, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (6, 4, 3, 'điều hành', NULL, true, NULL, NULL, 100, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (7, 5, 1, 'to eat', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (8, 5, 3, 'ăn', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (9, 6, 3, 'ăn', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (10, 7, 1, 'to go', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (11, 7, 3, 'đi', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (12, 8, 3, 'đi', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (13, 9, 1, 'water', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (14, 9, 3, 'nước', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (15, 10, 3, 'nước', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (16, 11, 1, 'day; sun', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (17, 11, 3, 'ngày; mặt trời', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (18, 12, 3, 'ngày; mặt trời', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (19, 13, 1, 'book', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (20, 13, 3, 'sách', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (21, 14, 3, 'sách', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (22, 15, 1, 'student', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (23, 15, 3, 'học sinh, sinh viên', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (24, 16, 3, 'học sinh, sinh viên', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (25, 17, 1, 'school', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (26, 17, 3, 'trường học', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (27, 18, 3, 'trường học', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (28, 19, 1, 'teacher', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (29, 19, 3, 'giáo viên', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (30, 20, 3, 'giáo viên', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (31, 21, 1, 'big; large', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (32, 21, 3, 'to lớn', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (33, 22, 3, 'to lớn', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (34, 23, 1, 'cat', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (35, 23, 3, 'con mèo', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (36, 24, 3, 'con mèo', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (37, 25, 1, 'study', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (38, 25, 3, 'học tập', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
-INSERT INTO core.sense_gloss VALUES (39, 26, 3, 'học tập', NULL, false, NULL, NULL, NULL, 1, 100, '662e11af-93ae-4262-8c0b-6cf103033702');
+INSERT INTO core.sense_gloss VALUES (1, 1, 1, 'to run', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (2, 1, 3, 'chạy', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (3, 2, 3, 'chạy', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (4, 3, 1, 'to operate (a business)', NULL, true, NULL, NULL, 100, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (5, 3, 3, 'điều hành', NULL, true, NULL, NULL, 100, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (6, 4, 3, 'điều hành', NULL, true, NULL, NULL, 100, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (7, 5, 1, 'to eat', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (8, 5, 3, 'ăn', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (9, 6, 3, 'ăn', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (10, 7, 1, 'to go', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (11, 7, 3, 'đi', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (12, 8, 3, 'đi', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (13, 9, 1, 'water', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (14, 9, 3, 'nước', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (15, 10, 3, 'nước', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (16, 11, 1, 'day; sun', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (17, 11, 3, 'ngày; mặt trời', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (18, 12, 3, 'ngày; mặt trời', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (19, 13, 1, 'book', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (20, 13, 3, 'sách', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (21, 14, 3, 'sách', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (22, 15, 1, 'student', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (23, 15, 3, 'học sinh, sinh viên', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (24, 16, 3, 'học sinh, sinh viên', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (25, 17, 1, 'school', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (26, 17, 3, 'trường học', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (27, 18, 3, 'trường học', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (28, 19, 1, 'teacher', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (29, 19, 3, 'giáo viên', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (30, 20, 3, 'giáo viên', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (31, 21, 1, 'big; large', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (32, 21, 3, 'to lớn', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (33, 22, 3, 'to lớn', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (34, 23, 1, 'cat', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (35, 23, 3, 'con mèo', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (36, 24, 3, 'con mèo', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (37, 25, 1, 'study', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (38, 25, 3, 'học tập', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
+INSERT INTO core.sense_gloss VALUES (39, 26, 3, 'học tập', NULL, false, NULL, NULL, NULL, 1, 100, '29b1dd26-2709-4952-9197-17177f550ad1');
 
 
 --
@@ -4600,8 +4611,8 @@ INSERT INTO core.sense_gloss VALUES (39, 26, 3, 'học tập', NULL, false, NULL
 
 INSERT INTO core.sense_tag VALUES (1, 'v5r');
 INSERT INTO core.sense_tag VALUES (2, 'v5r');
-INSERT INTO core.sense_tag VALUES (3, 'v5r');
-INSERT INTO core.sense_tag VALUES (4, 'v5r');
+INSERT INTO core.sense_tag VALUES (3, 'vs');
+INSERT INTO core.sense_tag VALUES (4, 'vs');
 INSERT INTO core.sense_tag VALUES (5, 'v1');
 INSERT INTO core.sense_tag VALUES (6, 'v1');
 INSERT INTO core.sense_tag VALUES (7, 'v5k');
@@ -5029,6 +5040,7 @@ INSERT INTO public.tag VALUES ('gikun', 'kana', 'gikun (meaning as reading) or j
 
 INSERT INTO staging.import_batch VALUES ('e5b3854d-7c98-443f-b0bf-bc0ad03ee5ff', 'demo', 'seed_core_demo.py', 'demo', 12, '2026-09-26 14:06:45.703676+07', '2026-09-26 14:06:45.703676+07', 'done', NULL);
 INSERT INTO staging.import_batch VALUES ('662e11af-93ae-4262-8c0b-6cf103033702', 'demo', 'seed_core_demo.py', 'demo', 12, '2026-09-26 14:07:33.199548+07', '2026-09-26 14:07:33.199548+07', 'done', NULL);
+INSERT INTO staging.import_batch VALUES ('29b1dd26-2709-4952-9197-17177f550ad1', 'demo', 'seed_core_demo.py', 'demo', 13, '2026-09-28 10:53:03.188667+07', '2026-09-28 10:53:03.188667+07', 'done', NULL);
 
 
 --
@@ -5107,7 +5119,7 @@ INSERT INTO staging.import_batch VALUES ('662e11af-93ae-4262-8c0b-6cf103033702',
 -- Name: chat_message_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.chat_message_id_seq', 6, true);
+SELECT pg_catalog.setval('app.chat_message_id_seq', 4, true);
 
 
 --
@@ -5128,63 +5140,63 @@ SELECT pg_catalog.setval('app.notification_log_id_seq', 3, true);
 -- Name: quiz_question_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.quiz_question_id_seq', 5, true);
+SELECT pg_catalog.setval('app.quiz_question_id_seq', 3, true);
 
 
 --
 -- Name: review_log_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.review_log_id_seq', 27, true);
+SELECT pg_catalog.setval('app.review_log_id_seq', 25, true);
 
 
 --
 -- Name: search_history_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.search_history_id_seq', 4, true);
+SELECT pg_catalog.setval('app.search_history_id_seq', 3, true);
 
 
 --
 -- Name: srs_state_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.srs_state_id_seq', 26, true);
+SELECT pg_catalog.setval('app.srs_state_id_seq', 22, true);
 
 
 --
 -- Name: study_session_item_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.study_session_item_id_seq', 3, true);
+SELECT pg_catalog.setval('app.study_session_item_id_seq', 1, false);
 
 
 --
 -- Name: tag_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.tag_id_seq', 7, true);
+SELECT pg_catalog.setval('app.tag_id_seq', 9, true);
 
 
 --
 -- Name: user_identity_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.user_identity_id_seq', 5, true);
+SELECT pg_catalog.setval('app.user_identity_id_seq', 6, true);
 
 
 --
 -- Name: users_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.users_id_seq', 5, true);
+SELECT pg_catalog.setval('app.users_id_seq', 6, true);
 
 
 --
 -- Name: xp_event_id_seq; Type: SEQUENCE SET; Schema: app; Owner: -
 --
 
-SELECT pg_catalog.setval('app.xp_event_id_seq', 15, true);
+SELECT pg_catalog.setval('app.xp_event_id_seq', 21, true);
 
 
 --
@@ -5226,7 +5238,7 @@ SELECT pg_catalog.setval('core.example_annotation_id_seq', 1, false);
 -- Name: example_id_seq; Type: SEQUENCE SET; Schema: core; Owner: -
 --
 
-SELECT pg_catalog.setval('core.example_id_seq', 24, true);
+SELECT pg_catalog.setval('core.example_id_seq', 26, true);
 
 
 --
@@ -5240,14 +5252,14 @@ SELECT pg_catalog.setval('core.jlpt_link_id_seq', 1, false);
 -- Name: lexeme_form_id_seq; Type: SEQUENCE SET; Schema: core; Owner: -
 --
 
-SELECT pg_catalog.setval('core.lexeme_form_id_seq', 24, true);
+SELECT pg_catalog.setval('core.lexeme_form_id_seq', 25, true);
 
 
 --
 -- Name: lexeme_id_seq; Type: SEQUENCE SET; Schema: core; Owner: -
 --
 
-SELECT pg_catalog.setval('core.lexeme_id_seq', 24, true);
+SELECT pg_catalog.setval('core.lexeme_id_seq', 25, true);
 
 
 --
@@ -5268,7 +5280,7 @@ SELECT pg_catalog.setval('core.media_asset_id_seq', 1, false);
 -- Name: pronunciation_id_seq; Type: SEQUENCE SET; Schema: core; Owner: -
 --
 
-SELECT pg_catalog.setval('core.pronunciation_id_seq', 24, true);
+SELECT pg_catalog.setval('core.pronunciation_id_seq', 25, true);
 
 
 --

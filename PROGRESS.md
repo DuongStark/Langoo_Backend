@@ -171,6 +171,13 @@
 - Bổ sung 2026-09-28: DB local đã dựng lại (PostgreSQL nhúng 16, cổng 55432); migration 029 + full e2e đã chạy trên `langoo_test`.
 - Tài khoản từng auto-link cần audit chỉ đọc và recovery có xác nhận; không tự unlink/xóa hoặc đánh dấu email cũ đã verified. B vẫn là tài liệu và hạ tầng email/client chưa có trong workspace.
 
+### Data demo — sửa nghĩa sai của 走る trong seed (2026-09-28)
+
+- Seed demo trước đây gán `走る` sense 2 = "to operate (a business)/điều hành" (để minh hoạ liên kết cấp nghĩa) — **sai với tiếng Nhật hiện đại**; nghĩa "điều hành" thuộc `経営する`, không phải `走る`.
+- `seed_core_demo.py` (repo data): `走る` chỉ còn 1 nghĩa "to run"; thêm lexeme **経営する** ("to operate (a business)/điều hành"); tiếng Anh "run" dùng chung 2 nghĩa (`run-motion` ↔ 走る, `run-operate` ↔ 経営する). Sense id 1..26 giữ nguyên, lexeme từ 食べる trở đi dịch +1.
+- Regenerate `db/exports/langoo-min-*`: 25 lexeme / 26 sense / 13 concept / 26 ví dụ; `db:test:reset` + full e2e xanh; cập nhật `test/dictionary.e2e-spec.ts` (eat lexeme 5), `docs/api/dictionary.md`, `CONTEXT-DU-AN.md` và README repo data.
+- Cloud: chưa đụng — chờ chủ dự án chọn cách đồng bộ (reset rồi nạp dump mới, hay vá dữ liệu tại chỗ).
+
 ## Backlog
 
 - **M12 — ENV-01 còn lại:** kiểm tra pool/reconnect/runtime/direct cloud, phát hiện timezone drift sau deploy; timezone ngày học vẫn theo settings user. M6.1 đã chuẩn hóa URL test với `options=-c%20timezone%3DUTC` và kiểm tra session thực tế. Chi tiết: [plan M6.1](docs/plans/m6.1-srs-fixes.md).

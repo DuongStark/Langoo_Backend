@@ -121,7 +121,7 @@ nghĩa tiếng Nhật tương ứng.
 |-----|---------|
 | User | `demo@langoo.local` (id 5, mật khẩu placeholder) |
 | Profile | Nhật–Việt (ja primary, en secondary, vi support) |
-| Collection | "JLPT N5 — bộ mẫu" — 12 từ thật lấy từ `core` |
+| Collection | "JLPT N5 — bộ mẫu" — 11 từ thật lấy từ `core` |
 | SRS | 24 lịch ôn (12 face × 2 chiều), 4 thẻ đến hạn |
 | Hoạt động | 5 ngày gần nhất, 26 XP, streak 5, 30 lượt ôn |
 | Khác | 1 quiz 3 câu · 1 chat 4 tin · 1 reminder 20:00 · 3 search history · 1 share link |
@@ -572,7 +572,7 @@ DB đầy đủ ~9,7 GB; bản tối giản ~15 MB, dùng để code API trên c
 
 | File | Nội dung |
 |------|----------|
-| `langoo-min-full.sql` (~320 KB) | Restore một lệnh: schema 001–025 + metadata + dữ liệu mẫu (24 lexeme, 26 sense, 13 concept `curated`, 14 kanji + 13 bộ thủ, 2 deck, 24 ví dụ; user `demo@langoo.local`, collection 11 từ, 22 lịch SRS, quiz/chat/reminder) + `REFRESH serve.sense_pair` |
+| `langoo-min-full.sql` (~320 KB) | Restore một lệnh: schema 001–025 + metadata + dữ liệu mẫu (25 lexeme, 26 sense, 13 concept `curated`, 14 kanji + 13 bộ thủ, 2 deck, 26 ví dụ; user `demo@langoo.local`, collection 11 từ, 22 lịch SRS, quiz/chat/reminder) + `REFRESH serve.sense_pair` |
 | `langoo-min-schema.sql` (~230 KB) | Chỉ cấu trúc, không dữ liệu |
 
 - Restore: `psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f db/exports/langoo-min-full.sql`
