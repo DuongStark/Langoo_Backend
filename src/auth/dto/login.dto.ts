@@ -13,12 +13,12 @@ import { DeviceInfoDto } from './device-info.dto';
 export class LoginDto {
   @ApiProperty({ example: 'user@example.com' })
   @IsEmail()
-  @MaxLength(255)
+  @MaxLength(255, { message: 'Email must be at most 255 characters long' })
   email!: string;
 
   @ApiProperty({ maxLength: 128 })
   @IsString()
-  @MaxLength(128)
+  @MaxLength(128, { message: 'Password must be at most 128 characters long' })
   password!: string;
 
   @ApiPropertyOptional({ type: DeviceInfoDto })
