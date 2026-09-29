@@ -86,6 +86,7 @@
 | 2026-09-28 | **M2.2 — OAuth2 chỉ Google**, luồng **ID token từ SDK** (`POST /v1/auth/oauth/google`): backend verify JWKS/`iss`/`aud`/`exp`/nonce rồi cấp JWT nội bộ; không làm luồng authorization-code/redirect | Chủ dự án chốt qua bộ câu hỏi 2026-09-28 |
 | 2026-09-28 | M2.2 — chính sách auto-link theo email được thay bằng yêu cầu link chủ động sau review; không gộp tài khoản chỉ vì email trùng | Kế hoạch M2.3, đợt A |
 | 2026-09-28 | M2.2 — dùng thư viện chính chủ `google-auth-library` ^11 để verify ID token (cache/xoay JWKS); chưa cấu hình `GOOGLE_OAUTH_CLIENT_IDS` thì endpoint trả `503 AUTH_OAUTH_NOT_CONFIGURED` (không fail-fast lúc boot) | Đề xuất trong [kế hoạch M2.2](docs/plans/m2.2-google-oauth.md), chủ dự án duyệt "OK" |
+| 2026-09-29 | Cấu hình Google OAuth thật: client ID web (GIS) đặt thẳng trong `render.yaml` (giá trị công khai) để Blueprint tái lập được; FE dùng cùng ID qua `VITE_GOOGLE_CLIENT_ID` | Chủ dự án cung cấp client ID 2026-09-29; FE đã tích hợp sẵn luồng challenge + nút đăng nhập |
 
 ## Nhật ký sửa lỗi theo milestone
 

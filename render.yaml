@@ -33,10 +33,10 @@ services:
       # Tuỳ chọn: origin FE cách nhau dấu phẩy; bỏ trống = tắt CORS.
       - key: CORS_ORIGINS
         value: '*'
-      # Đăng nhập Google (OAuth2): client ID web/iOS/Android cách nhau dấu phẩy
-      # (bỏ trống = endpoint trả 503 AUTH_OAUTH_NOT_CONFIGURED).
+      # Đăng nhập Google (OAuth2): client ID web dùng cho GIS (công khai, không
+      # phải secret). FE dùng cùng giá trị qua VITE_GOOGLE_CLIENT_ID.
       - key: GOOGLE_OAUTH_CLIENT_IDS
-        sync: false
+        value: '18039237238-hqicc654asd9ltit61c2khtta4934ftt.apps.googleusercontent.com'
       # Chỉ bật sau khi web/iOS/Android đã tích hợp one-time challenge.
       - key: GOOGLE_OAUTH_REQUIRE_CHALLENGE
         value: 'false'
