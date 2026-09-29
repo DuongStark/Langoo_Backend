@@ -28,4 +28,12 @@ export class LanguageRepository {
     `;
     return rows[0]?.id ?? null;
   }
+
+  /** Mã ngôn ngữ theo id; null nếu không tồn tại (dùng để dựng prompt AI). */
+  async findCodeById(id: number): Promise<string | null> {
+    const rows = await this.prisma.$queryRaw<{ code: string }[]>`
+      SELECT code FROM public.language WHERE id = ${id}
+    `;
+    return rows[0]?.code ?? null;
+  }
 }

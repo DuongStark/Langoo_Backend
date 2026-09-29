@@ -87,6 +87,8 @@ export const envSchema = z.object({
   ),
   AI_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   AI_CHAT_MODEL: z.preprocess(emptyToUndefined, z.string().optional()),
+  // Base URL kiểu OpenAI (chat/completions) — dùng được gateway như OpenCode Zen.
+  AI_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
   AI_DAILY_REQUEST_LIMIT: z.preprocess(
     emptyToUndefined,
     z.coerce.number().int().positive().optional(),
