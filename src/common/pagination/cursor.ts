@@ -45,7 +45,7 @@ export function decodeCursor(raw: string): ItemCursor {
   }
 }
 
-/** Cursor keyset cho hàng đợi SRS: (bucket, dueAt, srsId). */
+/** Cursor keyset cho hàng đợi SRS; new dùng thêm sortKey theo item position. */
 export interface DueCursorValue {
   /** 0 = learning, 1 = review, 2 = new. */
   bucket: 0 | 1 | 2;

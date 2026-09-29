@@ -71,7 +71,7 @@ export class SrsController {
   @ApiConflictResponse({
     type: ErrorResponseDto,
     description:
-      'SRS_ITEM_SUSPENDED / SRS_ITEM_UNAVAILABLE / SRS_DAILY_LIMIT_REACHED / SRS_IDEMPOTENCY_CONFLICT',
+      'SRS_ITEM_SUSPENDED / SRS_ITEM_UNAVAILABLE / SRS_DAILY_LIMIT_REACHED / SRS_IDEMPOTENCY_CONFLICT / SRS_REPLAY_UNAVAILABLE',
   })
   @ApiUnprocessableEntityResponse({
     type: ErrorResponseDto,

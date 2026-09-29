@@ -33,6 +33,8 @@ export interface DueQueueResult {
  * Chọn hàng đợi từ danh sách đã được repository sắp xếp:
  * learning/relearning → review → new; áp daily cap cho review/new
  * (intraday learning không giới hạn — semantics Anki); cắt theo cursor + limit.
+ * New dùng `sortKey` gồm collection, position, item, due_at và id để khớp
+ * thứ tự SQL khi hai sibling cùng item có due_at khác nhau.
  */
 export function selectDueQueue(
   candidates: DueCandidate[],

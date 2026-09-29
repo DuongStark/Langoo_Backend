@@ -153,7 +153,9 @@ export class AnkiScheduler {
           state: 'relearning',
           easeFactor: this.clampEase(current.easeFactor + EASE_DELTA_AGAIN),
           learningStep: 0,
-          intervalDays: interval, // giữ lại để tham chiếu; tốt nghiệp sẽ về min 1d
+          // Default Anki lapse multiplier is 0, so the interval retained by
+          // relearning is the minimum lapse interval (1 day), not I cũ.
+          intervalDays: MIN_INTERVAL_DAYS,
           delayMinutes: delay,
           dueAt: this.minutesFromNow(now, delay),
           introduced: false,
@@ -198,6 +200,7 @@ export class AnkiScheduler {
           0,
           RELEARNING_STEPS_MINUTES[0],
           now,
+          Math.max(MIN_INTERVAL_DAYS, current.intervalDays),
         );
       case RATING.Hard:
         return this.step(
@@ -206,18 +209,23 @@ export class AnkiScheduler {
           step,
           this.repeatStepDelay(step, RELEARNING_STEPS_MINUTES),
           now,
+          Math.max(MIN_INTERVAL_DAYS, current.intervalDays),
         );
-      // New interval của Anki mặc định 0.00 → tốt nghiệp về min 1 ngày.
-      case RATING.Good:
+      // Anki nhả bước relearning cuối về interval thẻ đang giữ (`self.review`),
+      // tối thiểu 1 ngày. Sau lapse bình thường interval = 1; row legacy có
+      // interval lớn hơn thì giữ nguyên, khớp Easy (`interval + 1`) thay vì rớt về 1.
+      case RATING.Good: {
+        const interval = Math.max(MIN_INTERVAL_DAYS, current.intervalDays);
         return {
           state: 'review',
           easeFactor: current.easeFactor,
           learningStep: null,
-          intervalDays: MIN_INTERVAL_DAYS,
+          intervalDays: interval,
           delayMinutes: null,
-          dueAt: this.daysFromNow(now, MIN_INTERVAL_DAYS),
+          dueAt: this.daysFromNow(now, interval),
           introduced: false,
         };
+      }
       case RATING.Easy: {
         const interval = Math.min(
           MAX_INTERVAL_DAYS,
@@ -243,13 +251,14 @@ export class AnkiScheduler {
     step: number,
     delayMinutes: number,
     now: Date,
+    intervalDays = 0,
   ): ScheduleResult {
     const delay = this.learningDelay(delayMinutes);
     return {
       state,
       easeFactor: current.easeFactor,
       learningStep: step,
-      intervalDays: 0,
+      intervalDays,
       delayMinutes: delay,
       dueAt: this.minutesFromNow(now, delay),
       introduced: current.state === 'new',
@@ -295,7 +304,10 @@ export class AnkiScheduler {
     const base = Math.max(MIN_INTERVAL_DAYS, Math.round(computed), minimum);
     return Math.min(
       MAX_INTERVAL_DAYS,
-      Math.max(minimum, fuzzReviewInterval(base, this.rng)),
+      Math.max(
+        minimum,
+        fuzzReviewInterval(base, this.rng, minimum, MAX_INTERVAL_DAYS),
+      ),
     );
   }
 

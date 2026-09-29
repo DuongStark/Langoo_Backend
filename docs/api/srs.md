@@ -67,6 +67,8 @@ curl -s -X POST http://localhost:3000/v1/srs/reviews \
 - `rating`: `1=Again, 2=Hard, 3=Good, 4=Easy`.
 - `client_review_id` (khuyến nghị): cùng key + payload chuẩn hóa sẽ **trả snapshot cũ**, không cộng
   log/XP lần hai; cùng key + payload khác trả `409 SRS_IDEMPOTENCY_CONFLICT`. `null` bị từ chối 400.
+- UUID được canonicalize trước khi lưu/so sánh; retry chỉ có log legacy nhưng không có receipt trả
+  `409 SRS_REPLAY_UNAVAILABLE` và không tạo lượt ôn mới.
 - `collection_id` tùy chọn giữ cùng phạm vi với GET `/srs/due`; bỏ qua nghĩa là toàn profile.
 - Không nhận `reviewed_at`; server luôn lấy thời điểm sau khi giữ lock user.
 - Một transaction: `review_log` + cập nhật `srs_state` (Anki: steps/EF/interval) + **burying nội bộ**

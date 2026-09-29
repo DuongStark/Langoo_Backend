@@ -121,9 +121,9 @@ describe('AnkiScheduler', () => {
       expect(days(result)).toBe(25);
     });
 
-    it('Hard → I×1.2 = 12 ngày, EF −0.15', () => {
+    it('Hard → I×1.2, bị ràng buộc sau fuzz = 13 ngày, EF −0.15', () => {
       const result = neutral.schedule(card, HARD, NOW);
-      expect(result.intervalDays).toBe(12);
+      expect(result.intervalDays).toBe(13);
       expect(result.easeFactor).toBe(2.35);
     });
 
@@ -133,22 +133,47 @@ describe('AnkiScheduler', () => {
       expect(result.easeFactor).toBe(2.65);
     });
 
-    it('interval mới luôn ≥ interval cũ + 1 (I=1: Hard → 2, Good → 3)', () => {
+    it('interval mới luôn ≥ interval cũ + 1 (I=1: Hard → 2, Good → 4)', () => {
       const small = state({ state: 'review', intervalDays: 1 });
       expect(neutral.schedule(small, HARD, NOW).intervalDays).toBe(2);
-      expect(neutral.schedule(small, GOOD, NOW).intervalDays).toBe(3);
+      expect(neutral.schedule(small, GOOD, NOW).intervalDays).toBe(4);
     });
 
-    it('Again → relearning +10 phút, EF −0.20, giữ interval cũ', () => {
+    it('Again → relearning +10 phút, EF −0.20, lapse interval về 1 ngày', () => {
       const result = noExtra.schedule(card, AGAIN, NOW);
       expect(result).toMatchObject({
         state: 'relearning',
         learningStep: 0,
-        intervalDays: 10,
+        intervalDays: 1,
         easeFactor: 2.3,
         introduced: false,
       });
       expect(minutes(result)).toBe(10);
+    });
+
+    it('Again → Easy dùng lapse interval 1 ngày rồi +1 = 2 ngày', () => {
+      const review = state({
+        state: 'review',
+        intervalDays: 30,
+        easeFactor: 2.5,
+        dueAt: NOW,
+      });
+      const relearning = noExtra.schedule(review, AGAIN, NOW);
+      const graduated = neutral.schedule(relearning, EASY, relearning.dueAt);
+      expect(relearning.intervalDays).toBe(1);
+      expect(graduated.intervalDays).toBe(2);
+    });
+
+    it('relearning Hard giữ lapse interval để Easy không mất dữ liệu', () => {
+      const relearning = state({
+        state: 'relearning',
+        learningStep: 0,
+        intervalDays: 1,
+      });
+      const hard = noExtra.schedule(relearning, HARD, NOW);
+      const graduated = neutral.schedule(hard, EASY, hard.dueAt);
+      expect(hard.intervalDays).toBe(1);
+      expect(graduated.intervalDays).toBe(2);
     });
 
     it('EF kẹp sàn 1.3', () => {
@@ -183,6 +208,12 @@ describe('AnkiScheduler', () => {
       intervalDays: 10,
       easeFactor: 2.3,
     });
+    const normalizedLapse = state({
+      state: 'relearning',
+      learningStep: 0,
+      intervalDays: 1,
+      easeFactor: 2.3,
+    });
 
     it('Again → lặp +10 phút', () => {
       const result = noExtra.schedule(lapse, AGAIN, NOW);
@@ -196,12 +227,19 @@ describe('AnkiScheduler', () => {
       expect(minutes(result)).toBe(15);
     });
 
-    it('Good → về review với interval 1 ngày (New interval 0 + min 1d)', () => {
-      expect(neutral.schedule(lapse, GOOD, NOW)).toMatchObject({
+    it('Good ở lapse chuẩn hóa (interval 1) → về review +1 ngày', () => {
+      expect(neutral.schedule(normalizedLapse, GOOD, NOW)).toMatchObject({
         state: 'review',
         learningStep: null,
         intervalDays: 1,
       });
+    });
+
+    it('Good giữ interval đang giữ với row legacy > 1 (khớp Easy + 1)', () => {
+      const good = neutral.schedule(lapse, GOOD, NOW);
+      const easy = neutral.schedule(lapse, EASY, NOW);
+      expect(good).toMatchObject({ state: 'review', intervalDays: 10 });
+      expect(easy).toMatchObject({ state: 'review', intervalDays: 11 });
     });
 
     it('Easy → về review với interval cũ + 1 ngày theo Anki', () => {
@@ -215,16 +253,16 @@ describe('AnkiScheduler', () => {
   describe('fuzz', () => {
     const card = state({ state: 'review', intervalDays: 100 });
 
-    it('review fuzz ±5% khi interval ≥ 2.5 ngày (Good 100d, EF 2.5 → 250d)', () => {
+    it('review fuzz theo ba khoảng Anki (Good 100d, EF 2.5 → 250d)', () => {
       expect(neutral.schedule(card, GOOD, NOW).intervalDays).toBe(250);
       expect(
         new AnkiScheduler({ next: () => 0 }).schedule(card, GOOD, NOW)
           .intervalDays,
-      ).toBe(237);
+      ).toBe(236);
       expect(
         new AnkiScheduler({ next: () => 0.999 }).schedule(card, GOOD, NOW)
           .intervalDays,
-      ).toBe(263);
+      ).toBe(264);
     });
 
     it('không fuzz interval < 2.5 ngày', () => {
@@ -232,6 +270,9 @@ describe('AnkiScheduler', () => {
       expect(fuzzReviewInterval(1, { next: () => 0.999 })).toBe(1);
       // từ 2.5 ngày trở lên mới fuzz (4d, fuzz = max(1, round(0.2)) = 1)
       expect(fuzzReviewInterval(4, { next: () => 0 })).toBe(3);
+      // 17d thuộc khoảng 7–20: biên Anki là 14..20 ngày.
+      expect(fuzzReviewInterval(17, { next: () => 0 })).toBe(14);
+      expect(fuzzReviewInterval(17, { next: () => 0.999 })).toBe(20);
     });
 
     it('learning cộng thêm 0–5 phút (rng cao → +5)', () => {

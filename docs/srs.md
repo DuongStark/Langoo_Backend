@@ -35,22 +35,22 @@ cùng key + payload khác trả `409 SRS_IDEMPOTENCY_CONFLICT`.
 
 ### 2.1 Hằng số mặc định
 
-| Tham số                                  | Giá trị (Anki mặc định)                                        |
-| ---------------------------------------- | -------------------------------------------------------------- |
-| Learning steps (thẻ mới)                 | `1m 10m`                                                       |
-| Graduating interval (Good ở bước cuối)   | 1 ngày                                                         |
-| Easy interval (Easy khi đang học)        | 4 ngày                                                         |
-| Relearning steps (sau khi quên)          | `10m`                                                          |
-| Minimum interval                         | 1 ngày                                                         |
-| Maximum interval                         | 36.500 ngày (100 năm)                                          |
-| Starting ease / sàn ease                 | 2.50 / 1.30                                                    |
-| Ease delta khi review                    | Again **−0.20** · Hard **−0.15** · Easy **+0.15**              |
-| Hard interval multiplier                 | ×1.20                                                          |
-| Easy bonus                               | ×1.30                                                          |
-| New interval (sau lapse)                 | 0.00 → interval tốt nghiệp = 1 ngày                            |
-| Learn-ahead                              | 20 phút                                                        |
-| Fuzz                                     | review ±5% (rand, RNG injectable); learning cộng thêm 0–5 phút |
-| Daily limits (M6, lưu ở `user_settings`) | new/ngày = 20 · review/ngày = 200                              |
+| Tham số                                  | Giá trị (Anki mặc định)                                                                                           |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Learning steps (thẻ mới)                 | `1m 10m`                                                                                                          |
+| Graduating interval (Good ở bước cuối)   | 1 ngày                                                                                                            |
+| Easy interval (Easy khi đang học)        | 4 ngày                                                                                                            |
+| Relearning steps (sau khi quên)          | `10m`                                                                                                             |
+| Minimum interval                         | 1 ngày                                                                                                            |
+| Maximum interval                         | 36.500 ngày (100 năm)                                                                                             |
+| Starting ease / sàn ease                 | 2.50 / 1.30                                                                                                       |
+| Ease delta khi review                    | Again **−0.20** · Hard **−0.15** · Easy **+0.15**                                                                 |
+| Hard interval multiplier                 | ×1.20                                                                                                             |
+| Easy bonus                               | ×1.30                                                                                                             |
+| New interval (sau lapse)                 | 0.00 → interval tốt nghiệp = 1 ngày                                                                               |
+| Learn-ahead                              | 20 phút                                                                                                           |
+| Fuzz                                     | review theo ba khoảng Anki (2.5–7: 15%, 7–20: 10%, >20: 5% + 1 ngày; RNG injectable); learning cộng thêm 0–5 phút |
+| Daily limits (M6, lưu ở `user_settings`) | new/ngày = 20 · review/ngày = 200                                                                                 |
 
 ### 2.2 Bảng chuyển trạng thái
 
@@ -155,11 +155,15 @@ Body: `{ face_id, direction, rating (1..4), elapsed_ms?, mode? (mặc định "f
 `{ due_now, due_today, learning, new_introduced_today, reviews_today, accuracy_7d }`
 (số liệu theo ngày địa phương; `accuracy_7d` = tỉ lệ rating ≥ 3 trên review_log 7 ngày gần nhất).
 
-## 6. Migration 026 + 027 (chờ duyệt apply cloud — local đã chạy khi phát triển)
+## 6. Migration 026 + 027 (đã có trên local và cloud)
+
+Đã xác minh schema cloud chỉ đọc ngày 2026-09-29. Implementation M6/M6.1 đã pass
+30/30 ca audit sau bản sửa; giới hạn smoke test runtime/pool production thuộc M12.
+Chi tiết regression nằm trong [báo cáo kiểm tra lại](reviews/m6-recheck-2026-09-29.md).
 
 | Bảng                | Thay đổi                                                                                                                                                                                        |
 | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `app.srs_state`     | `ease_factor real NOT NULL DEFAULT 2.5 CHECK (ease_factor >= 1.3)`; `learning_step smallint CHECK (learning_step >= 0)`; `introduced_at timestamptz`; `buried_until timestamptz`                |
+| `app.srs_state`     | `ease_factor double precision NOT NULL DEFAULT 2.5 CHECK (ease_factor >= 1.3)`; `learning_step smallint CHECK (learning_step >= 0)`; `introduced_at timestamptz`; `buried_until timestamptz`    |
 | `app.review_log`    | `client_review_id uuid`, `prev_state text CHECK (new/learning/review/relearning)`; index `(user_id, client_review_id) WHERE client_review_id IS NOT NULL` (không unique được vì bảng partition) |
 | `app.user_settings` | `srs_new_per_day smallint NOT NULL DEFAULT 20 CHECK (1..9999)`; `srs_review_per_day smallint NOT NULL DEFAULT 200 CHECK (1..9999)`                                                              |
 
@@ -182,7 +186,8 @@ Migration **027_srs_review_integrity.sql** bổ sung cho M6.1:
 5. Review + Good/Hard/Easy → công thức §2.2; EF kẹp sàn 1.3 khi Again/Hard nhiều lần.
 6. Review + Again → `lapses+1`, EF −0.20, relearning `+10m`; Good → về review `+1d` (không phải 50%).
 7. Interval chạm trần 36.500 ngày thì đứng yên; fuzz không đẩy ra ngoài `[1, 36500]`.
-8. Fuzz: với seed cố định, interval nằm trong ±5%; learning cộng 0–5 phút.
+8. Fuzz: với seed cố định, interval nằm trong các biên ba khoảng Anki và không vượt
+   `[1, 36500]`; learning cộng 0–5 phút.
 9. Learn-ahead: thẻ learning `due_at = now+19m` được trả; `now+21m` không.
 10. Bury: trả lời ja.recognize → ja.recall/en.* (new/review) bị bury tới 00:00 kế tiếp; thẻ learning không bị bury; 00:01 hôm sau tự quay lại.
 11. Daily limits: chạm `srs_new_per_day` → queue không còn new; chạm `srs_review_per_day` → không còn review/interday nhưng intraday learning vẫn hiện.

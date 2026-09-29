@@ -63,10 +63,14 @@ export class SrsService {
   async getDue(userId: bigint, query: DueQueryDto): Promise<DueResult> {
     const profile = await this.resolveProfile(userId);
     const now = new Date();
+    const collectionId =
+      query.collection_id === undefined
+        ? undefined
+        : canonicalUuid(query.collection_id);
     const cursor =
       query.cursor === undefined ? null : decodeDueCursor(query.cursor);
     if (cursor !== null) {
-      assertDueCursorContext(cursor, profile, query.collection_id, now);
+      assertDueCursorContext(cursor, profile, collectionId, now);
     }
     const dayEnd = nextDayStartUtc(now, profile.timezone);
     const dayStart = startOfDayUtc(now, profile.timezone);
@@ -89,83 +93,83 @@ export class SrsService {
     };
 
     const limit = query.limit ?? DEFAULT_DUE_LIMIT;
-    let phase: 'regular' | 'ahead' = cursor?.phase ?? 'regular';
-    let candidates =
-      phase === 'ahead'
-        ? []
-        : await this.dueRepo.findCandidates({
-            userId,
-            profileId: profile.id,
-            primaryLanguageId: profile.primaryLanguageId,
-            secondaryLanguageId: profile.secondaryLanguageId,
-            now,
-            learnAheadMinutes: LEARN_AHEAD_MINUTES,
-            limit: 0,
-            collectionId: query.collection_id,
-            includeLearnAhead: false,
-          });
-    const normalQueue = selectDueQueue(
-      candidates.map(toCandidate),
-      caps,
-      cursor,
-      limit,
+    const phase: 'regular' | 'ahead' = cursor?.phase ?? 'regular';
+    // Take one candidate snapshot so regular and ahead phases cannot disagree
+    // about a row that changes between two repository reads.
+    const allCandidates = await this.dueRepo.findCandidates({
+      userId,
+      profileId: profile.id,
+      primaryLanguageId: profile.primaryLanguageId,
+      secondaryLanguageId: profile.secondaryLanguageId,
+      now,
+      learnAheadMinutes: LEARN_AHEAD_MINUTES,
+      limit: 0,
+      collectionId,
+      includeLearnAhead: true,
+    });
+    const normalCandidates = allCandidates.filter(
+      (row) => row.due_at.getTime() <= now.getTime(),
     );
-    let rows = normalQueue.rows;
-    let counts = normalQueue.counts;
-    let nextCursor = normalQueue.nextCursor;
-    let cursorPhase = phase;
-    // Learn-ahead is a fallback phase. It must not outrank a normal due card.
-    if (
-      phase === 'ahead' ||
-      normalQueue.rows.length === 0 ||
-      normalQueue.nextCursor === null
-    ) {
-      phase = 'ahead';
-      candidates = await this.dueRepo.findCandidates({
-        userId,
-        profileId: profile.id,
-        primaryLanguageId: profile.primaryLanguageId,
-        secondaryLanguageId: profile.secondaryLanguageId,
-        now,
-        learnAheadMinutes: LEARN_AHEAD_MINUTES,
-        limit: 0,
-        collectionId: query.collection_id,
-        includeLearnAhead: true,
-      });
-      const aheadCandidates = candidates.filter((row) =>
-        isLearnAheadRow(row, now, LEARN_AHEAD_MINUTES),
-      );
-      const aheadQueue = selectDueQueue(
-        aheadCandidates.map(toCandidate),
-        caps,
-        cursor?.phase === 'ahead' ? cursor : null,
-        Math.max(0, limit - normalQueue.rows.length),
-      );
-      rows = [...normalQueue.rows, ...aheadQueue.rows];
-      counts = {
-        learning: normalQueue.counts.learning + aheadQueue.counts.learning,
-        review: normalQueue.counts.review + aheadQueue.counts.review,
-        new: normalQueue.counts.new + aheadQueue.counts.new,
-      };
-      if (aheadQueue.nextCursor !== null) {
+    const normalValues = normalCandidates.map(toCandidate);
+    const normalAllQueue = selectDueQueue(
+      normalValues,
+      caps,
+      null,
+      normalValues.length,
+    );
+    const aheadCandidates = allCandidates.filter((row) =>
+      isLearnAheadRow(row, now, LEARN_AHEAD_MINUTES),
+    );
+    const aheadValues = aheadCandidates.map(toCandidate);
+    const aheadAllQueue = selectDueQueue(
+      aheadValues,
+      caps,
+      null,
+      aheadValues.length,
+    );
+    // Counts describe the complete capped queue, independently of cursor and
+    // phase. This keeps page 1 and the learn-ahead page consistent.
+    const counts = addDueCounts(normalAllQueue.counts, aheadAllQueue.counts);
+
+    let rows: DueCandidate[];
+    let nextCursor: DueCursorValue | null;
+    let cursorPhase: 'regular' | 'ahead' = phase;
+    if (phase === 'ahead') {
+      const aheadQueue = selectDueQueue(aheadValues, caps, cursor, limit);
+      rows = aheadQueue.rows;
+      nextCursor = aheadQueue.nextCursor;
+    } else {
+      const normalQueue = selectDueQueue(normalValues, caps, cursor, limit);
+      rows = normalQueue.rows;
+      nextCursor = normalQueue.nextCursor;
+
+      // Learn-ahead is a fallback phase. A page that happens to be the last
+      // regular page must still be returned without ahead cards; the client
+      // enters ahead only on the following request with that cursor.
+      const regularExhausted =
+        normalQueue.rows.length === 0 &&
+        (cursor !== null || normalAllQueue.rows.length === 0);
+      if (regularExhausted && aheadValues.length > 0) {
+        const aheadQueue = selectDueQueue(aheadValues, caps, null, limit);
+        rows = aheadQueue.rows;
         nextCursor = aheadQueue.nextCursor;
         cursorPhase = 'ahead';
       } else if (
-        normalQueue.rows.length >= limit &&
-        aheadCandidates.length > 0
+        normalQueue.nextCursor === null &&
+        normalQueue.rows.length > 0 &&
+        aheadValues.length > 0
       ) {
-        // Keep a regular-phase cursor as a transition marker when the page
-        // is full of normal cards; the next request will enter ahead phase.
+        // Transition marker: the next request can switch to ahead phase.
         nextCursor = toCursorValue(
           normalQueue.rows[normalQueue.rows.length - 1],
         );
-        cursorPhase = 'regular';
-      } else {
-        nextCursor = null;
       }
     }
     const bySrs = new Map(
-      candidates.map((row) => [row.srs_id.toString(), row]),
+      [...normalCandidates, ...aheadCandidates].map((row) => [
+        row.srs_id.toString(),
+        row,
+      ]),
     );
     const data = rows.map((entry) => toDueCard(getRow(bySrs, entry.srsId)));
 
@@ -177,7 +181,7 @@ export class SrsService {
               ...nextCursor,
               version: 1,
               profileId: profile.id,
-              collectionId: query.collection_id ?? null,
+              collectionId: collectionId ?? null,
               day: localDateString(now, profile.timezone),
               phase: cursorPhase,
             })
@@ -191,13 +195,24 @@ export class SrsService {
     const rating = dto.rating as Rating;
     const mode = dto.mode ?? 'flashcard';
     const elapsedMs = dto.elapsed_ms ?? null;
+    // UUIDs are case-insensitive identifiers. Store and compare one canonical
+    // representation so a retry with a differently cased UUID is identical.
+    const faceId = canonicalUuid(dto.face_id);
+    const clientReviewId =
+      dto.client_review_id === undefined
+        ? undefined
+        : canonicalUuid(dto.client_review_id);
+    const collectionId =
+      dto.collection_id === undefined
+        ? undefined
+        : canonicalUuid(dto.collection_id);
     const requestPayload = {
-      face_id: dto.face_id,
+      face_id: faceId,
       direction: dto.direction,
       rating: dto.rating,
       mode,
       elapsed_ms: elapsedMs,
-      collection_id: dto.collection_id ?? null,
+      collection_id: collectionId ?? null,
     };
 
     return this.prisma.$transaction(async (tx) => {
@@ -205,13 +220,13 @@ export class SrsService {
       await tx.$queryRaw`SELECT id FROM app.users WHERE id = ${userId} FOR UPDATE`;
       const profile = await this.resolveProfileFrom(tx, userId);
       const receipt =
-        dto.client_review_id === undefined
+        clientReviewId === undefined
           ? null
           : await tx.srsReviewReceipt.findUnique({
               where: {
                 userId_clientReviewId: {
                   userId,
-                  clientReviewId: dto.client_review_id,
+                  clientReviewId,
                 },
               },
             });
@@ -232,10 +247,25 @@ export class SrsService {
           stored.version === 1 ? stored.response : stored
         ) as ReviewResult;
       }
+      if (clientReviewId !== undefined) {
+        // M6.1 receipts were introduced after review_log. A legacy keyed log
+        // has no safe response snapshot; never execute that request again.
+        const legacy = await tx.reviewLog.findFirst({
+          where: { userId, clientReviewId },
+          select: { id: true },
+        });
+        if (legacy !== null) {
+          throw new DomainException(
+            'SRS_REPLAY_UNAVAILABLE',
+            'Không thể phục hồi kết quả của lượt ôn cũ',
+            HttpStatus.CONFLICT,
+          );
+        }
+      }
 
       const locked = await tx.srsState.findFirst({
         where: {
-          faceId: dto.face_id,
+          faceId,
           direction: dto.direction,
           userId,
           profileId: profile.id,
@@ -247,7 +277,7 @@ export class SrsService {
       }
       const current = await tx.srsState.findFirst({
         where: {
-          faceId: dto.face_id,
+          faceId,
           direction: dto.direction,
           userId,
           profileId: profile.id,
@@ -272,8 +302,8 @@ export class SrsService {
         current.face.item.collection.ownerId !== userId ||
         current.face.item.collection.archivedAt !== null ||
         current.face.item.status === 'paused' ||
-        (dto.collection_id !== undefined &&
-          current.face.item.collection.id !== dto.collection_id) ||
+        (collectionId !== undefined &&
+          current.face.item.collection.id !== collectionId) ||
         !allowedLanguage
       ) {
         throw new DomainException(
@@ -312,7 +342,7 @@ export class SrsService {
             profile,
             now,
             current.id,
-            dto.collection_id,
+            collectionId,
             counts,
           )) === 0;
         if (!ahead) {
@@ -346,20 +376,18 @@ export class SrsService {
         rating,
         mode,
         elapsedMs,
-        clientReviewId: dto.client_review_id ?? null,
+        clientReviewId: clientReviewId ?? null,
         xpIdempotencyKey:
-          dto.client_review_id === undefined
-            ? null
-            : `review:${dto.client_review_id}`,
+          clientReviewId === undefined ? null : `review:${clientReviewId}`,
         timezone: profile.timezone,
         now,
       });
       const response = toReviewResult(outcome);
-      if (dto.client_review_id !== undefined) {
+      if (clientReviewId !== undefined) {
         await tx.srsReviewReceipt.create({
           data: {
             userId,
-            clientReviewId: dto.client_review_id,
+            clientReviewId,
             requestPayload,
             responsePayload: {
               version: 1,
@@ -487,7 +515,7 @@ export class SrsService {
         profile.srsReviewPerDay - dayCounts.reviewsToday,
       ),
     };
-    let candidates = await this.dueRepo.findCandidates({
+    const allCandidates = await this.dueRepo.findCandidates({
       userId,
       profileId: profile.id,
       primaryLanguageId: profile.primaryLanguageId,
@@ -496,36 +524,27 @@ export class SrsService {
       learnAheadMinutes: LEARN_AHEAD_MINUTES,
       limit: 0,
       collectionId: options.collectionId,
-      includeLearnAhead: false,
+      includeLearnAhead: true,
     });
-    const normalQueue = selectDueQueue(
-      candidates.map(toCandidate),
-      caps,
-      null,
-      options.limit,
+    const normalCandidates = allCandidates.filter(
+      (row) => row.due_at.getTime() <= now.getTime(),
     );
+    const normalValues = normalCandidates.map(toCandidate);
+    const normalQueue = selectDueQueue(normalValues, caps, null, options.limit);
     let rows = normalQueue.rows;
-    if (normalQueue.rows.length === 0 || normalQueue.nextCursor === null) {
-      candidates = await this.dueRepo.findCandidates({
-        userId,
-        profileId: profile.id,
-        primaryLanguageId: profile.primaryLanguageId,
-        secondaryLanguageId: profile.secondaryLanguageId,
-        now,
-        learnAheadMinutes: LEARN_AHEAD_MINUTES,
-        limit: 0,
-        collectionId: options.collectionId,
-        includeLearnAhead: true,
-      });
+    let candidates = normalCandidates;
+    if (normalQueue.rows.length === 0) {
+      const aheadCandidates = allCandidates.filter((row) =>
+        isLearnAheadRow(row, now, LEARN_AHEAD_MINUTES),
+      );
       const aheadQueue = selectDueQueue(
-        candidates
-          .filter((row) => isLearnAheadRow(row, now, LEARN_AHEAD_MINUTES))
-          .map(toCandidate),
+        aheadCandidates.map(toCandidate),
         caps,
         null,
         Math.max(0, options.limit - normalQueue.rows.length),
       );
       rows = [...normalQueue.rows, ...aheadQueue.rows];
+      candidates = [...normalCandidates, ...aheadCandidates];
     }
     const bySrs = new Map(
       candidates.map((row) => [row.srs_id.toString(), row]),
@@ -737,7 +756,7 @@ function toCandidate(row: DueRow): DueCandidate {
     learningIsInterday: row.learning_is_interday,
     sortKey:
       row.state === 'new'
-        ? `${row.collection_id}:${String(row.item_position).padStart(10, '0')}:${row.item_id}:${String(row.srs_id).padStart(20, '0')}`
+        ? `${row.collection_id}:${String(row.item_position).padStart(10, '0')}:${row.item_id}:${row.due_at_key}:${String(row.srs_id).padStart(20, '0')}`
         : undefined,
   };
 }
@@ -799,13 +818,22 @@ function sameReviewPayload(
   if (typeof value !== 'object' || value === null) return false;
   const actual = value as Record<string, unknown>;
   return (
-    actual.face_id === expected.face_id &&
+    canonicalPayloadUuid(actual.face_id) === expected.face_id &&
     actual.direction === expected.direction &&
     actual.rating === expected.rating &&
     actual.mode === expected.mode &&
     actual.elapsed_ms === expected.elapsed_ms &&
-    actual.collection_id === expected.collection_id
+    canonicalPayloadUuid(actual.collection_id) ===
+      canonicalPayloadUuid(expected.collection_id)
   );
+}
+
+function canonicalUuid(value: string): string {
+  return value.toLowerCase();
+}
+
+function canonicalPayloadUuid(value: unknown): string | null {
+  return typeof value === 'string' ? value.toLowerCase() : null;
 }
 
 function bucketOf(state: string): DueBucket {
@@ -842,6 +870,17 @@ function getRow(bySrs: Map<string, DueRow>, srsId: bigint): DueRow {
     throw new Error(`Thiếu candidate cho srs_id=${srsId.toString()}`);
   }
   return row;
+}
+
+function addDueCounts(
+  first: { learning: number; review: number; new: number },
+  second: { learning: number; review: number; new: number },
+): { learning: number; review: number; new: number } {
+  return {
+    learning: first.learning + second.learning,
+    review: first.review + second.review,
+    new: first.new + second.new,
+  };
 }
 
 function toDueCard(row: DueRow): DueCard {

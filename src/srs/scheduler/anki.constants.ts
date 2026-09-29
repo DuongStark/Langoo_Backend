@@ -22,7 +22,6 @@ export const EASY_BONUS = 1.3;
 
 /** Anki chỉ fuzz interval từ 2.5 ngày trở lên. */
 export const FUZZ_MIN_DAYS = 2.5;
-export const FUZZ_RATIO = 0.05;
 /** Bước học được cộng thêm ngẫu nhiên 0–5 phút (Anki). */
 export const LEARNING_FUZZ_MAX_MINUTES = 5;
 
