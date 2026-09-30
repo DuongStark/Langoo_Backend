@@ -122,6 +122,13 @@ export const envSchema = z.object({
     emptyToUndefined,
     z.coerce.number().int().min(1_000).max(60_000).optional(),
   ),
+
+  // M13 — lưu trữ ảnh feedback (local dev; s3 là backlog).
+  STORAGE_PROVIDER: z.preprocess(
+    emptyToUndefined,
+    z.enum(['local', 's3']).default('local'),
+  ),
+  STORAGE_DIR: z.preprocess(emptyToUndefined, z.string().optional()),
 });
 
 export type Env = z.infer<typeof envSchema>;

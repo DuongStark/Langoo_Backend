@@ -6,16 +6,19 @@ import { LoggerModule } from 'nestjs-pino';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { SchedulerModule } from './common/scheduler/scheduler.module';
 import { validateEnv } from './config/env.schema';
+import { AdminModule } from './admin/admin.module';
 import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
 import { DbModule } from './db/db.module';
 import { PrismaModule } from './db/prisma.module';
 import { DictionaryModule } from './dictionary/dictionary.module';
 import { CollectionsModule } from './collections/collections.module';
+import { FeedbackModule } from './feedback/feedback.module';
 import { GamificationModule } from './gamification/gamification.module';
 import { HealthModule } from './health/health.module';
 import { SrsModule } from './srs/srs.module';
 import { SessionsModule } from './sessions/sessions.module';
+import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
 
 @Module({
@@ -54,6 +57,7 @@ import { UsersModule } from './users/users.module';
     }),
     DbModule,
     PrismaModule,
+    StorageModule,
     AiModule,
     SchedulerModule,
     AuthModule,
@@ -63,6 +67,8 @@ import { UsersModule } from './users/users.module';
     SessionsModule,
     GamificationModule,
     UsersModule,
+    FeedbackModule,
+    AdminModule,
     HealthModule,
   ],
   providers: [

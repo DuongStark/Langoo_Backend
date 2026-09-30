@@ -32,6 +32,7 @@ model User {
   displayName String?   @map("display_name")
   avatarUrl   String?   @map("avatar_url")
   status      String    @default("active") // active | locked | deleted
+  role        String    @default("user") // user | admin (M13)
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz(6)
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
@@ -61,6 +62,8 @@ model User {
   chatSessions       ChatSession[]
   aiUsage            AiUsage[]
   tags               Tag[]
+  feedbacks          Feedback[]
+  adminAuditLogs     AdminAuditLog[]
 
   @@map("users")
   @@schema("app")
@@ -714,5 +717,56 @@ model AiUsage {
 
   @@id([userId, period, feature])
   @@map("ai_usage")
+  @@schema("app")
+}
+
+// ------------------------------------------------------------------ Admin & Feedback (M13)
+
+model Feedback {
+  id          String   @id @db.Uuid
+  userId      BigInt   @map("user_id")
+  category    String // bug | feature | content | other
+  content     String
+  status      String   @default("new") // new | in_progress | resolved
+  adminNote   String?  @map("admin_note")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  attachments FeedbackAttachment[]
+
+  @@index([status, createdAt])
+  @@map("feedback")
+  @@schema("app")
+}
+
+model FeedbackAttachment {
+  id         String   @id @db.Uuid
+  feedbackId String   @map("feedback_id") @db.Uuid
+  storageKey String   @map("storage_key")
+  mime       String
+  sizeBytes  Int      @map("size_bytes")
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  feedback Feedback @relation(fields: [feedbackId], references: [id], onDelete: Cascade)
+
+  @@index([feedbackId])
+  @@map("feedback_attachment")
+  @@schema("app")
+}
+
+model AdminAuditLog {
+  id          BigInt   @id @default(autoincrement())
+  adminUserId BigInt   @map("admin_user_id")
+  action      String
+  targetKind  String?  @map("target_kind")
+  targetId    String?  @map("target_id")
+  payload     Json     @default("{}")
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  admin User @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([createdAt(sort: Desc)])
+  @@map("admin_audit_log")
   @@schema("app")
 }

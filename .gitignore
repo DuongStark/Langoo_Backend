@@ -18,6 +18,9 @@ src/generated/
 __pycache__/
 *.pyc
 
+# Tệp người dùng tải lên (STORAGE_PROVIDER=local)
+uploads/
+
 # Hệ điều hành / editor
 .DS_Store
 .idea/

@@ -3,6 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
+import { AdminGuard } from './guards/admin.guard';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { GoogleOAuthChallengeService } from './oauth/google-oauth-challenge.service';
@@ -27,7 +28,8 @@ import { GoogleOauthService } from './oauth/google-oauth.service';
     GoogleIdTokenVerifier,
     JwtAuthGuard,
     OptionalJwtAuthGuard,
+    AdminGuard,
   ],
-  exports: [AuthService, JwtAuthGuard, OptionalJwtAuthGuard],
+  exports: [AuthService, JwtAuthGuard, OptionalJwtAuthGuard, AdminGuard],
 })
 export class AuthModule {}
