@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-29 (M6/M6.1 đã sửa và audit local đạt; M10 AI Chatbot xong chờ review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-09-30 (M11 AI Quiz xong chờ review; M6/M6.1 audit local đạt; M10 AI Chatbot xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -24,7 +24,7 @@
 | M8   | Gamification                                                              | ✅ Regression e2e chạy cùng M6.1, giữ XP/streak/achievement trong transaction                                         |
 | M9   | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                             |
 | M10  | AI Chatbot                                                                | ✅ hoàn thành (chờ review): stub/openai-compatible + phiên/tin nhắn + quota; [kế hoạch](docs/plans/m10-ai-chatbot.md) |
-| M11  | AI Quiz                                                                   | ⬜ chờ                                                                                                                |
+| M11  | AI Quiz                                                                   | ✅ hoàn thành (chờ review): 3 loại câu hỏi + mixed, quota 15/ngày + cooldown; [kế hoạch](docs/plans/m11-ai-quiz.md) |
 | M12  | Hardening                                                                 | ⬜ chờ                                                                                                                |
 | M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ⬜ chờ (thêm 2026-09-27)                                                                                              |
 
@@ -91,6 +91,10 @@
 | 2026-09-29 | **M10 AI Chatbot**: provider `stub` mặc định (không cần key) + `openai` (OpenAI-compatible, `AI_BASE_URL` cho gateway như OpenCode Zen); `gemini` chưa triển khai → fail-fast; thiếu key/model khi chọn provider thật → app không khởi động                                                                                                | Chốt theo thiết kế đã duyệt (D1–D7)                                                                                  |
 | 2026-09-29 | **M10 quota**: `AI_DAILY_REQUEST_LIMIT` mặc định 50/ngày theo **ngày địa phương user**; reserve nguyên tử (`ON CONFLICT ... WHERE count < limit`) → vượt trả 429; chi phí/token ghi `app.ai_usage`                                                                                                                                         | Nhất quán quy tắc streak/daily-cap M6.1                                                                              |
 | 2026-09-29 | **M10 hành vi**: scenario whitelist `general｜vocabulary｜grammar｜conversation`; 2.000 ký tự/tin; history 20 tin; xoá phiên = archive mềm; provider lỗi → 503 và không lưu tin (quota đã gọi vẫn tính); idempotency tin nhắn để backlog                                                                                                   | Chốt theo thiết kế đã duyệt; chat không bắt buộc hồ sơ học (`profile_id` nullable)                                   |
+| 2026-09-30 | **M11 AI Quiz**: nguồn từ vựng gồm mọi `srs_state` (**kể cả `new`**), ưu tiên `review → relearning → learning → new`; 3 loại câu hỏi + mixed (MC/fill_blank/matching); matching chấm all-or-nothing | Chủ dự án chốt (câu hỏi đa dạng, dùng cả từ mới) |
+| 2026-09-30 | M11 provider **stub deterministic** (kể cả khi `AI_PROVIDER` là provider thật — có log cảnh báo); adapter LLM thật + AI giải thích đáp án để backlog | Tránh tốn token khi chưa cần |
+| 2026-09-30 | M11 chống lạm dụng: quota **15 quiz/ngày** (`AI_QUIZ_DAILY_LIMIT`), cooldown **15s** + dedup cùng tham số (`AI_QUIZ_COOLDOWN_MS`); validate nguồn + dry-run trước khi reserve quota | Chủ dự án lo người dùng lạm dụng sinh quiz tốn token |
+| 2026-09-30 | M11 XP: chỉ câu đúng cộng `quiz_correct` (+5); mọi câu vẫn cập nhật streak/user_stats qua `xpEligible` mới của GamificationService; phiên quiz trả `srs: null` | Chủ dự án chốt |
 
 ## Nhật ký sửa lỗi theo milestone
 
@@ -201,6 +205,14 @@
 - Không migration; không thêm dependency (dùng `fetch` sẵn có của Node 22). Docs: [kế hoạch](docs/plans/m10-ai-chatbot.md) + [API chat](docs/api/chat.md).
 - Kiểm chứng local (2026-09-29, `langoo_test`): lint/build sạch, **34 suite/248 unit**, **12 suite/124 e2e** (8 kịch bản chat: phiên/tin/counter, ref sense + gloss, quota 429, archive 409, cách ly user, validation biên, usage).
 
+### M11 — AI Quiz (đã triển khai, chờ review)
+
+- `/v1/quizzes`: sinh quiz từ collection (MC/fill_blank/matching/mixed), lịch sử keyset, chi tiết ẩn đáp án, `start` tạo `study_session(kind='quiz')`; trả lời qua `POST /sessions/:id/answers` (thêm field `pairs` cho matching; phiên quiz trả `srs: null`).
+- Generator thuần `buildQuizQuestions` (RNG injectable): difficulty quyết định số phương án MC (3/4) và K cặp matching (3/4); matching lưu `options` dạng mảng gắn `side` vì cột options buộc jsonb array (CHECK 023) — tách left/right khi start.
+- Chống lạm dụng: quota riêng **15/ngày** (feature `quiz`) + cooldown **15s** + dedup cùng tham số (`reused: true`); validate nguồn và dry-run trước khi reserve → lỗi dữ liệu **không** tiêu quota.
+- XP: `quiz_correct` (+5, cap 200) **chỉ khi đúng**; câu sai vẫn tính streak/activity (`xpEligible` mới ở GamificationService); replay cùng ordinal không cộng đôi.
+- Kiểm chứng local 2026-09-30: lint/build sạch, **37 suite/269 unit**, **13 suite/131 e2e** (7 kịch bản quiz mới). Không migration, không dependency mới. Docs: [kế hoạch](docs/plans/m11-ai-quiz.md) + [API quizzes](docs/api/quizzes.md).
+
 ## Backlog
 
 - **M12 — ENV-01 còn lại:** kiểm tra pool/reconnect/runtime/direct cloud, phát hiện timezone drift sau deploy; timezone ngày học vẫn theo settings user. M6.1 đã chuẩn hóa URL test với `options=-c%20timezone%3DUTC` và kiểm tra session thực tế. Chi tiết: [plan M6.1](docs/plans/m6.1-srs-fixes.md).
@@ -211,6 +223,7 @@
 - Rate limit cho `/auth/login` + `/auth/register` (chống brute force) — theo kế hoạch M12, chưa làm ở M2.
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — M9 tạm gác nên vẫn để ngỏ.
 - **M10 AI — backlog:** streaming (SSE) cho trả lời dài; nén `summary` khi hội thoại dài; adapter Gemini riêng (hiện dùng gateway OpenAI-compatible); idempotency tin nhắn khi retry mạng; retention chat 6 tháng (dọn định kỳ); bảng giá token để `cost_usd` thật thay vì 0.
+- **M11 AI Quiz — backlog:** adapter LLM thật cho quiz (JSON mode + prompt tuning); AI giải thích đáp án từng câu; matching cho phiên review M7; siết `question_count` theo số từ nguồn nếu cần.
 - Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
 - **Xác thực email + recovery cho tài khoản password** — đề xuất đưa lên đợt B của [M2.3](docs/plans/m2.3-google-oauth-fixes.md) thay vì đợi M12; cần dịch vụ email/client và migration được duyệt, chưa triển khai.
 - **Nonce OAuth dùng một lần** — backend challenge đã có ở đợt C của M2.3 nhưng tắt mặc định; cần apply migration 029 và hỗ trợ SDK/client trước khi bật.
@@ -243,7 +256,6 @@
 
 ## Kế tiếp dự kiến
 
-- **M11 — AI Quiz:** sinh câu hỏi từ collection (dùng lại `AI_PROVIDER` + `AiUsageService`, feature `quiz`), lưu `app.quiz`/`quiz_question`, làm bài qua `study_session(kind='quiz')`.
 - **M2.3 — Sửa OAuth:** A đã triển khai; C có backend opt-in, migration 029 đã apply **local** (chưa apply cloud); B (email verification/recovery/session guard) cần chốt dịch vụ email và client trước.
 - **M6/M6.1 — Đã hoàn tất local:** 14 phát hiện + ENV-01 đã pass audit; giữ smoke test cloud/runtime ở M12.
 - **M12 — Hardening:** kiểm tra runtime cloud/pool/reconnect; 026/027 đã apply, không cần rollout lại hai migration này.

@@ -28,6 +28,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M8 — Gamification** đã xong: XP theo `xp_rule` + daily cap, streak/level/thành tích trong cùng transaction; `GET /me/stats`, `GET /me/achievements`, `POST /me/achievements/seen` — ví dụ curl tại [`docs/api/gamification.md`](docs/api/gamification.md).
 - ✅ **M2.2 — Đăng nhập Google (OAuth2 ID token)** đã xong: `POST /v1/auth/oauth/google` (verify JWKS, không auto-link theo email; liên kết chủ động qua `POST /v1/auth/oauth/google/link`, challenge dùng một lần tùy chọn qua `POST /v1/auth/oauth/google/challenge`, cấu hình `GOOGLE_OAUTH_CLIENT_IDS`) — ví dụ curl tại [`docs/api/auth.md`](docs/api/auth.md).
 - ✅ **M10 — AI Chatbot** đã xong: phiên chat + lịch sử + quota ngày (`AI_PROVIDER=stub` mặc định, cắm OpenAI-compatible/gateway qua `AI_BASE_URL`) — ví dụ curl tại [`docs/api/chat.md`](docs/api/chat.md), kế hoạch tại [`docs/plans/m10-ai-chatbot.md`](docs/plans/m10-ai-chatbot.md).
+- ✅ **M11 — AI Quiz** đã xong: sinh quiz từ bộ sưu tập (trắc nghiệm / điền từ / ghép cặp / trộn), làm bài qua phiên `kind='quiz'`, XP `quiz_correct` chỉ khi đúng, quota + cooldown chống lạm dụng — ví dụ curl tại [`docs/api/quizzes.md`](docs/api/quizzes.md).
 - 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
 ## Deploy lên Render
@@ -42,6 +43,7 @@ Repo có sẵn [`render.yaml`](render.yaml) (Blueprint):
    - `GOOGLE_OAUTH_CLIENT_IDS` — tuỳ chọn: client ID Google (web/iOS/Android) cách nhau dấu phẩy (bỏ trống = tắt đăng nhập Google)
    - `GOOGLE_OAUTH_REQUIRE_CHALLENGE` — mặc định `false`; chỉ bật sau khi client đã tích hợp challenge OAuth dùng một lần.
    - `AI_PROVIDER` / `AI_API_KEY` / `AI_CHAT_MODEL` / `AI_BASE_URL` — tuỳ chọn: `stub` (mặc định, trả lời demo) hoặc `openai` để trả lời thật qua OpenAI-compatible/gateway (xem `.env.example`).
+   - `AI_QUIZ_DAILY_LIMIT` / `AI_QUIZ_COOLDOWN_MS` — tuỳ chọn: quota sinh quiz/ngày (mặc định 15) và cooldown giữa 2 lần sinh (mặc định 15000ms).
 3. Sau deploy: kiểm tra `GET https://<service>.onrender.com/v1/health` và Swagger `/docs`.
 
 Ghi chú:
