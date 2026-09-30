@@ -256,7 +256,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
     const correctIndexes = questions.map(
       (question) => (question.correctAnswer as { index: number }).index,
     );
-    const wrongIndex = correctIndexes[0] === 0 ? 1 : 0;
+    const wrongIndexes = correctIndexes.map((index) => (index === 0 ? 1 : 0));
 
     const first = await request(server)
       .post(`/v1/sessions/${sessionId}/answers`)
@@ -272,7 +272,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
     const second = await request(server)
       .post(`/v1/sessions/${sessionId}/answers`)
       .set(auth(mainToken))
-      .send({ ordinal: 2, option_index: wrongIndex })
+      .send({ ordinal: 2, option_index: wrongIndexes[1] })
       .expect(200);
     expect(second.body as AnswerBody).toMatchObject({
       srs: null,
@@ -308,7 +308,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
     const replay = await request(server)
       .post(`/v1/sessions/${sessionId}/answers`)
       .set(auth(mainToken))
-      .send({ ordinal: 2, option_index: wrongIndex })
+      .send({ ordinal: 2, option_index: wrongIndexes[1] })
       .expect(200);
     expect((replay.body as AnswerBody).item.is_correct).toBe(false);
     expect((replay.body as AnswerBody).xp.amount).toBe(0);
