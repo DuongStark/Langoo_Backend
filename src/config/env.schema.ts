@@ -93,6 +93,15 @@ export const envSchema = z.object({
     emptyToUndefined,
     z.coerce.number().int().positive().optional(),
   ),
+  // Quiz (M11): quota riêng + cooldown chống spam sinh quiz.
+  AI_QUIZ_DAILY_LIMIT: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().positive().optional(),
+  ),
+  AI_QUIZ_COOLDOWN_MS: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(0).optional(),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema>;

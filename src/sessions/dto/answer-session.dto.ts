@@ -1,13 +1,28 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { Transform } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  IsArray,
   IsInt,
   IsOptional,
   IsString,
   Max,
   MaxLength,
   Min,
+  ValidateNested,
 } from 'class-validator';
+
+export class QuizPairDto {
+  @ApiProperty({ minimum: 0, example: 0 })
+  @IsInt()
+  @Min(0)
+  left_index!: number;
+
+  @ApiProperty({ minimum: 0, example: 2 })
+  @IsInt()
+  @Min(0)
+  right_index!: number;
+}
 
 export class AnswerSessionDto {
   @ApiProperty({ example: 1, minimum: 1 })
@@ -45,6 +60,17 @@ export class AnswerSessionDto {
     typeof value === 'string' ? value.trim() : value,
   )
   answer_text?: string;
+
+  @ApiPropertyOptional({
+    description:
+      'Chỉ dùng cho câu matching của quiz: danh sách cặp ghép left_index → right_index',
+  })
+  @IsOptional()
+  @IsArray()
+  @ArrayMaxSize(10)
+  @ValidateNested({ each: true })
+  @Type(() => QuizPairDto)
+  pairs?: QuizPairDto[];
 
   @ApiPropertyOptional({ example: 4200, maximum: 3_600_000 })
   @IsOptional()

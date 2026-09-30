@@ -3,6 +3,7 @@ import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import { GamificationService } from '../gamification/gamification.service';
 import { LEARN_AHEAD_MINUTES } from '../srs/scheduler/anki.constants';
 import { mathRng } from '../srs/scheduler/fuzz';
 import { DueRepository, DueRow } from '../srs/repositories/due.repository';
@@ -20,6 +21,7 @@ import {
   SessionDirection,
   SessionMode,
 } from './session-content';
+import { gradeQuizAnswer, QuizQuestionType } from './quiz-content';
 import {
   AnswerResultResponse,
   SessionDetailResponse,
@@ -50,6 +52,7 @@ interface SessionRow {
   mode: string;
   profileId: string;
   collectionId: string | null;
+  quizId: string | null;
   status: string;
   itemCount: number;
   correctCount: number;
@@ -70,6 +73,7 @@ export class SessionsService {
     private readonly dueRepo: DueRepository,
     private readonly sourceRepo: SessionSourceRepository,
     private readonly reviewEngine: ReviewEngine,
+    private readonly gamification: GamificationService,
   ) {}
 
   // ---------------------------------------------------------------- create
@@ -241,6 +245,86 @@ export class SessionsService {
           'Phiên đã kết thúc',
           HttpStatus.CONFLICT,
         );
+      }
+
+      if (session.kind === 'quiz') {
+        const gradedQuiz = gradeQuizAnswer(
+          readQuizQuestionType(freshItem.prompt),
+          freshItem.correctAnswer as Record<string, unknown>,
+          {
+            optionIndex: dto.option_index,
+            answerText: dto.answer_text,
+            pairs: dto.pairs,
+          },
+        );
+        if (!gradedQuiz) {
+          throw new DomainException(
+            'SESSION_ANSWER_INVALID',
+            'Câu trả lời không hợp lệ cho câu hỏi quiz',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
+        const profile = await this.srs.getProfileContextInTransaction(
+          tx,
+          userId,
+        );
+        const nowInTransaction = new Date();
+        const activity = await this.gamification.applyActivity(tx, {
+          userId,
+          timezone: profile.timezone,
+          now: nowInTransaction,
+          ruleCode: 'quiz_correct',
+          source: 'quiz',
+          refKind: 'quiz',
+          refId: session.quizId,
+          idempotencyKey: `quiz:${session.id}:${item.ordinal}`,
+          xpEligible: gradedQuiz.isCorrect,
+        });
+
+        const updatedQuizItem = await tx.studySessionItem.update({
+          where: { id: freshItem.id },
+          data: {
+            userAnswer: gradedQuiz.userAnswer as Prisma.InputJsonValue,
+            isCorrect: gradedQuiz.isCorrect,
+            rating: gradedQuiz.rating,
+            elapsedMs: dto.elapsed_ms ?? null,
+            answeredAt: nowInTransaction,
+          },
+        });
+
+        let updatedQuizSession = await tx.studySession.update({
+          where: { id: session.id },
+          data: {
+            xpAwarded: { increment: activity.xp_amount },
+            ...(gradedQuiz.isCorrect ? { correctCount: { increment: 1 } } : {}),
+          },
+        });
+        const answeredQuiz = await tx.studySessionItem.count({
+          where: { sessionId: session.id, answeredAt: { not: null } },
+        });
+        if (answeredQuiz >= updatedQuizSession.itemCount) {
+          updatedQuizSession = await tx.studySession.update({
+            where: { id: session.id },
+            data: {
+              status: 'completed',
+              finishedAt: nowInTransaction,
+              score: Math.round(
+                (updatedQuizSession.correctCount /
+                  updatedQuizSession.itemCount) *
+                  100,
+              ),
+            },
+          });
+        }
+
+        return {
+          replay: false as const,
+          quiz: true as const,
+          item: updatedQuizItem,
+          xpAmount: activity.xp_amount,
+          session: updatedQuizSession,
+          answered: answeredQuiz,
+        };
       }
       const graded = gradeAnswer(
         session.mode as SessionMode,
@@ -423,6 +507,7 @@ export class SessionsService {
 
       return {
         replay: false as const,
+        quiz: false as const,
         item: updatedItem,
         state: engine.state,
         xpAmount: engine.xpAmount,
@@ -433,6 +518,14 @@ export class SessionsService {
 
     if (outcome.replay) {
       return this.buildReplay(userId, sessionId, outcome.item);
+    }
+    if (outcome.quiz) {
+      return {
+        item: toItemResponse(outcome.item, true),
+        srs: null,
+        xp: { amount: outcome.xpAmount },
+        session: toSessionResponse(outcome.session, outcome.answered),
+      };
     }
     return {
       item: toItemResponse(outcome.item, true),
@@ -514,6 +607,24 @@ export class SessionsService {
     const answered = await this.prisma.studySessionItem.count({
       where: { sessionId, answeredAt: { not: null } },
     });
+    const xp = await this.prisma.xpEvent.findFirst({
+      where: {
+        userId,
+        idempotencyKey:
+          session.kind === 'quiz'
+            ? `quiz:${sessionId}:${item.ordinal}`
+            : `session:${sessionId}:${item.ordinal}`,
+      },
+      select: { amount: true },
+    });
+    if (session.kind === 'quiz') {
+      return {
+        item: toItemResponse(item, true),
+        srs: null,
+        xp: { amount: xp?.amount ?? 0 },
+        session: toSessionResponse(session, answered),
+      };
+    }
     if (item.srsId === null) {
       throw new DomainException(
         'SESSION_ITEM_NOT_FOUND',
@@ -531,13 +642,6 @@ export class SessionsService {
         HttpStatus.NOT_FOUND,
       );
     }
-    const xp = await this.prisma.xpEvent.findFirst({
-      where: {
-        userId,
-        idempotencyKey: `session:${sessionId}:${item.ordinal}`,
-      },
-      select: { amount: true },
-    });
     return {
       item: toItemResponse(item, true),
       srs: {
@@ -551,6 +655,24 @@ export class SessionsService {
       session: toSessionResponse(session, answered),
     };
   }
+}
+
+/** Đọc loại câu hỏi quiz từ snapshot prompt (kind: multiple_choice/typing/matching). */
+function readQuizQuestionType(prompt: unknown): QuizQuestionType {
+  if (typeof prompt === 'object' && prompt !== null) {
+    const kind = (prompt as { kind?: unknown }).kind;
+    if (kind === 'multiple_choice' || kind === 'matching') {
+      return kind;
+    }
+    if (kind === 'typing') {
+      return 'fill_blank';
+    }
+  }
+  throw new DomainException(
+    'SESSION_ANSWER_INVALID',
+    'Câu hỏi quiz không hợp lệ',
+    HttpStatus.BAD_REQUEST,
+  );
 }
 
 function toCardContent(row: DueRow): CardContent {

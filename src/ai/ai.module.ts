@@ -2,26 +2,40 @@ import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
 import { DictionaryModule } from '../dictionary/dictionary.module';
+import { SessionsModule } from '../sessions/sessions.module';
+import { SrsModule } from '../srs/srs.module';
 import { ChatController } from './chat/chat.controller';
 import { ChatService } from './chat/chat.service';
 import { AI_CHAT_PROVIDER } from './providers/ai-chat.provider';
 import { createAiChatProvider } from './providers/ai-chat-provider.factory';
+import { AI_QUIZ_PROVIDER } from './providers/ai-quiz.provider';
+import { createAiQuizProvider } from './providers/ai-quiz-provider.factory';
+import { QuizController } from './quiz/quiz.controller';
+import { QuizService } from './quiz/quiz.service';
+import { QuizSourceRepository } from './quiz/repositories/quiz-source.repository';
 import { AiUsageService } from './usage/ai-usage.service';
 
 /**
- * Module AI (M10): chatbot + quota/usage dùng chung cho các tính năng AI sau.
- * Provider chọn theo env (stub mặc định; openai = OpenAI-compatible + AI_BASE_URL).
+ * Module AI (M10 chat + M11 quiz): phiên chat/quiz, quota/usage dùng chung.
+ * Provider chọn theo env (stub mặc định; chat có openai-compatible, quiz hiện stub).
  */
 @Module({
-  imports: [AuthModule, DictionaryModule],
-  controllers: [ChatController],
+  imports: [AuthModule, DictionaryModule, SrsModule, SessionsModule],
+  controllers: [ChatController, QuizController],
   providers: [
     ChatService,
+    QuizService,
+    QuizSourceRepository,
     AiUsageService,
     {
       provide: AI_CHAT_PROVIDER,
       inject: [ConfigService],
       useFactory: createAiChatProvider,
+    },
+    {
+      provide: AI_QUIZ_PROVIDER,
+      inject: [ConfigService],
+      useFactory: createAiQuizProvider,
     },
   ],
   exports: [AiUsageService],

@@ -35,13 +35,14 @@ export interface SessionDetailResponse {
 
 export interface AnswerResultResponse {
   item: SessionItemResponse;
+  /** null với phiên quiz (không gắn thẻ SRS). */
   srs: {
     state: string;
     due_at: string;
     interval_days: number;
     ease_factor: number;
     learning_step: number | null;
-  };
+  } | null;
   xp: { amount: number };
   session: SessionResponse;
 }

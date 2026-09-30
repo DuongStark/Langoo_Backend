@@ -37,6 +37,8 @@ export interface ApplyActivityParams {
   refKind: string | null;
   refId: string | null;
   idempotencyKey: string;
+  /** false = câu sai: vẫn tính streak/activity nhưng không cộng XP theo rule (M11 quiz). */
+  xpEligible?: boolean;
 }
 
 /**
@@ -68,7 +70,7 @@ export class GamificationService {
       where: { code: params.ruleCode },
     });
     let xpAmount = 0;
-    if (rule?.isActive) {
+    if (rule?.isActive && params.xpEligible !== false) {
       const earned = await tx.xpEvent.aggregate({
         _sum: { amount: true },
         where: { userId, source, createdAt: { gte: dayStart, lt: dayEnd } },
