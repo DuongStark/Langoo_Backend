@@ -30,6 +30,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M10 — AI Chatbot** đã xong: phiên chat + lịch sử + quota ngày (`AI_PROVIDER=stub` mặc định, cắm OpenAI-compatible/gateway qua `AI_BASE_URL`) — ví dụ curl tại [`docs/api/chat.md`](docs/api/chat.md), kế hoạch tại [`docs/plans/m10-ai-chatbot.md`](docs/plans/m10-ai-chatbot.md).
 - ✅ **M11 — AI Quiz** đã xong: sinh quiz từ bộ sưu tập (trắc nghiệm / điền từ / ghép cặp / trộn), làm bài qua phiên `kind='quiz'`, XP `quiz_correct` chỉ khi đúng, quota + cooldown chống lạm dụng — ví dụ curl tại [`docs/api/quizzes.md`](docs/api/quizzes.md).
 - ✅ **M12 — Hardening** đã xong: rate limit auth (429 `RATE_LIMITED`), scheduler nội bộ (dọn `search_history` 50/user, tạo partition `review_log`, retention chat 180 ngày), pool `pg` cấu hình được, cảnh báo/`db_timezone` cho ENV-01, journey e2e — kế hoạch tại [`docs/plans/m12-hardening.md`](docs/plans/m12-hardening.md).
+- ✅ **M13 — Admin, Curation & Feedback** đã xong (v1): vai admin (`users.role` + `AdminGuard` đọc DB), thống kê vận hành tổng hợp, hộp thư feedback text + ảnh (magic bytes, `StorageService`), xử lý `gloss_report`, khoá/mở user + audit log — xem [`docs/api/admin.md`](docs/api/admin.md) và [`docs/api/feedback.md`](docs/api/feedback.md).
 - 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
 ## Deploy lên Render
@@ -46,12 +47,15 @@ Repo có sẵn [`render.yaml`](render.yaml) (Blueprint):
    - `AI_PROVIDER` / `AI_API_KEY` / `AI_CHAT_MODEL` / `AI_BASE_URL` — tuỳ chọn: `stub` (mặc định, trả lời demo) hoặc `openai` để trả lời thật qua OpenAI-compatible/gateway (xem `.env.example`).
    - `AI_QUIZ_DAILY_LIMIT` / `AI_QUIZ_COOLDOWN_MS` — tuỳ chọn: quota sinh quiz/ngày (mặc định 15) và cooldown giữa 2 lần sinh (mặc định 15000ms).
    - `RATE_LIMIT_ENABLED` / `SCHEDULER_ENABLED` / `CHAT_RETENTION_DAYS` — mặc định `true` / `true` / `180` (M12); `DB_POOL_*` tuỳ chọn cho pool `pg`.
+   - `STORAGE_PROVIDER` / `STORAGE_DIR` — lưu ảnh feedback: `local` (mặc định, thư mục `uploads/`) hoặc `s3` (backlog).
 3. Sau deploy: kiểm tra `GET https://<service>.onrender.com/v1/health` và Swagger `/docs`.
+4. Sau deploy — phong quyền admin bằng SQL (không có endpoint tự phong):
+   `UPDATE app.users SET role = 'admin' WHERE lower(email) = '...';`
 
 Ghi chú:
 
 - Build `npm ci --include=dev && npm run build` (build cần devDependencies như `@nestjs/cli`, `prisma`); start `npm run start:prod`; Render tự cấp `PORT` (app đọc từ env); health check `/v1/health`.
-- **Migration không tự chạy trên Render**: mỗi khi có migration mới, chạy `npm run db:migrate` từ máy local (dùng `DIRECT_URL` cloud) trước khi deploy — 026/027 đã apply ngày 2026-09-27. Nếu gói Render hỗ trợ `preDeployCommand`, có thể bật dòng gợi ý trong `render.yaml`.
+- **Migration không tự chạy trên Render**: mỗi khi có migration mới, chạy `npm run db:migrate` từ máy local (dùng `DIRECT_URL` cloud) trước khi deploy — cloud hiện có 026/027; **029/030 chờ duyệt apply**. Nếu gói Render hỗ trợ `preDeployCommand`, có thể bật dòng gợi ý trong `render.yaml`.
 - Free tier "ngủ" sau ~15 phút không traffic → request đầu tiên chậm (cold start); nâng plan nếu cần luôn thức.
 
 ## Quy tắc vàng

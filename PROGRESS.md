@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-30 (M12 Hardening xong chờ review; M11 AI Quiz xong; M6/M6.1 audit local đạt; M10 AI Chatbot xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-09-30 (M13 Admin/Feedback xong chờ review; M12 Hardening xong; M11 AI Quiz xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -26,7 +26,7 @@
 | M10  | AI Chatbot                                                                | ✅ hoàn thành (chờ review): stub/openai-compatible + phiên/tin nhắn + quota; [kế hoạch](docs/plans/m10-ai-chatbot.md) |
 | M11  | AI Quiz                                                                   | ✅ hoàn thành (chờ review): 3 loại câu hỏi + mixed, quota 15/ngày + cooldown; [kế hoạch](docs/plans/m11-ai-quiz.md) |
 | M12  | Hardening                                                                 | ✅ hoàn thành (chờ review): rate limit, scheduler (search_history/partition/chat retention), pool env, journey e2e; [kế hoạch](docs/plans/m12-hardening.md) |
-| M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ⬜ chờ (thêm 2026-09-27)                                                                                              |
+| M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ v1 hoàn thành (chờ review): vai admin, thống kê aggregate, feedback text+ảnh, gloss_report, khoá/mở user, audit ([kế hoạch](docs/plans/m13-admin-curation-feedback.md))                                                                                              |
 
 ## Quyết định đã chốt
 
@@ -98,6 +98,10 @@
 | 2026-09-30 | **M12 rate limit**: `@nestjs/throttler` (in-memory) — global 120/phút/IP; login 10/phút; register 5/giờ; oauth 10/phút; refresh 30/phút; lỗi `429 RATE_LIMITED`; e2e tự tắt bằng `RATE_LIMIT_ENABLED=false` | Chủ dự án duyệt (D1) |
 | 2026-09-30 | **M12 scheduler nội bộ** (không thêm dependency): tick 60s + advisory lock từng job; dọn `search_history` còn 50/user, tạo partition `review_log` trước 2 tháng, retention chat 180 ngày | Duyệt D2/D6 |
 | 2026-09-30 | **M12 pool & ENV-01**: `DB_POOL_MAX/IDLE_TIMEOUT/CONNECTION_TIMEOUT` dùng chung PrismaPg + health pool; boot cảnh báo lệch TimeZone; `/v1/health` thêm `db_timezone`; khuyến nghị `sslmode=verify-full` | Duyệt D3/D4 |
+| 2026-09-30 | **M13 vai admin**: cột `users.role` + `AdminGuard` đọc DB mỗi request (thu hồi quyền hiệu lực ngay); bootstrap bằng SQL, không có endpoint tự phong | Duyệt D1 |
+| 2026-09-30 | **M13 phạm vi**: KHÔNG ghi `core` (duyệt gloss/concept/deck tách M14); v1 = thống kê aggregate + feedback text/ảnh + gloss_report + khoá/mở user + audit log | Duyệt D2 |
+| 2026-09-30 | **M13 storage**: `StorageService` trừu tượng — `local` thật (STORAGE_DIR, gitignore); adapter s3/R2 để backlog (chọn `s3` sẽ fail-fast) | Duyệt D3 |
+| 2026-09-30 | **M13 audit**: bảng `app.admin_audit_log`, ghi cùng transaction mọi mutation admin; feedback giới hạn 10 lần/giờ/user + 3 ảnh ≤5MB (magic bytes) | Duyệt D6/D7 |
 
 ## Nhật ký sửa lỗi theo milestone
 
@@ -225,6 +229,15 @@
 - **Audit blacklist**: grep toàn `src` — 0 ghi vào `core/serve/public/staging`, 0 `SELECT *`.
 - Kiểm chứng local 2026-09-30: lint/build sạch, **40 suite/279 unit**, **14 suite/132 e2e**. CSDL doc đã regenerate (026/027/029 vào DB full local).
 
+### M13 — Admin, Curation & Feedback v1 (đã triển khai, chờ review)
+
+- Migration `030_admin_feedback.sql`: `users.role`, `feedback`, `feedback_attachment`, `admin_audit_log`.
+- `AdminGuard` (JWT + đọc DB `role='admin'`/`status='active'`) cho mọi `/v1/admin/*`; user thường → `403 ADMIN_REQUIRED`; bootstrap admin bằng SQL (README).
+- Thống kê aggregate-only: `GET /v1/admin/stats` (user/học tập/nội dung/AI) + `/timeseries` (signups|reviews|xp|ai_requests, ≤180 ngày, UTC); e2e kiểm tra không lộ email cá nhân.
+- Feedback: multipart tối đa 3 ảnh ≤5MB (JPEG/PNG/WebP, magic bytes), lưu qua `StorageService` local (dọn tệp nếu transaction lỗi), `GET /me/feedback`; admin hàng chờ + PATCH `{status, admin_note}` + tải ảnh có guard.
+- Xử lý `gloss_report` (triaged/fixed/rejected, set `resolved_at`) và khoá/mở user (không tự khoá mình/không khoá admin/không hồi sinh `deleted`), mọi mutation ghi `admin_audit_log` trong cùng transaction; `GET /v1/admin/audit-log`.
+- Kiểm chứng local 2026-09-30: lint/build sạch, **45 suite/299 unit**, **16 suite/141 e2e**. Migration 030 đã apply local (test DB + DB full để regen CSDL doc); **cloud chưa apply**.
+
 ## Backlog
 
 - **M12 — ENV-01 còn lại:** pool/boot-check đã làm ở M12 (`DB_POOL_*`, cảnh báo TimeZone, `db_timezone` trong health); còn **smoke test runtime trên cloud sau deploy** để xác nhận không drift.
@@ -233,6 +246,10 @@
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — M9 tạm gác nên vẫn để ngỏ.
 - **M10 AI — backlog:** streaming (SSE) cho trả lời dài; nén `summary` khi hội thoại dài; adapter Gemini riêng (hiện dùng gateway OpenAI-compatible); idempotency tin nhắn khi retry mạng; retention chat 6 tháng (dọn định kỳ); bảng giá token để `cost_usd` thật thay vì 0.
 - **M11 AI Quiz — backlog:** adapter LLM thật cho quiz (JSON mode + prompt tuning); AI giải thích đáp án từng câu; matching cho phiên review M7; siết `question_count` theo số từ nguồn nếu cần.
+- **M13 v2 — Curation (M14 dự kiến):** duyệt gloss/concept (`reviewed_by`), quản lý deck — **ghi vào schema `core`**, cần ngoại lệ blacklist + audit riêng + ma trận quyền.
+- **M13 — Storage S3/R2:** adapter thật cho `StorageService` khi có key (Render disk ephemeral — production cần S3); chọn `STORAGE_PROVIDER=s3` hiện fail-fast.
+- **Migration cloud 029/030 chưa apply** — chờ chủ dự án duyệt (`npm run db:migrate` với DIRECT_URL cloud).
+- **Thống kê nâng cao:** cohort retention, dashboard chi phí AI theo ngày — sau khi có dữ liệu thật.
 - **Xác thực email + recovery cho tài khoản password** — đề xuất đưa lên đợt B của [M2.3](docs/plans/m2.3-google-oauth-fixes.md) thay vì đợi M12; cần dịch vụ email/client và migration được duyệt, chưa triển khai.
 - **Nonce OAuth dùng một lần** — backend challenge đã có ở đợt C của M2.3 nhưng tắt mặc định; cần apply migration 029 và hỗ trợ SDK/client trước khi bật.
 - **Apple Sign In** — bắt buộc cho iOS App Store nếu app có social login khác; dùng lại hạ tầng session tách ở M2.2.
@@ -264,9 +281,9 @@
 
 ## Kế tiếp dự kiến
 
-- **M13 — Admin, Curation & Feedback** (trọng tâm thống kê vận hành + hộp thư feedback text/ảnh) — phạm vi dự kiến ở mục dưới.
+- **M14 (đề xuất) — Curation ghi `core`**: duyệt gloss/concept (`reviewed_by`), quản lý deck — cần chốt ngoại lệ blacklist + audit + ma trận quyền trước khi code.
+- **Apply migration cloud 029 + 030** (chờ duyệt) rồi smoke: `/v1/health` (`db_timezone=UTC`), rate limit, feedback ảnh.
 - **M2.3 đợt B** — xác thực email/recovery/session guard: cần chốt dịch vụ email (Brevo/Resend) + client trước khi triển khai.
-- **Cloud smoke sau deploy M12**: gọi `/v1/health` xác nhận `db_timezone=UTC`, thử 429 rate limit nhẹ.
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)
 

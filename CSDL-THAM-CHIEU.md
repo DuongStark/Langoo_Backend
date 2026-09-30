@@ -1,16 +1,16 @@
 # CSDL tham chiếu — Langoo
 
-> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-09-30 15:23** · PostgreSQL 16.2.
+> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-09-30 16:00** · PostgreSQL 16.2.
 > KHÔNG sửa tay — chạy lại script sau mỗi migration.
 
-Tổng: **94 bảng** (chưa kể 36 partition) + **4 view/matview**.
+Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 ## Mục lục
 
 - **public** (5) — [`public.language`](#publiclanguage) · [`public.radical`](#publicradical) · [`public.schema_migration`](#publicschema_migration) · [`public.source`](#publicsource) · [`public.tag`](#publictag)
 - **staging** (14) — [`staging.ili_map_pwn30`](#stagingili_map_pwn30) · [`staging.import_batch`](#stagingimport_batch) · [`staging.jlpt_entry`](#stagingjlpt_entry) · [`staging.jmdict_entry`](#stagingjmdict_entry) · [`staging.kanji_data_entry`](#stagingkanji_data_entry) · [`staging.kanji_entry`](#stagingkanji_entry) · [`staging.krad_entry`](#stagingkrad_entry) · [`staging.omw_wikt_vi`](#stagingomw_wikt_vi) · [`staging.tatoeba_link`](#stagingtatoeba_link) · [`staging.tatoeba_sentence`](#stagingtatoeba_sentence) · [`staging.wikt_entry`](#stagingwikt_entry) · [`staging.wn_example`](#stagingwn_example) · [`staging.wn_relation`](#stagingwn_relation) · [`staging.wn_synset`](#stagingwn_synset)
 - **core** (41) — [`core.concept`](#coreconcept) · [`core.concept_gloss`](#coreconcept_gloss) · [`core.concept_gloss_history`](#coreconcept_gloss_history) · [`core.concept_label`](#coreconcept_label) · [`core.deck`](#coredeck) · [`core.deck_item`](#coredeck_item) · [`core.example`](#coreexample) · [`core.example_annotation`](#coreexample_annotation) · [`core.example_concept`](#coreexample_concept) · [`core.example_sense`](#coreexample_sense) · [`core.example_translation`](#coreexample_translation) · [`core.jlpt_link`](#corejlpt_link) · [`core.kanji`](#corekanji) · [`core.kanji_media`](#corekanji_media) · [`core.kanji_radical`](#corekanji_radical) · [`core.lexeme`](#corelexeme) · [`core.lexeme_form`](#corelexeme_form) · [`core.lexeme_form_applies_to`](#corelexeme_form_applies_to) · [`core.lexeme_form_char`](#corelexeme_form_char) · [`core.lexeme_form_kanji_char`](#corelexeme_form_kanji_char) · [`core.lexeme_form_tag`](#corelexeme_form_tag) · [`core.lexeme_level`](#corelexeme_level) · [`core.mapping_run`](#coremapping_run) · [`core.media_asset`](#coremedia_asset) · [`core.pronunciation`](#corepronunciation) · [`core.sense`](#coresense) · [`core.sense_concept`](#coresense_concept) · [`core.sense_concept_candidate`](#coresense_concept_candidate) · [`core.sense_concept_candidate_review`](#coresense_concept_candidate_review) · [`core.sense_form`](#coresense_form) · [`core.sense_gloss`](#coresense_gloss) · [`core.sense_gloss_history`](#coresense_gloss_history) · [`core.sense_relation`](#coresense_relation) · [`core.sense_relation_candidate`](#coresense_relation_candidate) · [`core.sense_tag`](#coresense_tag) · [`core.source_entry_identity`](#coresource_entry_identity) · [`core.source_form`](#coresource_form) · [`core.translation_assertion`](#coretranslation_assertion) · [`core.translation_target_candidate`](#coretranslation_target_candidate) · [`core.wordnet_relation`](#corewordnet_relation) · [`core.wordnet_synset`](#corewordnet_synset)
-- **app** (34) — [`app.achievement`](#appachievement) · [`app.ai_usage`](#appai_usage) · [`app.chat_message`](#appchat_message) · [`app.chat_session`](#appchat_session) · [`app.collection`](#appcollection) · [`app.collection_item`](#appcollection_item) · [`app.collection_item_face`](#appcollection_item_face) · [`app.collection_item_tag`](#appcollection_item_tag) · [`app.collection_share`](#appcollection_share) · [`app.device`](#appdevice) · [`app.gloss_report`](#appgloss_report) · [`app.google_oauth_challenge`](#appgoogle_oauth_challenge) · [`app.leaderboard_snapshot`](#appleaderboard_snapshot) · [`app.notification_log`](#appnotification_log) · [`app.quiz`](#appquiz) · [`app.quiz_question`](#appquiz_question) · [`app.reminder`](#appreminder) · [`app.review_log`](#appreview_log) (partition) · [`app.search_history`](#appsearch_history) · [`app.srs_review_receipt`](#appsrs_review_receipt) · [`app.srs_state`](#appsrs_state) · [`app.streak_day`](#appstreak_day) · [`app.study_profile`](#appstudy_profile) · [`app.study_session`](#appstudy_session) · [`app.study_session_item`](#appstudy_session_item) · [`app.tag`](#apptag) · [`app.user_achievement`](#appuser_achievement) · [`app.user_identity`](#appuser_identity) · [`app.user_session`](#appuser_session) · [`app.user_settings`](#appuser_settings) · [`app.user_stats`](#appuser_stats) · [`app.users`](#appusers) · [`app.xp_event`](#appxp_event) · [`app.xp_rule`](#appxp_rule)
+- **app** (37) — [`app.achievement`](#appachievement) · [`app.admin_audit_log`](#appadmin_audit_log) · [`app.ai_usage`](#appai_usage) · [`app.chat_message`](#appchat_message) · [`app.chat_session`](#appchat_session) · [`app.collection`](#appcollection) · [`app.collection_item`](#appcollection_item) · [`app.collection_item_face`](#appcollection_item_face) · [`app.collection_item_tag`](#appcollection_item_tag) · [`app.collection_share`](#appcollection_share) · [`app.device`](#appdevice) · [`app.feedback`](#appfeedback) · [`app.feedback_attachment`](#appfeedback_attachment) · [`app.gloss_report`](#appgloss_report) · [`app.google_oauth_challenge`](#appgoogle_oauth_challenge) · [`app.leaderboard_snapshot`](#appleaderboard_snapshot) · [`app.notification_log`](#appnotification_log) · [`app.quiz`](#appquiz) · [`app.quiz_question`](#appquiz_question) · [`app.reminder`](#appreminder) · [`app.review_log`](#appreview_log) (partition) · [`app.search_history`](#appsearch_history) · [`app.srs_review_receipt`](#appsrs_review_receipt) · [`app.srs_state`](#appsrs_state) · [`app.streak_day`](#appstreak_day) · [`app.study_profile`](#appstudy_profile) · [`app.study_session`](#appstudy_session) · [`app.study_session_item`](#appstudy_session_item) · [`app.tag`](#apptag) · [`app.user_achievement`](#appuser_achievement) · [`app.user_identity`](#appuser_identity) · [`app.user_session`](#appuser_session) · [`app.user_settings`](#appuser_settings) · [`app.user_stats`](#appuser_stats) · [`app.users`](#appusers) · [`app.xp_event`](#appxp_event) · [`app.xp_rule`](#appxp_rule)
 - **serve** (4) — [`serve.dictionary_search`](#servedictionary_search) (view) · [`serve.kanji_card`](#servekanji_card) (view) · [`serve.sense_card`](#servesense_card) (view) · [`serve.sense_pair`](#servesense_pair) (matview)
 
 ## Schema `public`
@@ -62,7 +62,7 @@ Tổng: **94 bảng** (chưa kể 36 partition) + **4 view/matview**.
 <a id="publicschema_migration"></a>
 ### `public.schema_migration`
 
-*table — 28 dòng*
+*table — 29 dòng*
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
@@ -1730,6 +1730,33 @@ Tổng: **94 bảng** (chưa kể 36 partition) + **4 view/matview**.
 - `achievement_rule_check` (check): CHECK ((jsonb_typeof(rule) = 'object'::text))
 - `achievement_xp_reward_check` (check): CHECK ((xp_reward >= 0))
 
+<a id="appadmin_audit_log"></a>
+### `app.admin_audit_log`
+
+*table — 0 dòng*
+
+| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
+|---|-----|------|------|----------|---------|
+| 1 | `id` | bigint | không | identity |  |
+| 2 | `admin_user_id` | bigint | không |  |  |
+| 3 | `action` | text | không |  |  |
+| 4 | `target_kind` | text | có |  |  |
+| 5 | `target_id` | text | có |  |  |
+| 6 | `payload` | jsonb | không | '{}'::jsonb |  |
+| 7 | `created_at` | timestamp with time zone | không | now() |  |
+
+**Khoá chính**: `PRIMARY KEY (id)`
+
+**Khoá ngoại**:
+- `admin_audit_log_admin_user_id_fkey`: FOREIGN KEY (admin_user_id) REFERENCES app.users(id) ON DELETE CASCADE
+
+**Ràng buộc khác**:
+- `admin_audit_log_action_check` (check): CHECK ((btrim(action) <> ''::text))
+- `admin_audit_log_payload_check` (check): CHECK ((jsonb_typeof(payload) = 'object'::text))
+
+**Chỉ mục**:
+- `admin_audit_recent`: CREATE INDEX admin_audit_recent ON app.admin_audit_log USING btree (created_at DESC)
+
 <a id="appai_usage"></a>
 ### `app.ai_usage`
 
@@ -2012,6 +2039,62 @@ Tổng: **94 bảng** (chưa kể 36 partition) + **4 view/matview**.
 **Chỉ mục**:
 - `device_by_user`: CREATE INDEX device_by_user ON app.device USING btree (user_id)
 - `device_push_unique`: CREATE UNIQUE INDEX device_push_unique ON app.device USING btree (push_provider, push_token) WHERE ((push_token IS NOT NULL) AND (revoked_at IS NULL))
+
+<a id="appfeedback"></a>
+### `app.feedback`
+
+*table — 0 dòng*
+
+| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
+|---|-----|------|------|----------|---------|
+| 1 | `id` | uuid | không |  |  |
+| 2 | `user_id` | bigint | không |  |  |
+| 3 | `category` | text | không |  |  |
+| 4 | `content` | text | không |  |  |
+| 5 | `status` | text | không | 'new'::text |  |
+| 6 | `admin_note` | text | có |  |  |
+| 7 | `created_at` | timestamp with time zone | không | now() |  |
+| 8 | `updated_at` | timestamp with time zone | không | now() |  |
+
+**Khoá chính**: `PRIMARY KEY (id)`
+
+**Khoá ngoại**:
+- `feedback_user_id_fkey`: FOREIGN KEY (user_id) REFERENCES app.users(id) ON DELETE CASCADE
+
+**Ràng buộc khác**:
+- `feedback_category_check` (check): CHECK ((category = ANY (ARRAY['bug'::text, 'feature'::text, 'content'::text, 'other'::text])))
+- `feedback_content_check` (check): CHECK ((btrim(content) <> ''::text))
+- `feedback_status_check` (check): CHECK ((status = ANY (ARRAY['new'::text, 'in_progress'::text, 'resolved'::text])))
+
+**Chỉ mục**:
+- `feedback_queue`: CREATE INDEX feedback_queue ON app.feedback USING btree (status, created_at)
+
+<a id="appfeedback_attachment"></a>
+### `app.feedback_attachment`
+
+*table — 0 dòng*
+
+| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
+|---|-----|------|------|----------|---------|
+| 1 | `id` | uuid | không |  |  |
+| 2 | `feedback_id` | uuid | không |  |  |
+| 3 | `storage_key` | text | không |  |  |
+| 4 | `mime` | text | không |  |  |
+| 5 | `size_bytes` | integer | không |  |  |
+| 6 | `created_at` | timestamp with time zone | không | now() |  |
+
+**Khoá chính**: `PRIMARY KEY (id)`
+
+**Khoá ngoại**:
+- `feedback_attachment_feedback_id_fkey`: FOREIGN KEY (feedback_id) REFERENCES app.feedback(id) ON DELETE CASCADE
+
+**Ràng buộc khác**:
+- `feedback_attachment_mime_check` (check): CHECK ((mime = ANY (ARRAY['image/jpeg'::text, 'image/png'::text, 'image/webp'::text])))
+- `feedback_attachment_size_bytes_check` (check): CHECK ((size_bytes > 0))
+- `feedback_attachment_storage_key_check` (check): CHECK ((btrim(storage_key) <> ''::text))
+
+**Chỉ mục**:
+- `feedback_attachment_by_feedback`: CREATE INDEX feedback_attachment_by_feedback ON app.feedback_attachment USING btree (feedback_id)
 
 <a id="appgloss_report"></a>
 ### `app.gloss_report`
@@ -2723,14 +2806,17 @@ Tổng: **94 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 6 | `created_at` | timestamp with time zone | không | now() |  |
 | 7 | `last_login_at` | timestamp with time zone | có |  |  |
 | 8 | `deleted_at` | timestamp with time zone | có |  |  |
+| 9 | `role` | text | không | 'user'::text |  |
 
 **Khoá chính**: `PRIMARY KEY (id)`
 
 **Ràng buộc khác**:
 - `users_email_check` (check): CHECK ((btrim(email) <> ''::text))
+- `users_role_check` (check): CHECK ((role = ANY (ARRAY['user'::text, 'admin'::text])))
 - `users_status_check` (check): CHECK ((status = ANY (ARRAY['active'::text, 'locked'::text, 'deleted'::text])))
 
 **Chỉ mục**:
+- `users_admin`: CREATE INDEX users_admin ON app.users USING btree (id) WHERE (role = 'admin'::text)
 - `users_by_status`: CREATE INDEX users_by_status ON app.users USING btree (status) WHERE (status <> 'active'::text)
 - `users_email_unique`: CREATE UNIQUE INDEX users_email_unique ON app.users USING btree (lower(email))
 
