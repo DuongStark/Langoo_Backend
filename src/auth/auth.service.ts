@@ -130,7 +130,10 @@ export class AuthService {
       throw invalidCredentials();
     }
 
-    const passwordOk = await argon2.verify(identity.passwordHash, dto.password);
+    const passwordOk = await this.verifyPassword(
+      identity.passwordHash,
+      dto.password,
+    );
     if (!passwordOk) {
       throw invalidCredentials();
     }
@@ -263,6 +266,18 @@ export class AuthService {
       timeCost: this.config.getOrThrow<number>('ARGON2_TIME_COST'),
       parallelism: 1,
     });
+  }
+
+  /** Hash lưu DB có thể hỏng (seed/di trú) — coi như sai mật khẩu, không 500. */
+  private async verifyPassword(
+    storedHash: string,
+    password: string,
+  ): Promise<boolean> {
+    try {
+      return await argon2.verify(storedHash, password);
+    } catch {
+      return false;
+    }
   }
 }
 

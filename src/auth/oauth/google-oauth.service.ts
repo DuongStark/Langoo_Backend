@@ -146,7 +146,16 @@ export class GoogleOauthService {
         HttpStatus.CONFLICT,
       );
     }
-    if (!(await argon2.verify(passwordIdentity.passwordHash, dto.password))) {
+    let passwordOk = false;
+    try {
+      passwordOk = await argon2.verify(
+        passwordIdentity.passwordHash,
+        dto.password,
+      );
+    } catch {
+      passwordOk = false;
+    }
+    if (!passwordOk) {
       throw new DomainException(
         'AUTH_INVALID_CREDENTIALS',
         'Email hoặc mật khẩu không đúng',

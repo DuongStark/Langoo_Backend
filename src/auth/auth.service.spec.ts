@@ -286,6 +286,23 @@ describe('AuthService', () => {
       ).rejects.toMatchObject({ code: 'AUTH_INVALID_CREDENTIALS' });
     });
 
+    it('hash lưu DB hỏng (seed/di trú) → AUTH_INVALID_CREDENTIALS thay vì 500', async () => {
+      const { service, prisma } = createSetup();
+      prisma.userIdentity.findUnique.mockResolvedValue({
+        id: 10n,
+        userId: 1n,
+        passwordHash: 'demo-placeholder-hash',
+        user: userRow(),
+      });
+
+      await expect(
+        service.login({
+          email: 'new@example.com',
+          password: 'matkhau12345',
+        }),
+      ).rejects.toMatchObject({ code: 'AUTH_INVALID_CREDENTIALS' });
+    });
+
     it('tài khoản locked → AUTH_ACCOUNT_LOCKED', async () => {
       const { service, prisma } = createSetup();
       const passwordHash = await argon2.hash('matkhau12345', {
