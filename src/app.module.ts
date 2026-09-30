@@ -1,8 +1,10 @@
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { APP_FILTER, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { LoggerModule } from 'nestjs-pino';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { SchedulerModule } from './common/scheduler/scheduler.module';
 import { validateEnv } from './config/env.schema';
 import { AiModule } from './ai/ai.module';
 import { AuthModule } from './auth/auth.module';
@@ -19,6 +21,14 @@ import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, validate: validateEnv }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        throttlers: [{ name: 'default', ttl: 60_000, limit: 120 }],
+        skipIf: () =>
+          configService.get<boolean>('RATE_LIMIT_ENABLED') === false,
+      }),
+    }),
     LoggerModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
@@ -45,6 +55,7 @@ import { UsersModule } from './users/users.module';
     DbModule,
     PrismaModule,
     AiModule,
+    SchedulerModule,
     AuthModule,
     DictionaryModule,
     CollectionsModule,
@@ -55,6 +66,7 @@ import { UsersModule } from './users/users.module';
     HealthModule,
   ],
   providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({

@@ -10,8 +10,12 @@ export class HealthService {
 
   async check(): Promise<HealthResponseDto> {
     const startedAt = Date.now();
+    let timezone = 'unknown';
     try {
-      await this.pool.query('SELECT 1 AS ok');
+      const result = await this.pool.query<{ tz: string }>(
+        "SELECT current_setting('TimeZone') AS tz",
+      );
+      timezone = result.rows[0]?.tz ?? 'unknown';
     } catch {
       throw new DomainException(
         'DB_UNAVAILABLE',
@@ -24,6 +28,7 @@ export class HealthService {
       status: 'ok',
       db: 'ok',
       db_latency_ms: Date.now() - startedAt,
+      db_timezone: timezone,
       uptime_s: Math.round(process.uptime()),
       time: new Date().toISOString(),
     };

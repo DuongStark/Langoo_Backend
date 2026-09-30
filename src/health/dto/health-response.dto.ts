@@ -13,6 +13,13 @@ export class HealthResponseDto {
   @ApiProperty({ example: 3, description: 'Độ trễ truy vấn DB (ms)' })
   db_latency_ms!: number;
 
+  @ApiProperty({
+    example: 'UTC',
+    description:
+      'TimeZone của session DB (phải là UTC; lệch nghĩa là ENV-01 có drift)',
+  })
+  db_timezone!: string;
+
   @ApiProperty({ example: 42, description: 'Số giây ứng dụng đã chạy' })
   uptime_s!: number;
 

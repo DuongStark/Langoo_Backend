@@ -15,8 +15,10 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
 import { AuthService } from './auth.service';
 import {
@@ -55,11 +57,16 @@ export class AuthController {
   ) {}
 
   @Post('register')
+  @Throttle({ default: { limit: 5, ttl: 3_600_000 } })
   @ApiOperation({ summary: 'Đăng ký tài khoản mới (tự đăng nhập)' })
   @ApiCreatedResponse({ type: AuthResultDto })
   @ApiConflictResponse({
     type: ErrorResponseDto,
     description: 'Email đã được đăng ký (AUTH_EMAIL_TAKEN)',
+  })
+  @ApiTooManyRequestsResponse({
+    type: ErrorResponseDto,
+    description: 'RATE_LIMITED (5 lần/giờ/IP)',
   })
   register(@Body() dto: RegisterDto): Promise<AuthResult> {
     return this.authService.register(dto);
@@ -67,11 +74,16 @@ export class AuthController {
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({ summary: 'Đăng nhập bằng email/mật khẩu' })
   @ApiOkResponse({ type: AuthResultDto })
   @ApiUnauthorizedResponse({
     type: ErrorResponseDto,
     description: 'AUTH_INVALID_CREDENTIALS / AUTH_ACCOUNT_LOCKED',
+  })
+  @ApiTooManyRequestsResponse({
+    type: ErrorResponseDto,
+    description: 'RATE_LIMITED (10 lần/phút/IP)',
   })
   login(@Body() dto: LoginDto): Promise<AuthResult> {
     return this.authService.login(dto);
@@ -79,6 +91,7 @@ export class AuthController {
 
   @Post('oauth/google')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Đăng nhập/đăng ký bằng Google ID token (OAuth2)',
     description:
@@ -97,6 +110,7 @@ export class AuthController {
   @Post('oauth/google/challenge')
   @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Tạo challenge dùng một lần cho Google login/link',
     description:
@@ -120,6 +134,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
   @ApiOperation({
     summary: 'Liên kết Google vào tài khoản hiện tại sau khi xác nhận mật khẩu',
   })
@@ -138,6 +153,7 @@ export class AuthController {
 
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 30, ttl: 60_000 } })
   @ApiOperation({ summary: 'Xoay vòng refresh token lấy cặp token mới' })
   @ApiOkResponse({ type: AuthTokensDto })
   @ApiUnauthorizedResponse({

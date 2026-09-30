@@ -5,6 +5,7 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
+import { ThrottlerException } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import { PinoLogger } from 'nestjs-pino';
 
@@ -69,6 +70,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
   }
 
   private toErrorResponse(exception: unknown): ErrorResponse {
+    if (exception instanceof ThrottlerException) {
+      return {
+        status: HttpStatus.TOO_MANY_REQUESTS,
+        body: {
+          code: 'RATE_LIMITED',
+          message: 'Bạn thao tác quá nhanh, vui lòng thử lại sau',
+        },
+      };
+    }
+
     if (!(exception instanceof HttpException)) {
       return {
         status: HttpStatus.INTERNAL_SERVER_ERROR,

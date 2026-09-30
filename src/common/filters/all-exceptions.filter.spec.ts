@@ -1,4 +1,5 @@
 import { BadRequestException, HttpStatus } from '@nestjs/common';
+import { ThrottlerException } from '@nestjs/throttler';
 import type { Request, Response } from 'express';
 import type { ArgumentsHost } from '@nestjs/common';
 import { PinoLogger } from 'nestjs-pino';
@@ -96,6 +97,19 @@ describe('AllExceptionsFilter', () => {
       code: 'VALIDATION_FAILED',
       message: 'Dữ liệu đầu vào không hợp lệ',
       details: ['email must be an email'],
+    });
+  });
+
+  it('ThrottlerException → 429 RATE_LIMITED với message thống nhất', () => {
+    const { filter } = createFilter();
+    const { host, response } = createContext();
+
+    filter.catch(new ThrottlerException(), host);
+
+    expect(response.status).toHaveBeenCalledWith(429);
+    expect(response.json).toHaveBeenCalledWith({
+      code: 'RATE_LIMITED',
+      message: 'Bạn thao tác quá nhanh, vui lòng thử lại sau',
     });
   });
 

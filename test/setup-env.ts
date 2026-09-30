@@ -52,3 +52,6 @@ process.env.NODE_ENV = 'test';
 if (process.env.LOG_LEVEL === undefined) {
   process.env.LOG_LEVEL = 'error';
 }
+// M12: e2e bắn rất nhiều request auth → tắt rate limit và scheduler cho ổn định.
+process.env.RATE_LIMIT_ENABLED = 'false';
+process.env.SCHEDULER_ENABLED = 'false';

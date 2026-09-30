@@ -102,6 +102,26 @@ export const envSchema = z.object({
     emptyToUndefined,
     z.coerce.number().int().min(0).optional(),
   ),
+
+  // M12 — Hardening.
+  RATE_LIMIT_ENABLED: z.preprocess(booleanEnv, z.boolean().default(true)),
+  SCHEDULER_ENABLED: z.preprocess(booleanEnv, z.boolean().default(true)),
+  CHAT_RETENTION_DAYS: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(0).default(180),
+  ),
+  DB_POOL_MAX: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(1).max(100).optional(),
+  ),
+  DB_POOL_IDLE_TIMEOUT_MS: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(1_000).max(600_000).optional(),
+  ),
+  DB_POOL_CONNECTION_TIMEOUT_MS: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(1_000).max(60_000).optional(),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema>;
