@@ -1,23 +1,16 @@
 # CSDL tham chiếu — Langoo
 
-> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-09-24 19:59** · PostgreSQL 16.2.
+> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-09-30 15:23** · PostgreSQL 16.2.
 > KHÔNG sửa tay — chạy lại script sau mỗi migration.
 
-> **M6.1 addendum (2026-09-27):** snapshot này được sinh trước migration 026/027 nên phần
-> bảng SRS bên dưới chưa phản ánh các cột mới. Local đã áp dụng `026_srs_scheduler.sql` và
-> `027_srs_review_integrity.sql`; schema hiện tại thêm `srs_state.learning_is_interday`,
-> đổi `srs_state.ease_factor` sang `double precision`, thêm `review_log.profile_id` /
-> `queue_kind_before` và bảng `app.srs_review_receipt` với khóa `(user_id, client_review_id)`.
-> Không chỉnh sửa lịch sử bảng sinh tự động; cần chạy lại công cụ dump sau khi duyệt rollout.
-
-Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
+Tổng: **94 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 ## Mục lục
 
 - **public** (5) — [`public.language`](#publiclanguage) · [`public.radical`](#publicradical) · [`public.schema_migration`](#publicschema_migration) · [`public.source`](#publicsource) · [`public.tag`](#publictag)
 - **staging** (14) — [`staging.ili_map_pwn30`](#stagingili_map_pwn30) · [`staging.import_batch`](#stagingimport_batch) · [`staging.jlpt_entry`](#stagingjlpt_entry) · [`staging.jmdict_entry`](#stagingjmdict_entry) · [`staging.kanji_data_entry`](#stagingkanji_data_entry) · [`staging.kanji_entry`](#stagingkanji_entry) · [`staging.krad_entry`](#stagingkrad_entry) · [`staging.omw_wikt_vi`](#stagingomw_wikt_vi) · [`staging.tatoeba_link`](#stagingtatoeba_link) · [`staging.tatoeba_sentence`](#stagingtatoeba_sentence) · [`staging.wikt_entry`](#stagingwikt_entry) · [`staging.wn_example`](#stagingwn_example) · [`staging.wn_relation`](#stagingwn_relation) · [`staging.wn_synset`](#stagingwn_synset)
 - **core** (41) — [`core.concept`](#coreconcept) · [`core.concept_gloss`](#coreconcept_gloss) · [`core.concept_gloss_history`](#coreconcept_gloss_history) · [`core.concept_label`](#coreconcept_label) · [`core.deck`](#coredeck) · [`core.deck_item`](#coredeck_item) · [`core.example`](#coreexample) · [`core.example_annotation`](#coreexample_annotation) · [`core.example_concept`](#coreexample_concept) · [`core.example_sense`](#coreexample_sense) · [`core.example_translation`](#coreexample_translation) · [`core.jlpt_link`](#corejlpt_link) · [`core.kanji`](#corekanji) · [`core.kanji_media`](#corekanji_media) · [`core.kanji_radical`](#corekanji_radical) · [`core.lexeme`](#corelexeme) · [`core.lexeme_form`](#corelexeme_form) · [`core.lexeme_form_applies_to`](#corelexeme_form_applies_to) · [`core.lexeme_form_char`](#corelexeme_form_char) · [`core.lexeme_form_kanji_char`](#corelexeme_form_kanji_char) · [`core.lexeme_form_tag`](#corelexeme_form_tag) · [`core.lexeme_level`](#corelexeme_level) · [`core.mapping_run`](#coremapping_run) · [`core.media_asset`](#coremedia_asset) · [`core.pronunciation`](#corepronunciation) · [`core.sense`](#coresense) · [`core.sense_concept`](#coresense_concept) · [`core.sense_concept_candidate`](#coresense_concept_candidate) · [`core.sense_concept_candidate_review`](#coresense_concept_candidate_review) · [`core.sense_form`](#coresense_form) · [`core.sense_gloss`](#coresense_gloss) · [`core.sense_gloss_history`](#coresense_gloss_history) · [`core.sense_relation`](#coresense_relation) · [`core.sense_relation_candidate`](#coresense_relation_candidate) · [`core.sense_tag`](#coresense_tag) · [`core.source_entry_identity`](#coresource_entry_identity) · [`core.source_form`](#coresource_form) · [`core.translation_assertion`](#coretranslation_assertion) · [`core.translation_target_candidate`](#coretranslation_target_candidate) · [`core.wordnet_relation`](#corewordnet_relation) · [`core.wordnet_synset`](#corewordnet_synset)
-- **app** (32) — [`app.achievement`](#appachievement) · [`app.ai_usage`](#appai_usage) · [`app.chat_message`](#appchat_message) · [`app.chat_session`](#appchat_session) · [`app.collection`](#appcollection) · [`app.collection_item`](#appcollection_item) · [`app.collection_item_face`](#appcollection_item_face) · [`app.collection_item_tag`](#appcollection_item_tag) · [`app.collection_share`](#appcollection_share) · [`app.device`](#appdevice) · [`app.gloss_report`](#appgloss_report) · [`app.leaderboard_snapshot`](#appleaderboard_snapshot) · [`app.notification_log`](#appnotification_log) · [`app.quiz`](#appquiz) · [`app.quiz_question`](#appquiz_question) · [`app.reminder`](#appreminder) · [`app.review_log`](#appreview_log) (partition) · [`app.search_history`](#appsearch_history) · [`app.srs_state`](#appsrs_state) · [`app.streak_day`](#appstreak_day) · [`app.study_profile`](#appstudy_profile) · [`app.study_session`](#appstudy_session) · [`app.study_session_item`](#appstudy_session_item) · [`app.tag`](#apptag) · [`app.user_achievement`](#appuser_achievement) · [`app.user_identity`](#appuser_identity) · [`app.user_session`](#appuser_session) · [`app.user_settings`](#appuser_settings) · [`app.user_stats`](#appuser_stats) · [`app.users`](#appusers) · [`app.xp_event`](#appxp_event) · [`app.xp_rule`](#appxp_rule)
+- **app** (34) — [`app.achievement`](#appachievement) · [`app.ai_usage`](#appai_usage) · [`app.chat_message`](#appchat_message) · [`app.chat_session`](#appchat_session) · [`app.collection`](#appcollection) · [`app.collection_item`](#appcollection_item) · [`app.collection_item_face`](#appcollection_item_face) · [`app.collection_item_tag`](#appcollection_item_tag) · [`app.collection_share`](#appcollection_share) · [`app.device`](#appdevice) · [`app.gloss_report`](#appgloss_report) · [`app.google_oauth_challenge`](#appgoogle_oauth_challenge) · [`app.leaderboard_snapshot`](#appleaderboard_snapshot) · [`app.notification_log`](#appnotification_log) · [`app.quiz`](#appquiz) · [`app.quiz_question`](#appquiz_question) · [`app.reminder`](#appreminder) · [`app.review_log`](#appreview_log) (partition) · [`app.search_history`](#appsearch_history) · [`app.srs_review_receipt`](#appsrs_review_receipt) · [`app.srs_state`](#appsrs_state) · [`app.streak_day`](#appstreak_day) · [`app.study_profile`](#appstudy_profile) · [`app.study_session`](#appstudy_session) · [`app.study_session_item`](#appstudy_session_item) · [`app.tag`](#apptag) · [`app.user_achievement`](#appuser_achievement) · [`app.user_identity`](#appuser_identity) · [`app.user_session`](#appuser_session) · [`app.user_settings`](#appuser_settings) · [`app.user_stats`](#appuser_stats) · [`app.users`](#appusers) · [`app.xp_event`](#appxp_event) · [`app.xp_rule`](#appxp_rule)
 - **serve** (4) — [`serve.dictionary_search`](#servedictionary_search) (view) · [`serve.kanji_card`](#servekanji_card) (view) · [`serve.sense_card`](#servesense_card) (view) · [`serve.sense_pair`](#servesense_pair) (matview)
 
 ## Schema `public`
@@ -69,7 +62,7 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 <a id="publicschema_migration"></a>
 ### `public.schema_migration`
 
-*table — 25 dòng*
+*table — 28 dòng*
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
@@ -1096,7 +1089,7 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 <a id="coremapping_run"></a>
 ### `core.mapping_run`
 
-*table — 19 dòng*
+*table — 20 dòng*
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
@@ -2055,6 +2048,39 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 - `gloss_report_gloss`: CREATE INDEX gloss_report_gloss ON app.gloss_report USING btree (target_kind, target_id)
 - `gloss_report_queue`: CREATE INDEX gloss_report_queue ON app.gloss_report USING btree (status, created_at)
 
+<a id="appgoogle_oauth_challenge"></a>
+### `app.google_oauth_challenge`
+
+*table — 0 dòng*
+
+| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
+|---|-----|------|------|----------|---------|
+| 1 | `id` | uuid | không |  |  |
+| 2 | `purpose` | text | không |  |  |
+| 3 | `user_id` | bigint | có |  |  |
+| 4 | `session_id` | uuid | có |  |  |
+| 5 | `nonce_hash` | text | không |  |  |
+| 6 | `binding_hash` | text | không |  |  |
+| 7 | `expires_at` | timestamp with time zone | không |  |  |
+| 8 | `consumed_at` | timestamp with time zone | có |  |  |
+| 9 | `created_at` | timestamp with time zone | không | now() |  |
+
+**Khoá chính**: `PRIMARY KEY (id)`
+
+**Khoá ngoại**:
+- `google_oauth_challenge_session_id_fkey`: FOREIGN KEY (session_id) REFERENCES app.user_session(id) ON DELETE CASCADE
+- `google_oauth_challenge_user_id_fkey`: FOREIGN KEY (user_id) REFERENCES app.users(id) ON DELETE CASCADE
+
+**Ràng buộc khác**:
+- `google_oauth_challenge_binding_hash_check` (check): CHECK ((btrim(binding_hash) <> ''::text))
+- `google_oauth_challenge_link_context` (check): CHECK ((((purpose = 'login'::text) AND (user_id IS NULL) AND (session_id IS NULL)) OR ((purpose = 'link'::text) AND (user_id IS NOT NULL) AND (session_id IS NOT NULL))))
+- `google_oauth_challenge_nonce_hash_check` (check): CHECK ((btrim(nonce_hash) <> ''::text))
+- `google_oauth_challenge_purpose_check` (check): CHECK ((purpose = ANY (ARRAY['login'::text, 'link'::text])))
+
+**Chỉ mục**:
+- `google_oauth_challenge_live`: CREATE INDEX google_oauth_challenge_live ON app.google_oauth_challenge USING btree (purpose, expires_at) WHERE (consumed_at IS NULL)
+- `google_oauth_challenge_user_live`: CREATE INDEX google_oauth_challenge_user_live ON app.google_oauth_challenge USING btree (user_id, expires_at) WHERE ((consumed_at IS NULL) AND (user_id IS NOT NULL))
+
 <a id="appleaderboard_snapshot"></a>
 ### `app.leaderboard_snapshot`
 
@@ -2238,20 +2264,29 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 6 | `mode` | text | không | 'flashcard'::text |  |
 | 7 | `elapsed_ms` | integer | có |  |  |
 | 8 | `reviewed_at` | timestamp with time zone | không | now() |  |
+| 9 | `client_review_id` | uuid | có |  |  |
+| 10 | `prev_state` | text | có |  |  |
+| 11 | `profile_id` | uuid | có |  |  |
+| 12 | `queue_kind_before` | text | có |  |  |
 
 **Khoá chính**: `PRIMARY KEY (id, reviewed_at)`
 
 **Khoá ngoại**:
+- `review_log_profile_id_fkey`: FOREIGN KEY (profile_id) REFERENCES app.study_profile(id) ON DELETE SET NULL
 - `review_log_srs_id_fkey`: FOREIGN KEY (srs_id) REFERENCES app.srs_state(id) ON DELETE SET NULL
 - `review_log_user_id_fkey`: FOREIGN KEY (user_id) REFERENCES app.users(id) ON DELETE CASCADE
 
 **Ràng buộc khác**:
 - `review_log_elapsed_ms_check` (check): CHECK ((elapsed_ms >= 0))
 - `review_log_mode_check` (check): CHECK ((mode = ANY (ARRAY['flashcard'::text, 'multiple_choice'::text, 'matching'::text, 'typing'::text, 'listening'::text])))
+- `review_log_prev_state_check` (check): CHECK (((prev_state IS NULL) OR (prev_state = ANY (ARRAY['new'::text, 'learning'::text, 'review'::text, 'relearning'::text]))))
+- `review_log_queue_kind_check` (check): CHECK (((queue_kind_before IS NULL) OR (queue_kind_before = ANY (ARRAY['new'::text, 'intraday_learning'::text, 'interday_learning'::text, 'review'::text]))))
 - `review_log_rating_check` (check): CHECK (((rating >= 1) AND (rating <= 4)))
 
 **Chỉ mục**:
 - `review_log_by_user`: CREATE INDEX review_log_by_user ON ONLY app.review_log USING btree (user_id, reviewed_at DESC)
+- `review_log_client_review`: CREATE INDEX review_log_client_review ON ONLY app.review_log USING btree (user_id, client_review_id) WHERE (client_review_id IS NOT NULL)
+- `review_log_user_profile_time`: CREATE INDEX review_log_user_profile_time ON ONLY app.review_log USING btree (user_id, profile_id, reviewed_at DESC)
 
 **Partition** (36): `review_log_2026_09`, `review_log_2026_10`, `review_log_2026_11`, `review_log_2026_12`, `review_log_2027_01`, `review_log_2027_02`, `review_log_2027_03`, `review_log_2027_04` … (+28)
 
@@ -2285,6 +2320,28 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 **Chỉ mục**:
 - `search_history_recent`: CREATE INDEX search_history_recent ON app.search_history USING btree (user_id, created_at DESC)
 
+<a id="appsrs_review_receipt"></a>
+### `app.srs_review_receipt`
+
+*table — 0 dòng*
+
+| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
+|---|-----|------|------|----------|---------|
+| 1 | `user_id` | bigint | không |  |  |
+| 2 | `client_review_id` | uuid | không |  |  |
+| 3 | `request_payload` | jsonb | không |  |  |
+| 4 | `response_payload` | jsonb | không |  |  |
+| 5 | `created_at` | timestamp with time zone | không | now() |  |
+
+**Khoá chính**: `PRIMARY KEY (user_id, client_review_id)`
+
+**Khoá ngoại**:
+- `srs_review_receipt_user_id_fkey`: FOREIGN KEY (user_id) REFERENCES app.users(id) ON DELETE CASCADE
+
+**Ràng buộc khác**:
+- `srs_review_receipt_request_payload_check` (check): CHECK ((jsonb_typeof(request_payload) = 'object'::text))
+- `srs_review_receipt_response_payload_check` (check): CHECK ((jsonb_typeof(response_payload) = 'object'::text))
+
 <a id="appsrs_state"></a>
 ### `app.srs_state`
 
@@ -2309,6 +2366,11 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 15 | `suspended` | boolean | không | false |  |
 | 16 | `created_at` | timestamp with time zone | không | now() |  |
 | 17 | `updated_at` | timestamp with time zone | không | now() |  |
+| 18 | `ease_factor` | double precision | không | 2.5 |  |
+| 19 | `learning_step` | smallint | có |  |  |
+| 20 | `introduced_at` | timestamp with time zone | có |  |  |
+| 21 | `buried_until` | timestamp with time zone | có |  |  |
+| 22 | `learning_is_interday` | boolean | không | false |  |
 
 **Khoá chính**: `PRIMARY KEY (id)`
 
@@ -2320,8 +2382,10 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 **Ràng buộc khác**:
 - `srs_state_difficulty_check` (check): CHECK ((difficulty > (0)::double precision))
 - `srs_state_direction_check` (check): CHECK ((direction = ANY (ARRAY['recognize'::text, 'recall'::text])))
+- `srs_state_ease_factor_check` (check): CHECK ((ease_factor >= (1.3)::double precision))
 - `srs_state_elapsed_days_check` (check): CHECK ((elapsed_days >= 0))
 - `srs_state_lapses_check` (check): CHECK ((lapses >= 0))
+- `srs_state_learning_step_check` (check): CHECK (((learning_step IS NULL) OR (learning_step >= 0)))
 - `srs_state_reps_check` (check): CHECK ((reps >= 0))
 - `srs_state_scheduled_days_check` (check): CHECK ((scheduled_days >= 0))
 - `srs_state_stability_check` (check): CHECK ((stability > (0)::double precision))
@@ -2598,6 +2662,8 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 5 | `notify` | jsonb | không | '{}'::jsonb |  |
 | 6 | `active_profile_id` | uuid | có |  |  |
 | 7 | `updated_at` | timestamp with time zone | không | now() |  |
+| 8 | `srs_new_per_day` | smallint | không | 20 |  |
+| 9 | `srs_review_per_day` | smallint | không | 200 |  |
 
 **Khoá chính**: `PRIMARY KEY (user_id)`
 
@@ -2609,6 +2675,8 @@ Tổng: **92 bảng** (chưa kể 36 partition) + **4 view/matview**.
 **Ràng buộc khác**:
 - `user_settings_daily_goal_check` (check): CHECK (((daily_goal >= 1) AND (daily_goal <= 500)))
 - `user_settings_notify_check` (check): CHECK ((jsonb_typeof(notify) = 'object'::text))
+- `user_settings_srs_new_per_day_check` (check): CHECK (((srs_new_per_day >= 1) AND (srs_new_per_day <= 9999)))
+- `user_settings_srs_review_per_day_check` (check): CHECK (((srs_review_per_day >= 1) AND (srs_review_per_day <= 9999)))
 
 <a id="appuser_stats"></a>
 ### `app.user_stats`

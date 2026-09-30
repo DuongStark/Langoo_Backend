@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-30 (M11 AI Quiz xong chờ review; M6/M6.1 audit local đạt; M10 AI Chatbot xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-09-30 (M12 Hardening xong chờ review; M11 AI Quiz xong; M6/M6.1 audit local đạt; M10 AI Chatbot xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -25,7 +25,7 @@
 | M9   | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                             |
 | M10  | AI Chatbot                                                                | ✅ hoàn thành (chờ review): stub/openai-compatible + phiên/tin nhắn + quota; [kế hoạch](docs/plans/m10-ai-chatbot.md) |
 | M11  | AI Quiz                                                                   | ✅ hoàn thành (chờ review): 3 loại câu hỏi + mixed, quota 15/ngày + cooldown; [kế hoạch](docs/plans/m11-ai-quiz.md) |
-| M12  | Hardening                                                                 | ⬜ chờ                                                                                                                |
+| M12  | Hardening                                                                 | ✅ hoàn thành (chờ review): rate limit, scheduler (search_history/partition/chat retention), pool env, journey e2e; [kế hoạch](docs/plans/m12-hardening.md) |
 | M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ⬜ chờ (thêm 2026-09-27)                                                                                              |
 
 ## Quyết định đã chốt
@@ -95,6 +95,9 @@
 | 2026-09-30 | M11 provider **stub deterministic** (kể cả khi `AI_PROVIDER` là provider thật — có log cảnh báo); adapter LLM thật + AI giải thích đáp án để backlog | Tránh tốn token khi chưa cần |
 | 2026-09-30 | M11 chống lạm dụng: quota **15 quiz/ngày** (`AI_QUIZ_DAILY_LIMIT`), cooldown **15s** + dedup cùng tham số (`AI_QUIZ_COOLDOWN_MS`); validate nguồn + dry-run trước khi reserve quota | Chủ dự án lo người dùng lạm dụng sinh quiz tốn token |
 | 2026-09-30 | M11 XP: chỉ câu đúng cộng `quiz_correct` (+5); mọi câu vẫn cập nhật streak/user_stats qua `xpEligible` mới của GamificationService; phiên quiz trả `srs: null` | Chủ dự án chốt |
+| 2026-09-30 | **M12 rate limit**: `@nestjs/throttler` (in-memory) — global 120/phút/IP; login 10/phút; register 5/giờ; oauth 10/phút; refresh 30/phút; lỗi `429 RATE_LIMITED`; e2e tự tắt bằng `RATE_LIMIT_ENABLED=false` | Chủ dự án duyệt (D1) |
+| 2026-09-30 | **M12 scheduler nội bộ** (không thêm dependency): tick 60s + advisory lock từng job; dọn `search_history` còn 50/user, tạo partition `review_log` trước 2 tháng, retention chat 180 ngày | Duyệt D2/D6 |
+| 2026-09-30 | **M12 pool & ENV-01**: `DB_POOL_MAX/IDLE_TIMEOUT/CONNECTION_TIMEOUT` dùng chung PrismaPg + health pool; boot cảnh báo lệch TimeZone; `/v1/health` thêm `db_timezone`; khuyến nghị `sslmode=verify-full` | Duyệt D3/D4 |
 
 ## Nhật ký sửa lỗi theo milestone
 
@@ -213,18 +216,23 @@
 - XP: `quiz_correct` (+5, cap 200) **chỉ khi đúng**; câu sai vẫn tính streak/activity (`xpEligible` mới ở GamificationService); replay cùng ordinal không cộng đôi.
 - Kiểm chứng local 2026-09-30: lint/build sạch, **37 suite/269 unit**, **13 suite/131 e2e** (7 kịch bản quiz mới). Không migration, không dependency mới. Docs: [kế hoạch](docs/plans/m11-ai-quiz.md) + [API quizzes](docs/api/quizzes.md).
 
+### M12 — Hardening (đã triển khai, chờ review)
+
+- **Rate limit** (`@nestjs/throttler`): global 120/phút/IP; `register` 5/giờ; `login` 10/phút; `oauth/google*` 10/phút; `refresh` 30/phút; exception filter map `429 RATE_LIMITED`; e2e tắt bằng `RATE_LIMIT_ENABLED=false`.
+- **Scheduler nội bộ** `src/common/scheduler`: tick 60s, mỗi job một transaction giữ `pg_try_advisory_xact_lock` (an toàn đa instance). Jobs: dọn `search_history` còn 50 dòng/user; `app.ensure_month_partition` trước 2 tháng; retention chat `CHAT_RETENTION_DAYS` (mặc định 180). Tắt bằng `SCHEDULER_ENABLED=false`/NODE_ENV=test.
+- **Pool & ENV-01**: `DB_POOL_MAX` 10 / `DB_POOL_IDLE_TIMEOUT_MS` 30s / `DB_POOL_CONNECTION_TIMEOUT_MS` 10s dùng chung PrismaPg + pool health; boot cảnh báo nếu session TimeZone ≠ UTC; `/v1/health` trả thêm `db_timezone`; `.env.example` khuyến nghị `sslmode=verify-full`.
+- **E2E tổng** `test/journey.e2e-spec.ts`: register → hồ sơ → bộ sưu tập → tra từ (ghi lịch sử) → phiên ôn (1 thẻ để tránh burying sibling) → quiz → stats/achievements.
+- **Audit blacklist**: grep toàn `src` — 0 ghi vào `core/serve/public/staging`, 0 `SELECT *`.
+- Kiểm chứng local 2026-09-30: lint/build sạch, **40 suite/279 unit**, **14 suite/132 e2e**. CSDL doc đã regenerate (026/027/029 vào DB full local).
+
 ## Backlog
 
-- **M12 — ENV-01 còn lại:** kiểm tra pool/reconnect/runtime/direct cloud, phát hiện timezone drift sau deploy; timezone ngày học vẫn theo settings user. M6.1 đã chuẩn hóa URL test với `options=-c%20timezone%3DUTC` và kiểm tra session thực tế. Chi tiết: [plan M6.1](docs/plans/m6.1-srs-fixes.md).
-- Cân nhắc ghi rõ `sslmode=verify-full` (hoặc `uselibpqcompat=true`) cho URL cloud để hết cảnh báo của `pg` 8.16+ — hiện `sslmode=require` đang được xử lý như `verify-full` (an toàn, chỉ ồn log).
-- CI GitHub Actions đã cấu hình nhưng **chưa chạy** (repo chưa push) — kiểm chứng ở lần push tới.
+- **M12 — ENV-01 còn lại:** pool/boot-check đã làm ở M12 (`DB_POOL_*`, cảnh báo TimeZone, `db_timezone` trong health); còn **smoke test runtime trên cloud sau deploy** để xác nhận không drift.
+- CI GitHub Actions đang chạy xanh trên mọi push (kiểm chứng 2026-09-29/30).
 - `npm audit`: 4 lỗ `high` nằm trong `mysql2@3.15.3` + `deepmerge-ts` — dependency **của Prisma CLI (dev)**, không thuộc runtime API; theo dõi khi Prisma phát hành bản vá (KHÔNG chạy `npm audit fix --force` vì sẽ kéo về Prisma 6).
-- Prisma 7 dùng connection pool của `pg` (không còn pool mặc định của Prisma) — cấu hình `max`/`connectionTimeoutMillis` cho `PrismaPg` khi vào giai đoạn tải thật (M12 hardening).
-- Rate limit cho `/auth/login` + `/auth/register` (chống brute force) — theo kế hoạch M12, chưa làm ở M2.
 - `user_settings.notify` (jsonb) chưa chốt cấu trúc khoá — M9 tạm gác nên vẫn để ngỏ.
 - **M10 AI — backlog:** streaming (SSE) cho trả lời dài; nén `summary` khi hội thoại dài; adapter Gemini riêng (hiện dùng gateway OpenAI-compatible); idempotency tin nhắn khi retry mạng; retention chat 6 tháng (dọn định kỳ); bảng giá token để `cost_usd` thật thay vì 0.
 - **M11 AI Quiz — backlog:** adapter LLM thật cho quiz (JSON mode + prompt tuning); AI giải thích đáp án từng câu; matching cho phiên review M7; siết `question_count` theo số từ nguồn nếu cần.
-- Job dọn `search_history` còn 50 dòng/user (CONTEXT §6.4) — làm ở M12 (cron).
 - **Xác thực email + recovery cho tài khoản password** — đề xuất đưa lên đợt B của [M2.3](docs/plans/m2.3-google-oauth-fixes.md) thay vì đợi M12; cần dịch vụ email/client và migration được duyệt, chưa triển khai.
 - **Nonce OAuth dùng một lần** — backend challenge đã có ở đợt C của M2.3 nhưng tắt mặc định; cần apply migration 029 và hỗ trợ SDK/client trước khi bật.
 - **Apple Sign In** — bắt buộc cho iOS App Store nếu app có social login khác; dùng lại hạ tầng session tách ở M2.2.
@@ -256,9 +264,9 @@
 
 ## Kế tiếp dự kiến
 
-- **M2.3 — Sửa OAuth:** A đã triển khai; C có backend opt-in, migration 029 đã apply **local** (chưa apply cloud); B (email verification/recovery/session guard) cần chốt dịch vụ email và client trước.
-- **M6/M6.1 — Đã hoàn tất local:** 14 phát hiện + ENV-01 đã pass audit; giữ smoke test cloud/runtime ở M12.
-- **M12 — Hardening:** kiểm tra runtime cloud/pool/reconnect; 026/027 đã apply, không cần rollout lại hai migration này.
+- **M13 — Admin, Curation & Feedback** (trọng tâm thống kê vận hành + hộp thư feedback text/ảnh) — phạm vi dự kiến ở mục dưới.
+- **M2.3 đợt B** — xác thực email/recovery/session guard: cần chốt dịch vụ email (Brevo/Resend) + client trước khi triển khai.
+- **Cloud smoke sau deploy M12**: gọi `/v1/health` xác nhận `db_timezone=UTC`, thử 429 rate limit nhẹ.
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)
 
