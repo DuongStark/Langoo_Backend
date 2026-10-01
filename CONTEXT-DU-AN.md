@@ -29,7 +29,7 @@ không cần mang theo khi chuyển folder.
 
 **Quy ước số migration:** file `db/migrations/NNN_tên.sql` chạy tuần tự theo tên;
 `scripts/apply_migrations.py` ghi tên đã chạy vào `public.schema_migration`.
-Hiện đã chạy **001–025**; số tiếp theo là **026**. Không sửa file đã chạy.
+Hiện đã chạy **001–027 và 029–032** (số **028** để trống, dành cho đợt B xác thực email M2.3); số tiếp theo là **033**. Không sửa file đã chạy.
 
 ---
 

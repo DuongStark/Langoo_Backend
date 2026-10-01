@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-09-30 (M13 Admin/Feedback xong chờ review; M12 Hardening xong; M11 AI Quiz xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-01 (DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 Admin/Feedback xong chờ review; M12 Hardening xong; M11 AI Quiz xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -27,6 +27,16 @@
 | M11  | AI Quiz                                                                   | ✅ hoàn thành (chờ review): 3 loại câu hỏi + mixed, quota 15/ngày + cooldown; [kế hoạch](docs/plans/m11-ai-quiz.md) |
 | M12  | Hardening                                                                 | ✅ hoàn thành (chờ review): rate limit, scheduler (search_history/partition/chat retention), pool env, journey e2e; [kế hoạch](docs/plans/m12-hardening.md) |
 | M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ v1 hoàn thành (chờ review): vai admin, thống kê aggregate, feedback text+ảnh, gloss_report, khoá/mở user, audit ([kế hoạch](docs/plans/m13-admin-curation-feedback.md))                                                                                              |
+
+## Lộ trình DB (chốt 2026-10-01 — "thiết kế nốt cái DB")
+
+| # | Phase | Nội dung | Trạng thái |
+| --- | --- | --- | --- |
+| DB1 | Dọn schema & chốt nguồn sự thật | PK staging còn thiếu; metadata curation (`concept.reviewed_by/at`, `candidate.decision_run_id` + index); COMMENT ngữ nghĩa; regenerate CSDL doc; sửa tài liệu sai số | ✅ đã triển khai ([kế hoạch](docs/plans/db1-schema-cleanup.md)) |
+| DB2 | Hạ tầng tìm kiếm | `pg_trgm` + `unaccent` (local/VPS); migration index trigram `lexeme.lemma/reading/romanization` + `lexeme_form.form_text`; benchmark; đổi search backend dùng index | 📋 kế tiếp |
+| DB3 | Seed dữ liệu nền | `radical` 214; KanjiVG → `media_asset`/`kanji_media`; deck hệ thống; gloss tiếng Việt cấp sense/concept; chốt chính sách JLPT; audit `/credits` | 📋 |
+| DB4 | Hoàn tất mapping sense↔concept | Candidate generator + chấm điểm + LLM 2 lượt + audit + promote/rollback theo `mapping_run`; dọn tồn translations/relations/Tatoeba/OMW; view coverage | 📋 chặng dài — cần chốt ngân sách LLM |
+| DB5 | Curation + serve + go-live DB thật | Quy trình duyệt concept/gloss; refresh `serve.sense_pair`; giao M14 (admin ghi `core`); chuyển API VPS về DB thật | 📋 |
 
 ## Quyết định đã chốt
 
@@ -248,6 +258,12 @@
 - `.env` production tại `/opt/langoo/app/.env` (600, user `langoo`) theo file env chủ dự án: hiện trỏ **DB Prisma cloud tạm** (chốt "data thật chưa hoàn thiện"), `CORS_ORIGINS=*`, Google client ID. Bản trỏ DB thật VPS giữ ở `.env.localdb.bak` — đổi lại `DATABASE_URL`/`DIRECT_URL` là về DB thật. Override thêm: `NODE_ENV=production`, `LOG_LEVEL=info`, `STORAGE_DIR=/opt/langoo/storage`.
 - Auto-deploy: push `main` → CI xanh → `.github/workflows/deploy.yml` SSH vào VPS (secrets `VPS_HOST/VPS_USER/VPS_SSH_KEY`) → `/opt/langoo/deploy.sh` (`git reset` + `npm ci` + build + `pm2 reload` + health check). Migration vẫn chạy **thủ công trước khi push**.
 
+### DB1 — Dọn schema & chốt nguồn sự thật (đã triển khai 2026-10-01, chờ review)
+
+- Migration `031_staging_pks.sql`: PK surrogate `id` cho `staging.wn_example`/`wn_relation` — hết bảng thiếu PK trên toàn DB. `032_curation_metadata.sql`: `concept.reviewed_by/at` + CHECK cặp; `candidate.decision_run_id` (FK `mapping_run`) + partial index rollback theo lô; COMMENT ngữ nghĩa `sense_concept.verified` (nguồn chuẩn/người duyệt), `concept.status`, `reviewed_by` (tham chiếu logic `app.users`, không FK theo bất biến core→app).
+- Đã áp: **VPS** (sau backup `langoo-2026-10-01-1854.dump`; chuyển quyền schema `staging` từ `postgres` → `langoo` để một role thống nhất chạy migration), **DB full local** (override URL vì `.env` local đang trỏ `langoo_test`), **DB test** qua `db:test:reset`; **không áp cloud Prisma** (đang là DB demo).
+- CI xanh `b69c78a`; `CSDL-THAM-CHIEU.md` regenerate (2.924 dòng) + đồng bộ 2 repo; CONTEXT/README cập nhật quy ước số migration (001–032, 028 để trống, số mới từ 033).
+
 ## Backlog
 
 - **M12 — ENV-01 còn lại:** pool/boot-check đã làm ở M12 (`DB_POOL_*`, cảnh báo TimeZone, `db_timezone` trong health); còn **smoke test runtime trên cloud sau deploy** để xác nhận không drift.
@@ -291,8 +307,8 @@
 
 ## Kế tiếp dự kiến
 
-- **M14 (đề xuất) — Curation ghi `core`**: duyệt gloss/concept (`reviewed_by`), quản lý deck — cần chốt ngoại lệ blacklist + audit + ma trận quyền trước khi code.
-- **Chuyển API sang VPS** (khi bạn muốn): mở `pg_hba` + SSL + mật khẩu mạnh, đổi `DATABASE_URL`/`DIRECT_URL` trên Render; smoke `/v1/health` + dictionary search trên dữ liệu thật.
+- **M14 / DB5 (đề xuất) — Curation ghi `core`**: duyệt gloss/concept (`reviewed_by`), quản lý deck — cần chốt ngoại lệ blacklist + audit + ma trận quyền trước khi code.
+- **DB2 (kế tiếp)** — hạ tầng tìm kiếm: cài `pg_trgm` + `unaccent` trên local/VPS, migration index trigram, benchmark search trên 2,4M lexeme.
 - **M2.3 đợt B** — xác thực email/recovery/session guard: cần chốt dịch vụ email (Brevo/Resend) + client trước khi triển khai.
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)

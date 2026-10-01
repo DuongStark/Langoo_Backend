@@ -1,6 +1,6 @@
 # Kế hoạch DB1 — Dọn schema & chốt nguồn sự thật
 
-> Trạng thái: **đang triển khai** — chủ dự án chốt 2026-10-01: xử lý trực tiếp trên **DB VPS**,
+> Trạng thái: **đã triển khai 2026-10-01 (chờ review)** — chủ dự án chốt: xử lý trực tiếp trên **DB VPS**,
 > DB local là bản backup. DB1 không đổi hành vi app, không cần sửa code backend.
 > Thuộc lộ trình DB (DB1–DB5) đã đề xuất trong PROGRESS.
 
@@ -44,3 +44,11 @@
 - Thêm PK vào bảng staging lớn (`wn_relation` 582k dòng) → rewrite bảng vài giây trên VPS; đã backup trước khi chạy.
 - Nếu VPS lỗi: restore dump backup gần nhất (`/var/backups/langoo`); local full vẫn là bản độc lập.
 - DB test bắt buộc reset từ dump nền để chứng minh migration chạy được trên schema 001–025.
+
+## 6. Kết quả triển khai (2026-10-01)
+
+- CI xanh tại `b69c78a` (migration + e2e chạy trên DB reset có đủ 001–032).
+- **VPS**: backup `langoo-2026-10-01-1854.dump` trước khi chạy; migrate bằng role `langoo` sau khi chuyển quyền schema `staging` (và các bảng) từ `postgres` → `langoo` để **một role thống nhất** chạy mọi migration về sau (sequence đi kèm bảng tự đổi chủ).
+- **Local full** (`55432/langoo`): áp 031/032 thành công (phải override `DATABASE_URL/DIRECT_URL` vì `.env` local đang trỏ `langoo_test`).
+- **Cloud Prisma**: không áp (đang là DB demo).
+- `CSDL-THAM-CHIEU.md` regenerate (2.924 dòng) và đồng bộ 2 repo; CONTEXT/README cập nhật quy ước số migration.

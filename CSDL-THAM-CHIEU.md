@@ -1,6 +1,6 @@
 # CSDL tham chiếu — Langoo
 
-> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-09-30 16:00** · PostgreSQL 16.2.
+> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-10-01 19:00** · PostgreSQL 16.2.
 > KHÔNG sửa tay — chạy lại script sau mỗi migration.
 
 Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
@@ -62,7 +62,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 <a id="publicschema_migration"></a>
 ### `public.schema_migration`
 
-*table — 29 dòng*
+*table — 31 dòng*
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
@@ -336,6 +336,9 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 3 | `example` | text | không |  |  |
 | 4 | `language` | text | có |  |  |
 | 5 | `batch_id` | uuid | không |  |  |
+| 6 | `id` | bigint | không | identity | Surrogate PK (DB1) — WordNet không có khoá tự nhiên. |
+
+**Khoá chính**: `PRIMARY KEY (id)`
 
 **Khoá ngoại**:
 - `wn_example_batch_id_fkey`: FOREIGN KEY (batch_id) REFERENCES staging.import_batch(id)
@@ -355,6 +358,9 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 3 | `target_id` | text | không |  |  |
 | 4 | `rel_type` | text | không |  |  |
 | 5 | `batch_id` | uuid | không |  |  |
+| 6 | `id` | bigint | không | identity | Surrogate PK (DB1) — WordNet không có khoá tự nhiên. |
+
+**Khoá chính**: `PRIMARY KEY (id)`
 
 **Khoá ngoại**:
 - `wn_relation_batch_id_fkey`: FOREIGN KEY (batch_id) REFERENCES staging.import_batch(id)
@@ -403,9 +409,11 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 4 | `gloss_en` | text | có |  |  |
 | 5 | `gloss_vi` | text | có |  |  |
 | 6 | `cefr` | text | có |  |  |
-| 7 | `status` | text | không | 'draft'::text |  |
+| 7 | `status` | text | không | 'draft'::text | draft → review → curated/rejected; chỉ curated + confidence ≥ 0.7 vào serve.sense_pair. |
 | 8 | `source_id` | integer | có |  |  |
 | 9 | `batch_id` | uuid | có |  |  |
+| 10 | `reviewed_by` | bigint | có |  | ID curator (tham chiếu logic app.users.id, không FK do bất biến core→app). |
+| 11 | `reviewed_at` | timestamp with time zone | có |  | Thời điểm duyệt concept; luôn đi cặp với reviewed_by. |
 
 **Khoá chính**: `PRIMARY KEY (id)`
 
@@ -416,6 +424,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 **Ràng buộc khác**:
 - `concept_ili_check` (check): CHECK (((ili IS NULL) OR (btrim(ili) <> ''::text)))
 - `concept_pos_check` (check): CHECK ((pos = ANY (ARRAY['noun'::text, 'verb'::text, 'adjective'::text, 'adverb'::text, 'pronoun'::text, 'determiner'::text, 'particle'::text, 'auxiliary'::text, 'conjunction'::text, 'interjection'::text, 'expression'::text, 'counter'::text, 'prefix'::text, 'suffix'::text, 'unknown'::text])))
+- `concept_review_pair` (check): CHECK (((reviewed_by IS NULL) = (reviewed_at IS NULL)))
 - `concept_status_check` (check): CHECK ((status = ANY (ARRAY['draft'::text, 'review'::text, 'curated'::text, 'rejected'::text])))
 - `concept_ili_key` (unique): UNIQUE (ili)
 
@@ -1234,7 +1243,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 3 | `relation` | text | không | 'exact'::text |  |
 | 4 | `confidence` | real | không | 1.0 |  |
 | 5 | `method` | text | không |  |  |
-| 6 | `verified` | boolean | không | false |  |
+| 6 | `verified` | boolean | không | false | true = liên kết nguồn chuẩn (WordNet/OMW) hoặc do người duyệt; false = máy/LLM chưa audit. |
 | 7 | `source_id` | integer | có |  |  |
 | 8 | `batch_id` | uuid | có |  |  |
 | 9 | `mapping_run_id` | bigint | có |  |  |
@@ -1277,11 +1286,13 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 11 | `llm_result` | jsonb | không | '{}'::jsonb |  |
 | 12 | `artifact_hash` | text | có |  |  |
 | 13 | `decided_at` | timestamp with time zone | có |  |  |
+| 14 | `decision_run_id` | bigint | có |  | mapping_run đưa ra quyết định cuối (promote/reject) — dùng rollback theo lô. |
 
 **Khoá chính**: `PRIMARY KEY (id)`
 
 **Khoá ngoại**:
 - `sense_concept_candidate_concept_id_fkey`: FOREIGN KEY (concept_id) REFERENCES core.concept(id) ON DELETE RESTRICT
+- `sense_concept_candidate_decision_run_id_fkey`: FOREIGN KEY (decision_run_id) REFERENCES core.mapping_run(id)
 - `sense_concept_candidate_run_id_fkey`: FOREIGN KEY (run_id) REFERENCES core.mapping_run(id) ON DELETE RESTRICT
 - `sense_concept_candidate_sense_id_fkey`: FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT
 
@@ -1296,6 +1307,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 - `sense_concept_candidate_run_id_sense_id_concept_id_relation_key` (unique): UNIQUE (run_id, sense_id, concept_id, relation)
 
 **Chỉ mục**:
+- `sense_concept_candidate_decision_run`: CREATE INDEX sense_concept_candidate_decision_run ON core.sense_concept_candidate USING btree (decision_run_id) WHERE (decision_run_id IS NOT NULL)
 - `sense_concept_candidate_queue`: CREATE INDEX sense_concept_candidate_queue ON core.sense_concept_candidate USING btree (decision, run_id, score DESC)
 - `sense_concept_candidate_sense`: CREATE INDEX sense_concept_candidate_sense ON core.sense_concept_candidate USING btree (sense_id, decision, calibrated_score DESC)
 

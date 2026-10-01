@@ -10,7 +10,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 | [`CONTEXT-DU-AN.md`](CONTEXT-DU-AN.md)     | **Đọc đầu tiên** — ngữ cảnh toàn dự án: sản phẩm, kiến trúc, CSDL theo tầng, quy ước, luồng nghiệp vụ, lộ trình |
 | [`PROMPT-BACKEND.md`](PROMPT-BACKEND.md)   | Quy trình làm việc + prompt để dán vào agent (làm từng milestone, dừng chờ review)                              |
 | [`CSDL-THAM-CHIEU.md`](CSDL-THAM-CHIEU.md) | Tham chiếu CSDL đầy đủ (bảng/cột/FK/index) — sinh tự động                                                       |
-| `db/migrations/`                           | Nguồn sự thật schema, hiện 001–027; migration mới tiếp tục từ **028**                                           |
+| `db/migrations/`                           | Nguồn sự thật schema — hiện 001–032 (028 để trống, dành xác thực email); migration mới từ **033**                                           |
 | `db/exports/langoo-min-full-inserts.sql`   | Dump DB mẫu (~15 MB khi restore) để dựng `langoo_test` chạy e2e                                                 |
 | `.env.example`                             | Mẫu biến môi trường (copy thành `.env`, **không commit**)                                                       |
 
