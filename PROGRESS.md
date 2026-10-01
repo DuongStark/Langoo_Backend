@@ -238,6 +238,14 @@
 - Xử lý `gloss_report` (triaged/fixed/rejected, set `resolved_at`) và khoá/mở user (không tự khoá mình/không khoá admin/không hồi sinh `deleted`), mọi mutation ghi `admin_audit_log` trong cùng transaction; `GET /v1/admin/audit-log`.
 - Kiểm chứng local 2026-09-30: lint/build sạch, **45 suite/299 unit**, **16 suite/141 e2e**. Migration 030 đã apply local (test DB + DB full để regen CSDL doc); **cloud chưa apply**.
 
+### Hạ tầng — DB thật đã chuyển lên VPS (2026-10-01)
+
+- VPS Ubuntu 22.04 (1 vCPU/2GB RAM): cài PostgreSQL 16.15, tạo role/db `langoo` (thông tin kết nối lưu ở `~/.langoo-vps.env` local — **không commit**); thêm swap 2GB, tuning theo RAM (shared_buffers 512MB, max_connections 40…), backup `pg_dump` hằng ngày 02:30 giữ 5 bản tại `/var/backups/langoo`.
+- Dump local `langoo` chỉ `public+core+app+serve` (bỏ staging data, 577MB nén) → upload chia 50MB/part + verify sha256 → `pg_restore` 8m35s.
+- Bổ sung schema `staging` (rỗng) + data 2 bảng nhỏ `import_batch` (16 dòng) và `jlpt_entry` (7.9k) để thoả **22 FK `core.* → staging`**; sau đó `ANALYZE` + `REFRESH serve.sense_pair`.
+- Đối chiếu khớp local: lexeme 2.375.240 · sense 2.917.954 · concept 120.875 · sense_concept 577.525 · example 3.512.695 · kanji 13.108 · migrations 29 (001–027, 029, 030). Core 6.1GB (local 7.5GB do bloat chưa vacuum).
+- API **chưa** trỏ sang VPS (đúng chốt "chỉ chuyển data trước"); VPS hiện chỉ nghe `127.0.0.1:5432` — khi chuyển API sẽ cần mở `pg_hba` + SSL + siết mật khẩu.
+
 ## Backlog
 
 - **M12 — ENV-01 còn lại:** pool/boot-check đã làm ở M12 (`DB_POOL_*`, cảnh báo TimeZone, `db_timezone` trong health); còn **smoke test runtime trên cloud sau deploy** để xác nhận không drift.
@@ -248,7 +256,7 @@
 - **M11 AI Quiz — backlog:** adapter LLM thật cho quiz (JSON mode + prompt tuning); AI giải thích đáp án từng câu; matching cho phiên review M7; siết `question_count` theo số từ nguồn nếu cần.
 - **M13 v2 — Curation (M14 dự kiến):** duyệt gloss/concept (`reviewed_by`), quản lý deck — **ghi vào schema `core`**, cần ngoại lệ blacklist + audit riêng + ma trận quyền.
 - **M13 — Storage S3/R2:** adapter thật cho `StorageService` khi có key (Render disk ephemeral — production cần S3); chọn `STORAGE_PROVIDER=s3` hiện fail-fast.
-- **Migration cloud 029/030 chưa apply** — chờ chủ dự án duyệt (`npm run db:migrate` với DIRECT_URL cloud).
+- **Migration cloud 029/030**: 030 đã apply cloud Prisma (2026-09-30, khôi phục sau sự cố deploy); 029 đã có từ trước. DB thật giờ nằm trên **VPS** (xem mục hạ tầng ở trên) — khi chuyển API sang VPS thì Prisma Postgres chỉ còn là demo.
 - **Thống kê nâng cao:** cohort retention, dashboard chi phí AI theo ngày — sau khi có dữ liệu thật.
 - **Xác thực email + recovery cho tài khoản password** — đề xuất đưa lên đợt B của [M2.3](docs/plans/m2.3-google-oauth-fixes.md) thay vì đợi M12; cần dịch vụ email/client và migration được duyệt, chưa triển khai.
 - **Nonce OAuth dùng một lần** — backend challenge đã có ở đợt C của M2.3 nhưng tắt mặc định; cần apply migration 029 và hỗ trợ SDK/client trước khi bật.
@@ -282,7 +290,7 @@
 ## Kế tiếp dự kiến
 
 - **M14 (đề xuất) — Curation ghi `core`**: duyệt gloss/concept (`reviewed_by`), quản lý deck — cần chốt ngoại lệ blacklist + audit + ma trận quyền trước khi code.
-- **Apply migration cloud 029 + 030** (chờ duyệt) rồi smoke: `/v1/health` (`db_timezone=UTC`), rate limit, feedback ảnh.
+- **Chuyển API sang VPS** (khi bạn muốn): mở `pg_hba` + SSL + mật khẩu mạnh, đổi `DATABASE_URL`/`DIRECT_URL` trên Render; smoke `/v1/health` + dictionary search trên dữ liệu thật.
 - **M2.3 đợt B** — xác thực email/recovery/session guard: cần chốt dịch vụ email (Brevo/Resend) + client trước khi triển khai.
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)
