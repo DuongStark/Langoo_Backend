@@ -244,7 +244,9 @@
 - Dump local `langoo` chỉ `public+core+app+serve` (bỏ staging data, 577MB nén) → upload chia 50MB/part + verify sha256 → `pg_restore` 8m35s.
 - Bổ sung schema `staging` (rỗng) + data 2 bảng nhỏ `import_batch` (16 dòng) và `jlpt_entry` (7.9k) để thoả **22 FK `core.* → staging`**; sau đó `ANALYZE` + `REFRESH serve.sense_pair`.
 - Đối chiếu khớp local: lexeme 2.375.240 · sense 2.917.954 · concept 120.875 · sense_concept 577.525 · example 3.512.695 · kanji 13.108 · migrations 29 (001–027, 029, 030). Core 6.1GB (local 7.5GB do bloat chưa vacuum).
-- API **chưa** trỏ sang VPS (đúng chốt "chỉ chuyển data trước"); VPS hiện chỉ nghe `127.0.0.1:5432` — khi chuyển API sẽ cần mở `pg_hba` + SSL + siết mật khẩu.
+- API backend đã chuyển lên VPS: PM2 `langoo-api` (auto-start sau reboot) + Caddy reverse proxy **https://langoo-api.pixpress.art** (Let's Encrypt, tự gia hạn). DB VPS chỉ nghe `127.0.0.1:5432`, không mở ra internet.
+- `.env` production tại `/opt/langoo/app/.env` (600, user `langoo`) theo file env chủ dự án: hiện trỏ **DB Prisma cloud tạm** (chốt "data thật chưa hoàn thiện"), `CORS_ORIGINS=*`, Google client ID. Bản trỏ DB thật VPS giữ ở `.env.localdb.bak` — đổi lại `DATABASE_URL`/`DIRECT_URL` là về DB thật. Override thêm: `NODE_ENV=production`, `LOG_LEVEL=info`, `STORAGE_DIR=/opt/langoo/storage`.
+- Auto-deploy: push `main` → CI xanh → `.github/workflows/deploy.yml` SSH vào VPS (secrets `VPS_HOST/VPS_USER/VPS_SSH_KEY`) → `/opt/langoo/deploy.sh` (`git reset` + `npm ci` + build + `pm2 reload` + health check). Migration vẫn chạy **thủ công trước khi push**.
 
 ## Backlog
 
