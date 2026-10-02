@@ -24,6 +24,8 @@ export interface SearchRow {
 /**
  * Tìm "mặt chữ" trong serve.dictionary_search (view, schema serve KHÔNG map Prisma).
  * `queries` dùng so khớp chính xác; `patterns` đã escape ký tự LIKE để dùng trong ILIKE.
+ * KHÔNG bọc `coalesce` quanh cột — để planner dùng được GIN trigram (DB2);
+ * NULL vẫn không khớp như cũ vì pattern luôn khác rỗng.
  */
 export interface SearchParams {
   queries: string[];
@@ -46,8 +48,8 @@ export class DictionarySearchRepository {
       patterns.map(
         (pattern) => Prisma.sql`(
           ds.surface ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-          OR coalesce(ds.reading, '') ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-          OR coalesce(cl.romanization, '') ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
+          OR ds.reading ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
+          OR cl.romanization ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
         )`,
       ),
       ' OR ',
@@ -56,8 +58,8 @@ export class DictionarySearchRepository {
       patterns.map(
         (_pattern, index) => Prisma.sql`(
           lower(ds.surface) = lower(${queries[index]})
-          OR lower(coalesce(ds.reading, '')) = lower(${queries[index]})
-          OR lower(coalesce(cl.romanization, '')) = lower(${queries[index]})
+          OR lower(ds.reading) = lower(${queries[index]})
+          OR lower(cl.romanization) = lower(${queries[index]})
         )`,
       ),
       ' OR ',
@@ -66,8 +68,8 @@ export class DictionarySearchRepository {
       patterns.map(
         (pattern) => Prisma.sql`(
           lower(ds.surface) LIKE lower(${pattern}) || '%' ESCAPE '\\'
-          OR lower(coalesce(ds.reading, '')) LIKE lower(${pattern}) || '%' ESCAPE '\\'
-          OR lower(coalesce(cl.romanization, '')) LIKE lower(${pattern}) || '%' ESCAPE '\\'
+          OR lower(ds.reading) LIKE lower(${pattern}) || '%' ESCAPE '\\'
+          OR lower(cl.romanization) LIKE lower(${pattern}) || '%' ESCAPE '\\'
         )`,
       ),
       ' OR ',
