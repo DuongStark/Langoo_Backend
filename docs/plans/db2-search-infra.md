@@ -1,6 +1,6 @@
 # Kế hoạch DB2 — Hạ tầng tìm kiếm (pg_trgm + GIN trigram)
 
-> Trạng thái: **đang triển khai** (chủ dự án chốt 2026-10-02). Thuộc lộ trình DB (DB1–DB5).
+> Trạng thái: **đã triển khai 2026-10-03 (chờ review)** — chủ dự án chốt 2026-10-02. Thuộc lộ trình DB (DB1–DB5).
 > Không đổi API/hành vi tìm kiếm — chỉ tăng tốc và chuẩn bị cho DB3 (gloss tiếng Việt tra không dấu).
 
 ## 1. Phạm vi
@@ -41,3 +41,28 @@
 - GIN trigram làm ghi chậm đi — `lexeme`/`lexeme_form` gần như chỉ-đọc (import lô), chấp nhận.
 - Dung lượng index thêm ~300–700MB trên VPS (còn ~13GB) — theo dõi sau khi tạo.
 - Pattern quá ngắn (<3 ký tự) có thể vẫn quét rộng — đo thực tế, nếu cần sẽ bổ sung index phụ hoặc xử lý ở tầng service sau.
+
+## 6. Kết quả triển khai & benchmark (2026-10-02/03)
+
+**Đã áp:**
+- **VPS**: 033 (`pg_trgm` + `unaccent` + 4 GIN trigram) và 035 (`core.bigrams` + 4 GIN bigram). 035 gặp lỗi quyền `must be owner of function bigrams` (hàm/index tạo bằng `postgres` lúc thử nghiệm) → chuyển quyền function + index probe sang `langoo` rồi migrate lại.
+- **Cloud Prisma**: chỉ áp **035** (hàm + 4 index bigram — code mới cần hàm); 031–033 để nguyên vì là DB demo.
+- **Local full + test**: áp 035 (bigram chạy cả trên PG nhúng không cần contrib); 033 tự guard-skip → CSDL doc local **không** có 4 index trigram (VPS/CI có đủ).
+- CI xanh `b6e2d50`, `35b183b`; e2e dictionary/sense-card/health local 25/25 pass; auto-deploy VPS + smoke API live OK (`走る` trả kết quả đúng).
+
+**Benchmark trên VPS** (dữ liệu thật 2,38M lexeme; query đúng như repository):
+
+| Pattern | Trước (OR 3 cột) | Sau (UNION + index) | Ghi chú |
+| --- | --- | --- | --- |
+| `走る` (2 ký tự) | 7.717 ms | **111 ms** | bigram GIN |
+| `はし` (2 ký tự) | 7.433 ms | **110 ms** | bigram GIN |
+| `たべる` (3 ký tự) | 7.728 ms | **97 ms** | trigram + bigram |
+| `run` (3 ký tự Latin) | 8.125 ms | **200 ms** | trigram + bigram |
+| `る` (1 ký tự) | 9.414 ms | 7.319 ms | ⚠️ không index nào dùng được cho 1 ký tự — chấp nhận (khớp quá nhiều) |
+
+Dung lượng thêm trên VPS: trigram ~137MB + bigram ~66MB; DB 6,13GB → 6,31GB.
+
+**Việc phát sinh:**
+- Migration **034** đã bị workstream M7/M8 (session answer receipt) dùng → DB2 đánh số **035** để không đụng nhau.
+- `CSDL-THAM-CHIEU.md` **hoãn commit** lần này: bản regen local chứa cả bảng của 034 (chưa vào repo); sẽ regenerate khi M7/M8 land (lúc đó doc gồm cả 034 + 035 + bigram/trigram theo môi trường).
+- Bài học vận hành: chạy `db:migrate` **không pipe qua `tail`** — pipeline che mất exit code/lỗi (suýt bỏ sót lỗi quyền owner của 035).

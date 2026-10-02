@@ -107,8 +107,8 @@ nghĩa tiếng Nhật tương ứng.
 - **Bộ thủ:** bảng `public.radical` đã tạo nhưng **chưa seed 214 dòng** (tên/ý nghĩa tiếng Việt).
 - **Media thứ tự nét:** bảng `core.media_asset`/`core.kanji_media` đã tạo, chưa nạp KanjiVG.
 - **`core.deck`/`core.deck_item`:** đã tạo, chưa seed bộ từ hệ thống.
-- **Index tìm kiếm không dấu:** `pg_trgm`/`unaccent` không có trong PG nhúng → chưa tạo
-  (xem §13); production phải chọn hướng.
+- **Index tìm kiếm:** DB2 đã làm — `pg_trgm` + 4 GIN trigram (033) và `core.bigrams` + 4 GIN
+  bigram (035, chạy cả trên PG nhúng); tra **không dấu** (`unaccent`) vẫn chờ dữ liệu VI.
 - **Mapping nội dung 011–014:** bảng đã tạo nhưng chưa chạy `scripts/run_mapping.py`
   (jlpt, examples, translations, relations).
 - **Backend/frontend:** chưa có mã ứng dụng (chỉ có `app/server.py` — UI xem dữ liệu staging, không phải app).
@@ -260,8 +260,8 @@ Ba lớp bảo vệ được thiết kế sẵn — code backend phải tôn tr�
     `ON DELETE SET NULL` để giữ lịch sử khi face bị xoá.
 11. **Migration:** mỗi file một mục đích, chạy trong 1 transaction, **không** dùng
     `IF NOT EXISTS` cho bảng (để phát hiện schema trôi). Sửa schema = thêm file mới.
-12. **Search:** tra cứu không dấu/giống âm cần `pg_trgm` + `unaccent` (production); PG nhúng hiện
-    thiếu cả hai — xem §13.
+12. **Search:** DB2 (033/035) đã có trigram + bigram; tra **không dấu/giống âm** (`unaccent`)
+    để dành khi có gloss VI. PG nhúng thiếu contrib — migration tự guard, bigram vẫn chạy.
 
 ---
 
@@ -386,7 +386,7 @@ không cần migration dữ liệu. Truy vấn nóng: `WHERE user_id=? AND due_a
 | Bảng | Cột chính | Ghi chú |
 |------|-----------|---------|
 | `study_session` | user_id, profile_id, kind (review/practice/quiz), mode (flashcard/multiple_choice/matching/typing/listening), collection_id, quiz_id, settings jsonb, status, item_count, correct_count, score, xp_awarded | CHECK: kind='quiz' ⇒ quiz_id NOT NULL; correct_count ≤ item_count |
-| `study_session_item` | session_id, ordinal, srs_id, face_id, quiz_question_id, prompt jsonb (snapshot), correct_answer, user_answer, is_correct, rating, elapsed_ms | UNIQUE(session_id, ordinal); index câu sai |
+| `study_session_item` | session_id, ordinal, srs_id, face_id, quiz_question_id, prompt jsonb (snapshot), correct_answer, user_answer, answer_receipt jsonb (response retry), is_correct, rating, elapsed_ms | UNIQUE(session_id, ordinal); index câu sai |
 | `quiz` | user_id, profile_id, collection_id, quiz_type, difficulty, question_count, generator jsonb (model/prompt), status, expires_at | Sinh bởi AI từ vốn từ đã học |
 | `quiz_question` | quiz_id, ordinal, question_type, prompt, options jsonb, correct_answer jsonb, explanation, concept_id, item_id | UNIQUE(quiz_id, ordinal) |
 
@@ -430,7 +430,7 @@ thì +1, hôm nay thì giữ, cũ hơn thì reset 1 — tính tại thời đi�
 | `sense_pair` | materialized view | Cặp sense khác ngôn ngữ cùng concept; **chỉ concept `curated`**, confidence ≥ 0.7; unique index `(sense_a, sense_b)` để refresh CONCURRENTLY. Hiện **rỗng** (đúng thiết kế khi chưa curate). Refresh: `REFRESH MATERIALIZED VIEW CONCURRENTLY serve.sense_pair;` (chạy ngoài transaction, bằng script/cron) |
 | `sense_card` | view | 1 dòng/sense cho UI tra cứu: lexeme + gloss vi ưu tiên (người duyệt → nguồn → máy) + badge `is_machine/reviewed` + gloss en + concept |
 | `kanji_card` | view | 1 dòng/chữ: số nét, grade, JLPT, bộ thủ (kèm nghĩa Việt khi seed `radical`), readings/meanings jsonb, số form dùng chữ, media kinds |
-| `dictionary_search` | view | 1 dòng/"mặt chữ": lemma + mọi form với `lang_code`, POS, frequency — nguồn chuẩn cho API search (index trigram thêm sau) |
+| `dictionary_search` | view | 1 dòng/"mặt chữ": lemma + mọi form với `lang_code`, POS, frequency — nguồn chuẩn cho API search (DB2: trigram 033 + bigram 035 qua `core.bigrams`) |
 
 ---
 
@@ -454,7 +454,7 @@ Client gửi sense_id (mặt chính)
 transaction:
   1. INSERT app.review_log (rating CHỈ có ở flashcard; các mode khác ghi session_item)
   2. UPDATE app.srs_state (FSRS/SM-2 do service tính: state, due_at, stability, difficulty, reps, lapses)
-  3. UPDATE app.study_session_item (user_answer, is_correct, elapsed_ms, answered_at)
+  3. UPDATE app.study_session_item (user_answer, is_correct, elapsed_ms, answered_at); quiz ghi item trước gamification để achievement đếm câu vừa trả lời
   4. INSERT app.xp_event (idempotency_key = session:ordinal)  ← ON CONFLICT DO NOTHING
   5. UPSERT app.streak_day (ngày địa phương: review_count+1, xp+…)
   6. UPDATE app.user_stats (xp_total, streak, level…)
@@ -564,7 +564,7 @@ bash scripts/run_ui.sh                           # UI xem staging tại :8770
 ```
 
 Kết nối mặc định: `postgresql://postgres@127.0.0.1:55432/langoo` (đổi bằng `DATABASE_URL`).
-Lưu ý: PG nhúng **không có** `pg_trgm`, `unaccent`, `citext`, `pg_partman`; chỉ có `vector` (0.6.2, chưa cài).
+Lưu ý: PG nhúng **không có** `pg_trgm`, `unaccent`, `citext`, `pg_partman`; chỉ có `vector` (0.6.2, chưa cài). Migration DB2 tự guard phần extension; index **bigram** (`core.bigrams`) vẫn tạo được trên PG nhúng.
 
 ### 11.1. DB tối giản cho cloud (giới hạn 500 MB)
 
@@ -637,7 +637,7 @@ tra từ, collection, phiên ôn, thống kê.
 
 ### D. Production
 
-- Chọn PostgreSQL có `pg_trgm` + `unaccent` (tạo migration 026+ cho index tìm kiếm).
+- ~~Chọn PostgreSQL có `pg_trgm` + `unaccent`~~ **đã xong ở DB2** (033 trigram + 035 bigram; VPS PG16 đủ extension, cloud chỉ cần `core.bigrams`).
 - Redis cache theo `sense_id` (tầng từ điển) + rate limit AI.
 - Object storage cho `media_asset`/`audio`; cân nhắc pgvector cho RAG (extension `vector` có sẵn).
 
@@ -681,4 +681,3 @@ tra từ, collection, phiên ôn, thống kê.
 | **candidate** | Ứng viên liên kết chưa được chấp nhận (không hiển thị cho người dùng) |
 | **provenance** | Dấu vết nguồn gốc: dòng dữ liệu đến từ file/batch/run nào |
 | **badge** | Nhãn "chưa kiểm duyệt" cho gloss máy chưa có người duyệt |
-
