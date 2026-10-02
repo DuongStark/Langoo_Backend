@@ -24,8 +24,11 @@ export interface SearchRow {
 /**
  * Tìm "mặt chữ" trong serve.dictionary_search (view, schema serve KHÔNG map Prisma).
  * `queries` dùng so khớp chính xác; `patterns` đã escape ký tự LIKE để dùng trong ILIKE.
- * KHÔNG bọc `coalesce` quanh cột — để planner dùng được GIN trigram (DB2);
- * NULL vẫn không khớp như cũ vì pattern luôn khác rỗng.
+ *
+ * DB2: truy vấn dùng 3 nhánh `UNION` (mặt chữ / cách đọc / romaji) — mỗi nhánh chỉ lọc
+ * trên MỘT cột nên planner dùng được GIN trigram (migration 033); biểu thức OR trộn
+ * nhiều cột/bảng như trước không thể dùng index. Tập kết quả giữ nguyên như OR cũ
+ * (`UNION` khử trùng lặp giữa các nhánh).
  */
 export interface SearchParams {
   queries: string[];
@@ -41,24 +44,36 @@ export class DictionarySearchRepository {
 
   async search(params: SearchParams): Promise<SearchRow[]> {
     const { queries, patterns, lang, limit, cursor } = params;
-    const langCondition =
+    const langFilter =
       lang === null ? Prisma.sql`` : Prisma.sql`AND ds.lang_code = ${lang}`;
 
-    const matchCondition = Prisma.join(
+    const surfaceMatch = Prisma.join(
       patterns.map(
-        (pattern) => Prisma.sql`(
-          ds.surface ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-          OR ds.reading ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-          OR cl.romanization ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-        )`,
+        (pattern) =>
+          Prisma.sql`ds.surface ILIKE '%' || ${pattern} || '%' ESCAPE '\\'`,
       ),
       ' OR ',
     );
+    const readingMatch = Prisma.join(
+      patterns.map(
+        (pattern) =>
+          Prisma.sql`ds.reading ILIKE '%' || ${pattern} || '%' ESCAPE '\\'`,
+      ),
+      ' OR ',
+    );
+    const romanizationMatch = Prisma.join(
+      patterns.map(
+        (pattern) =>
+          Prisma.sql`cl2.romanization ILIKE '%' || ${pattern} || '%' ESCAPE '\\'`,
+      ),
+      ' OR ',
+    );
+
     const exactCondition = Prisma.join(
       patterns.map(
         (_pattern, index) => Prisma.sql`(
-          lower(ds.surface) = lower(${queries[index]})
-          OR lower(ds.reading) = lower(${queries[index]})
+          lower(h.surface) = lower(${queries[index]})
+          OR lower(h.reading) = lower(${queries[index]})
           OR lower(cl.romanization) = lower(${queries[index]})
         )`,
       ),
@@ -67,13 +82,14 @@ export class DictionarySearchRepository {
     const prefixCondition = Prisma.join(
       patterns.map(
         (pattern) => Prisma.sql`(
-          lower(ds.surface) LIKE lower(${pattern}) || '%' ESCAPE '\\'
-          OR lower(ds.reading) LIKE lower(${pattern}) || '%' ESCAPE '\\'
+          lower(h.surface) LIKE lower(${pattern}) || '%' ESCAPE '\\'
+          OR lower(h.reading) LIKE lower(${pattern}) || '%' ESCAPE '\\'
           OR lower(cl.romanization) LIKE lower(${pattern}) || '%' ESCAPE '\\'
         )`,
       ),
       ' OR ',
     );
+
     const cursorCondition = cursor
       ? Prisma.sql`
           AND (
@@ -99,7 +115,7 @@ export class DictionarySearchRepository {
       : Prisma.sql``;
 
     return this.prisma.$queryRaw<SearchRow[]>(Prisma.sql`
-      WITH ranked AS (
+      WITH hits AS (
         SELECT
           ds.lexeme_id,
           ds.language_id,
@@ -109,16 +125,58 @@ export class DictionarySearchRepository {
           ds.pos,
           ds.frequency_rank,
           ds.homograph_no,
-          ds.surface_kind,
+          ds.surface_kind
+        FROM serve.dictionary_search ds
+        WHERE (${surfaceMatch})
+          ${langFilter}
+        UNION
+        SELECT
+          ds.lexeme_id,
+          ds.language_id,
+          ds.lang_code,
+          ds.surface,
+          ds.reading,
+          ds.pos,
+          ds.frequency_rank,
+          ds.homograph_no,
+          ds.surface_kind
+        FROM serve.dictionary_search ds
+        WHERE (${readingMatch})
+          ${langFilter}
+        UNION
+        SELECT
+          ds.lexeme_id,
+          ds.language_id,
+          ds.lang_code,
+          ds.surface,
+          ds.reading,
+          ds.pos,
+          ds.frequency_rank,
+          ds.homograph_no,
+          ds.surface_kind
+        FROM serve.dictionary_search ds
+        JOIN core.lexeme cl2 ON cl2.id = ds.lexeme_id
+        WHERE (${romanizationMatch})
+          ${langFilter}
+      ),
+      ranked AS (
+        SELECT
+          h.lexeme_id,
+          h.language_id,
+          h.lang_code,
+          h.surface,
+          h.reading,
+          h.pos,
+          h.frequency_rank,
+          h.homograph_no,
+          h.surface_kind,
           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
-          CASE WHEN ds.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
-          coalesce(ds.frequency_rank, 2147483647) AS frequency_sort,
-          length(ds.surface) AS surface_length
-        FROM serve.dictionary_search ds
-        JOIN core.lexeme cl ON cl.id = ds.lexeme_id
-        WHERE (${matchCondition})
-          ${langCondition}
+          CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
+          coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
+          length(h.surface) AS surface_length
+        FROM hits h
+        JOIN core.lexeme cl ON cl.id = h.lexeme_id
       )
       SELECT
         lexeme_id,
