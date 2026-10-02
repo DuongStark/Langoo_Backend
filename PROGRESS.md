@@ -247,6 +247,7 @@
 - Feedback: multipart tối đa 3 ảnh ≤5MB (JPEG/PNG/WebP, magic bytes), lưu qua `StorageService` local (dọn tệp nếu transaction lỗi), `GET /me/feedback`; admin hàng chờ + PATCH `{status, admin_note}` + tải ảnh có guard.
 - Xử lý `gloss_report` (triaged/fixed/rejected, set `resolved_at`) và khoá/mở user (không tự khoá mình/không khoá admin/không hồi sinh `deleted`), mọi mutation ghi `admin_audit_log` trong cùng transaction; `GET /v1/admin/audit-log`.
 - Kiểm chứng local 2026-09-30: lint/build sạch, **45 suite/299 unit**, **16 suite/141 e2e**. Migration 030 đã apply local (test DB + DB full để regen CSDL doc); **cloud chưa apply**.
+- Bootstrap **admin mock trên DB Prisma demo** (2026-10-02): tạo `admin@langoo.local` qua API register (đúng luồng thật) rồi phong quyền bằng SQL theo README; verify `GET /v1/admin/stats` trả 200. DB thật trên VPS sẽ bootstrap admin riêng khi go-live DB5 (không dùng chung tài khoản demo).
 
 ### Hạ tầng — DB thật đã chuyển lên VPS (2026-10-01)
 
