@@ -26,9 +26,10 @@ export interface SearchRow {
  * `queries` dùng so khớp chính xác; `patterns` đã escape ký tự LIKE để dùng trong ILIKE.
  *
  * DB2: truy vấn dùng 3 nhánh `UNION` (mặt chữ / cách đọc / romaji) — mỗi nhánh chỉ lọc
- * trên MỘT cột nên planner dùng được GIN trigram (migration 033); biểu thức OR trộn
- * nhiều cột/bảng như trước không thể dùng index. Tập kết quả giữ nguyên như OR cũ
- * (`UNION` khử trùng lặp giữa các nhánh).
+ * trên MỘT cột nên planner dùng được index: GIN trigram (pattern ≥3 ký tự) và GIN bigram
+ * `core.bigrams` (pattern 1–2 ký tự); biểu thức OR trộn nhiều cột/bảng như trước không
+ * thể dùng index. `ILIKE` luôn giữ làm điều kiện kiểm chứng vì bigram chỉ là điều kiện
+ * CẦN (mất thứ tự/khoảng cách). Tập kết quả giữ nguyên như OR cũ (`UNION` khử trùng lặp).
  */
 export interface SearchParams {
   queries: string[];
@@ -49,22 +50,28 @@ export class DictionarySearchRepository {
 
     const surfaceMatch = Prisma.join(
       patterns.map(
-        (pattern) =>
-          Prisma.sql`ds.surface ILIKE '%' || ${pattern} || '%' ESCAPE '\\'`,
+        (pattern, index) => Prisma.sql`(
+          core.bigrams(lower(ds.surface)) @> core.bigrams(lower(${queries[index]}))
+          AND ds.surface ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
+        )`,
       ),
       ' OR ',
     );
     const readingMatch = Prisma.join(
       patterns.map(
-        (pattern) =>
-          Prisma.sql`ds.reading ILIKE '%' || ${pattern} || '%' ESCAPE '\\'`,
+        (pattern, index) => Prisma.sql`(
+          core.bigrams(lower(ds.reading)) @> core.bigrams(lower(${queries[index]}))
+          AND ds.reading ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
+        )`,
       ),
       ' OR ',
     );
     const romanizationMatch = Prisma.join(
       patterns.map(
-        (pattern) =>
-          Prisma.sql`cl2.romanization ILIKE '%' || ${pattern} || '%' ESCAPE '\\'`,
+        (pattern, index) => Prisma.sql`(
+          core.bigrams(lower(cl2.romanization)) @> core.bigrams(lower(${queries[index]}))
+          AND cl2.romanization ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
+        )`,
       ),
       ' OR ',
     );
