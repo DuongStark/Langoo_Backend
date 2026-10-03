@@ -193,11 +193,14 @@ describe('Journey (e2e — langoo_test)', () => {
       xp_total: number;
       streak_current: number;
       reviews_total: number;
+      today: { review_count: number };
     };
     // 1 lượt ôn (+1) + 2 câu quiz đúng (+10) + thưởng streak ngày đầu (+2)
     expect(statsBody.xp_total).toBeGreaterThanOrEqual(11);
     expect(statsBody.streak_current).toBeGreaterThanOrEqual(1);
-    expect(statsBody.reviews_total).toBeGreaterThanOrEqual(3);
+    // reviews_total chỉ đếm lượt ôn SRS (1); quiz chỉ tính activity trong ngày.
+    expect(statsBody.reviews_total).toBe(1);
+    expect(statsBody.today.review_count).toBeGreaterThanOrEqual(3);
 
     const achievements = await request(server)
       .get('/v1/me/achievements')

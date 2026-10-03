@@ -42,7 +42,8 @@ export class AnswerSessionDto {
 
   @ApiPropertyOptional({
     minimum: 0,
-    description: 'Bắt buộc với mode multiple_choice/matching',
+    description:
+      'Bắt buộc với mode multiple_choice/matching; phải khớp index trong prompt.options của phiên',
   })
   @IsOptional()
   @IsInt()

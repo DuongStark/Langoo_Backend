@@ -157,6 +157,7 @@ export class ReviewEngine {
       refKind: 'review_log',
       refId: log.id.toString(),
       idempotencyKey: params.xpIdempotencyKey ?? `review:${log.id.toString()}`,
+      countsAsReview: true,
     });
 
     return {

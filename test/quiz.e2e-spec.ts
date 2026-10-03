@@ -387,6 +387,244 @@ describe('AI Quiz (e2e — langoo_test)', () => {
     expect((wrong.body as AnswerBody).xp.amount).toBe(0);
   });
 
+  it('từ chối option_index ngoài snapshot và không tạo activity', async () => {
+    const token = await register(`e2e-quiz-invalid-index-${runId}@langoo.test`);
+    const collectionId = await setupCollection(
+      token,
+      ['1', '5'],
+      ['chạy', 'ăn'],
+    );
+    const userId = (
+      await prisma.user.findFirstOrThrow({
+        where: { email: `e2e-quiz-invalid-index-${runId}@langoo.test` },
+        select: { id: true },
+      })
+    ).id;
+    const quiz = await request(server)
+      .post('/v1/quizzes')
+      .set(auth(token))
+      .send({
+        quiz_type: 'multiple_choice',
+        difficulty: 'easy',
+        question_count: 2,
+        collection_id: collectionId,
+      })
+      .expect(201);
+    const quizId = (quiz.body as QuizBody).id;
+    const started = await request(server)
+      .post(`/v1/quizzes/${quizId}/start`)
+      .set(auth(token))
+      .expect(201);
+    const sessionId = (started.body as SessionBody).session.id;
+
+    const invalid = await request(server)
+      .post(`/v1/sessions/${sessionId}/answers`)
+      .set(auth(token))
+      .send({ ordinal: 1, option_index: 999 })
+      .expect(400);
+    expect(invalid.body).toMatchObject({ code: 'SESSION_ANSWER_INVALID' });
+
+    const item = await prisma.studySessionItem.findFirstOrThrow({
+      where: { sessionId, ordinal: 1 },
+    });
+    expect(item.answeredAt).toBeNull();
+    expect(item.isCorrect).toBeNull();
+    expect(await prisma.userStats.findUnique({ where: { userId } })).toBeNull();
+    expect(await prisma.streakDay.count({ where: { userId } })).toBe(0);
+    expect(await prisma.xpEvent.count({ where: { userId } })).toBe(0);
+  });
+
+  it('achievement quiz_correct mở khoá ngay ở câu đúng đầu tiên', async () => {
+    const email = `e2e-quiz-achievement-${runId}@langoo.test`;
+    const token = await register(email);
+    const collectionId = await setupCollection(
+      token,
+      ['1', '5'],
+      ['chạy', 'ăn'],
+    );
+    const userId = (
+      await prisma.user.findFirstOrThrow({
+        where: { email },
+        select: { id: true },
+      })
+    ).id;
+    const achievementCode = `verify_quiz_correct_${runId}`;
+    await prisma.achievement.create({
+      data: {
+        code: achievementCode,
+        nameVi: 'Đúng câu quiz đầu tiên',
+        category: 'quiz',
+        rule: { metric: 'quiz_correct', gte: 1 },
+        xpReward: 7,
+      },
+    });
+
+    try {
+      const quiz = await request(server)
+        .post('/v1/quizzes')
+        .set(auth(token))
+        .send({
+          quiz_type: 'multiple_choice',
+          difficulty: 'easy',
+          question_count: 2,
+          collection_id: collectionId,
+        })
+        .expect(201);
+      const quizId = (quiz.body as QuizBody).id;
+      const started = await request(server)
+        .post(`/v1/quizzes/${quizId}/start`)
+        .set(auth(token))
+        .expect(201);
+      const sessionId = (started.body as SessionBody).session.id;
+      const question = await prisma.quizQuestion.findFirstOrThrow({
+        where: { quizId, ordinal: 1 },
+      });
+      const correctIndex = (question.correctAnswer as { index: number }).index;
+
+      const answer = await request(server)
+        .post(`/v1/sessions/${sessionId}/answers`)
+        .set(auth(token))
+        .send({ ordinal: 1, option_index: correctIndex })
+        .expect(200);
+      expect((answer.body as AnswerBody).item.is_correct).toBe(true);
+
+      const achievement = await prisma.userAchievement.findUniqueOrThrow({
+        where: { userId_achievementCode: { userId, achievementCode } },
+      });
+      expect(Number(achievement.progress)).toBe(1);
+      expect(achievement.unlockedAt).not.toBeNull();
+      expect(
+        await prisma.xpEvent.count({
+          where: { userId, source: 'achievement', refId: achievementCode },
+        }),
+      ).toBe(1);
+
+      const replay = await request(server)
+        .post(`/v1/sessions/${sessionId}/answers`)
+        .set(auth(token))
+        .send({ ordinal: 1, option_index: correctIndex })
+        .expect(200);
+      expect(replay.body).toEqual(answer.body);
+      expect(
+        await prisma.xpEvent.count({
+          where: { userId, source: 'achievement', refId: achievementCode },
+        }),
+      ).toBe(1);
+    } finally {
+      await prisma.achievement.deleteMany({ where: { code: achievementCode } });
+    }
+  });
+
+  it('lỗi ghi achievement rollback cả answer, XP, streak và session', async () => {
+    const email = `e2e-quiz-rollback-${runId}@langoo.test`;
+    const token = await register(email);
+    const collectionId = await setupCollection(
+      token,
+      ['1', '5'],
+      ['chạy', 'ăn'],
+    );
+    const userId = (
+      await prisma.user.findFirstOrThrow({
+        where: { email },
+        select: { id: true },
+      })
+    ).id;
+    const achievementCode = `verify_quiz_rollback_${runId}`;
+    const triggerName = 'test_reject_session_answer_receipt';
+    const functionName = 'test_reject_session_answer_receipt';
+    await prisma.achievement.create({
+      data: {
+        code: achievementCode,
+        nameVi: 'Rollback kiểm thử',
+        category: 'quiz',
+        rule: { metric: 'quiz_correct', gte: 1 },
+        xpReward: 7,
+      },
+    });
+
+    try {
+      const quiz = await request(server)
+        .post('/v1/quizzes')
+        .set(auth(token))
+        .send({
+          quiz_type: 'multiple_choice',
+          difficulty: 'easy',
+          question_count: 2,
+          collection_id: collectionId,
+        })
+        .expect(201);
+      const quizId = (quiz.body as QuizBody).id;
+      const started = await request(server)
+        .post(`/v1/quizzes/${quizId}/start`)
+        .set(auth(token))
+        .expect(201);
+      const sessionId = (started.body as SessionBody).session.id;
+      const question = await prisma.quizQuestion.findFirstOrThrow({
+        where: { quizId, ordinal: 1 },
+      });
+      const correctIndex = (question.correctAnswer as { index: number }).index;
+
+      await prisma.$executeRawUnsafe(
+        `DROP TRIGGER IF EXISTS ${triggerName} ON app.study_session_item`,
+      );
+      await prisma.$executeRawUnsafe(`
+        CREATE OR REPLACE FUNCTION app.${functionName}() RETURNS trigger
+        LANGUAGE plpgsql AS $body$
+        BEGIN
+          IF NEW.answer_receipt IS NOT NULL
+             AND NEW.session_id = '${sessionId}'::uuid THEN
+            RAISE EXCEPTION 'forced answer receipt write failure';
+          END IF;
+          RETURN NEW;
+        END
+        $body$
+      `);
+      await prisma.$executeRawUnsafe(`
+        CREATE TRIGGER ${triggerName}
+        BEFORE UPDATE OF answer_receipt ON app.study_session_item
+        FOR EACH ROW EXECUTE FUNCTION app.${functionName}()
+      `);
+
+      await request(server)
+        .post(`/v1/sessions/${sessionId}/answers`)
+        .set(auth(token))
+        .send({ ordinal: 1, option_index: correctIndex })
+        .expect(500);
+
+      const item = await prisma.studySessionItem.findFirstOrThrow({
+        where: { sessionId, ordinal: 1 },
+      });
+      const sessionRow = await prisma.studySession.findUniqueOrThrow({
+        where: { id: sessionId },
+      });
+      expect(item).toMatchObject({
+        answeredAt: null,
+        isCorrect: null,
+        userAnswer: null,
+        answerReceipt: null,
+      });
+      expect(sessionRow).toMatchObject({
+        status: 'in_progress',
+        correctCount: 0,
+        xpAwarded: 0,
+      });
+      expect(await prisma.xpEvent.count({ where: { userId } })).toBe(0);
+      expect(await prisma.streakDay.count({ where: { userId } })).toBe(0);
+      expect(
+        await prisma.userStats.findUnique({ where: { userId } }),
+      ).toBeNull();
+      expect(await prisma.userAchievement.count({ where: { userId } })).toBe(0);
+    } finally {
+      await prisma.$executeRawUnsafe(
+        `DROP TRIGGER IF EXISTS ${triggerName} ON app.study_session_item`,
+      );
+      await prisma.$executeRawUnsafe(
+        `DROP FUNCTION IF EXISTS app.${functionName}()`,
+      );
+      await prisma.achievement.deleteMany({ where: { code: achievementCode } });
+    }
+  });
+
   it('cách ly user: quiz của người khác → 404', async () => {
     await request(server)
       .get(`/v1/quizzes/${mcQuizId}`)
@@ -468,5 +706,67 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       })
       .expect(404);
     expect(res.body).toMatchObject({ code: 'COLLECTION_NOT_FOUND' });
+  });
+
+  it('quiz tính activity (streak) nhưng KHÔNG cộng reviews_total (M8.2)', async () => {
+    const token = await register(`e2e-quiz-count-${runId}@langoo.test`);
+    const collectionId = await setupCollection(
+      token,
+      ['1', '5'],
+      ['chạy', 'ăn'],
+    );
+
+    const created = await request(server)
+      .post('/v1/quizzes')
+      .set(auth(token))
+      .send({
+        quiz_type: 'multiple_choice',
+        difficulty: 'medium',
+        question_count: 2,
+        collection_id: collectionId,
+      })
+      .expect(201);
+    const quizId = (created.body as QuizBody).id;
+
+    const started = await request(server)
+      .post(`/v1/quizzes/${quizId}/start`)
+      .set(auth(token))
+      .expect(201);
+    const sessionId = (started.body as SessionBody).session.id;
+
+    const questions = await prisma.quizQuestion.findMany({
+      where: { quizId },
+      orderBy: { ordinal: 'asc' },
+    });
+    const correct = questions.map(
+      (question) => (question.correctAnswer as { index: number }).index,
+    );
+    const wrong = correct.map((index) => (index === 0 ? 1 : 0));
+
+    // Câu 1 sai (không nhận XP) vẫn phải tính activity; câu 2 đúng.
+    await request(server)
+      .post(`/v1/sessions/${sessionId}/answers`)
+      .set(auth(token))
+      .send({ ordinal: 1, option_index: wrong[0] })
+      .expect(200);
+    await request(server)
+      .post(`/v1/sessions/${sessionId}/answers`)
+      .set(auth(token))
+      .send({ ordinal: 2, option_index: correct[1] })
+      .expect(200);
+
+    const user = await prisma.user.findFirstOrThrow({
+      where: { email: `e2e-quiz-count-${runId}@langoo.test` },
+      select: { id: true },
+    });
+    const stats = await prisma.userStats.findUnique({
+      where: { userId: user.id },
+    });
+    expect(stats?.reviewsTotal ?? 0).toBe(0);
+
+    const dayRows = await prisma.streakDay.findMany({
+      where: { userId: user.id },
+    });
+    expect(dayRows.reduce((sum, row) => sum + row.reviewCount, 0)).toBe(2);
   });
 });

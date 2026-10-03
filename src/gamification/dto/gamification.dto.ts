@@ -1,12 +1,13 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { ArrayMaxSize, IsArray, IsOptional, IsString } from 'class-validator';
+import { ArrayMaxSize, IsArray, IsString, ValidateIf } from 'class-validator';
 
 export class MarkAchievementsSeenDto {
   @ApiPropertyOptional({
     type: [String],
-    description: 'Bỏ trống = đánh dấu tất cả thành tích đã mở khoá',
+    description:
+      'Bỏ trống hoặc [] = đánh dấu tất cả thành tích đã mở khoá; null không hợp lệ',
   })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsArray()
   @ArrayMaxSize(100)
   @IsString({ each: true })

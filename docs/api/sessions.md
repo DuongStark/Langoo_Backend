@@ -21,8 +21,9 @@ suspend và bury trong transaction khi trả lời.
 
 - `typing` theo chiều thẻ: **recognize** hỏi từ → gõ nghĩa; **recall** hỏi nghĩa → gõ từ
   (chấp nhận lemma, reading kana, romaji, mọi form của lexeme).
-- MCQ/matching sinh `option_count` lựa chọn (mặc định 4) từ sổ tay cùng ngôn ngữ,
-  ưu tiên cùng collection; thiếu câu nhiễu thì giảm số lựa chọn (tối thiểu 1).
+- MCQ/matching sinh `option_count` lựa chọn (mặc định 4) từ sổ tay **cùng profile đang học**
+  và cùng ngôn ngữ; ưu tiên cùng collection (áp trong SQL trước `LIMIT`); thiếu câu nhiễu thì
+  giảm số lựa chọn (tối thiểu 1).
 - `listening` chưa hỗ trợ ở M7 → `400 VALIDATION_FAILED`.
 
 ## POST /v1/sessions
@@ -30,6 +31,10 @@ suspend và bury trong transaction khi trả lời.
 `kind`: `review` = thẻ đến hạn (tôn trọng daily limit + learn-ahead như `/srs/due`);
 `practice` = **ôn trước** mọi thẻ trong bộ (kể cả chưa đến hạn, không áp daily limit),
 `limit` 1–50 (mặc định 20). Cả hai vẫn cập nhật lịch SRS.
+
+Phiên chốt **một** `profile_id` ngay khi tạo: thẻ, câu nhiễu và bản ghi session dùng cùng
+hồ sơ đó. Đổi `active_profile_id` xen giữa (trước đây `collectDueRows` đọc lại active profile)
+không còn làm session lưu profile A nhưng chứa thẻ profile B.
 
 ```bash
 curl -s -X POST http://localhost:3000/v1/sessions \
@@ -93,10 +98,14 @@ Danh sách câu **đã trả lời**, kèm `correct_answer` để xem lại. Đ�
 
 ## POST /v1/sessions/:id/answers
 
-Mỗi câu trả lời đúng **một lần**: transaction khóa user → item → `srs_state`, chấm ở server,
-kiểm tra eligibility/quota (đối với `review`), áp scheduler, ghi `review_log`, cập nhật tiến độ phiên. Lặp lại cùng `ordinal`
-(retry mạng) → **trả nguyên kết quả cũ**, không áp lần hai, không cộng XP lần hai
-(idempotency key `session:<session_id>:<ordinal>`).
+Mỗi câu trả lời được chấm và ghi cùng transaction: khóa user → item → `srs_state`, kiểm tra
+eligibility/quota (đối với `review`), áp scheduler, ghi `review_log`, cập nhật tiến độ phiên
+và lưu response gốc. Retry cùng `ordinal` với payload tương đương sau chuẩn hoá (typing
+không phân biệt hoa thường; thứ tự cặp matching không quan trọng) → **trả đúng response của
+lần đầu**, kể cả khi session/SRS đã tiến thêm; không áp lần hai, không cộng XP lần hai.
+Payload khác, kể cả `elapsed_ms` khác, trả `409 SESSION_IDEMPOTENCY_CONFLICT`. Câu trả lời
+đã ghi trước migration nhưng chưa có response gốc trả `409 SESSION_REPLAY_UNAVAILABLE`;
+lịch sử câu trả lời vẫn đọc được.
 
 ```bash
 # flashcard
@@ -144,11 +153,15 @@ Response `200`:
 ```
 
 - Trả lời **câu cuối** → phiên tự `completed`, ghi `finished_at` + `score` (% đúng).
-- Lỗi: `400 SESSION_ANSWER_INVALID` (thiếu/sai trường theo mode) ·
+- `option_index` phải trùng một `index` có trong `prompt.options` của snapshot; index ngoài
+  danh sách bị từ chối trước khi ghi câu trả lời/SRS/XP.
+- Lỗi: `400 SESSION_ANSWER_INVALID` (thiếu/sai trường theo mode hoặc index không có trong
+  snapshot) ·
   `404 SESSION_ITEM_NOT_FOUND` (ordinal không có) · `409 SESSION_CLOSED` (phiên đã đóng;
-  replay câu đã trả lời vẫn trả `200`) · `409 SRS_ITEM_UNAVAILABLE`/`SRS_DAILY_LIMIT_REACHED`
-  khi eligibility hoặc quota thay đổi · `422 SRS_ITEM_NOT_DUE` khi review chưa đến hạn và
-  không đủ điều kiện learn-ahead. Câu bị chặn không được đánh dấu đã trả lời.
+  replay câu đã trả lời có receipt vẫn trả `200`) · `409 SESSION_IDEMPOTENCY_CONFLICT` /
+  `SESSION_REPLAY_UNAVAILABLE` · `409 SRS_ITEM_UNAVAILABLE`/`SRS_DAILY_LIMIT_REACHED` khi
+  eligibility hoặc quota thay đổi · `422 SRS_ITEM_NOT_DUE` khi review chưa đến hạn và không
+  đủ điều kiện learn-ahead. Câu bị chặn không được đánh dấu đã trả lời.
 
 ## POST /v1/sessions/:id/finish
 

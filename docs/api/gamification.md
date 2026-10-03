@@ -18,7 +18,11 @@ Mọi lượt ôn (`POST /v1/srs/reviews`, `POST /v1/sessions/:id/answers`) cậ
 
 ## Streak & level
 
-- `streak_day`: `review_count`, `xp`, `met_goal = review_count ≥ user_settings.daily_goal`.
+- `streak_day.review_count` là **số hoạt động học trong ngày** (lượt ôn SRS **và** câu quiz);
+  `met_goal = review_count ≥ user_settings.daily_goal` → quiz cũng tính vào mục tiêu ngày.
+- `user_stats.reviews_total` (metric của achievement `reviews_1000`) **chỉ đếm lượt ôn SRS**.
+  Quiz M11 cập nhật streak/mục tiêu/XP nhưng **không** cộng bộ đếm này (migration `036` rebuild
+  lại `reviews_total` cho user cũ từ `review_log`; không thu hồi achievement đã mở khoá).
 - `streak_current`: hôm qua đã học → +1; hôm nay đã học → giữ; cũ hơn → reset 1;
   `streak_longest = max`. Tính tại thời điểm ghi, không cần cron 0h.
 - Level: `level = floor(sqrt(xp_total / 100)) + 1` → **L2=100, L3=400, L4=900, L5=1600 XP**.
@@ -63,6 +67,7 @@ curl -s -X POST http://localhost:3000/v1/me/achievements/seen \
 # → {"updated":1,"unseen_count":0}
 ```
 
-Lỗi: `401 AUTH_TOKEN_MISSING` · `400 VALIDATION_FAILED` (`codes` không phải mảng string).
+Lỗi: `401 AUTH_TOKEN_MISSING` · `400 VALIDATION_FAILED` (`codes` không phải mảng string;
+`null` không được xem như bỏ trống).
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **gamification**).

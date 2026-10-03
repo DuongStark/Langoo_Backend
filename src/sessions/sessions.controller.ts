@@ -11,6 +11,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -103,10 +104,15 @@ export class SessionsController {
       'Trả lời 1 câu — đáp án chấm ở server (client không gửi is_correct)',
   })
   @ApiOkResponse({ type: AnswerResultResponseDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description:
+      'SESSION_ANSWER_INVALID; option_index phải có trong prompt.options',
+  })
   @ApiConflictResponse({
     type: ErrorResponseDto,
     description:
-      'SESSION_CLOSED / SRS_ITEM_UNAVAILABLE / SRS_DAILY_LIMIT_REACHED',
+      'SESSION_CLOSED / SESSION_IDEMPOTENCY_CONFLICT / SESSION_REPLAY_UNAVAILABLE / SRS_ITEM_UNAVAILABLE / SRS_DAILY_LIMIT_REACHED',
   })
   @ApiUnprocessableEntityResponse({
     type: ErrorResponseDto,

@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-01 (DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 Admin/Feedback xong chờ review; M12 Hardening xong; M11 AI Quiz xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-03 (M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036 mới áp DB test local, cloud chưa apply; M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 Admin/Feedback xong chờ review; M12 Hardening xong; M11 AI Quiz xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -20,8 +20,8 @@
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                         |
 | M6   | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                      |
 | M6.1 | SRS fixes sau review                                                      | ✅ đã sửa 14 phát hiện + ENV-01; audit 30/30 pass; **cloud đã có 026/027**                                            |
-| M7   | Review modes & sessions                                                   | ✅ ReviewEngine dùng chung; review answer re-check eligibility/quota, practice chỉ miễn due/cap                       |
-| M8   | Gamification                                                              | ✅ Regression e2e chạy cùng M6.1, giữ XP/streak/achievement trong transaction                                         |
+| M7   | Review modes & sessions                                                   | ✅ M7.1 + M7.2 đã sửa (profile xuyên suốt, distractor theo profile); build/lint/unit/e2e local pass; migration 034 chưa apply cloud ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md)) |
+| M8   | Gamification                                                              | ✅ M8.1 + M8.2 đã sửa (achievement quiz cùng transaction; `reviews_total`/`reviews_1000` chỉ tính SRS, migration 036); migration 034/036 chưa apply cloud ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md)) |
 | M9   | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                             |
 | M10  | AI Chatbot                                                                | ✅ hoàn thành (chờ review): stub/openai-compatible + phiên/tin nhắn + quota; [kế hoạch](docs/plans/m10-ai-chatbot.md) |
 | M11  | AI Quiz                                                                   | ✅ hoàn thành (chờ review): 3 loại câu hỏi + mixed, quota 15/ngày + cooldown; [kế hoạch](docs/plans/m11-ai-quiz.md) |
@@ -112,6 +112,8 @@
 | 2026-09-30 | **M13 phạm vi**: KHÔNG ghi `core` (duyệt gloss/concept/deck tách M14); v1 = thống kê aggregate + feedback text/ảnh + gloss_report + khoá/mở user + audit log | Duyệt D2 |
 | 2026-09-30 | **M13 storage**: `StorageService` trừu tượng — `local` thật (STORAGE_DIR, gitignore); adapter s3/R2 để backlog (chọn `s3` sẽ fail-fast) | Duyệt D3 |
 | 2026-09-30 | **M13 audit**: bảng `app.admin_audit_log`, ghi cùng transaction mọi mutation admin; feedback giới hạn 10 lần/giờ/user + 3 ảnh ≤5MB (magic bytes) | Duyệt D6/D7 |
+| 2026-10-03 | **M8.2 bộ đếm quiz**: quiz tính `streak_day`/`met_goal`/XP nhưng `user_stats.reviews_total` và achievement `reviews_1000` **chỉ tính lượt ôn SRS**; migration `036` rebuild `reviews_total` từ `review_log` | Chủ dự án chốt: tên "review" chỉ mô tả lượt ôn SRS |
+| 2026-10-03 | **M7.2 session profile & distractor**: `collectDueRows` nhận profile đã resolve (một `profile_id` xuyên suốt); distractor lọc theo `profile_id` và ưu tiên collection trong SQL trước `LIMIT` | Sửa follow-up review M7/M8; tránh session lẫn thẻ/đáp án profile khác |
 
 ## Nhật ký sửa lỗi theo milestone
 

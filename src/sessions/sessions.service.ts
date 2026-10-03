@@ -40,6 +40,7 @@ interface ItemRow {
   prompt: unknown;
   correctAnswer: unknown;
   userAnswer: unknown;
+  answerReceipt: unknown;
   isCorrect: boolean | null;
   rating: number | null;
   elapsedMs: number | null;
@@ -86,7 +87,7 @@ export class SessionsService {
 
     const rows =
       dto.kind === 'review'
-        ? await this.srs.collectDueRows(userId, {
+        ? await this.srs.collectDueRows(userId, profile, {
             limit,
             collectionId: dto.collection_id,
           })
@@ -117,6 +118,7 @@ export class SessionsService {
         languageId,
         await this.sourceRepo.buildPool({
           userId,
+          profileId: profile.id,
           languageId,
           // Không loại sense trong phiên: câu nhiễu trùng đáp án đã bị lọc
           // theo text khi dựng đề (buildSessionItem).
@@ -209,7 +211,7 @@ export class SessionsService {
     sessionId: string,
     dto: AnswerSessionDto,
   ): Promise<AnswerResultResponse> {
-    const outcome = await this.prisma.$transaction(async (tx) => {
+    return this.prisma.$transaction(async (tx) => {
       // Match direct review lock order: user → session → session item → SRS.
       await tx.$queryRaw`SELECT id FROM app.users WHERE id = ${userId} FOR UPDATE`;
       const session = await tx.studySession.findFirst({
@@ -235,8 +237,34 @@ export class SessionsService {
       const freshItem = await tx.studySessionItem.findUniqueOrThrow({
         where: { id: item.id },
       });
+
+      const questionType =
+        session.kind === 'quiz'
+          ? readQuizQuestionType(freshItem.prompt)
+          : session.mode;
       if (freshItem.answeredAt !== null) {
-        return { replay: true as const, item: freshItem };
+        const request = canonicalizeAnswerRequest(
+          questionType,
+          session.kind === 'quiz',
+          dto,
+          false,
+        );
+        const receipt = parseAnswerReceipt(freshItem.answerReceipt);
+        if (!receipt) {
+          throw new DomainException(
+            'SESSION_REPLAY_UNAVAILABLE',
+            'Không có response gốc để phát lại câu trả lời này',
+            HttpStatus.CONFLICT,
+          );
+        }
+        if (stableJson(receipt.request) !== stableJson(request)) {
+          throw new DomainException(
+            'SESSION_IDEMPOTENCY_CONFLICT',
+            'Câu hỏi đã được trả lời bằng payload khác',
+            HttpStatus.CONFLICT,
+          );
+        }
+        return receipt.response;
       }
 
       if (session.status !== 'in_progress') {
@@ -246,10 +274,26 @@ export class SessionsService {
           HttpStatus.CONFLICT,
         );
       }
+      const request = canonicalizeAnswerRequest(
+        questionType,
+        session.kind === 'quiz',
+        dto,
+        true,
+      );
 
       if (session.kind === 'quiz') {
+        if (
+          questionType === 'multiple_choice' &&
+          !hasPromptOption(freshItem.prompt, dto.option_index)
+        ) {
+          throw new DomainException(
+            'SESSION_ANSWER_INVALID',
+            'option_index không có trong lựa chọn của câu hỏi',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         const gradedQuiz = gradeQuizAnswer(
-          readQuizQuestionType(freshItem.prompt),
+          questionType as QuizQuestionType,
           freshItem.correctAnswer as Record<string, unknown>,
           {
             optionIndex: dto.option_index,
@@ -269,6 +313,16 @@ export class SessionsService {
           userId,
         );
         const nowInTransaction = new Date();
+        const updatedQuizItem = await tx.studySessionItem.update({
+          where: { id: freshItem.id },
+          data: {
+            userAnswer: gradedQuiz.userAnswer as Prisma.InputJsonValue,
+            isCorrect: gradedQuiz.isCorrect,
+            rating: gradedQuiz.rating,
+            elapsedMs: dto.elapsed_ms ?? null,
+            answeredAt: nowInTransaction,
+          },
+        });
         const activity = await this.gamification.applyActivity(tx, {
           userId,
           timezone: profile.timezone,
@@ -279,17 +333,7 @@ export class SessionsService {
           refId: session.quizId,
           idempotencyKey: `quiz:${session.id}:${item.ordinal}`,
           xpEligible: gradedQuiz.isCorrect,
-        });
-
-        const updatedQuizItem = await tx.studySessionItem.update({
-          where: { id: freshItem.id },
-          data: {
-            userAnswer: gradedQuiz.userAnswer as Prisma.InputJsonValue,
-            isCorrect: gradedQuiz.isCorrect,
-            rating: gradedQuiz.rating,
-            elapsedMs: dto.elapsed_ms ?? null,
-            answeredAt: nowInTransaction,
-          },
+          countsAsReview: false,
         });
 
         let updatedQuizSession = await tx.studySession.update({
@@ -317,14 +361,33 @@ export class SessionsService {
           });
         }
 
-        return {
-          replay: false as const,
-          quiz: true as const,
-          item: updatedQuizItem,
-          xpAmount: activity.xp_amount,
-          session: updatedQuizSession,
-          answered: answeredQuiz,
+        const response: AnswerResultResponse = {
+          item: toItemResponse(updatedQuizItem, true),
+          srs: null,
+          xp: { amount: activity.xp_amount },
+          session: toSessionResponse(updatedQuizSession, answeredQuiz),
         };
+        await tx.studySessionItem.update({
+          where: { id: freshItem.id },
+          data: {
+            answerReceipt: {
+              version: 1,
+              request,
+              response,
+            } as unknown as Prisma.InputJsonValue,
+          },
+        });
+        return response;
+      }
+      if (
+        (session.mode === 'multiple_choice' || session.mode === 'matching') &&
+        !hasPromptOption(freshItem.prompt, dto.option_index)
+      ) {
+        throw new DomainException(
+          'SESSION_ANSWER_INVALID',
+          'option_index không có trong lựa chọn của câu hỏi',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       const graded = gradeAnswer(
         session.mode as SessionMode,
@@ -505,40 +568,30 @@ export class SessionsService {
         });
       }
 
-      return {
-        replay: false as const,
-        quiz: false as const,
-        item: updatedItem,
-        state: engine.state,
-        xpAmount: engine.xpAmount,
-        session: updatedSession,
-        answered,
+      const response: AnswerResultResponse = {
+        item: toItemResponse(updatedItem, true),
+        srs: {
+          state: engine.state.state,
+          due_at: engine.state.dueAt.toISOString(),
+          interval_days: engine.state.scheduledDays ?? 0,
+          ease_factor: engine.state.easeFactor,
+          learning_step: engine.state.learningStep,
+        },
+        xp: { amount: engine.xpAmount },
+        session: toSessionResponse(updatedSession, answered),
       };
+      await tx.studySessionItem.update({
+        where: { id: freshItem.id },
+        data: {
+          answerReceipt: {
+            version: 1,
+            request,
+            response,
+          } as unknown as Prisma.InputJsonValue,
+        },
+      });
+      return response;
     });
-
-    if (outcome.replay) {
-      return this.buildReplay(userId, sessionId, outcome.item);
-    }
-    if (outcome.quiz) {
-      return {
-        item: toItemResponse(outcome.item, true),
-        srs: null,
-        xp: { amount: outcome.xpAmount },
-        session: toSessionResponse(outcome.session, outcome.answered),
-      };
-    }
-    return {
-      item: toItemResponse(outcome.item, true),
-      srs: {
-        state: outcome.state.state,
-        due_at: outcome.state.dueAt.toISOString(),
-        interval_days: outcome.state.scheduledDays ?? 0,
-        ease_factor: outcome.state.easeFactor,
-        learning_step: outcome.state.learningStep,
-      },
-      xp: { amount: outcome.xpAmount },
-      session: toSessionResponse(outcome.session, outcome.answered),
-    };
   }
 
   // ---------------------------------------------------------------- finish
@@ -595,66 +648,6 @@ export class SessionsService {
     }
     return session;
   }
-
-  private async buildReplay(
-    userId: bigint,
-    sessionId: string,
-    item: ItemRow,
-  ): Promise<AnswerResultResponse> {
-    const session = await this.prisma.studySession.findUniqueOrThrow({
-      where: { id: sessionId },
-    });
-    const answered = await this.prisma.studySessionItem.count({
-      where: { sessionId, answeredAt: { not: null } },
-    });
-    const xp = await this.prisma.xpEvent.findFirst({
-      where: {
-        userId,
-        idempotencyKey:
-          session.kind === 'quiz'
-            ? `quiz:${sessionId}:${item.ordinal}`
-            : `session:${sessionId}:${item.ordinal}`,
-      },
-      select: { amount: true },
-    });
-    if (session.kind === 'quiz') {
-      return {
-        item: toItemResponse(item, true),
-        srs: null,
-        xp: { amount: xp?.amount ?? 0 },
-        session: toSessionResponse(session, answered),
-      };
-    }
-    if (item.srsId === null) {
-      throw new DomainException(
-        'SESSION_ITEM_NOT_FOUND',
-        'Câu hỏi không gắn với thẻ ôn',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    const srsRow = await this.prisma.srsState.findUnique({
-      where: { id: item.srsId },
-    });
-    if (!srsRow) {
-      throw new DomainException(
-        'SESSION_ITEM_NOT_FOUND',
-        'Thẻ ôn không còn tồn tại',
-        HttpStatus.NOT_FOUND,
-      );
-    }
-    return {
-      item: toItemResponse(item, true),
-      srs: {
-        state: srsRow.state,
-        due_at: srsRow.dueAt.toISOString(),
-        interval_days: srsRow.scheduledDays ?? 0,
-        ease_factor: srsRow.easeFactor,
-        learning_step: srsRow.learningStep,
-      },
-      xp: { amount: xp?.amount ?? 0 },
-      session: toSessionResponse(session, answered),
-    };
-  }
 }
 
 /** Đọc loại câu hỏi quiz từ snapshot prompt (kind: multiple_choice/typing/matching). */
@@ -673,6 +666,190 @@ function readQuizQuestionType(prompt: unknown): QuizQuestionType {
     'Câu hỏi quiz không hợp lệ',
     HttpStatus.BAD_REQUEST,
   );
+}
+
+interface CanonicalAnswerRequest {
+  question_type: string;
+  answer: Record<string, unknown>;
+  elapsed_ms: number | null;
+}
+
+interface AnswerReceipt {
+  version: 1;
+  request: CanonicalAnswerRequest;
+  response: AnswerResultResponse;
+}
+
+function canonicalizeAnswerRequest(
+  questionType: string,
+  isQuiz: boolean,
+  dto: AnswerSessionDto,
+  strict: boolean,
+): CanonicalAnswerRequest {
+  const expectedField =
+    isQuiz && questionType === 'matching'
+      ? 'pairs'
+      : questionType === 'flashcard'
+        ? 'rating'
+        : questionType === 'multiple_choice' || questionType === 'matching'
+          ? 'option_index'
+          : questionType === 'typing' || questionType === 'fill_blank'
+            ? 'answer_text'
+            : undefined;
+  const fields = [
+    ['rating', dto.rating],
+    ['option_index', dto.option_index],
+    ['answer_text', dto.answer_text],
+    ['pairs', dto.pairs],
+  ] as const;
+  if (
+    strict &&
+    (expectedField === undefined ||
+      fields.some(
+        ([field, value]) =>
+          (field === expectedField && value === undefined) ||
+          (field !== expectedField && value !== undefined),
+      ))
+  ) {
+    throw new DomainException(
+      'SESSION_ANSWER_INVALID',
+      'Câu trả lời thiếu trường bắt buộc hoặc có trường không phù hợp',
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+
+  const answer: Record<string, unknown> = {};
+  const expectedValue = fields.find(([field]) => field === expectedField)?.[1];
+  if (expectedField !== undefined && expectedValue !== undefined) {
+    if (expectedField === 'answer_text' && typeof expectedValue === 'string') {
+      answer[expectedField] = expectedValue.trim().toLowerCase();
+    } else if (expectedField === 'pairs' && Array.isArray(expectedValue)) {
+      answer[expectedField] = expectedValue
+        .map((pair) => ({
+          left_index: pair.left_index,
+          right_index: pair.right_index,
+        }))
+        .sort(
+          (left, right) =>
+            left.left_index - right.left_index ||
+            left.right_index - right.right_index,
+        );
+    } else {
+      answer[expectedField] = expectedValue;
+    }
+  }
+  const unexpectedFields = fields
+    .filter(([field, value]) => field !== expectedField && value !== undefined)
+    .map(([field, value]) => [field, value]);
+  if (unexpectedFields.length > 0) {
+    answer.unexpected_fields = unexpectedFields;
+  }
+
+  return {
+    question_type: `${isQuiz ? 'quiz:' : ''}${questionType}`,
+    answer,
+    elapsed_ms: dto.elapsed_ms ?? null,
+  };
+}
+
+function parseAnswerReceipt(value: unknown): AnswerReceipt | null {
+  if (!isRecord(value) || value.version !== 1) return null;
+  if (!isRecord(value.request) || !isRecord(value.response)) return null;
+
+  const { request, response } = value;
+  if (
+    typeof request.question_type !== 'string' ||
+    !isRecord(request.answer) ||
+    (request.elapsed_ms !== null &&
+      (typeof request.elapsed_ms !== 'number' ||
+        !Number.isFinite(request.elapsed_ms))) ||
+    !isSessionItemResponse(response.item) ||
+    (response.srs !== null && !isSrsResponse(response.srs)) ||
+    !isRecord(response.xp) ||
+    typeof response.xp.amount !== 'number' ||
+    !Number.isFinite(response.xp.amount) ||
+    !isSessionResponse(response.session)
+  ) {
+    return null;
+  }
+  return {
+    version: 1,
+    request: request as unknown as CanonicalAnswerRequest,
+    response: response as unknown as AnswerResultResponse,
+  };
+}
+
+function hasPromptOption(
+  prompt: unknown,
+  optionIndex: number | undefined,
+): boolean {
+  if (!Number.isInteger(optionIndex) || !isRecord(prompt)) return false;
+  if (!Array.isArray(prompt.options)) return false;
+  return prompt.options.some(
+    (option) => isRecord(option) && option.index === optionIndex,
+  );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function isSessionItemResponse(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    typeof value.id === 'string' &&
+    typeof value.ordinal === 'number' &&
+    'prompt' in value &&
+    (value.srs_id === null || typeof value.srs_id === 'string') &&
+    (value.face_id === null || typeof value.face_id === 'string') &&
+    (value.is_correct === null || typeof value.is_correct === 'boolean') &&
+    (value.rating === null || typeof value.rating === 'number') &&
+    (value.elapsed_ms === null || typeof value.elapsed_ms === 'number') &&
+    (value.answered_at === null || typeof value.answered_at === 'string')
+  );
+}
+
+function isSessionResponse(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    typeof value.id === 'string' &&
+    typeof value.kind === 'string' &&
+    typeof value.mode === 'string' &&
+    (value.collection_id === null || typeof value.collection_id === 'string') &&
+    typeof value.status === 'string' &&
+    typeof value.item_count === 'number' &&
+    typeof value.answered_count === 'number' &&
+    typeof value.correct_count === 'number' &&
+    (value.score === null || typeof value.score === 'number') &&
+    typeof value.xp_awarded === 'number' &&
+    isRecord(value.settings) &&
+    typeof value.started_at === 'string' &&
+    (value.finished_at === null || typeof value.finished_at === 'string')
+  );
+}
+
+function isSrsResponse(value: unknown): boolean {
+  if (!isRecord(value)) return false;
+  return (
+    typeof value.state === 'string' &&
+    typeof value.due_at === 'string' &&
+    typeof value.interval_days === 'number' &&
+    typeof value.ease_factor === 'number' &&
+    (value.learning_step === null || typeof value.learning_step === 'number')
+  );
+}
+
+function stableJson(value: unknown): string {
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => stableJson(item)).join(',')}]`;
+  }
+  if (isRecord(value)) {
+    return `{${Object.keys(value)
+      .sort()
+      .map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`)
+      .join(',')}}`;
+  }
+  return JSON.stringify(value) ?? 'null';
 }
 
 function toCardContent(row: DueRow): CardContent {

@@ -109,9 +109,15 @@ Response `200`:
 }
 ```
 
-- **XP:** rule `quiz_correct` (+5, cap 200) **chỉ khi đúng**; câu sai vẫn tính streak/activity.
+- **XP:** rule `quiz_correct` (+5, cap 200) **chỉ khi đúng**; câu sai vẫn tính streak/activity
+  (mục tiêu ngày) nhưng **không** cộng `user_stats.reviews_total`/`reviews_1000` — hai bộ đếm
+  này chỉ dành cho lượt ôn SRS.
+- Với câu multiple choice, `option_index` phải có trong `prompt.options` của snapshot; index
+  không hợp lệ trả `400 SESSION_ANSWER_INVALID` và không ghi activity.
 - Màn "câu sai": `GET /v1/sessions/:id/items?is_correct=false`.
-- Retry cùng `ordinal` trả nguyên kết quả cũ, không cộng XP lần hai (idempotent).
+- Retry cùng payload ở `ordinal` đã trả lời trả nguyên response ban đầu; payload khác trả
+  `409 SESSION_IDEMPOTENCY_CONFLICT`. Câu cũ chưa có receipt trả
+  `409 SESSION_REPLAY_UNAVAILABLE`. Không cộng XP lần hai.
 
 ## Biến môi trường
 

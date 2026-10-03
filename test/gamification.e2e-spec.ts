@@ -576,5 +576,20 @@ describe('Gamification (e2e — langoo_test)', () => {
         .expect(200);
       expect(res.body).toMatchObject({ updated: 0, unseen_count: 0 });
     });
+
+    it('seen từ chối codes:null và không ghi achievement', async () => {
+      const { token, userId } = await registerUser('seen-null');
+
+      await request(server)
+        .post('/v1/me/achievements/seen')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ codes: null })
+        .expect(400)
+        .expect(({ body }) => {
+          expect(body).toMatchObject({ code: 'VALIDATION_FAILED' });
+        });
+
+      expect(await prisma.userAchievement.count({ where: { userId } })).toBe(0);
+    });
   });
 });

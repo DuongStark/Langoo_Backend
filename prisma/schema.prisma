@@ -445,6 +445,7 @@ model StudySessionItem {
   prompt         Json      @default("{}")
   correctAnswer  Json?     @map("correct_answer")
   userAnswer     Json?     @map("user_answer")
+  answerReceipt  Json?     @map("answer_receipt")
   isCorrect      Boolean?  @map("is_correct")
   rating         Int?      @db.SmallInt // 1..4
   elapsedMs      Int?      @map("elapsed_ms")

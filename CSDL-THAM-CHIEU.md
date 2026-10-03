@@ -1,6 +1,6 @@
 # CSDL tham chiếu — Langoo
 
-> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-10-01 19:00** · PostgreSQL 16.2.
+> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-10-03 00:53** · PostgreSQL 16.2.
 > KHÔNG sửa tay — chạy lại script sau mỗi migration.
 
 Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
@@ -62,7 +62,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 <a id="publicschema_migration"></a>
 ### `public.schema_migration`
 
-*table — 31 dòng*
+*table — 34 dòng*
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
@@ -930,10 +930,13 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 - `lexeme_frequency`: CREATE INDEX lexeme_frequency ON core.lexeme USING btree (language_id, frequency_rank) WHERE (frequency_rank IS NOT NULL)
 - `lexeme_kana_forms`: CREATE INDEX lexeme_kana_forms ON core.lexeme USING gin (((attributes -> 'kana'::text)) jsonb_path_ops)
 - `lexeme_kanji_forms`: CREATE INDEX lexeme_kanji_forms ON core.lexeme USING gin (((attributes -> 'kanji'::text)) jsonb_path_ops)
+- `lexeme_lemma_bigm`: CREATE INDEX lexeme_lemma_bigm ON core.lexeme USING gin (core.bigrams(lower(lemma)))
 - `lexeme_lemma_lookup`: CREATE INDEX lexeme_lemma_lookup ON core.lexeme USING btree (language_id, lemma)
 - `lexeme_lemma_prefix`: CREATE INDEX lexeme_lemma_prefix ON core.lexeme USING btree (lemma text_pattern_ops)
+- `lexeme_reading_bigm`: CREATE INDEX lexeme_reading_bigm ON core.lexeme USING gin (core.bigrams(lower(reading)))
 - `lexeme_reading_lookup`: CREATE INDEX lexeme_reading_lookup ON core.lexeme USING btree (language_id, reading) WHERE (reading IS NOT NULL)
 - `lexeme_reading_prefix`: CREATE INDEX lexeme_reading_prefix ON core.lexeme USING btree (reading text_pattern_ops) WHERE (reading IS NOT NULL)
+- `lexeme_romanization_bigm`: CREATE INDEX lexeme_romanization_bigm ON core.lexeme USING gin (core.bigrams(lower(romanization)))
 
 <a id="corelexeme_form"></a>
 ### `core.lexeme_form`
@@ -970,6 +973,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 **Chỉ mục**:
 - `lexeme_form_by_lexeme`: CREATE INDEX lexeme_form_by_lexeme ON core.lexeme_form USING btree (lexeme_id, kind, form_order)
 - `lexeme_form_lookup`: CREATE INDEX lexeme_form_lookup ON core.lexeme_form USING btree (kind, form_text, lexeme_id)
+- `lexeme_form_text_bigm`: CREATE INDEX lexeme_form_text_bigm ON core.lexeme_form USING gin (core.bigrams(lower(form_text)))
 
 <a id="corelexeme_form_applies_to"></a>
 ### `core.lexeme_form_applies_to`
@@ -2615,6 +2619,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 11 | `rating` | smallint | có |  |  |
 | 12 | `elapsed_ms` | integer | có |  |  |
 | 13 | `answered_at` | timestamp with time zone | có |  |  |
+| 14 | `answer_receipt` | jsonb | có |  |  |
 
 **Khoá chính**: `PRIMARY KEY (id)`
 
@@ -2626,6 +2631,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 **Ràng buộc khác**:
 - `session_item_has_source` (check): CHECK (((srs_id IS NOT NULL) OR (quiz_question_id IS NOT NULL) OR (prompt <> '{}'::jsonb)))
+- `study_session_item_answer_receipt_check` (check): CHECK (((answer_receipt IS NULL) OR (jsonb_typeof(answer_receipt) = 'object'::text)))
 - `study_session_item_elapsed_ms_check` (check): CHECK ((elapsed_ms >= 0))
 - `study_session_item_ordinal_check` (check): CHECK ((ordinal > 0))
 - `study_session_item_prompt_check` (check): CHECK ((jsonb_typeof(prompt) = 'object'::text))

@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { DomainException } from '../common/errors/domain.exception';
 import { isUniqueViolation } from '../common/errors/prisma-errors';
 import {
   localDateString,
@@ -39,6 +40,12 @@ export interface ApplyActivityParams {
   idempotencyKey: string;
   /** false = câu sai: vẫn tính streak/activity nhưng không cộng XP theo rule (M11 quiz). */
   xpEligible?: boolean;
+  /**
+   * true = lượt ôn SRS: cộng `user_stats.reviews_total` (metric của achievement
+   * `reviews_1000`). Quiz (M11) vẫn tính streak/mục tiêu ngày nhưng KHÔNG cộng
+   * bộ đếm này — tên "review" chỉ mô tả lượt ôn (chốt 2026-10-03).
+   */
+  countsAsReview: boolean;
 }
 
 /**
@@ -176,7 +183,7 @@ export class GamificationService {
     const streakCurrent = nextStreak(stats.streakCurrent, lastDay, day);
     const streakLongest = Math.max(stats.streakLongest, streakCurrent);
     const itemsLearned = await this.countItemsLearned(tx, userId);
-    const reviewsTotal = stats.reviewsTotal + 1;
+    const reviewsTotal = stats.reviewsTotal + (params.countsAsReview ? 1 : 0);
 
     // 5) Thành tích theo số liệu mới (progress + mở khoá + thưởng XP).
     const metrics = {
@@ -382,6 +389,16 @@ export class GamificationService {
     userId: bigint,
     codes?: string[],
   ): Promise<{ updated: number; unseen_count: number }> {
+    if (
+      codes !== undefined &&
+      (!Array.isArray(codes) || codes.some((code) => typeof code !== 'string'))
+    ) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'codes phải là mảng chuỗi',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const where: Prisma.UserAchievementWhereInput = {
       userId,
       unlockedAt: { not: null },

@@ -4,6 +4,9 @@ import type { Server } from 'node:http';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/db/prisma.service';
+import { Prisma } from '../src/generated/prisma/client';
+import { SessionSourceRepository } from '../src/sessions/repositories/session-source.repository';
+import { SrsService } from '../src/srs/srs.service';
 import { safeTestTimezone } from './safe-timezone';
 
 interface SessionBody {
@@ -224,14 +227,24 @@ describe('Sessions (e2e — langoo_test)', () => {
 
       const replay = await answer(session.session.id, {
         ordinal: 1,
-        rating: 1,
+        rating: 3,
+        elapsed_ms: 2500,
       });
-      expect(replay.item.rating).toBe(3); // giữ kết quả cũ
+      expect(replay).toEqual(result); // giữ nguyên toàn bộ response lần đầu
       expect(replay.xp.amount).toBe(1);
       expect(await prisma.reviewLog.count({ where: { userId } })).toBe(1);
       expect(
         await prisma.xpEvent.count({ where: { userId, source: 'review' } }),
       ).toBe(1);
+
+      const conflict = await request(server)
+        .post(`/v1/sessions/${session.session.id}/answers`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ ordinal: 1, rating: 1 })
+        .expect(409);
+      expect(conflict.body).toMatchObject({
+        code: 'SESSION_IDEMPOTENCY_CONFLICT',
+      });
     });
 
     it('thiếu rating → 400 SESSION_ANSWER_INVALID', async () => {
@@ -284,6 +297,54 @@ describe('Sessions (e2e — langoo_test)', () => {
       expect(wrongItems[0].ordinal).toBe(2);
       expect(wrongItems[0].correct_answer).toBeDefined();
     });
+
+    it('từ chối option_index ngoài snapshot mà không ghi review hoặc SRS', async () => {
+      for (const mode of ['multiple_choice', 'matching']) {
+        const session = await createSession(mode, 'practice', 1);
+        const row = await prisma.studySessionItem.findFirstOrThrow({
+          where: { sessionId: session.session.id, ordinal: 1 },
+          select: { srsId: true, prompt: true },
+        });
+        const optionCount = (row.prompt as { options: { index: number }[] })
+          .options.length;
+        const beforeState = await prisma.srsState.findUniqueOrThrow({
+          where: { id: row.srsId! },
+          select: { reps: true, state: true, dueAt: true },
+        });
+        const beforeLogs = await prisma.reviewLog.count({ where: { userId } });
+        const beforeXp = await prisma.xpEvent.count({ where: { userId } });
+
+        for (const [optionIndex, expectedCode] of [
+          [-1, 'VALIDATION_FAILED'],
+          [optionCount, 'SESSION_ANSWER_INVALID'],
+          [999, 'SESSION_ANSWER_INVALID'],
+        ] as const) {
+          const invalid = await request(server)
+            .post(`/v1/sessions/${session.session.id}/answers`)
+            .set('Authorization', `Bearer ${token}`)
+            .send({ ordinal: 1, option_index: optionIndex })
+            .expect(400);
+          expect(invalid.body).toMatchObject({ code: expectedCode });
+
+          const afterState = await prisma.srsState.findUniqueOrThrow({
+            where: { id: row.srsId! },
+            select: { reps: true, state: true, dueAt: true },
+          });
+          const afterItem = await prisma.studySessionItem.findFirstOrThrow({
+            where: { sessionId: session.session.id, ordinal: 1 },
+            select: { answeredAt: true },
+          });
+          expect(afterState).toEqual(beforeState);
+          expect(afterItem.answeredAt).toBeNull();
+          expect(await prisma.reviewLog.count({ where: { userId } })).toBe(
+            beforeLogs,
+          );
+          expect(await prisma.xpEvent.count({ where: { userId } })).toBe(
+            beforeXp,
+          );
+        }
+      }
+    });
   });
 
   describe('matching', () => {
@@ -334,6 +395,154 @@ describe('Sessions (e2e — langoo_test)', () => {
   });
 
   describe('vòng đời phiên', () => {
+    it('replay giữ nguyên SRS snapshot sau khi session khác thay đổi thẻ', async () => {
+      const collection = await request(server)
+        .post('/v1/collections')
+        .set('Authorization', `Bearer ${token}`)
+        .send({ name: `Bộ replay ${runId}` })
+        .expect(201);
+      const isolatedCollectionId = (collection.body as { id: string }).id;
+      await request(server)
+        .post(`/v1/collections/${isolatedCollectionId}/items`)
+        .set('Authorization', `Bearer ${token}`)
+        .send({ sense_id: '1', secondary_sense_id: '2', meaning_vi: 'chạy' })
+        .expect(201);
+
+      const firstSessionRes = await request(server)
+        .post('/v1/sessions')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          kind: 'practice',
+          mode: 'typing',
+          collection_id: isolatedCollectionId,
+          limit: 1,
+        })
+        .expect(201);
+      const firstSession = firstSessionRes.body as SessionDetailBody;
+      const firstAnswer = await prisma.studySessionItem.findFirstOrThrow({
+        where: { sessionId: firstSession.session.id, ordinal: 1 },
+        select: { correctAnswer: true, srsId: true },
+      });
+      const accepted = (firstAnswer.correctAnswer as { accepted: string[] })
+        .accepted[0];
+      const original = await answer(firstSession.session.id, {
+        ordinal: 1,
+        answer_text: accepted,
+      });
+
+      const secondSessionRes = await request(server)
+        .post('/v1/sessions')
+        .set('Authorization', `Bearer ${token}`)
+        .send({
+          kind: 'practice',
+          mode: 'typing',
+          collection_id: isolatedCollectionId,
+          limit: 1,
+        })
+        .expect(201);
+      const secondSession = secondSessionRes.body as SessionDetailBody;
+      const secondAnswer = await prisma.studySessionItem.findFirstOrThrow({
+        where: { sessionId: secondSession.session.id, ordinal: 1 },
+        select: { srsId: true },
+      });
+      expect(secondAnswer.srsId).toBe(firstAnswer.srsId);
+      await answer(secondSession.session.id, {
+        ordinal: 1,
+        answer_text: '__incorrect__',
+      });
+
+      const replay = await answer(firstSession.session.id, {
+        ordinal: 1,
+        answer_text: accepted,
+      });
+      expect(replay).toEqual(original);
+    });
+
+    it('replay giữ snapshot response khi session đã tiến sang câu kế tiếp', async () => {
+      const session = await createSession('typing', 'practice', 2);
+      const firstAnswer = await dbItem(session.session.id, 1);
+      const accepted = (firstAnswer.correctAnswer.accepted as string[])[0];
+      const original = await answer(session.session.id, {
+        ordinal: 1,
+        answer_text: accepted,
+      });
+      await answer(session.session.id, {
+        ordinal: 2,
+        answer_text: '__incorrect__',
+      });
+
+      const replay = await answer(session.session.id, {
+        ordinal: 1,
+        answer_text: accepted,
+      });
+      expect(original.session.answered_count).toBe(1);
+      expect(replay).toEqual(original);
+    });
+
+    it('answered legacy row không receipt trả SESSION_REPLAY_UNAVAILABLE', async () => {
+      const session = await createSession('typing', 'practice', 1);
+      const row = await prisma.studySessionItem.findFirstOrThrow({
+        where: { sessionId: session.session.id, ordinal: 1 },
+        select: { id: true, correctAnswer: true },
+      });
+      const accepted = (row.correctAnswer as { accepted: string[] })
+        .accepted[0];
+      await answer(session.session.id, {
+        ordinal: 1,
+        answer_text: accepted,
+      });
+      const originalReceipt = await prisma.studySessionItem.findUniqueOrThrow({
+        where: { id: row.id },
+        select: { answerReceipt: true },
+      });
+      await prisma.$executeRaw`UPDATE app.study_session_item SET answer_receipt = NULL WHERE id = ${row.id}`;
+
+      try {
+        const replay = await request(server)
+          .post(`/v1/sessions/${session.session.id}/answers`)
+          .set('Authorization', `Bearer ${token}`)
+          .send({ ordinal: 1, answer_text: accepted })
+          .expect(409);
+        expect(replay.body).toMatchObject({
+          code: 'SESSION_REPLAY_UNAVAILABLE',
+        });
+      } finally {
+        await prisma.studySessionItem.update({
+          where: { id: row.id },
+          data: {
+            answerReceipt:
+              originalReceipt.answerReceipt as unknown as Prisma.InputJsonValue,
+          },
+        });
+      }
+    });
+
+    it('hai answer đồng thời cùng ordinal chỉ ghi một lượt và cùng response', async () => {
+      const session = await createSession('typing', 'practice', 1);
+      const item = await dbItem(session.session.id, 1);
+      const accepted = (item.correctAnswer.accepted as string[])[0];
+      const body = { ordinal: 1, answer_text: accepted };
+      const logCount = await prisma.reviewLog.count({ where: { userId } });
+
+      const [first, second] = await Promise.all([
+        answer(session.session.id, body),
+        answer(session.session.id, body),
+      ]);
+
+      expect(second).toEqual(first);
+      expect(await prisma.reviewLog.count({ where: { userId } })).toBe(
+        logCount + 1,
+      );
+      expect(
+        await prisma.xpEvent.count({
+          where: {
+            userId,
+            idempotencyKey: `session:${session.session.id}:1`,
+          },
+        }),
+      ).toBe(1);
+    });
+
     it('finish sớm → abandoned; trả lời tiếp → 409 SESSION_CLOSED', async () => {
       const session = await createSession('typing', 'practice', 4);
       await answer(session.session.id, { ordinal: 1, answer_text: '走る' });
@@ -470,6 +679,153 @@ describe('Sessions (e2e — langoo_test)', () => {
         .send({ kind: 'review', mode: 'flashcard' })
         .expect(409);
       expect(res.body).toMatchObject({ code: 'SESSION_NO_CARDS' });
+    });
+  });
+
+  describe('profile & distractor (M7.2)', () => {
+    async function createProfile(
+      tokenValue: string,
+      name: string,
+      primary: number,
+      secondary: number | null,
+    ): Promise<string> {
+      const res = await request(server)
+        .post('/v1/profiles')
+        .set('Authorization', `Bearer ${tokenValue}`)
+        .send({
+          name,
+          primary_language_id: primary,
+          ...(secondary === null ? {} : { secondary_language_id: secondary }),
+          support_language_id: 3,
+        })
+        .expect(201);
+      return (res.body as { id: string }).id;
+    }
+
+    async function createCollectionNamed(
+      tokenValue: string,
+      name: string,
+    ): Promise<string> {
+      const res = await request(server)
+        .post('/v1/collections')
+        .set('Authorization', `Bearer ${tokenValue}`)
+        .send({ name })
+        .expect(201);
+      return (res.body as { id: string }).id;
+    }
+
+    async function addItem(
+      tokenValue: string,
+      collectionIdValue: string,
+      senseId: string,
+      meaning: string,
+    ): Promise<void> {
+      await request(server)
+        .post(`/v1/collections/${collectionIdValue}/items`)
+        .set('Authorization', `Bearer ${tokenValue}`)
+        .send({ sense_id: senseId, meaning_vi: meaning })
+        .expect(201);
+    }
+
+    it('session review giữ đúng một profileId dù active profile đổi', async () => {
+      const user = await registerUser(`e2e-m7-profile-${runId}@langoo.test`);
+      const profileA = await createProfile(user.token, 'A ja', 2, 1);
+      const collectionA = await createCollectionNamed(user.token, 'A');
+      await addItem(user.token, collectionA, '1', 'chạy');
+      await addItem(user.token, collectionA, '5', 'ăn');
+
+      const profileB = await createProfile(user.token, 'B en', 1, 2);
+      await request(server)
+        .patch('/v1/me/settings')
+        .set('Authorization', `Bearer ${user.token}`)
+        .send({ active_profile_id: profileB, timezone: safeTestTimezone() })
+        .expect(200);
+
+      // DB active = B, nhưng luồng tạo session resolve ra A (mô phỏng đổi profile
+      // xen giữa hai lần đọc trước đây). Mọi thẻ phải thuộc A, không lẫn B.
+      const srs = app.get(SrsService);
+      const spy = jest.spyOn(srs, 'getProfileContext').mockResolvedValue({
+        id: profileA,
+        primaryLanguageId: 2,
+        secondaryLanguageId: 1,
+        timezone: safeTestTimezone(),
+        srsNewPerDay: 20,
+        srsReviewPerDay: 200,
+      });
+      try {
+        const res = await request(server)
+          .post('/v1/sessions')
+          .set('Authorization', `Bearer ${user.token}`)
+          .send({ kind: 'review', mode: 'flashcard' })
+          .expect(201);
+        const sessionId = (res.body as SessionDetailBody).session.id;
+
+        const sessionRow = await prisma.studySession.findUniqueOrThrow({
+          where: { id: sessionId },
+        });
+        expect(sessionRow.profileId).toBe(profileA);
+
+        const items = await prisma.studySessionItem.findMany({
+          where: { sessionId },
+          select: { srs: { select: { profileId: true } } },
+        });
+        expect(items.length).toBeGreaterThan(0);
+        expect(items.every((row) => row.srs?.profileId === profileA)).toBe(
+          true,
+        );
+      } finally {
+        spy.mockRestore();
+      }
+    });
+
+    it('distractor chỉ trong profile session và ưu tiên collection trước LIMIT', async () => {
+      const user = await registerUser(`e2e-m7-distract-${runId}@langoo.test`);
+      const profileA = await createProfile(user.token, 'A ja', 2, 1);
+      const colPreferred = await createCollectionNamed(user.token, 'A ưu tiên');
+      const colOther = await createCollectionNamed(user.token, 'A khác');
+      await addItem(user.token, colPreferred, '1', 'chạy');
+      await addItem(user.token, colOther, '5', 'ăn');
+      await addItem(user.token, colOther, '7', 'đi');
+
+      const profileB = await createProfile(user.token, 'B ja', 2, 1);
+      await request(server)
+        .patch('/v1/me/settings')
+        .set('Authorization', `Bearer ${user.token}`)
+        .send({ active_profile_id: profileB })
+        .expect(200);
+      const colB = await createCollectionNamed(user.token, 'B');
+      await addItem(user.token, colB, '9', 'nước');
+
+      const repo = app.get(SessionSourceRepository);
+
+      // limit=1 + preferred: SQL phải ưu tiên collection đang học TRƯỚC LIMIT.
+      const top = await repo.findDistractors({
+        userId: user.userId,
+        profileId: profileA,
+        languageId: 2,
+        excludeSenseIds: [],
+        preferredCollectionIds: [colPreferred],
+        limit: 1,
+      });
+      expect(top).toHaveLength(1);
+      expect(top[0].collection_id).toBe(colPreferred);
+
+      // Không giới hạn preferred: không được lẫn collection của profile B.
+      const all = await repo.findDistractors({
+        userId: user.userId,
+        profileId: profileA,
+        languageId: 2,
+        excludeSenseIds: [],
+        preferredCollectionIds: [],
+        limit: 50,
+      });
+      const collectionIds = [...new Set(all.map((row) => row.collection_id))];
+      const collections = await prisma.collection.findMany({
+        where: { id: { in: collectionIds } },
+        select: { profileId: true },
+      });
+      expect(collections.every((row) => row.profileId === profileA)).toBe(true);
+      expect(all.some((row) => row.collection_id === colB)).toBe(false);
     });
   });
 });

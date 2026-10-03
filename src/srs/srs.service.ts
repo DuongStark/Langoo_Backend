@@ -489,13 +489,15 @@ export class SrsService {
 
   /**
    * Thẻ đến hạn (tôn trọng daily cap + learn-ahead) — dùng bởi phiên `review`.
+   * Caller truyền profile đã resolve để cả phiên dùng đúng một profileId, tránh
+   * đọc lại active profile ở giữa (đổi profile xen kẽ làm session lệch thẻ).
    * Trả về DueRow đã sắp theo queue Anki.
    */
   async collectDueRows(
     userId: bigint,
+    profile: ResolvedProfile,
     options: { limit: number; collectionId?: string },
   ): Promise<DueRow[]> {
-    const profile = await this.resolveProfile(userId);
     const now = new Date();
     const dayStart = startOfDayUtc(now, profile.timezone);
     const dayEnd = nextDayStartUtc(now, profile.timezone);
