@@ -23,7 +23,7 @@
 | M7   | Review modes & sessions                                                   | ✅ M7.1 + M7.2 đã sửa (profile xuyên suốt, distractor theo profile); build/lint/unit/e2e local pass; migration 034 đã áp cloud+VPS+local (05/10) ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md)) |
 | M8   | Gamification                                                              | ✅ M8.1 + M8.2 đã sửa (achievement quiz cùng transaction; `reviews_total`/`reviews_1000` chỉ tính SRS, migration 036); migration 034/036 đã áp cloud+VPS+local (05/10) ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md)) |
 | M9   | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                             |
-| M10  | AI Chatbot                                                                | ✅ đã sửa 6 finding sau review; chuẩn bị OpenCode Zen free; migration 037 đã áp cloud+VPS+local (05/10); AI production chạy Zen `space-bunny-free`; [recheck](docs/reviews/m10-recheck-2026-10-03.md) |
+| M10  | AI Chatbot                                                                | ✅ đã sửa 6 finding sau review; chuẩn bị OpenCode Zen free; migration 037 đã áp cloud+VPS+local (05/10); AI production chạy Groq `openai/gpt-oss-120b` (từ 05/10, ~1-2s/câu); [recheck](docs/reviews/m10-recheck-2026-10-03.md) |
 | M11  | AI Quiz                                                                   | ✅ đã sửa sau review 2026-10-05: 6 lỗi P2 + nguồn SRS; [recheck](docs/reviews/m11-recheck-2026-10-05.md) |
 | M12  | Hardening                                                                 | ✅ đã sửa 1 P1 + 3 P2 sau review 2026-10-05; kiểm chứng local pass, chưa deploy VPS; [recheck](docs/reviews/m12-recheck-2026-10-05.md) |
 | M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ v1 hoàn thành (chờ review): vai admin, thống kê aggregate, feedback text+ảnh, gloss_report, khoá/mở user, audit ([kế hoạch](docs/plans/m13-admin-curation-feedback.md))                                                                                              |
@@ -116,6 +116,7 @@
 | 2026-10-03 | **M7.2 session profile & distractor**: `collectDueRows` nhận profile đã resolve (một `profile_id` xuyên suốt); distractor lọc theo `profile_id` và ưu tiên collection trong SQL trước `LIMIT` | Sửa follow-up review M7/M8; tránh session lẫn thẻ/đáp án profile khác |
 | 2026-10-05 | **JLPT nguồn chuẩn = `jlpt_link`** (KANJIDIC2 + JLPT list, có provenance `(source_level, source_row_number)`); `lexeme_level` chỉ giữ tham chiếu, không dùng để ghi đè | Chủ dự án chốt (chuẩn bị DB3) |
 | 2026-10-05 | **LLM cho dữ liệu = OpenCode Zen `space-bunny-free`** (`AI_BASE_URL=https://opencode.ai/zen/v1`), chạy theo lô nhỏ + checkpoint vì hạn mức free; dùng cho dịch gloss VI/radical và về sau là DB4 | Chủ dự án chốt |
+| 2026-10-05 | **AI production (chat) đổi sang Groq `openai/gpt-oss-120b`** (`https://api.groq.com/openai/v1`, free tier 30 RPM/1.000 req-ngày; đo ~0,6–2,2s/câu, streaming OK). Zen free còn `space-bunny-free` quá chậm (6–22s, có lúc rỗng); model Zen khác bị 403/402. Giữ Zen/Gemini làm dự phòng | Chủ dự án chốt sau khi đo |
 
 ## Nhật ký sửa lỗi theo milestone
 

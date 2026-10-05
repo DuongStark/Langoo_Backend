@@ -59,9 +59,11 @@ Internet
   - Hiện trỏ **Prisma cloud** (`DATABASE_URL`/`DIRECT_URL`) theo file env chủ dự án (02/10).
   - Bản trỏ **DB thật VPS** giữ tại `/opt/langoo/app/.env.localdb.bak` — đổi 2 dòng `DATABASE_URL`/`DIRECT_URL` sang `postgresql://langoo:<pass>@127.0.0.1:5432/langoo` rồi `pm2 restart` là về DB thật.
   - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS=*`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`…
-  - **AI production (05/10)**: `AI_PROVIDER=openai`, `AI_BASE_URL=https://opencode.ai/zen/v1`, `AI_CHAT_MODEL=space-bunny-free`, key OpenCode (Zen/Go dùng chung key).
-    ⚠️ **Không dùng `https://opencode.ai/zen/go/v1`**: endpoint Go bắt buộc header `x-opencode-session` (client coding-agent) — app chưa gửi nên nhận 400 `MissingSessionID` → API trả 503. Endpoint Zen (`/zen/v1`) không cần header.
-    Sửa `.env` xong phải `sudo -u langoo -H pm2 restart langoo-api` (dotenv đọc lúc khởi động).
+  - **AI production (05/10)**: `AI_PROVIDER=openai`, `AI_BASE_URL=https://api.groq.com/openai/v1`, `AI_CHAT_MODEL=openai/gpt-oss-120b`, key Groq (free tier: 30 RPM / 1.000 req/ngày / 8K TPM). Đo thực tế: **~0,6–2,2s/câu** (nhanh hơn hẳn Zen free), streaming hoạt động.
+  - Phương án dự phòng đã thử:
+    - **Zen** (`https://opencode.ai/zen/v1`, model `space-bunny-free`): model suy luận, chậm 6–22s, có lúc trả rỗng; các model free khác bị **403** ("free tier chỉ dùng trong OpenCode"), model trả phí **402** (hết balance). ⚠️ Không dùng `/zen/go/v1` (cần header `x-opencode-session` → 400/503).
+    - **Gemini** (`https://generativelanguage.googleapis.com/v1beta/openai/`): OpenAI-compatible, có free tier — chưa dùng.
+  - Sửa `.env` xong phải `sudo -u langoo -H pm2 restart langoo-api` (dotenv đọc lúc khởi động).
 - Logs: `sudo -u langoo -H pm2 logs langoo-api` hoặc `/opt/langoo/.pm2/logs/langoo-api-{out,error}.log`.
 - Ảnh feedback lưu tại `/opt/langoo/storage` (không nằm trong repo).
 
