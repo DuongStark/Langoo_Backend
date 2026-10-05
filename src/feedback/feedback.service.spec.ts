@@ -31,6 +31,7 @@ function feedbackRow(overrides: Record<string, unknown> = {}) {
 
 function createSetup() {
   const tx = {
+    $queryRaw: jest.fn(),
     feedback: { create: jest.fn(), update: jest.fn() },
     feedbackAttachment: { createMany: jest.fn() },
   };
@@ -146,12 +147,12 @@ describe('FeedbackService', () => {
         [file(PNG), file(PNG)],
       ),
     ).rejects.toMatchObject({ code: 'STORAGE_UNAVAILABLE' });
-    expect(storage.delete).toHaveBeenCalledTimes(1);
+    expect(storage.delete).toHaveBeenCalledTimes(2);
   });
 
   it('adminUpdate ghi audit trong cùng transaction', async () => {
-    const { service, prisma, tx, audit } = createSetup();
-    prisma.feedback.findUnique.mockResolvedValue({ id: 'f1' });
+    const { service, tx, audit } = createSetup();
+    tx.$queryRaw.mockResolvedValue([{ status: 'new', adminNote: null }]);
     tx.feedback.update.mockResolvedValue(
       feedbackRow({
         status: 'resolved',
@@ -171,6 +172,11 @@ describe('FeedbackService', () => {
         adminUserId: 5n,
         action: 'feedback.update',
         targetId: 'f1',
+        payload: {
+          status: 'resolved',
+          before: { status: 'new', admin_note: null },
+          after: { status: 'resolved', admin_note: 'đã sửa' },
+        },
       }),
     );
     expect(result).toMatchObject({
@@ -178,6 +184,28 @@ describe('FeedbackService', () => {
       admin_note: 'đã sửa',
       user: { id: '9', email: 'user@example.com' },
     });
+  });
+
+  it('dọn cả object được tạo một phần bởi lần put thất bại', async () => {
+    const { service, storage, prisma } = createSetup();
+    const objects = new Map<string, Buffer>();
+    storage.put.mockImplementation((key: string, buffer: Buffer) => {
+      objects.set(key, buffer.subarray(0, 4));
+      return Promise.reject(new Error('partial write failure'));
+    });
+    storage.delete.mockImplementation((key: string) => {
+      objects.delete(key);
+      return Promise.resolve();
+    });
+    await expect(
+      service.create(
+        1n,
+        { category: 'bug', content: 'partial upload failure' },
+        [file(PNG)],
+      ),
+    ).rejects.toMatchObject({ code: 'STORAGE_UNAVAILABLE' });
+    expect(objects.size).toBe(0);
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 
   it('getAttachment: thiếu metadata hoặc mất tệp → 404', async () => {

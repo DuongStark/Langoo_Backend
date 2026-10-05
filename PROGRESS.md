@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-05 (M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 Admin/Feedback xong chờ review; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-05 (M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -26,7 +26,7 @@
 | M10  | AI Chatbot                                                                | ✅ đã sửa 6 finding sau review; chuẩn bị OpenCode Zen free; migration 037 đã áp cloud+VPS+local (05/10); AI production chạy Groq `openai/gpt-oss-120b` (từ 05/10, ~1-2s/câu); [recheck](docs/reviews/m10-recheck-2026-10-03.md) |
 | M11  | AI Quiz                                                                   | ✅ đã sửa sau review 2026-10-05: 6 lỗi P2 + nguồn SRS; [recheck](docs/reviews/m11-recheck-2026-10-05.md) |
 | M12  | Hardening                                                                 | ✅ đã sửa 1 P1 + 3 P2 sau review 2026-10-05; kiểm chứng local pass, chưa deploy VPS; [recheck](docs/reviews/m12-recheck-2026-10-05.md) |
-| M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ v1 hoàn thành (chờ review): vai admin, thống kê aggregate, feedback text+ảnh, gloss_report, khoá/mở user, audit ([kế hoạch](docs/plans/m13-admin-curation-feedback.md))                                                                                              |
+| M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ đã sửa 6 P2 + 2 P3 sau review 2026-10-05; local pass, chưa deploy VPS; [recheck](docs/reviews/m13-recheck-2026-10-05.md) |
 
 ## Lộ trình DB (chốt 2026-10-01 — "thiết kế nốt cái DB")
 
@@ -247,7 +247,7 @@
 - Kiểm chứng local 2026-09-30: lint/build sạch, **40 suite/279 unit**, **14 suite/132 e2e**. CSDL doc đã regenerate (026/027/029 vào DB full local).
 - [Review 2026-10-05](docs/reviews/m12-review-2026-10-05.md): đã sửa **1 P1 + 3 P2** (IP client qua Caddy với trust proxy loopback, SQL partition đúng alias/kiểu trả về, retention giữ lease còn hạn, UTC là option cuối). [Recheck](docs/reviews/m12-recheck-2026-10-05.md): build + ESLint file sửa pass, **45 suite/327 unit**, **6 suite/48 e2e liên quan** (9 regression M12, 3 health+journey, 36 chat/SRS) pass trên DB test local. Không migration/dependency/env mới; chưa deploy VPS.
 
-### M13 — Admin, Curation & Feedback v1 (đã triển khai, chờ review)
+### M13 — Admin, Curation & Feedback v1 (đã sửa sau review 2026-10-05)
 
 - Migration `030_admin_feedback.sql`: `users.role`, `feedback`, `feedback_attachment`, `admin_audit_log`.
 - `AdminGuard` (JWT + đọc DB `role='admin'`/`status='active'`) cho mọi `/v1/admin/*`; user thường → `403 ADMIN_REQUIRED`; bootstrap admin bằng SQL (README).
@@ -256,6 +256,7 @@
 - Xử lý `gloss_report` (triaged/fixed/rejected, set `resolved_at`) và khoá/mở user (không tự khoá mình/không khoá admin/không hồi sinh `deleted`), mọi mutation ghi `admin_audit_log` trong cùng transaction; `GET /v1/admin/audit-log`.
 - Kiểm chứng local 2026-09-30: lint/build sạch, **45 suite/299 unit**, **16 suite/141 e2e**. Migration 030 đã apply local (test DB + DB full để regen CSDL doc); **cloud chưa apply**.
 - Bootstrap **admin mock trên DB Prisma demo** (2026-10-02): tạo `admin@langoo.local` qua API register (đúng luồng thật) rồi phong quyền bằng SQL theo README; verify `GET /v1/admin/stats` trả 200. DB thật trên VPS sẽ bootstrap admin riêng khi go-live DB5 (không dùng chung tài khoản demo).
+- [Review 2026-10-05](docs/reviews/m13-review-2026-10-05.md): đã sửa **6 P2 + 2 P3** (quota feedback theo user, queue giữ microsecond, row lock eligibility user, quota theo ngày địa phương, backlog SRS đủ điều kiện, cleanup partial upload, audit ghi chú trước/sau, mã lỗi multipart). [Recheck](docs/reviews/m13-recheck-2026-10-05.md): build/ESLint pass, **46 suite/340 unit**, **6 suite/48 e2e liên quan**, gồm **11 regression M13 mới**; partial write filesystem thật không còn tệp dở. Không migration/dependency/env mới; chưa deploy VPS.
 
 ### Hạ tầng — DB thật đã chuyển lên VPS (2026-10-01)
 

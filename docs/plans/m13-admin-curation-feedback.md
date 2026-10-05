@@ -1,6 +1,7 @@
 # Kế hoạch M13 — Admin, Curation & Feedback
 
-> Trạng thái: **đã triển khai local (chờ review)**. Ngày: 2026-09-30.
+> Trạng thái: **đã sửa 6 P2 + 2 P3 sau review 2026-10-05; local pass, chưa deploy VPS**.
+> [Báo cáo review](../reviews/m13-review-2026-10-05.md), [recheck](../reviews/m13-recheck-2026-10-05.md). Kế hoạch ban đầu: 2026-09-30.
 > Nguyên tắc xuyên suốt (chốt 2026-09-27): **admin chỉ xem số liệu tổng hợp** + dữ liệu user
 > **chủ động gửi** (`gloss_report`, `feedback`); không đọc nội dung collection/item/chat cá nhân;
 > mọi thao tác ghi của admin đều **audit**.
@@ -10,7 +11,7 @@
 1. **Vai admin**: cột `app.users.role` (`user|admin`), `AdminGuard` (JWT + đọc DB: role=admin,
    status=active) — đổi quyền có hiệu lực ngay, không phụ thuộc claim cũ trong token.
 2. **Thống kê vận hành (chỉ đọc)**:
-   - `GET /v1/admin/stats/overview` — snapshot: user theo status/tổng, đăng ký mới 7/30 ngày,
+   - `GET /v1/admin/stats` — snapshot: user theo status/tổng, đăng ký mới 7/30 ngày,
      tỉ lệ quay lại (`last_login_at` trong 7/30 ngày); học tập: lượt ôn 7/30 ngày, XP tổng,
      phân bố streak, số collection/item, quiz đã làm, backlog SRS đến hạn; nội dung:
      `gloss_report` theo status/issue/target_kind, concept `draft→curated`, tỉ lệ gloss máy vs
@@ -22,7 +23,7 @@
      + multipart tối đa **3 ảnh ≤5MB** (jpeg/png/webp, kiểm magic bytes). `GET /v1/me/feedback`.
    - Admin: `GET /v1/admin/feedback?status=&category=&limit&cursor`, `GET /v1/admin/feedback/:id`
      (kèm URL ảnh xác thực), `PATCH /v1/admin/feedback/:id {status, admin_note}`.
-   - Ảnh qua `StorageService` trừu tượng: `local` (dev, `STORAGE_DIR`, gitignore) / `s3` (khi có key
+   - Ảnh qua `StorageService` trừu tượng: `local` (dev/VPS, `STORAGE_DIR`, gitignore) / `s3` (khi có key
      — backlog; interface sẵn để đổi không đổi API). Admin xem ảnh qua route stream có guard,
      không public URL.
 4. **Xử lý `gloss_report` (app schema)**: `GET /v1/admin/gloss-reports?status=&issue=&target_kind=`,
@@ -35,8 +36,8 @@
 
 - **Ghi `core` (duyệt gloss/concept, quản lý deck)** — ngoại lệ blacklist "API chỉ ghi app";
   nếu làm phải có: audit riêng, ma trận quyền, quy trình duyệt. Đề xuất **M14 riêng**.
-- Adapter S3/R2 thật cho `StorageService` (khi có key) — v1 dùng `local`; Render disk là ephemeral
-  nên production sẽ cần S3 (ghi chú rõ).
+- Adapter S3/R2 thật cho `StorageService` (khi có key) — v1 dùng `local`; VPS lưu ảnh tại
+  `/opt/langoo/storage` ngoài repo, tồn tại qua restart/deploy. Backup ảnh cần cấu hình vận hành riêng.
 - Thống kê nâng cao (funnel retention theo cohort, cost dashboard) — sau.
 
 ## 3. Migration 030 (đề xuất)
@@ -87,7 +88,7 @@ Bootstrap admin: câu SQL một dòng (`UPDATE app.users SET role='admin' WHERE 
 
 | Endpoint | Ghi chú |
 | --- | --- |
-| `GET /v1/admin/stats/overview` | aggregate-only, không lộ dữ liệu cá nhân |
+| `GET /v1/admin/stats` | aggregate-only, không lộ dữ liệu cá nhân |
 | `GET /v1/admin/stats/timeseries?metric&days` | metric whitelist, days 1..180 |
 | `POST /v1/feedback` | multipart (`content`, `category`, `files[]`) + rate limit 10/giờ/user |
 | `GET /v1/me/feedback?limit&cursor` | user xem lại + trạng thái + admin_note |
@@ -117,7 +118,7 @@ docs/api/admin.md · docs/api/feedback.md · README (bootstrap admin) · PROGRES
 - E2E admin: user thường → 403; admin xem overview/timeseries; feedback user (kèm ảnh thật nhỏ) →
   admin thấy trong hàng chờ → PATCH resolved → audit có dòng; gloss-report → PATCH; lock user →
   login/refresh bị 403; privacy: overview **không** chứa nội dung collection/chat.
-- Env: `STORAGE_PROVIDER=local|s3`, `STORAGE_DIR=uploads`, `FEEDBACK_RATE_LIMIT_PER_HOUR=10` (tuỳ chọn).
+- Env: `STORAGE_PROVIDER=local|s3` (`s3` chưa triển khai), `STORAGE_DIR=uploads`, `RATE_LIMIT_ENABLED=true`. Feedback có giới hạn cố định 10/giờ/user.
 
 ## 6. Câu hỏi cần chốt
 
@@ -130,3 +131,12 @@ docs/api/admin.md · docs/api/feedback.md · README (bootstrap admin) · PROGRES
 | D5 | Stats | `/overview` + `/timeseries` (metric whitelist) |
 | D6 | Audit log | Bảng `app.admin_audit_log`, ghi trong cùng transaction mọi mutation |
 | D7 | Rate limit feedback | 10/giờ/user qua throttler |
+
+## 7. Sửa sau review 2026-10-05
+
+- Guard feedback xác thực JWT trước khi tính quota theo user; global IP limit vẫn áp dụng.
+- Cursor M13 giữ timestamp PostgreSQL đủ 6 chữ số và so sánh tuple timestamp/id trong SQL.
+- Row lock bảo vệ eligibility khi đổi trạng thái user; audit feedback giữ status/ghi chú trước và sau dưới cùng row lock.
+- Quota hôm nay theo timezone của từng user; backlog SRS bỏ thẻ archive/paused/buried và lọc profile/ngôn ngữ phù hợp.
+- Cleanup bao gồm key của lần upload đang ghi lỗi; interceptor chuẩn hóa lỗi multipart theo hợp đồng API.
+- Không migration, dependency hoặc env mới. Kiểm chứng và giới hạn tại recheck.

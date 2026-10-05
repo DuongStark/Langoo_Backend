@@ -155,8 +155,17 @@ export class AdminStatsService {
         (SELECT count(*) FROM app.collection WHERE archived_at IS NULL)::int AS collections,
         (SELECT count(*) FROM app.collection_item)::int AS items,
         (SELECT count(*) FROM app.study_session WHERE kind = 'quiz')::int AS quiz_sessions,
-        (SELECT count(*) FROM app.srs_state
-          WHERE NOT suspended AND due_at <= now())::int AS srs_due_now
+        (SELECT count(*) FROM app.srs_state s
+          JOIN app.collection_item_face f ON f.id = s.face_id
+          JOIN app.collection_item i ON i.id = f.item_id
+          JOIN app.collection c ON c.id = i.collection_id
+          JOIN app.study_profile p ON p.id = s.profile_id AND p.user_id = s.user_id
+          WHERE NOT s.suspended AND s.due_at <= now()
+            AND (s.buried_until IS NULL OR s.buried_until <= now())
+            AND i.status <> 'paused' AND c.archived_at IS NULL
+            AND c.owner_id = s.user_id AND c.profile_id = s.profile_id
+            AND (f.language_id = p.primary_language_id OR f.language_id = p.secondary_language_id)
+        )::int AS srs_due_now
     `);
     const row = rows[0];
     return { ...row, xp_total: Number(row.xp_total) };
@@ -263,11 +272,12 @@ export class AdminStatsService {
     const quizLimit = this.positiveConfig('AI_QUIZ_DAILY_LIMIT', 15);
     const rows = await this.prisma.$queryRaw<{ count: number }[]>(
       Prisma.sql`
-        SELECT count(DISTINCT user_id)::int AS count
-        FROM app.ai_usage
-        WHERE period = current_date
-          AND ((feature = 'chat' AND request_count >= ${chatLimit})
-               OR (feature = 'quiz' AND request_count >= ${quizLimit}))
+        SELECT count(DISTINCT usage.user_id)::int AS count
+        FROM app.ai_usage usage
+        LEFT JOIN app.user_settings settings ON settings.user_id = usage.user_id
+        WHERE usage.period = (now() AT TIME ZONE coalesce(settings.timezone, 'Asia/Ho_Chi_Minh'))::date
+          AND ((usage.feature = 'chat' AND usage.request_count >= ${chatLimit})
+               OR (usage.feature = 'quiz' AND usage.request_count >= ${quizLimit}))
       `,
     );
     return rows[0].count;

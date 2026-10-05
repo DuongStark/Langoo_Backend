@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../db/prisma.service';
 import {
-  decodeBigintTimeCursor,
+  decodePostgresTimeCursor,
   encodeTimeIdCursor,
 } from '../common/pagination/time-cursor';
 
@@ -47,20 +47,28 @@ export class AdminAuditService {
     const cursor =
       query.cursor === undefined || query.cursor === ''
         ? null
-        : decodeBigintTimeCursor(query.cursor);
-    const rows = await this.prisma.adminAuditLog.findMany({
-      where: cursor
-        ? {
-            OR: [
-              { createdAt: { lt: cursor.createdAt } },
-              { createdAt: cursor.createdAt, id: { lt: cursor.id } },
-            ],
-          }
-        : {},
-      include: { admin: { select: { id: true, email: true } } },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: limit + 1,
-    });
+        : decodePostgresTimeCursor(query.cursor, 'bigint');
+    const rows = await this.prisma.$queryRaw<
+      {
+        id: bigint;
+        admin: { id: string; email: string };
+        action: string;
+        targetKind: string | null;
+        targetId: string | null;
+        payload: unknown;
+        createdAt: Date;
+        createdAtKey: string;
+      }[]
+    >(Prisma.sql`
+      SELECT a.id, a.action, a.target_kind AS "targetKind", a.target_id AS "targetId", a.payload,
+             a.created_at AS "createdAt",
+             to_char(a.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAtKey",
+             jsonb_build_object('id', u.id::text, 'email', u.email) AS admin
+      FROM app.admin_audit_log a JOIN app.users u ON u.id = a.admin_user_id
+      ${cursor ? Prisma.sql`WHERE (a.created_at, a.id) < (${cursor.createdAt}::timestamptz, ${cursor.id}::bigint)` : Prisma.empty}
+      ORDER BY a.created_at DESC, a.id DESC
+      LIMIT ${limit + 1}
+    `);
     const hasNext = rows.length > limit;
     const page = hasNext ? rows.slice(0, limit) : rows;
     const last = page.at(-1);
@@ -78,6 +86,7 @@ export class AdminAuditService {
         hasNext && last
           ? encodeTimeIdCursor({
               createdAt: last.createdAt,
+              createdAtKey: last.createdAtKey,
               id: last.id.toString(),
             })
           : null,

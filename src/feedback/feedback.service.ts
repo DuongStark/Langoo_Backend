@@ -2,7 +2,7 @@ import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
 import {
-  decodeUuidTimeCursor,
+  decodePostgresTimeCursor,
   encodeTimeIdCursor,
 } from '../common/pagination/time-cursor';
 import { PrismaService } from '../db/prisma.service';
@@ -42,6 +42,12 @@ interface FeedbackRow {
   attachments?: { id: string; mime: string; sizeBytes: number }[];
 }
 
+interface FeedbackListRow extends FeedbackRow {
+  createdAtKey: string;
+  attachments: { id: string; mime: string; sizeBytes: number }[];
+  user: { id: string; email: string };
+}
+
 /**
  * Feedback người dùng (M13): text + tối đa 3 ảnh ≤5MB (kiểm magic bytes),
  * lưu app.feedback / app.feedback_attachment, ảnh qua StorageService.
@@ -66,8 +72,8 @@ export class FeedbackService {
     const storedKeys: string[] = [];
     try {
       for (const upload of uploads) {
-        await this.storage.put(upload.key, upload.buffer, upload.mime);
         storedKeys.push(upload.key);
+        await this.storage.put(upload.key, upload.buffer, upload.mime);
       }
     } catch (error) {
       await this.cleanup(storedKeys);
@@ -124,15 +130,10 @@ export class FeedbackService {
     query: MyFeedbackQueryDto,
   ): Promise<FeedbackListResponse<FeedbackResponse>> {
     const limit = clampLimit(query.limit);
-    const rows = await this.prisma.feedback.findMany({
-      where: {
-        userId,
-        ...(this.cursorCondition(query.cursor) ?? {}),
-      },
-      include: { attachments: true },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: limit + 1,
-    });
+    const rows = await this.listRows(
+      Prisma.sql`AND f.user_id = ${userId} ${this.cursorCondition(query.cursor)}`,
+      limit,
+    );
     const hasNext = rows.length > limit;
     const page = hasNext ? rows.slice(0, limit) : rows;
     const last = page.at(-1);
@@ -140,7 +141,11 @@ export class FeedbackService {
       data: page.map((row) => toFeedbackResponse(row)),
       next_cursor:
         hasNext && last
-          ? encodeTimeIdCursor({ createdAt: last.createdAt, id: last.id })
+          ? encodeTimeIdCursor({
+              createdAt: last.createdAt,
+              createdAtKey: last.createdAtKey,
+              id: last.id,
+            })
           : null,
     };
   }
@@ -150,19 +155,14 @@ export class FeedbackService {
     query: AdminFeedbackQueryDto,
   ): Promise<FeedbackListResponse<AdminFeedbackResponse>> {
     const limit = clampLimit(query.limit);
-    const rows = await this.prisma.feedback.findMany({
-      where: {
-        ...(query.status === undefined ? {} : { status: query.status }),
-        ...(query.category === undefined ? {} : { category: query.category }),
-        ...(this.cursorCondition(query.cursor) ?? {}),
-      },
-      include: {
-        attachments: true,
-        user: { select: { id: true, email: true } },
-      },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: limit + 1,
-    });
+    const rows = await this.listRows(
+      Prisma.sql`
+        ${query.status === undefined ? Prisma.empty : Prisma.sql`AND f.status = ${query.status}`}
+        ${query.category === undefined ? Prisma.empty : Prisma.sql`AND f.category = ${query.category}`}
+        ${this.cursorCondition(query.cursor)}
+      `,
+      limit,
+    );
     const hasNext = rows.length > limit;
     const page = hasNext ? rows.slice(0, limit) : rows;
     const last = page.at(-1);
@@ -170,7 +170,11 @@ export class FeedbackService {
       data: page.map((row) => toAdminFeedbackResponse(row)),
       next_cursor:
         hasNext && last
-          ? encodeTimeIdCursor({ createdAt: last.createdAt, id: last.id })
+          ? encodeTimeIdCursor({
+              createdAt: last.createdAt,
+              createdAtKey: last.createdAtKey,
+              id: last.id,
+            })
           : null,
     };
   }
@@ -194,15 +198,13 @@ export class FeedbackService {
     feedbackId: string,
     dto: UpdateFeedbackDto,
   ): Promise<AdminFeedbackResponse> {
-    const existing = await this.prisma.feedback.findUnique({
-      where: { id: feedbackId },
-      select: { id: true },
-    });
-    if (!existing) {
-      throw feedbackNotFound();
-    }
-
     const updated = await this.prisma.$transaction(async (tx) => {
+      const [existing] = await tx.$queryRaw<
+        { status: string; adminNote: string | null }[]
+      >(
+        Prisma.sql`SELECT status, admin_note AS "adminNote" FROM app.feedback WHERE id = ${feedbackId}::uuid FOR UPDATE`,
+      );
+      if (!existing) throw feedbackNotFound();
       const row = await tx.feedback.update({
         where: { id: feedbackId },
         data: {
@@ -221,7 +223,11 @@ export class FeedbackService {
         action: 'feedback.update',
         targetKind: 'feedback',
         targetId: feedbackId,
-        payload: { status: dto.status },
+        payload: {
+          status: dto.status,
+          before: { status: existing.status, admin_note: existing.adminNote },
+          after: { status: row.status, admin_note: row.adminNote },
+        },
       });
       return row;
     });
@@ -275,7 +281,11 @@ export class FeedbackService {
         throw attachmentInvalid('Ảnh rỗng');
       }
       if (buffer.length > MAX_ATTACHMENT_BYTES) {
-        throw attachmentInvalid('Ảnh vượt quá 5MB');
+        throw new DomainException(
+          'PAYLOAD_TOO_LARGE',
+          'Ảnh vượt quá 5MB',
+          HttpStatus.PAYLOAD_TOO_LARGE,
+        );
       }
       const mime = sniffImageMime(buffer);
       if (mime === null) {
@@ -306,19 +316,32 @@ export class FeedbackService {
     }
   }
 
-  private cursorCondition(
-    raw: string | undefined,
-  ): Prisma.FeedbackWhereInput | null {
+  private listRows(
+    where: Prisma.Sql,
+    limit: number,
+  ): Promise<FeedbackListRow[]> {
+    return this.prisma.$queryRaw<FeedbackListRow[]>(Prisma.sql`
+      SELECT f.id, f.category, f.content, f.status,
+             f.admin_note AS "adminNote", f.created_at AS "createdAt", f.updated_at AS "updatedAt",
+             to_char(f.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAtKey",
+             jsonb_build_object('id', u.id::text, 'email', u.email) AS "user",
+             coalesce((
+               SELECT jsonb_agg(jsonb_build_object('id', a.id, 'mime', a.mime, 'sizeBytes', a.size_bytes) ORDER BY a.id)
+               FROM app.feedback_attachment a WHERE a.feedback_id = f.id
+             ), '[]'::jsonb) AS attachments
+      FROM app.feedback f JOIN app.users u ON u.id = f.user_id
+      WHERE true ${where}
+      ORDER BY f.created_at DESC, f.id DESC
+      LIMIT ${limit + 1}
+    `);
+  }
+
+  private cursorCondition(raw: string | undefined): Prisma.Sql {
     if (raw === undefined || raw === '') {
-      return null;
+      return Prisma.empty;
     }
-    const cursor = decodeUuidTimeCursor(raw);
-    return {
-      OR: [
-        { createdAt: { lt: cursor.createdAt } },
-        { createdAt: cursor.createdAt, id: { lt: cursor.id } },
-      ],
-    };
+    const cursor = decodePostgresTimeCursor(raw, 'uuid');
+    return Prisma.sql`AND (f.created_at, f.id) < (${cursor.createdAt}::timestamptz, ${cursor.id}::uuid)`;
   }
 }
 
@@ -371,7 +394,7 @@ function toAdminFeedbackResponse(row: {
   createdAt: Date;
   updatedAt: Date;
   attachments: { id: string; mime: string; sizeBytes: number }[];
-  user: { id: bigint; email: string };
+  user: { id: bigint | string; email: string };
 }): AdminFeedbackResponse {
   return {
     ...toFeedbackResponse(row),

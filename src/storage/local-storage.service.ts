@@ -5,8 +5,8 @@ import path from 'node:path';
 import { assertSafeStorageKey, StorageService } from './storage.service';
 
 /**
- * Lưu tệp trên đĩa (dev). Thư mục gốc từ `STORAGE_DIR` (mặc định `uploads/`).
- * Production (Render disk ephemeral) cần adapter s3 — interface giữ nguyên.
+ * Lưu tệp trên đĩa (dev/VPS). Thư mục gốc từ `STORAGE_DIR` (mặc định `uploads/`).
+ * VPS dùng thư mục cố định ngoài repo; adapter S3 nằm trong backlog.
  */
 @Injectable()
 export class LocalStorageService implements StorageService {

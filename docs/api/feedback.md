@@ -1,8 +1,13 @@
 # API: Feedback (M13)
 
 Feedback người dùng: text + tối đa **3 ảnh** (JPEG/PNG/WebP, ≤5MB, kiểm magic bytes).
-Ảnh lưu qua `StorageService` (`STORAGE_PROVIDER=local` dev / `s3` production — adapter S3 backlog);
-DB chỉ giữ metadata. Giới hạn gửi: **10 lần/giờ/user**.
+Ảnh lưu qua `StorageService` (`STORAGE_PROVIDER=local` dev/VPS; adapter S3 backlog).
+VPS dùng `/opt/langoo/storage` ngoài repo; DB chỉ giữ metadata.
+Giới hạn gửi: **10 lần/giờ/user đã xác thực**, dùng chung giữa các token/IP
+của cùng user; các user chung IP có quota feedback riêng. Global IP limit vẫn áp dụng.
+`RATE_LIMIT_ENABLED=false` tắt giới hạn; lỗi 429 có `Retry-After`.
+Headers `X-RateLimit-Limit-Feedback`, `X-RateLimit-Remaining-Feedback` và
+`X-RateLimit-Reset-Feedback` mô tả quota feedback của user.
 
 ## POST /v1/feedback
 
@@ -39,5 +44,6 @@ Lỗi: `400 ATTACHMENT_INVALID` (sai magic bytes/rỗng/quá 3 tệp) · `413 PA
 ## GET /v1/me/feedback?limit&cursor
 
 Feedback của chính mình (mới nhất trước) + `status` + `admin_note` để theo dõi xử lý.
+Cursor là opaque: dùng nguyên `next_cursor`, server giữ timestamp đủ microsecond.
 
 > Admin xử lý hàng chờ tại [docs/api/admin.md](admin.md).

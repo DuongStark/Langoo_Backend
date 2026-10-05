@@ -13,12 +13,31 @@ const MAX_CURSOR_LENGTH = 1024;
  */
 export function encodeTimeIdCursor(cursor: {
   createdAt: Date;
+  createdAtKey?: string;
   id: string;
 }): string {
   return Buffer.from(
-    JSON.stringify({ v: 1, t: cursor.createdAt.toISOString(), i: cursor.id }),
+    JSON.stringify({
+      v: 1,
+      t: cursor.createdAtKey ?? cursor.createdAt.toISOString(),
+      i: cursor.id,
+    }),
     'utf8',
   ).toString('base64url');
+}
+
+/** Preserve PostgreSQL microseconds when the cursor is used in SQL comparisons. */
+export function decodePostgresTimeCursor(
+  raw: string,
+  idType: 'uuid' | 'bigint',
+): {
+  createdAt: string;
+  id: string;
+} {
+  const decoded =
+    idType === 'uuid' ? decodeUuidTimeCursor(raw) : decodeBigintTimeCursor(raw);
+  const parsed = decodeCursor(raw);
+  return { createdAt: parsed.t as string, id: decoded.id.toString() };
 }
 
 export function decodeUuidTimeCursor(raw: string): {

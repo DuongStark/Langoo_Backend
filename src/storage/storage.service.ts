@@ -1,4 +1,4 @@
-/** Token DI cho dịch vụ lưu trữ tệp (local dev / s3 production). */
+/** Token DI cho dịch vụ lưu trữ tệp (local dev/VPS; S3 backlog). */
 export const STORAGE_SERVICE = 'STORAGE_SERVICE';
 
 export interface StorageService {

@@ -33,6 +33,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M12 — Hardening** đã xong: rate limit auth (429 `RATE_LIMITED`), scheduler nội bộ (dọn `search_history` 50/user, tạo partition `review_log`, retention chat 180 ngày), pool `pg` cấu hình được, cảnh báo/`db_timezone` cho ENV-01, journey e2e — kế hoạch tại [`docs/plans/m12-hardening.md`](docs/plans/m12-hardening.md).
 - M12 đã sửa 4 finding sau review 05/10: IP qua Caddy, SQL partition, retention khi chat đang gọi AI và options UTC; kiểm chứng local tại [recheck](docs/reviews/m12-recheck-2026-10-05.md), chưa deploy VPS.
 - ✅ **M13 — Admin, Curation & Feedback** đã xong (v1): vai admin (`users.role` + `AdminGuard` đọc DB), thống kê vận hành tổng hợp, hộp thư feedback text + ảnh (magic bytes, `StorageService`), xử lý `gloss_report`, khoá/mở user + audit log — xem [`docs/api/admin.md`](docs/api/admin.md) và [`docs/api/feedback.md`](docs/api/feedback.md).
+- M13 đã sửa 6 P2 + 2 P3 sau review 05/10, gồm quota feedback theo user, cursor microsecond, race trạng thái user, thống kê và upload/audit; local pass, chưa deploy VPS — [recheck](docs/reviews/m13-recheck-2026-10-05.md).
 - 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
 ## Vận hành VPS (MVP hiện tại)

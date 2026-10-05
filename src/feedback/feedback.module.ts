@@ -7,6 +7,8 @@ import {
   MeFeedbackController,
 } from './feedback.controller';
 import { FeedbackService } from './feedback.service';
+import { FeedbackRateLimitGuard } from './feedback-rate-limit.guard';
+import { FeedbackUploadInterceptor } from './feedback-upload.interceptor';
 
 /**
  * Module feedback (M13): user gửi/xem feedback (text + ảnh), admin xử lý hàng chờ.
@@ -19,6 +21,10 @@ import { FeedbackService } from './feedback.service';
     MeFeedbackController,
     AdminFeedbackController,
   ],
-  providers: [FeedbackService],
+  providers: [
+    FeedbackService,
+    FeedbackRateLimitGuard,
+    FeedbackUploadInterceptor,
+  ],
 })
 export class FeedbackModule {}

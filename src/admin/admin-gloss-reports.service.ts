@@ -1,10 +1,11 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainException } from '../common/errors/domain.exception';
 import {
-  decodeBigintTimeCursor,
+  decodePostgresTimeCursor,
   encodeTimeIdCursor,
 } from '../common/pagination/time-cursor';
 import { PrismaService } from '../db/prisma.service';
+import { Prisma } from '../generated/prisma/client';
 import { AdminAuditService } from './admin-audit.service';
 import {
   AdminGlossReportQueryDto,
@@ -37,7 +38,8 @@ interface ReportRow {
   status: string;
   createdAt: Date;
   resolvedAt: Date | null;
-  user: { id: bigint; email: string } | null;
+  createdAtKey?: string;
+  user: { id: bigint | string; email: string } | null;
 }
 
 /**
@@ -58,28 +60,23 @@ export class AdminGlossReportsService {
     const cursor =
       query.cursor === undefined || query.cursor === ''
         ? null
-        : decodeBigintTimeCursor(query.cursor);
+        : decodePostgresTimeCursor(query.cursor, 'bigint');
 
-    const rows = await this.prisma.glossReport.findMany({
-      where: {
-        ...(query.status === undefined ? {} : { status: query.status }),
-        ...(query.issue === undefined ? {} : { issue: query.issue }),
-        ...(query.target_kind === undefined
-          ? {}
-          : { targetKind: query.target_kind }),
-        ...(cursor
-          ? {
-              OR: [
-                { createdAt: { lt: cursor.createdAt } },
-                { createdAt: cursor.createdAt, id: { lt: cursor.id } },
-              ],
-            }
-          : {}),
-      },
-      include: { user: { select: { id: true, email: true } } },
-      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-      take: limit + 1,
-    });
+    const rows = await this.prisma.$queryRaw<ReportRow[]>(Prisma.sql`
+      SELECT r.id, r.target_kind AS "targetKind", r.target_id AS "targetId",
+             r.language_id AS "languageId", r.issue, r.comment, r.status,
+             r.created_at AS "createdAt", r.resolved_at AS "resolvedAt",
+             to_char(r.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAtKey",
+             CASE WHEN u.id IS NULL THEN NULL ELSE jsonb_build_object('id', u.id::text, 'email', u.email) END AS "user"
+      FROM app.gloss_report r LEFT JOIN app.users u ON u.id = r.user_id
+      WHERE true
+        ${query.status === undefined ? Prisma.empty : Prisma.sql`AND r.status = ${query.status}`}
+        ${query.issue === undefined ? Prisma.empty : Prisma.sql`AND r.issue = ${query.issue}`}
+        ${query.target_kind === undefined ? Prisma.empty : Prisma.sql`AND r.target_kind = ${query.target_kind}`}
+        ${cursor ? Prisma.sql`AND (r.created_at, r.id) < (${cursor.createdAt}::timestamptz, ${cursor.id}::bigint)` : Prisma.empty}
+      ORDER BY r.created_at DESC, r.id DESC
+      LIMIT ${limit + 1}
+    `);
 
     const hasNext = rows.length > limit;
     const page = hasNext ? rows.slice(0, limit) : rows;
@@ -90,6 +87,7 @@ export class AdminGlossReportsService {
         hasNext && last
           ? encodeTimeIdCursor({
               createdAt: last.createdAt,
+              createdAtKey: last.createdAtKey,
               id: last.id.toString(),
             })
           : null,

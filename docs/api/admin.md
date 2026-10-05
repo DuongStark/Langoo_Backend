@@ -20,6 +20,12 @@ Snapshot tổng hợp (UTC): user theo status, đăng ký/quay lại 7–30 ngà
 nội dung (gloss_report theo status/issue, concept theo status, gloss máy vs đã duyệt,
 độ phủ `sense_pair`); AI 30 ngày (request/token/chi phí theo feature, số user chạm quota hôm nay).
 
+- `ai.users_at_quota_today`: so ngày quota với ngày địa phương của từng user;
+  một user chạm quota cả chat và quiz được đếm một lần.
+- `learning.srs_due_now`: state đến hạn có profile/face phù hợp, collection còn hoạt động,
+  item không paused, state không suspended/buried còn hạn; tổng tất cả profile,
+  chưa áp hạn ôn hàng ngày của từng user.
+
 ## GET /v1/admin/stats/timeseries?metric=signups|reviews|xp|ai_requests&days=30
 
 `days` 1..180. Response `{ metric, days, points: [{ date, value }] }` (ngày UTC).
@@ -32,6 +38,9 @@ nội dung (gloss_report theo status/issue, concept theo status, gloss máy vs �
 | `GET /v1/admin/feedback/:id` | chi tiết + metadata ảnh |
 | `GET /v1/admin/feedback/:id/attachments/:attachmentId` | tải ảnh (guard admin, không public URL) |
 | `PATCH /v1/admin/feedback/:id` | `{status: new｜in_progress｜resolved, admin_note?}` → audit |
+
+Audit `feedback.update` giữ `status` cùng `before`/`after` gồm `status` và
+`admin_note`. Bỏ `admin_note` để giữ ghi chú cũ; gửi chuỗi rỗng để xóa ghi chú.
 
 ## Báo lỗi gloss
 
@@ -55,3 +64,5 @@ curl -s -X PATCH http://localhost:3000/v1/admin/users/42 \
 ## GET /v1/admin/audit-log?limit&cursor
 
 Nhật ký thao tác admin (mới nhất trước): `action`, `target_kind`, `target_id`, `payload`, admin email.
+Các queue feedback/gloss-report/audit dùng cursor opaque timestamp/id đủ
+microsecond; truyền nguyên `next_cursor` để lấy trang kế tiếp.

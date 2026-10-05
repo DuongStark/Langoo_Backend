@@ -20,16 +20,11 @@ import {
   ApiTags,
   ApiTooManyRequestsResponse,
 } from '@nestjs/swagger';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import { Throttle } from '@nestjs/throttler';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { JwtPayload } from '../auth/types/auth.types';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
-import {
-  MAX_ATTACHMENTS,
-  MAX_ATTACHMENT_BYTES,
-} from '../storage/storage.service';
+import { MAX_ATTACHMENTS } from '../storage/storage.service';
 import {
   CreateFeedbackDto,
   FEEDBACK_CATEGORIES,
@@ -37,22 +32,19 @@ import {
 } from './dto/feedback.dto';
 import { FeedbackService } from './feedback.service';
 import { FeedbackResponse } from './types/feedback.types';
+import { FeedbackRateLimitGuard } from './feedback-rate-limit.guard';
+import { FeedbackUploadInterceptor } from './feedback-upload.interceptor';
 
 @ApiTags('feedback')
 @ApiBearerAuth()
-@UseGuards(JwtAuthGuard)
+@UseGuards(FeedbackRateLimitGuard)
 @Controller('feedback')
 export class FeedbackController {
   constructor(private readonly feedbackService: FeedbackService) {}
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
-  @Throttle({ default: { limit: 10, ttl: 3_600_000 } })
-  @UseInterceptors(
-    FilesInterceptor('files', MAX_ATTACHMENTS, {
-      limits: { fileSize: MAX_ATTACHMENT_BYTES },
-    }),
-  )
+  @UseInterceptors(FeedbackUploadInterceptor)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
@@ -72,7 +64,7 @@ export class FeedbackController {
   @ApiOperation({
     summary: 'Gửi feedback (text + tối đa 3 ảnh ≤5MB, JPEG/PNG/WebP)',
     description:
-      'Ảnh kiểm magic bytes; lưu qua StorageService (local dev / s3 production). ' +
+      'Ảnh kiểm magic bytes; lưu qua StorageService (local dev/VPS). ' +
       'Giới hạn 10 lần/giờ/user.',
   })
   @ApiCreatedResponse({ description: 'Feedback đã ghi nhận' })
