@@ -78,6 +78,8 @@ Internet
 - Let's Encrypt tự xin/gia hạn (DNS mây xám nên ACME HTTP-01 chạy trực tiếp, không qua Cloudflare).
 - Reload sau khi sửa: `systemctl reload caddy`.
 - **ufw đang bật** (từ 05/10): chỉ mở `22/tcp`, `80/tcp`, `443/tcp`; port 3000 đã bị chặn từ ngoài. Thêm port mới phải `ufw allow`.
+- Bản sửa M12 ngày 05/10 cấu hình Express `trust proxy=loopback` qua `configureHttpProxy()` để rate limit dùng IP client do Caddy chuyển tiếp. Peer ngoài loopback không được tin header `X-Forwarded-For`. Phù hợp upstream `127.0.0.1:3000` và DNS only hiện tại; nếu thêm proxy phía trước hoặc đổi upstream cần kiểm tra lại chuỗi IP.
+- Bản sửa này đã kiểm chứng local, **chưa deploy VPS** trong phiên sửa M12. Không thêm migration/env mới; sau khi deploy cần build/restart API theo quy trình mục 7 và kiểm tra `/v1/health` trả `db_timezone=UTC`. Xem [recheck M12](../reviews/m12-recheck-2026-10-05.md).
 
 ## 7. Auto-deploy & migration
 

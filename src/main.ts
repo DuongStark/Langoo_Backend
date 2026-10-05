@@ -1,12 +1,17 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { parseCorsOrigins } from './config/cors';
+import { configureHttpProxy } from './config/http-proxy';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true,
+  });
+  configureHttpProxy(app);
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('v1');
   app.enableShutdownHooks();

@@ -25,6 +25,7 @@ export class ChatRetentionJob implements ScheduledJob {
         DELETE FROM app.chat_session
         WHERE COALESCE(last_message_at, created_at)
               < now() - make_interval(days => ${days})
+          AND (pending_request_expires_at IS NULL OR pending_request_expires_at <= now())
       `,
     );
     return { deleted };

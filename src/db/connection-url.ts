@@ -9,7 +9,7 @@ export function withUtcTimezone(raw: string): string {
   const options = url.searchParams.get('options')?.trim() ?? '';
   if (options === '') {
     url.searchParams.set('options', '-c timezone=UTC');
-  } else if (!/(^|\s)(?:-c\s+)?timezone=UTC(?:\s|$)/i.test(options)) {
+  } else if (!/(?:^|\s)-c\s*timezone=UTC$/i.test(options)) {
     url.searchParams.set('options', `${options} -c timezone=UTC`);
   }
   return url.toString();

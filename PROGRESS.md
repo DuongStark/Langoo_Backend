@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-03 (M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 Admin/Feedback xong chờ review; M12 Hardening xong; M11 AI Quiz xong; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-05 (M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 Admin/Feedback xong chờ review; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -25,7 +25,7 @@
 | M9   | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                             |
 | M10  | AI Chatbot                                                                | ✅ đã sửa 6 finding sau review; chuẩn bị OpenCode Zen free; migration 037 đã áp cloud+VPS+local (05/10); AI production chạy Zen `space-bunny-free`; [recheck](docs/reviews/m10-recheck-2026-10-03.md) |
 | M11  | AI Quiz                                                                   | ✅ đã sửa sau review 2026-10-05: 6 lỗi P2 + nguồn SRS; [recheck](docs/reviews/m11-recheck-2026-10-05.md) |
-| M12  | Hardening                                                                 | ✅ hoàn thành (chờ review): rate limit, scheduler (search_history/partition/chat retention), pool env, journey e2e; [kế hoạch](docs/plans/m12-hardening.md) |
+| M12  | Hardening                                                                 | ✅ đã sửa 1 P1 + 3 P2 sau review 2026-10-05; kiểm chứng local pass, chưa deploy VPS; [recheck](docs/reviews/m12-recheck-2026-10-05.md) |
 | M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ v1 hoàn thành (chờ review): vai admin, thống kê aggregate, feedback text+ảnh, gloss_report, khoá/mở user, audit ([kế hoạch](docs/plans/m13-admin-curation-feedback.md))                                                                                              |
 
 ## Lộ trình DB (chốt 2026-10-01 — "thiết kế nốt cái DB")
@@ -236,7 +236,7 @@
 - Kiểm chứng local 2026-09-30: lint/build sạch, **37 suite/269 unit**, **13 suite/131 e2e** (7 kịch bản quiz mới). Không migration, không dependency mới. Docs: [kế hoạch](docs/plans/m11-ai-quiz.md) + [API quizzes](docs/api/quizzes.md).
 - [Review 2026-10-05](docs/reviews/m11-review-2026-10-05.md): đã sửa **6 lỗi P2** (cooldown race, dedup sai ngữ cảnh, đề đa nghĩa mơ hồ, matching index không hợp lệ, persistence kẹt generating, null DTO) và **1 điểm P3** nguồn không yêu cầu SRS. [Recheck](docs/reviews/m11-recheck-2026-10-05.md): build + ESLint file sửa pass, **45 suite/321 unit**, **2 suite/21 quiz e2e**, gồm 10 ca regression mới. Không migration/dependency mới; kiểm thử DB test local, chưa deploy VPS.
 
-### M12 — Hardening (đã triển khai, chờ review)
+### M12 — Hardening (đã sửa sau review 2026-10-05)
 
 - **Rate limit** (`@nestjs/throttler`): global 120/phút/IP; `register` 5/giờ; `login` 10/phút; `oauth/google*` 10/phút; `refresh` 30/phút; exception filter map `429 RATE_LIMITED`; e2e tắt bằng `RATE_LIMIT_ENABLED=false`.
 - **Scheduler nội bộ** `src/common/scheduler`: tick 60s, mỗi job một transaction giữ `pg_try_advisory_xact_lock` (an toàn đa instance). Jobs: dọn `search_history` còn 50 dòng/user; `app.ensure_month_partition` trước 2 tháng; retention chat `CHAT_RETENTION_DAYS` (mặc định 180). Tắt bằng `SCHEDULER_ENABLED=false`/NODE_ENV=test.
@@ -244,6 +244,7 @@
 - **E2E tổng** `test/journey.e2e-spec.ts`: register → hồ sơ → bộ sưu tập → tra từ (ghi lịch sử) → phiên ôn (1 thẻ để tránh burying sibling) → quiz → stats/achievements.
 - **Audit blacklist**: grep toàn `src` — 0 ghi vào `core/serve/public/staging`, 0 `SELECT *`.
 - Kiểm chứng local 2026-09-30: lint/build sạch, **40 suite/279 unit**, **14 suite/132 e2e**. CSDL doc đã regenerate (026/027/029 vào DB full local).
+- [Review 2026-10-05](docs/reviews/m12-review-2026-10-05.md): đã sửa **1 P1 + 3 P2** (IP client qua Caddy với trust proxy loopback, SQL partition đúng alias/kiểu trả về, retention giữ lease còn hạn, UTC là option cuối). [Recheck](docs/reviews/m12-recheck-2026-10-05.md): build + ESLint file sửa pass, **45 suite/327 unit**, **6 suite/48 e2e liên quan** (9 regression M12, 3 health+journey, 36 chat/SRS) pass trên DB test local. Không migration/dependency/env mới; chưa deploy VPS.
 
 ### M13 — Admin, Curation & Feedback v1 (đã triển khai, chờ review)
 

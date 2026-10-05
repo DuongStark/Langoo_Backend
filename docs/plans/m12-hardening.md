@@ -1,6 +1,7 @@
 # Kế hoạch M12 — Hardening
 
-> Trạng thái: **đã triển khai local (chờ review)**. Ngày: 2026-09-30.
+> Trạng thái: **đã sửa 1 P1 + 3 P2 sau review 2026-10-05, kiểm chứng local pass; chưa deploy VPS**.
+> [Báo cáo review](../reviews/m12-review-2026-10-05.md), [recheck](../reviews/m12-recheck-2026-10-05.md). Kế hoạch ban đầu: 2026-09-30.
 > Chốt với chủ dự án: rate limit bằng `@nestjs/throttler`, scheduler tự viết (không dep),
 > pool env, health `db_timezone`, regenerate CSDL doc, retention chat 180 ngày.
 
@@ -16,15 +17,18 @@
 
 ## 2. Quyết định đã chốt
 
-- **D1** — `@nestjs/throttler` (storage in-memory; 1 instance Render free; đa instance sẽ chuyển shared store sau).
+- **D1** — `@nestjs/throttler` (storage in-memory; hiện chạy 1 instance trên VPS; đa instance sẽ chuyển shared store sau). Express chỉ tin proxy loopback để nhận IP client từ Caddy.
 - **D2** — Scheduler tự viết `setInterval` + advisory lock (không thêm dependency).
 - **D3** — Pool mặc định 10 / 30s / 10s, override bằng env.
 - **D4** — Health thêm `db_timezone` + boot warn khi lệch UTC (backlog ENV-01).
 - **D5** — CSDL doc: apply migration vào DB full local rồi regenerate bằng script data repo (không đụng cloud).
-- **D6** — Retention chat 180 ngày, xoá cứng (cascade tin nhắn), tắt được bằng env.
+- **D6** — Retention chat 180 ngày, xoá cứng (cascade tin nhắn), tắt được bằng env. Bỏ qua request lease còn hạn; phiên cũ có lease hết hạn vẫn được dọn.
 
 ## 3. Ghi chú
 
+- Job partition dùng thời điểm UTC của scheduler, tạo hai tháng tiếp theo và nhận trực tiếp tên bảng text từ `app.ensure_month_partition`; chạy lại không tạo trùng.
+- Connection URL bảo đảm `-c timezone=UTC` có hiệu lực cuối cùng, giữ nguyên options khác và chuẩn hóa idempotent.
+- Caddy upstream hiện là `127.0.0.1:3000`; bootstrap cấu hình `trust proxy=loopback`. Khi đổi đường đi proxy cần kiểm tra lại trusted peer và header IP.
 - Rate limit in-memory: nhiều instance sẽ nhân quota lên theo số instance — chấp nhận ở giai đoạn 1 instance; khi scale chuyển `ThrottlerStorage` sang Redis/DB.
 - Scheduler lưu `lastRun` trong RAM: restart giữa kỳ sẽ chạy lại job ở kỳ kế tiếp (không chạy dồn) — job đều idempotent (DELETE theo điều kiện, ensure partition).
 - Job lỗi được bỏ qua tới kỳ kế tiếp (log warn), không retry dồn dập.

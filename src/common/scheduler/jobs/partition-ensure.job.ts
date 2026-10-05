@@ -17,20 +17,19 @@ export class PartitionEnsureJob implements ScheduledJob {
     minuteUtc: 0,
   } as const;
 
-  async run(tx: Prisma.TransactionClient): Promise<JobRunResult> {
-    const rows = await tx.$queryRaw<{ month: string }[]>(
+  async run(tx: Prisma.TransactionClient, now: Date): Promise<JobRunResult> {
+    const rows = await tx.$queryRaw<{ partition_name: string }[]>(
       Prisma.sql`
-        SELECT to_char(
-                 app.ensure_month_partition(
-                   (date_trunc('month', now()) + make_interval(months => offset.months))::date
-                 ),
-                 'YYYY-MM'
-               ) AS month
-        FROM generate_series(1, 2) AS offset(months)
+        SELECT app.ensure_month_partition(
+                 (date_trunc('month', ${now}::timestamptz)
+                  + make_interval(months => months_ahead.n))::date
+               ) AS partition_name
+        FROM generate_series(1, 2) AS months_ahead(n)
+        ORDER BY months_ahead.n
       `,
     );
-    const months = rows.map((row) => row.month).join(', ');
-    this.logger.log(`Đã đảm bảo partition review_log: ${months}`);
-    return { note: `partitions: ${months}` };
+    const partitions = rows.map((row) => row.partition_name).join(', ');
+    this.logger.log(`Đã đảm bảo partition review_log: ${partitions}`);
+    return { note: `partitions: ${partitions}` };
   }
 }
