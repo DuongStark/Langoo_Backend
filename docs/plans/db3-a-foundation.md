@@ -193,9 +193,10 @@
 
 - [x] Các script seed/audit chạy dry-run; regression xác nhận không ghi DB khi thiếu `--apply`.
 - [x] Regression fixture: chạy 2 lần không tạo bản sao; rollback lần 2 giữ trạng thái lần 1.
-- [ ] Vận hành full dataset: đủ 214 radical và nguồn KanjiVG đầy đủ trên DB thật (bước riêng sau review).
+- [x] Vận hành full dataset trên **DB thật local full** (2026-10-05): 214/214 radical, 6.417 KanjiVG,
+  5 deck/7.285 item — chi tiết §8 (VPS là bước riêng của integrator).
 - [x] Manifest + rollback phục hồi đúng trạng thái trước run, kể cả dữ liệu có sẵn; có regression lỗi filesystem trước/sau COMMIT.
-- [ ] Query kiểm chứng trong §4 chạy được và có kết quả lưu lại.
+- [x] Query kiểm chứng trong §4 chạy được; kết quả lưu tại `langoo-db3-sources/verify/` (§8).
 - [x] README hướng dẫn guard, fixture, rollback và recovery; không sửa `src/**`, migrations, `PROGRESS.md`.
 
 ## 7. Rủi ro chung
@@ -205,3 +206,25 @@
   nếu manifest mất, rollback phải thủ công (đã ghi rõ trong README).
 - Media chưa có route phục vụ file → seed xong UI mới thấy metadata; đừng kỳ vọng ảnh nét ngay.
 - Dữ liệu JLPT/deck chỉ đúng trong phạm vi nguồn `jlpt_link accepted`; nghĩa anchor là "tạm" cho tới DB4/M14.
+
+## 8. Nhật ký vận hành — apply DB thật local full (2026-10-05)
+
+DB đích: `langoo` @ `127.0.0.1:55433` (bản full local, 2.375.240 lexeme). Chạy với `DIRECT_URL` override
++ `--apply --allow-db langoo`; manifest bản sao tại `langoo-db3-sources/manifests-applied-local/`.
+
+| Task | Kết quả | Manifest (`uploads/db3/`) |
+| --- | --- | --- |
+| radicals | upsert **214/214** bộ; source `kangxi-radicals` (#17) | `2026-10-05T08-25-06-868Z-radicals-d61c0e46….json` |
+| kanjivg | **6.417** asset + 6.417 `kanji_media(stroke_svg)`; source `kanjivg` (#18, `kanjivg-20260714`) | `…T08-25-11-385Z-kanjivg-1e5c2a97….json` |
+| decks | 5 deck N1–N5, **7.285 item**, `is_published=false` | `…T08-25-33-590Z-decks-d08b5e91….json` |
+
+- KanjiVG: quét 6.703 SVG "base" (bỏ qua 4.959 file biến thể `-Kaisho…` và 286 file không phải kanji
+  trong `core.kanji`); `kanjiWithoutSvg = 6.691` — KanjiVG không phủ các chữ này (báo cáo, không tự chế).
+- Kiểm chứng: `serve.kanji_card` 日/一/十 → `{stroke_svg}` với `name_vi` Nhật/Nhất/Thập;
+  `verify-jlpt`: accepted 2571/1528/2034/572/626, accepted thiếu sense = 0; `credits-audit`: 18 nguồn,
+  thiếu license/attribution = 0 (còn #11 `kanji-data`, #12 `jlpt-list` "CẦN XÁC MINH").
+  Output: `langoo-db3-sources/verify/`.
+- Rollback: `npx tsx scripts/db3/<task>.ts --rollback <manifest> --apply --allow-db langoo`
+  (nếu đã apply nhiều lần, dùng manifest apply **đầu tiên**).
+- **Chưa áp VPS**: phiên song song không SSH VPS; integrator chạy theo runbook (có thể SSH tunnel
+  `-L 55434:127.0.0.1:5432` rồi chạy y hệt với `DIRECT_URL` trỏ tunnel).
