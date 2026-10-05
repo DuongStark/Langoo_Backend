@@ -114,6 +114,8 @@
 | 2026-09-30 | **M13 audit**: bảng `app.admin_audit_log`, ghi cùng transaction mọi mutation admin; feedback giới hạn 10 lần/giờ/user + 3 ảnh ≤5MB (magic bytes) | Duyệt D6/D7 |
 | 2026-10-03 | **M8.2 bộ đếm quiz**: quiz tính `streak_day`/`met_goal`/XP nhưng `user_stats.reviews_total` và achievement `reviews_1000` **chỉ tính lượt ôn SRS**; migration `036` rebuild `reviews_total` từ `review_log` | Chủ dự án chốt: tên "review" chỉ mô tả lượt ôn SRS |
 | 2026-10-03 | **M7.2 session profile & distractor**: `collectDueRows` nhận profile đã resolve (một `profile_id` xuyên suốt); distractor lọc theo `profile_id` và ưu tiên collection trong SQL trước `LIMIT` | Sửa follow-up review M7/M8; tránh session lẫn thẻ/đáp án profile khác |
+| 2026-10-05 | **JLPT nguồn chuẩn = `jlpt_link`** (KANJIDIC2 + JLPT list, có provenance `(source_level, source_row_number)`); `lexeme_level` chỉ giữ tham chiếu, không dùng để ghi đè | Chủ dự án chốt (chuẩn bị DB3) |
+| 2026-10-05 | **LLM cho dữ liệu = OpenCode Zen `space-bunny-free`** (`AI_BASE_URL=https://opencode.ai/zen/v1`), chạy theo lô nhỏ + checkpoint vì hạn mức free; dùng cho dịch gloss VI/radical và về sau là DB4 | Chủ dự án chốt |
 
 ## Nhật ký sửa lỗi theo milestone
 
@@ -225,13 +227,14 @@
 - Đã sửa env trống, model alias, gửi đồng thời, archive race, null DTO và ngày cursor. Chuẩn bị `AI_BASE_URL=https://opencode.ai/zen/v1`, `AI_CHAT_MODEL=space-bunny-free`; chưa điền key/gọi completion thật theo lựa chọn chủ dự án. Migration 037 đã apply DB test local, **chưa apply cloud/VPS**. [Recheck](docs/reviews/m10-recheck-2026-10-03.md): build/lint pass, **45 suite/310 unit**, **5 suite/40 e2e liên quan**.
 - Kiểm chứng local (2026-09-29, `langoo_test`): lint/build sạch, **34 suite/248 unit**, **12 suite/124 e2e** (8 kịch bản chat: phiên/tin/counter, ref sense + gloss, quota 429, archive 409, cách ly user, validation biên, usage).
 
-### M11 — AI Quiz (đã triển khai, chờ review)
+### M11 — AI Quiz (đã review 2026-10-05, cần sửa)
 
 - `/v1/quizzes`: sinh quiz từ collection (MC/fill_blank/matching/mixed), lịch sử keyset, chi tiết ẩn đáp án, `start` tạo `study_session(kind='quiz')`; trả lời qua `POST /sessions/:id/answers` (thêm field `pairs` cho matching; phiên quiz trả `srs: null`).
 - Generator thuần `buildQuizQuestions` (RNG injectable): difficulty quyết định số phương án MC (3/4) và K cặp matching (3/4); matching lưu `options` dạng mảng gắn `side` vì cột options buộc jsonb array (CHECK 023) — tách left/right khi start.
 - Chống lạm dụng: quota riêng **15/ngày** (feature `quiz`) + cooldown **15s** + dedup cùng tham số (`reused: true`); validate nguồn và dry-run trước khi reserve → lỗi dữ liệu **không** tiêu quota.
 - XP: `quiz_correct` (+5, cap 200) **chỉ khi đúng**; câu sai vẫn tính streak/activity (`xpEligible` mới ở GamificationService); replay cùng ordinal không cộng đôi.
 - Kiểm chứng local 2026-09-30: lint/build sạch, **37 suite/269 unit**, **13 suite/131 e2e** (7 kịch bản quiz mới). Không migration, không dependency mới. Docs: [kế hoạch](docs/plans/m11-ai-quiz.md) + [API quizzes](docs/api/quizzes.md).
+- [Review 2026-10-05](docs/reviews/m11-review-2026-10-05.md): build/lint pass, **4 suite/31 unit**, **1 suite/11 quiz e2e**; tái hiện **6 lỗi P2** (cooldown race, dedup sai ngữ cảnh, đề đa nghĩa mơ hồ, matching index không hợp lệ, persistence kẹt generating, null DTO) và **1 điểm P3** nguồn không yêu cầu SRS. Chưa sửa mã ứng dụng.
 
 ### M12 — Hardening (đã triển khai, chờ review)
 

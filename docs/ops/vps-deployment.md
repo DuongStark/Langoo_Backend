@@ -103,7 +103,7 @@ Internet
 | `/opt/langoo/app/.env` (VPS) | URL DB đang dùng, JWT secret, Google IDs, CORS, AI… | chmod 600, user `langoo` |
 | `/opt/langoo/app/.env.localdb.bak` | Bản trỏ **DB thật VPS** (để quay về) | chmod 600 |
 | **Prisma cloud (demo)** | DB mà **API live đang dùng**; migration đã áp: 001–030 + **035** (hàm `core.bigrams` bắt buộc có) | 036/037 chưa áp |
-| **PG nhúng local** (máy chủ dự án) | `127.0.0.1:55432`, DB `langoo` (full data) + `langoo_test` | Bật bằng `data-Langoo/scripts/pgdev.sh start`; `.env` repo trỏ `langoo_test` — muốn thao tác DB full phải override `DATABASE_URL/DIRECT_URL` |
+| **PG nhúng local** (máy chủ dự án) | `127.0.0.1:55432`, DB `langoo` (full data) + `langoo_test` | Bật bằng `data-Langoo/scripts/pgdev.sh start`; `.env` repo trỏ `langoo_test` — muốn thao tác DB full phải override `DATABASE_URL/DIRECT_URL`. ⚠️ Phiên khác có thể chạy PG tạm chiếm port 55432 (vd `/tmp/langoo-m11-pg`): kiểm tra `ps aux \| grep postgres`, nếu vậy start PG thật ở port khác `pg_ctl -D ~/.local/share/langoo/pgdata -o '-p 55433' start` |
 
 - `psql` trên máy chủ dự án thiếu SSL nên **không nối được Prisma cloud**; dùng `psql` trên VPS để thao tác cloud (VPS nối cloud tốt).
 
