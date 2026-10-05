@@ -33,7 +33,7 @@
 | # | Phase | Nội dung | Trạng thái |
 | --- | --- | --- | --- |
 | DB1 | Dọn schema & chốt nguồn sự thật | PK staging còn thiếu; metadata curation (`concept.reviewed_by/at`, `candidate.decision_run_id` + index); COMMENT ngữ nghĩa; regenerate CSDL doc; sửa tài liệu sai số | ✅ đã triển khai ([kế hoạch](docs/plans/db1-schema-cleanup.md)) |
-| DB2 | Hạ tầng tìm kiếm | `pg_trgm` + `unaccent` (local/VPS); migration index trigram `lexeme.lemma/reading/romanization` + `lexeme_form.form_text`; benchmark; đổi search backend dùng index | 📋 kế tiếp |
+| DB2 | Hạ tầng tìm kiếm | `pg_trgm` + 4 GIN trigram (033); `core.bigrams` + 4 GIN bigram (035); query 3 nhánh UNION dùng index; benchmark VPS `走る` 7,7s → 0,11s | ✅ đã triển khai ([kế hoạch](docs/plans/db2-search-infra.md)) |
 | DB3 | Seed dữ liệu nền | `radical` 214; KanjiVG → `media_asset`/`kanji_media`; deck hệ thống; gloss tiếng Việt cấp sense/concept; chốt chính sách JLPT; audit `/credits` | 📋 |
 | DB4 | Hoàn tất mapping sense↔concept | Candidate generator + chấm điểm + LLM 2 lượt + audit + promote/rollback theo `mapping_run`; dọn tồn translations/relations/Tatoeba/OMW; view coverage | 📋 chặng dài — cần chốt ngân sách LLM |
 | DB5 | Curation + serve + go-live DB thật | Quy trình duyệt concept/gloss; refresh `serve.sense_pair`; giao M14 (admin ghi `core`); chuyển API VPS về DB thật | 📋 |
@@ -261,6 +261,8 @@
 - API backend đã chuyển lên VPS: PM2 `langoo-api` (auto-start sau reboot) + Caddy reverse proxy **https://langoo-api.pixpress.art** (Let's Encrypt, tự gia hạn). DB VPS chỉ nghe `127.0.0.1:5432`, không mở ra internet.
 - `.env` production tại `/opt/langoo/app/.env` (600, user `langoo`) theo file env chủ dự án: hiện trỏ **DB Prisma cloud tạm** (chốt "data thật chưa hoàn thiện"), `CORS_ORIGINS=*`, Google client ID. Bản trỏ DB thật VPS giữ ở `.env.localdb.bak` — đổi lại `DATABASE_URL`/`DIRECT_URL` là về DB thật. Override thêm: `NODE_ENV=production`, `LOG_LEVEL=info`, `STORAGE_DIR=/opt/langoo/storage`.
 - Auto-deploy: push `main` → CI xanh → `.github/workflows/deploy.yml` SSH vào VPS (secrets `VPS_HOST/VPS_USER/VPS_SSH_KEY`) → `/opt/langoo/deploy.sh` (`git reset` + `npm ci` + build + `pm2 reload` + health check). Migration vẫn chạy **thủ công trước khi push**.
+- **Vận hành chi tiết** (SSH, backup, migration, firewall, runbook, sự cố): [docs/ops/vps-deployment.md](docs/ops/vps-deployment.md).
+- Vá vận hành 2026-10-05: cron backup thiếu cột `user` (chưa từng chạy) → đã sửa + backup tay bản `langoo-2026-10-05-0746.dump`; bật `ufw` chỉ mở 22/80/443 — port 3000 hết lộ ra internet (đã kiểm tra lại từ ngoài).
 
 ### DB1 — Dọn schema & chốt nguồn sự thật (đã triển khai 2026-10-01, chờ review)
 
@@ -312,7 +314,7 @@
 ## Kế tiếp dự kiến
 
 - **M14 / DB5 (đề xuất) — Curation ghi `core`**: duyệt gloss/concept (`reviewed_by`), quản lý deck — cần chốt ngoại lệ blacklist + audit + ma trận quyền trước khi code.
-- **DB2 (kế tiếp)** — hạ tầng tìm kiếm: cài `pg_trgm` + `unaccent` trên local/VPS, migration index trigram, benchmark search trên 2,4M lexeme.
+- **DB3 (kế tiếp)** — seed dữ liệu nền: `radical` 214, KanjiVG, deck hệ thống, gloss tiếng Việt (ưu tiên nguồn có sẵn: 39.551 cặp Wiktionary JA–VI + Wikidata), chốt chính sách JLPT.
 - **M2.3 đợt B** — xác thực email/recovery/session guard: cần chốt dịch vụ email (Brevo/Resend) + client trước khi triển khai.
 
 ## M13 — phạm vi dự kiến (chốt chi tiết khi tới M13)

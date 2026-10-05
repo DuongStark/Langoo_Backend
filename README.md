@@ -34,6 +34,10 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 - ✅ **M13 — Admin, Curation & Feedback** đã xong (v1): vai admin (`users.role` + `AdminGuard` đọc DB), thống kê vận hành tổng hợp, hộp thư feedback text + ảnh (magic bytes, `StorageService`), xử lý `gloss_report`, khoá/mở user + audit log — xem [`docs/api/admin.md`](docs/api/admin.md) và [`docs/api/feedback.md`](docs/api/feedback.md).
 - 🗺️ Lộ trình mở rộng: **M13 — Admin, Curation & Feedback** (thống kê vận hành + duyệt nội dung + hộp thư feedback text/ảnh) đã được thêm vào kế hoạch sau M12 — xem [`PROGRESS.md`](PROGRESS.md).
 
+## Vận hành VPS (MVP hiện tại)
+
+API + PostgreSQL thật đang chạy trên VPS riêng (**163.223.210.135**, `https://langoo-api.pixpress.art`) với auto-deploy qua GitHub Actions. Hướng dẫn vận hành đầy đủ (SSH, DB, backup, migration, firewall, runbook, sự cố đã gặp): [`docs/ops/vps-deployment.md`](docs/ops/vps-deployment.md).
+
 ## Deploy lên Render
 
 Repo có sẵn [`render.yaml`](render.yaml) (Blueprint):
