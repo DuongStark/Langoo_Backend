@@ -64,6 +64,7 @@ Internet
     - **Zen** (`https://opencode.ai/zen/v1`, model `space-bunny-free`): model suy luận, chậm 6–22s, có lúc trả rỗng; các model free khác bị **403** ("free tier chỉ dùng trong OpenCode"), model trả phí **402** (hết balance). ⚠️ Không dùng `/zen/go/v1` (cần header `x-opencode-session` → 400/503).
     - **Gemini** (`https://generativelanguage.googleapis.com/v1beta/openai/`): OpenAI-compatible, có free tier — chưa dùng.
   - Sửa `.env` xong phải `sudo -u langoo -H pm2 restart langoo-api` (dotenv đọc lúc khởi động).
+  - **M10.1 (05/10)**: thêm `AI_CHAT_TIMEOUT_MS=60000` (thay hardcode 30s — hết 503 khi model chậm vừa phải) và `AI_CHAT_REASONING_EFFORT=low` (model suy luận trả lời nhanh hơn); endpoint streaming `POST /v1/chat/sessions/:id/messages/stream` (SSE: `start`/`delta`/`done`/`error`) — chi tiết [`docs/api/chat.md`](../api/chat.md).
 - Logs: `sudo -u langoo -H pm2 logs langoo-api` hoặc `/opt/langoo/.pm2/logs/langoo-api-{out,error}.log`.
 - Ảnh feedback lưu tại `/opt/langoo/storage` (không nằm trong repo).
 
