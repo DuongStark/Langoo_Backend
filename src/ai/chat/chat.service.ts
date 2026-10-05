@@ -1,6 +1,7 @@
 import { validateChatImages } from './chat-images';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { setTimeout as delay } from 'node:timers/promises';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../../common/errors/domain.exception';
 import { parsePositivePostgresBigInt } from '../../common/ids/postgres-id';
@@ -45,6 +46,7 @@ const DEFAULT_QUOTA_PER_DAY = 50;
 const DEFAULT_PROVIDER_TIMEOUT_MS = 60_000;
 const REQUEST_LEASE_GRACE_MS = 30_000;
 const PROVIDER_RETRY_DELAY_MS = 700;
+const MAX_PROVIDER_ATTEMPTS = 2;
 const DEFAULT_SESSION_PAGE = 20;
 const DEFAULT_MESSAGE_PAGE = 50;
 const MAX_PAGE = 100;
@@ -311,8 +313,10 @@ export class ChatService {
     emit: (event: ChatStreamEvent) => void,
     signal?: AbortSignal,
   ): Promise<void> {
+    signal?.throwIfAborted();
     const { session, requestId } = await this.claimSession(userId, sessionId);
     try {
+      signal?.throwIfAborted();
       await this.streamMessageWithLease(
         userId,
         session,
@@ -443,27 +447,34 @@ export class ChatService {
     signal?: AbortSignal,
   ): Promise<void> {
     const { content, senseContext, images } = await this.normalizeInput(dto);
+    signal?.throwIfAborted();
     const prepared = await this.prepareTurn(
       userId,
       session,
       content,
       senseContext,
       images,
+      signal,
     );
-    emit({ type: 'start', model: prepared.model });
+    signal?.throwIfAborted();
 
     const request = this.buildProviderRequest(prepared, signal);
     const stream = this.provider.chatStream?.bind(this.provider);
     let firstDelta = false;
+    const onDelta = (delta: string): void => {
+      signal?.throwIfAborted();
+      if (delta === '') return;
+      if (!firstDelta) {
+        firstDelta = true;
+        emit({ type: 'start', model: prepared.model });
+      }
+      emit({ type: 'delta', content: delta });
+    };
     let reply: AiChatResult;
     try {
       if (stream) {
         reply = await this.callProviderWithRetry(
-          () =>
-            stream(request, (delta) => {
-              firstDelta = true;
-              emit({ type: 'delta', content: delta });
-            }),
+          () => stream(request, onDelta),
           { signal, shouldRetry: () => !firstDelta },
         );
       } else {
@@ -472,15 +483,20 @@ export class ChatService {
           () => this.provider.chat(request),
           { signal },
         );
-        firstDelta = true;
-        emit({ type: 'delta', content: reply.content });
       }
+      signal?.throwIfAborted();
+      if (reply.content.trim() === '') {
+        throw new AiProviderError('provider trả về nội dung rỗng');
+      }
+      // An adapter may return a complete answer without calling its callback.
+      if (!firstDelta) onDelta(reply.content);
     } catch (error) {
+      signal?.throwIfAborted();
       if (!firstDelta) {
         throw this.providerUnavailable(error);
       }
       this.logger.warn(
-        `AI stream lỗi giữa chừng: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
+        `AI stream lỗi giữa chừng: ${providerFailureLabel(error)}`,
       );
       emit({
         type: 'error',
@@ -497,9 +513,12 @@ export class ChatService {
         requestId,
         prepared,
         reply,
+        signal,
       );
+      signal?.throwIfAborted();
       emit({ type: 'done', response });
     } catch (error) {
+      signal?.throwIfAborted();
       if (error instanceof DomainException) {
         const payload = error.getResponse() as {
           code?: string;
@@ -512,7 +531,12 @@ export class ChatService {
         });
         return;
       }
-      throw error;
+      this.logger.error('Không lưu được lượt chat streaming');
+      emit({
+        type: 'error',
+        code: 'CHAT_STREAM_FAILED',
+        message: 'Không lưu được tin nhắn, vui lòng thử lại sau',
+      });
     }
   }
 
@@ -551,8 +575,10 @@ export class ChatService {
     content: string,
     senseContext: AiSenseContext | null,
     images?: string[],
+    signal?: AbortSignal,
   ): Promise<PreparedTurn> {
     const timezone = await this.resolveTimezone(userId);
+    signal?.throwIfAborted();
     const period = periodDate(localDateString(new Date(), timezone));
     const limit = this.quotaLimit();
     const requestCount = await this.usage.reserveDailyRequest(
@@ -562,6 +588,7 @@ export class ChatService {
       'chat',
       limit,
     );
+    signal?.throwIfAborted();
 
     const languageCode =
       (await this.languages.findCodeById(session.languageId)) ?? 'en';
@@ -599,10 +626,13 @@ export class ChatService {
     requestId: string,
     prepared: PreparedTurn,
     reply: AiChatResult,
+    signal?: AbortSignal,
   ): Promise<SendChatMessageResponse> {
+    signal?.throwIfAborted();
     const now = new Date();
     const [userMessage, assistantMessage] = await this.prisma.$transaction(
       async (tx) => {
+        signal?.throwIfAborted();
         // This conditional update locks the session row until commit. Archive
         // invalidates the token, and an expired/replaced lease cannot write late.
         const committed = await tx.chatSession.updateMany({
@@ -665,6 +695,8 @@ export class ChatService {
           reply.tokensOut,
           reply.costUsd,
         );
+        // Cancellation observed during DB work rolls back the whole turn.
+        signal?.throwIfAborted();
         return [createdUser, createdAssistant];
       },
     );
@@ -699,9 +731,9 @@ export class ChatService {
     fn: () => Promise<T>,
     options: { signal?: AbortSignal; shouldRetry?: () => boolean } = {},
   ): Promise<T> {
-    const maxAttempts = 2;
     for (let attempt = 1; ; attempt += 1) {
       try {
+        options.signal?.throwIfAborted();
         return await fn();
       } catch (error) {
         const clientAborted = options.signal?.aborted === true;
@@ -711,23 +743,23 @@ export class ChatService {
             ? error.retryable
             : isAbortError(error));
         const allowed = options.shouldRetry ? options.shouldRetry() : true;
-        if (!retryable || !allowed || attempt >= maxAttempts) {
+        if (!retryable || !allowed || attempt >= MAX_PROVIDER_ATTEMPTS) {
           throw error;
         }
         this.logger.warn(
-          `AI provider lỗi tạm thời (lần ${attempt}), thử lại sau ${PROVIDER_RETRY_DELAY_MS}ms: ${
-            error instanceof Error ? error.message.slice(0, 150) : 'unknown'
-          }`,
+          `AI provider lỗi tạm thời (lần ${attempt}), thử lại sau ${PROVIDER_RETRY_DELAY_MS}ms: ${providerFailureLabel(
+            error,
+          )}`,
         );
-        await delay(PROVIDER_RETRY_DELAY_MS);
+        await delay(PROVIDER_RETRY_DELAY_MS, undefined, {
+          signal: options.signal,
+        });
       }
     }
   }
 
   private providerUnavailable(error: unknown): DomainException {
-    this.logger.warn(
-      `AI provider lỗi: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
-    );
+    this.logger.warn(`AI provider lỗi: ${providerFailureLabel(error)}`);
     return new DomainException(
       'AI_PROVIDER_UNAVAILABLE',
       'Trợ lý AI đang bận, vui lòng thử lại sau',
@@ -760,7 +792,11 @@ export class ChatService {
   }
 
   private leaseMs(): number {
-    return this.providerTimeoutMs() + REQUEST_LEASE_GRACE_MS;
+    return (
+      this.providerTimeoutMs() * MAX_PROVIDER_ATTEMPTS +
+      PROVIDER_RETRY_DELAY_MS +
+      REQUEST_LEASE_GRACE_MS
+    );
   }
 
   private async getSessionOr404(
@@ -879,8 +915,11 @@ function periodDate(day: string): Date {
   return new Date(`${day}T00:00:00.000Z`);
 }
 
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function providerFailureLabel(error: unknown): string {
+  if (error instanceof AiProviderError && error.status !== undefined) {
+    return `HTTP ${error.status}`;
+  }
+  return isAbortError(error) ? error.name : 'upstream failure';
 }
 
 function archivedSession(): DomainException {

@@ -84,9 +84,13 @@ export function estimateTokens(text: string): number {
 }
 
 /** True nếu lỗi là do abort (timeout của mình hoặc client ngắt). */
-export function isAbortError(error: unknown): boolean {
+export function isAbortError(
+  error: unknown,
+): error is { name: 'AbortError' | 'TimeoutError' } {
   return (
-    error instanceof Error &&
+    typeof error === 'object' &&
+    error !== null &&
+    'name' in error &&
     (error.name === 'AbortError' || error.name === 'TimeoutError')
   );
 }

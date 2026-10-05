@@ -75,6 +75,7 @@ export class OpenAiChatProvider implements AiChatProvider {
     onDelta: AiChatDeltaHandler,
   ): Promise<AiChatResult> {
     const { signal, cleanup } = withTimeout(request.timeoutMs, request.signal);
+    let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
     try {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
@@ -96,35 +97,63 @@ export class OpenAiChatProvider implements AiChatProvider {
         throw new AiProviderError('provider không trả về stream');
       }
 
-      const reader = response.body.getReader();
+      reader = response.body.getReader();
       const decoder = new TextDecoder();
       let buffer = '';
+      let skipLf = false;
+      let dataLines: string[] = [];
+      let completed = false;
       let content = '';
       let model = request.model;
       let usage: OpenAiStreamChunk['usage'];
 
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
+      const consumeLines = (): void => {
+        if (skipLf && buffer.length > 0) {
+          if (buffer.startsWith('\n')) buffer = buffer.slice(1);
+          skipLf = false;
         }
-        buffer += decoder.decode(value, { stream: true });
-        let newline = buffer.indexOf('\n');
+        let newline = buffer.search(/[\r\n]/);
         while (newline >= 0) {
-          const rawLine = buffer.slice(0, newline).replace(/\r$/, '');
-          buffer = buffer.slice(newline + 1);
-          const delta = this.consumeSseLine(rawLine, onDelta);
-          if (delta.content !== '') {
+          const rawLine = buffer.slice(0, newline);
+          const width =
+            buffer[newline] === '\r' && buffer[newline + 1] === '\n' ? 2 : 1;
+          // Dispatch CR immediately; skip its LF if that byte arrives later.
+          skipLf =
+            width === 1 &&
+            buffer[newline] === '\r' &&
+            newline + width === buffer.length;
+          buffer = buffer.slice(newline + width);
+          if (rawLine === '') {
+            const delta = this.consumeSseEvent(dataLines.join('\n'), onDelta);
+            dataLines = [];
             content += delta.content;
+            model = delta.model ?? model;
+            usage = delta.usage ?? usage;
+            if (delta.done) {
+              completed = true;
+              return;
+            }
+          } else if (rawLine === 'data' || rawLine.startsWith('data:')) {
+            dataLines.push(rawLine.slice(5).replace(/^ /, ''));
           }
-          if (delta.model !== undefined) {
-            model = delta.model;
-          }
-          if (delta.usage !== undefined) {
-            usage = delta.usage;
-          }
-          newline = buffer.indexOf('\n');
+          newline = buffer.search(/[\r\n]/);
         }
+      };
+
+      while (!completed) {
+        signal.throwIfAborted();
+        const { done, value } = await reader.read();
+        signal.throwIfAborted();
+        buffer += done
+          ? decoder.decode()
+          : decoder.decode(value, { stream: true });
+        consumeLines();
+        if (done) break;
+      }
+
+      if (!completed) {
+        // EOF is not evidence of a completed answer, even if some text arrived.
+        throw new AiProviderError('provider stream kết thúc trước [DONE]');
       }
 
       if (content.trim() === '') {
@@ -137,47 +166,76 @@ export class OpenAiChatProvider implements AiChatProvider {
         content,
         model,
         tokensIn:
-          typeof usage?.prompt_tokens === 'number' && usage.prompt_tokens >= 0
-            ? usage.prompt_tokens
-            : estimateRequestTokens(request),
+          validTokenCount(usage?.prompt_tokens) ??
+          estimateRequestTokens(request),
         tokensOut:
-          typeof usage?.completion_tokens === 'number' &&
-          usage.completion_tokens >= 0
-            ? usage.completion_tokens
-            : estimateTokens(content),
+          validTokenCount(usage?.completion_tokens) ?? estimateTokens(content),
         costUsd: 0,
       };
     } finally {
       cleanup();
+      if (reader) {
+        try {
+          await reader.cancel();
+        } catch {
+          // Preserve the original protocol/abort error.
+        } finally {
+          reader.releaseLock();
+        }
+      }
     }
   }
 
-  private consumeSseLine(
-    line: string,
+  private consumeSseEvent(
+    data: string,
     onDelta: AiChatDeltaHandler,
-  ): { content: string; model?: string; usage?: OpenAiStreamChunk['usage'] } {
-    if (!line.startsWith('data:')) {
+  ): {
+    content: string;
+    done?: boolean;
+    model?: string;
+    usage?: OpenAiStreamChunk['usage'];
+  } {
+    if (data.trim() === '[DONE]') return { content: '', done: true };
+    if (data.trim() === '') {
       return { content: '' };
     }
-    const data = line.slice(5).trim();
-    if (data === '' || data === '[DONE]') {
-      return { content: '' };
-    }
-    let chunk: OpenAiStreamChunk;
+    let payload: unknown;
     try {
-      chunk = JSON.parse(data) as OpenAiStreamChunk;
+      payload = JSON.parse(data) as unknown;
     } catch {
-      return { content: '' };
+      throw new AiProviderError('provider trả về SSE không hợp lệ');
+    }
+    if (
+      !isRecord(payload) ||
+      'error' in payload ||
+      (!Array.isArray(payload.choices) &&
+        !(payload.choices === undefined && isRecord(payload.usage)))
+    ) {
+      throw new AiProviderError('provider trả về SSE không hợp lệ');
+    }
+    const chunk = payload as OpenAiStreamChunk;
+    const choice = chunk.choices?.[0];
+    if (
+      choice !== undefined &&
+      (!isRecord(choice) || !isRecord(choice.delta))
+    ) {
+      throw new AiProviderError('provider trả về delta không hợp lệ');
     }
     const delta = chunk.choices?.[0]?.delta?.content;
+    if (delta !== undefined && delta !== null && typeof delta !== 'string') {
+      throw new AiProviderError('provider trả về delta không hợp lệ');
+    }
     const text = typeof delta === 'string' ? delta : '';
     if (text !== '') {
       onDelta(text);
     }
     return {
       content: text,
-      model: typeof chunk.model === 'string' ? chunk.model : undefined,
-      usage: chunk.usage,
+      model:
+        typeof chunk.model === 'string' && chunk.model.trim() !== ''
+          ? chunk.model
+          : undefined,
+      usage: isRecord(chunk.usage) ? chunk.usage : undefined,
     };
   }
 
@@ -229,18 +287,12 @@ export class OpenAiChatProvider implements AiChatProvider {
           ? payload.model
           : request.model,
       tokensIn:
-        typeof promptTokens === 'number' && promptTokens >= 0
-          ? promptTokens
-          : estimateRequestTokens(request),
-      tokensOut:
-        typeof completionTokens === 'number' && completionTokens >= 0
-          ? completionTokens
-          : estimateTokens(content),
+        validTokenCount(promptTokens) ??
+        estimateRequestTokens(request),
+      tokensOut: validTokenCount(completionTokens) ?? estimateTokens(content),
       costUsd: 0,
-      ...(typeof promptTokens !== 'number' ||
-      typeof completionTokens !== 'number' ||
-      promptTokens < 0 ||
-      completionTokens < 0
+      ...(validTokenCount(promptTokens) === undefined ||
+      validTokenCount(completionTokens) === undefined
         ? { usageEstimated: true }
         : {}),
     };
@@ -248,12 +300,25 @@ export class OpenAiChatProvider implements AiChatProvider {
 }
 
 async function httpError(response: Response): Promise<AiProviderError> {
-  // Upstream error bodies may echo private text/images. Never retain/log them.
-  await response.body?.cancel();
+  // Upstream error bodies can echo credentials or prompts. Keep only status.
+  await response.body?.cancel().catch(() => undefined);
   return new AiProviderError(
     `provider HTTP ${response.status}`,
     response.status,
   );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function validTokenCount(value: unknown): number | undefined {
+  return typeof value === 'number' &&
+    Number.isInteger(value) &&
+    value >= 0 &&
+    value <= 2_147_483_647
+    ? value
+    : undefined;
 }
 
 /**
@@ -266,7 +331,7 @@ function withTimeout(
 ): { signal: AbortSignal; cleanup: () => void } {
   const controller = new AbortController();
   const timer = setTimeout(() => {
-    controller.abort(new Error('provider timeout'));
+    controller.abort(new DOMException('provider timeout', 'TimeoutError'));
   }, timeoutMs);
   const onAbort = (): void => {
     controller.abort(external?.reason);

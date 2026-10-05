@@ -145,7 +145,7 @@ describe('OpenAiChatProvider', () => {
       Promise.resolve(
         sse(
           'data: {"choices":[{"delta":{"reasoning_content":"nghĩ thầm"}}]}\n\n',
-          'data: {"choices":[{"delta":{"content":"Xin "}}],"model":"gpt-oss-120b"}\n',
+          'data: {"choices":[{"delta":{"content":"Xin "}}],"model":"gpt-oss-120b"}\n\n',
           'data: {"choices":[{"delta":{"content":"chào"}}]}\n\n',
           'data: {"choices":[{"delta":{"content":"!"}}],"usage":{"prompt_tokens":5,"completion_tokens":3}}\n\n',
           'data: [DONE]\n\n',

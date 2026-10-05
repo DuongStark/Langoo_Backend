@@ -74,4 +74,37 @@ describe('StubChatProvider', () => {
     expect(chunks.length).toBeGreaterThan(1);
     expect(chunks.join('')).toBe(result.content);
   });
+
+  it('chat từ chối tín hiệu đã hủy trước khi tạo câu trả lời', async () => {
+    const abort = new AbortController();
+    abort.abort();
+    await expect(
+      provider.chat({
+        messages: [],
+        model: 'stub-v1',
+        timeoutMs: 1000,
+        signal: abort.signal,
+      }),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+  });
+
+  it('chatStream dừng ngay khi client hủy giữa các delta', async () => {
+    const abort = new AbortController();
+    const deltas: string[] = [];
+    await expect(
+      provider.chatStream(
+        {
+          messages: [],
+          model: 'stub-v1',
+          timeoutMs: 1000,
+          signal: abort.signal,
+        },
+        (delta) => {
+          deltas.push(delta);
+          abort.abort();
+        },
+      ),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    expect(deltas).toHaveLength(1);
+  });
 });

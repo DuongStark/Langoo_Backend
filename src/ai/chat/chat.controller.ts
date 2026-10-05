@@ -26,6 +26,7 @@ import { CurrentUser } from '../../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { JwtPayload } from '../../auth/types/auth.types';
 import { parseUuidParam } from '../../common/ids/postgres-id';
+import { DomainException } from '../../common/errors/domain.exception';
 import { ChatService } from './chat.service';
 import {
   ChatListQueryDto,
@@ -163,14 +164,21 @@ export class ChatController {
     @Res() response: Response,
   ): Promise<void> {
     const abort = new AbortController();
-    request.on('close', () => {
+    const onClose = (): void => {
       if (!response.writableEnded) {
         abort.abort();
       }
-    });
+    };
+    response.once('close', onClose);
+    if (request.aborted || response.destroyed) abort.abort();
 
     let headersSent = false;
     const write = (chunk: string): void => {
+      abort.signal.throwIfAborted();
+      if (response.destroyed || response.writableEnded) {
+        abort.abort();
+        abort.signal.throwIfAborted();
+      }
       if (!headersSent) {
         response.writeHead(HttpStatus.OK, {
           'Content-Type': 'text/event-stream; charset=utf-8',
@@ -186,7 +194,7 @@ export class ChatController {
       write(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
     };
     const heartbeat = setInterval(() => {
-      if (headersSent && !response.writableEnded) {
+      if (headersSent && !response.writableEnded && !response.destroyed) {
         response.write(': ping\n\n');
       }
     }, 15_000);
@@ -212,9 +220,22 @@ export class ChatController {
         },
         abort.signal,
       );
+    } catch (error) {
+      // The client is gone; neither JSON nor SSE can be delivered any more.
+      if (abort.signal.aborted || response.destroyed) return;
+      if (!headersSent) throw error;
+      const payload =
+        error instanceof DomainException
+          ? (error.getResponse() as { code: string; message: string })
+          : {
+              code: 'CHAT_STREAM_FAILED',
+              message: 'Không hoàn tất được lượt chat, vui lòng thử lại sau',
+            };
+      writeEvent('error', payload);
     } finally {
       clearInterval(heartbeat);
-      if (headersSent && !response.writableEnded) {
+      response.off('close', onClose);
+      if (headersSent && !response.writableEnded && !response.destroyed) {
         response.end();
       }
     }

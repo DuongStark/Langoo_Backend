@@ -90,7 +90,8 @@ Lỗi: `404 CHAT_SESSION_NOT_FOUND` · `409 CHAT_SESSION_ARCHIVED` ·
 
 Mỗi phiên chỉ xử lý một lượt gửi tại một thời điểm, kể cả khi API chạy nhiều process.
 Gửi thêm khi đang chờ → `409 CHAT_SESSION_BUSY`, không tiêu quota; đợi lượt hiện tại
-xong rồi gửi tiếp. Khóa tạm hết hạn sau 60 giây để phục hồi khi process dừng đột ngột;
+xong rồi gửi tiếp. Khóa tạm hết hạn sau `2 × AI_CHAT_TIMEOUT_MS + 700ms + 30s`
+(mặc định **150,7 giây**) để bao trọn hai lần thử provider và phục hồi khi process dừng đột ngột;
 kết quả quá hạn/bị thay thế trả `409 CHAT_REQUEST_EXPIRED` và không ghi tin.
 
 Model gọi AI lấy từ `AI_CHAT_MODEL` hiện tại, nên phiên demo cũ vẫn dùng được sau khi
@@ -107,6 +108,11 @@ Lưu ý: khi provider lỗi (503) tin nhắn **không được lưu**; quota c�
 Trả lời **dần như ChatGPT**: server đẩy từng đoạn ngay khi provider sinh ra.
 Cùng quota/lease/persist với endpoint thường; khi stream lỗi giữa chừng sẽ có
 `event: error` thay vì HTTP 503.
+
+`start` được gửi ngay trước **delta có nội dung đầu tiên**; trong lúc đang chờ provider
+và retry chưa có delta, server giữ khả năng trả JSON với HTTP status đúng.
+Provider được thử lại tối đa một lần khi 429/5xx/timeout trước delta; mỗi lần thử có
+timeout `AI_CHAT_TIMEOUT_MS`. Không retry sau khi đã phát nội dung hoặc client đã hủy.
 
 ```bash
 curl -N -X POST http://localhost:3000/v1/chat/sessions/<id>/messages/stream \
@@ -160,6 +166,15 @@ for (;;) {
 
 Lỗi **trước delta đầu** (busy/archived/quota/provider fail) vẫn trả JSON status
 như endpoint thường (`409 CHAT_SESSION_BUSY`, `429 AI_QUOTA_EXCEEDED`, `503 AI_PROVIDER_UNAVAILABLE`…).
+
+- Stream upstream phải kết thúc bằng event `[DONE]` hoàn chỉnh; EOF/malformed event
+  không được coi là câu trả lời thành công. Không lưu phần chữ đã phát khi provider lỗi.
+- Lỗi lưu DB sau delta trả `event: error`: `CHAT_STREAM_FAILED`, hoặc mã domain như
+  `CHAT_SESSION_ARCHIVED`/`CHAT_REQUEST_EXPIRED`. Không có `done`; transaction rollback
+  cả hai tin nhắn, counter và token usage. Quota đã reserve vẫn tính một lượt.
+- Client hủy kết nối sẽ hủy upstream, dừng retry và giải phóng lease. Hủy được quan sát
+  trước/ở trong transaction sẽ không lưu lượt chat. Nếu hủy sau khi transaction đã commit,
+  dữ liệu đã lưu vẫn tồn tại dù client chưa nhận `done`; hãy tải lại lịch sử trước khi gửi lại.
 
 ## GET /v1/chat/usage
 

@@ -18,7 +18,8 @@ const STREAM_CHUNK_SIZE = 18;
 export class StubChatProvider implements AiChatProvider {
   readonly name = 'stub';
 
-  chat(request: AiChatRequest): Promise<AiChatResult> {
+  async chat(request: AiChatRequest): Promise<AiChatResult> {
+    request.signal?.throwIfAborted();
     return Promise.resolve(this.buildResult(request));
   }
 
@@ -27,15 +28,18 @@ export class StubChatProvider implements AiChatProvider {
     request: AiChatRequest,
     onDelta: AiChatDeltaHandler,
   ): Promise<AiChatResult> {
+    request.signal?.throwIfAborted();
     const result = this.buildResult(request);
     for (
       let index = 0;
       index < result.content.length;
       index += STREAM_CHUNK_SIZE
     ) {
+      request.signal?.throwIfAborted();
       onDelta(result.content.slice(index, index + STREAM_CHUNK_SIZE));
       await Promise.resolve();
     }
+    request.signal?.throwIfAborted();
     return result;
   }
 

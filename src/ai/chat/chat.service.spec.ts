@@ -1,9 +1,16 @@
+import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { setTimeout as nativeDelay } from 'node:timers/promises';
 import { DomainException } from '../../common/errors/domain.exception';
 import { LanguageRepository } from '../../db/repositories/language.repository';
 import { PrismaService } from '../../db/prisma.service';
 import { DictionaryService } from '../../dictionary/dictionary.service';
-import { AiChatProvider, AiChatRequest } from '../providers/ai-chat.provider';
+import {
+  AiChatDeltaHandler,
+  AiChatProvider,
+  AiChatRequest,
+  AiProviderError,
+} from '../providers/ai-chat.provider';
 import { AiUsageService } from '../usage/ai-usage.service';
 import { ChatService } from './chat.service';
 
@@ -104,8 +111,256 @@ function createSetup(configValues: Record<string, string | number> = {}) {
     usage as unknown as AiUsageService,
     provider,
   );
-  return { service, prisma, tx, languages, dictionary, usage, providerChat };
+  return {
+    service,
+    prisma,
+    tx,
+    languages,
+    dictionary,
+    usage,
+    providerChat,
+    provider,
+  };
 }
+
+describe('M10.1 service regressions', () => {
+  function setup() {
+    const state = createSetup({ AI_CHAT_TIMEOUT_MS: 60_000 });
+    state.prisma.chatSession.findFirst.mockResolvedValue(sessionRow());
+    state.prisma.chatMessage.findMany.mockResolvedValue([]);
+    state.usage.reserveDailyRequest.mockResolvedValue(1);
+    state.tx.chatMessage.create.mockImplementation(
+      (args: { data: Record<string, unknown> }) =>
+        Promise.resolve(messageRow(args.data)),
+    );
+    const reply = {
+      content: 'answer',
+      model: 'stub-v1',
+      tokensIn: 2,
+      tokensOut: 2,
+      costUsd: 0,
+    };
+    const stream = jest.fn(
+      (_request: AiChatRequest, delta: AiChatDeltaHandler) => {
+        delta('answer');
+        return Promise.resolve(reply);
+      },
+    );
+    state.provider.chatStream = stream;
+    return { ...state, stream, reply };
+  }
+
+  afterEach(() => {
+    jest.useRealTimers();
+    jest.restoreAllMocks();
+  });
+
+  it('provider failure before delta emits nothing, allowing a JSON 503', async () => {
+    const s = setup();
+    s.stream.mockRejectedValue(new Error('provider failed'));
+    const emit = jest.fn();
+    await expect(
+      s.service.sendMessageStream(1n, SESSION_ID, { content: 'hi' }, emit),
+    ).rejects.toMatchObject({ code: 'AI_PROVIDER_UNAVAILABLE' });
+    expect(emit).not.toHaveBeenCalled();
+    expect(s.tx.chatMessage.create).not.toHaveBeenCalled();
+  });
+
+  it('fallback provider without chatStream emits the normal payload once', async () => {
+    const s = setup();
+    delete s.provider.chatStream;
+    s.providerChat.mockResolvedValue(s.reply);
+    const emit = jest.fn();
+    await s.service.sendMessageStream(1n, SESSION_ID, { content: 'hi' }, emit);
+    expect(s.providerChat).toHaveBeenCalledTimes(1);
+    expect(
+      emit.mock.calls.map((call: [{ type: string }]) => call[0].type),
+    ).toEqual(['start', 'delta', 'done']);
+    expect(s.tx.chatMessage.create).toHaveBeenCalledTimes(2);
+  });
+
+  it('fallback returning whitespace fails before headers and persistence', async () => {
+    const s = setup();
+    delete s.provider.chatStream;
+    s.providerChat.mockResolvedValue({ ...s.reply, content: '  ' });
+    const emit = jest.fn();
+    await expect(
+      s.service.sendMessageStream(1n, SESSION_ID, { content: 'hi' }, emit),
+    ).rejects.toMatchObject({ code: 'AI_PROVIDER_UNAVAILABLE' });
+    expect(emit).not.toHaveBeenCalled();
+    expect(s.prisma.$transaction).not.toHaveBeenCalled();
+  });
+
+  it('empty deltas do not begin a stream or prevent retry', async () => {
+    jest.useFakeTimers();
+    const s = setup();
+    s.stream.mockImplementationOnce((_request, delta) => {
+      delta('');
+      return Promise.reject(new AiProviderError('busy', 429));
+    });
+    const emit = jest.fn();
+    const pending = s.service.sendMessageStream(
+      1n,
+      SESSION_ID,
+      { content: 'hi' },
+      emit,
+    );
+    await jest.advanceTimersByTimeAsync(700);
+    await pending;
+    expect(s.stream).toHaveBeenCalledTimes(2);
+    expect(
+      emit.mock.calls.map((call: [{ type: string }]) => call[0].type),
+    ).toEqual(['start', 'delta', 'done']);
+  });
+
+  it('abort during retry delay prevents another provider call and releases the lease', async () => {
+    jest.useFakeTimers();
+    const s = setup();
+    s.stream.mockRejectedValueOnce(new AiProviderError('busy', 429));
+    const abort = new AbortController();
+    const pending = s.service.sendMessageStream(
+      1n,
+      SESSION_ID,
+      { content: 'hi' },
+      jest.fn(),
+      abort.signal,
+    );
+    const assertion = expect(pending).rejects.toMatchObject({
+      name: 'AbortError',
+    });
+    await jest.advanceTimersByTimeAsync(1);
+    abort.abort();
+    await jest.advanceTimersByTimeAsync(700);
+    await assertion;
+    expect(s.stream).toHaveBeenCalledTimes(1);
+    expect(s.tx.chatMessage.create).not.toHaveBeenCalled();
+    expect(s.prisma.chatSession.updateMany).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: { pendingRequestId: null, pendingRequestExpiresAt: null },
+      }),
+    );
+  });
+
+  it('does not save after an adapter resolves despite client abort', async () => {
+    const s = setup();
+    const abort = new AbortController();
+    s.stream.mockImplementationOnce((_request, delta) => {
+      delta('answer');
+      abort.abort();
+      return Promise.resolve(s.reply);
+    });
+    const emit = jest.fn();
+    await expect(
+      s.service.sendMessageStream(
+        1n,
+        SESSION_ID,
+        { content: 'hi' },
+        emit,
+        abort.signal,
+      ),
+    ).rejects.toMatchObject({ name: 'AbortError' });
+    expect(s.prisma.$transaction).not.toHaveBeenCalled();
+    expect(
+      emit.mock.calls.some(
+        (call: [{ type: string }]) => call[0].type === 'done',
+      ),
+    ).toBe(false);
+  });
+
+  it('DB failure after delta produces one sanitized error event', async () => {
+    const s = setup();
+    s.prisma.$transaction.mockRejectedValue(new Error('private SQL prompt'));
+    const emit = jest.fn();
+    await s.service.sendMessageStream(1n, SESSION_ID, { content: 'hi' }, emit);
+    expect(
+      emit.mock.calls.map((call: [{ type: string }]) => call[0].type),
+    ).toEqual(['start', 'delta', 'error']);
+    expect(emit).toHaveBeenLastCalledWith({
+      type: 'error',
+      code: 'CHAT_STREAM_FAILED',
+      message: 'Không lưu được tin nhắn, vui lòng thử lại sau',
+    });
+  });
+
+  it('provider failure after delta is not retried and does not leak its message to logs', async () => {
+    const s = setup();
+    const warn = jest
+      .spyOn(Logger.prototype, 'warn')
+      .mockImplementation(() => undefined);
+    s.stream.mockImplementationOnce((_request, delta) => {
+      delta('answer');
+      return Promise.reject(
+        new AiProviderError('private-prompt test-only-key', 503),
+      );
+    });
+    const emit = jest.fn();
+    await s.service.sendMessageStream(1n, SESSION_ID, { content: 'hi' }, emit);
+    expect(s.stream).toHaveBeenCalledTimes(1);
+    expect(s.prisma.$transaction).not.toHaveBeenCalled();
+    expect(emit).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        type: 'error',
+        code: 'AI_PROVIDER_UNAVAILABLE',
+      }),
+    );
+    expect(JSON.stringify(warn.mock.calls)).not.toMatch(
+      /private-prompt|test-only-key/,
+    );
+  });
+
+  it('lease covers a timeout followed by a successful full-length retry', async () => {
+    jest.useFakeTimers();
+    const s = setup();
+    let expiresAt = new Date(0);
+    s.prisma.chatSession.updateMany.mockImplementation(
+      (args: { data: { pendingRequestExpiresAt: Date | null } }) => {
+        if (args.data.pendingRequestExpiresAt)
+          expiresAt = args.data.pendingRequestExpiresAt;
+        return Promise.resolve({ count: 1 });
+      },
+    );
+    s.tx.chatSession.updateMany.mockImplementation(() =>
+      Promise.resolve({ count: expiresAt > new Date() ? 1 : 0 }),
+    );
+    s.stream
+      .mockImplementationOnce(
+        () =>
+          new Promise((_resolve, reject) => {
+            setTimeout(
+              () => reject(new DOMException('timeout', 'TimeoutError')),
+              60_000,
+            );
+          }),
+      )
+      .mockImplementationOnce(
+        (_request, delta) =>
+          new Promise((resolve) => {
+            setTimeout(() => {
+              delta('answer');
+              resolve(s.reply);
+            }, 59_000);
+          }),
+      );
+    const emit = jest.fn();
+    const pending = s.service.sendMessageStream(
+      1n,
+      SESSION_ID,
+      { content: 'hi' },
+      emit,
+    );
+    const assertion = expect(pending).resolves.toBeUndefined();
+    await jest.advanceTimersByTimeAsync(60_000);
+    // The production backoff uses native timers/promises, independently of the
+    // fake clock used to simulate the two long generation attempts.
+    await nativeDelay(750);
+    await jest.advanceTimersByTimeAsync(60_000);
+    await assertion;
+    expect(s.stream).toHaveBeenCalledTimes(2);
+    expect(emit).toHaveBeenLastCalledWith(
+      expect.objectContaining({ type: 'done' }),
+    );
+  });
+});
 
 describe('ChatService', () => {
   describe('createSession', () => {
