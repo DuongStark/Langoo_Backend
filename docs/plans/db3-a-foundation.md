@@ -226,5 +226,20 @@ DB đích: `langoo` @ `127.0.0.1:55433` (bản full local, 2.375.240 lexeme). Ch
   Output: `langoo-db3-sources/verify/`.
 - Rollback: `npx tsx scripts/db3/<task>.ts --rollback <manifest> --apply --allow-db langoo`
   (nếu đã apply nhiều lần, dùng manifest apply **đầu tiên**).
-- **Chưa áp VPS**: phiên song song không SSH VPS; integrator chạy theo runbook (có thể SSH tunnel
-  `-L 55434:127.0.0.1:5432` rồi chạy y hệt với `DIRECT_URL` trỏ tunnel).
+
+### 8.1 VPS (2026-10-05, qua SSH tunnel — chủ dự án duyệt)
+
+Kết nối: `ssh -N -L 55434:127.0.0.1:5432 langoo-vps` + `DATABASE_URL` lấy từ `/opt/langoo/app/.env.localdb.bak`
+(`.env` hiện trỏ Prisma cloud). **Journal format 2 ghi target host/port → rollback VPS phải mở lại tunnel đúng port 55434.**
+Dump pre-state 6 bảng liên quan: `vps-pre-db3a.dump` (16K).
+
+| Task | Kết quả | Manifest (`manifests-applied-vps/`) |
+| --- | --- | --- |
+| radicals | **214/214** (upsert, cùng hash `47d5ca11…`) | `2026-10-05T08-38-05-549Z-radicals-0f85d5bc….json` |
+| kanjivg | **6.417** + 6.417 `kanji_media(stroke_svg)` | `…T08-38-10-250Z-kanjivg-cf1f4ead….json` |
+| decks | 5 deck N1–N5 / **7.285 item**, `is_published=false` | `…T08-44-34-851Z-decks-3ceffb60….json` |
+
+- Kiểm chứng: counts trùng khớp local; `serve.kanji_card` 日/一/十 → `{stroke_svg}` (Nhật/Nhất/Thập);
+  `verify-jlpt`/`credits-audit` trùng kết quả local — output `verify/*-vps.txt`.
+- Cloud demo (API đang trỏ tới) **không** bị thay đổi.
+- **Đã áp VPS** cùng ngày qua SSH tunnel (chủ dự án duyệt) — xem §8.1.
