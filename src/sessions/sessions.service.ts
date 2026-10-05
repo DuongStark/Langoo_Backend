@@ -292,6 +292,16 @@ export class SessionsService {
             HttpStatus.BAD_REQUEST,
           );
         }
+        if (
+          questionType === 'matching' &&
+          !hasMatchingPromptPairs(freshItem.prompt, dto.pairs)
+        ) {
+          throw new DomainException(
+            'SESSION_ANSWER_INVALID',
+            'pairs phải ghép đủ lựa chọn trong câu hỏi, mỗi index dùng một lần',
+            HttpStatus.BAD_REQUEST,
+          );
+        }
         const gradedQuiz = gradeQuizAnswer(
           questionType as QuizQuestionType,
           freshItem.correctAnswer as Record<string, unknown>,
@@ -788,6 +798,40 @@ function hasPromptOption(
   return prompt.options.some(
     (option) => isRecord(option) && option.index === optionIndex,
   );
+}
+
+function hasMatchingPromptPairs(
+  prompt: unknown,
+  pairs: AnswerSessionDto['pairs'],
+): boolean {
+  if (
+    !isRecord(prompt) ||
+    !Array.isArray(prompt.left) ||
+    !Array.isArray(prompt.right) ||
+    !Array.isArray(pairs)
+  )
+    return false;
+  if (
+    pairs.length === 0 ||
+    pairs.length !== prompt.left.length ||
+    pairs.length !== prompt.right.length
+  )
+    return false;
+  const left = new Set<number>();
+  const right = new Set<number>();
+  for (const pair of pairs) {
+    if (
+      !pair ||
+      !hasPromptOption({ options: prompt.left }, pair.left_index) ||
+      !hasPromptOption({ options: prompt.right }, pair.right_index) ||
+      left.has(pair.left_index) ||
+      right.has(pair.right_index)
+    )
+      return false;
+    left.add(pair.left_index);
+    right.add(pair.right_index);
+  }
+  return true;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

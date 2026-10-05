@@ -158,4 +158,71 @@ describe('quiz-generator', () => {
     ).toThrow('Cần ít nhất 2 từ');
     expect(() => assertQuizCanGenerate(items)).not.toThrow();
   });
+
+  it.each(['multiple_choice', 'matching', 'mixed'] as const)(
+    '%s excludes all ambiguous senses, including case/whitespace variants',
+    (quizType) => {
+      const source = [
+        item(1, { lemma: 'run', reading: null, meaningVi: 'chạy' }),
+        item(2, { lemma: ' RUN ', reading: null, meaningVi: 'điều hành' }),
+        item(3, { lemma: 'eat', reading: null, meaningVi: 'ăn' }),
+        item(4, { lemma: 'book', reading: null, meaningVi: 'sách' }),
+      ];
+      const result = buildQuizQuestions({
+        quizType,
+        difficulty: 'medium',
+        questionCount: 3,
+        languageId: 1,
+        items: source,
+        rng: seededRng(),
+      });
+      for (const q of result.filter((q) => q.questionType !== 'fill_blank')) {
+        expect(q.prompt.toLowerCase()).not.toContain('run');
+        expect(JSON.stringify(q.options).toLowerCase()).not.toContain('run');
+        if (q.questionType === 'multiple_choice') {
+          expect(JSON.stringify(q.options)).not.toMatch(/chạy|điều hành/);
+        }
+      }
+    },
+  );
+
+  it('polysemy-only source is rejected for MC/matching but remains valid for fill-blank', () => {
+    const source = [
+      item(1, { lemma: 'run', meaningVi: 'chạy' }),
+      item(2, { lemma: 'run', meaningVi: 'điều hành' }),
+    ];
+    const input = {
+      difficulty: 'medium' as const,
+      questionCount: 1,
+      languageId: 1,
+      items: source,
+      rng: seededRng(),
+    };
+    for (const quizType of ['multiple_choice', 'matching', 'mixed'] as const) {
+      expect(() => buildQuizQuestions({ ...input, quizType })).toThrow(
+        'Cần ít nhất 2 từ',
+      );
+    }
+    expect(() =>
+      buildQuizQuestions({ ...input, quizType: 'fill_blank' }),
+    ).not.toThrow();
+  });
+
+  it('meaning dedup cannot hide a second meaning of a lemma', () => {
+    const source = [
+      item(1, { lemma: 'sprint', meaningVi: 'chạy' }),
+      item(2, { lemma: 'run', meaningVi: 'chạy' }),
+      item(3, { lemma: 'run', meaningVi: 'điều hành' }),
+      item(4, { lemma: 'eat', meaningVi: 'ăn' }),
+    ];
+    const result = buildQuizQuestions({
+      quizType: 'matching',
+      difficulty: 'easy',
+      questionCount: 1,
+      languageId: 1,
+      items: source,
+      rng: seededRng(),
+    });
+    expect(JSON.stringify(result[0].options)).not.toContain('run');
+  });
 });

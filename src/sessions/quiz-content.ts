@@ -91,6 +91,8 @@ function gradeMatching(
   }
 
   const seenLeft = new Set<number>();
+  const seenRight = new Set<number>();
+  const rightIndices = new Set(expected.values());
   let isCorrect = true;
   for (const pair of pairs) {
     if (
@@ -100,11 +102,15 @@ function gradeMatching(
       !Number.isInteger(pair.right_index) ||
       pair.left_index < 0 ||
       pair.right_index < 0 ||
-      seenLeft.has(pair.left_index)
+      seenLeft.has(pair.left_index) ||
+      seenRight.has(pair.right_index) ||
+      !expected.has(pair.left_index) ||
+      !rightIndices.has(pair.right_index)
     ) {
       return null;
     }
     seenLeft.add(pair.left_index);
+    seenRight.add(pair.right_index);
     if (expected.get(pair.left_index) !== pair.right_index) {
       isCorrect = false;
     }

@@ -23,13 +23,16 @@ interface SourceRow {
 export class QuizSourceRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findSourceItems(params: {
-    userId: bigint;
-    profileId: string;
-    collectionId: string | null;
-  }): Promise<QuizSourceItem[]> {
+  async findSourceItems(
+    params: {
+      userId: bigint;
+      profileId: string;
+      collectionId: string | null;
+    },
+    client: Prisma.TransactionClient = this.prisma,
+  ): Promise<QuizSourceItem[]> {
     const { userId, profileId, collectionId } = params;
-    const rows = await this.prisma.$queryRaw<SourceRow[]>(Prisma.sql`
+    const rows = await client.$queryRaw<SourceRow[]>(Prisma.sql`
       SELECT
         i.id AS item_id,
         i.anchor_sense_id AS sense_id,
@@ -42,10 +45,12 @@ export class QuizSourceRepository {
       FROM app.collection_item i
       JOIN app.collection c ON c.id = i.collection_id
       JOIN serve.sense_card sc ON sc.sense_id = i.anchor_sense_id
-      LEFT JOIN LATERAL (
+      JOIN LATERAL (
         SELECT s.state
         FROM app.srs_state s
-        WHERE s.face_id IN (
+        WHERE s.user_id = ${userId}
+          AND s.profile_id = ${profileId}::uuid
+          AND s.face_id IN (
           SELECT f.id FROM app.collection_item_face f WHERE f.item_id = i.id
         )
         ORDER BY CASE s.state
@@ -62,7 +67,7 @@ export class QuizSourceRepository {
         AND i.status <> 'paused'
         AND (${collectionId}::uuid IS NULL OR i.collection_id = ${collectionId}::uuid)
       ORDER BY
-        CASE COALESCE(st.state, 'new')
+        CASE st.state
           WHEN 'review' THEN 1
           WHEN 'relearning' THEN 2
           WHEN 'learning' THEN 3

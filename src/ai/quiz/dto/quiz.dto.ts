@@ -9,6 +9,7 @@ import {
   Max,
   MaxLength,
   Min,
+  ValidateIf,
 } from 'class-validator';
 import {
   QUIZ_DIFFICULTIES,
@@ -22,7 +23,7 @@ export class CreateQuizDto {
     format: 'uuid',
     description: 'Bỏ trống = gộp mọi collection của hồ sơ',
   })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsUUID()
   collection_id?: string;
 

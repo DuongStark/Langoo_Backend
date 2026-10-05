@@ -14,7 +14,7 @@ import { SrsService } from '../../srs/srs.service';
 import { QuizQuestionType } from '../../sessions/quiz-content';
 import { SessionsService } from '../../sessions/sessions.service';
 import { SessionDetailResponse } from '../../sessions/types/sessions.types';
-import { DEFAULT_TIMEZONE } from '../../users/settings.constants';
+import { lockUser } from '../../users/user-lock';
 import {
   AI_QUIZ_PROVIDER,
   AiQuizProvider,
@@ -38,7 +38,7 @@ const QUIZ_TTL_DAYS = 7;
 const DEFAULT_PAGE = 20;
 const MAX_PAGE = 100;
 const DETAIL_SESSIONS = 5;
-const QUIZ_PROMPT_VERSION = 'm11-v1';
+const QUIZ_PROMPT_VERSION = 'm11-v2';
 
 interface QuizRow {
   id: string;
@@ -99,72 +99,129 @@ export class QuizService {
     userId: bigint,
     dto: CreateQuizDto,
   ): Promise<CreateQuizResponse> {
-    const reusable = await this.resolveCooldown(userId, dto);
-    if (reusable !== null) {
-      return reusable;
-    }
+    // Only prepare/claim inside the user lock. Never hold a DB transaction
+    // open while awaiting an external provider (also works across VPS workers).
+    const prepared = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const profile = await this.srs.getProfileContextInTransaction(tx, userId);
+      if (dto.collection_id !== undefined) {
+        await this.assertCollectionOwned(
+          tx,
+          userId,
+          profile.id,
+          dto.collection_id,
+        );
+      }
+      const reusable = await this.resolveCooldown(tx, userId, profile.id, dto);
+      if (reusable !== null) return { kind: 'reused' as const, reusable };
 
-    const profile = await this.srs.getProfileContext(userId);
-    if (dto.collection_id !== undefined) {
-      await this.assertCollectionOwned(userId, profile.id, dto.collection_id);
-    }
-
-    const items = await this.sourceRepo.findSourceItems({
-      userId,
-      profileId: profile.id,
-      collectionId: dto.collection_id ?? null,
-    });
-    const generatorInput = {
-      quizType: dto.quiz_type,
-      difficulty: dto.difficulty,
-      questionCount: dto.question_count,
-      languageId: profile.primaryLanguageId,
-      items,
-      rng: mathRng,
-    };
-    // Dry-run thuần để KHÔNG tiêu quota khi dữ liệu không đủ (thiếu từ/nhiễu).
-    buildQuizQuestions(generatorInput);
-
-    const timezone = await this.resolveTimezone(userId);
-    const period = periodDate(localDateString(new Date(), timezone));
-    await this.usage.reserveDailyRequest(
-      this.prisma,
-      userId,
-      period,
-      'quiz',
-      this.quotaLimit(),
-    );
-
-    const quizId = uuidv7();
-    const expiresAt = new Date(
-      Date.now() + QUIZ_TTL_DAYS * 24 * 60 * 60 * 1000,
-    );
-    await this.prisma.quiz.create({
-      data: {
-        id: quizId,
-        userId,
-        profileId: profile.id,
-        collectionId: dto.collection_id ?? null,
+      const items = await this.sourceRepo.findSourceItems(
+        {
+          userId,
+          profileId: profile.id,
+          collectionId: dto.collection_id ?? null,
+        },
+        tx,
+      );
+      const generatorInput = {
         quizType: dto.quiz_type,
         difficulty: dto.difficulty,
         questionCount: dto.question_count,
-        generator: {
-          provider: this.quizProvider.name,
-          version: QUIZ_PROMPT_VERSION,
+        languageId: profile.primaryLanguageId,
+        items,
+        rng: mathRng,
+      };
+      // Source validation, quota and claim either all commit or all roll back.
+      buildQuizQuestions(generatorInput);
+      const period = periodDate(localDateString(new Date(), profile.timezone));
+      await this.usage.reserveDailyRequest(
+        tx,
+        userId,
+        period,
+        'quiz',
+        this.quotaLimit(),
+      );
+      const quizId = uuidv7();
+      await tx.quiz.create({
+        data: {
+          id: quizId,
+          userId,
+          profileId: profile.id,
+          collectionId: dto.collection_id ?? null,
+          quizType: dto.quiz_type,
+          difficulty: dto.difficulty,
+          questionCount: dto.question_count,
+          generator: {
+            provider: this.quizProvider.name,
+            version: QUIZ_PROMPT_VERSION,
+          },
+          status: 'generating',
+          expiresAt: new Date(Date.now() + QUIZ_TTL_DAYS * 24 * 60 * 60 * 1000),
         },
-        status: 'generating',
-        expiresAt,
-      },
-    });
-
-    let questions;
-    try {
-      questions = await this.quizProvider.generate(generatorInput);
-    } catch (error) {
-      await this.prisma.quiz.update({
-        where: { id: quizId },
-        data: { status: 'failed' },
       });
+      return { kind: 'created' as const, quizId, generatorInput };
+    });
+    if (prepared.kind === 'reused') return prepared.reusable;
+    const { quizId, generatorInput } = prepared;
+
+    try {
+      const questions = await this.quizProvider.generate(generatorInput);
+      const quiz = await this.prisma.$transaction(async (tx) => {
+        await lockUser(tx, userId);
+        const itemIds = [
+          ...new Set(
+            questions.flatMap((question) =>
+              question.itemId === null ? [] : [question.itemId],
+            ),
+          ),
+        ];
+        // Keep the generated text/answers even if source items were removed.
+        // Lock surviving references until insert so a concurrent DELETE cannot
+        // remove an item between this lookup and the FK check.
+        const survivingItems =
+          itemIds.length === 0
+            ? []
+            : await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+          SELECT id FROM app.collection_item
+          WHERE id IN (${Prisma.join(itemIds.map((id) => Prisma.sql`${id}::uuid`))})
+          ORDER BY id FOR KEY SHARE
+        `);
+        const survivingIds = new Set(survivingItems.map((item) => item.id));
+        await tx.quizQuestion.createMany({
+          data: questions.map((question, index) => ({
+            quizId,
+            ordinal: index + 1,
+            questionType: question.questionType,
+            prompt: question.prompt,
+            options: question.options as Prisma.InputJsonValue,
+            correctAnswer: question.correctAnswer as Prisma.InputJsonValue,
+            explanation: question.explanation,
+            languageId: question.languageId,
+            conceptId:
+              question.conceptId === null ? null : BigInt(question.conceptId),
+            itemId:
+              question.itemId !== null && survivingIds.has(question.itemId)
+                ? question.itemId
+                : null,
+          })),
+        });
+        return tx.quiz.update({
+          where: { id: quizId },
+          data: { status: 'ready', questionCount: questions.length },
+        });
+      });
+      return { ...toQuizResponse(quiz), reused: false };
+    } catch (error) {
+      // Also covers persistence failures. A deleted profile may have already
+      // cascaded away the quiz, so do not let a failed cleanup hide the error.
+      try {
+        await this.prisma.quiz.updateMany({
+          where: { id: quizId, status: 'generating' },
+          data: { status: 'failed' },
+        });
+      } catch {
+        this.logger.error(`Không thể đánh dấu quiz failed: ${quizId}`);
+      }
       this.logger.warn(
         `Sinh quiz lỗi: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
       );
@@ -177,30 +234,6 @@ export class QuizService {
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
-
-    const quiz = await this.prisma.$transaction(async (tx) => {
-      await tx.quizQuestion.createMany({
-        data: questions.map((question, index) => ({
-          quizId,
-          ordinal: index + 1,
-          questionType: question.questionType,
-          prompt: question.prompt,
-          options: question.options as Prisma.InputJsonValue,
-          correctAnswer: question.correctAnswer as Prisma.InputJsonValue,
-          explanation: question.explanation,
-          languageId: question.languageId,
-          conceptId:
-            question.conceptId === null ? null : BigInt(question.conceptId),
-          itemId: question.itemId,
-        })),
-      });
-      return tx.quiz.update({
-        where: { id: quizId },
-        data: { status: 'ready', questionCount: questions.length },
-      });
-    });
-
-    return { ...toQuizResponse(quiz), reused: false };
   }
 
   // ------------------------------------------------------------------ read
@@ -360,14 +393,16 @@ export class QuizService {
 
   // ----------------------------------------------------------------- utils
   private async resolveCooldown(
+    tx: Prisma.TransactionClient,
     userId: bigint,
+    profileId: string,
     dto: CreateQuizDto,
   ): Promise<CreateQuizResponse | null> {
     const cooldownMs = this.cooldownMs();
     if (cooldownMs <= 0) {
       return null;
     }
-    const last = await this.prisma.quiz.findFirst({
+    const last = await tx.quiz.findFirst({
       where: { userId },
       orderBy: { createdAt: 'desc' },
     });
@@ -380,11 +415,18 @@ export class QuizService {
     }
 
     const sameParams =
+      last.profileId === profileId &&
       last.quizType === dto.quiz_type &&
       last.difficulty === dto.difficulty &&
       last.questionCount === dto.question_count &&
       (last.collectionId ?? null) === (dto.collection_id ?? null);
-    if (sameParams && last.status === 'ready') {
+    if (
+      sameParams &&
+      last.status === 'ready' &&
+      (last.expiresAt === null || last.expiresAt.getTime() > Date.now()) &&
+      (last.generator as { version?: unknown } | null)?.version ===
+        QUIZ_PROMPT_VERSION
+    ) {
       return { ...toQuizResponse(last), reused: true };
     }
 
@@ -419,11 +461,15 @@ export class QuizService {
   }
 
   private async assertCollectionOwned(
+    tx: Prisma.TransactionClient,
     userId: bigint,
     profileId: string,
     collectionId: string,
   ): Promise<void> {
-    const collection = await this.prisma.collection.findFirst({
+    // A soft archive/update must wait until the claim transaction completes.
+    await tx.$queryRaw`SELECT id FROM app.collection
+      WHERE id = ${collectionId}::uuid AND owner_id = ${userId} FOR SHARE`;
+    const collection = await tx.collection.findFirst({
       where: { id: collectionId, ownerId: userId, archivedAt: null },
       select: { id: true, profileId: true },
     });
@@ -434,14 +480,6 @@ export class QuizService {
         HttpStatus.NOT_FOUND,
       );
     }
-  }
-
-  private async resolveTimezone(userId: bigint): Promise<string> {
-    const settings = await this.prisma.userSettings.findUnique({
-      where: { userId },
-      select: { timezone: true },
-    });
-    return settings?.timezone ?? DEFAULT_TIMEZONE;
   }
 
   private quotaLimit(): number {

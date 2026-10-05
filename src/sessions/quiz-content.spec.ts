@@ -53,12 +53,43 @@ describe('gradeQuizAnswer', () => {
     expect(
       gradeQuizAnswer('matching', correct, {
         pairs: [
-          { left_index: 0, right_index: 2 },
-          { left_index: 1, right_index: 1 },
+          { left_index: 0, right_index: 0 },
+          { left_index: 1, right_index: 2 },
         ],
       }),
     ).toMatchObject({ isCorrect: false, rating: 1 });
   });
+
+  it.each([
+    [
+      { left_index: 999, right_index: 1 },
+      { left_index: 1, right_index: 0 },
+    ],
+    [
+      { left_index: 0, right_index: 999 },
+      { left_index: 1, right_index: 0 },
+    ],
+    [
+      { left_index: 0, right_index: 1 },
+      { left_index: 1, right_index: 1 },
+    ],
+  ])(
+    'matching: reject unknown indices and duplicate right (%j)',
+    (...pairs) => {
+      expect(
+        gradeQuizAnswer(
+          'matching',
+          {
+            mapping: [
+              { left_index: 0, right_index: 1 },
+              { left_index: 1, right_index: 0 },
+            ],
+          },
+          { pairs },
+        ),
+      ).toBeNull();
+    },
+  );
 
   it('matching: từ chối thiếu cặp, trùng left, hoặc index sai kiểu', () => {
     const correct = {

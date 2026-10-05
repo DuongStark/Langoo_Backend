@@ -35,16 +35,32 @@ export function buildQuizQuestions(
   assertQuizCanGenerate(items);
 
   const sequence = questionTypeSequence(input.quizType, input.questionCount);
-  return sequence.map((type, index) =>
-    buildQuestion(
+  // A lemma with distinct meanings cannot be disambiguated by our stub prompts.
+  // Inspect the raw source before meaning dedup so a discarded synonym cannot
+  // hide another sense of the same word.
+  const meaningsByLemma = new Map<string, Set<string>>();
+  for (const item of input.items) {
+    if (item.lemma.trim() === '' || item.meaningVi.trim() === '') continue;
+    const key = normalizeText(item.lemma);
+    const meanings = meaningsByLemma.get(key) ?? new Set<string>();
+    meanings.add(normalizeText(item.meaningVi));
+    meaningsByLemma.set(key, meanings);
+  }
+  const unambiguous = items.filter(
+    (item) => meaningsByLemma.get(normalizeText(item.lemma))?.size === 1,
+  );
+  return sequence.map((type, index) => {
+    const source = type === 'fill_blank' ? items : unambiguous;
+    assertQuizCanGenerate(source);
+    return buildQuestion(
       type,
       index,
       input.difficulty,
       input.languageId,
-      items,
+      source,
       input.rng,
-    ),
-  );
+    );
+  });
 }
 
 /** Kiểm tra nguồn từ vựng trước khi tiêu quota — ném 409 khi không đủ. */

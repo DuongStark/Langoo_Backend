@@ -1,6 +1,8 @@
 # Kế hoạch M11 — AI Quiz
 
-> Trạng thái: **đang triển khai** (chờ review). Ngày: 2026-09-30.
+> Trạng thái: **đã sửa sau review 2026-10-05**, đạt kiểm chứng local.
+> [Báo cáo recheck](../reviews/m11-recheck-2026-10-05.md).
+> Kế hoạch ban đầu: 2026-09-30.
 > Chốt với chủ dự án: đa dạng loại câu hỏi (kể cả `matching`), nguồn gồm cả thẻ `new`,
 > quota riêng 15 quiz/ngày, cooldown 15s + dedup bấm đúp, XP chỉ khi trả lời đúng.
 
@@ -14,6 +16,13 @@
 - **Không migration**, không thêm dependency.
 
 **Backlog:** adapter LLM thật cho quiz (JSON mode), AI giải thích từng câu, matching ở chế độ review M7.
+
+**Sửa sau review:** khóa user trong PostgreSQL khi validate/claim; quota + hàng quiz
+cùng transaction; provider chạy ngoài transaction. Dedup gắn active profile, kiểm tra
+collection trước khi trả cache, chỉ reuse generator hiện tại. MC/matching loại lemma
+đa nghĩa không có ngữ cảnh. Matching validate theo snapshot và ghép một-một. Lỗi lưu
+câu hỏi chuyển `failed`; item đã xóa được bỏ tham chiếu nhưng giữ nội dung snapshot.
+DTO từ chối `collection_id:null`; nguồn bắt buộc SRS đúng user/profile.
 
 ## 2. Quyết định đã chốt
 

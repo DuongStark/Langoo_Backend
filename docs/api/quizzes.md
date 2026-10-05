@@ -6,6 +6,10 @@ deterministic** (không tốn token AI); adapter LLM thật nằm trong backlog.
 **Chống lạm dụng:** quota riêng `AI_QUIZ_DAILY_LIMIT` (mặc định **15/ngày** theo timezone user)
 + cooldown `AI_QUIZ_COOLDOWN_MS` (mặc định **15s**): bấm đúp *cùng tham số* trả lại quiz vừa tạo
 (`reused: true`, không tiêu thêm quota); *khác tham số* trong cooldown → `429 QUIZ_GENERATION_COOLDOWN`.
+Dedup chỉ áp dụng quiz `ready` còn hạn, cùng hồ sơ đang hoạt động và phiên bản generator
+hiện tại. Request khi quiz đang `generating` trả `429 QUIZ_GENERATION_COOLDOWN`;
+retry sau khi hoàn tất có thể nhận `reused: true`. Khóa PostgreSQL phối hợp request
+giữa các tiến trình, quota và hàng quiz được tạo trong cùng transaction.
 
 ## POST /v1/quizzes
 
@@ -22,10 +26,15 @@ curl -s -X POST http://localhost:3000/v1/quizzes \
 ```
 
 - `quiz_type`: `multiple_choice` | `fill_blank` | `matching` | `mixed` (trộn MC → FB → matching).
+- `collection_id`: UUID tùy chọn; bỏ field để dùng mọi collection trong hồ sơ hiện tại.
+  `null` không hợp lệ. Collection phải thuộc hồ sơ hiện tại và chưa archive, kể cả khi dedup.
 - `difficulty`: `easy` | `medium` | `hard` (stub: MC 3/4/4 phương án; fill-blank easy-medium nhận
   thêm romaji; matching K = 3/4/4 cặp).
 - Nguồn từ vựng: item thuộc hồ sơ, collection chưa archive, item không `paused`, có `srs_state`
-  (**kể cả `new`**); ưu tiên `review → relearning → learning → new`.
+  thuộc đúng user/hồ sơ (**kể cả `new`**); ưu tiên `review → relearning → learning → new`.
+- MC/matching loại mọi sense của lemma có nhiều nghĩa khác nhau vì đề stub chưa có
+  ngữ cảnh phân biệt. Sau lọc vẫn cần ≥2 từ khác nghĩa; nếu thiếu trả
+  `409 QUIZ_NOT_ENOUGH_ITEMS` trước khi tiêu quota. Fill-blank vẫn dùng các sense này.
 
 Response `201`:
 
@@ -44,7 +53,13 @@ Response `201`:
 ```
 
 Lỗi: `409 QUIZ_NOT_ENOUGH_ITEMS` (cần ≥2 từ) · `429 QUIZ_GENERATION_COOLDOWN` ·
-`429 AI_QUOTA_EXCEEDED` · `404 COLLECTION_NOT_FOUND` · `400 VALIDATION_FAILED`.
+`429 AI_QUOTA_EXCEEDED` · `404 COLLECTION_NOT_FOUND` · `400 VALIDATION_FAILED` ·
+`503 AI_PROVIDER_UNAVAILABLE` (lỗi provider hoặc lưu câu hỏi).
+
+Nếu item nguồn bị xóa sau khi provider đã sinh câu hỏi, quiz vẫn lưu nội dung/đáp án
+snapshot và đặt tham chiếu item bị xóa thành `null`. Lỗi lưu câu hỏi khác chuyển quiz
+sang `failed` và trả 503. Quota đã dùng sau khi provider chạy được giữ; lỗi tạo hàng
+quiz trước khi gọi provider rollback quota cùng transaction.
 
 ## GET /v1/quizzes?limit&cursor
 
@@ -114,6 +129,9 @@ Response `200`:
   này chỉ dành cho lượt ôn SRS.
 - Với câu multiple choice, `option_index` phải có trong `prompt.options` của snapshot; index
   không hợp lệ trả `400 SESSION_ANSWER_INVALID` và không ghi activity.
+- Matching phải ghép đủ các index trong `prompt.left/right`, mỗi index dùng đúng một lần.
+  Index ngoài snapshot, thiếu cặp hoặc trùng left/right trả `400 SESSION_ANSWER_INVALID`,
+  không ghi answer/receipt/activity; vẫn có thể gửi đáp án hợp lệ sau đó.
 - Màn "câu sai": `GET /v1/sessions/:id/items?is_correct=false`.
 - Retry cùng payload ở `ordinal` đã trả lời trả nguyên response ban đầu; payload khác trả
   `409 SESSION_IDEMPOTENCY_CONFLICT`. Câu cũ chưa có receipt trả

@@ -19,6 +19,7 @@ function quizRow(overrides: Record<string, unknown> = {}) {
     difficulty: 'medium',
     questionCount: 2,
     status: 'ready',
+    generator: { provider: 'stub', version: 'm11-v2' },
     createdAt: new Date(),
     expiresAt: new Date(Date.now() + 86_400_000),
     ...overrides,
@@ -54,19 +55,22 @@ function generatedQuestions(count: number) {
 function createSetup(cooldownMs = '15000') {
   const tx = {
     quizQuestion: { createMany: jest.fn() },
-    quiz: { update: jest.fn() },
-    studySession: { create: jest.fn() },
-    studySessionItem: { createMany: jest.fn() },
-  };
-  const prisma = {
     quiz: {
       findFirst: jest.fn(),
       findMany: jest.fn(),
       create: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn(),
     },
-    quizQuestion: { findMany: jest.fn() },
     collection: { findFirst: jest.fn() },
+    $queryRaw: jest.fn().mockResolvedValue([]),
+    studySession: { create: jest.fn() },
+    studySessionItem: { createMany: jest.fn() },
+  };
+  const prisma = {
+    quiz: tx.quiz,
+    quizQuestion: { findMany: jest.fn() },
+    collection: tx.collection,
     userSettings: { findUnique: jest.fn() },
     studySession: { findMany: jest.fn() },
     $transaction: jest.fn((fn: (client: unknown) => Promise<unknown>) =>
@@ -82,7 +86,7 @@ function createSetup(cooldownMs = '15000') {
     }),
   } as unknown as ConfigService;
   const srs = {
-    getProfileContext: jest.fn().mockResolvedValue({
+    getProfileContextInTransaction: jest.fn().mockResolvedValue({
       id: 'profile-1',
       primaryLanguageId: 2,
       timezone: 'Asia/Ho_Chi_Minh',
@@ -210,7 +214,7 @@ describe('QuizService', () => {
     setup.prisma.quiz.create.mockResolvedValue(
       quizRow({ status: 'generating' }),
     );
-    setup.prisma.quiz.update.mockResolvedValue(quizRow({ status: 'failed' }));
+    setup.prisma.quiz.updateMany.mockResolvedValue({ count: 1 });
     setup.providerGenerate.mockRejectedValue(new Error('boom'));
 
     await expect(setup.service.create(1n, dto)).rejects.toMatchObject({
@@ -219,10 +223,52 @@ describe('QuizService', () => {
     const createArgs = firstArg<{ data: { id: string } }>(
       setup.prisma.quiz.create,
     );
-    expect(setup.prisma.quiz.update).toHaveBeenCalledWith({
-      where: { id: createArgs.data.id },
+    expect(setup.prisma.quiz.updateMany).toHaveBeenCalledWith({
+      where: { id: createArgs.data.id, status: 'generating' },
       data: { status: 'failed' },
     });
+  });
+
+  it('persistence failure rolls back questions and marks the claim failed', async () => {
+    const setup = createSetup('0');
+    setup.sourceRepo.findSourceItems.mockResolvedValue(sourceItems(3));
+    setup.providerGenerate.mockResolvedValue(generatedQuestions(2));
+    setup.tx.quizQuestion.createMany.mockRejectedValue(
+      new Error('insert failed'),
+    );
+    await expect(setup.service.create(1n, dto)).rejects.toMatchObject({
+      code: 'AI_PROVIDER_UNAVAILABLE',
+    });
+    expect(setup.tx.quiz.update).not.toHaveBeenCalled();
+    const claim = firstArg<{ data: { id: string } }>(setup.prisma.quiz.create);
+    expect(setup.prisma.quiz.updateMany).toHaveBeenCalledWith({
+      where: { id: claim.data.id, status: 'generating' },
+      data: { status: 'failed' },
+    });
+  });
+
+  it('does not reuse a quiz from a different active profile', async () => {
+    const setup = createSetup();
+    setup.prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({ profileId: 'old-profile' }),
+    );
+    await expect(setup.service.create(1n, dto)).rejects.toMatchObject({
+      code: 'QUIZ_GENERATION_COOLDOWN',
+    });
+    expect(setup.usage.reserveDailyRequest).not.toHaveBeenCalled();
+  });
+
+  it('validates archived collection before returning a dedup hit', async () => {
+    const setup = createSetup();
+    setup.prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({ collectionId: QUIZ_ID }),
+    );
+    setup.tx.collection.findFirst.mockResolvedValue(null);
+    await expect(
+      setup.service.create(1n, { ...dto, collection_id: QUIZ_ID }),
+    ).rejects.toMatchObject({ code: 'COLLECTION_NOT_FOUND' });
+    expect(setup.prisma.quiz.findFirst).not.toHaveBeenCalled();
+    expect(setup.usage.reserveDailyRequest).not.toHaveBeenCalled();
   });
 
   it('start quiz hết hạn → 409 QUIZ_EXPIRED + đánh dấu expired', async () => {
