@@ -38,17 +38,18 @@
 
 ### Quyết định thật sự còn thiếu
 
-- **(a) Nguồn 214 bộ + tên/nghĩa VI — ĐÃ TÌM ĐƯỢC ONLINE (05/10), không cần LLM**: dùng 3 nguồn
-  (chi tiết §4.2): Unicode `CJKRadicals.txt` (number↔radical↔unified — đã tải & validate **214/214**),
-  vi.wikipedia **"Bộ thủ Khang Hi"** (bảng 214 dòng: ký tự + biến thể trong ngoặc + tên Hán-Việt +
-  **nghĩa tiếng Việt**), Unicode Unihan `kTotalStrokes` (số nét). Còn 2 tiểu-quyết định:
-  (a-i) chuẩn hoá văn phong `name_vi` ("Thủy" → "bộ Thủy"?; dấu kiểu mới "Thủy" hay cũ "Thuỷ" như demo 13 bộ);
-  (a-ii) `name_en` để trống giai đoạn đầu hay bổ sung sau (cột nullable).
+- **(a) Nguồn 214 bộ + tên/nghĩa — ĐÃ TÌM ĐƯỢC ONLINE, không cần LLM**: dùng 4 nguồn
+  (chi tiết §4.2): Unicode `CJKRadicals.txt` (number↔radical↔unified — validate **214/214**),
+  vi.wikipedia **"Bộ thủ Khang Hi"** (ký tự + biến thể + tên Hán-Việt + **nghĩa tiếng Việt**),
+  Unicode Unihan `kTotalStrokes` (số nét), en.wikipedia **"Radical N"** cho `name_en`
+  (mẫu parse được: `meaning "water"`). **Đã chốt 05/10:** (a-i) `name_vi` ghi **"Thủy"** — *không* tiền tố "bộ ";
+  (a-ii) **có bổ sung `name_en`** từ en.wikipedia (kèm attribution).
 - **(b) Tiêu chí deck — ĐÃ CHỐT TẠM theo đề xuất mặc định (05/10)**: 5 deck N1–N5, anchor = sense
   `is_primary`, `is_published=false`, lexeme nhiều cấp chỉ vào cấp thấp nhất; chỉnh sau không cần migration.
 - **(c) License/nguồn gốc**: `kanji-data` (id 11) và `jlpt-list` (id 12) đang "CẦN XÁC MINH";
   `omw-ja`/`omw-en` chưa rõ điều khoản; `omw-wikt-vi` thiếu version. Cần người xác minh — không tự đổi.
-  Kèm: chốt **nơi lưu file KanjiVG** + **route phục vụ media** (việc backend riêng, xem §4.1).
+  **Chốt 05/10:** API phục vụ ảnh (serving media) **không nằm trong phase DB** — sẽ làm ở **phase M mới**
+  (backend); DB3-A chỉ seed metadata. Nơi lưu file KanjiVG vẫn cần chốt khi làm phase M đó.
 
 ## 3. Nguyên tắc chung của mọi seed trong DB3-A
 
@@ -84,12 +85,10 @@
 - **`media_kinds` là gì & vì sao seed chỉ ra metadata**: `core.kanji_media` trả lời "chữ này CÓ asset
   loại gì" (PK `(kanji_literal, kind)`; kind ∈ `stroke_svg|stroke_gif`); view `serve.kanji_card` gom thành
   mảng `media_kinds` (sau seed sẽ là `["stroke_svg"]`); API `GET /v1/kanji/:literal` trả mảng đó.
-  Nó **không chứa file** — file nằm ngoài DB theo `media_asset.object_key`. Muốn FE **xem được ảnh nét**
-  phải có thêm **route đọc media** (backend): đọc `object_key` qua storage rồi trả file (hoặc signed URL).
-  → Đề xuất tách việc companion **"serving media"** (sửa `src/**` — người tích hợp duyệt riêng), không gộp
-  vào DB3-A; nếu seed trước mà chưa có route thì UI chỉ biết "có nét" chứ không hiển thị được.
-- **Rủi ro**: 11k dòng + file (thời gian chạy, dung lượng); FK `kanji_media → kanji` (RESTRICT với asset);
-  chưa có route phục vụ file (xem mục trên).
+  Nó **không chứa file** — file nằm ngoài DB theo `media_asset.object_key`.
+- **Chốt 05/10: route phục vụ ảnh (serving media) thuộc phase M mới (backend), KHÔNG nằm trong DB3-A.**
+  DB3-A chỉ seed metadata; khi phase M đó làm xong route thì FE mới xem được ảnh nét.
+- **Rủi ro**: 11k dòng + file (thời gian chạy, dung lượng); FK `kanji_media → kanji` (RESTRICT với asset).
 
 ### 4.2 A2 — Radical 214 (`public.radical`)
 
@@ -105,7 +104,11 @@
      `name_vi` *(chuẩn hoá tiền tố "bộ " theo văn phong demo)* và `meaning_vi`.
   3. **Unicode Unihan** (`Unihan_IRGSources.txt`, `kTotalStrokes` của chữ hợp nhất) — nguồn `stroke_count`.
      Cần tải (Unihan.zip, Unicode License v3).
-  4. `name_en`: **để trống giai đoạn đầu** (nullable) hoặc bổ sung sau từ nguồn EN — không chặn seed.
+  4. **en.wikipedia "Radical N"** (CC BY-SA — ghi attribution) cho `name_en`: mỗi bài có câu mẫu
+     `meaning "water"` / `"one"` / `"flute"` → parse regex `meaning "([^"]+)"` từ intro extract;
+     lấy theo lô 50 tiêu đề/request (5 request cho 214 bộ). **Đã chốt: có bổ sung `name_en`.**
+- **Đã chốt văn phong (05/10):** `name_vi` ghi **"Thủy"** (không thêm tiền tố "bộ ", dấu kiểu mới);
+  `meaning_vi` giữ nghĩa ngắn từ vi.wiki (ví dụ "Nước").
 - **Việc chuẩn bị nguồn (do người tích hợp/ops, không phải phiên này):** tải 2–3 file raw trên vào
   `data-Langoo/downloads/extras/` (kèm ghi chú URL + license + sha256 như manifest hiện hành);
   script DB3-A chỉ **đọc raw → hợp nhất** (không tự tải mạng khi chạy seed).
