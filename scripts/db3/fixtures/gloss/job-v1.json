@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "jobKey": "909ba954360e385e8cceae5b06024e8abc3b27551d27ff20d194e9fc95c19650",
+  "snapshot": {
+    "datasetFingerprint": "01a0fa7fac0f8d6bacedaac3a1349d7b5df7ea00edea5b06f8764b143654b12d",
+    "inventory": {
+      "path": "inventory.json",
+      "sha256": "1f5df124500cd04d5088abf80eeaa0138b6112ec59e81a316e522b9bd7b59781"
+    },
+    "host": "127.0.0.1",
+    "port": 55433,
+    "database": "langoo_fixture_test"
+  },
+  "provider": {
+    "name": "stub",
+    "baseUrl": "https://example.org/fixture",
+    "protocol": "responses",
+    "model": "fixture-model",
+    "promptVersion": "gloss-v1"
+  },
+  "sessionId": "3bc9d174-886d-4a83-9c12-f49f1901c5fe",
+  "caps": {
+    "maxRequests": 100,
+    "maxTokens": null,
+    "maxCostUsd": 0,
+    "concurrency": 1
+  },
+  "usage": {
+    "attemptCount": 0,
+    "tokens": 0,
+    "costUsd": 0
+  },
+  "entries": [
+    {
+      "candidateKey": "1495d2fc299577624819e5abe4a9c13d28f4c86a6c38900a76572ba792cbd738",
+      "inputHash": "438321c64d6d3368b0d9b5cc47a61477b577927f6e068f7848446bf169ef6b7e",
+      "state": "pending",
+      "attemptCount": 0,
+      "attempts": [],
+      "output": null,
+      "validation": "pending",
+      "error": null,
+      "childRunKey": null
+    }
+  ],
+  "children": []
+}
