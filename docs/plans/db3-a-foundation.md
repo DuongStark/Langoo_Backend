@@ -11,6 +11,12 @@
 - **DB3-B (không thuộc plan này)**: gloss tiếng Việt (harvest Wiktionary/OMW/Wikidata) + dịch máy
   phần thiếu bằng **OpenCode Go** (lô nhỏ + checkpoint).
 - **Không** gộp DB4 (mapping sense↔concept) hoặc M14 (curation ghi `core`) vào DB3-A.
+- **Ghi chú phase M mới (không thuộc DB3-A)** — ghi tại đây để không trôi; khi làm sẽ chốt thiết kế riêng:
+  1. **API phục vụ ảnh KanjiVG** (`GET /v1/kanji/:literal/stroke.svg` hoặc signed URL) — cần chốt nơi lưu file
+     khi làm; DB3-A chỉ seed metadata (`kanji_media`).
+  2. **API admin xem danh sách/tìm user** — hiện chỉ có `PATCH /v1/admin/users/:id` (khoá/mở, audit);
+     **chưa có `GET /v1/admin/users`**. Thiết kế dự kiến: filter `status`/`role`, tìm theo email/display_name,
+     cursor pagination; tuân thủ chính sách M13 (chỉ metadata tài khoản — không nội dung học tập/cá nhân).
 - **Không** sửa `src/**`, Prisma, migrations cũ, dependencies, env chung, `PROGRESS.md`.
   Nếu buộc phải migration/dependency → đề xuất người tích hợp chốt một lần (không tự cấp số migration).
 
