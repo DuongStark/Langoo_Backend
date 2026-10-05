@@ -28,6 +28,34 @@ describe('chat cursor', () => {
     expect(decoded.id).toBe(id);
   });
 
+  it.each([
+    '2026-99-99T00:00:00.000Z',
+    '2026-02-30T00:00:00.000Z',
+    '2026-09-29T24:00:00.000Z',
+  ])('từ chối ngày không hợp lệ: %s', (timestamp) => {
+    for (const [id, decode] of [
+      ['01900000-0000-7000-8000-000000000001', decodeChatSessionCursor],
+      ['1', decodeChatMessageCursor],
+    ] as const) {
+      const raw = Buffer.from(
+        JSON.stringify({ v: 1, t: timestamp, i: id }),
+      ).toString('base64url');
+      expect(() => decode(raw)).toThrow('Cursor không hợp lệ');
+    }
+  });
+
+  it.each(['.1', '.123456'])(
+    'giữ tương thích timestamp PostgreSQL với phần thập phân %s',
+    (fraction) => {
+      const raw = Buffer.from(
+        JSON.stringify({ v: 1, t: `2026-09-29T10:00:00${fraction}Z`, i: '1' }),
+      ).toString('base64url');
+      expect(decodeChatMessageCursor(raw).createdAt.getTime()).toBe(
+        new Date(`2026-09-29T10:00:00${fraction}Z`).getTime(),
+      );
+    },
+  );
+
   it('cursor sai/phiên bản lạ/định dạng lạ → 400 VALIDATION_FAILED', () => {
     const bad = [
       'not-base64!',

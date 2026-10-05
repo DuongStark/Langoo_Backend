@@ -23,7 +23,7 @@
 | M7   | Review modes & sessions                                                   | ✅ M7.1 + M7.2 đã sửa (profile xuyên suốt, distractor theo profile); build/lint/unit/e2e local pass; migration 034 chưa apply cloud ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md)) |
 | M8   | Gamification                                                              | ✅ M8.1 + M8.2 đã sửa (achievement quiz cùng transaction; `reviews_total`/`reviews_1000` chỉ tính SRS, migration 036); migration 034/036 chưa apply cloud ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md)) |
 | M9   | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                             |
-| M10  | AI Chatbot                                                                | ✅ hoàn thành (chờ review): stub/openai-compatible + phiên/tin nhắn + quota; [kế hoạch](docs/plans/m10-ai-chatbot.md) |
+| M10  | AI Chatbot                                                                | ✅ đã sửa 6 finding sau review; chuẩn bị OpenCode Zen free; migration 037 đã có trên DB test, chưa apply cloud; [recheck](docs/reviews/m10-recheck-2026-10-03.md) |
 | M11  | AI Quiz                                                                   | ✅ hoàn thành (chờ review): 3 loại câu hỏi + mixed, quota 15/ngày + cooldown; [kế hoạch](docs/plans/m11-ai-quiz.md) |
 | M12  | Hardening                                                                 | ✅ hoàn thành (chờ review): rate limit, scheduler (search_history/partition/chat retention), pool env, journey e2e; [kế hoạch](docs/plans/m12-hardening.md) |
 | M13  | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ v1 hoàn thành (chờ review): vai admin, thống kê aggregate, feedback text+ảnh, gloss_report, khoá/mở user, audit ([kế hoạch](docs/plans/m13-admin-curation-feedback.md))                                                                                              |
@@ -216,12 +216,13 @@
 - Cloud: đã **reset + nạp dump mới** (2026-09-28): `db:push --reset` rồi `db:migrate --upto 027` — giữ 026/027, 029 chờ rollout C. Verify trực tiếp API Render: `走る` chỉ còn "chạy", `経営する` = "điều hành" (gloss máy), cặp song ngữ đúng `走る ↔ run#1`, `経営する ↔ run#2`.
 - Tooling kèm theo: `db:push --reset` (xoá 5 schema trước khi nạp) và `db:migrate --upto NNN` (rollout từng phần), commit `cef5419`.
 
-### M10 — AI Chatbot (đã triển khai, chờ review)
+### M10 — AI Chatbot (đã sửa sau review 2026-10-03)
 
 - Provider trừu tượng `src/ai/providers`: `stub` mặc định (deterministic, không cần key) + `openai` (OpenAI-compatible, `AI_BASE_URL` đổi được sang gateway như OpenCode Zen `https://opencode.ai/zen/v1`); `gemini` chưa triển khai → fail-fast khi chọn; thiếu `AI_API_KEY`/`AI_CHAT_MODEL` với provider thật → app không khởi động.
 - API `/v1/chat`: tạo/list/chi tiết/sửa/archive phiên (archive mềm, idempotent), lịch sử tin phân trang cursor, gửi tin (`content` ≤2.000 ký tự, `ref_sense_id` đính ngữ cảnh nghĩa từ `serve.sense_card`), `GET /v1/chat/usage`. Chat **không bắt buộc hồ sơ học** (`profile_id` nullable).
 - Gửi tin: reserve quota nguyên tử trước (mặc định 50/ngày theo ngày địa phương user, vượt → `429 AI_QUOTA_EXCEEDED`), gọi provider ngoài transaction, lưu user+assistant + cập nhật `chat_session` + cộng `ai_usage` (tokens/cost) trong 1 transaction; provider lỗi → `503`, không lưu tin.
-- Không migration; không thêm dependency (dùng `fetch` sẵn có của Node 22). Docs: [kế hoạch](docs/plans/m10-ai-chatbot.md) + [API chat](docs/api/chat.md).
+- Bản gốc dùng bảng 023; bản sửa thêm migration **037_chat_request_lease.sql** (token/expiry khóa tạm, không giữ transaction khi gọi AI). Gửi đồng thời cùng phiên trả `409 CHAT_SESSION_BUSY` trước quota; archive hủy kết quả đang chờ; kết quả quá hạn/bị thay token không được ghi. Không thêm dependency. Docs: [kế hoạch](docs/plans/m10-ai-chatbot.md) + [API chat](docs/api/chat.md).
+- Đã sửa env trống, model alias, gửi đồng thời, archive race, null DTO và ngày cursor. Chuẩn bị `AI_BASE_URL=https://opencode.ai/zen/v1`, `AI_CHAT_MODEL=space-bunny-free`; chưa điền key/gọi completion thật theo lựa chọn chủ dự án. Migration 037 đã apply DB test local, **chưa apply cloud/VPS**. [Recheck](docs/reviews/m10-recheck-2026-10-03.md): build/lint pass, **45 suite/310 unit**, **5 suite/40 e2e liên quan**.
 - Kiểm chứng local (2026-09-29, `langoo_test`): lint/build sạch, **34 suite/248 unit**, **12 suite/124 e2e** (8 kịch bản chat: phiên/tin/counter, ref sense + gloss, quota 429, archive 409, cách ly user, validation biên, usage).
 
 ### M11 — AI Quiz (đã triển khai, chờ review)

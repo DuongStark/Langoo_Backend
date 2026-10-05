@@ -677,6 +677,8 @@ model ChatSession {
   lastMessageAt DateTime? @map("last_message_at") @db.Timestamptz(6)
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   archivedAt    DateTime? @map("archived_at") @db.Timestamptz(6)
+  pendingRequestId        String?   @map("pending_request_id") @db.Uuid
+  pendingRequestExpiresAt DateTime? @map("pending_request_expires_at") @db.Timestamptz(6)
 
   user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   profile  StudyProfile? @relation(fields: [profileId], references: [id], onDelete: SetNull)

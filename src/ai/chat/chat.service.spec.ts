@@ -57,7 +57,10 @@ function firstArg<T>(mock: jest.Mock): T {
 function createSetup(configValues: Record<string, string | number> = {}) {
   const tx = {
     chatMessage: { create: jest.fn() },
-    chatSession: { update: jest.fn() },
+    chatSession: {
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      findFirst: jest.fn().mockResolvedValue(sessionRow()),
+    },
   };
   const prisma = {
     chatSession: {
@@ -65,6 +68,7 @@ function createSetup(configValues: Record<string, string | number> = {}) {
       findFirst: jest.fn(),
       findMany: jest.fn(),
       update: jest.fn(),
+      updateMany: jest.fn().mockResolvedValue({ count: 1 }),
     },
     chatMessage: { findMany: jest.fn() },
     userSettings: { findUnique: jest.fn() },
@@ -191,7 +195,6 @@ describe('ChatService', () => {
             model: 'stub-v1',
           }),
         );
-      tx.chatSession.update.mockResolvedValue({});
 
       const result = await service.sendMessage(1n, SESSION_ID, {
         content: '  xin chào  ',
@@ -225,7 +228,7 @@ describe('ChatService', () => {
       expect(tx.chatMessage.create).toHaveBeenCalledTimes(2);
       const updateArgs = firstArg<{
         data: { messageCount: { increment: number }; lastMessageAt: Date };
-      }>(tx.chatSession.update);
+      }>(tx.chatSession.updateMany);
       expect(updateArgs.data.messageCount).toEqual({ increment: 2 });
       expect(updateArgs.data.lastMessageAt).toBeInstanceOf(Date);
       expect(usage.addUsage).toHaveBeenCalledTimes(1);
@@ -322,7 +325,6 @@ describe('ChatService', () => {
       tx.chatMessage.create
         .mockResolvedValueOnce(messageRow({ refSenseId: 1n }))
         .mockResolvedValueOnce(messageRow({ id: 2n, role: 'assistant' }));
-      tx.chatSession.update.mockResolvedValue({});
 
       const result = await service.sendMessage(1n, SESSION_ID, {
         content: 'nghĩa là gì?',
@@ -375,6 +377,92 @@ describe('ChatService', () => {
         service.sendMessage(1n, SESSION_ID, { content: 'hi' }),
       ).rejects.toMatchObject({ code: 'AI_PROVIDER_UNAVAILABLE' });
       expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.chatSession.updateMany).toHaveBeenLastCalledWith({
+        where: {
+          id: SESSION_ID,
+          userId: 1n,
+          pendingRequestId: expect.any(String) as unknown,
+        },
+        data: { pendingRequestId: null, pendingRequestExpiresAt: null },
+      });
+    });
+
+    it('phiên bận → 409 trước quota/provider', async () => {
+      const { service, prisma, usage, providerChat } = createSetup();
+      prisma.chatSession.findFirst.mockResolvedValue(sessionRow());
+      prisma.chatSession.updateMany.mockResolvedValueOnce({ count: 0 });
+
+      await expect(
+        service.sendMessage(1n, SESSION_ID, { content: 'hi' }),
+      ).rejects.toMatchObject({ code: 'CHAT_SESSION_BUSY' });
+      expect(usage.reserveDailyRequest).not.toHaveBeenCalled();
+      expect(providerChat).not.toHaveBeenCalled();
+    });
+
+    it('model alias lấy từ config, metadata trả về không đổi model của lượt sau', async () => {
+      const { service, prisma, tx, providerChat } = createSetup({
+        AI_CHAT_MODEL: 'space-bunny-free',
+      });
+      prisma.chatSession.findFirst.mockResolvedValue(
+        sessionRow({ model: 'stub-v1' }),
+      );
+      prisma.chatMessage.findMany.mockResolvedValue([]);
+      providerChat.mockResolvedValue({
+        content: 'reply',
+        model: 'upstream-model',
+        tokensIn: 2,
+        tokensOut: 2,
+        costUsd: 0,
+      });
+      tx.chatMessage.create.mockImplementation(
+        (args: { data: Record<string, unknown> }) =>
+          Promise.resolve(messageRow(args.data)),
+      );
+
+      await service.sendMessage(1n, SESSION_ID, { content: 'first' });
+      prisma.chatSession.findFirst.mockResolvedValue(
+        sessionRow({ model: 'upstream-model' }),
+      );
+      await service.sendMessage(1n, SESSION_ID, { content: 'second' });
+
+      expect(
+        providerChat.mock.calls.map((call: [AiChatRequest]) => call[0].model),
+      ).toEqual(['space-bunny-free', 'space-bunny-free']);
+      expect(tx.chatSession.updateMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            model: 'space-bunny-free',
+          }) as unknown,
+        }),
+      );
+      expect(tx.chatMessage.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            role: 'assistant',
+            model: 'upstream-model',
+          }) as unknown,
+        }),
+      );
+    });
+
+    it('lease hết hạn hoặc bị thay thế → không lưu câu trả lời cũ', async () => {
+      const { service, prisma, tx, providerChat, usage } = createSetup();
+      prisma.chatSession.findFirst.mockResolvedValue(sessionRow());
+      prisma.chatMessage.findMany.mockResolvedValue([]);
+      providerChat.mockResolvedValue({
+        content: 'reply',
+        model: 'stub-v1',
+        tokensIn: 2,
+        tokensOut: 2,
+        costUsd: 0,
+      });
+      tx.chatSession.updateMany.mockResolvedValue({ count: 0 });
+
+      await expect(
+        service.sendMessage(1n, SESSION_ID, { content: 'hi' }),
+      ).rejects.toMatchObject({ code: 'CHAT_REQUEST_EXPIRED' });
+      expect(tx.chatMessage.create).not.toHaveBeenCalled();
+      expect(usage.addUsage).not.toHaveBeenCalled();
     });
   });
 

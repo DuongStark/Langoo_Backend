@@ -3,13 +3,13 @@ import { Type } from 'class-transformer';
 import {
   IsIn,
   IsInt,
-  IsOptional,
   IsString,
   IsUUID,
   Matches,
   MaxLength,
   Min,
   MinLength,
+  ValidateIf,
 } from 'class-validator';
 import { CHAT_SCENARIOS, ChatScenario } from '../context-builder';
 
@@ -23,12 +23,12 @@ export class CreateChatSessionDto {
   language_id!: number;
 
   @ApiPropertyOptional({ enum: CHAT_SCENARIOS, example: 'general' })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsIn([...CHAT_SCENARIOS])
   scenario?: ChatScenario;
 
   @ApiPropertyOptional({ maxLength: 80, example: 'Học từ vựng N5' })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsString()
   @MaxLength(80)
   title?: string;
@@ -37,20 +37,20 @@ export class CreateChatSessionDto {
     format: 'uuid',
     description: 'Mặc định lấy hồ sơ đang hoạt động',
   })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsUUID()
   profile_id?: string;
 }
 
 export class UpdateChatSessionDto {
   @ApiPropertyOptional({ maxLength: 80 })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsString()
   @MaxLength(80)
   title?: string;
 
   @ApiPropertyOptional({ enum: CHAT_SCENARIOS })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsIn([...CHAT_SCENARIOS])
   scenario?: ChatScenario;
 }
@@ -66,7 +66,7 @@ export class SendChatMessageDto {
     description: 'sense_id để đính kèm ngữ cảnh từ điển cho câu hỏi này',
     example: '1',
   })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @Matches(/^\d+$/, { message: 'ref_sense_id phải là số nguyên dương' })
   @MaxLength(19)
   ref_sense_id?: string;
@@ -74,14 +74,14 @@ export class SendChatMessageDto {
 
 export class ChatListQueryDto {
   @ApiPropertyOptional({ minimum: 1, maximum: 100 })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @Type(() => Number)
   @IsInt()
   @Min(1)
   limit?: number;
 
   @ApiPropertyOptional({ description: 'Cursor từ response trước' })
-  @IsOptional()
+  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsString()
   @MaxLength(2000)
   cursor?: string;

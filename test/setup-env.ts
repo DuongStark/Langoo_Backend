@@ -55,3 +55,6 @@ if (process.env.LOG_LEVEL === undefined) {
 // M12: e2e bắn rất nhiều request auth → tắt rate limit và scheduler cho ổn định.
 process.env.RATE_LIMIT_ENABLED = 'false';
 process.env.SCHEDULER_ENABLED = 'false';
+// AI e2e fixtures use deterministic replies even if .env enables Zen locally.
+process.env.AI_PROVIDER = 'stub';
+process.env.AI_CHAT_MODEL = 'stub-v1';

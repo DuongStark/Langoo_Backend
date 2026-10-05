@@ -15,7 +15,7 @@ import {
   AiSenseContext,
 } from '../providers/ai-chat.provider';
 import { aiChatModel } from '../providers/ai-chat-provider.factory';
-import { AiUsageService } from '../usage/ai-usage.service';
+import { AiDbClient, AiUsageService } from '../usage/ai-usage.service';
 import {
   decodeChatMessageCursor,
   decodeChatSessionCursor,
@@ -37,6 +37,7 @@ import {
 
 const DEFAULT_QUOTA_PER_DAY = 50;
 const PROVIDER_TIMEOUT_MS = 30_000;
+const REQUEST_LEASE_MS = PROVIDER_TIMEOUT_MS + 30_000;
 const DEFAULT_SESSION_PAGE = 20;
 const DEFAULT_MESSAGE_PAGE = 50;
 const MAX_PAGE = 100;
@@ -175,12 +176,22 @@ export class ChatService {
     if (session.archivedAt) {
       throw archivedSession();
     }
-    const updated = await this.prisma.chatSession.update({
-      where: { id: session.id },
-      data: {
-        ...(input.title === undefined ? {} : { title: input.title.trim() }),
-        ...(input.scenario === undefined ? {} : { scenario: input.scenario }),
-      },
+    if (input.title === undefined && input.scenario === undefined) {
+      return toSessionResponse(session);
+    }
+    const updated = await this.prisma.$transaction(async (tx) => {
+      const result = await tx.chatSession.updateMany({
+        where: { id: session.id, userId, archivedAt: null },
+        data: {
+          ...(input.title === undefined ? {} : { title: input.title.trim() }),
+          ...(input.scenario === undefined ? {} : { scenario: input.scenario }),
+        },
+      });
+      const current = await this.getSessionOr404(userId, session.id, tx);
+      if (result.count === 0) {
+        throw archivedSession();
+      }
+      return current;
     });
     return toSessionResponse(updated);
   }
@@ -193,9 +204,16 @@ export class ChatService {
     if (session.archivedAt) {
       return toSessionResponse(session);
     }
-    const archived = await this.prisma.chatSession.update({
-      where: { id: session.id },
-      data: { archivedAt: new Date() },
+    const archived = await this.prisma.$transaction(async (tx) => {
+      await tx.chatSession.updateMany({
+        where: { id: session.id, userId, archivedAt: null },
+        data: {
+          archivedAt: new Date(),
+          pendingRequestId: null,
+          pendingRequestExpiresAt: null,
+        },
+      });
+      return this.getSessionOr404(userId, session.id, tx);
     });
     return toSessionResponse(archived);
   }
@@ -253,6 +271,60 @@ export class ChatService {
       throw archivedSession();
     }
 
+    // Claim before reading history/reserving quota. The DB lease coordinates
+    // all API processes without holding a transaction open during the AI call.
+    const requestId = uuidv7();
+    const now = new Date();
+    const claimed = await this.prisma.chatSession.updateMany({
+      where: {
+        id: session.id,
+        userId,
+        archivedAt: null,
+        OR: [
+          { pendingRequestId: null },
+          { pendingRequestExpiresAt: { lte: now } },
+        ],
+      },
+      data: {
+        pendingRequestId: requestId,
+        pendingRequestExpiresAt: new Date(now.getTime() + REQUEST_LEASE_MS),
+      },
+    });
+    if (claimed.count === 0) {
+      const current = await this.getSessionOr404(userId, sessionId);
+      if (current.archivedAt) {
+        throw archivedSession();
+      }
+      throw new DomainException(
+        'CHAT_SESSION_BUSY',
+        'Trợ lý đang trả lời trong phiên này, vui lòng chờ rồi gửi tiếp',
+        HttpStatus.CONFLICT,
+      );
+    }
+
+    try {
+      return await this.sendMessageWithLease(userId, session, dto, requestId);
+    } finally {
+      // A stale request must never release a newer request's lease.
+      await this.prisma.chatSession
+        .updateMany({
+          where: { id: session.id, userId, pendingRequestId: requestId },
+          data: { pendingRequestId: null, pendingRequestExpiresAt: null },
+        })
+        .catch((error: unknown) => {
+          this.logger.error(
+            `Không giải phóng được lượt chat: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
+          );
+        });
+    }
+  }
+
+  private async sendMessageWithLease(
+    userId: bigint,
+    session: ChatSessionRow,
+    dto: SendChatMessageDto,
+    requestId: string,
+  ): Promise<SendChatMessageResponse> {
     const content = dto.content.trim();
     if (content.length === 0) {
       throw new DomainException(
@@ -288,7 +360,9 @@ export class ChatService {
       senseContext,
     });
 
-    const model = session.model ?? aiChatModel(this.config);
+    // The response model is metadata, not necessarily a valid gateway alias.
+    // Use current deployment config so existing demo sessions work after a switch.
+    const model = aiChatModel(this.config);
     let reply;
     try {
       reply = await this.provider.chat({
@@ -311,6 +385,36 @@ export class ChatService {
     const now = new Date();
     const [userMessage, assistantMessage] = await this.prisma.$transaction(
       async (tx) => {
+        // This conditional update locks the session row until commit. Archive
+        // invalidates the token, and an expired/replaced lease cannot write late.
+        const committed = await tx.chatSession.updateMany({
+          where: {
+            id: session.id,
+            userId,
+            archivedAt: null,
+            pendingRequestId: requestId,
+            pendingRequestExpiresAt: { gt: new Date() },
+          },
+          data: {
+            messageCount: { increment: 2 },
+            lastMessageAt: now,
+            model,
+            promptVersion: CHAT_PROMPT_VERSION,
+            pendingRequestId: null,
+            pendingRequestExpiresAt: null,
+          },
+        });
+        if (committed.count === 0) {
+          const current = await this.getSessionOr404(userId, session.id, tx);
+          if (current.archivedAt) {
+            throw archivedSession();
+          }
+          throw new DomainException(
+            'CHAT_REQUEST_EXPIRED',
+            'Lượt chat đã hết thời hạn xử lý, vui lòng gửi lại',
+            HttpStatus.CONFLICT,
+          );
+        }
         const createdUser = await tx.chatMessage.create({
           data: {
             sessionId: session.id,
@@ -330,15 +434,6 @@ export class ChatService {
             tokensOut: reply.tokensOut,
             costUsd: reply.costUsd,
             model: reply.model,
-          },
-        });
-        await tx.chatSession.update({
-          where: { id: session.id },
-          data: {
-            messageCount: { increment: 2 },
-            lastMessageAt: now,
-            model: reply.model,
-            promptVersion: CHAT_PROMPT_VERSION,
           },
         });
         await this.usage.addUsage(
@@ -381,8 +476,9 @@ export class ChatService {
   private async getSessionOr404(
     userId: bigint,
     sessionId: string,
+    client: AiDbClient = this.prisma,
   ): Promise<ChatSessionRow> {
-    const session = await this.prisma.chatSession.findFirst({
+    const session = await client.chatSession.findFirst({
       where: { id: sessionId, userId },
     });
     if (!session) {

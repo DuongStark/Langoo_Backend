@@ -34,7 +34,7 @@ export function decodeUuidTimeCursor(raw: string): {
   ) {
     throw invalidCursor();
   }
-  return { createdAt: new Date(parsed.t), id: parsed.i };
+  return { createdAt: parseCursorDate(parsed.t), id: parsed.i };
 }
 
 export function decodeBigintTimeCursor(raw: string): {
@@ -54,7 +54,21 @@ export function decodeBigintTimeCursor(raw: string): {
   if (id <= 0n || id > MAX_SIGNED_BIGINT) {
     throw invalidCursor();
   }
-  return { createdAt: new Date(parsed.t), id };
+  return { createdAt: parseCursorDate(parsed.t), id };
+}
+
+function parseCursorDate(raw: string): Date {
+  const date = new Date(raw);
+  // Reject Invalid Date and dates that JS silently normalizes (e.g. Feb 30).
+  // PostgreSQL cursors may have 1–6 fractional digits; Date retains milliseconds.
+  const normalized = raw.replace(
+    /\.(\d{1,6})Z$/,
+    (_match, fraction: string) => `.${fraction.padEnd(3, '0').slice(0, 3)}Z`,
+  );
+  if (!Number.isFinite(date.getTime()) || date.toISOString() !== normalized) {
+    throw invalidCursor();
+  }
+  return date;
 }
 
 function decodeCursor(raw: string): Record<string, unknown> {

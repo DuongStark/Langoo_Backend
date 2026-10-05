@@ -1841,6 +1841,12 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 *table — 1 dòng*
 
+**Bổ sung migration 037 (M10, 2026-10-03):** `pending_request_id uuid NULL` và
+`pending_request_expires_at timestamptz NULL`; CHECK `chat_session_request_lease_pair`
+buộc hai cột cùng NULL hoặc cùng có giá trị. Khóa tạm 60 giây phối hợp gửi tin giữa
+nhiều process, token chặn kết quả cũ ghi tin sau archive/thay lượt. Migration đã apply
+trên DB test local; snapshot bảng bên dưới chưa bao gồm 037, cloud chưa apply.
+
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
 | 1 | `id` | uuid | không | gen_random_uuid() |  |
@@ -3026,4 +3032,3 @@ UNION ALL
      JOIN core.lexeme lb ON lb.id = sb.lexeme_id
   WHERE la.language_id <> lb.language_id AND LEAST(ca.confidence, cb.confidence) >= 0.7::double precision
 ```
-

@@ -3,17 +3,23 @@
 > Trạng thái: **đã triển khai local (chờ review)**. Ngày: 2026-09-29.
 > Chốt với chủ dự án qua thảo luận trực tiếp (D1–D7 theo đề xuất) + bổ sung `AI_BASE_URL`
 > để cắm gateway OpenAI-compatible (OpenCode Zen/Go, OpenAI, proxy…).
+>
+> Bản sửa sau review 2026-10-03: env trống, model alias, gửi đồng thời,
+> archive trong lúc gửi, null DTO và ngày cursor. Thêm migration **037** cho
+> khóa tạm của phiên; xem [recheck](../reviews/m10-recheck-2026-10-03.md).
 
 ## 1. Mục tiêu & phạm vi
 
 - Chatbot hỏi đáp học ngoại ngữ: tạo phiên, gửi tin, lịch sử, xoá mềm.
 - Provider trừu tượng: `stub` (mặc định, không cần key) + `openai` (OpenAI-compatible, base URL cấu hình được) + `gemini` (chưa triển khai — chọn sẽ fail-fast khi boot).
 - Quota theo ngày địa phương + thống kê `ai_usage` (request/token/chi phí) — dùng chung cho M11 quiz.
-- **Không migration** (bảng có từ 023).
+- Bảng gốc có từ 023; bản sửa 2026-10-03 thêm migration **037_chat_request_lease.sql**.
 
 **Ngoài phạm vi (backlog):** streaming SSE; nén `summary`; adapter Gemini riêng; tool-calling;
-dọn chat cũ (retention 6 tháng); idempotency tin nhắn (retry mạng có thể gửi trùng);
+idempotency tin nhắn (retry mạng có thể gửi trùng);
 bảng giá token để tính `cost_usd` thật.
+
+Retention 180 ngày đã được triển khai trong scheduler M12.
 
 ## 2. Quyết định đã chốt
 
@@ -48,9 +54,13 @@ Lỗi: `404 CHAT_SESSION_NOT_FOUND` (kể cả phiên người khác) · `409 CH
 `429 AI_QUOTA_EXCEEDED` · `503 AI_PROVIDER_UNAVAILABLE` · `404 SENSE_NOT_FOUND` (ref sense sai) ·
 `400 VALIDATION_FAILED`.
 
-Luồng gửi tin: validate → (ref sense → block ngữ cảnh) → **reserve quota nguyên tử** →
+Luồng gửi tin: xác thực phiên → claim khóa tạm DB (bận → `409 CHAT_SESSION_BUSY`,
+không tiêu quota) → validate/ref sense → **reserve quota nguyên tử** →
 gọi provider (ngoài transaction) → transaction lưu 2 tin + cập nhật `chat_session` +
 cộng `ai_usage`. Provider lỗi → 503, không lưu tin (quota đã tính vì đã gọi provider).
+Transaction chỉ lưu nếu token khóa còn đúng, chưa hết hạn và phiên chưa archived;
+archive hủy token, kết quả đang chờ bị từ chối 409. Model request dùng cấu hình hiện tại;
+model trả về lưu trên tin assistant làm metadata.
 
 ## 4. Quota (nguyên tử, chống race)
 
