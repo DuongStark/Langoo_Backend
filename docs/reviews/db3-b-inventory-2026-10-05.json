@@ -1,0 +1,305 @@
+{
+  "task": "gloss-inventory",
+  "startedAt": "2026-10-05T09:29:37.673Z",
+  "applied": false,
+  "db": "langoo",
+  "inputs": {
+    "direct_url_host": "127.0.0.1"
+  },
+  "summary": {
+    "fingerprint": {
+      "db": "langoo",
+      "host": "127.0.0.1",
+      "port": "55433",
+      "server_version": "PostgreSQL 16.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 10.2.1 20210130 (Red Hat 10.2.1-11), 64-bit",
+      "migrations": 36,
+      "latest_migration": "037_chat_request_lease.sql",
+      "source_hashes": [
+        "jmdict:8cdbb0cc9625f775",
+        "kanjidic2:8f2c7700cd97a792",
+        "kradfile:90369021899d8915",
+        "cili:76a86feb1b4945c7",
+        "oewn:76a86feb1b4945c7",
+        "omw-ja:76a86feb1b4945c7",
+        "omw-en:76a86feb1b4945c7",
+        "wiktextract:de6533a7bc714316",
+        "omw-wikt-vi:2f74ee9d80a96aeb",
+        "tatoeba:b4d467dc5108b861",
+        "kanji-data:561b72ea9df703c5",
+        "jlpt-list:8863a96442adeadf",
+        "ili-map-pwn30:13b6741395a8bdf2",
+        "wordnet-stack:76a86feb1b4945c7",
+        "kangxi-radicals:3cce4083fc1f8db0",
+        "kanjivg:d217180db812b804"
+      ],
+      "dataset_digest": "730c5bd3b08b37821cc47124ef2a75160decc0977ceb449a0c68067cbc6671ee"
+    },
+    "jlpt": {
+      "by_level": [
+        {
+          "level": 1,
+          "lexemes": 2567,
+          "senses": 4334,
+          "primary_senses": 2567,
+          "with_definition": 0
+        },
+        {
+          "level": 2,
+          "lexemes": 1513,
+          "senses": 2705,
+          "primary_senses": 1513,
+          "with_definition": 0
+        },
+        {
+          "level": 3,
+          "lexemes": 2011,
+          "senses": 4611,
+          "primary_senses": 2011,
+          "with_definition": 0
+        },
+        {
+          "level": 4,
+          "lexemes": 568,
+          "senses": 1613,
+          "primary_senses": 568,
+          "with_definition": 0
+        },
+        {
+          "level": 5,
+          "lexemes": 626,
+          "senses": 1982,
+          "primary_senses": 626,
+          "with_definition": 0
+        }
+      ],
+      "totals": {
+        "lexemes": 7285,
+        "senses": 15245,
+        "primary_senses": 7285,
+        "lexemes_with_non_primary": 3470,
+        "lexemes_without_primary": 0
+      },
+      "multi_level_lexemes": 46
+    },
+    "coverage": {
+      "en_gloss_rows": 41123,
+      "en_gloss_senses": 15245,
+      "en_gloss_primary_senses": 7285,
+      "en_by_source": [
+        {
+          "source_id": 1,
+          "rows": 41123,
+          "senses": 15245
+        }
+      ],
+      "en_by_level": [
+        {
+          "level": 1,
+          "senses": 4334
+        },
+        {
+          "level": 2,
+          "senses": 2705
+        },
+        {
+          "level": 3,
+          "senses": 4611
+        },
+        {
+          "level": 4,
+          "senses": 1613
+        },
+        {
+          "level": 5,
+          "senses": 1982
+        }
+      ],
+      "vi_gloss_senses": 0,
+      "missing_en_gloss_senses": 0,
+      "relations_by_other_lang": [
+        {
+          "other_lang": "ja",
+          "senses": 3416
+        }
+      ]
+    },
+    "rules": {
+      "assertions": [
+        {
+          "src": "en",
+          "tgt": "ja",
+          "scope": "entry",
+          "rows": 5981,
+          "with_source_sense": 0,
+          "with_hint": 5981
+        },
+        {
+          "src": "en",
+          "tgt": "ja",
+          "scope": "sense",
+          "rows": 63805,
+          "with_source_sense": 63805,
+          "with_hint": 63805
+        },
+        {
+          "src": "en",
+          "tgt": "vi",
+          "scope": "entry",
+          "rows": 3127,
+          "with_source_sense": 0,
+          "with_hint": 3127
+        },
+        {
+          "src": "en",
+          "tgt": "vi",
+          "scope": "sense",
+          "rows": 26499,
+          "with_source_sense": 26499,
+          "with_hint": 26499
+        }
+      ],
+      "candidates": [
+        {
+          "decision": "pending",
+          "rows": 82355,
+          "with_target_sense": 0
+        }
+      ],
+      "pivot_pairs_all": {
+        "pairs": 15989,
+        "source_lexemes": 14377
+      },
+      "pivot_pairs_sense_scope": {
+        "pairs": 14242,
+        "source_lexemes": 13070
+      },
+      "eligible_source_senses": 0,
+      "needs_translation_senses": 15245,
+      "missing_context_senses": 0
+    },
+    "concepts": {
+      "totals": {
+        "total": 120875,
+        "with_gloss_en": 120875,
+        "with_cache_vi": 3533
+      },
+      "gloss_vi_by_source": [
+        {
+          "source_id": 9,
+          "is_machine": false,
+          "rows": 5368,
+          "concepts": 3533
+        }
+      ],
+      "label_vi_by_kind": [
+        {
+          "label_kind": "lemma",
+          "is_machine": false,
+          "rows": 5368,
+          "concepts": 3533
+        }
+      ],
+      "suspect_lemma_as_gloss": 5388,
+      "sample_gloss_vi": [
+        {
+          "concept_id": "100005",
+          "text": "Gibraltar"
+        },
+        {
+          "concept_id": "100015",
+          "text": "Suriname"
+        },
+        {
+          "concept_id": "100020",
+          "text": "Thụy Sĩ"
+        },
+        {
+          "concept_id": "100028",
+          "text": "Syria"
+        },
+        {
+          "concept_id": "100034",
+          "text": "Tanzania"
+        }
+      ]
+    },
+    "performance": {
+      "explain_level": {
+        "execution_ms": 325.727,
+        "plan": [
+          "GroupAggregate  (cost=137147.37..137845.97 rows=200 width=20) (actual time=319.666..325.559 rows=5 loops=1)",
+          "  Group Key: ((max(jlpt_link.source_level))::integer)",
+          "  Buffers: shared hit=24553 read=5700",
+          "  ->  Sort  (cost=137147.37..137234.20 rows=34730 width=62) (actual time=317.202..319.946 rows=15245 loops=1)",
+          "        Sort Key: ((max(jlpt_link.source_level))::integer), s.lexeme_id",
+          "        Sort Method: quicksort  Memory: 1099kB",
+          "        Buffers: shared hit=24553 read=5700",
+          "        ->  Nested Loop  (cost=663.55..134528.06 rows=34730 width=62) (actual time=17.452..284.935 rows=15245 loops=1)",
+          "              Buffers: shared hit=24553 read=5700",
+          "              ->  HashAggregate  (cost=663.12..750.92 rows=7024 width=12) (actual time=13.002..20.332 rows=7285 loops=1)",
+          "                    Group Key: jlpt_link.lexeme_id",
+          "                    Batches: 1  Memory Usage: 913kB",
+          "                    Buffers: shared read=520",
+          "                    ->  Seq Scan on jlpt_link  (cost=0.00..626.00 rows=7425 width=10) (actual time=1.572..7.264 rows=7425 loops=1)",
+          "                          Filter: (status = 'accepted'::text)",
+          "                          Rows Removed by Filter: 1055",
+          "                          Buffers: shared read=520",
+          "              ->  Index Scan using sense_order_per_lexeme on sense s  (cost=0.43..18.99 rows=5 width=58) (actual time=0.033..0.034 rows=2 loops=7285)",
+          "                    Index Cond: (lexeme_id = jlpt_link.lexeme_id)",
+          "                    Buffers: shared hit=24553 read=5180",
+          "Planning Time: 0.410 ms",
+          "Execution Time: 325.727 ms"
+        ]
+      },
+      "explain_pivot": {
+        "execution_ms": 1430.895,
+        "plan": [
+          "Aggregate  (cost=183642.61..183642.62 rows=1 width=8) (actual time=1407.413..1430.709 rows=1 loops=1)",
+          "  Buffers: shared hit=107703 read=86606, temp read=13475 written=13604",
+          "  ->  Merge Join  (cost=181735.14..183637.11 rows=1099 width=8) (actual time=1336.411..1428.171 rows=15989 loops=1)",
+          "        Merge Cond: ((ta.source_lexeme_id = ta_1.source_lexeme_id) AND (ta.sense_hint = ta_1.sense_hint))",
+          "        Buffers: shared hit=107703 read=86606, temp read=13475 written=13604",
+          "        ->  Unique  (cost=97220.08..98503.08 rows=10264 width=39) (actual time=1111.757..1171.055 rows=47882 loops=1)",
+          "              Buffers: shared hit=3142 read=70347, temp read=13475 written=13604",
+          "              ->  Gather Merge  (cost=97220.08..98451.76 rows=10264 width=39) (actual time=1111.756..1160.885 rows=47902 loops=1)",
+          "                    Workers Planned: 1",
+          "                    Workers Launched: 1",
+          "                    Buffers: shared hit=3142 read=70347, temp read=13475 written=13604",
+          "                    ->  Unique  (cost=96220.07..96297.05 rows=10264 width=39) (actual time=1101.040..1117.523 rows=23952 loops=2)",
+          "                          Buffers: shared hit=3142 read=70347, temp read=13475 written=13604",
+          "                          ->  Sort  (cost=96220.07..96245.73 rows=10264 width=39) (actual time=1101.036..1107.777 rows=34892 loops=2)",
+          "                                Sort Key: ta.source_lexeme_id, ta.sense_hint",
+          "                                Sort Method: quicksort  Memory: 3484kB",
+          "                                Buffers: shared hit=3142 read=70347, temp read=13475 written=13604",
+          "                                Worker 0:  Sort Method: quicksort  Memory: 3230kB",
+          "                                ->  Parallel Hash Join  (cost=90440.13..95536.22 rows=10264 width=39) (actual time=904.914..1079.587 rows=34893 loops=2)",
+          "                                      Hash Cond: (ta.source_lexeme_id = lx.id)",
+          "                                      Buffers: shared hit=3096 read=70347, temp read=13475 written=13604",
+          "                                      ->  Parallel Seq Scan on translation_assertion ta  (cost=0.00..3290.36 rows=41055 width=39) (actual time=0.050..29.887 rows=34893 loops=2)",
+          "                                            Filter: ((target_language_id = '2'::smallint) AND (btrim(COALESCE(sense_hint, ''::text)) <> ''::text))",
+          "                                            Rows Removed by Filter: 14813",
+          "                                            Buffers: shared read=2267",
+          "                                      ->  Parallel Hash  (cost=86380.37..86380.37 rows=247421 width=8) (actual time=846.933..846.937 rows=905532 loops=2)",
+          "                                            Buckets: 262144 (originally 262144)  Batches: 16 (originally 4)  Memory Usage: 6528kB",
+          "                                            Buffers: shared hit=3068 read=68080, temp read=7136 written=13044",
+          "                                            ->  Hash Join  (cost=1.06..86380.37 rows=247421 width=8) (actual time=0.201..521.188 rows=905532 loops=2)",
+          "                                                  Hash Cond: (lx.language_id = sl.id)",
+          "                                                  Buffers: shared hit=3068 read=68080",
+          "                                                  ->  Parallel Seq Scan on lexeme lx  (cost=0.00..81028.83 rows=989683 width=10) (actual time=0.045..280.860 rows=1187620 loops=2)",
+          "                                                        Buffers: shared hit=3052 read=68080",
+          "                                                  ->  Hash  (cost=1.05..1.05 rows=1 width=2) (actual time=0.038..0.039 rows=1 loops=2)",
+          "                                                        Buckets: 1024  Batches: 1  Memory Usage: 9kB",
+          "                                                        Buffers: shared hit=2",
+          "                                                        ->  Seq Scan on language sl  (cost=0.00..1.05 rows=1 width=2) (actual time=0.025..0.029 rows=1 loops=2)",
+          "                                                              Filter: (code = 'en'::text)",
+          "                                                              Rows Removed by Filter: 3",
+          "                                                              Buffers: shared hit=2"
+        ]
+      }
+    }
+  },
+  "warnings": [
+    "DB3_AI_MAX_COST cap: xem plan §5.1",
+    "Đích VPS phải đối chiếu fingerprint trước khi apply"
+  ]
+}

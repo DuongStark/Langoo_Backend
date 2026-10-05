@@ -1,0 +1,491 @@
+{
+  "task": "source-audit",
+  "startedAt": "2026-10-05T09:29:37.673Z",
+  "applied": false,
+  "db": "langoo",
+  "summary": {
+    "sources": [
+      {
+        "id": 1,
+        "code": "jmdict",
+        "name": "JMdict (kèm ví dụ Tatoeba)",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Electronic Dictionary Research and Development Group (EDRDG)",
+        "url": "https://github.com/scriptin/jmdict-simplified/releases",
+        "version": "3.6.2",
+        "sha256": "8cdbb0cc9625f775cd093e37931974b568221747bf6f2cbaff7b0671b5631ca5",
+        "imported_at": null
+      },
+      {
+        "id": 2,
+        "code": "kanjidic2",
+        "name": "KANJIDIC2",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Electronic Dictionary Research and Development Group (EDRDG)",
+        "url": "https://github.com/scriptin/jmdict-simplified/releases",
+        "version": "3.6.2",
+        "sha256": "8f2c7700cd97a79221a0f225a324fa885622be88f321a4c1bb37b4b333d8ee97",
+        "imported_at": null
+      },
+      {
+        "id": 3,
+        "code": "kradfile",
+        "name": "KRADFILE",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Electronic Dictionary Research and Development Group (EDRDG)",
+        "url": "https://github.com/scriptin/jmdict-simplified/releases",
+        "version": "3.6.2",
+        "sha256": "90369021899d89159ee6e079bccd7d83915daa3191f0c6ed7efc2473e088c086",
+        "imported_at": null
+      },
+      {
+        "id": 4,
+        "code": "cili",
+        "name": "Collaborative Interlingual Index",
+        "license": "CC BY 4.0",
+        "attribution": "Global WordNet Association",
+        "url": "https://github.com/globalwordnet/cili",
+        "version": "1.0",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "imported_at": null
+      },
+      {
+        "id": 5,
+        "code": "oewn",
+        "name": "Open English WordNet",
+        "license": "CC BY 4.0",
+        "attribution": "Open English WordNet",
+        "url": "https://en-word.net/",
+        "version": "2024",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "imported_at": null
+      },
+      {
+        "id": 6,
+        "code": "omw-ja",
+        "name": "Japanese WordNet",
+        "license": "ghi nguồn",
+        "attribution": "NICT Japanese WordNet",
+        "url": "https://github.com/omwn/omw-data",
+        "version": "1.4",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "imported_at": null
+      },
+      {
+        "id": 7,
+        "code": "omw-en",
+        "name": "OMW English Wordnet (WordNet 3.0)",
+        "license": "ghi nguồn",
+        "attribution": "Open Multilingual Wordnet",
+        "url": "https://github.com/omwn/omw-data",
+        "version": "1.4",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "imported_at": null
+      },
+      {
+        "id": 8,
+        "code": "wiktextract",
+        "name": "Wiktextract (English)",
+        "license": "CC BY-SA 4.0",
+        "attribution": "Wiktionary contributors / Tatu Ylonen (LREC 2022)",
+        "url": "https://kaikki.org/dictionary/",
+        "version": null,
+        "sha256": "de6533a7bc7143167f0b27b4d2b568930436cd20bb5c1ce3cf542c1ec7bbbfec",
+        "imported_at": null
+      },
+      {
+        "id": 9,
+        "code": "omw-wikt-vi",
+        "name": "OMW extended Vietnamese (Wiktionary-derived)",
+        "license": "CC BY-SA",
+        "attribution": "Open Multilingual Wordnet / Wiktionary contributors",
+        "url": "https://github.com/omwn/omw-data/blob/main/wns/wikt/wn-wikt-vie.tab",
+        "version": null,
+        "sha256": "2f74ee9d80a96aeb44f7639a9cf39d66af69e376f0c7cb8bfa9a7efd87ddbce7",
+        "imported_at": null
+      },
+      {
+        "id": 10,
+        "code": "tatoeba",
+        "name": "Tatoeba sentences",
+        "license": "CC BY 2.0 FR",
+        "attribution": "Tatoeba contributors",
+        "url": "https://downloads.tatoeba.org/exports/",
+        "version": null,
+        "sha256": "b4d467dc5108b861bb207927456dd036d5dcb2b549b79360674d5688addae8a5",
+        "imported_at": null
+      },
+      {
+        "id": 11,
+        "code": "kanji-data",
+        "name": "Kanji data (grade/JLPT/frequency)",
+        "license": "CẦN XÁC MINH",
+        "attribution": "davidluzgouveia/kanji-data",
+        "url": "https://github.com/davidluzgouveia/kanji-data",
+        "version": null,
+        "sha256": "561b72ea9df703c58fae0c68585812e172aaa7611d2fcee6719d55fd2dfd4fa4",
+        "imported_at": null
+      },
+      {
+        "id": 12,
+        "code": "jlpt-list",
+        "name": "JLPT word list N1–N5",
+        "license": "CẦN XÁC MINH",
+        "attribution": "elzup/jlpt-word-list (từ tanos.co.uk)",
+        "url": "https://github.com/elzup/jlpt-word-list",
+        "version": null,
+        "sha256": "8863a96442adeadfa3510edb84bd60b158ed6b3839172b93cab2ceb026e5ef8a",
+        "imported_at": null
+      },
+      {
+        "id": 13,
+        "code": "ili-map-pwn30",
+        "name": "Ánh xạ PWN 3.0 offset → ILI",
+        "license": "CC BY 4.0",
+        "attribution": "Global WordNet Association (CILI)",
+        "url": "https://github.com/globalwordnet/cili",
+        "version": null,
+        "sha256": "13b6741395a8bdf20e5a19686ffa49167653696d4f523db17a79dce3211a6627",
+        "imported_at": null
+      },
+      {
+        "id": 14,
+        "code": "llm-vi",
+        "name": "Gloss tiếng Việt do LLM sinh",
+        "license": "nội bộ",
+        "attribution": "Sinh bởi mô hình, chưa kiểm duyệt",
+        "url": null,
+        "version": null,
+        "sha256": null,
+        "imported_at": null
+      },
+      {
+        "id": 15,
+        "code": "wordfreq",
+        "name": "wordfreq",
+        "license": "CC BY-SA 4.0",
+        "attribution": "wordfreq (RSpeer)",
+        "url": "https://github.com/rspeer/wordfreq",
+        "version": null,
+        "sha256": null,
+        "imported_at": null
+      },
+      {
+        "id": 16,
+        "code": "wordnet-stack",
+        "name": "CILI + OEWN + omw-ja + omw-en (wn.db)",
+        "license": "nhiều (xem từng wordnet)",
+        "attribution": "Global WordNet Association; Open English WordNet; NICT Japanese WordNet",
+        "url": "https://github.com/goodmami/wn",
+        "version": "wn 1.1.1",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "imported_at": null
+      },
+      {
+        "id": 17,
+        "code": "kangxi-radicals",
+        "name": "Kangxi radicals 214 (Unicode + vi.wikipedia + Unihan + en.wikipedia)",
+        "license": "Unicode License v3 (CJKRadicals/Unihan) + CC BY-SA (Wikipedia)",
+        "attribution": "Unicode Consortium; https://vi.wikipedia.org/wiki/Bộ_thủ_Khang_Hi; https://en.wikipedia.org/wiki/Kangxi_radical (các bài Radical 1–214)",
+        "url": "https://www.unicode.org/Public/UCD/latest/ucd/CJKRadicals.txt",
+        "version": "raw snapshots 3cce4083fc1f8db0a73b42b440a6c01ba3789c7dc999892487cc1382e3d353d5",
+        "sha256": "3cce4083fc1f8db0a73b42b440a6c01ba3789c7dc999892487cc1382e3d353d5",
+        "imported_at": null
+      },
+      {
+        "id": 18,
+        "code": "kanjivg",
+        "name": "KanjiVG — stroke order diagrams",
+        "license": "CC BY-SA 3.0",
+        "attribution": "KanjiVG by Ulrich Apel (https://kanjivg.tagaini.net/)",
+        "url": "https://github.com/KanjiVG/kanjivg",
+        "version": "kanjivg-20260714",
+        "sha256": "d217180db812b8045026d5f8130b1c9f261d15d2433484de643fe40a4df409d7",
+        "imported_at": null
+      }
+    ],
+    "import_batches": [
+      {
+        "id": "897a09c2-5dbc-4762-bcdc-c02dd0edb5ce",
+        "source_code": "ili-map-pwn30",
+        "file_name": "ili-map-pwn30.tab",
+        "sha256": "13b6741395a8bdf20e5a19686ffa49167653696d4f523db17a79dce3211a6627",
+        "row_count": 117659,
+        "status": "done",
+        "started_at": "2026-09-23 01:49:44.619696+00",
+        "finished_at": "2026-09-23 01:49:46.96741+00"
+      },
+      {
+        "id": "604e5418-8735-4e7e-a728-78b437d59a31",
+        "source_code": "jlpt-list",
+        "file_name": "downloads/extras/jlpt-n1.csv",
+        "sha256": "bea8e456d4719bed019e642f24aa249564f9dbf551dc04b267d317c772daf780",
+        "row_count": 2699,
+        "status": "done",
+        "started_at": "2026-09-23 12:40:37.107887+00",
+        "finished_at": "2026-09-23 12:40:37.107887+00"
+      },
+      {
+        "id": "bb47cd14-13ce-4d32-99be-6592c590e4dc",
+        "source_code": "jlpt-list",
+        "file_name": "downloads/extras/jlpt-n2.csv",
+        "sha256": "6b804f6d0365646740d979cc1ff6890dd85ea35833cf1a5ccfac415e79d6891b",
+        "row_count": 1748,
+        "status": "done",
+        "started_at": "2026-09-23 12:40:37.383301+00",
+        "finished_at": "2026-09-23 12:40:37.383301+00"
+      },
+      {
+        "id": "02a0597b-66cf-4776-9145-a43c0ae36ca0",
+        "source_code": "jlpt-list",
+        "file_name": "downloads/extras/jlpt-n3.csv",
+        "sha256": "5828232b852f8d43e7d5ee09e9d8c218ed8e315ccbb425cd4d9205c77f5be6e3",
+        "row_count": 2139,
+        "status": "done",
+        "started_at": "2026-09-23 12:40:37.512581+00",
+        "finished_at": "2026-09-23 12:40:37.512581+00"
+      },
+      {
+        "id": "fc28a583-b123-4dfc-a805-c639e550d3b1",
+        "source_code": "jlpt-list",
+        "file_name": "downloads/extras/jlpt-n4.csv",
+        "sha256": "10377b5d9a0289991b79532deb30cbe70892a2251cd013a21d62ca2a75cf5c76",
+        "row_count": 668,
+        "status": "done",
+        "started_at": "2026-09-23 12:40:37.696925+00",
+        "finished_at": "2026-09-23 12:40:37.696925+00"
+      },
+      {
+        "id": "a275e060-f585-4317-a3ef-b9bb448aa04c",
+        "source_code": "jlpt-list",
+        "file_name": "downloads/extras/jlpt-n5.csv",
+        "sha256": "8863a96442adeadfa3510edb84bd60b158ed6b3839172b93cab2ceb026e5ef8a",
+        "row_count": 718,
+        "status": "done",
+        "started_at": "2026-09-23 12:40:37.77331+00",
+        "finished_at": "2026-09-23 12:40:37.77331+00"
+      },
+      {
+        "id": "f08e6b39-955e-4f82-a6e7-a118a2f466cb",
+        "source_code": "jmdict",
+        "file_name": "jmdict-examples-eng-3.6.2.json",
+        "sha256": "8cdbb0cc9625f775cd093e37931974b568221747bf6f2cbaff7b0671b5631ca5",
+        "row_count": 218794,
+        "status": "done",
+        "started_at": "2026-09-22 06:04:16.290638+00",
+        "finished_at": "2026-09-22 06:04:40.663436+00"
+      },
+      {
+        "id": "08fc2106-70cc-4c19-acac-5112dd9fade6",
+        "source_code": "kanji-data",
+        "file_name": "downloads/extras/kanji-data.kanji.json",
+        "sha256": "561b72ea9df703c58fae0c68585812e172aaa7611d2fcee6719d55fd2dfd4fa4",
+        "row_count": 13108,
+        "status": "done",
+        "started_at": "2026-09-23 12:40:37.862119+00",
+        "finished_at": "2026-09-23 12:40:37.862119+00"
+      },
+      {
+        "id": "b782661d-1c03-4f3b-853b-ca4266004c01",
+        "source_code": "kanjidic2",
+        "file_name": "kanjidic2-all-3.6.2.json",
+        "sha256": "8f2c7700cd97a79221a0f225a324fa885622be88f321a4c1bb37b4b333d8ee97",
+        "row_count": 13108,
+        "status": "done",
+        "started_at": "2026-09-22 06:04:41.572655+00",
+        "finished_at": "2026-09-22 06:04:43.260101+00"
+      },
+      {
+        "id": "e2ef512c-fdfe-4468-bf31-258aa262fb45",
+        "source_code": "kradfile",
+        "file_name": "kradfile-3.6.2.json",
+        "sha256": "90369021899d89159ee6e079bccd7d83915daa3191f0c6ed7efc2473e088c086",
+        "row_count": 12156,
+        "status": "done",
+        "started_at": "2026-09-22 06:04:43.424777+00",
+        "finished_at": "2026-09-22 06:04:43.877158+00"
+      },
+      {
+        "id": "97d8aa56-dbaf-458a-af58-2e94758a2865",
+        "source_code": "omw-wikt-vi",
+        "file_name": "wn-wikt-vie.tab",
+        "sha256": "2f74ee9d80a96aeb44f7639a9cf39d66af69e376f0c7cb8bfa9a7efd87ddbce7",
+        "row_count": 5498,
+        "status": "done",
+        "started_at": "2026-09-23 01:49:46.972815+00",
+        "finished_at": "2026-09-23 01:49:47.082537+00"
+      },
+      {
+        "id": "f778375e-7b40-443a-8e5f-12dcda74f47b",
+        "source_code": "tatoeba",
+        "file_name": "sentences.tar.bz2",
+        "sha256": "b4d467dc5108b861bb207927456dd036d5dcb2b549b79360674d5688addae8a5",
+        "row_count": 2319079,
+        "status": "done",
+        "started_at": "2026-09-23 01:11:45.986085+00",
+        "finished_at": "2026-09-23 01:14:19.748795+00"
+      },
+      {
+        "id": "86a34cbb-605d-427b-be78-63137ca717d8",
+        "source_code": "tatoeba",
+        "file_name": "links.tar.bz2",
+        "sha256": "19cbf4cf18d9130efa3f66a91d51a7b05b5504bf1acc3d60f7f9ec5818cb70bf",
+        "row_count": 872814,
+        "status": "done",
+        "started_at": "2026-09-23 01:14:19.756768+00",
+        "finished_at": "2026-09-23 01:15:45.640939+00"
+      },
+      {
+        "id": "b6e82836-681f-47b8-8932-50b7524d08e2",
+        "source_code": "wiktextract",
+        "file_name": "English.jsonl.gz",
+        "sha256": "de6533a7bc7143167f0b27b4d2b568930436cd20bb5c1ce3cf542c1ec7bbbfec",
+        "row_count": 1492836,
+        "status": "done",
+        "started_at": "2026-09-23 02:13:16.813014+00",
+        "finished_at": "2026-09-23 02:15:42.287526+00"
+      },
+      {
+        "id": "04242b2b-6fe2-4bfd-b0bc-24e7d223298d",
+        "source_code": "wiktextract-ja",
+        "file_name": "Japanese.jsonl.gz",
+        "sha256": "1ef5516089628e1ab5663f1c9385cf8248e5ebc439b3af9ff713e4586757d8f5",
+        "row_count": 199484,
+        "status": "done",
+        "started_at": "2026-09-23 02:15:42.29287+00",
+        "finished_at": "2026-09-23 02:15:59.737477+00"
+      },
+      {
+        "id": "c7cf4059-2eb1-4eb4-9961-f722deb8899e",
+        "source_code": "wiktextract-vi",
+        "file_name": "Vietnamese.jsonl.gz",
+        "sha256": "29b81fb95464ccd7ee0f82397b1e0ac0eb9fc24dd5ec6b969668df4c1d6c5ceb",
+        "row_count": null,
+        "status": "error",
+        "started_at": "2026-09-23 01:50:43.544636+00",
+        "finished_at": null
+      },
+      {
+        "id": "d0e7f48f-1392-401a-9a73-20703d0641ef",
+        "source_code": "wiktextract-vi",
+        "file_name": "Vietnamese.jsonl.gz",
+        "sha256": "29b81fb95464ccd7ee0f82397b1e0ac0eb9fc24dd5ec6b969668df4c1d6c5ceb",
+        "row_count": 51896,
+        "status": "error",
+        "started_at": "2026-09-23 02:12:39.456756+00",
+        "finished_at": "2026-09-23 02:12:43.548858+00"
+      },
+      {
+        "id": "7048f17c-9452-48c7-bac6-042adeae5917",
+        "source_code": "wiktextract-vi",
+        "file_name": "Vietnamese.jsonl.gz",
+        "sha256": "29b81fb95464ccd7ee0f82397b1e0ac0eb9fc24dd5ec6b969668df4c1d6c5ceb",
+        "row_count": 51896,
+        "status": "done",
+        "started_at": "2026-09-23 02:13:01.63911+00",
+        "finished_at": "2026-09-23 02:13:08.216761+00"
+      },
+      {
+        "id": "48d2ca13-5173-4635-8a7f-1b44911c77d3",
+        "source_code": "wiktextract-vi",
+        "file_name": "Vietnamese.jsonl.gz",
+        "sha256": "29b81fb95464ccd7ee0f82397b1e0ac0eb9fc24dd5ec6b969668df4c1d6c5ceb",
+        "row_count": 51896,
+        "status": "done",
+        "started_at": "2026-09-23 02:15:59.740114+00",
+        "finished_at": "2026-09-23 02:16:09.357371+00"
+      },
+      {
+        "id": "2271a016-a0b1-4667-9d49-08512a865eec",
+        "source_code": "wordnet-stack",
+        "file_name": "wn.db",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "row_count": 877971,
+        "status": "done",
+        "started_at": "2026-09-23 01:20:36.405847+00",
+        "finished_at": "2026-09-23 01:20:56.722516+00"
+      },
+      {
+        "id": "33733e1b-0999-49f9-902a-fd84b18feaee",
+        "source_code": "wordnet-stack",
+        "file_name": "wn.db",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "row_count": 877971,
+        "status": "done",
+        "started_at": "2026-09-23 01:24:10.773123+00",
+        "finished_at": "2026-09-23 01:24:36.564311+00"
+      },
+      {
+        "id": "30edbda8-6d05-47a1-b02d-96a92a1c9322",
+        "source_code": "wordnet-stack",
+        "file_name": "wn.db",
+        "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+        "row_count": 1005222,
+        "status": "done",
+        "started_at": "2026-09-23 01:49:51.327914+00",
+        "finished_at": "2026-09-23 01:50:29.603209+00"
+      }
+    ],
+    "checks": {
+      "missing_license": [],
+      "license_to_verify": [
+        "kanji-data",
+        "jlpt-list"
+      ],
+      "missing_version": [
+        "wiktextract",
+        "omw-wikt-vi",
+        "tatoeba",
+        "kanji-data",
+        "jlpt-list",
+        "ili-map-pwn30",
+        "llm-vi",
+        "wordfreq"
+      ],
+      "missing_attribution": [],
+      "missing_url": [
+        "llm-vi"
+      ]
+    },
+    "en_gloss_sources_in_scope": [
+      {
+        "source_id": 1,
+        "rows": 41123,
+        "senses": 15245
+      }
+    ],
+    "vi_concept_gloss_sources": [
+      {
+        "source_id": 9,
+        "is_machine": false,
+        "rows": 5368,
+        "concepts": 3533
+      }
+    ],
+    "suspect_lemma_as_gloss": {
+      "count": 5388,
+      "sample": [
+        {
+          "concept_id": "100005",
+          "text": "Gibraltar"
+        },
+        {
+          "concept_id": "100015",
+          "text": "Suriname"
+        },
+        {
+          "concept_id": "100020",
+          "text": "Thụy Sĩ"
+        },
+        {
+          "concept_id": "100028",
+          "text": "Syria"
+        },
+        {
+          "concept_id": "100034",
+          "text": "Tanzania"
+        }
+      ]
+    }
+  }
+}
