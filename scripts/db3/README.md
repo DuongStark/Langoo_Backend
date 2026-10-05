@@ -70,6 +70,15 @@ npx tsx scripts/db3/decks.ts --rollback uploads/db3/run-decks.json --apply --all
 # Chỉ thêm --recover cho manifest prepared sau commit chưa được ghi trạng thái cuối.
 ```
 
+## B0 — kiểm kê gloss/nguồn (DB3-B, read-only)
+
+```bash
+DIRECT_URL="postgresql://postgres@127.0.0.1:55433/langoo" \
+npx tsx scripts/db3/gloss-inventory.ts --manifest-dir uploads/db3b
+```
+
+Xuất `gloss-inventory` + `source-audit` JSON (fingerprint, phạm vi JLPT, coverage EN/VI theo sense, count rule §4.1, concept, EXPLAIN). Không ghi DB, không gọi provider. Kết quả snapshot 2026-10-05: [`docs/reviews/db3-b-inventory-2026-10-05.md`](../../docs/reviews/db3-b-inventory-2026-10-05.md).
+
 ## Gate dữ liệu và scope
 
 - Radical apply thông thường cần đủ **214 số bộ duy nhất**, ký tự duy nhất, tên VI/EN và nghĩa VI không rỗng; input thiếu/parse lỗi dừng trước khi ghi. Số nét thiếu được giữ NULL và báo cáo theo plan. `--fixture` cho tập nhỏ chỉ trên DB local `_test` với `--allow-test`.
