@@ -148,6 +148,16 @@ node --import tsx --test scripts/db3/gloss-apply.test.ts
 node --import tsx --test scripts/db3/regression.test.ts
 npx tsc --noEmit --strict --target ES2023 --module commonjs --moduleResolution node --esModuleInterop --skipLibCheck scripts/db3/*.ts
 ```
+## B1 — harvest cặp ví dụ Tatoeba (DB3-B, read-only)
+
+```bash
+DIRECT_URL="postgresql://postgres@127.0.0.1:55433/langoo" \
+npx tsx scripts/db3/example-candidates.ts --artifact-dir uploads/db3b
+# Kiểm chứng:
+npx tsx scripts/db3/example-candidates.ts --verify uploads/db3b/examples-<stamp>
+```
+
+Xuất `examples.jsonl` theo example schema v1 ([contract](../../docs/plans/db3-b-example-schema-v1.md)): 8.477 cặp JA↔VI, `alignment=unmapped`, giữ lineage sentence/link; **không** gán sense/seed. Kết quả 2026-10-05: [`docs/reviews/db3-b-example-candidates-2026-10-05.md`](../../docs/reviews/db3-b-example-candidates-2026-10-05.md).
 
 ## Gate dữ liệu và scope
 

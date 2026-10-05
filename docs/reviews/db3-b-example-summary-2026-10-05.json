@@ -1,0 +1,28 @@
+{
+  "task": "example-candidates",
+  "startedAt": "2026-10-05T11:08:24.241Z",
+  "db": "langoo",
+  "inventory": {
+    "path": "2026-10-05T09-29-37-673Z-gloss-inventory.json",
+    "sha256": "e97d9daa7a154f045eb08cc78b25cd1ba597d1812767512f6f5f507d6d829ad0",
+    "datasetFingerprint": "730c5bd3b08b37821cc47124ef2a75160decc0977ceb449a0c68067cbc6671ee"
+  },
+  "sourceAudit": {
+    "path": "2026-10-05T09-29-37-673Z-source-audit.json",
+    "sha256": "9852beb9b7cfce7a292dfb9f0ba33ce3c5db886725a7e56ba22591ad5de7ff1b"
+  },
+  "counts": {
+    "source_pair": 8477,
+    "blocked_source": 0,
+    "pairs_total": 8477,
+    "skipped_by_limit": 0,
+    "both_directions": 8477
+  },
+  "files": {
+    "examples.jsonl": {
+      "bytes": 15747971,
+      "sha256": "ba348e39cd57841daad42884af0845cc3d52fd777c3f423421fb2d12f8a98daf"
+    }
+  },
+  "warnings": []
+}
