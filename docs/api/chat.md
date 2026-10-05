@@ -101,6 +101,9 @@ Lưu ý: khi provider lỗi (503) tin nhắn **không được lưu**; quota c�
 
 ## POST /v1/chat/sessions/:id/messages/stream — SSE (M10.1)
 
+> 🧑‍💻 **FE**: hướng dẫn triển khai đầy đủ (parser SSE + React hook + edge cases) tại
+> [`docs/fe/chat-streaming.md`](../fe/chat-streaming.md).
+
 Trả lời **dần như ChatGPT**: server đẩy từng đoạn ngay khi provider sinh ra.
 Cùng quota/lease/persist với endpoint thường; khi stream lỗi giữa chừng sẽ có
 `event: error` thay vì HTTP 503.
