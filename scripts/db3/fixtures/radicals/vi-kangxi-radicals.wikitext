@@ -1,0 +1,34 @@
+{| class="wikitable"
+|-
+|1
+|<big>一</big>
+|'''Nhất'''<br>(hoành)
+|yī<br>(héng)
+|いち-ichi
+|한일-hanil
+|Một (1)<br>(còn gọi là ''nét Hoành'' hay ''nét ngang'')
+|-
+|24
+|<big>十</big>
+|'''Thập'''
+|shí
+|じゅう-jyū
+|열십-yeolsip
+|Mười (10), đủ (như ''thập toàn thập mỹ'')
+|-
+|85
+|<big>水 (氺,氵)</big>
+|'''Thủy'''
+|shuǐ
+|みず-mizu
+|(아래)물수/(삼수변)-<br>(arae)mulsu/(samsubyeon)
+|Nước
+|-
+|214
+|<big>龠</big>
+|'''Dược'''
+|yuè
+|やく-yaku
+|피리약-piriyak
+|Một loại sáo 3 lỗ
+|}
