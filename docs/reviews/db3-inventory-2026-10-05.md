@@ -61,6 +61,11 @@ UNION ALL SELECT 'core.kanji_radical distinct kanji', count(DISTINCT kanji_liter
 - KANJIDIC2 (`radicals[].value`) cho số bộ mỗi kanji (đã nạp vào `kanji.radical_classical`), không cho danh sách 214.
 - **Không có file 214 bộ đầy đủ** trong `downloads/` (manifest 22 file, đã kiểm).
 
+**Nguồn 214 bộ: đã tìm được online (05/10)** — chi tiết ở [plan §4.2](../plans/db3-a-foundation.md):
+Unicode `CJKRadicals.txt` (number↔ký tự↔unified, validate 214/214), vi.wikipedia "Bộ thủ Khang Hi"
+(bảng 214 dòng: ký tự + biến thể + tên Hán-Việt + nghĩa VI), Unihan `kTotalStrokes` (số nét).
+Cần người tích hợp tải raw vào `data-Langoo/downloads/extras/` trước khi seed.
+
 **Khoảng trống/kết luận:**
 1. Cần chọn nguồn chuẩn cho 214 dòng: số bộ + ký tự + biến thể + số nét + tên EN
    (đề xuất: Unicode `CJKRadicals.txt` cho number↔character↔unified + danh sách tên EN chuẩn — xem plan).
@@ -77,8 +82,10 @@ storage, **không lưu blob trong DB**.
 **Đo:** `media_asset = 0`, `kanji_media = 0` (cùng query mục 2.1).
 
 **Tham chiếu:** `serve.kanji_card` tổng hợp `media_kinds` từ `core.kanji_media` → hiện NULL.
-**Chưa có route phục vụ file SVG** trong backend (StorageService hiện chỉ dùng cho ảnh feedback) —
-seed xong chỉ hiện "có stroke_svg" ở mức metadata; phục vụ file là việc riêng, ngoài DB3-A (ghi chú plan).
+`media_kinds` chỉ là **metadata "có asset loại gì"** (ví dụ `["stroke_svg"]`), **không chứa file**:
+file nằm ngoài DB theo `media_asset.object_key`. **Chưa có route phục vụ file SVG** trong backend
+(StorageService hiện chỉ dùng cho ảnh feedback) — muốn FE xem được ảnh nét cần thêm route đọc media
+(việc backend riêng, xem plan §4.1).
 
 **Nguồn:** **chưa tải KanjiVG** (manifest không có; `downloads/README.md` không nhắc).
 Đề xuất: KanjiVG (github.com/KanjiVG/kanjivg, **CC BY-SA 3.0**, ~11k SVG) — cần chốt version + sha256 khi thực hiện.

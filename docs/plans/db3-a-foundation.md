@@ -38,14 +38,17 @@
 
 ### Quyết định thật sự còn thiếu
 
-- **(a) Nguồn 214 bộ + tên/nghĩa VI.** Đề xuất kỹ thuật bên dưới (§4.2). Chọn 1 trong 2:
-  (a1) chủ dự án cung cấp file 214 bộ có tên VI; (a2) dùng nguồn Unicode/tên EN + draft VI bằng
-  OpenCode Go ở **DB3-B** rồi review trước khi publish. Nếu chọn a2, cần chốt: có thêm cột đánh dấu
-  "máy sinh" cho `public.radical` không (hiện không có) — nếu cần thì là **migration**, người tích hợp chốt.
-- **(b) Tiêu chí deck.** Đề xuất mặc định (§4.3) cần chốt: số deck, nhóm từ, số item, anchor sense rule,
-  `is_published` ngay hay không, xử lý lexeme nằm nhiều cấp JLPT.
+- **(a) Nguồn 214 bộ + tên/nghĩa VI — ĐÃ TÌM ĐƯỢC ONLINE (05/10), không cần LLM**: dùng 3 nguồn
+  (chi tiết §4.2): Unicode `CJKRadicals.txt` (number↔radical↔unified — đã tải & validate **214/214**),
+  vi.wikipedia **"Bộ thủ Khang Hi"** (bảng 214 dòng: ký tự + biến thể trong ngoặc + tên Hán-Việt +
+  **nghĩa tiếng Việt**), Unicode Unihan `kTotalStrokes` (số nét). Còn 2 tiểu-quyết định:
+  (a-i) chuẩn hoá văn phong `name_vi` ("Thủy" → "bộ Thủy"?; dấu kiểu mới "Thủy" hay cũ "Thuỷ" như demo 13 bộ);
+  (a-ii) `name_en` để trống giai đoạn đầu hay bổ sung sau (cột nullable).
+- **(b) Tiêu chí deck — ĐÃ CHỐT TẠM theo đề xuất mặc định (05/10)**: 5 deck N1–N5, anchor = sense
+  `is_primary`, `is_published=false`, lexeme nhiều cấp chỉ vào cấp thấp nhất; chỉnh sau không cần migration.
 - **(c) License/nguồn gốc**: `kanji-data` (id 11) và `jlpt-list` (id 12) đang "CẦN XÁC MINH";
   `omw-ja`/`omw-en` chưa rõ điều khoản; `omw-wikt-vi` thiếu version. Cần người xác minh — không tự đổi.
+  Kèm: chốt **nơi lưu file KanjiVG** + **route phục vụ media** (việc backend riêng, xem §4.1).
 
 ## 3. Nguyên tắc chung của mọi seed trong DB3-A
 
@@ -78,23 +81,42 @@
   `{stroke_svg}` cho vài chữ mẫu (日, 一, 十); chạy lại lần 2 → count không đổi.
 - **Rollback**: theo manifest — `DELETE kanji_media` theo danh sách `(literal,kind)`,
   `DELETE media_asset WHERE source_id = <kanjivg>` (chỉ sau khi hết tham chiếu).
+- **`media_kinds` là gì & vì sao seed chỉ ra metadata**: `core.kanji_media` trả lời "chữ này CÓ asset
+  loại gì" (PK `(kanji_literal, kind)`; kind ∈ `stroke_svg|stroke_gif`); view `serve.kanji_card` gom thành
+  mảng `media_kinds` (sau seed sẽ là `["stroke_svg"]`); API `GET /v1/kanji/:literal` trả mảng đó.
+  Nó **không chứa file** — file nằm ngoài DB theo `media_asset.object_key`. Muốn FE **xem được ảnh nét**
+  phải có thêm **route đọc media** (backend): đọc `object_key` qua storage rồi trả file (hoặc signed URL).
+  → Đề xuất tách việc companion **"serving media"** (sửa `src/**` — người tích hợp duyệt riêng), không gộp
+  vào DB3-A; nếu seed trước mà chưa có route thì UI chỉ biết "có nét" chứ không hiển thị được.
 - **Rủi ro**: 11k dòng + file (thời gian chạy, dung lượng); FK `kanji_media → kanji` (RESTRICT với asset);
-  **chưa có route phục vụ file** → giá trị UI giai đoạn này chỉ là metadata `media_kinds`
-  (đề xuất tách việc "serving media" thành hạng mục riêng, không gộp DB3-A).
+  chưa có route phục vụ file (xem mục trên).
 
 ### 4.2 A2 — Radical 214 (`public.radical`)
 
 - **Schema**: không có cột provenance → rollback theo `number` 1..214 (ghi manifest đủ 214 khóa) và
   **không thể phân biệt nguồn trong bảng**; attribution ghi ở `public.source` + docs.
-- **Nguồn đề xuất** (cần chốt, xem quyết định a):
-  1. **Unicode `CJKRadicals.txt`** (Unicode License v3) — mapping `number ↔ radical char (U+2F00…) ↔ unified ideograph`.
-  2. **Danh sách tên EN chuẩn 214 bộ** (Wikipedia "List of Kangxi radicals" — ghi attribution) + **số nét**
-     (đối chiếu Unihan/nguồn danh sách; ghi rõ nguồn đã dùng).
-  3. **Biến thể (`variants`)**: bắt đầu từ danh sách biến thể phổ biến của bộ, sau đó **đối chiếu**
-     `core.kanji_radical.part` (253 parts) để rà thiếu/không khớp — xuất báo cáo cho người review;
-     **không tự suy mapping** từ chuỗi bộ phận.
-  4. **Tên/nghĩa VI**: không có nguồn sẵn — theo quyết định (a). Văn phong tham chiếu 13 bộ mẫu trong
-     `seed_core_demo.py` ("bộ Nhật", "mặt trời, ngày"…).
+- **Nguồn đã xác định online (05/10, không cần LLM):**
+  1. **Unicode `CJKRadicals.txt`** (Unicode License v3; bản tải: v18.0.0, 2026-02-03) —
+     mapping `number ↔ radical char (U+2F00…) ↔ unified ideograph`. **Đã validate: đủ 214 dòng**
+     (ví dụ `85; 2F54; 6C34` = bộ 85, ký tự bộ 氵/U+2F54, chữ hợp nhất 水).
+  2. **vi.wikipedia "Bộ thủ Khang Hi"** (CC BY-SA — ghi attribution) — bảng **214/214 dòng**, mỗi dòng có:
+     số bộ · ký tự + **biến thể trong ngoặc** (ví dụ `水 (氺,氵)`) · tên Hán-Việt (`Thủy`) ·
+     pinyin · âm Nhật/Hàn · **nghĩa tiếng Việt** (`Nước`). Đây là nguồn cho `character`, `variants`,
+     `name_vi` *(chuẩn hoá tiền tố "bộ " theo văn phong demo)* và `meaning_vi`.
+  3. **Unicode Unihan** (`Unihan_IRGSources.txt`, `kTotalStrokes` của chữ hợp nhất) — nguồn `stroke_count`.
+     Cần tải (Unihan.zip, Unicode License v3).
+  4. `name_en`: **để trống giai đoạn đầu** (nullable) hoặc bổ sung sau từ nguồn EN — không chặn seed.
+- **Việc chuẩn bị nguồn (do người tích hợp/ops, không phải phiên này):** tải 2–3 file raw trên vào
+  `data-Langoo/downloads/extras/` (kèm ghi chú URL + license + sha256 như manifest hiện hành);
+  script DB3-A chỉ **đọc raw → hợp nhất** (không tự tải mạng khi chạy seed).
+- **Quy tắc hợp nhất & kiểm tra (dry-run trước):**
+  - `character`/`number` lấy từ CJKRadicals (chuẩn máy); đối chiếu với vi.wiki (lệch → cảnh báo, không tự chọn).
+  - `variants` parse từ ngoặc vi.wiki; **đối chiếu** `core.kanji_radical.part` (253 parts) → báo cáo
+    part không map được cho người review; **không tự suy mapping** từ chuỗi bộ phận.
+  - `stroke_count`: join theo chữ hợp nhất; thiếu → để NULL + đếm vào báo cáo (không bịa).
+  - `name_vi`: chuẩn hoá "bộ X" (chốt style a-i); `meaning_vi`: giữ nguyên nghĩa ngắn từ vi.wiki.
+  - Kết quả trung gian xuất ra JSON có `source`/`version`/`sha256` từng nguồn — đây là input cố định
+    cho seed (chạy lại cho cùng kết quả nếu raw không đổi).
 - **File nguồn**: đề xuất thêm 1 file hợp nhất vào `downloads/extras/` của data-Langoo
   (`kangxi-radicals.json`) — **việc của người tích hợp** (phiên này không sửa thư mục dữ liệu);
   plan ghi rõ cấu trúc file + trường bắt buộc (kèm `source.url`/`license`/`version`).
