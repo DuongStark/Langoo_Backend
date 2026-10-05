@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { config as loadDotenv } from 'dotenv';
 import { Client } from 'pg';
@@ -44,19 +44,53 @@ export function parseCli(
     return typeof value === 'string' ? value : undefined;
   };
   const limitRaw = str('limit');
+  const limit = limitRaw === undefined ? undefined : Number(limitRaw);
+  if (limit !== undefined && (!Number.isSafeInteger(limit) || limit < 1)) {
+    throw new Error('--limit phải là số nguyên dương');
+  }
+  if (flags.has('dry-run') && flags.has('apply')) {
+    throw new Error('Không dùng đồng thời --dry-run và --apply');
+  }
+  for (const key of ['apply', 'allow-test', 'fixture', 'recover', 'dry-run']) {
+    if (flags.has(key) && flags.get(key) !== true) {
+      throw new Error(`--${key} không nhận giá trị`);
+    }
+  }
+  if (flags.has('rollback') && typeof flags.get('rollback') !== 'string') {
+    throw new Error('--rollback cần đường dẫn manifest');
+  }
   return {
     task,
     apply: flags.get('apply') === true,
     allowDb: str('allow-db'),
     allowTest: flags.get('allow-test') === true,
-    sources:
-      str('sources') ??
-      defaults?.sources ??
-      path.resolve(__dirname, '../../../data-Langoo/downloads/extras'),
+    sources: str('sources') ?? defaults?.sources ?? defaultSources(),
     manifestDir: str('manifest-dir') ?? 'uploads/db3',
-    limit: limitRaw === undefined ? undefined : Number(limitRaw),
+    limit,
     flags,
   };
+}
+
+function defaultSources(): string {
+  const candidates = [
+    path.resolve(__dirname, '../../../data-Langoo/downloads/extras'),
+    path.resolve(__dirname, '../../../../data-Langoo/downloads/extras'),
+  ];
+  return candidates.find((directory) => existsSync(directory)) ?? candidates[0];
+}
+
+export function assertFixtureTarget(url: string, cli: Cli): void {
+  if (!cli.flags.has('fixture') && cli.limit === undefined) return;
+  const parsed = new URL(url);
+  if (
+    !dbNameOf(url).endsWith('_test') ||
+    !['localhost', '127.0.0.1', '[::1]'].includes(parsed.hostname) ||
+    !cli.allowTest
+  ) {
+    throw new Error(
+      '--fixture/--limit chỉ dùng với DB local *_test và --allow-test',
+    );
+  }
 }
 
 export function loadEnv(): void {
@@ -96,6 +130,7 @@ export function assertWritableTarget(url: string, cli: Cli): void {
 export async function connect(url: string): Promise<Client> {
   const client = new Client({ connectionString: url });
   await client.connect();
+  await client.query("SET TIME ZONE 'UTC'");
   return client;
 }
 

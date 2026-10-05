@@ -1,6 +1,6 @@
-# Kế hoạch DB3-A — Deterministic seed (chờ duyệt)
+# Kế hoạch DB3-A — Deterministic seed (đã triển khai, hậu kiểm)
 
-> Phiên song song B (DeepSeek V4 Flash) · branch `parallel/deepseek-db3` · **chưa code seed, chưa migration**.
+> Phiên song song B (DeepSeek V4 Flash) · branch `parallel/deepseek-db3` · **đã code seed; không thêm migration**. Hậu kiểm sửa lỗi theo yêu cầu chủ dự án 05/10; hướng dẫn hiện hành tại `scripts/db3/README.md`.
 > Căn cứ kiểm kê: [`docs/reviews/db3-inventory-2026-10-05.md`](../reviews/db3-inventory-2026-10-05.md).
 > Nguyên tắc dự án: kế hoạch phải được duyệt trước khi code milestone mới (`PROMPT-BACKEND.md`).
 
@@ -62,10 +62,8 @@
 
 - **Dry-run mặc định** (`--dry-run`); `--apply` chỉ khi truyền `--allow-db <tên>` khớp allowlist.
 - **Idempotent**: chạy 2 lần không tạo bản sao; mọi upsert dùng khóa tự nhiên của bảng.
-- **Transaction theo lô** (mặc định 500 dòng/lô) — lỗi lô nào rollback lô đó, thoát mã lỗi rõ ràng.
-- **Manifest rollback**: mỗi run ghi `artifacts/db3/<UTC>-<task>.json` liệt kê khóa đã ghi + tham số;
-  rollback đọc manifest, xóa đúng khóa (theo thứ tự FK ngược). *(Nếu `artifacts/` chưa được gitignore,
-  đề xuất người tích hợp thêm 1 dòng — không tự sửa.)*
+- **Một transaction mỗi run**, chèn theo lô để hạn chế tham số; lỗi trước COMMIT rollback toàn bộ. Khoá bảng đích khi chụp snapshot/ghi, timeout lock 10 giây.
+- **Manifest format 2**: `uploads/db3/<UTC>-<task>-<run-id>.json` (đã gitignore), snapshot trước/sau + host/port/database. Ghi prepared trước COMMIT, applied sau COMMIT. Rollback cần guard như apply, từ chối dry-run/legacy/sai đích và dữ liệu đã sửa tiếp; khôi phục trạng thái cũ thay vì xoá mọi khoá upsert. Xem README cho phục hồi prepared bằng `--recover`.
 - **Bảo vệ đích**: từ chối chạy `--apply` nếu tên DB không nằm trong `--allow-db`, và từ chối mọi DB
   có hậu tố `_test` khi không bật `--allow-test`. Mặc định test = `langoo_parallel_deepseek_test`.
 - **Không tạo bảng/schema tạm**. Ghi chỉ vào bảng nghiệp vụ đã nêu + `public.source` (khi thêm nguồn mới).
@@ -87,14 +85,13 @@
 - **Phạm vi**: chỉ kanji có trong `core.kanji` và có file; **báo cáo** kanji thiếu file (không tự chế).
 - **Kiểm chứng**: `media_asset` tăng đúng số file; `kanji_media` join `kanji_card.media_kinds` trả
   `{stroke_svg}` cho vài chữ mẫu (日, 一, 十); chạy lại lần 2 → count không đổi.
-- **Rollback**: theo manifest — `DELETE kanji_media` theo danh sách `(literal,kind)`,
-  `DELETE media_asset WHERE source_id = <kanjivg>` (chỉ sau khi hết tham chiếu).
+- **Rollback**: theo snapshot trước/sau của source, media_asset và kanji_media; chỉ xoá dòng mới, phục hồi dòng cập nhật. Từ chối nếu after-state đã thay đổi; không xoá media ngoài run.
 - **`media_kinds` là gì & vì sao seed chỉ ra metadata**: `core.kanji_media` trả lời "chữ này CÓ asset
   loại gì" (PK `(kanji_literal, kind)`; kind ∈ `stroke_svg|stroke_gif`); view `serve.kanji_card` gom thành
   mảng `media_kinds` (sau seed sẽ là `["stroke_svg"]`); API `GET /v1/kanji/:literal` trả mảng đó.
   Nó **không chứa file** — file nằm ngoài DB theo `media_asset.object_key`.
-- **Chốt 05/10: route phục vụ ảnh (serving media) thuộc phase M mới (backend), KHÔNG nằm trong DB3-A.**
-  DB3-A chỉ seed metadata; khi phase M đó làm xong route thì FE mới xem được ảnh nét.
+- **Chốt 05/10: route phục vụ ảnh (serving media) thuộc M14, KHÔNG nằm trong DB3-A.**
+  DB3-A chỉ seed metadata; khi M14 làm xong route thì FE mới xem được ảnh nét.
 - **Rủi ro**: 11k dòng + file (thời gian chạy, dung lượng); FK `kanji_media → kanji` (RESTRICT với asset).
 
 ### 4.2 A2 — Radical 214 (`public.radical`)
@@ -134,8 +131,7 @@
   (chưa có; nếu cần → migration do người tích hợp chốt).
 - **Kiểm chứng**: `count(*) = 214`; `character` UNIQUE; join `kanji_card` hiển thị đủ 4 field cho ≥ 100 chữ mẫu;
   rà `kanji_radical.part` không map được → báo cáo (không tự sửa dữ liệu nguồn).
-- **Rollback**: `DELETE FROM public.radical WHERE number BETWEEN 1 AND 214` theo manifest (chỉ khi bảng
-  đúng 214 dòng do run này tạo; nếu đã có dữ liệu khác → dừng, không xóa).
+- **Rollback**: khôi phục dòng cũ, xoá dòng mới đúng khoá và khôi phục metadata nguồn theo manifest format 2; từ chối nếu dữ liệu đã đổi sau run.
 - **Rủi ro**: license/tên VI; variants sai làm join KRADFILE lệch; không có provenance (audit khó về sau).
 
 ### 4.3 A3 — Deck hệ thống (`core.deck`, `core.deck_item`)
@@ -152,8 +148,7 @@
 - **Upsert**: deck theo `slug`; deck_item theo PK `(deck_id, anchor_sense_id)` (`DO UPDATE position`).
 - **Kiểm chứng**: số item = số lexeme quyết định; không trùng anchor trong deck; `item_count` khớp
   `count(*)`; chạy lần 2 → không đổi.
-- **Rollback**: `DELETE deck_item` theo deck_id (manifest), `DELETE deck` theo slug; FK từ `app.collection`
-  (`cloned_from_deck_id`, ON DELETE SET NULL) nên an toàn cho user đã clone.
+- **Rollback**: phục hồi cả metadata deck và tập item trước run, giữ ID deck cũ. Deck mới đã được user clone/tham chiếu thì từ chối xoá để giữ liên kết nguồn của user.
 - **Rủi ro**: tiêu chí sản phẩm (số lượng/lọc) chưa chốt; anchor sai nghĩa (primary có thể không phải
   nghĩa thông dụng — đánh dấu để M14/DB4 cải thiện); kích thước deck lớn (7k item) — chèn theo lô.
 
@@ -162,7 +157,7 @@
 - Không ghi gì. Script `verify-jlpt` (đọc-only) tái lập các số trong báo cáo kiểm kê:
   rows/lexeme/accepted theo cấp, lexeme nhiều cấp, `lexeme_level` ↔ `jlpt_link` khác biệt,
   accepted nhưng thiếu sense (kỳ vọng 0).
-- Đầu ra: in bảng + ghi `artifacts/db3/...json` để so sánh giữa các lần chạy.
+- Đầu ra: in bảng + ghi `uploads/db3/...json` để so sánh giữa các lần chạy.
 
 ### 4.5 A5 — Credits audit (`public.source`)
 
@@ -196,11 +191,12 @@
 
 ## 6. Tiêu chí nghiệm thu DB3-A
 
-- [ ] 4 script chạy dry-run được, không ghi DB khi thiếu `--apply`.
-- [ ] Trên fixture: chạy 2 lần không tạo bản sao (radical = 214, kanji_media ổn định, deck item ổn định).
-- [ ] Manifest + rollback hoạt động (rollback xong count về 0).
+- [x] Các script seed/audit chạy dry-run; regression xác nhận không ghi DB khi thiếu `--apply`.
+- [x] Regression fixture: chạy 2 lần không tạo bản sao; rollback lần 2 giữ trạng thái lần 1.
+- [ ] Vận hành full dataset: đủ 214 radical và nguồn KanjiVG đầy đủ trên DB thật (bước riêng sau review).
+- [x] Manifest + rollback phục hồi đúng trạng thái trước run, kể cả dữ liệu có sẵn; có regression lỗi filesystem trước/sau COMMIT.
 - [ ] Query kiểm chứng trong §4 chạy được và có kết quả lưu lại.
-- [ ] README `scripts/db3` hướng dẫn chạy; không sửa `src/**`, migrations, `PROGRESS.md`.
+- [x] README hướng dẫn guard, fixture, rollback và recovery; không sửa `src/**`, migrations, `PROGRESS.md`.
 
 ## 7. Rủi ro chung
 

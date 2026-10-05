@@ -133,6 +133,21 @@ eq(
   { character: '⼹', variants: ['⺕', '彐', '彑'] },
 );
 
+const sided = parseViRadicals(
+  "|163\n|<big>邑 (~阝)</big>\n|'''Ấp'''\n|x\n|y\n|z\n|Vùng đất\n|-\n" +
+    "|170\n|<big>阜 (阝~)</big>\n|'''Phụ'''\n|x\n|y\n|z\n|Gò đất\n|-\n",
+);
+eq(
+  'vi.wiki: marker vị trí ~ không thuộc glyph bộ 163',
+  sided.get(163)?.variants,
+  ['阝'],
+);
+eq(
+  'vi.wiki: marker vị trí ~ không thuộc glyph bộ 170',
+  sided.get(170)?.variants,
+  ['阝'],
+);
+
 if (failures > 0) {
   console.error(`\nselftest: ${failures} test FAIL`);
   process.exit(1);

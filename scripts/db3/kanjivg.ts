@@ -1,18 +1,32 @@
-import { copyFileSync, mkdirSync, readdirSync, statSync } from 'node:fs';
+import {
+  constants,
+  copyFileSync,
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  statSync,
+} from 'node:fs';
 import path from 'node:path';
 import {
+  assertFixtureTarget,
   assertWritableTarget,
   chunk,
   connect,
-  dbNameOf,
   log,
   parseCli,
-  readManifest,
   requireUrl,
+  RunManifest,
+  sha256,
   sha256File,
   upsertSourceRow,
   writeManifest,
 } from './_shared';
+import {
+  applyWithJournal,
+  changesOf,
+  rollbackWithJournal,
+  snapshot,
+} from './_mutations';
 
 /**
  * DB3-A1 — seed KanjiVG (SVG thứ tự nét) vào core.media_asset + core.kanji_media.
@@ -25,6 +39,7 @@ import {
 
 interface MediaRow {
   literal: string;
+  filename: string;
   codepointHex: string;
   objectKey: string;
   mime: string;
@@ -41,18 +56,22 @@ const SOURCE = {
 };
 
 function collectSvgRows(svgDir: string, limit?: number): MediaRow[] {
-  const entries = readdirSync(svgDir).filter((name) =>
-    /^[0-9A-Fa-f]{4,6}\.svg$/.test(name),
-  );
+  const entries = readdirSync(svgDir)
+    .filter((name) => /^[0-9A-Fa-f]{4,6}\.svg$/.test(name))
+    .sort();
   const rows: MediaRow[] = [];
+  const seen = new Set<string>();
   for (const entry of entries) {
     const codepointHex = entry.replace(/\.svg$/i, '').toLowerCase();
     const literal = String.fromCodePoint(Number.parseInt(codepointHex, 16));
     const file = path.join(svgDir, entry);
     const stats = statSync(file);
     if (!stats.isFile()) continue;
+    if (seen.has(literal)) throw new Error(`SVG trùng codepoint: ${entry}`);
+    seen.add(literal);
     rows.push({
       literal,
+      filename: entry,
       codepointHex,
       objectKey: `kanjivg/${codepointHex}.svg`,
       mime: 'image/svg+xml',
@@ -76,6 +95,7 @@ async function applyRows(
         `INSERT INTO core.media_asset (kind, object_key, mime, bytes, sha256, provider, source_id)
          VALUES ('stroke_svg', $1, $2, $3, $4, $5, $6)
          ON CONFLICT (object_key) DO UPDATE SET
+           kind = EXCLUDED.kind,
            mime = EXCLUDED.mime,
            bytes = EXCLUDED.bytes,
            sha256 = EXCLUDED.sha256,
@@ -88,7 +108,7 @@ async function applyRows(
         `INSERT INTO core.kanji_media (kanji_literal, asset_id, kind, frame_count)
          VALUES ($1, $2, 'stroke_svg', 1)
          ON CONFLICT (kanji_literal, kind) DO UPDATE SET
-           asset_id = EXCLUDED.asset_id`,
+           asset_id = EXCLUDED.asset_id, frame_count = EXCLUDED.frame_count`,
         [row.literal, asset.rows[0].id],
       );
     }
@@ -96,169 +116,123 @@ async function applyRows(
   }
 }
 
-async function rollback(manifestFile: string): Promise<void> {
-  const manifest = readManifest(manifestFile);
-  if (!manifest.rollback || manifest.rollback.kind !== 'kanjivg') {
-    throw new Error('Manifest không phải của task kanjivg');
-  }
-  const keys = manifest.rollback.items.map((item) => String(item));
-  const literals = keys.map((key) => {
-    const hex = path.basename(key).replace(/\.svg$/i, '');
-    return String.fromCodePoint(Number.parseInt(hex, 16));
-  });
+export async function main(argv = process.argv.slice(2)): Promise<void> {
+  const cli = parseCli('kanjivg', argv);
   const url = requireUrl();
-  const client = await connect(url);
-  try {
-    await client.query('BEGIN');
-    await client.query(
-      `DELETE FROM core.kanji_media
-       WHERE kind = 'stroke_svg' AND kanji_literal = ANY($1::text[])`,
-      [literals],
-    );
-    const removed = await client.query(
-      `DELETE FROM core.media_asset
-       WHERE object_key = ANY($1::text[])
-         AND NOT EXISTS (
-           SELECT 1 FROM core.kanji_media km WHERE km.asset_id = core.media_asset.id
-         )`,
-      [keys],
-    );
-    await client.query('COMMIT');
-    log(
-      `rollback kanjivg: xoá ${removed.rowCount} media_asset (và kanji_media tương ứng)`,
-    );
-  } catch (error) {
-    await client.query('ROLLBACK');
-    throw error;
-  } finally {
-    await client.end();
-  }
-}
-
-async function main(): Promise<void> {
-  const cli = parseCli('kanjivg', process.argv.slice(2));
-  if (typeof cli.flags.get('rollback') === 'string') {
-    await rollback(cli.flags.get('rollback') as string);
-    return;
-  }
-
-  const url = requireUrl();
+  const rollback = cli.flags.get('rollback');
+  if (typeof rollback === 'string')
+    return rollbackWithJournal(cli, url, rollback);
   assertWritableTarget(url, cli);
-  const svgDir =
-    (typeof cli.flags.get('svg-dir') === 'string'
-      ? (cli.flags.get('svg-dir') as string)
-      : undefined) ?? path.join(cli.sources, 'kanjivg');
-  const version =
-    (typeof cli.flags.get('version') === 'string'
-      ? (cli.flags.get('version') as string)
-      : undefined) ?? 'unknown';
-  const provider =
-    (typeof cli.flags.get('provider') === 'string'
-      ? (cli.flags.get('provider') as string)
-      : undefined) ?? 'local';
-  const copyTo =
-    typeof cli.flags.get('copy-to') === 'string'
-      ? (cli.flags.get('copy-to') as string)
-      : undefined;
-
+  assertFixtureTarget(url, cli);
+  const flag = (key: string): string | undefined => {
+    const value = cli.flags.get(key);
+    return typeof value === 'string' ? value : undefined;
+  };
+  const svgDir = flag('svg-dir') ?? path.join(cli.sources, 'kanjivg');
+  const version = flag('version') ?? 'unknown';
+  if (cli.apply && (version.trim() === '' || version === 'unknown')) {
+    throw new Error('Apply KanjiVG cần --version <release/tag/commit nguồn>');
+  }
+  const provider = flag('provider') ?? 'local';
+  const copyTo = flag('copy-to');
   const all = collectSvgRows(svgDir, cli.limit);
-  log(`== DB3 kanjivg (${cli.apply ? 'APPLY' : 'DRY-RUN'}) ==`);
-  log(
-    `svg-dir: ${svgDir} (${all.length} file quét được${cli.limit ? `, limit ${cli.limit}` : ''})`,
-  );
-
-  const client = await connect(url);
-  let rows: MediaRow[] = [];
-  let skipped: string[] = [];
-  try {
-    const literals = all.map((row) => row.literal);
-    const known = await client.query<{ literal: string }>(
-      'SELECT literal FROM core.kanji WHERE literal = ANY($1::text[])',
-      [literals],
-    );
-    const knownSet = new Set(known.rows.map((row) => row.literal));
-    rows = all.filter((row) => knownSet.has(row.literal));
-    skipped = all
-      .filter((row) => !knownSet.has(row.literal))
-      .map((row) => row.objectKey);
-  } finally {
-    await client.end();
-  }
-
-  log(
-    `khớp core.kanji: ${rows.length} | bỏ qua (không có kanji): ${skipped.length}`,
-  );
-  for (const row of rows.slice(0, 5)) {
-    log(
-      `  ${row.literal} ← ${row.objectKey} (${row.bytes} bytes, ${row.sha256.slice(0, 10)}…)`,
-    );
-  }
-  if (skipped.length > 0) {
-    log(
-      `  ⚠ bỏ qua: ${skipped.slice(0, 8).join(', ')}${skipped.length > 8 ? '…' : ''}`,
-    );
-  }
-
-  if (cli.apply) {
-    if (copyTo !== undefined) {
-      mkdirSync(copyTo, { recursive: true });
-      for (const row of rows) {
-        const src = path.join(svgDir, `${row.codepointHex}.svg`);
-        const dest = path.join(copyTo, `${row.codepointHex}.svg`);
-        copyFileSync(src, dest);
-      }
-      log(`  đã copy ${rows.length} file → ${copyTo}`);
-    }
-    const client2 = await connect(url);
-    try {
-      await client2.query('BEGIN');
-      const inputsHash = await import('node:crypto').then((crypto) =>
-        crypto
-          .createHash('sha256')
-          .update(
-            rows.map((row) => `${row.objectKey}:${row.sha256}`).join('\n'),
-          )
-          .digest('hex'),
-      );
-      const sourceId = await upsertSourceRow(client2, {
-        ...SOURCE,
-        version,
-        sha256: inputsHash,
-      });
-      await applyRows(client2, rows, sourceId, provider);
-      await client2.query('COMMIT');
-      log(`  nguồn: ${SOURCE.code} (id ${sourceId})`);
-    } catch (error) {
-      await client2.query('ROLLBACK');
-      throw error;
-    } finally {
-      await client2.end();
-    }
-  }
-
-  const manifestFile = writeManifest(cli.manifestDir, {
+  const manifest: RunManifest = {
     task: 'kanjivg',
     startedAt: new Date().toISOString(),
-    applied: cli.apply,
-    db: cli.apply ? dbNameOf(url) : undefined,
-    inputs: { svgDir, version },
-    summary: {
-      scanned: all.length,
-      seeded: rows.length,
-      skippedMissingKanji: skipped.length,
-      provider,
-    },
-    warnings:
-      skipped.length > 0
-        ? [`bỏ qua ${skipped.length} file không có kanji`]
-        : [],
-    rollback: { kind: 'kanjivg', items: rows.map((row) => row.objectKey) },
-  });
-  log(`manifest: ${manifestFile}`);
-  if (!cli.apply) {
-    log(
-      '(dry-run) chưa ghi DB. Thêm --apply --allow-db <db> [--allow-test] để ghi.',
+    applied: false,
+    inputs: { svgDir, version, url: SOURCE.url, license: SOURCE.license },
+    summary: { scanned: all.length, provider },
+    warnings: [],
+  };
+  log(`== DB3 kanjivg (${cli.apply ? 'APPLY' : 'DRY-RUN'}) ==`);
+  const selectRows = async (
+    client: import('pg').Client,
+  ): Promise<MediaRow[]> => {
+    const known = await client.query<{ literal: string }>(
+      'SELECT literal FROM core.kanji ORDER BY literal',
     );
+    const knownSet = new Set(known.rows.map((row) => row.literal));
+    const allSet = new Set(all.map((row) => row.literal));
+    const rows = all.filter((row) => knownSet.has(row.literal));
+    manifest.summary.seeded = rows.length;
+    manifest.summary.filesWithoutKanji = all
+      .filter((row) => !knownSet.has(row.literal))
+      .map((row) => row.objectKey);
+    manifest.summary.kanjiWithoutSvg = known.rows
+      .filter((row) => !allSet.has(row.literal))
+      .map((row) => row.literal);
+    manifest.inputs!.sha256 = sha256(
+      all.map((row) => `${row.objectKey}:${row.sha256}`).join('\n'),
+    );
+    log(
+      `khớp core.kanji: ${rows.length}; thiếu SVG: ${(manifest.summary.kanjiWithoutSvg as string[]).length}`,
+    );
+    return rows;
+  };
+  if (cli.apply) {
+    await applyWithJournal(cli, url, manifest, async (client) => {
+      await client.query('LOCK TABLE core.kanji IN SHARE MODE');
+      const rows = await selectRows(client);
+      if (rows.length === 0)
+        throw new Error('Không có SVG khớp core.kanji; dừng apply');
+      const before = [
+        await snapshot(client, 'public.source', [SOURCE.code]),
+        await snapshot(
+          client,
+          'core.media_asset',
+          rows.map((row) => row.objectKey),
+        ),
+        await snapshot(
+          client,
+          'core.kanji_media',
+          rows.map((row) => row.literal),
+        ),
+      ];
+      for (const row of rows) {
+        const src = path.join(svgDir, row.filename);
+        if (sha256File(src) !== row.sha256)
+          throw new Error(`Nguồn SVG đã đổi: ${row.filename}`);
+        if (copyTo !== undefined) {
+          // Cache files are immutable: never overwrite media belonging to an older run.
+          mkdirSync(copyTo, { recursive: true });
+          const dest = path.join(copyTo, `${row.codepointHex}.svg`);
+          if (existsSync(dest)) {
+            if (sha256File(dest) !== row.sha256)
+              throw new Error(`File đích khác hash: ${row.filename}`);
+          } else {
+            copyFileSync(src, dest, constants.COPYFILE_EXCL);
+          }
+        }
+      }
+      const sourceId = await upsertSourceRow(client, {
+        ...SOURCE,
+        version,
+        sha256: manifest.inputs!.sha256,
+      });
+      await applyRows(client, rows, sourceId, provider);
+      const after = [
+        await snapshot(client, 'public.source', [SOURCE.code]),
+        await snapshot(
+          client,
+          'core.media_asset',
+          rows.map((row) => row.objectKey),
+        ),
+        await snapshot(
+          client,
+          'core.kanji_media',
+          rows.map((row) => row.literal),
+        ),
+      ];
+      return changesOf(before, after);
+    });
+  } else {
+    const client = await connect(url);
+    try {
+      await selectRows(client);
+    } finally {
+      await client.end();
+    }
+    log(`manifest: ${writeManifest(cli.manifestDir, manifest)}`);
   }
 }
 
