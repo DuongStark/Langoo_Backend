@@ -99,6 +99,65 @@ model thực tế provider trả về. Metadata không được dùng làm alias
 
 Lưu ý: khi provider lỗi (503) tin nhắn **không được lưu**; quota của lượt đã gọi provider vẫn tính.
 
+## POST /v1/chat/sessions/:id/messages/stream — SSE (M10.1)
+
+Trả lời **dần như ChatGPT**: server đẩy từng đoạn ngay khi provider sinh ra.
+Cùng quota/lease/persist với endpoint thường; khi stream lỗi giữa chừng sẽ có
+`event: error` thay vì HTTP 503.
+
+```bash
+curl -N -X POST http://localhost:3000/v1/chat/sessions/<id>/messages/stream \
+  -H "Authorization: Bearer <access_token>" \
+  -H "Content-Type: application/json" \
+  -d '{ "content": "Viết đoạn 100 từ giới thiệu Hà Nội." }'
+```
+
+Luồng sự kiện (`text/event-stream`):
+
+```
+event: start
+data: {"model":"openai/gpt-oss-120b"}
+
+event: delta
+data: {"content":"Hà Nội là "}
+
+event: delta
+data: {"content":"thủ đô của Việt Nam..."}
+
+event: done
+data: { "user_message": {...}, "assistant_message": {...}, "usage": { "request_count": 3, "limit": 50 } }
+```
+
+Lỗi giữa stream:
+
+```
+event: error
+data: {"code":"AI_PROVIDER_UNAVAILABLE","message":"Trợ lý AI đang bận, vui lòng thử lại sau"}
+```
+
+FE đọc bằng `fetch` + `ReadableStream` (không dùng `EventSource` vì cần header
+Authorization + body):
+
+```ts
+const res = await fetch(`${API}/v1/chat/sessions/${id}/messages/stream`, {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+  body: JSON.stringify({ content }),
+});
+const reader = res.body!.getReader();
+const decoder = new TextDecoder();
+let buffer = '';
+for (;;) {
+  const { done, value } = await reader.read();
+  if (done) break;
+  buffer += decoder.decode(value, { stream: true });
+  // tách block theo '\n\n'; mỗi block có 'event: <tên>' và 'data: <json>'
+}
+```
+
+Lỗi **trước delta đầu** (busy/archived/quota/provider fail) vẫn trả JSON status
+như endpoint thường (`409 CHAT_SESSION_BUSY`, `429 AI_QUOTA_EXCEEDED`, `503 AI_PROVIDER_UNAVAILABLE`…).
+
 ## GET /v1/chat/usage
 
 ```json
@@ -113,37 +172,46 @@ Lưu ý: khi provider lỗi (503) tin nhắn **không được lưu**; quota c�
 # Demo, không cần key:
 AI_PROVIDER=stub
 
-# Trả lời thật qua OpenAI-compatible (OpenAI hoặc gateway như OpenCode Zen):
+# Trả lời thật qua OpenAI-compatible (OpenAI / Groq / gateway như OpenCode Zen):
 AI_PROVIDER=openai
 AI_API_KEY=<key>
 AI_CHAT_MODEL=<model-id>
-AI_BASE_URL=https://opencode.ai/zen/v1   # bỏ trống = https://api.openai.com/v1
+AI_BASE_URL=https://api.groq.com/openai/v1   # bỏ trống = https://api.openai.com/v1
 AI_DAILY_REQUEST_LIMIT=50
+# M10.1 (tuỳ chọn): timeout provider + giới hạn token + mức suy luận
+AI_CHAT_TIMEOUT_MS=60000
+# AI_CHAT_MAX_TOKENS=1024
+# AI_CHAT_REASONING_EFFORT=low
 ```
 
 - `AI_PROVIDER=openai` mà thiếu `AI_API_KEY`/`AI_CHAT_MODEL` → **app không khởi động** (fail-fast).
 - `AI_PROVIDER=gemini` chưa được triển khai (dùng gateway OpenAI-compatible nếu cần Gemini qua Zen).
 
-## OpenCode Zen — model miễn phí
-
-Cấu hình backend dùng adapter OpenAI-compatible:
+## Groq — khuyến nghị cho chat (05/10)
 
 ```env
 AI_PROVIDER=openai
-AI_API_KEY=<OpenCode-Zen-API-key>
-AI_BASE_URL=https://opencode.ai/zen/v1
-AI_CHAT_MODEL=space-bunny-free
-AI_DAILY_REQUEST_LIMIT=50
+AI_API_KEY=<Groq key (gsk_...)>
+AI_BASE_URL=https://api.groq.com/openai/v1
+AI_CHAT_MODEL=openai/gpt-oss-120b
 ```
 
-API gọi `https://opencode.ai/zen/v1/chat/completions`. Gửi model ID trực tiếp
-(`space-bunny-free`), không dùng tên cấu hình CLI `opencode/space-bunny-free`.
+Đo thực tế 05/10: **~0,6–2,2s/câu**, trả lời tiếng Việt ổn định, streaming tốt.
+Free tier: 30 req/phút · 1.000 req/ngày · 8K token/phút (model `openai/gpt-oss-120b`).
+Model thay thế cùng family: `openai/gpt-oss-20b`. Tránh `qwen3.8-27b` (đôi lúc lẫn tiếng Trung).
+
+## OpenCode Zen — lưu ý thực tế (kiểm chứng 05/10)
+
+- Endpoint đúng cho app: `https://opencode.ai/zen/v1` (⚠️ **không** dùng `/zen/go/v1` —
+  endpoint Go bắt buộc header `x-opencode-session`, app sẽ nhận `400` → `503`).
+- Các model free khác (`longcat-2.5-preview-free`, `mimo-*`, `big-pickle`…) trả
+  **403 "free tier can only be used from within OpenCode"** khi gọi từ API ngoài.
+- `space-bunny-free` gọi được nhưng là model suy luận: **6–22s/câu**, có lúc trả rỗng;
+  nếu dùng nên đặt `AI_CHAT_REASONING_EFFORT=low` và `AI_CHAT_MAX_TOKENS` đủ lớn.
+- Model trả phí cần balance/Go còn hạn (không thì `402 Insufficient account funds`).
 
 Ngày 2026-10-03, đã đối chiếu [tài liệu Zen](https://opencode.ai/docs/zen/)
-và [catalog API](https://opencode.ai/zen/v1/models): `space-bunny-free`,
-`longcat-2.5-preview-free`, `mimo-v2.6-flash-free` đều có trong catalog và được
-tài liệu ghi miễn phí qua endpoint chat/completions. Model miễn phí có thể thay đổi;
-kiểm tra lại catalog và bảng giá khi đổi model. Backend không tự fallback sang model khác.
+và [catalog API](https://opencode.ai/zen/v1/models). Backend không tự fallback sang model khác.
 
 Lấy danh sách trước khi chọn:
 
@@ -163,3 +231,5 @@ curl -sS https://opencode.ai/zen/v1/chat/completions \
 Trước khi chạy bản sửa, apply migration **037_chat_request_lease.sql** qua
 `npm run db:migrate`, rồi `npm run prisma:generate` và `npm run build`.
 Lệnh migration dùng `DIRECT_URL` trong môi trường bạn đang triển khai.
+Xem thêm kế hoạch: [`docs/plans/m10-ai-chatbot.md`](../plans/m10-ai-chatbot.md),
+[`docs/plans/m10.1-chat-streaming.md`](../plans/m10.1-chat-streaming.md).

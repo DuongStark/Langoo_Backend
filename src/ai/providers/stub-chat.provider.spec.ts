@@ -59,4 +59,19 @@ describe('StubChatProvider', () => {
     expect(result.content).not.toContain(long);
     expect(result.content).toContain('…');
   });
+
+  it('chatStream phát nhiều đoạn nhỏ, ghép lại đúng nội dung', async () => {
+    const chunks: string[] = [];
+    const result = await provider.chatStream(
+      {
+        messages: [{ role: 'user', content: 'Xin chào' }],
+        model: 'stub-v1',
+        timeoutMs: 1000,
+      },
+      (delta) => chunks.push(delta),
+    );
+
+    expect(chunks.length).toBeGreaterThan(1);
+    expect(chunks.join('')).toBe(result.content);
+  });
 });

@@ -89,6 +89,20 @@ export const envSchema = z.object({
   AI_CHAT_MODEL: z.preprocess(emptyToUndefined, z.string().optional()),
   // Base URL kiểu OpenAI (chat/completions) — dùng được gateway như OpenCode Zen.
   AI_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
+  // M10.1 — timeout/stream: timeout provider (mặc định 60s), giới hạn token và
+  // mức suy luận cho model reasoning (chỉ gửi khi cấu hình).
+  AI_CHAT_TIMEOUT_MS: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(1_000).max(300_000).optional(),
+  ),
+  AI_CHAT_MAX_TOKENS: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(1).max(32_000).optional(),
+  ),
+  AI_CHAT_REASONING_EFFORT: z.preprocess(
+    emptyToUndefined,
+    z.enum(['minimal', 'low', 'medium', 'high', 'xhigh', 'max']).optional(),
+  ),
   AI_DAILY_REQUEST_LIMIT: z.preprocess(
     emptyToUndefined,
     z.coerce.number().int().positive().optional(),

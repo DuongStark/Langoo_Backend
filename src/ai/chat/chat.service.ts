@@ -11,8 +11,13 @@ import { Prisma } from '../../generated/prisma/client';
 import { DEFAULT_TIMEZONE } from '../../users/settings.constants';
 import {
   AI_CHAT_PROVIDER,
+  AiChatMessage,
   AiChatProvider,
+  AiChatRequest,
+  AiChatResult,
+  AiProviderError,
   AiSenseContext,
+  isAbortError,
 } from '../providers/ai-chat.provider';
 import { aiChatModel } from '../providers/ai-chat-provider.factory';
 import { AiDbClient, AiUsageService } from '../usage/ai-usage.service';
@@ -36,8 +41,9 @@ import {
 } from './types/chat.types';
 
 const DEFAULT_QUOTA_PER_DAY = 50;
-const PROVIDER_TIMEOUT_MS = 30_000;
-const REQUEST_LEASE_MS = PROVIDER_TIMEOUT_MS + 30_000;
+const DEFAULT_PROVIDER_TIMEOUT_MS = 60_000;
+const REQUEST_LEASE_GRACE_MS = 30_000;
+const PROVIDER_RETRY_DELAY_MS = 700;
 const DEFAULT_SESSION_PAGE = 20;
 const DEFAULT_MESSAGE_PAGE = 50;
 const MAX_PAGE = 100;
@@ -69,8 +75,26 @@ type ChatMessageRow = {
   createdAt: Date;
 };
 
+/** Sự kiện SSE cho endpoint streaming (`POST .../messages/stream`). */
+export type ChatStreamEvent =
+  | { type: 'start'; model: string }
+  | { type: 'delta'; content: string }
+  | { type: 'done'; response: SendChatMessageResponse }
+  | { type: 'error'; code: string; message: string };
+
+/** Kết quả chuẩn bị một lượt chat (quota đã reserve, messages đã dựng). */
+interface PreparedTurn {
+  content: string;
+  senseContext: AiSenseContext | null;
+  period: Date;
+  limit: number;
+  requestCount: number;
+  messages: AiChatMessage[];
+  model: string;
+}
+
 /**
- * AI Chatbot (M10): phiên chat + tin nhắn + quota ngày.
+ * AI Chatbot (M10/M10.1): phiên chat + tin nhắn + quota ngày + streaming SSE.
  * Ghi app.chat_session/chat_message/ai_usage; đọc nghĩa từ điển khi client gửi ref_sense_id.
  */
 @Injectable()
@@ -266,13 +290,73 @@ export class ChatService {
     sessionId: string,
     dto: SendChatMessageDto,
   ): Promise<SendChatMessageResponse> {
+    const { session, requestId } = await this.claimSession(userId, sessionId);
+    try {
+      return await this.sendMessageWithLease(userId, session, dto, requestId);
+    } finally {
+      await this.releaseLease(userId, session.id, requestId);
+    }
+  }
+
+  /**
+   * Trả lời dần qua SSE (M10.1). Sự kiện: start → delta* → done/error.
+   * Lỗi sớm (busy/archived/quota/provider fail trước delta đầu) được throw ra
+   * để controller trả JSON status như endpoint thường.
+   */
+  async sendMessageStream(
+    userId: bigint,
+    sessionId: string,
+    dto: SendChatMessageDto,
+    emit: (event: ChatStreamEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    const { session, requestId } = await this.claimSession(userId, sessionId);
+    try {
+      await this.streamMessageWithLease(
+        userId,
+        session,
+        dto,
+        requestId,
+        emit,
+        signal,
+      );
+    } finally {
+      await this.releaseLease(userId, session.id, requestId);
+    }
+  }
+
+  async getUsage(userId: bigint): Promise<ChatUsageResponse> {
+    const timezone = await this.resolveTimezone(userId);
+    const day = localDateString(new Date(), timezone);
+    const requestCount = await this.usage.getDailyRequestCount(
+      this.prisma,
+      userId,
+      periodDate(day),
+      'chat',
+    );
+    return {
+      feature: 'chat',
+      period: day,
+      request_count: requestCount,
+      limit: this.quotaLimit(),
+    };
+  }
+
+  // ---------------------------------------------------------------- internals
+
+  /**
+   * Giành "lease" cho phiên trước khi gọi provider — khoá mềm trong DB để nhiều
+   * process API không trả lời chồng lên nhau mà không giữ transaction khi gọi AI.
+   */
+  private async claimSession(
+    userId: bigint,
+    sessionId: string,
+  ): Promise<{ session: ChatSessionRow; requestId: string }> {
     const session = await this.getSessionOr404(userId, sessionId);
     if (session.archivedAt) {
       throw archivedSession();
     }
 
-    // Claim before reading history/reserving quota. The DB lease coordinates
-    // all API processes without holding a transaction open during the AI call.
     const requestId = uuidv7();
     const now = new Date();
     const claimed = await this.prisma.chatSession.updateMany({
@@ -287,7 +371,7 @@ export class ChatService {
       },
       data: {
         pendingRequestId: requestId,
-        pendingRequestExpiresAt: new Date(now.getTime() + REQUEST_LEASE_MS),
+        pendingRequestExpiresAt: new Date(now.getTime() + this.leaseMs()),
       },
     });
     if (claimed.count === 0) {
@@ -301,22 +385,25 @@ export class ChatService {
         HttpStatus.CONFLICT,
       );
     }
+    return { session, requestId };
+  }
 
-    try {
-      return await this.sendMessageWithLease(userId, session, dto, requestId);
-    } finally {
-      // A stale request must never release a newer request's lease.
-      await this.prisma.chatSession
-        .updateMany({
-          where: { id: session.id, userId, pendingRequestId: requestId },
-          data: { pendingRequestId: null, pendingRequestExpiresAt: null },
-        })
-        .catch((error: unknown) => {
-          this.logger.error(
-            `Không giải phóng được lượt chat: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
-          );
-        });
-    }
+  /** A stale request must never release a newer request's lease. */
+  private async releaseLease(
+    userId: bigint,
+    sessionId: string,
+    requestId: string,
+  ): Promise<void> {
+    await this.prisma.chatSession
+      .updateMany({
+        where: { id: sessionId, userId, pendingRequestId: requestId },
+        data: { pendingRequestId: null, pendingRequestExpiresAt: null },
+      })
+      .catch((error: unknown) => {
+        this.logger.error(
+          `Không giải phóng được lượt chat: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
+        );
+      });
   }
 
   private async sendMessageWithLease(
@@ -325,6 +412,110 @@ export class ChatService {
     dto: SendChatMessageDto,
     requestId: string,
   ): Promise<SendChatMessageResponse> {
+    const { content, senseContext } = await this.normalizeInput(dto);
+    const prepared = await this.prepareTurn(
+      userId,
+      session,
+      content,
+      senseContext,
+    );
+
+    let reply: AiChatResult;
+    try {
+      reply = await this.callProviderWithRetry(() =>
+        this.provider.chat(this.buildProviderRequest(prepared)),
+      );
+    } catch (error) {
+      throw this.providerUnavailable(error);
+    }
+
+    return this.persistTurn(userId, session, requestId, prepared, reply);
+  }
+
+  private async streamMessageWithLease(
+    userId: bigint,
+    session: ChatSessionRow,
+    dto: SendChatMessageDto,
+    requestId: string,
+    emit: (event: ChatStreamEvent) => void,
+    signal?: AbortSignal,
+  ): Promise<void> {
+    const { content, senseContext } = await this.normalizeInput(dto);
+    const prepared = await this.prepareTurn(
+      userId,
+      session,
+      content,
+      senseContext,
+    );
+    emit({ type: 'start', model: prepared.model });
+
+    const request = this.buildProviderRequest(prepared, signal);
+    const stream = this.provider.chatStream?.bind(this.provider);
+    let firstDelta = false;
+    let reply: AiChatResult;
+    try {
+      if (stream) {
+        reply = await this.callProviderWithRetry(
+          () =>
+            stream(request, (delta) => {
+              firstDelta = true;
+              emit({ type: 'delta', content: delta });
+            }),
+          { signal, shouldRetry: () => !firstDelta },
+        );
+      } else {
+        // Provider không hỗ trợ stream: trả một lần rồi kết thúc như bình thường.
+        reply = await this.callProviderWithRetry(
+          () => this.provider.chat(request),
+          { signal },
+        );
+        firstDelta = true;
+        emit({ type: 'delta', content: reply.content });
+      }
+    } catch (error) {
+      if (!firstDelta) {
+        throw this.providerUnavailable(error);
+      }
+      this.logger.warn(
+        `AI stream lỗi giữa chừng: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
+      );
+      emit({
+        type: 'error',
+        code: 'AI_PROVIDER_UNAVAILABLE',
+        message: 'Trợ lý AI đang bận, vui lòng thử lại sau',
+      });
+      return;
+    }
+
+    try {
+      const response = await this.persistTurn(
+        userId,
+        session,
+        requestId,
+        prepared,
+        reply,
+      );
+      emit({ type: 'done', response });
+    } catch (error) {
+      if (error instanceof DomainException) {
+        const payload = error.getResponse() as {
+          code?: string;
+          message?: string;
+        };
+        emit({
+          type: 'error',
+          code: payload.code ?? 'CHAT_STREAM_FAILED',
+          message: payload.message ?? 'Không lưu được tin nhắn',
+        });
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private async normalizeInput(
+    dto: SendChatMessageDto,
+  ): Promise<{ content: string; senseContext: AiSenseContext | null }> {
     const content = dto.content.trim();
     if (content.length === 0) {
       throw new DomainException(
@@ -333,12 +524,20 @@ export class ChatService {
         HttpStatus.BAD_REQUEST,
       );
     }
-
     const senseContext =
       dto.ref_sense_id === undefined
         ? null
         : await this.buildSenseContext(dto.ref_sense_id);
+    return { content, senseContext };
+  }
 
+  /** Reserve quota + dựng messages trước khi gọi provider (dùng chung 2 endpoint). */
+  private async prepareTurn(
+    userId: bigint,
+    session: ChatSessionRow,
+    content: string,
+    senseContext: AiSenseContext | null,
+  ): Promise<PreparedTurn> {
     const timezone = await this.resolveTimezone(userId);
     const period = periodDate(localDateString(new Date(), timezone));
     const limit = this.quotaLimit();
@@ -363,25 +562,25 @@ export class ChatService {
     // The response model is metadata, not necessarily a valid gateway alias.
     // Use current deployment config so existing demo sessions work after a switch.
     const model = aiChatModel(this.config);
-    let reply;
-    try {
-      reply = await this.provider.chat({
-        messages,
-        model,
-        timeoutMs: PROVIDER_TIMEOUT_MS,
-        senseContext,
-      });
-    } catch (error) {
-      this.logger.warn(
-        `AI provider lỗi: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
-      );
-      throw new DomainException(
-        'AI_PROVIDER_UNAVAILABLE',
-        'Trợ lý AI đang bận, vui lòng thử lại sau',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
-    }
+    return {
+      content,
+      senseContext,
+      period,
+      limit,
+      requestCount,
+      messages,
+      model,
+    };
+  }
 
+  /** Lưu user + assistant + usage trong cùng transaction (có kiểm tra lease). */
+  private async persistTurn(
+    userId: bigint,
+    session: ChatSessionRow,
+    requestId: string,
+    prepared: PreparedTurn,
+    reply: AiChatResult,
+  ): Promise<SendChatMessageResponse> {
     const now = new Date();
     const [userMessage, assistantMessage] = await this.prisma.$transaction(
       async (tx) => {
@@ -398,7 +597,7 @@ export class ChatService {
           data: {
             messageCount: { increment: 2 },
             lastMessageAt: now,
-            model,
+            model: prepared.model,
             promptVersion: CHAT_PROMPT_VERSION,
             pendingRequestId: null,
             pendingRequestExpiresAt: null,
@@ -419,9 +618,11 @@ export class ChatService {
           data: {
             sessionId: session.id,
             role: 'user',
-            content,
+            content: prepared.content,
             contentJson: {},
-            refSenseId: senseContext ? BigInt(senseContext.senseId) : null,
+            refSenseId: prepared.senseContext
+              ? BigInt(prepared.senseContext.senseId)
+              : null,
           },
         });
         const createdAssistant = await tx.chatMessage.create({
@@ -439,7 +640,7 @@ export class ChatService {
         await this.usage.addUsage(
           tx,
           userId,
-          period,
+          prepared.period,
           'chat',
           reply.tokensIn,
           reply.tokensOut,
@@ -452,25 +653,95 @@ export class ChatService {
     return {
       user_message: toMessageResponse(userMessage),
       assistant_message: toMessageResponse(assistantMessage),
-      usage: { request_count: requestCount, limit },
+      usage: {
+        request_count: prepared.requestCount,
+        limit: prepared.limit,
+      },
     };
   }
 
-  async getUsage(userId: bigint): Promise<ChatUsageResponse> {
-    const timezone = await this.resolveTimezone(userId);
-    const day = localDateString(new Date(), timezone);
-    const requestCount = await this.usage.getDailyRequestCount(
-      this.prisma,
-      userId,
-      periodDate(day),
-      'chat',
-    );
+  private buildProviderRequest(
+    prepared: PreparedTurn,
+    signal?: AbortSignal,
+  ): AiChatRequest {
     return {
-      feature: 'chat',
-      period: day,
-      request_count: requestCount,
-      limit: this.quotaLimit(),
+      messages: prepared.messages,
+      model: prepared.model,
+      timeoutMs: this.providerTimeoutMs(),
+      senseContext: prepared.senseContext,
+      maxTokens: this.providerMaxTokens(),
+      reasoningEffort: this.providerReasoningEffort(),
+      signal,
     };
+  }
+
+  /** Thử lại 1 lần với lỗi tạm thời (429/5xx/timeout) khi chưa phát delta. */
+  private async callProviderWithRetry<T>(
+    fn: () => Promise<T>,
+    options: { signal?: AbortSignal; shouldRetry?: () => boolean } = {},
+  ): Promise<T> {
+    const maxAttempts = 2;
+    for (let attempt = 1; ; attempt += 1) {
+      try {
+        return await fn();
+      } catch (error) {
+        const clientAborted = options.signal?.aborted === true;
+        const retryable =
+          !clientAborted &&
+          (error instanceof AiProviderError
+            ? error.retryable
+            : isAbortError(error));
+        const allowed = options.shouldRetry ? options.shouldRetry() : true;
+        if (!retryable || !allowed || attempt >= maxAttempts) {
+          throw error;
+        }
+        this.logger.warn(
+          `AI provider lỗi tạm thời (lần ${attempt}), thử lại sau ${PROVIDER_RETRY_DELAY_MS}ms: ${
+            error instanceof Error ? error.message.slice(0, 150) : 'unknown'
+          }`,
+        );
+        await delay(PROVIDER_RETRY_DELAY_MS);
+      }
+    }
+  }
+
+  private providerUnavailable(error: unknown): DomainException {
+    this.logger.warn(
+      `AI provider lỗi: ${error instanceof Error ? error.message.slice(0, 200) : 'unknown'}`,
+    );
+    return new DomainException(
+      'AI_PROVIDER_UNAVAILABLE',
+      'Trợ lý AI đang bận, vui lòng thử lại sau',
+      HttpStatus.SERVICE_UNAVAILABLE,
+    );
+  }
+
+  private providerTimeoutMs(): number {
+    return (
+      this.positiveConfig('AI_CHAT_TIMEOUT_MS') ?? DEFAULT_PROVIDER_TIMEOUT_MS
+    );
+  }
+
+  private providerMaxTokens(): number | undefined {
+    return this.positiveConfig('AI_CHAT_MAX_TOKENS');
+  }
+
+  private providerReasoningEffort(): string | undefined {
+    return (
+      this.config.get<string>('AI_CHAT_REASONING_EFFORT')?.trim() || undefined
+    );
+  }
+
+  private positiveConfig(key: string): number | undefined {
+    const raw = this.config.get<number | string>(key);
+    const parsed = typeof raw === 'string' ? Number.parseInt(raw, 10) : raw;
+    return typeof parsed === 'number' && Number.isFinite(parsed) && parsed > 0
+      ? parsed
+      : undefined;
+  }
+
+  private leaseMs(): number {
+    return this.providerTimeoutMs() + REQUEST_LEASE_GRACE_MS;
   }
 
   private async getSessionOr404(
@@ -587,6 +858,10 @@ function clampLimit(value: number | undefined, fallback: number): number {
 
 function periodDate(day: string): Date {
   return new Date(`${day}T00:00:00.000Z`);
+}
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function archivedSession(): DomainException {

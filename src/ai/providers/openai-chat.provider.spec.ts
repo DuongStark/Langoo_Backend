@@ -1,3 +1,4 @@
+import { AiProviderError } from './ai-chat.provider';
 import { OpenAiChatProvider } from './openai-chat.provider';
 
 const originalFetch = global.fetch;
@@ -123,5 +124,144 @@ describe('OpenAiChatProvider', () => {
         timeoutMs: 5000,
       }),
     ).rejects.toThrow(/rỗng/);
+  });
+
+  it('chatStream: ghép delta, bỏ reasoning, đọc model + usage từ chunk', async () => {
+    const encoder = new TextEncoder();
+    const sse = (...parts: string[]): Response =>
+      new Response(
+        new ReadableStream<Uint8Array>({
+          start(controller) {
+            for (const part of parts) {
+              controller.enqueue(encoder.encode(part));
+            }
+            controller.close();
+          },
+        }),
+        { status: 200, headers: { 'content-type': 'text/event-stream' } },
+      );
+
+    mockFetch(async () =>
+      Promise.resolve(
+        sse(
+          'data: {"choices":[{"delta":{"reasoning_content":"nghĩ thầm"}}]}\n\n',
+          'data: {"choices":[{"delta":{"content":"Xin "}}],"model":"gpt-oss-120b"}\n',
+          'data: {"choices":[{"delta":{"content":"chào"}}]}\n\n',
+          'data: {"choices":[{"delta":{"content":"!"}}],"usage":{"prompt_tokens":5,"completion_tokens":3}}\n\n',
+          'data: [DONE]\n\n',
+        ),
+      ),
+    );
+    const provider = new OpenAiChatProvider({
+      baseUrl: 'https://api.groq.com/openai/v1',
+      apiKey: 'k',
+    });
+
+    const deltas: string[] = [];
+    const result = await provider.chatStream(
+      {
+        messages: [{ role: 'user', content: 'hi' }],
+        model: 'gpt-oss-120b',
+        timeoutMs: 5000,
+      },
+      (delta) => deltas.push(delta),
+    );
+
+    expect(deltas).toEqual(['Xin ', 'chào', '!']);
+    expect(result).toMatchObject({
+      content: 'Xin chào!',
+      model: 'gpt-oss-120b',
+      tokensIn: 5,
+      tokensOut: 3,
+      costUsd: 0,
+    });
+  });
+
+  it('chatStream: gửi max_tokens + reasoning_effort + stream=true khi cấu hình', async () => {
+    const fetchMock = mockFetch(async () =>
+      Promise.resolve(
+        new Response(
+          'data: {"choices":[{"delta":{"content":"ok"}}]}\n\ndata: [DONE]\n\n',
+          { status: 200 },
+        ),
+      ),
+    );
+    const provider = new OpenAiChatProvider({
+      baseUrl: 'https://api.groq.com/openai/v1',
+      apiKey: 'k',
+    });
+
+    await provider.chatStream(
+      {
+        messages: [{ role: 'user', content: 'hi' }],
+        model: 'm',
+        timeoutMs: 5000,
+        maxTokens: 256,
+        reasoningEffort: 'low',
+      },
+      () => undefined,
+    );
+
+    const [, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+    expect(JSON.parse(init.body as string)).toMatchObject({
+      stream: true,
+      max_tokens: 256,
+      reasoning_effort: 'low',
+    });
+  });
+
+  it('chatStream: chỉ có reasoning, không content → coi là lỗi rỗng', async () => {
+    mockFetch(async () =>
+      Promise.resolve(
+        new Response(
+          'data: {"choices":[{"delta":{"reasoning_content":"..."}}]}\n\ndata: [DONE]\n\n',
+          { status: 200 },
+        ),
+      ),
+    );
+    const provider = new OpenAiChatProvider({
+      baseUrl: 'https://api.groq.com/openai/v1',
+      apiKey: 'k',
+    });
+
+    await expect(
+      provider.chatStream(
+        {
+          messages: [{ role: 'user', content: 'hi' }],
+          model: 'm',
+          timeoutMs: 5000,
+        },
+        () => undefined,
+      ),
+    ).rejects.toThrow(/rỗng/);
+  });
+
+  it('chatStream: HTTP 429 → AiProviderError.retryable = true', async () => {
+    mockFetch(async () =>
+      Promise.resolve(new Response('rate limited', { status: 429 })),
+    );
+    const provider = new OpenAiChatProvider({
+      baseUrl: 'https://api.groq.com/openai/v1',
+      apiKey: 'k',
+    });
+
+    let caught: unknown;
+    try {
+      await provider.chatStream(
+        {
+          messages: [{ role: 'user', content: 'hi' }],
+          model: 'm',
+          timeoutMs: 5000,
+        },
+        () => undefined,
+      );
+    } catch (error) {
+      caught = error;
+    }
+
+    expect(caught).toBeInstanceOf(AiProviderError);
+    const providerError = caught as AiProviderError;
+    expect(providerError.status).toBe(429);
+    expect(providerError.retryable).toBe(true);
   });
 });

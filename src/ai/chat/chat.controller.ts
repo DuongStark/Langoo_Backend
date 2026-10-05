@@ -9,13 +9,17 @@ import {
   Patch,
   Post,
   Query,
+  Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
+import type { Request, Response } from 'express';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiProduces,
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
@@ -140,6 +144,80 @@ export class ChatController {
       parseUuidParam(id, 'ID phiên chat'),
       dto,
     );
+  }
+
+  @Post('sessions/:id/messages/stream')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Gửi tin nhắn, nhận trả lời dần qua SSE (M10.1)',
+    description:
+      'Sự kiện: start → delta* → done (hoặc error). Dùng chung quota/lease với endpoint thường; ' +
+      'khi stream lỗi giữa chừng sẽ có event error thay vì HTTP 503.',
+  })
+  @ApiProduces('text/event-stream')
+  async streamMessage(
+    @CurrentUser() payload: JwtPayload,
+    @Param('id') id: string,
+    @Body() dto: SendChatMessageDto,
+    @Req() request: Request,
+    @Res() response: Response,
+  ): Promise<void> {
+    const abort = new AbortController();
+    request.on('close', () => {
+      if (!response.writableEnded) {
+        abort.abort();
+      }
+    });
+
+    let headersSent = false;
+    const write = (chunk: string): void => {
+      if (!headersSent) {
+        response.writeHead(HttpStatus.OK, {
+          'Content-Type': 'text/event-stream; charset=utf-8',
+          'Cache-Control': 'no-cache, no-transform',
+          Connection: 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        });
+        headersSent = true;
+      }
+      response.write(chunk);
+    };
+    const writeEvent = (name: string, data: unknown): void => {
+      write(`event: ${name}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+    const heartbeat = setInterval(() => {
+      if (headersSent && !response.writableEnded) {
+        response.write(': ping\n\n');
+      }
+    }, 15_000);
+
+    try {
+      await this.chatService.sendMessageStream(
+        BigInt(payload.sub),
+        parseUuidParam(id, 'ID phiên chat'),
+        dto,
+        (event) => {
+          if (event.type === 'delta') {
+            writeEvent('delta', { content: event.content });
+          } else if (event.type === 'done') {
+            writeEvent('done', event.response);
+          } else if (event.type === 'error') {
+            writeEvent('error', {
+              code: event.code,
+              message: event.message,
+            });
+          } else {
+            writeEvent('start', { model: event.model });
+          }
+        },
+        abort.signal,
+      );
+    } finally {
+      clearInterval(heartbeat);
+      if (headersSent && !response.writableEnded) {
+        response.end();
+      }
+    }
   }
 
   @Get('usage')

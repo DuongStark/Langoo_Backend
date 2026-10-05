@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import {
+  AiChatDeltaHandler,
   AiChatProvider,
   AiChatRequest,
   AiChatResult,
@@ -7,6 +8,7 @@ import {
 } from './ai-chat.provider';
 
 const MAX_ECHO_LENGTH = 200;
+const STREAM_CHUNK_SIZE = 18;
 
 /**
  * Provider giả chạy không cần key/mạng — deterministic để e2e assert.
@@ -17,6 +19,27 @@ export class StubChatProvider implements AiChatProvider {
   readonly name = 'stub';
 
   chat(request: AiChatRequest): Promise<AiChatResult> {
+    return Promise.resolve(this.buildResult(request));
+  }
+
+  /** Phát nội dung theo từng đoạn nhỏ để e2e kiểm tra SSE mà không cần mạng. */
+  async chatStream(
+    request: AiChatRequest,
+    onDelta: AiChatDeltaHandler,
+  ): Promise<AiChatResult> {
+    const result = this.buildResult(request);
+    for (
+      let index = 0;
+      index < result.content.length;
+      index += STREAM_CHUNK_SIZE
+    ) {
+      onDelta(result.content.slice(index, index + STREAM_CHUNK_SIZE));
+      await Promise.resolve();
+    }
+    return result;
+  }
+
+  private buildResult(request: AiChatRequest): AiChatResult {
     const lastUser =
       [...request.messages].reverse().find((m) => m.role === 'user')?.content ??
       '';
@@ -48,13 +71,13 @@ export class StubChatProvider implements AiChatProvider {
     const tokensIn = estimateTokens(
       request.messages.map((m) => m.content).join('\n'),
     );
-    return Promise.resolve({
+    return {
       content,
       model: request.model,
       tokensIn,
       tokensOut: estimateTokens(content),
       costUsd: 0,
-    });
+    };
   }
 }
 
