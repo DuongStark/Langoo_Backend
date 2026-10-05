@@ -59,6 +59,9 @@ Internet
   - Hiện trỏ **Prisma cloud** (`DATABASE_URL`/`DIRECT_URL`) theo file env chủ dự án (02/10).
   - Bản trỏ **DB thật VPS** giữ tại `/opt/langoo/app/.env.localdb.bak` — đổi 2 dòng `DATABASE_URL`/`DIRECT_URL` sang `postgresql://langoo:<pass>@127.0.0.1:5432/langoo` rồi `pm2 restart` là về DB thật.
   - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS=*`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`…
+  - **AI production (05/10)**: `AI_PROVIDER=openai`, `AI_BASE_URL=https://opencode.ai/zen/v1`, `AI_CHAT_MODEL=space-bunny-free`, key OpenCode (Zen/Go dùng chung key).
+    ⚠️ **Không dùng `https://opencode.ai/zen/go/v1`**: endpoint Go bắt buộc header `x-opencode-session` (client coding-agent) — app chưa gửi nên nhận 400 `MissingSessionID` → API trả 503. Endpoint Zen (`/zen/v1`) không cần header.
+    Sửa `.env` xong phải `sudo -u langoo -H pm2 restart langoo-api` (dotenv đọc lúc khởi động).
 - Logs: `sudo -u langoo -H pm2 logs langoo-api` hoặc `/opt/langoo/.pm2/logs/langoo-api-{out,error}.log`.
 - Ảnh feedback lưu tại `/opt/langoo/storage` (không nằm trong repo).
 
