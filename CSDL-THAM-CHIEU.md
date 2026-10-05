@@ -1,6 +1,6 @@
 # CSDL tham chiếu — Langoo
 
-> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-10-03 00:53** · PostgreSQL 16.2.
+> Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-10-05 08:21** · PostgreSQL 16.2.
 > KHÔNG sửa tay — chạy lại script sau mỗi migration.
 
 Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
@@ -62,7 +62,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 <a id="publicschema_migration"></a>
 ### `public.schema_migration`
 
-*table — 34 dòng*
+*table — 36 dòng*
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
@@ -1841,12 +1841,6 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 *table — 1 dòng*
 
-**Bổ sung migration 037 (M10, 2026-10-03):** `pending_request_id uuid NULL` và
-`pending_request_expires_at timestamptz NULL`; CHECK `chat_session_request_lease_pair`
-buộc hai cột cùng NULL hoặc cùng có giá trị. Khóa tạm 60 giây phối hợp gửi tin giữa
-nhiều process, token chặn kết quả cũ ghi tin sau archive/thay lượt. Migration đã apply
-trên DB test local; snapshot bảng bên dưới chưa bao gồm 037, cloud chưa apply.
-
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
 | 1 | `id` | uuid | không | gen_random_uuid() |  |
@@ -1862,6 +1856,8 @@ trên DB test local; snapshot bảng bên dưới chưa bao gồm 037, cloud ch�
 | 11 | `last_message_at` | timestamp with time zone | có |  |  |
 | 12 | `created_at` | timestamp with time zone | không | now() |  |
 | 13 | `archived_at` | timestamp with time zone | có |  |  |
+| 14 | `pending_request_id` | uuid | có |  |  |
+| 15 | `pending_request_expires_at` | timestamp with time zone | có |  |  |
 
 **Khoá chính**: `PRIMARY KEY (id)`
 
@@ -1872,6 +1868,7 @@ trên DB test local; snapshot bảng bên dưới chưa bao gồm 037, cloud ch�
 
 **Ràng buộc khác**:
 - `chat_session_message_count_check` (check): CHECK ((message_count >= 0))
+- `chat_session_request_lease_pair` (check): CHECK (((pending_request_id IS NULL) = (pending_request_expires_at IS NULL)))
 
 **Chỉ mục**:
 - `chat_session_by_user`: CREATE INDEX chat_session_by_user ON app.chat_session USING btree (user_id, last_message_at DESC NULLS LAST)
@@ -3032,3 +3029,4 @@ UNION ALL
      JOIN core.lexeme lb ON lb.id = sb.lexeme_id
   WHERE la.language_id <> lb.language_id AND LEAST(ca.confidence, cb.confidence) >= 0.7::double precision
 ```
+
