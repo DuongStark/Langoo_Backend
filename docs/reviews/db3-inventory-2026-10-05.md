@@ -66,7 +66,7 @@ Unicode `CJKRadicals.txt` (number↔ký tự↔unified, validate 214/214), vi.wi
 (bảng 214 dòng: ký tự + biến thể + tên Hán-Việt + nghĩa VI), Unihan `kTotalStrokes` (số nét),
 en.wikipedia "Radical N" (cho `name_en`, mẫu `meaning "water"`). **Đã chốt:** `name_vi` = "Thủy"
 (không tiền tố "bộ "), **có** `name_en`. Cần người tích hợp tải raw vào `data-Langoo/downloads/extras/`
-trước khi seed; API phục vụ ảnh KanjiVG thuộc **phase M mới** (không nằm trong DB3-A).
+trước khi seed; API phục vụ ảnh KanjiVG gộp vào **M14** (không nằm trong DB3-A).
 
 **Khoảng trống/kết luận:**
 1. Cần chọn nguồn chuẩn cho 214 dòng: số bộ + ký tự + biến thể + số nét + tên EN

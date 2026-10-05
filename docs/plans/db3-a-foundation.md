@@ -11,7 +11,8 @@
 - **DB3-B (không thuộc plan này)**: gloss tiếng Việt (harvest Wiktionary/OMW/Wikidata) + dịch máy
   phần thiếu bằng **OpenCode Go** (lô nhỏ + checkpoint).
 - **Không** gộp DB4 (mapping sense↔concept) hoặc M14 (curation ghi `core`) vào DB3-A.
-- **Ghi chú phase M mới (không thuộc DB3-A)** — ghi tại đây để không trôi; khi làm sẽ chốt thiết kế riêng:
+- **Ghi chú M14 (chốt 05/10 — không phải phase M mới)**: 2 hạng mục admin/backend gộp vào milestone **M14**
+  (ngoài DB3-A); khi làm M14 sẽ chốt thiết kế riêng:
   1. **API phục vụ ảnh KanjiVG** (`GET /v1/kanji/:literal/stroke.svg` hoặc signed URL) — cần chốt nơi lưu file
      khi làm; DB3-A chỉ seed metadata (`kanji_media`).
   2. **API admin xem danh sách/tìm user** — hiện chỉ có `PATCH /v1/admin/users/:id` (khoá/mở, audit);
@@ -54,8 +55,8 @@
   `is_primary`, `is_published=false`, lexeme nhiều cấp chỉ vào cấp thấp nhất; chỉnh sau không cần migration.
 - **(c) License/nguồn gốc**: `kanji-data` (id 11) và `jlpt-list` (id 12) đang "CẦN XÁC MINH";
   `omw-ja`/`omw-en` chưa rõ điều khoản; `omw-wikt-vi` thiếu version. Cần người xác minh — không tự đổi.
-  **Chốt 05/10:** API phục vụ ảnh (serving media) **không nằm trong phase DB** — sẽ làm ở **phase M mới**
-  (backend); DB3-A chỉ seed metadata. Nơi lưu file KanjiVG vẫn cần chốt khi làm phase M đó.
+  **Chốt 05/10:** API phục vụ ảnh (serving media) **không nằm trong phase DB** — gộp vào **M14**
+  (cùng API admin xem danh sách user); DB3-A chỉ seed metadata. Nơi lưu file KanjiVG chốt khi làm M14.
 
 ## 3. Nguyên tắc chung của mọi seed trong DB3-A
 
