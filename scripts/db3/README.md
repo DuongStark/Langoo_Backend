@@ -1,4 +1,4 @@
-# scripts/db3 — Seed dữ liệu nền DB3-A
+# scripts/db3 — Dữ liệu nền DB3-A và gloss DB3-B
 
 Kế hoạch: [DB3-A](../../docs/plans/db3-a-foundation.md). Công cụ Node 22/TypeScript, không thêm dependency hay migration.
 
@@ -90,6 +90,64 @@ npx tsx scripts/db3/gloss-harvest.ts --verify uploads/db3b/harvest-<stamp>
 ```
 
 Xuất `candidates.jsonl` (needs_translation) + `unresolved.jsonl` (ambiguous/blocked_source/missing_context) theo contract v1 ([schema v1](../../docs/plans/db3-b-schema-v1.md)). Kết quả 2026-10-05: [`docs/reviews/db3-b-harvest-2026-10-05.md`](../../docs/reviews/db3-b-harvest-2026-10-05.md).
+
+## B2 — dịch, review, apply và rollback gloss
+
+Node 22. [Báo cáo B2](../../docs/reviews/db3-b-tooling-2026-10-05.md) ghi phạm vi và kiểm thử; [contract example v1](../../docs/plans/db3-b-example-schema-v1.md) dành cho DeepSeek harvest Tatoeba, chỉ xuất artifact.
+
+Thư mục artifact phải chứa inventory/source-audit B0 và JSONL B1 đúng hash. Truyền đường dẫn tương đối với `--artifact-dir`; tool từ chối traversal và symlink. Trên VPS dùng `/opt/langoo/storage/db3b/` ngoài thư mục release, backup cả artifact và DB. Các lệnh dưới là hướng dẫn; apply VPS cần gate B3/B4 trong plan.
+
+```bash
+nvm use
+DB3B_ARTIFACT_DIR=/duong-dan/storage/db3b
+DB3B_CANDIDATES=harvest-<stamp>/candidates.jsonl
+DB3B_INVENTORY=<stamp>-gloss-inventory.json
+
+# Dry-run mặc định: không ghi artifact, không gọi provider hoặc DB.
+# Chọn 100 sense JA duy nhất, ưu tiên N5, ít nhất 10 ca đa nghĩa.
+npx tsx scripts/db3/gloss-translate.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --inventory "$DB3B_INVENTORY" --dry-run
+
+# Stub: gloss VI do fixture cung cấp, map semanticKey -> string/null.
+# --max-targets <100 chỉ dùng kiểm tra nhỏ, không đạt gate pilot.
+npx tsx scripts/db3/gloss-translate.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --inventory "$DB3B_INVENTORY" --job stub-job.json --provider stub --stub-outputs stub-outputs.json --max-targets 2 --generate
+
+# B3 chỉ chạy sau khi key mới, model/pricing/budget và policy đã kiểm tra.
+# DB3_AI_* dùng cấu hình §5.1 plan, tách khỏi AI_* runtime chat.
+# Cần --generate explicit; không tự chuyển model khi lỗi/hết quota.
+npx tsx scripts/db3/gloss-translate.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --inventory "$DB3B_INVENTORY" --job pilot-job.json --provider opencode-go --generate
+
+# Xuất 100 output non-null đã qua validator, kèm JA/EN/source cho người review.
+npx tsx scripts/db3/gloss-review.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --job pilot-job.json
+# Copy reviews/<jobKey>-template.json thành review.json rồi review đủ 100 dòng.
+# Template mặc định fail/UNREVIEWED, không tự approve, không overwrite file cũ.
+
+# Kiểm tra shape job, không ghi DB.
+npx tsx scripts/db3/gloss-apply.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --job pilot-job.json --dry-run
+# Chỉ sau gate human >=98/100 pass, 0 severe; chỉ dòng pass được apply.
+# DIRECT_URL phải trỏ đúng host/port/database của job snapshot.
+npx tsx scripts/db3/gloss-apply.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --job pilot-job.json --review review.json --apply --allow-db <database>
+npx tsx scripts/db3/verify-gloss.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --job pilot-job.json
+# Rollback cần cùng --job/--rollback và guard DB, theo thứ tự child ngược.
+npx tsx scripts/db3/gloss-apply.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --job pilot-job.json --rollback pilot-job.json --apply --allow-db <database>
+```
+
+- Muse pilot dùng Responses API, `reasoning.effort=minimal`, concurrency 1, không chấp nhận cấu hình khác rồi âm thầm bỏ qua. Space Bunny là lựa chọn dự phòng explicit; LongCat đã loại theo bench trong plan. Kiểm tra giá/model trước B3: policy giá trong tool không phải cap billing của provider.
+- Ghi intent và budget reservation trước request. Cache theo input/model/prompt/protocol, response/intent theo jobKey; resume kiểm tra hash, output và checkpoint trước khi dùng lại. Request timeout hoặc crash thiếu response trở thành `unknown`, giữ reservation; cần `--retry-unknown` explicit, có thể phát sinh tính phí lần nữa. Request đã hoàn tất có response bền vững được phục hồi mà không gọi lại. Tối đa 3 attempt/target, mọi attempt tính vào cap; Retry-After >30s dừng để resume sau.
+- Lỗi khóa `job.lock`: kiểm tra PID và tiến trình đang chạy trước khi xử lý lock cũ. Không sửa checkpoint để bỏ qua budget/gate. Nếu thiếu/sai hash response hoặc journal thì dừng và khôi phục từ backup.
+- Apply append lô 50, kiểm tra lại target/context/source/forms/JLPT trong transaction; không overwrite reviewed, không promote concept/cache/mapping. Mọi output LLM vẫn `is_machine=true`, `quality/reviewed_by/reviewed_at=NULL`; human pilot gate không đồng nghĩa curator đã duyệt từng dòng DB.
+- Child được đăng ký trước mutation. Resume đối chiếu journal prepared/applied và DB; rollback giữ source/import_batch/mapping_run và history, đánh dấu run rolled_back. Nếu curator đã sửa hoặc job khác còn dùng lại gloss, rollback dừng. Rollback job phụ thuộc trước rồi job sở hữu gloss; job đã rollback không tự reapply.
+- B2 hiện nhận job dịch `needs_translation` cho sense/concept. `eligible_source` trực tiếp và `concept_label` cần contract/job riêng khi có candidate đủ điều kiện; B1 hiện có 0 eligible_source, OMW lemma bị blocked. Example chưa seed DB. FE badge/credits và curation vẫn là gate rollout.
+
+Kiểm thử offline và DB UUID mới riêng:
+
+```bash
+node --import tsx --test scripts/db3/gloss-types.test.ts scripts/db3/example-types.test.ts scripts/db3/gloss-translate.test.ts
+# Cần TEST_DIRECT_URL hoặc TEST_DATABASE_URL local *_test.
+node --import tsx --test scripts/db3/gloss-apply.test.ts
+# Regression chung DB3-A khi thay _mutations.ts.
+node --import tsx --test scripts/db3/regression.test.ts
+npx tsc --noEmit --strict --target ES2023 --module commonjs --moduleResolution node --esModuleInterop --skipLibCheck scripts/db3/*.ts
+```
 
 ## Gate dữ liệu và scope
 

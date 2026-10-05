@@ -91,6 +91,93 @@ const tables = {
     keys: ['deck_id', 'anchor_sense_id'],
     scope: 'deck_id',
   },
+  'staging.import_batch': {
+    columns: [
+      'id',
+      'source_code',
+      'file_name',
+      'sha256',
+      'row_count',
+      'started_at',
+      'finished_at',
+      'status',
+      'error',
+    ],
+    keys: ['id'],
+    scope: 'id',
+  },
+  'core.mapping_run': {
+    columns: [
+      'id',
+      'run_key',
+      'task',
+      'algorithm',
+      'model',
+      'prompt_version',
+      'source_snapshot',
+      'parameters',
+      'status',
+      'started_at',
+      'finished_at',
+      'rows_seen',
+      'rows_accepted',
+      'rows_rejected',
+      'rows_unresolved',
+      'error',
+    ],
+    keys: ['id'],
+    scope: 'run_key',
+  },
+  'core.sense_gloss': {
+    columns: [
+      'id',
+      'sense_id',
+      'language_id',
+      'text',
+      'detail',
+      'is_machine',
+      'reviewed_by',
+      'reviewed_at',
+      'quality',
+      'rank',
+      'source_id',
+      'batch_id',
+    ],
+    keys: ['id'],
+    scope: 'batch_id',
+  },
+  'core.concept_gloss': {
+    columns: [
+      'concept_id',
+      'language_id',
+      'rank',
+      'text',
+      'is_machine',
+      'quality',
+      'reviewed_by',
+      'reviewed_at',
+      'source_id',
+      'batch_id',
+    ],
+    keys: ['concept_id', 'language_id', 'rank'],
+    scope: 'batch_id',
+  },
+  'core.concept_label': {
+    columns: [
+      'id',
+      'concept_id',
+      'language_id',
+      'rank',
+      'text',
+      'label_kind',
+      'is_machine',
+      'quality',
+      'source_id',
+      'batch_id',
+    ],
+    keys: ['id'],
+    scope: 'batch_id',
+  },
 } as const;
 
 export type Table = keyof typeof tables;
@@ -111,6 +198,14 @@ const taskTables: Record<string, Table[]> = {
   radicals: ['public.source', 'public.radical'],
   kanjivg: ['public.source', 'core.media_asset', 'core.kanji_media'],
   decks: ['core.deck', 'core.deck_item'],
+  gloss: [
+    'public.source',
+    'staging.import_batch',
+    'core.mapping_run',
+    'core.sense_gloss',
+    'core.concept_gloss',
+    'core.concept_label',
+  ],
 };
 const targetSchema = z
   .object({
@@ -131,7 +226,7 @@ const journalSchema = z
   .object({
     format: z.literal(2),
     runId: z.string().uuid(),
-    task: z.enum(['radicals', 'kanjivg', 'decks']),
+    task: z.enum(['radicals', 'kanjivg', 'decks', 'gloss']),
     startedAt: z.string().datetime(),
     applied: z.boolean(),
     status: z.enum([
@@ -213,7 +308,7 @@ export async function snapshot(
   const spec = tables[table];
   if (values.length === 0) return { table, values, rows: [] };
   const result = await client.query<Row>(
-    `SELECT ${spec.columns.map((column) => (column === 'created_at' || column === 'imported_at' ? `${column}::text AS ${column}` : column)).join(', ')} FROM ${table}
+    `SELECT ${spec.columns.map((column) => (column.endsWith('_at') ? `${column}::text AS ${column}` : column)).join(', ')} FROM ${table}
      WHERE ${spec.scope} = ANY($1) ORDER BY ${spec.keys.join(', ')} FOR UPDATE`,
     [values],
   );
@@ -248,6 +343,7 @@ export async function applyWithJournal(
   base: RunManifest,
   action: (client: Client) => Promise<Change[]>,
   persist: typeof saveJournal = saveJournal,
+  journalFile?: string,
 ): Promise<string> {
   if (!cli.apply || !taskTables[cli.task])
     throw new Error('Apply không hợp lệ');
@@ -263,10 +359,12 @@ export async function applyWithJournal(
     db: dbNameOf(url),
     changes: [],
   };
-  const file = path.resolve(
-    cli.manifestDir,
-    `${base.startedAt.replace(/[:.]/g, '-')}-${cli.task}-${journal.runId}.json`,
-  );
+  const file =
+    journalFile ??
+    path.resolve(
+      cli.manifestDir,
+      `${base.startedAt.replace(/[:.]/g, '-')}-${cli.task}-${journal.runId}.json`,
+    );
   // Permission/path/fsync failure must happen before connecting or mutating DB.
   persist(file, journal);
   log(`manifest: ${file}`);
@@ -366,16 +464,50 @@ function validateJournal(input: unknown, cli: Cli, url: string): Journal {
   return journal;
 }
 
-async function restore(client: Client, changes: Change[]): Promise<void> {
+const retainedGlossMetadata: Table[] = [
+  'public.source',
+  'staging.import_batch',
+  'core.mapping_run',
+];
+function restoredRows(journal: Journal, change: Change): Row[] {
+  if (journal.task !== 'gloss' || !retainedGlossMetadata.includes(change.table))
+    return change.before;
+  return change.after.map((row) =>
+    change.table === 'core.mapping_run'
+      ? { ...row, status: 'rolled_back' }
+      : row,
+  );
+}
+
+async function restore(
+  client: Client,
+  changes: Change[],
+  task: Journal['task'],
+): Promise<void> {
   // Remove only rows inserted by this run, children first. Existing rows keep
   // their IDs so ON DELETE SET NULL never touches clones of an existing deck.
   for (const change of [...changes].reverse()) {
+    if (task === 'gloss' && retainedGlossMetadata.includes(change.table))
+      continue;
     const spec = tables[change.table];
     const beforeKeys = new Set(
       change.before.map((row) => keyOf(change.table, row)),
     );
     for (const row of change.after) {
       if (beforeKeys.has(keyOf(change.table, row))) continue;
+      if (
+        task === 'gloss' &&
+        ['core.sense_gloss', 'core.concept_gloss'].includes(change.table)
+      ) {
+        const referenced = await client.query(
+          "SELECT 1 FROM core.mapping_run WHERE task='db3b-gloss' AND status='completed' AND parameters->'reused' @> $1::jsonb LIMIT 1",
+          [JSON.stringify([{ table: change.table, batchId: row.batch_id }])],
+        );
+        if (referenced.rowCount)
+          throw new Error(
+            'Gloss is reused by another completed job; roll that job back first',
+          );
+      }
       if (change.table === 'core.deck') {
         const referenced = await client.query(
           `SELECT 1 FROM app.collection WHERE cloned_from_deck_id = $1
@@ -393,6 +525,8 @@ async function restore(client: Client, changes: Change[]): Promise<void> {
   }
   // Parents first, then restore removed/updated children. IDs are preserved.
   for (const change of changes) {
+    if (task === 'gloss' && retainedGlossMetadata.includes(change.table))
+      continue;
     const spec = tables[change.table];
     const afterByKey = new Map(
       change.after.map((row) => [keyOf(change.table, row), row]),
@@ -417,6 +551,13 @@ async function restore(client: Client, changes: Change[]): Promise<void> {
         spec.columns.map((column) => row[column]),
       );
     }
+  }
+  if (task === 'gloss') {
+    const mapping = changes.find((c) => c.table === 'core.mapping_run')!;
+    await client.query(
+      "UPDATE core.mapping_run SET status = 'rolled_back' WHERE run_key = ANY($1)",
+      [mapping.values],
+    );
   }
 }
 
@@ -448,7 +589,7 @@ export async function rollbackWithJournal(
         canonical(change.table, change.after);
       matchesBefore &&=
         canonical(change.table, current.rows) ===
-        canonical(change.table, change.before);
+        canonical(change.table, restoredRows(journal, change));
     }
     if (previousStatus === 'rollback-prepared' && matchesBefore) {
       // Previous rollback committed; only its final status write was lost.
@@ -460,7 +601,7 @@ export async function rollbackWithJournal(
       journal.status = 'rollback-prepared';
       journal.applied = true;
       persist(file, journal);
-      await restore(client, journal.changes);
+      await restore(client, journal.changes, journal.task);
     }
     commitAttempted = true;
     await client.query('COMMIT');
@@ -489,4 +630,91 @@ export async function rollbackWithJournal(
     );
   }
   log(`rollback ${cli.task}: đã khôi phục dữ liệu trước run`);
+}
+
+/** Confirm a committed child, including the COMMIT/checkpoint failure window. */
+export async function confirmJournalApplied(
+  cli: Cli,
+  url: string,
+  file: string,
+  persist: typeof saveJournal = saveJournal,
+): Promise<boolean> {
+  const checkedCli = { ...cli, flags: new Map(cli.flags).set('recover', true) };
+  assertWritableTarget(url, checkedCli);
+  const journal = validateJournal(
+    JSON.parse(readFileSync(file, 'utf8')),
+    checkedCli,
+    url,
+  );
+  if (journal.status !== 'applied' && journal.status !== 'prepared')
+    throw new Error('Child journal is not an apply journal');
+  const client = await connect(url);
+  try {
+    await client.query('BEGIN');
+    await lockTables(client, cli.task);
+    let after = true;
+    let before = true;
+    for (const change of journal.changes) {
+      const current = await snapshot(client, change.table, change.values);
+      after &&=
+        canonical(change.table, current.rows) ===
+        canonical(change.table, change.after);
+      before &&=
+        canonical(change.table, current.rows) ===
+        canonical(change.table, change.before);
+    }
+    if (!after && !(before && journal.status === 'prepared'))
+      throw new Error(
+        'Child data differs from journal; stop instead of guessing ranks',
+      );
+    if (after) await validateGlossJournalDependencies(client, journal);
+    await client.query('COMMIT');
+    journal.status = after ? 'applied' : 'aborted';
+    journal.applied = after;
+    persist(file, journal);
+    return after;
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => undefined);
+    throw error;
+  } finally {
+    await client.end();
+  }
+}
+
+/** Reused rows belong to earlier jobs, so they have explicit audit references. */
+export async function validateGlossJournalDependencies(
+  client: Client,
+  journal: Journal,
+): Promise<void> {
+  if (journal.task !== 'gloss') return;
+  const refs = z.array(
+    z
+      .object({
+        table: z.enum(['core.sense_gloss', 'core.concept_gloss']),
+        batchId: z.string().uuid(),
+        targetId: z.string().regex(/^[1-9][0-9]*$/),
+        text: z.string().min(1),
+        candidateKey: z.string().regex(/^[a-f0-9]{64}$/),
+      })
+      .strict(),
+  );
+  for (const run of journal.changes.find((c) => c.table === 'core.mapping_run')
+    ?.after ?? []) {
+    const parameters = z
+      .object({ reused: refs })
+      .passthrough()
+      .parse(run.parameters);
+    for (const ref of parameters.reused) {
+      const column =
+        ref.table === 'core.sense_gloss' ? 'sense_id' : 'concept_id';
+      const found = await client.query(
+        `SELECT 1 FROM ${ref.table} g JOIN public.language lang ON lang.id=g.language_id WHERE g.batch_id=$1 AND g.${column}=$2 AND g.text=$3 AND lang.code='vi'`,
+        [ref.batchId, ref.targetId, ref.text],
+      );
+      if (!found.rowCount)
+        throw new Error(
+          'Reused gloss lineage no longer matches the committed job',
+        );
+    }
+  }
 }

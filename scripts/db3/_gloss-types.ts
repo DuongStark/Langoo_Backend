@@ -341,7 +341,7 @@ type WithoutHashes<T> = T extends unknown
 export type GlossCandidateInput = WithoutHashes<GlossCandidate>;
 
 /** Canonical JSON: sorted object keys, preserved array order, no normalization of source text. */
-function canonicalJson(value: unknown): string {
+export function canonicalJson(value: unknown): string {
   if (value === null || typeof value === 'string' || typeof value === 'boolean')
     return JSON.stringify(value);
   if (typeof value === 'number' && Number.isFinite(value))
@@ -657,4 +657,140 @@ export function computeGlossCacheKey(
       provider: checkedProvider,
     }),
   );
+}
+
+/** Human audit artifact is separate from code validation and DB reviewed fields. */
+export const GlossReviewSchema = z
+  .object({
+    schemaVersion: z.literal(GLOSS_SCHEMA_VERSION),
+    jobKey: Sha256Schema,
+    entries: z
+      .array(
+        z
+          .object({
+            candidateKey: Sha256Schema,
+            inputHash: Sha256Schema,
+            outputHash: Sha256Schema,
+            verdict: z.enum(['pass', 'fail']),
+            severity: z.enum(['none', 'minor', 'severe']),
+            reviewer: text,
+            reviewedAt: z.string().datetime({ offset: true }),
+            reason: text.nullable(),
+          })
+          .strict(),
+      )
+      .min(1),
+  })
+  .strict()
+  .superRefine((review, ctx) => {
+    if (
+      new Set(review.entries.map((e) => e.candidateKey)).size !==
+      review.entries.length
+    )
+      ctx.addIssue({ code: 'custom', message: 'Duplicate review candidate' });
+    for (const e of review.entries) {
+      if (e.verdict === 'fail' && e.reason === null)
+        ctx.addIssue({ code: 'custom', message: 'Failed review needs reason' });
+      if (e.verdict === 'pass' && e.severity === 'severe')
+        ctx.addIssue({
+          code: 'custom',
+          message: 'Severe error cannot pass review',
+        });
+    }
+  });
+export type GlossReview = z.infer<typeof GlossReviewSchema>;
+export function parseGlossReview(input: unknown): GlossReview {
+  return GlossReviewSchema.parse(input);
+}
+export function hashGlossOutput(output: GlossOutput): string {
+  return hash(canonicalJson(GlossOutputSchema.parse(output)));
+}
+export function validateGlossReview(
+  job: GlossJob,
+  candidates: GlossCandidate[],
+  input: unknown,
+): GlossReview {
+  validateGlossJobCandidates(job, candidates);
+  const review = parseGlossReview(input);
+  if (
+    review.jobKey !== job.jobKey ||
+    review.entries.length !== 100 ||
+    job.entries.length !== 100
+  )
+    throw new Error('Pilot review needs exactly 100 outputs bound to the job');
+  const targets = new Map(candidates.map((c) => [c.candidateKey, c.target]));
+  if (
+    new Set(
+      job.entries.map((e) => {
+        const target = targets.get(e.candidateKey)!;
+        return `${target.targetType}:${target.targetId}`;
+      }),
+    ).size !== 100
+  )
+    throw new Error('Pilot requires 100 distinct target identities');
+  if (
+    review.entries.filter((e) => e.verdict === 'pass').length < 98 ||
+    review.entries.some(
+      (e) => e.severity === 'severe' || e.reviewer === 'UNREVIEWED',
+    )
+  )
+    throw new Error('Pilot review gate failed (98/100, zero severe)');
+  for (const e of job.entries) {
+    const record = review.entries.find(
+      (r) => r.candidateKey === e.candidateKey,
+    );
+    if (
+      !record ||
+      record.inputHash !== e.inputHash ||
+      !e.output?.gloss_vi ||
+      !['validated', 'applied'].includes(e.state) ||
+      record.outputHash !== hashGlossOutput(e.output)
+    )
+      throw new Error('Review input/output/status mismatch');
+  }
+  return review;
+}
+
+export const GlossResponseArtifactSchema = z
+  .object({
+    schemaVersion: z.literal(GLOSS_SCHEMA_VERSION),
+    jobKey: Sha256Schema,
+    candidateKey: Sha256Schema,
+    inputHash: Sha256Schema,
+    cacheKey: Sha256Schema,
+    attempt: positive,
+    output: GlossOutputSchema.nullable(),
+    validationError: text.nullable(),
+    usage: z
+      .object({
+        inputTokens: integer,
+        outputTokens: integer,
+        tokens: integer,
+        costUsd: z.number().finite().nonnegative(),
+        estimated: z.boolean(),
+      })
+      .strict(),
+    raw: z.record(z.unknown()),
+  })
+  .strict()
+  .superRefine((response, ctx) => {
+    if (
+      response.usage.tokens !==
+      response.usage.inputTokens + response.usage.outputTokens
+    )
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Response usage total mismatch',
+      });
+    if ((response.output === null) !== (response.validationError !== null))
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Rejected response needs validation error',
+      });
+  });
+export type GlossResponseArtifact = z.infer<typeof GlossResponseArtifactSchema>;
+export function parseGlossResponseArtifact(
+  input: unknown,
+): GlossResponseArtifact {
+  return GlossResponseArtifactSchema.parse(input);
 }
