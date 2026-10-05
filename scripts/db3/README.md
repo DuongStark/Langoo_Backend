@@ -79,6 +79,18 @@ npx tsx scripts/db3/gloss-inventory.ts --manifest-dir uploads/db3b
 
 Xuất `gloss-inventory` + `source-audit` JSON (fingerprint, phạm vi JLPT, coverage EN/VI theo sense, count rule §4.1, concept, EXPLAIN). Không ghi DB, không gọi provider. Kết quả snapshot 2026-10-05: [`docs/reviews/db3-b-inventory-2026-10-05.md`](../../docs/reviews/db3-b-inventory-2026-10-05.md).
 
+## B1 — harvest candidate gloss (DB3-B, read-only)
+
+```bash
+# Cần artifact B0 (inventory + source-audit) trong --artifact-dir.
+DIRECT_URL="postgresql://postgres@127.0.0.1:55433/langoo" \
+npx tsx scripts/db3/gloss-harvest.ts --artifact-dir uploads/db3b
+# Kiểm chứng: parse + recompute hash toàn bộ JSONL
+npx tsx scripts/db3/gloss-harvest.ts --verify uploads/db3b/harvest-<stamp>
+```
+
+Xuất `candidates.jsonl` (needs_translation) + `unresolved.jsonl` (ambiguous/blocked_source/missing_context) theo contract v1 ([schema v1](../../docs/plans/db3-b-schema-v1.md)). Kết quả 2026-10-05: [`docs/reviews/db3-b-harvest-2026-10-05.md`](../../docs/reviews/db3-b-harvest-2026-10-05.md).
+
 ## Gate dữ liệu và scope
 
 - Radical apply thông thường cần đủ **214 số bộ duy nhất**, ký tự duy nhất, tên VI/EN và nghĩa VI không rỗng; input thiếu/parse lỗi dừng trước khi ghi. Số nét thiếu được giữ NULL và báo cáo theo plan. `--fixture` cho tập nhỏ chỉ trên DB local `_test` với `--allow-test`.

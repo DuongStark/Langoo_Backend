@@ -1,0 +1,33 @@
+{
+  "task": "gloss-harvest",
+  "startedAt": "2026-10-05T10:02:08.778Z",
+  "db": "langoo",
+  "inventory": {
+    "path": "2026-10-05T09-29-37-673Z-gloss-inventory.json",
+    "sha256": "e97d9daa7a154f045eb08cc78b25cd1ba597d1812767512f6f5f507d6d829ad0",
+    "datasetFingerprint": "730c5bd3b08b37821cc47124ef2a75160decc0977ceb449a0c68067cbc6671ee"
+  },
+  "sourceAudit": {
+    "path": "2026-10-05T09-29-37-673Z-source-audit.json",
+    "sha256": "9852beb9b7cfce7a292dfb9f0ba33ce3c5db886725a7e56ba22591ad5de7ff1b"
+  },
+  "counts": {
+    "needs_translation": 15245,
+    "eligible_source": 0,
+    "ambiguous": 34758,
+    "missing_context": 0,
+    "blocked_source": 5368,
+    "skipped_by_limit": 0
+  },
+  "files": {
+    "candidates.jsonl": {
+      "bytes": 33507884,
+      "sha256": "be7b6901aa30395f7468af998aa1a43ba85369043abfb4fb1f1075fa28dbd5d4"
+    },
+    "unresolved.jsonl": {
+      "bytes": 41926263,
+      "sha256": "0c4d46e14bbf7467bf55e1838e304e650ea919864b0d0272e0fb74241f85b758"
+    }
+  },
+  "warnings": []
+}
