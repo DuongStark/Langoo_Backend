@@ -206,7 +206,7 @@ export async function translateGlossJob(
   };
   const sleep =
     options.sleep ?? ((ms: number) => delay(ms).then(() => undefined));
-  return withArtifactLock(artifactDir, 'job', async () => {
+  return withArtifactLock(artifactDir, `job-${job.jobKey.slice(0, 16)}`, async () => {
     // Protect against two callers loading the old checkpoint before acquiring the lock.
     const existing = resolveArtifactPath(
       artifactDir,
