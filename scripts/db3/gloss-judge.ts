@@ -211,7 +211,7 @@ async function main(): Promise<void> {
   if (!apiKey) throw new Error('Missing DB3_AI_API_KEY');
 
   const candidates = loadGlossCandidates(root, candidatesFile);
-  await withArtifactLock(root, 'job', () => {
+  await withArtifactLock(root, 'judge', () => {
     const job = parseGlossJob(readArtifactJson(root, jobFile));
     validateGlossJobCandidates(job, candidates);
     if (job.entries.length !== 100) {
