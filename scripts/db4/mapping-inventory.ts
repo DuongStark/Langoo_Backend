@@ -3,6 +3,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { config as loadDotenv } from 'dotenv';
 import { Client } from 'pg';
+import { parseMappingCli } from './_cli';
 
 /**
  * DB4 D0 — inventory read-only cho mapping sense↔concept (plan db4-sense-concept-mapping.md).
@@ -14,28 +15,6 @@ import { Client } from 'pg';
  *
  * Không ghi DB; không gọi LLM.
  */
-
-interface Cli {
-  artifactDir: string;
-  stamp: string;
-}
-
-function parseArgs(argv: string[]): Cli {
-  const flags = new Map<string, string>();
-  for (let i = 0; i < argv.length; i += 1) {
-    const arg = argv[i];
-    if (!arg.startsWith('--')) continue;
-    const next = argv[i + 1];
-    if (next !== undefined && !next.startsWith('--')) {
-      flags.set(arg.slice(2), next);
-      i += 1;
-    }
-  }
-  return {
-    artifactDir: flags.get('artifact-dir') ?? 'uploads/db4',
-    stamp: flags.get('stamp') ?? new Date().toISOString().replace(/[:.]/g, '-'),
-  };
-}
 
 function requireUrl(): string {
   loadDotenv();
@@ -50,10 +29,11 @@ function sha256(data: string): string {
 }
 
 async function main(): Promise<void> {
-  const cli = parseArgs(process.argv.slice(2));
+  const cli = parseMappingCli('mapping-inventory', process.argv.slice(2));
   const url = requireUrl();
   const parsedUrl = new URL(url);
-  const outDir = path.join(cli.artifactDir, 'inventory', cli.stamp);
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const outDir = path.join(cli.artifactDir, 'inventory', stamp);
   mkdirSync(outDir, { recursive: true });
 
   const client = new Client({ connectionString: url });
