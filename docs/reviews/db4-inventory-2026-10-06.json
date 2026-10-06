@@ -1,0 +1,331 @@
+{
+  "task": "db4-inventory",
+  "fingerprint": {
+    "db": "langoo",
+    "host": "127.0.0.1",
+    "port": "55433",
+    "server_version": "PostgreSQL 16.2 on x86_64-pc-linux-gnu, compiled by gcc (GCC) 10.2.1 20210130 (Red Hat 10.2.1-11), 64-bit",
+    "migrations": 36,
+    "latest_migration": "037_chat_request_lease.sql",
+    "generated_at": "2026-10-06T09:38:39.680Z"
+  },
+  "languages": [
+    {
+      "code": "en",
+      "lexemes": 1811065,
+      "senses": 2206691
+    },
+    {
+      "code": "ja",
+      "lexemes": 512279,
+      "senses": 649026
+    },
+    {
+      "code": "vi",
+      "lexemes": 51896,
+      "senses": 62237
+    }
+  ],
+  "scope_jlpt": {
+    "lexemes": 7285,
+    "senses": 15245,
+    "primary": 7285,
+    "secondary": 7960
+  },
+  "legacy_links": {
+    "total": 577525,
+    "by_source": [
+      {
+        "code": "oewn",
+        "rows": 212478
+      },
+      {
+        "code": "omw-en",
+        "rows": 206978
+      },
+      {
+        "code": "omw-ja",
+        "rows": 158069
+      }
+    ],
+    "by_relation_verified": [
+      {
+        "relation": "exact",
+        "verified": true,
+        "rows": 577525
+      }
+    ],
+    "jlpt_rows": 0
+  },
+  "candidates": {
+    "by_sense_language": [
+      {
+        "code": "en",
+        "pairs": 535419,
+        "senses": 260489,
+        "concepts": 97717
+      },
+      {
+        "code": "ja",
+        "pairs": 150338,
+        "senses": 59863,
+        "concepts": 28086
+      }
+    ],
+    "ja_by_method": [
+      {
+        "method": "wikt_exact_lemma_pos_wordnet",
+        "pairs": 105119,
+        "senses": 46784,
+        "concepts": 27766
+      },
+      {
+        "method": "jmdict_form_pos_wordnet_ja",
+        "pairs": 45219,
+        "senses": 13079,
+        "concepts": 10871
+      }
+    ],
+    "jlpt": {
+      "pairs": 45219,
+      "senses": 13079,
+      "senses_without": 2166
+    },
+    "pairs_per_sense_histogram": [
+      {
+        "n": "0",
+        "senses": 2166
+      },
+      {
+        "n": "1",
+        "senses": 2264
+      },
+      {
+        "n": "2",
+        "senses": 2063
+      },
+      {
+        "n": "3",
+        "senses": 1700
+      },
+      {
+        "n": "4",
+        "senses": 1531
+      },
+      {
+        "n": "5",
+        "senses": 5521
+      }
+    ],
+    "evidence_keys": [
+      {
+        "key": "lexeme_id",
+        "rows": 685757
+      },
+      {
+        "key": "source",
+        "rows": 685757
+      },
+      {
+        "key": "wordnet_method",
+        "rows": 45219
+      }
+    ],
+    "evidence_sample": "{\"source\": \"JLPT\", \"lexeme_id\": 133216, \"wordnet_method\": \"wordnet_synset\"}"
+  },
+  "legacy_reviews": {
+    "by_prompt": [
+      {
+        "reviewer": "jev-1.13-free",
+        "question_type": "noul",
+        "prompt_version": "jev-jlpt-noul-v4-independent",
+        "rows": 1000
+      },
+      {
+        "reviewer": "jev-1.13-free",
+        "question_type": "noul+choice",
+        "prompt_version": "jev-jlpt-stratified-v3-independent",
+        "rows": 1000
+      },
+      {
+        "reviewer": "jev-1.13-free",
+        "question_type": "noul",
+        "prompt_version": "jev-jlpt-noul-v4",
+        "rows": 1000
+      },
+      {
+        "reviewer": "jev-1.13-free",
+        "question_type": "noul",
+        "prompt_version": "jev-validation-v2-independent",
+        "rows": 200
+      }
+    ],
+    "artifacts": {
+      "total": 3200,
+      "with_hash": 3200,
+      "with_relation": 1000
+    },
+    "result_keys": [
+      {
+        "key": "question_type",
+        "rows": 3200
+      },
+      {
+        "key": "mapping_run_id",
+        "rows": 3200
+      },
+      {
+        "key": "provider",
+        "rows": 3200
+      },
+      {
+        "key": "usage",
+        "rows": 3200
+      },
+      {
+        "key": "batch",
+        "rows": 3200
+      },
+      {
+        "key": "prompt_hash",
+        "rows": 3200
+      },
+      {
+        "key": "model",
+        "rows": 3200
+      },
+      {
+        "key": "noul",
+        "rows": 3200
+      },
+      {
+        "key": "question_id",
+        "rows": 2200
+      },
+      {
+        "key": "relation_confidence",
+        "rows": 1000
+      },
+      {
+        "key": "relation",
+        "rows": 1000
+      },
+      {
+        "key": "relation_probabilities",
+        "rows": 1000
+      }
+    ],
+    "relation_distribution": [
+      {
+        "relation": null,
+        "rows": 2200
+      },
+      {
+        "relation": "none",
+        "rows": 644
+      },
+      {
+        "relation": "related",
+        "rows": 175
+      },
+      {
+        "relation": "uncertain",
+        "rows": 113
+      },
+      {
+        "relation": "narrower",
+        "rows": 26
+      },
+      {
+        "relation": "broader",
+        "rows": 22
+      },
+      {
+        "relation": "exact",
+        "rows": 20
+      }
+    ],
+    "runs": [
+      {
+        "mapping_run_id": "17",
+        "task": "semantic_llm_jlpt_review",
+        "algorithm": "jev_noul_choice_batch_v3_independent",
+        "model": "jev-1.13-free",
+        "prompt_version": "jev-jlpt-stratified-v3-independent",
+        "status": "completed",
+        "reviews": 1000,
+        "with_relation": 1000,
+        "with_hash": 1000
+      },
+      {
+        "mapping_run_id": "18",
+        "task": "semantic_llm_jlpt_noul_validation",
+        "algorithm": "jev_noul_batch_v4",
+        "model": "jev-1.13-free",
+        "prompt_version": "jev-jlpt-noul-v4",
+        "status": "completed",
+        "reviews": 1000,
+        "with_relation": 0,
+        "with_hash": 1000
+      },
+      {
+        "mapping_run_id": "19",
+        "task": "semantic_llm_jlpt_noul_validation",
+        "algorithm": "jev_noul_batch_v4_independent",
+        "model": "jev-1.13-free",
+        "prompt_version": "jev-jlpt-noul-v4-independent",
+        "status": "completed",
+        "reviews": 1000,
+        "with_relation": 0,
+        "with_hash": 1000
+      },
+      {
+        "mapping_run_id": "15",
+        "task": "semantic_llm_validation",
+        "algorithm": "jev_noul_batch_v2_independent",
+        "model": "jev-1.13-free",
+        "prompt_version": "jev-validation-v2-independent",
+        "status": "completed",
+        "reviews": 200,
+        "with_relation": 0,
+        "with_hash": 200
+      }
+    ],
+    "candidate_llm_result": {
+      "not_empty": 1200,
+      "total": 685757
+    }
+  },
+  "view_audit": {
+    "sense_pair_definition": " SELECT sa.id AS sense_a,\n    la.language_id AS lang_a,\n    sb.id AS sense_b,\n    lb.language_id AS lang_b,\n    ca.concept_id,\n    LEAST(ca.confidence, cb.confidence) AS confidence\n   FROM core.sense_concept ca\n     JOIN core.sense_concept cb ON cb.concept_id = ca.concept_id AND cb.sense_id <> ca.sense_id\n     JOIN core.concept c ON c.id = ca.concept_id AND c.status = 'curated'::text\n     JOIN core.sense sa ON sa.id = ca.sense_id\n     JOIN core.sense sb ON sb.id = cb.sense_id\n     JOIN core.lexeme la ON la.id = sa.lexeme_id\n     JOIN core.lexeme lb ON lb.id = sb.lexeme_id\n  WHERE la.language_id <> lb.language_id AND LEAST(ca.confidence, cb.confidence) >= 0.7::double precision;",
+    "indexes": [
+      {
+        "indexname": "sense_pair_pair",
+        "indexdef": "CREATE UNIQUE INDEX sense_pair_pair ON serve.sense_pair USING btree (sense_a, sense_b)"
+      },
+      {
+        "indexname": "sense_pair_lookup",
+        "indexdef": "CREATE INDEX sense_pair_lookup ON serve.sense_pair USING btree (sense_a, lang_b, confidence DESC)"
+      }
+    ],
+    "dependents": []
+  },
+  "export_proposal": {
+    "jlpt_targets": 15245,
+    "jlpt_candidates": 45219,
+    "concept_gloss_by_language": [
+      {
+        "code": "en",
+        "rows": 124462
+      },
+      {
+        "code": "ja",
+        "rows": 67071
+      },
+      {
+        "code": "vi",
+        "rows": 5368
+      }
+    ]
+  }
+}

@@ -1,0 +1,183 @@
+{
+  "task": "db4-legacy-audit",
+  "generated_at": "2026-10-06T09:38:39.680Z",
+  "reviews_by_prompt": [
+    {
+      "reviewer": "jev-1.13-free",
+      "question_type": "noul",
+      "prompt_version": "jev-jlpt-noul-v4-independent",
+      "rows": 1000
+    },
+    {
+      "reviewer": "jev-1.13-free",
+      "question_type": "noul+choice",
+      "prompt_version": "jev-jlpt-stratified-v3-independent",
+      "rows": 1000
+    },
+    {
+      "reviewer": "jev-1.13-free",
+      "question_type": "noul",
+      "prompt_version": "jev-jlpt-noul-v4",
+      "rows": 1000
+    },
+    {
+      "reviewer": "jev-1.13-free",
+      "question_type": "noul",
+      "prompt_version": "jev-validation-v2-independent",
+      "rows": 200
+    }
+  ],
+  "artifact_stats": {
+    "total": 3200,
+    "with_hash": 3200,
+    "with_relation": 1000
+  },
+  "review_result_keys": [
+    {
+      "key": "question_type",
+      "rows": 3200
+    },
+    {
+      "key": "mapping_run_id",
+      "rows": 3200
+    },
+    {
+      "key": "provider",
+      "rows": 3200
+    },
+    {
+      "key": "usage",
+      "rows": 3200
+    },
+    {
+      "key": "batch",
+      "rows": 3200
+    },
+    {
+      "key": "prompt_hash",
+      "rows": 3200
+    },
+    {
+      "key": "model",
+      "rows": 3200
+    },
+    {
+      "key": "noul",
+      "rows": 3200
+    },
+    {
+      "key": "question_id",
+      "rows": 2200
+    },
+    {
+      "key": "relation_confidence",
+      "rows": 1000
+    },
+    {
+      "key": "relation",
+      "rows": 1000
+    },
+    {
+      "key": "relation_probabilities",
+      "rows": 1000
+    }
+  ],
+  "relation_distribution": [
+    {
+      "relation": null,
+      "rows": 2200
+    },
+    {
+      "relation": "none",
+      "rows": 644
+    },
+    {
+      "relation": "related",
+      "rows": 175
+    },
+    {
+      "relation": "uncertain",
+      "rows": 113
+    },
+    {
+      "relation": "narrower",
+      "rows": 26
+    },
+    {
+      "relation": "broader",
+      "rows": 22
+    },
+    {
+      "relation": "exact",
+      "rows": 20
+    }
+  ],
+  "review_runs": [
+    {
+      "mapping_run_id": "17",
+      "task": "semantic_llm_jlpt_review",
+      "algorithm": "jev_noul_choice_batch_v3_independent",
+      "model": "jev-1.13-free",
+      "prompt_version": "jev-jlpt-stratified-v3-independent",
+      "status": "completed",
+      "reviews": 1000,
+      "with_relation": 1000,
+      "with_hash": 1000
+    },
+    {
+      "mapping_run_id": "18",
+      "task": "semantic_llm_jlpt_noul_validation",
+      "algorithm": "jev_noul_batch_v4",
+      "model": "jev-1.13-free",
+      "prompt_version": "jev-jlpt-noul-v4",
+      "status": "completed",
+      "reviews": 1000,
+      "with_relation": 0,
+      "with_hash": 1000
+    },
+    {
+      "mapping_run_id": "19",
+      "task": "semantic_llm_jlpt_noul_validation",
+      "algorithm": "jev_noul_batch_v4_independent",
+      "model": "jev-1.13-free",
+      "prompt_version": "jev-jlpt-noul-v4-independent",
+      "status": "completed",
+      "reviews": 1000,
+      "with_relation": 0,
+      "with_hash": 1000
+    },
+    {
+      "mapping_run_id": "15",
+      "task": "semantic_llm_validation",
+      "algorithm": "jev_noul_batch_v2_independent",
+      "model": "jev-1.13-free",
+      "prompt_version": "jev-validation-v2-independent",
+      "status": "completed",
+      "reviews": 200,
+      "with_relation": 0,
+      "with_hash": 200
+    }
+  ],
+  "candidate_llm_result": {
+    "not_empty": 1200,
+    "total": 685757
+  },
+  "evidence_keys": [
+    {
+      "key": "lexeme_id",
+      "rows": 685757
+    },
+    {
+      "key": "source",
+      "rows": 685757
+    },
+    {
+      "key": "wordnet_method",
+      "rows": 45219
+    }
+  ],
+  "notes": [
+    "Review legacy reviewer=jev-1.13-free; cần resolve artifact_hash → file thật trước khi tái sử dụng.",
+    "evidence của candidate không chứa source_code; cần đọc cấu trúc evidence gốc."
+  ]
+}
