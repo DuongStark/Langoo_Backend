@@ -1,0 +1,435 @@
+{
+  "caseKey": "doctor-related",
+  "expectedRelation": "related",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "103",
+      "lexemeId": "203",
+      "semanticKey": "sense:aceb98c46bbf0be2b891f9af41d41f38cdb26e45dbea0f4fb8d624bf1075196b",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "doctor-related",
+        "senseKey": "doctor-related#1"
+      },
+      "language": "ja",
+      "lemma": "医者",
+      "reading": null,
+      "forms": [
+        "医者"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:doctor-related:0",
+          "evidenceKey": "e:g:doctor-related:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "medical doctor"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:doctor-related",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "303",
+      "semanticKey": "concept:dd9b63cf4ef032ed014ed942e6b8e6e91303c11ad2949bee03a76657c2b8efc7",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-3-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:doctor-related",
+          "evidenceKey": "e:d:doctor-related",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "An institution providing medical treatment."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:doctor-related",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:dd9b63cf4ef032ed014ed942e6b8e6e91303c11ad2949bee03a76657c2b8efc7"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "0e60b096635123d5106c30e6e4154cb6e15e48351c55531cdc5cff4baad2f776",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:doctor-related:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:aceb98c46bbf0be2b891f9af41d41f38cdb26e45dbea0f4fb8d624bf1075196b"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "f84330504be2ccbf034b6c9177f956b4a47f78158643342269212985d751438b",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:doctor-related",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:aceb98c46bbf0be2b891f9af41d41f38cdb26e45dbea0f4fb8d624bf1075196b"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "bdfc6a2991eeb9246b51181ed015dd5901bf3a83e5f2330dc44750333d542dfa",
+    "inputHash": "6f72ed95afab9eaada6a0428a263d5bd277ed4126dd01e6b74cef8503c1d76e0",
+    "candidateKey": "2ede4474e77d499bc42c7325fd592d6aad9468d99d47682415ce7d84af865476"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "103",
+      "lexemeId": "203",
+      "semanticKey": "sense:aceb98c46bbf0be2b891f9af41d41f38cdb26e45dbea0f4fb8d624bf1075196b",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "doctor-related",
+        "senseKey": "doctor-related#1"
+      },
+      "language": "ja",
+      "lemma": "医者",
+      "reading": null,
+      "forms": [
+        "医者"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:doctor-related:0",
+          "evidenceKey": "e:g:doctor-related:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "medical doctor"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:doctor-related",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:doctor-related:0"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "2ede4474e77d499bc42c7325fd592d6aad9468d99d47682415ce7d84af865476",
+        "inputHash": "6f72ed95afab9eaada6a0428a263d5bd277ed4126dd01e6b74cef8503c1d76e0",
+        "concept": {
+          "id": "303",
+          "semanticKey": "concept:dd9b63cf4ef032ed014ed942e6b8e6e91303c11ad2949bee03a76657c2b8efc7",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-3-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:doctor-related",
+              "evidenceKey": "e:d:doctor-related",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "An institution providing medical treatment."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:doctor-related",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:dd9b63cf4ef032ed014ed942e6b8e6e91303c11ad2949bee03a76657c2b8efc7"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "0e60b096635123d5106c30e6e4154cb6e15e48351c55531cdc5cff4baad2f776",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:doctor-related:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:aceb98c46bbf0be2b891f9af41d41f38cdb26e45dbea0f4fb8d624bf1075196b"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "f84330504be2ccbf034b6c9177f956b4a47f78158643342269212985d751438b",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:doctor-related",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:aceb98c46bbf0be2b891f9af41d41f38cdb26e45dbea0f4fb8d624bf1075196b"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "6bcd5d3dbfe02de7ef7c48f87a5bd1da5583ebd496da5e80bb11a8a3f6af223b",
+    "contextHash": "40459a87d4413462487d1a390409e9e93c7e5c81b958166f17fe558389ea07d9"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "6bcd5d3dbfe02de7ef7c48f87a5bd1da5583ebd496da5e80bb11a8a3f6af223b",
+    "senseId": "103",
+    "contextHash": "40459a87d4413462487d1a390409e9e93c7e5c81b958166f17fe558389ea07d9",
+    "reviews": [
+      {
+        "candidateKey": "2ede4474e77d499bc42c7325fd592d6aad9468d99d47682415ce7d84af865476",
+        "conceptId": "303",
+        "relation": "related",
+        "coveredBranches": [
+          "g:doctor-related:0"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: doctor-related. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "6bcd5d3dbfe02de7ef7c48f87a5bd1da5583ebd496da5e80bb11a8a3f6af223b",
+    "senseId": "103",
+    "contextHash": "40459a87d4413462487d1a390409e9e93c7e5c81b958166f17fe558389ea07d9",
+    "reviews": [
+      {
+        "candidateKey": "2ede4474e77d499bc42c7325fd592d6aad9468d99d47682415ce7d84af865476",
+        "conceptId": "303",
+        "relation": "related",
+        "coveredBranches": [
+          "g:doctor-related:0"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: doctor-related. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "2ede4474e77d499bc42c7325fd592d6aad9468d99d47682415ce7d84af865476",
+    "inputHash": "6f72ed95afab9eaada6a0428a263d5bd277ed4126dd01e6b74cef8503c1d76e0",
+    "outputHashR1": "a815e13ba7d4035789ece53251ca78a5d14a66a2f04bea2a05f25fc8fd074ea5",
+    "outputHashR2": "a815e13ba7d4035789ece53251ca78a5d14a66a2f04bea2a05f25fc8fd074ea5",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "accept_nonexact",
+    "relation": "related",
+    "reasons": []
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "2ede4474e77d499bc42c7325fd592d6aad9468d99d47682415ce7d84af865476",
+    "inputHash": "6f72ed95afab9eaada6a0428a263d5bd277ed4126dd01e6b74cef8503c1d76e0",
+    "outputHashR1": "a815e13ba7d4035789ece53251ca78a5d14a66a2f04bea2a05f25fc8fd074ea5",
+    "outputHashR2": "a815e13ba7d4035789ece53251ca78a5d14a66a2f04bea2a05f25fc8fd074ea5",
+    "decisionHash": "4912569df3bf40ebedf6aca235c4a30eda21009bc84dbaf09802a25b67b14bdc",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

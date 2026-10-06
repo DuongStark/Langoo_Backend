@@ -1,0 +1,537 @@
+{
+  "caseKey": "way-compound",
+  "expectedRelation": "broader",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "107",
+      "lexemeId": "207",
+      "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "way-compound",
+        "senseKey": "way-compound#1"
+      },
+      "language": "ja",
+      "lemma": "道",
+      "reading": null,
+      "forms": [
+        "道"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:way-compound:0",
+          "evidenceKey": "e:g:way-compound:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "road"
+        },
+        {
+          "key": "g:way-compound:1",
+          "evidenceKey": "e:g:way-compound:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "way"
+        },
+        {
+          "key": "g:way-compound:2",
+          "evidenceKey": "e:g:way-compound:2",
+          "id": "9007199254741002",
+          "rank": 2,
+          "language": "en",
+          "kind": "gloss",
+          "text": "method"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:way-compound",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "307",
+      "semanticKey": "concept:1197e7e48233c6ed6340bd334c1545a4f7db9a8835befdb9859d8f9daf02ece9",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-7-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:way-compound",
+          "evidenceKey": "e:d:way-compound",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "A route made for travelling."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:way-compound",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:1197e7e48233c6ed6340bd334c1545a4f7db9a8835befdb9859d8f9daf02ece9"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "ba4ec6944510243f716b8403915aa8df859e7f88eb43d97c92ba8d4e43de40df",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:way-compound:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "6ce09615f29831066e0a2d1a8d962a93d0f9df6e6587dfaede689acfea38c8a3",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:way-compound:1",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e94b95054a8484c034741ae1fc03b04b31a3bbe7dbbb86ff5704d42ce6a431b8",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741001",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:way-compound:2",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "92c2c3e4626d4c696d11cb42dfb4b37638e18a8d8a7009637052cf2385206865",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741002",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:way-compound",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "542ff27591c2485ce715573c654554d71d077c347f60115616c732c428e3bb2d",
+    "inputHash": "a914eddb155bf0b58d46aa41663e35099493102aa446b44afb03f01d5e21ff1a",
+    "candidateKey": "623525b82fbd9560035473b5812bfdfba4f8182e59c79026a9ab96eb1c1f3895"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "107",
+      "lexemeId": "207",
+      "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "way-compound",
+        "senseKey": "way-compound#1"
+      },
+      "language": "ja",
+      "lemma": "道",
+      "reading": null,
+      "forms": [
+        "道"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:way-compound:0",
+          "evidenceKey": "e:g:way-compound:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "road"
+        },
+        {
+          "key": "g:way-compound:1",
+          "evidenceKey": "e:g:way-compound:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "way"
+        },
+        {
+          "key": "g:way-compound:2",
+          "evidenceKey": "e:g:way-compound:2",
+          "id": "9007199254741002",
+          "rank": 2,
+          "language": "en",
+          "kind": "gloss",
+          "text": "method"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:way-compound",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:way-compound:0",
+      "g:way-compound:1",
+      "g:way-compound:2"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "623525b82fbd9560035473b5812bfdfba4f8182e59c79026a9ab96eb1c1f3895",
+        "inputHash": "a914eddb155bf0b58d46aa41663e35099493102aa446b44afb03f01d5e21ff1a",
+        "concept": {
+          "id": "307",
+          "semanticKey": "concept:1197e7e48233c6ed6340bd334c1545a4f7db9a8835befdb9859d8f9daf02ece9",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-7-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:way-compound",
+              "evidenceKey": "e:d:way-compound",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "A route made for travelling."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:way-compound",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:1197e7e48233c6ed6340bd334c1545a4f7db9a8835befdb9859d8f9daf02ece9"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "ba4ec6944510243f716b8403915aa8df859e7f88eb43d97c92ba8d4e43de40df",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:way-compound:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "6ce09615f29831066e0a2d1a8d962a93d0f9df6e6587dfaede689acfea38c8a3",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:way-compound:1",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e94b95054a8484c034741ae1fc03b04b31a3bbe7dbbb86ff5704d42ce6a431b8",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741001",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:way-compound:2",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "92c2c3e4626d4c696d11cb42dfb4b37638e18a8d8a7009637052cf2385206865",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741002",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:way-compound",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:95b85d9921db7c344b3b710f207c7d94e15a1e0f16d396db6567ad4d7c181ce4"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "629206c3e8b9f99cada9417e59ac97767762c2356dd73ee8f8797c1ce5d751c0",
+    "contextHash": "268bc5e34c60e2b6b36ec6673b6091628d5f7df0916af96ccce3d35791af0332"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "629206c3e8b9f99cada9417e59ac97767762c2356dd73ee8f8797c1ce5d751c0",
+    "senseId": "107",
+    "contextHash": "268bc5e34c60e2b6b36ec6673b6091628d5f7df0916af96ccce3d35791af0332",
+    "reviews": [
+      {
+        "candidateKey": "623525b82fbd9560035473b5812bfdfba4f8182e59c79026a9ab96eb1c1f3895",
+        "conceptId": "307",
+        "relation": "broader",
+        "coveredBranches": [
+          "g:way-compound:0",
+          "g:way-compound:1",
+          "g:way-compound:2"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: way-compound. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "629206c3e8b9f99cada9417e59ac97767762c2356dd73ee8f8797c1ce5d751c0",
+    "senseId": "107",
+    "contextHash": "268bc5e34c60e2b6b36ec6673b6091628d5f7df0916af96ccce3d35791af0332",
+    "reviews": [
+      {
+        "candidateKey": "623525b82fbd9560035473b5812bfdfba4f8182e59c79026a9ab96eb1c1f3895",
+        "conceptId": "307",
+        "relation": "broader",
+        "coveredBranches": [
+          "g:way-compound:0",
+          "g:way-compound:1",
+          "g:way-compound:2"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: way-compound. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "623525b82fbd9560035473b5812bfdfba4f8182e59c79026a9ab96eb1c1f3895",
+    "inputHash": "a914eddb155bf0b58d46aa41663e35099493102aa446b44afb03f01d5e21ff1a",
+    "outputHashR1": "4e846bdc51d7578f0a239637426c4ec6288e12f0753bffd2a94e41e8b3d81e04",
+    "outputHashR2": "4e846bdc51d7578f0a239637426c4ec6288e12f0753bffd2a94e41e8b3d81e04",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "accept_nonexact",
+    "relation": "broader",
+    "reasons": []
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "623525b82fbd9560035473b5812bfdfba4f8182e59c79026a9ab96eb1c1f3895",
+    "inputHash": "a914eddb155bf0b58d46aa41663e35099493102aa446b44afb03f01d5e21ff1a",
+    "outputHashR1": "4e846bdc51d7578f0a239637426c4ec6288e12f0753bffd2a94e41e8b3d81e04",
+    "outputHashR2": "4e846bdc51d7578f0a239637426c4ec6288e12f0753bffd2a94e41e8b3d81e04",
+    "decisionHash": "94b7802b79db669a32e186f4c416f694cf6f2e7052a62bb1fae39bf5f3b1bd16",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

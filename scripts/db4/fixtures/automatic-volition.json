@@ -1,0 +1,497 @@
+{
+  "caseKey": "automatic-volition",
+  "expectedRelation": "uncertain",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "108",
+      "lexemeId": "208",
+      "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "automatic-volition",
+        "senseKey": "automatic-volition#1"
+      },
+      "language": "ja",
+      "lemma": "自動的",
+      "reading": null,
+      "forms": [
+        "自動的"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:automatic-volition:0",
+          "evidenceKey": "e:g:automatic-volition:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "automatic"
+        },
+        {
+          "key": "g:automatic-volition:1",
+          "evidenceKey": "e:g:automatic-volition:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "without conscious volition"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:automatic-volition",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "308",
+      "semanticKey": "concept:1112c3f3a2f822ce7f7a73711c5a6335afa28f4cd132703be0e0a808f4cecbbf",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-8-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:automatic-volition",
+          "evidenceKey": "e:d:automatic-volition",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "Done without conscious intention."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:automatic-volition",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:1112c3f3a2f822ce7f7a73711c5a6335afa28f4cd132703be0e0a808f4cecbbf"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "8c97540a51aa38138186357ea79b7003ed5ed103776bf85ea8cff6012f6c3cd2",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:automatic-volition:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "00c1991c455fe90b939cee30711179611b28c7efa4334c09ee724404eb100425",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:automatic-volition:1",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "572b5c90f6f7e7b47835c6d0423178b516079426cd869f8e1ad432117ad6dd43",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741001",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:automatic-volition",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "62b0608135b60b36ee90bdabf5910e64defc975ce845d0e41748701ad8609e48",
+    "inputHash": "53e556582fe8d9569de59c7dc9d09a0f7cc103c28fac54d191e65baf11119e1a",
+    "candidateKey": "bb81875455de105ca4c1f4dff35d14f321fa6c023fe037150e06e603094ec88c"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "108",
+      "lexemeId": "208",
+      "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "automatic-volition",
+        "senseKey": "automatic-volition#1"
+      },
+      "language": "ja",
+      "lemma": "自動的",
+      "reading": null,
+      "forms": [
+        "自動的"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:automatic-volition:0",
+          "evidenceKey": "e:g:automatic-volition:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "automatic"
+        },
+        {
+          "key": "g:automatic-volition:1",
+          "evidenceKey": "e:g:automatic-volition:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "without conscious volition"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:automatic-volition",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:automatic-volition:0",
+      "g:automatic-volition:1"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "bb81875455de105ca4c1f4dff35d14f321fa6c023fe037150e06e603094ec88c",
+        "inputHash": "53e556582fe8d9569de59c7dc9d09a0f7cc103c28fac54d191e65baf11119e1a",
+        "concept": {
+          "id": "308",
+          "semanticKey": "concept:1112c3f3a2f822ce7f7a73711c5a6335afa28f4cd132703be0e0a808f4cecbbf",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-8-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:automatic-volition",
+              "evidenceKey": "e:d:automatic-volition",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "Done without conscious intention."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:automatic-volition",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:1112c3f3a2f822ce7f7a73711c5a6335afa28f4cd132703be0e0a808f4cecbbf"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "8c97540a51aa38138186357ea79b7003ed5ed103776bf85ea8cff6012f6c3cd2",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:automatic-volition:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "00c1991c455fe90b939cee30711179611b28c7efa4334c09ee724404eb100425",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:automatic-volition:1",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "572b5c90f6f7e7b47835c6d0423178b516079426cd869f8e1ad432117ad6dd43",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741001",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:automatic-volition",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:a4cebd965d8dca0c1649836ea1ea8e56be76c41fecb9a49f2abe57f07580572c"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "2597b7216aa1ecb9fb271f264340fff6ae5c858e27f3666659ef34bf591adef9",
+    "contextHash": "fffbe4f1815d5a5c410104e6e5c2b2b433232d3c96652fc70c211a21660a5cf6"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "2597b7216aa1ecb9fb271f264340fff6ae5c858e27f3666659ef34bf591adef9",
+    "senseId": "108",
+    "contextHash": "fffbe4f1815d5a5c410104e6e5c2b2b433232d3c96652fc70c211a21660a5cf6",
+    "reviews": [
+      {
+        "candidateKey": "bb81875455de105ca4c1f4dff35d14f321fa6c023fe037150e06e603094ec88c",
+        "conceptId": "308",
+        "relation": "uncertain",
+        "coveredBranches": [
+          "g:automatic-volition:0",
+          "g:automatic-volition:1"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: automatic-volition. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": {
+      "code": "missing_context",
+      "detail": "Synthetic example requires more scope evidence."
+    }
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "2597b7216aa1ecb9fb271f264340fff6ae5c858e27f3666659ef34bf591adef9",
+    "senseId": "108",
+    "contextHash": "fffbe4f1815d5a5c410104e6e5c2b2b433232d3c96652fc70c211a21660a5cf6",
+    "reviews": [
+      {
+        "candidateKey": "bb81875455de105ca4c1f4dff35d14f321fa6c023fe037150e06e603094ec88c",
+        "conceptId": "308",
+        "relation": "uncertain",
+        "coveredBranches": [
+          "g:automatic-volition:0",
+          "g:automatic-volition:1"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: automatic-volition. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": {
+      "code": "missing_context",
+      "detail": "Synthetic example requires more scope evidence."
+    }
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "bb81875455de105ca4c1f4dff35d14f321fa6c023fe037150e06e603094ec88c",
+    "inputHash": "53e556582fe8d9569de59c7dc9d09a0f7cc103c28fac54d191e65baf11119e1a",
+    "outputHashR1": "53181cb60b3531e0dfa00343c7775ebf10ab4e4bafc6fd73c2335ae0a1182fad",
+    "outputHashR2": "53181cb60b3531e0dfa00343c7775ebf10ab4e4bafc6fd73c2335ae0a1182fad",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "defer",
+    "relation": "uncertain",
+    "reasons": [
+      {
+        "code": "missing_context",
+        "detail": "Need semantic review."
+      }
+    ]
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "bb81875455de105ca4c1f4dff35d14f321fa6c023fe037150e06e603094ec88c",
+    "inputHash": "53e556582fe8d9569de59c7dc9d09a0f7cc103c28fac54d191e65baf11119e1a",
+    "outputHashR1": "53181cb60b3531e0dfa00343c7775ebf10ab4e4bafc6fd73c2335ae0a1182fad",
+    "outputHashR2": "53181cb60b3531e0dfa00343c7775ebf10ab4e4bafc6fd73c2335ae0a1182fad",
+    "decisionHash": "173e203d296d4f5876c467f84e5fae126b200e1764839d771653ca211fb94569",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

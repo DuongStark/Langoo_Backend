@@ -1,0 +1,435 @@
+{
+  "caseKey": "cat-narrower",
+  "expectedRelation": "narrower",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "102",
+      "lexemeId": "202",
+      "semanticKey": "sense:12b2a011dd486abb9409fd94902ccda4aba18f3597d90fea2ae7eefd154dc16d",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "cat-narrower",
+        "senseKey": "cat-narrower#1"
+      },
+      "language": "ja",
+      "lemma": "猫",
+      "reading": null,
+      "forms": [
+        "猫"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:cat-narrower:0",
+          "evidenceKey": "e:g:cat-narrower:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "domestic cat"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:cat-narrower",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "302",
+      "semanticKey": "concept:68288aeb9ed50acc60acba9c994d2345fcc433d8a782b5547ff6fe22d72b987b",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-2-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:cat-narrower",
+          "evidenceKey": "e:d:cat-narrower",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "A living animal organism."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:cat-narrower",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:68288aeb9ed50acc60acba9c994d2345fcc433d8a782b5547ff6fe22d72b987b"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "7037c6b3518e6388d9771775a166f234937a9c100fe11923897892a56f088719",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:cat-narrower:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:12b2a011dd486abb9409fd94902ccda4aba18f3597d90fea2ae7eefd154dc16d"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "271f5043cf740347009cbad52d75909fe3ff731515413f5eee55b977db0ecddd",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:cat-narrower",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:12b2a011dd486abb9409fd94902ccda4aba18f3597d90fea2ae7eefd154dc16d"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "bea10d04696a0806bcbfe6f7233afae6d3eb5722901d54041accd2c575e917f8",
+    "inputHash": "1f29b12cb2f08d7499d06ae76e5c47ee49caefb4b131955982dce102ea95b935",
+    "candidateKey": "a54f9d3747ae474ad72c69e11dd12cae329de54b8d23e2308f618dd330608728"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "102",
+      "lexemeId": "202",
+      "semanticKey": "sense:12b2a011dd486abb9409fd94902ccda4aba18f3597d90fea2ae7eefd154dc16d",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "cat-narrower",
+        "senseKey": "cat-narrower#1"
+      },
+      "language": "ja",
+      "lemma": "猫",
+      "reading": null,
+      "forms": [
+        "猫"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:cat-narrower:0",
+          "evidenceKey": "e:g:cat-narrower:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "domestic cat"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:cat-narrower",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:cat-narrower:0"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "a54f9d3747ae474ad72c69e11dd12cae329de54b8d23e2308f618dd330608728",
+        "inputHash": "1f29b12cb2f08d7499d06ae76e5c47ee49caefb4b131955982dce102ea95b935",
+        "concept": {
+          "id": "302",
+          "semanticKey": "concept:68288aeb9ed50acc60acba9c994d2345fcc433d8a782b5547ff6fe22d72b987b",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-2-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:cat-narrower",
+              "evidenceKey": "e:d:cat-narrower",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "A living animal organism."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:cat-narrower",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:68288aeb9ed50acc60acba9c994d2345fcc433d8a782b5547ff6fe22d72b987b"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "7037c6b3518e6388d9771775a166f234937a9c100fe11923897892a56f088719",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:cat-narrower:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:12b2a011dd486abb9409fd94902ccda4aba18f3597d90fea2ae7eefd154dc16d"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "271f5043cf740347009cbad52d75909fe3ff731515413f5eee55b977db0ecddd",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:cat-narrower",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:12b2a011dd486abb9409fd94902ccda4aba18f3597d90fea2ae7eefd154dc16d"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "85bd9656d3a1c83aac5dd3cb428bd1e7b046fdaa22b7feed72826bc771d07373",
+    "contextHash": "4c26006e65b62aad131431a2075c2ecb6bad0fb687c54fa449cd9cc3c923bd0b"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "85bd9656d3a1c83aac5dd3cb428bd1e7b046fdaa22b7feed72826bc771d07373",
+    "senseId": "102",
+    "contextHash": "4c26006e65b62aad131431a2075c2ecb6bad0fb687c54fa449cd9cc3c923bd0b",
+    "reviews": [
+      {
+        "candidateKey": "a54f9d3747ae474ad72c69e11dd12cae329de54b8d23e2308f618dd330608728",
+        "conceptId": "302",
+        "relation": "narrower",
+        "coveredBranches": [
+          "g:cat-narrower:0"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: cat-narrower. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "85bd9656d3a1c83aac5dd3cb428bd1e7b046fdaa22b7feed72826bc771d07373",
+    "senseId": "102",
+    "contextHash": "4c26006e65b62aad131431a2075c2ecb6bad0fb687c54fa449cd9cc3c923bd0b",
+    "reviews": [
+      {
+        "candidateKey": "a54f9d3747ae474ad72c69e11dd12cae329de54b8d23e2308f618dd330608728",
+        "conceptId": "302",
+        "relation": "narrower",
+        "coveredBranches": [
+          "g:cat-narrower:0"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: cat-narrower. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "a54f9d3747ae474ad72c69e11dd12cae329de54b8d23e2308f618dd330608728",
+    "inputHash": "1f29b12cb2f08d7499d06ae76e5c47ee49caefb4b131955982dce102ea95b935",
+    "outputHashR1": "508983cbfbe25db034c5ab466130ae0189783dda54f4b5cffc20089f32531e97",
+    "outputHashR2": "508983cbfbe25db034c5ab466130ae0189783dda54f4b5cffc20089f32531e97",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "accept_nonexact",
+    "relation": "narrower",
+    "reasons": []
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "a54f9d3747ae474ad72c69e11dd12cae329de54b8d23e2308f618dd330608728",
+    "inputHash": "1f29b12cb2f08d7499d06ae76e5c47ee49caefb4b131955982dce102ea95b935",
+    "outputHashR1": "508983cbfbe25db034c5ab466130ae0189783dda54f4b5cffc20089f32531e97",
+    "outputHashR2": "508983cbfbe25db034c5ab466130ae0189783dda54f4b5cffc20089f32531e97",
+    "decisionHash": "8aadcd3ceffca158ed6467854ef8d984f2279638d794d6e89721957f58713705",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

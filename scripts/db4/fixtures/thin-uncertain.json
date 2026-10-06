@@ -1,0 +1,548 @@
+{
+  "caseKey": "thin-uncertain",
+  "expectedRelation": "uncertain",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "105",
+      "lexemeId": "205",
+      "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "thin-uncertain",
+        "senseKey": "thin-uncertain#1"
+      },
+      "language": "ja",
+      "lemma": "薄い",
+      "reading": null,
+      "forms": [
+        "薄い"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:thin-uncertain:0",
+          "evidenceKey": "e:g:thin-uncertain:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "thin"
+        },
+        {
+          "key": "g:thin-uncertain:1",
+          "evidenceKey": "e:g:thin-uncertain:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "weak"
+        },
+        {
+          "key": "g:thin-uncertain:2",
+          "evidenceKey": "e:g:thin-uncertain:2",
+          "id": "9007199254741002",
+          "rank": 2,
+          "language": "en",
+          "kind": "gloss",
+          "text": "faint"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:thin-uncertain",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "305",
+      "semanticKey": "concept:70d8835086e3b7e56911244f1d7c30fecbcef145dfcdd64e446b11d964e0d805",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-5-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:thin-uncertain",
+          "evidenceKey": "e:d:thin-uncertain",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "Having small thickness between two surfaces."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:thin-uncertain",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:70d8835086e3b7e56911244f1d7c30fecbcef145dfcdd64e446b11d964e0d805"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "793b9e16a2e99f92a15c8f4be61be1f054afd6e5094f425153257cf86e253ad0",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:thin-uncertain:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "0969f35229da0cdc286835727f6e05d3420b3413890a8b4692f091d7295023f4",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:thin-uncertain:1",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "8b3058b179c3f9b8ff62694764b1484b2837cbb419a940be2cfb9123e9531de2",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741001",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:thin-uncertain:2",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "f7eda44d61933a7d136df632906aa9feef1cbfc9908fb4ba0cb4fdda2ebfc52c",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741002",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:thin-uncertain",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "f85b73b1a8128374044357f4ba3eb651b31f9f3f6c9482ceb423f88b4e9a7ae9",
+    "inputHash": "bf0df88e523798f7a8a61c7a80bccfd57532e8d87549e658ce68328b48598a98",
+    "candidateKey": "2fb7b93ec105e5054aecdc37d0bb355da536a2d015085298c05d82e55a0f8d89"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "105",
+      "lexemeId": "205",
+      "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "thin-uncertain",
+        "senseKey": "thin-uncertain#1"
+      },
+      "language": "ja",
+      "lemma": "薄い",
+      "reading": null,
+      "forms": [
+        "薄い"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:thin-uncertain:0",
+          "evidenceKey": "e:g:thin-uncertain:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "thin"
+        },
+        {
+          "key": "g:thin-uncertain:1",
+          "evidenceKey": "e:g:thin-uncertain:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "weak"
+        },
+        {
+          "key": "g:thin-uncertain:2",
+          "evidenceKey": "e:g:thin-uncertain:2",
+          "id": "9007199254741002",
+          "rank": 2,
+          "language": "en",
+          "kind": "gloss",
+          "text": "faint"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:thin-uncertain",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:thin-uncertain:0",
+      "g:thin-uncertain:1",
+      "g:thin-uncertain:2"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "2fb7b93ec105e5054aecdc37d0bb355da536a2d015085298c05d82e55a0f8d89",
+        "inputHash": "bf0df88e523798f7a8a61c7a80bccfd57532e8d87549e658ce68328b48598a98",
+        "concept": {
+          "id": "305",
+          "semanticKey": "concept:70d8835086e3b7e56911244f1d7c30fecbcef145dfcdd64e446b11d964e0d805",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-5-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:thin-uncertain",
+              "evidenceKey": "e:d:thin-uncertain",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "Having small thickness between two surfaces."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:thin-uncertain",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:70d8835086e3b7e56911244f1d7c30fecbcef145dfcdd64e446b11d964e0d805"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "793b9e16a2e99f92a15c8f4be61be1f054afd6e5094f425153257cf86e253ad0",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:thin-uncertain:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "0969f35229da0cdc286835727f6e05d3420b3413890a8b4692f091d7295023f4",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:thin-uncertain:1",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "8b3058b179c3f9b8ff62694764b1484b2837cbb419a940be2cfb9123e9531de2",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741001",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:thin-uncertain:2",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "f7eda44d61933a7d136df632906aa9feef1cbfc9908fb4ba0cb4fdda2ebfc52c",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741002",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:thin-uncertain",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:96a424365f302da4baabd4859567bdf087c0beb1b5ddd8660eaee9a9d9d96039"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "0ffe2ad997fa069e9e8142a896b184cb7f0b519d5c0af41f3d01424ec51c2540",
+    "contextHash": "845901ee899e14416dea2515d0318d041d85dec52c5cff089b202f0e8ba17d8d"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "0ffe2ad997fa069e9e8142a896b184cb7f0b519d5c0af41f3d01424ec51c2540",
+    "senseId": "105",
+    "contextHash": "845901ee899e14416dea2515d0318d041d85dec52c5cff089b202f0e8ba17d8d",
+    "reviews": [
+      {
+        "candidateKey": "2fb7b93ec105e5054aecdc37d0bb355da536a2d015085298c05d82e55a0f8d89",
+        "conceptId": "305",
+        "relation": "uncertain",
+        "coveredBranches": [
+          "g:thin-uncertain:0",
+          "g:thin-uncertain:1",
+          "g:thin-uncertain:2"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: thin-uncertain. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": {
+      "code": "missing_context",
+      "detail": "Synthetic example requires more scope evidence."
+    }
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "0ffe2ad997fa069e9e8142a896b184cb7f0b519d5c0af41f3d01424ec51c2540",
+    "senseId": "105",
+    "contextHash": "845901ee899e14416dea2515d0318d041d85dec52c5cff089b202f0e8ba17d8d",
+    "reviews": [
+      {
+        "candidateKey": "2fb7b93ec105e5054aecdc37d0bb355da536a2d015085298c05d82e55a0f8d89",
+        "conceptId": "305",
+        "relation": "uncertain",
+        "coveredBranches": [
+          "g:thin-uncertain:0",
+          "g:thin-uncertain:1",
+          "g:thin-uncertain:2"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: thin-uncertain. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": {
+      "code": "missing_context",
+      "detail": "Synthetic example requires more scope evidence."
+    }
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "2fb7b93ec105e5054aecdc37d0bb355da536a2d015085298c05d82e55a0f8d89",
+    "inputHash": "bf0df88e523798f7a8a61c7a80bccfd57532e8d87549e658ce68328b48598a98",
+    "outputHashR1": "5172c7141ed9955d151fd7a66e62c8f6e4abe83f259fcc1bca5b1448e58ecea9",
+    "outputHashR2": "5172c7141ed9955d151fd7a66e62c8f6e4abe83f259fcc1bca5b1448e58ecea9",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "defer",
+    "relation": "uncertain",
+    "reasons": [
+      {
+        "code": "missing_context",
+        "detail": "Need semantic review."
+      }
+    ]
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "2fb7b93ec105e5054aecdc37d0bb355da536a2d015085298c05d82e55a0f8d89",
+    "inputHash": "bf0df88e523798f7a8a61c7a80bccfd57532e8d87549e658ce68328b48598a98",
+    "outputHashR1": "5172c7141ed9955d151fd7a66e62c8f6e4abe83f259fcc1bca5b1448e58ecea9",
+    "outputHashR2": "5172c7141ed9955d151fd7a66e62c8f6e4abe83f259fcc1bca5b1448e58ecea9",
+    "decisionHash": "73949566d9e9760066795ff2d672efc0369409b8a497d9fb5f11f349d7680f86",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

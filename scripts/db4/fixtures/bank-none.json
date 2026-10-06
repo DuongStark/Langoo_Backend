@@ -1,0 +1,435 @@
+{
+  "caseKey": "bank-none",
+  "expectedRelation": "none",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "104",
+      "lexemeId": "204",
+      "semanticKey": "sense:22706ec0de33fa5ea5fa094569e8138d29bb3782bb1ca015bb5a17e78ffc5bea",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "bank-none",
+        "senseKey": "bank-none#1"
+      },
+      "language": "ja",
+      "lemma": "岸",
+      "reading": null,
+      "forms": [
+        "岸"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:bank-none:0",
+          "evidenceKey": "e:g:bank-none:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "bank of a river"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:bank-none",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "304",
+      "semanticKey": "concept:93353e27b4d7c69181e81109c616523d4c9f0d295471dfe0c2f6d61d0c3af26b",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-4-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:bank-none",
+          "evidenceKey": "e:d:bank-none",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "A financial institution that holds deposits."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:bank-none",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:93353e27b4d7c69181e81109c616523d4c9f0d295471dfe0c2f6d61d0c3af26b"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "0b32c496561630d5cc233a5f7d9f704594140e516d5f6c4b8351b79595066a5c",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:bank-none:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:22706ec0de33fa5ea5fa094569e8138d29bb3782bb1ca015bb5a17e78ffc5bea"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "6f883babf66bed68a950e14518fb286ddd4ec9069c265518ce2a4acd4e257815",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:bank-none",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:22706ec0de33fa5ea5fa094569e8138d29bb3782bb1ca015bb5a17e78ffc5bea"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "7cc4c140436fe6ac28c35599e27bb7330fa74bcc40ec9f48067e9cd8040584c6",
+    "inputHash": "e302966e5ba468d59f07ef384de9fc7e6fd14a0332b01601b39c6aa02318810c",
+    "candidateKey": "24db36bcec825129129cf60f11ecbda35a773b6ad1ef12bce45b9cbb792808cc"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "104",
+      "lexemeId": "204",
+      "semanticKey": "sense:22706ec0de33fa5ea5fa094569e8138d29bb3782bb1ca015bb5a17e78ffc5bea",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "bank-none",
+        "senseKey": "bank-none#1"
+      },
+      "language": "ja",
+      "lemma": "岸",
+      "reading": null,
+      "forms": [
+        "岸"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:bank-none:0",
+          "evidenceKey": "e:g:bank-none:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "bank of a river"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:bank-none",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:bank-none:0"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "24db36bcec825129129cf60f11ecbda35a773b6ad1ef12bce45b9cbb792808cc",
+        "inputHash": "e302966e5ba468d59f07ef384de9fc7e6fd14a0332b01601b39c6aa02318810c",
+        "concept": {
+          "id": "304",
+          "semanticKey": "concept:93353e27b4d7c69181e81109c616523d4c9f0d295471dfe0c2f6d61d0c3af26b",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-4-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:bank-none",
+              "evidenceKey": "e:d:bank-none",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "A financial institution that holds deposits."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:bank-none",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:93353e27b4d7c69181e81109c616523d4c9f0d295471dfe0c2f6d61d0c3af26b"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "0b32c496561630d5cc233a5f7d9f704594140e516d5f6c4b8351b79595066a5c",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:bank-none:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:22706ec0de33fa5ea5fa094569e8138d29bb3782bb1ca015bb5a17e78ffc5bea"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "6f883babf66bed68a950e14518fb286ddd4ec9069c265518ce2a4acd4e257815",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:bank-none",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:22706ec0de33fa5ea5fa094569e8138d29bb3782bb1ca015bb5a17e78ffc5bea"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "38ada554f159a8868a1165f980a341570816d4ac8ae4f9931d243a2d89e4228e",
+    "contextHash": "f3440282b24cd668431b2c5566324e2bd884d343fd0244e56d455843a48ffd9a"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "38ada554f159a8868a1165f980a341570816d4ac8ae4f9931d243a2d89e4228e",
+    "senseId": "104",
+    "contextHash": "f3440282b24cd668431b2c5566324e2bd884d343fd0244e56d455843a48ffd9a",
+    "reviews": [
+      {
+        "candidateKey": "24db36bcec825129129cf60f11ecbda35a773b6ad1ef12bce45b9cbb792808cc",
+        "conceptId": "304",
+        "relation": "none",
+        "coveredBranches": [],
+        "missingBranches": [
+          "g:bank-none:0"
+        ],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: bank-none. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": true,
+    "unresolvedReason": null
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "38ada554f159a8868a1165f980a341570816d4ac8ae4f9931d243a2d89e4228e",
+    "senseId": "104",
+    "contextHash": "f3440282b24cd668431b2c5566324e2bd884d343fd0244e56d455843a48ffd9a",
+    "reviews": [
+      {
+        "candidateKey": "24db36bcec825129129cf60f11ecbda35a773b6ad1ef12bce45b9cbb792808cc",
+        "conceptId": "304",
+        "relation": "none",
+        "coveredBranches": [],
+        "missingBranches": [
+          "g:bank-none:0"
+        ],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: bank-none. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": true,
+    "unresolvedReason": null
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "24db36bcec825129129cf60f11ecbda35a773b6ad1ef12bce45b9cbb792808cc",
+    "inputHash": "e302966e5ba468d59f07ef384de9fc7e6fd14a0332b01601b39c6aa02318810c",
+    "outputHashR1": "2b23c4002fc2d04ab35a9b88b31a0c48847445a56303bf082254a3921f598350",
+    "outputHashR2": "2b23c4002fc2d04ab35a9b88b31a0c48847445a56303bf082254a3921f598350",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "reject_pair",
+    "relation": "none",
+    "reasons": []
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "24db36bcec825129129cf60f11ecbda35a773b6ad1ef12bce45b9cbb792808cc",
+    "inputHash": "e302966e5ba468d59f07ef384de9fc7e6fd14a0332b01601b39c6aa02318810c",
+    "outputHashR1": "2b23c4002fc2d04ab35a9b88b31a0c48847445a56303bf082254a3921f598350",
+    "outputHashR2": "2b23c4002fc2d04ab35a9b88b31a0c48847445a56303bf082254a3921f598350",
+    "decisionHash": "4ecfa4d3716cb2f84583fdb21c16fc3ec4afc236b6660bb7930af93838e8721d",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}
