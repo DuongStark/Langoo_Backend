@@ -51,6 +51,7 @@ function createSetup(): {
     };
     content: {
       getGlosses: jest.Mock;
+      getGlossesByLexeme: jest.Mock;
       getExamples: jest.Mock;
       getPronunciations: jest.Mock;
       getForms: jest.Mock;
@@ -70,6 +71,7 @@ function createSetup(): {
     },
     content: {
       getGlosses: jest.fn(),
+      getGlossesByLexeme: jest.fn(),
       getExamples: jest.fn(),
       getPronunciations: jest.fn(),
       getForms: jest.fn(),
@@ -305,6 +307,8 @@ describe('DictionaryService', () => {
       const { service, repos } = createSetup();
       repos.senseCard.hasLexeme.mockResolvedValue(true);
       repos.senseCard.getByLexemeId.mockResolvedValue([senseCard]);
+      repos.languages.findIdByCode.mockResolvedValue(1);
+      repos.content.getGlossesByLexeme.mockResolvedValue([]);
 
       const result = await service.getLexemeSenses(1n);
 
@@ -315,6 +319,36 @@ describe('DictionaryService', () => {
         lemma: '走る',
       });
       expect(result.next_cursor).toBeNull();
+    });
+
+    it('sense con trùng định nghĩa cha → hiển thị gloss khác chưa dùng', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(true);
+      repos.senseCard.getByLexemeId.mockResolvedValue([
+        {
+          ...senseCard,
+          senseId: 10n,
+          senseNo: 1,
+          definition: 'A common fruit',
+        },
+        {
+          ...senseCard,
+          senseId: 11n,
+          senseNo: 2,
+          definition: 'A common fruit',
+        },
+      ]);
+      repos.languages.findIdByCode.mockResolvedValue(1);
+      repos.content.getGlossesByLexeme.mockResolvedValue([
+        { sense_id: 10n, text: 'A common fruit' },
+        { sense_id: 11n, text: 'A common fruit' },
+        { sense_id: 11n, text: 'Any fruit or vegetable' },
+      ]);
+
+      const result = await service.getLexemeSenses(1n);
+
+      expect(result.data[0].definition).toBe('A common fruit');
+      expect(result.data[1].definition).toBe('Any fruit or vegetable');
     });
   });
 

@@ -142,11 +142,46 @@ export class DictionaryService {
       );
     }
 
-    const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
-    return {
-      data: cards.map(toSenseCardResponse),
-      next_cursor: null,
-    };
+    const [cards, enId] = await Promise.all([
+      this.senseCardRepo.getByLexemeId(lexemeId),
+      this.languages.findIdByCode('en'),
+    ]);
+    const glossRows =
+      enId === null
+        ? []
+        : await this.contentRepo.getGlossesByLexeme(lexemeId, enId);
+    const textsBySense = new Map<string, string[]>();
+    for (const row of glossRows) {
+      const key = row.sense_id.toString();
+      const list = textsBySense.get(key);
+      if (list) list.push(row.text);
+      else textsBySense.set(key, [row.text]);
+    }
+
+    /* Wiktextract lặp gloss cha ở đầu mỗi sense con → nếu định nghĩa đã xuất hiện
+       ở sense trước trong cùng lexeme, chọn gloss kế tiếp chưa dùng để hiển thị. */
+    const usedDefinitions = new Set<string>();
+    const data = cards.map((card) => {
+      const original = card.definition;
+      if (original === null || original === '')
+        return toSenseCardResponse(card);
+      let display = original;
+      if (usedDefinitions.has(display)) {
+        const alternative = (
+          textsBySense.get(card.senseId.toString()) ?? []
+        ).find((text) => text !== original && !usedDefinitions.has(text));
+        if (alternative) display = alternative;
+      }
+      usedDefinitions.add(display);
+      return display === original
+        ? toSenseCardResponse(card)
+        : toSenseCardResponse({
+            ...card,
+            definition: display,
+            definitionLanguageId: enId,
+          });
+    });
+    return { data, next_cursor: null };
   }
 
   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {
