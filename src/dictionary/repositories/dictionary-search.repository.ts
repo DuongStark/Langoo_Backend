@@ -184,6 +184,7 @@ export class DictionarySearchRepository {
           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
           CASE WHEN ${surfaceExactCondition} THEN 0 ELSE 1 END AS surface_exact_rank,
+          CASE WHEN h.surface = cl.lemma THEN 0 ELSE 1 END AS canonical_face_rank,
           CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
           coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
           length(h.surface) AS surface_length
@@ -194,7 +195,7 @@ export class DictionarySearchRepository {
         SELECT ranked.*,
           row_number() OVER (
             PARTITION BY lexeme_id
-            ORDER BY exact_rank, prefix_rank, surface_exact_rank, surface_length, surface_kind, surface
+            ORDER BY exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface
           ) AS face_no
         FROM ranked
       )

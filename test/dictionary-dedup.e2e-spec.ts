@@ -59,7 +59,7 @@ describe('M4.2 / DB4-D0.2 dictionary dedup and source projection', () => {
              (710006,1,'dedup-eat','verb',NULL,1,8,'{}'),
              (710007,2,'試験同義','noun','しけんどうぎ',1,1,'{}')`);
     await db.$executeRawUnsafe(`INSERT INTO core.lexeme_form(lexeme_id,kind,form_text,form_order)
-      VALUES (710001,'kanji','試験猫',1),(710001,'kana','しけんねこ',1),(710001,'kanji','試験猫別',2)`);
+      VALUES (710001,'kanji','試験猫',1),(710001,'kana','しけんねこ',1),(710001,'kanji','仮猫',2)`);
     await db.$executeRawUnsafe(`INSERT INTO core.sense(id,lexeme_id,sense_no,definition,definition_language_id,source_id,attributes)
       VALUES (710011,710006,1,'To ingest.',1,8,'{"tags":["ambitransitive"]}'),
              (710012,710006,2,'To ingest.',1,8,'{"tags":["intransitive"]}'),
@@ -167,6 +167,14 @@ describe('M4.2 / DB4-D0.2 dictionary dedup and source projection', () => {
     expect(
       (kana.body as Page).data.find((h) => h.lexeme_id === '710001')?.surface,
     ).toBe('しけんねこ');
+    const alternative = await request(server)
+      .get('/v1/dictionary/search')
+      .query({ q: '仮猫', lang: 'ja', limit: 100 })
+      .expect(200);
+    expect(
+      (alternative.body as Page).data.find((h) => h.lexeme_id === '710001')
+        ?.surface,
+    ).toBe('仮猫');
   });
 
   it('first and later senses use the same source meaning in list/detail, retaining full context', async () => {

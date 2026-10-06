@@ -5,7 +5,7 @@ const MAX_SIGNED_BIGINT = 9223372036854775807n;
 const MAX_CURSOR_TEXT = 1000;
 
 export interface DictionarySearchCursor {
-  version: 2;
+  version: 3;
   query: string;
   lang: string | null;
   exactRank: 0 | 1;
@@ -52,7 +52,7 @@ export function decodeDictionarySearchCursor(
     ) as Record<string, unknown>;
 
     if (
-      parsed.v !== 2 ||
+      parsed.v !== 3 ||
       typeof parsed.q !== 'string' ||
       parsed.q.length === 0 ||
       parsed.q.length > 100 ||
@@ -78,7 +78,7 @@ export function decodeDictionarySearchCursor(
     }
 
     return {
-      version: 2,
+      version: 3,
       query: parsed.q,
       lang: parsed.l,
       exactRank: parsed.e,

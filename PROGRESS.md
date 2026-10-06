@@ -16,7 +16,7 @@
 | M3   | Profile & settings                                                        | ✅ hoàn thành (chờ review)                                                                                            |
 | M3.1 | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                                         |
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                 |
-| M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn                       | ✅ code xong local: per-lexeme matching trước cursor/LIMIT, cursor v2; cùng DB4-D0.2 projection view + EN context, 375 unit / 31 e2e pass, lint/build pass; [report](docs/reviews/db4-d0-2-m4-2-implementation-2026-10-06.md); chưa commit/push/deploy, migration 038 chưa áp VPS |
+| M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn                       | ✅ code xong local: per-lexeme matching trước cursor/LIMIT, cursor v3; cùng DB4-D0.2 projection view + EN context, 375 unit / 31 e2e pass, lint/build pass; [report](docs/reviews/db4-d0-2-m4-2-implementation-2026-10-06.md); chưa commit/push/deploy, migration 038 chưa áp VPS |
 | M5   | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                               |
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                         |
 | M6   | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                      |
@@ -412,3 +412,10 @@ Trọng tâm: **thống kê vận hành chỉ-đọc** (tổng hợp từ `app.*
 Kèm (nếu bạn duyệt khi làm M13): duyệt gloss (`reviewed_by`), xử lý `gloss_report`, khoá/mở user, quản lý deck.
 
 Yêu cầu kiến trúc: migration 026+ thêm vai admin + JWT claim + `AdminGuard`; route `/v1/admin/*`; mọi thao tác ghi `core` (nếu có) phải là ngoại lệ được duyệt và có audit.
+
+### 2026-10-06 — M4.2 — Sửa canonical face sau smoke deploy
+
+Commit 04112dc đã lên VPS sau CI xanh; migration 038 đã áp role langoo. Smoke live
+phát hiện hashiru chọn 奔る thay lemma 走る; bổ sung canonical face rank sau literal
+match, fixture variant ngắn hơn và exact variant. Cursor v3 từ chối v1/v2 để tránh
+phân trang dùng face cũ. Đang kiểm/publish patch; chưa báo smoke hoàn tất.

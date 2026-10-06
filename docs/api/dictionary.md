@@ -42,8 +42,10 @@ curl -s "http://localhost:3000/v1/dictionary/search?q=run" -H "Authorization: Be
 - Xếp hạng: khớp chính xác → khớp đầu chuỗi → tần suất (`NULLS LAST`) → độ dài → các khóa ổn định của face.
 - `limit` mặc định 20, tối đa 100. `q` 1–100 ký tự sau khi trim (`400 VALIDATION_FAILED` nếu rỗng).
 - `cursor` là chuỗi opaque trả từ response trước; cursor chỉ dùng lại với cùng `q` và `lang`, sai thì `400 VALIDATION_FAILED`.
+- M4.2 ưu tiên mặt chữ khớp truy vấn trực tiếp, sau đó lemma chính; romaji
+  `hashiru` trả `走る`, còn tìm trực tiếp `奔る` vẫn trả biến thể đó.
 - M4.2 giữ **một matching face mỗi lexeme_id trước cursor/LIMIT+1**. Khác ID/nguồn/POS/reading vẫn giữ riêng cho tới khi equivalence/membership được xác nhận; không ẩn nguồn phụ chỉ vì trùng spelling.
-- Cursor M4.2 dùng **v2**; cursor v1 cũ trả `400 VALIDATION_FAILED`, client bắt đầu lại trang đầu. Không giải mã/sửa cursor ở FE.
+- Cursor M4.2 dùng **v3**; cursor v1/v2 cũ trả `400 VALIDATION_FAILED`, client bắt đầu lại trang đầu. Không giải mã/sửa cursor ở FE.
 - Khi tìm tiếng Nhật, romaji được chuyển sang kana để tìm thêm. Ví dụ `q=hashiru&lang=ja` tìm được `走る` cả khi `core.lexeme.romanization` chưa có dữ liệu.
 
 ## GET /v1/lexemes/:id/senses

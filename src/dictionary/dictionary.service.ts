@@ -119,7 +119,7 @@ export class DictionaryService {
       next_cursor:
         hasNext && lastRow
           ? encodeDictionarySearchCursor({
-              version: 2,
+              version: 3,
               query,
               lang: languageCode,
               exactRank: lastRow.exact_rank,
