@@ -28,6 +28,7 @@ import {
   SenseDetailDto,
   SenseLinksResultDto,
 } from './dto/dictionary-response.dto';
+import { LexemeSensesQueryDto } from './dto/lexeme-senses-query.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import {
   KanjiCardResponse,
@@ -72,15 +73,23 @@ export class LexemeController {
   constructor(private readonly dictionaryService: DictionaryService) {}
 
   @Get(':id/senses')
-  @ApiOperation({ summary: 'Lấy toàn bộ nghĩa của một từ điển' })
+  @ApiOperation({
+    summary: 'Lấy nghĩa của từ: nhóm Wiktextract hoặc danh sách phẳng',
+  })
   @ApiOkResponse({ type: LexemeSensesResultDto })
   @ApiBadRequestResponse({ type: ErrorResponseDto })
   @ApiNotFoundResponse({
     type: ErrorResponseDto,
     description: 'LEXEME_NOT_FOUND',
   })
-  senses(@Param('id') id: string): Promise<LexemeSensesResult> {
-    return this.dictionaryService.getLexemeSenses(parseDictionaryId(id));
+  senses(
+    @Param('id') id: string,
+    @Query() query: LexemeSensesQueryDto,
+  ): Promise<LexemeSensesResult> {
+    return this.dictionaryService.getLexemeSenses(
+      parseDictionaryId(id),
+      query.view,
+    );
   }
 }
 

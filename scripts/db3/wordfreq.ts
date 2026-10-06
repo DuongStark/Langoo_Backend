@@ -7,7 +7,6 @@ import {
   dbNameOf,
   log,
   parseCli,
-  readManifest,
   requireUrl,
   sha256File,
   upsertSourceRow,
@@ -22,7 +21,7 @@ import {
  *   python scripts/db3/wordfreq-export.py --lang en --lemmas en.txt --out wordfreq-en.tsv
  *
  * Dry-run mặc định. Apply: `--apply --allow-db <db> [--allow-test]`.
- * Rollback: `--rollback <manifest.json>` (chỉ xoá rank do chính run này set).
+ * Rollback is disabled: legacy manifests have no per-row before/after journal.
  */
 
 const SOURCE = {
@@ -114,32 +113,9 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
 
   const rollback = flagValue(cli, 'rollback');
   if (rollback !== undefined) {
-    if (!cli.apply) throw new Error('Rollback cần --apply --allow-db <tên-db>');
-    assertWritableTarget(url, cli);
-    const manifest = readManifest(rollback);
-    if (manifest.task !== 'wordfreq' || !manifest.applied)
-      throw new Error('Manifest không phải run wordfreq đã apply');
-    if (manifest.db !== dbNameOf(url))
-      throw new Error(
-        `Rollback sai đích: manifest ${manifest.db ?? '?'} vs ${dbNameOf(url)}`,
-      );
-    const client = await connect(url);
-    try {
-      const cleared = await client.query(
-        `UPDATE core.lexeme l
-         SET frequency_rank = NULL
-         FROM public.language g
-         WHERE g.id = l.language_id AND g.code = $1
-           AND l.frequency_rank IS NOT NULL`,
-        [languageCode],
-      );
-      log(
-        `== wordfreq ROLLBACK — xoá rank: ${cleared.rowCount ?? 0} lexeme (${languageCode})`,
-      );
-    } finally {
-      await client.end();
-    }
-    return;
+    throw new Error(
+      'Rollback wordfreq bị khóa: manifest không có journal before/after theo lexeme; không được xóa rank toàn ngôn ngữ',
+    );
   }
 
   assertWritableTarget(url, cli);
@@ -179,7 +155,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
       throw new Error(`Không có language code=${languageCode}`);
     const languageId = language.rows[0].id;
 
-    const before = await client.query<{ n: string }>(
+    const before = await client.query<{ n: number }>(
       'SELECT count(*)::int AS n FROM core.lexeme WHERE language_id = $1 AND frequency_rank IS NOT NULL',
       [languageId],
     );
@@ -204,13 +180,23 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
 
     await client.query('BEGIN');
     try {
+      await client.query("SET LOCAL lock_timeout = '10s'");
+      await client.query('LOCK TABLE core.lexeme IN SHARE ROW EXCLUSIVE MODE');
+      const current = await client.query<{ n: number }>(
+        'SELECT count(*)::int AS n FROM core.lexeme WHERE language_id = $1 AND frequency_rank IS NOT NULL',
+        [languageId],
+      );
+      if (current.rows[0].n !== 0)
+        throw new Error(
+          'frequency_rank đã thay đổi trước transaction; dừng apply',
+        );
       const updated = await updateRanks(client, languageId, rows);
       await upsertSourceRow(client, {
         ...SOURCE,
         version: meta.wordfreqVersion ?? 'unknown',
         sha256: manifest.inputs!.mappingSha256,
       });
-      const after = await client.query<{ n: string }>(
+      const after = await client.query<{ n: number }>(
         'SELECT count(*)::int AS n FROM core.lexeme WHERE language_id = $1 AND frequency_rank IS NOT NULL',
         [languageId],
       );

@@ -87,33 +87,24 @@ Internet
 
 ## 7. Auto-deploy & migration
 
-### M4.2 / DB4-D0.2 — chuẩn bị release 06/10
+### M4.2 / DB4-D0.2 — release 06/10
 
-Code local đã sửa search per-lexeme/cursor v2 và projection dùng chung, **chưa deploy**.
-Migration **038_dictionary_source_projection.sql** chỉ đã áp DB test riêng, **chưa áp
-VPS**; phải áp trước code mới vì repository đọc `gloss_en_context`. Source backfill
-không nằm trong migration; dùng manifest/journal theo [handoff](../handoff/db4-d0-2-m4-2.md).
-Không restart/deploy HEAD cũ làm mất hotfix dictionary chưa commit hiện có trên VPS.
-Dry-run 55.997 eligible source rows chưa ghi; physical cleanup/ID aliases còn chờ.
+Migration038 đã áp VPS; commits04112dc/d861390 đã CI deploy. Phiên DeepSeek
+sau đó deploy subsense lên code chưa commit trên VPS. User cho tạm dừng tích hợp,
+sau khi có handoff46ec612 thì triển khai M4.3.
 
-### Quy trình deploy hiện hữu
+### M4.3 — Nhóm nghĩa Wiktextract và bảo toàn sense
 
-- Workflow `.github/workflows/deploy.yml`: chạy khi **CI xanh trên `main`** (`workflow_run`) → SSH vào VPS → `sudo -u langoo -H /opt/langoo/deploy.sh`.
-- `/opt/langoo/deploy.sh`: `git fetch` + `git reset --hard origin/main` → `npm ci --include=dev` → `npm run build` → `pm2 reload langoo-api` → health check `/v1/health` (fail thì job đỏ).
-- Secrets GitHub: `VPS_HOST` = IP, `VPS_USER` = `root`, `VPS_SSH_KEY` = key riêng chỉ dùng để deploy.
-- **Quy tắc vàng: DB migration chạy THỦ CÔNG TRƯỚC khi push** (bài học sự cố 30/9: code lên trước migration làm API 500).
-- Chạy migration trên VPS (mật khẩu ở `~/.langoo-vps.env` máy chủ dự án):
-  ```bash
-  ssh langoo-vps
-  sudo -u langoo -H env \
-    DATABASE_URL='postgresql://langoo:<PASS>@127.0.0.1:5432/langoo' \
-    DIRECT_URL='postgresql://langoo:<PASS>@127.0.0.1:5432/langoo' \
-    bash -c 'cd /opt/langoo/app && npx tsx scripts/db/migrate.ts'
-  ```
-  - **Không dùng IP công khai** trong URL (PG chỉ nghe localhost → `ECONNREFUSED`).
-  - **Không pipe qua `tail`** — pipeline che mất lỗi/exit code (đã từng bỏ sót lỗi `must be owner`).
-  - Chờ **deploy xong** mới chạy (deploy đang `npm ci` có thể làm `tsx: not found`).
-- Trạng thái migration: file trong `db/migrations/` — **001–037, số 028 để trống** (dành đợt B xác thực email). **VPS đã áp đủ 001–037 trừ 028**, xác minh read-only `schema_migration` ngày 06/10; 034/036/037 đã có. Không suy tình trạng cloud từ VPS; xem lịch sử 05/10 trong PROGRESS khi cần.
+- Migration039 append gloss_en_is_hierarchy vào view; chạy trước publish main.
+- Backup runtime DeepSeek + patch + schema/count snapshot tại
+  `/opt/langoo/storage/db4/releases/m43-20261006` (private, ngoài working tree).
+  Backup DB đầy đủ M4.2 vẫn ở sibling `m42-20261006`; M4.3 chỉ đổi view.
+- Có `view=flat` cho FE cũ; grouped cần group_heading + render sub_senses.
+- Không áp lại wordfreq. DB3-W1 khóa rollback thiếu journal per-row.
+- Rollback code runtime trước từ archive; giữ cột039 (tương thích038), build/reload
+  một phiên. Không rollback DB dump hoặc git clean toàn working tree.
+- Kết quả CI/deploy/smoke và commit cuối ghi tại
+  [report M4.3](../reviews/m4-3-subsense-integration-2026-10-06.md).
 
 ## 8. Bí mật & các DB liên quan
 

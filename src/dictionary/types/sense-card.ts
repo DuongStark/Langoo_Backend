@@ -23,6 +23,7 @@ export interface SenseCardRow {
   gloss_vi_reviewed: boolean | null;
   gloss_en: string | null;
   gloss_en_context?: string[];
+  gloss_en_is_hierarchy?: boolean;
   concept_id: bigint | null;
 }
 
@@ -52,5 +53,6 @@ export interface SenseCard {
   glossViReviewed: boolean | null;
   glossEn: string | null;
   glossEnContext?: string[];
+  glossEnIsHierarchy?: boolean;
   conceptId: bigint | null;
 }

@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-06 (M4.2 / DB4-D0.2 chuẩn bị deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-06 (M4.2 / DB4-D0.2 đã deploy; M4.3 đang nghiệm thu tích hợp subsense; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -16,7 +16,8 @@
 | M3   | Profile & settings                                                        | ✅ hoàn thành (chờ review)                                                                                            |
 | M3.1 | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                                         |
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                 |
-| M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn                       | ✅ code xong local: per-lexeme matching trước cursor/LIMIT, cursor v3; cùng DB4-D0.2 projection view + EN context, 375 unit / 31 e2e pass, lint/build pass; [report](docs/reviews/db4-d0-2-m4-2-implementation-2026-10-06.md); chưa commit/push/deploy, migration 038 chưa áp VPS |
+| M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn | ✅ commits04112dc/d861390 đã push/CI deploy VPS, migration038 đã áp; cursor v3/canonical face giữ trong M4.3; [report](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md) |
+| M4.3 | Nhóm nghĩa Wiktextract và bảo toàn sense | 🛠️ tích hợp nhánh DeepSeek, guard nguồn 039 + group_heading + view=flat; đang kiểm tra/deploy; [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md) |
 | M5   | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                               |
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                         |
 | M6   | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                      |
@@ -419,3 +420,21 @@ Commit 04112dc đã lên VPS sau CI xanh; migration 038 đã áp role langoo. Sm
 phát hiện hashiru chọn 奔る thay lemma 走る; bổ sung canonical face rank sau literal
 match, fixture variant ngắn hơn và exact variant. Cursor v3 từ chối v1/v2 để tránh
 phân trang dùng face cũ. Đang kiểm/publish patch; chưa báo smoke hoàn tất.
+
+
+### 2026-10-06 — M4.3 — Nhóm nghĩa Wiktextract và bảo toàn sense
+
+- Tiếp tục sau khi phiên VPS khác báo hoàn thành; nhánh nguồn 46ec612 đã merge M4.2.
+- Tích hợp grouping + test sources/admin/kanji và wordfreq scripts của nhánh nguồn.
+- Sửa 3 lỗi review: context mọi nguồn bị coi là hierarchy; rewrite definition sense đầu;
+  nghĩa nhiều tầng lấy câu trung gian. Migration 039 thêm flag dùng policy 038 và guard definition.
+- Contract: group_heading riêng; default grouped và view=flat; flatten giữ mọi ID/meaning.
+- Chưa sửa FE, chưa gộp lexeme đa nguồn/xóa core; D0.3/D0.5 vẫn còn.
+- Kiểm tra/Git/VPS cập nhật tại [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md).
+
+### 2026-10-06 — DB3-W1 — Khóa rollback wordfreq thiếu journal
+
+- Review script tích hợp thấy rollback xoá frequency_rank toàn ngôn ngữ, vượt scope run.
+- Khóa --rollback trước kết nối DB; manifest cũ thiếu journal per-row không đủ phục hồi.
+- E2E kiểm rank có sẵn giữ nguyên khi rollback bị từ chối; không apply/rollback wordfreq VPS.
+- Lưu [README](scripts/db3/README.md) và [report wordfreq](docs/reviews/db3-wordfreq-2026-10-06.md).

@@ -43,6 +43,8 @@ export interface SenseCardResponse {
   gloss_en: string | null;
   gloss_en_context?: string[];
   concept_id: string | null;
+  /** Presentation heading only; never use it as the selected sense meaning. */
+  group_heading: string | null;
   /** Nghĩa con (subsense wiktextract) — FE hiển thị thu gọn dưới nghĩa cha. */
   sub_senses: SenseCardResponse[];
 }

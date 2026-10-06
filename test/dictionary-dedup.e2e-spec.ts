@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import type { Server } from 'node:http';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Client } from 'pg';
 import request from 'supertest';
+import { main as wordfreq } from '../scripts/db3/wordfreq';
 import { inventoryDuplicates } from '../scripts/dictionary/duplicate-inventory';
 import { AppModule } from '../src/app.module';
 import { PrismaService } from '../src/db/prisma.service';
@@ -19,6 +20,8 @@ interface Card {
   definition: string | null;
   gloss_en: string | null;
   gloss_en_context: string[];
+  group_heading: string | null;
+  sub_senses: Card[];
 }
 interface Hit {
   lexeme_id: string;
@@ -44,6 +47,9 @@ describe('M4.2 / DB4-D0.2 dictionary dedup and source projection', () => {
     }).compile();
     app = module.createNestApplication();
     app.setGlobalPrefix('v1');
+    app.useGlobalPipes(
+      new ValidationPipe({ transform: true, whitelist: true }),
+    );
     await app.init();
     server = app.getHttpServer() as Server;
     db = app.get(PrismaService);
@@ -180,6 +186,7 @@ describe('M4.2 / DB4-D0.2 dictionary dedup and source projection', () => {
   it('first and later senses use the same source meaning in list/detail, retaining full context', async () => {
     const res = await request(server)
       .get('/v1/lexemes/710006/senses')
+      .query({ view: 'flat' })
       .expect(200);
     const cards = (res.body as { data: Card[] }).data;
     for (const [id, leaf, chain] of [
@@ -203,6 +210,99 @@ describe('M4.2 / DB4-D0.2 dictionary dedup and source projection', () => {
         gloss_en_context: [...chain],
       });
     }
+  });
+
+  it('rejects invalid presentation mode', async () => {
+    await request(server)
+      .get('/v1/lexemes/710006/senses')
+      .query({ view: 'other' })
+      .expect(400);
+  });
+
+  it('DB3-W1 refuses legacy wordfreq rollback without changing any frequency ranks', async () => {
+    await client.query(
+      'UPDATE core.lexeme SET frequency_rank=123 WHERE id=710006',
+    );
+    try {
+      await expect(
+        wordfreq([
+          '--rollback',
+          'legacy-wordfreq.json',
+          '--apply',
+          '--allow-db',
+          'fixture',
+        ]),
+      ).rejects.toThrow('journal before/after');
+      const result = await client.query<{ frequency_rank: number }>(
+        'SELECT frequency_rank FROM core.lexeme WHERE id=710006',
+      );
+      expect(result.rows[0].frequency_rank).toBe(123);
+    } finally {
+      await client.query(
+        'UPDATE core.lexeme SET frequency_rank=NULL WHERE id=710006',
+      );
+    }
+  });
+
+  it('M4.3 groups only eligible siblings and retains every ID, leaf and detail meaning', async () => {
+    const grouped = await request(server)
+      .get('/v1/lexemes/710006/senses')
+      .expect(200);
+    const flat = await request(server)
+      .get('/v1/lexemes/710006/senses')
+      .query({ view: 'flat' })
+      .expect(200);
+    const groups = (grouped.body as { data: Card[] }).data;
+    const original = (flat.body as { data: Card[] }).data;
+    expect(groups[0]).toMatchObject({
+      sense_id: '710011',
+      definition: 'To swallow food.',
+      group_heading: 'To ingest.',
+    });
+    expect(groups[0].sub_senses.map((card) => card.sense_id)).toEqual([
+      '710012',
+      '710013',
+    ]);
+    expect(groups[0].sub_senses[1].definition).toBe(
+      'To be well-fed or underfed.',
+    );
+    expect(groups.slice(1).every((card) => card.sub_senses.length === 0)).toBe(
+      true,
+    );
+    expect(groups.find((card) => card.sense_id === '710014')?.definition).toBe(
+      'Custom definition',
+    );
+    const expanded = groups.flatMap((card) => [
+      { ...card, sub_senses: [], group_heading: null },
+      ...card.sub_senses,
+    ]);
+    expect(expanded).toEqual(original);
+    expect(new Set(expanded.map((card) => card.sense_id)).size).toBe(11);
+    for (const card of expanded) {
+      const detail = await request(server)
+        .get('/v1/senses/' + card.sense_id)
+        .expect(200);
+      expect(card).toEqual((detail.body as { card: Card }).card);
+    }
+    // A second JMdict sense sharing its first English synonym must not collapse.
+    await client.query(
+      `INSERT INTO core.sense(id,lexeme_id,sense_no,source_id) VALUES (710027,710007,2,1)`,
+    );
+    await client.query(
+      `INSERT INTO core.sense_gloss(sense_id,language_id,text,rank,source_id) VALUES (710027,1,'one meaning',1,1),(710027,1,'different alternative',2,1)`,
+    );
+    const ja = await request(server)
+      .get('/v1/lexemes/710007/senses')
+      .expect(200);
+    const jaCards = (ja.body as { data: Card[] }).data;
+    expect(jaCards).toHaveLength(2);
+    expect(
+      jaCards.every(
+        (card) => card.group_heading === null && card.sub_senses.length === 0,
+      ),
+    ).toBe(true);
+    await client.query('DELETE FROM core.sense_gloss WHERE sense_id=710027');
+    await client.query('DELETE FROM core.sense WHERE id=710027');
   });
 
   it('preserves custom definition, reviewed override, machine/gapped ranks and JMdict alternatives', async () => {

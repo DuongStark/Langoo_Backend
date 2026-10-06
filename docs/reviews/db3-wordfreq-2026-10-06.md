@@ -30,10 +30,9 @@ Từ hiếm không có trong wordfreq vẫn hiện nhưng nằm cuối (NULL ran
 ```bash
 # sinh mapping (venv có wordfreq):
 python scripts/db3/wordfreq-export.py --lang en --lemmas en-lemmas.txt --out uploads/db3/wordfreq-en.tsv
-# dry-run / apply / rollback:
+# dry-run / apply:
 npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv
 npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv --apply --allow-db <db>
-npx tsx scripts/db3/wordfreq.ts --rollback uploads/db3/<manifest>.json --apply --allow-db <db>
 ```
 
 - Apply chỉ chạy khi toàn bộ rank của ngôn ngữ đang NULL (precondition ghi trong manifest).
@@ -43,3 +42,10 @@ npx tsx scripts/db3/wordfreq.ts --rollback uploads/db3/<manifest>.json --apply -
 
 - **JA**: wordfreq có tiếng Nhật nhưng cần match cả reading (coverage thấp hơn) — để đợt sau nếu cần.
 - **Nghĩa nào phổ biến** (sense-level): chưa có dữ liệu; đề xuất nhóm subsense + hiển thị top theo thứ tự nguồn, AI-estimate (`DisplayPriority`) cho từ phổ biến về sau.
+
+### 2026-10-06 — DB3-W1 — Khóa rollback wordfreq thiếu journal
+
+Manifest wordfreq cũ chỉ có count/SHA, không ghi before/after theo lexeme.
+`--rollback` hiện luôn từ chối trước kết nối DB; không xóa rank toàn ngôn ngữ.
+Không chạy lại apply trong lần tích hợp M4.3. Muốn phục hồi run đã áp phải dùng
+backup hoặc bổ sung journal per-row có guard drift/đúng target trước.

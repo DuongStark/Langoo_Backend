@@ -135,7 +135,10 @@ export class DictionaryService {
     };
   }
 
-  async getLexemeSenses(lexemeId: bigint): Promise<LexemeSensesResult> {
+  async getLexemeSenses(
+    lexemeId: bigint,
+    view: 'grouped' | 'flat' = 'grouped',
+  ): Promise<LexemeSensesResult> {
     if (!(await this.senseCardRepo.hasLexeme(lexemeId))) {
       throw new DomainException(
         'LEXEME_NOT_FOUND',
@@ -146,39 +149,29 @@ export class DictionaryService {
 
     const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
 
-    /* Wiktextract tách sense lồng nhau: sense con lặp lại supergloss ở đầu
-       (`glossEnContext[0]`). Gom các sense liên tiếp cùng supergloss vào một nhóm:
-       nghĩa cha đứng đầu, nghĩa con nằm trong `sub_senses` (định nghĩa = gloss lá
-       khác supergloss) để FE hiển thị thu gọn; sense không có context đứng riêng. */
-    interface Group {
-      parent: SenseCard;
-      superGloss: string | null;
-      children: SenseCard[];
-    }
-    const groups: Group[] = [];
-    for (const card of cards) {
-      const superGloss = card.glossEnContext?.[0] ?? null;
-      const current = groups[groups.length - 1];
-      if (current && superGloss !== null && current.superGloss === superGloss) {
-        current.children.push(card);
-      } else {
-        groups.push({ parent: card, superGloss, children: [] });
-      }
+    if (view === 'flat') {
+      return { data: cards.map(toSenseCardResponse), next_cursor: null };
     }
 
-    const data: SenseCardResponse[] = groups.map((group) => {
-      const parent = toSenseCardResponse(group.parent);
-      if (group.superGloss !== null) parent.definition = group.superGloss;
-      parent.sub_senses = group.children.map((child) => {
-        const childCard = toSenseCardResponse(child);
-        const specific =
-          child.glossEnContext?.find((text) => text !== group.superGloss) ??
-          null;
-        if (specific !== null) childCard.definition = specific;
-        return { ...childCard, sub_senses: [] };
-      });
-      return parent;
-    });
+    // A group is a contiguous source hierarchy, not a semantic equivalence.
+    // The first actual sense remains selectable; its definition is never replaced.
+    const data: SenseCardResponse[] = [];
+    let currentHeading: string | null = null;
+    for (const card of cards) {
+      const heading =
+        card.glossEnIsHierarchy === true
+          ? (card.glossEnContext?.[0] ?? null)
+          : null;
+      const response = toSenseCardResponse(card);
+      const current = data.at(-1);
+      if (current && heading !== null && currentHeading === heading) {
+        current.sub_senses.push(response);
+      } else {
+        response.group_heading = heading;
+        data.push(response);
+        currentHeading = heading;
+      }
+    }
     return { data, next_cursor: null };
   }
 
@@ -333,6 +326,7 @@ function toSenseCardResponse(card: SenseCard): SenseCardResponse {
     gloss_en: card.glossEn,
     gloss_en_context: card.glossEnContext ?? [],
     concept_id: card.conceptId?.toString() ?? null,
+    group_heading: null,
     sub_senses: [],
   };
 }

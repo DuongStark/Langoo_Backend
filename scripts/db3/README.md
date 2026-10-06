@@ -176,13 +176,19 @@ Xuất `examples.jsonl` theo example schema v1 ([contract](../../docs/plans/db3-
 psql "$DIRECT_URL" -tAc "SELECT DISTINCT lower(lemma) FROM core.lexeme WHERE language_id=1" > /tmp/en-lemmas.txt
 python scripts/db3/wordfreq-export.py --lang en --lemmas /tmp/en-lemmas.txt --out uploads/db3/wordfreq-en.tsv
 
-# 2) Dry-run / apply / rollback:
+# 2) Dry-run / apply:
 npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv
 npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv --apply --allow-db <db>
-npx tsx scripts/db3/wordfreq.ts --rollback uploads/db3/<manifest>.json --apply --allow-db <db>
 ```
 
-- Chỉ ghi `core.lexeme.frequency_rank` cho ngôn ngữ `--lang` (mặc định `en`); apply chỉ chạy khi **toàn bộ rank của ngôn ngữ đang NULL** (rollback = set NULL).
+- Chỉ ghi `core.lexeme.frequency_rank` cho ngôn ngữ `--lang` (mặc định `en`); apply chỉ chạy khi **toàn bộ rank của ngôn ngữ đang NULL** (rollback bị khóa do manifest thiếu journal theo từng lexeme).
 - Mapping TSV + meta (version/license/sha256) ở `uploads/db3/` (gitignored); manifest giữ sha mapping, version wordfreq và số lexeme cập nhật; `public.source#wordfreq` được upsert version + sha.
 - wordfreq EN có 321.180 từ vựng; lemma không khớp giữ NULL (từ hiếm → xếp cuối trong search).
 
+
+### 2026-10-06 — DB3-W1 — Khóa rollback wordfreq thiếu journal
+
+Manifest wordfreq cũ chỉ có count/SHA, không ghi before/after theo lexeme.
+`--rollback` hiện luôn từ chối trước kết nối DB; không xóa rank toàn ngôn ngữ.
+Không chạy lại apply trong lần tích hợp M4.3. Muốn phục hồi run đã áp phải dùng
+backup hoặc bổ sung journal per-row có guard drift/đúng target trước.

@@ -166,3 +166,28 @@ Response `201`:
 ```
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **dictionary**, **senses**, **kanji**).
+
+
+## M4.3 — Nhóm nghĩa Wiktextract và bảo toàn sense (2026-10-06)
+
+`GET /v1/lexemes/:id/senses?view=grouped|flat`, mặc định `grouped`.
+`view` khác hai giá trị trên trả 400. Response envelope/`next_cursor: null` giữ nguyên.
+
+- `grouped`: gom các sense liên tiếp có cùng ancestor EN **và được DB xác nhận
+  hierarchy Wiktextract hợp lệ** (nguồn/batch/rank/review/machine/definition theo 038/039).
+  JMdict, WordNet, context không xác nhận, definition custom/khác ngôn ngữ đứng riêng.
+- `data[i]` vẫn là sense thật đầu nhóm. `definition`, `gloss_en`, badge, ID không đổi
+  so với detail. `group_heading` là ancestor riêng cho trình bày (có thể null).
+  `sub_senses` chứa các sense thật còn lại, mỗi card giữ nguyên nghĩa lá, ID, context;
+  con có `group_heading: null`, `sub_senses: []`.
+- `flat`: mọi sense trả ở `data`, theo sense_no/ID như trước; metadata nhóm null/rỗng.
+- Detail `/v1/senses/:id` trả card thật, metadata nhóm null/rỗng; không nhận query view.
+- **Đây là thay đổi cấu trúc danh sách**, dù field mới additive: client chỉ duyệt `data`
+  ở default sẽ không thấy con. FE cũ cần `view=flat` hoặc cập nhật render con.
+
+FE: dùng `group_heading` làm heading không chọn được; hiện sense đầu + nút mở
+`sub_senses.length` nghĩa khác. Chọn sense đầu/con đều phải dùng chính ID/card đó;
+không gán nghĩa heading vào ID đầu nhóm, không lấy gloss VI của cha cho con.
+Khi đếm toàn bộ: tổng `1 + sub_senses.length` mỗi nhóm. Khi mở nhóm, giữ thứ tự
+sense_no/ID; không dùng nhóm để tuyên bố equivalent hoặc gộp dữ liệu nguồn.
+Giữ nội dung nguồn/badge gloss máy. Chưa có triển khai FE trong release backend này.

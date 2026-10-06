@@ -1,9 +1,13 @@
 # Handoff — Gộp subsense wiktextract trong `/v1/lexemes/:id/senses` · 2026-10-06
 
+> **Đã được thay thế bởi [M4.3](../reviews/m4-3-subsense-integration-2026-10-06.md).**
+> Bản ban đầu dùng context chưa guard nguồn, đổi definition cùng ID, và đổi cấu trúc data
+> nên không phải thay đổi chỉ additive. Dùng contract M4.3 dưới đây cho FE mới.
+>
 > Branch: `parallel/deepseek-search-sources` (merge main M4.2: `3cbf913`) · Đã deploy VPS (build lại + restart `langoo-api`).
 > Nền tảng: M4.2 `serve.sense_card.gloss_en_context` (migration 038 `wiktextract-en-leaf-v1`).
 
-## 1. API thay đổi (additive)
+## 1. API thay đổi (bản triển khai ban đầu, được sửa bởi M4.3)
 
 `GET /v1/lexemes/:id/senses` giờ trả **chỉ nghĩa cha** trong `data`; mỗi cha có thêm:
 
@@ -35,7 +39,7 @@
 | Lexeme | Trước | Sau |
 | --- | --- | --- |
 | draw (verb, 1009311) | 138 dòng | **6 cha + 132 con** |
-| run (verb, 1764987) | 65 dòng | **38 cha + 26 con** |
+| run (verb, 1764987) | 64 dòng | **38 cha + 26 con** |
 | apple (694408) | 20 dòng | **8 cha + 12 con** |
 
 Toàn DB: 12.703 lexeme (0,85%) bị ảnh hưởng; JA/jmdict không đổi.

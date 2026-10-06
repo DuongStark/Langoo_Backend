@@ -330,6 +330,7 @@ describe('DictionaryService', () => {
           senseId: 10n,
           senseNo: 1,
           definition: 'A round fruit',
+          glossEnIsHierarchy: true,
           glossEnContext: ['A common fruit', 'A round fruit'],
         },
         {
@@ -337,6 +338,7 @@ describe('DictionaryService', () => {
           senseId: 11n,
           senseNo: 2,
           definition: 'Any fruit or vegetable',
+          glossEnIsHierarchy: true,
           glossEnContext: ['A common fruit', 'Any fruit or vegetable'],
         },
       ]);
@@ -344,13 +346,68 @@ describe('DictionaryService', () => {
       const result = await service.getLexemeSenses(1n);
 
       expect(result.data).toHaveLength(1);
-      expect(result.data[0].definition).toBe('A common fruit');
+      expect(result.data[0].definition).toBe('A round fruit');
+      expect(result.data[0].group_heading).toBe('A common fruit');
       expect(result.data[0].sub_senses).toHaveLength(1);
       expect(result.data[0].sub_senses[0]).toMatchObject({
         sense_id: '11',
         definition: 'Any fruit or vegetable',
         sub_senses: [],
       });
+    });
+
+    it('untrusted context stays separate; grouped and flat preserve every real card', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(true);
+      const input = [
+        {
+          ...senseCard,
+          senseId: 10n,
+          definition: 'Leaf one',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['Parent', 'Leaf one'],
+        },
+        {
+          ...senseCard,
+          senseId: 11n,
+          definition: 'Leaf two',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['Parent', 'Middle', 'Leaf two'],
+        },
+        {
+          ...senseCard,
+          senseId: 12n,
+          definition: 'Reviewed',
+          glossEnIsHierarchy: false,
+          glossEnContext: ['Parent', 'Reviewed'],
+        },
+        {
+          ...senseCard,
+          senseId: 13n,
+          definition: 'Later',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['Parent', 'Later'],
+        },
+        {
+          ...senseCard,
+          senseId: 14n,
+          definition: 'JMdict',
+          glossEnContext: ['Parent', 'Alternative'],
+        },
+      ];
+      repos.senseCard.getByLexemeId.mockResolvedValue(input);
+      const grouped = await service.getLexemeSenses(1n);
+      const flat = await service.getLexemeSenses(1n, 'flat');
+      expect(grouped.data).toHaveLength(4);
+      expect(grouped.data[0].sub_senses[0].definition).toBe('Leaf two');
+      const expanded = grouped.data.flatMap((card) => [
+        { ...card, group_heading: null, sub_senses: [] },
+        ...card.sub_senses,
+      ]);
+      expect(expanded).toEqual(flat.data);
+      expect(flat.data.every((card) => card.sub_senses.length === 0)).toBe(
+        true,
+      );
     });
 
     it('supergloss khác nhau → tách nhóm riêng', async () => {

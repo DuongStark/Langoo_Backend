@@ -121,6 +121,13 @@ export class SenseCardDto {
       'Nghĩa con (subsense của wiktextract) gộp dưới nghĩa này — FE nên hiển thị thu gọn; mảng rỗng nếu không có',
   })
   sub_senses!: SenseCardDto[];
+
+  @ApiProperty({
+    nullable: true,
+    description:
+      'Shared Wiktextract ancestor for presentation; definition remains the actual sense meaning',
+  })
+  group_heading!: string | null;
 }
 
 export class LexemeSensesResultDto {
