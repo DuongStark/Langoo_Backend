@@ -52,6 +52,25 @@ nghĩa đầu. UI ưu tiên vài nghĩa thông dụng cần công việc FE/rank
 ## Kết quả cuối
 
 Local unit 47 suite / 354 pass; E2E 22 suite / 207 pass; lint/build pass.
-Chờ CI/deploy/smoke hoàn thành. Counts của bản DeepSeek chỉ là số lịch sử;
+Code đã commit/push `9a52b68`; CI bị chủ động hủy để bảo toàn thay đổi mới trên VPS.
+Chưa deploy M4.3/chưa smoke API contract M4.3. Counts của bản DeepSeek chỉ là số lịch sử;
 M4.3 có guard chặt hơn nên kiểm lại trên runtime mới, không dùng 12.703/0,85%
 như thống kê mới nếu chưa audit toàn DB.
+
+
+### 21:35 — Deploy dừng vì phiên DB3-B ghi thêm code trên VPS
+
+- Sau push phát hiện scripts/db3/_gloss-types.ts và gloss-apply.ts được sửa lúc21:35
+  (ngoài handoff grouping). Thay đổi thêm allowPartial/--allow-partial cho review/apply;
+  chưa review/merge trong M4.3. Deploy script reset --hard sẽ ghi đè chúng.
+- Chủ động hủy CI37480050307; trạng thái cancelled. Deploy37480283546 skipped,
+  không chạy reset/build/reload. Main đã có9a52b68; runtime vẫn bản DeepSeek trước đó.
+- Patch mới đã lưu /opt/langoo/storage/db4/releases/m43-20261006/concurrent-db3b.patch,
+  SHA256 c4fde63f0cb9d70c65cb50927fa5a9c2724fa5e048916a26fbe138eddcdc5b85.
+- Migration039 vẫn đã áp (chỉ thêm metadata, tương thích runtime trước).
+- Đã hỏi chủ dự án phiên DB3-B còn chạy hay đã xong. Không reset/restore tự động các file đó.
+- Khi phiên đó xong: lấy handoff/commit, giữ patch của họ, tích hợp độc lập theo milestone
+  DB3-B; chạy lại CI9a52b68 hoặc commit tích hợp mới, chờ Deploy rồi chạy smoke.
+- Smoke M4.3 đã chuẩn bị ở uploads/dictionary/m4-3-release-20261006/verify-live.py
+  (ignored artifact): kiểm flat/grouped coverage, list/detail, cursorv3, JA, sources/stroke.
+  Chưa chạy thành công trên runtime M4.3 vì chưa deploy.

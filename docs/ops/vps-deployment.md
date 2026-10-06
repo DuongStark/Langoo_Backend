@@ -172,3 +172,11 @@ ssh langoo-vps 'ufw status verbose'
 
 - Kế hoạch & kết quả: [`docs/plans/db1-schema-cleanup.md`](../plans/db1-schema-cleanup.md), [`docs/plans/db2-search-infra.md`](../plans/db2-search-infra.md).
 - Tổng quan dự án: [`PROGRESS.md`](../../PROGRESS.md), [`CONTEXT-DU-AN.md`](../../CONTEXT-DU-AN.md), [`CSDL-THAM-CHIEU.md`](../../CSDL-THAM-CHIEU.md).
+
+
+### M4.3 — trạng thái21:35 (06/10)
+
+Main9a52b68 đã push;039 đã áp. CI37480050307 canceled chủ động, Deploy37480283546
+skipped vì scripts DB3-B bị sửa thêm trên VPS sau backup. **Chưa deployM4.3**.
+Không rerun CI/deploy trước khi bàn giao phiên đang ghi; patch mới đã bảo toàn
+ở storage/m43-20261006. ReportM4.3 là nguồn trạng thái tiếp tục.
