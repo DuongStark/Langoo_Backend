@@ -26,6 +26,18 @@ describe('buildChatMessages', () => {
     expect(conversation[0].content).toContain('hội thoại');
   });
 
+  it('nhận diện là Claude Fable 5.1 ở mọi scenario', () => {
+    for (const scenario of [
+      'general',
+      'vocabulary',
+      'grammar',
+      'conversation',
+    ] as const) {
+      const messages = buildChatMessages({ ...base, scenario });
+      expect(messages[0].content).toContain('Claude Fable 5.1');
+    }
+  });
+
   it('chèn block ngữ cảnh sense khi có ref', () => {
     const messages = buildChatMessages({
       ...base,

@@ -18,7 +18,7 @@ function sessionRow(overrides: Record<string, unknown> = {}) {
     scenario: 'general',
     title: null,
     model: 'stub-v1',
-    promptVersion: 'm10-v1',
+    promptVersion: 'm10-v2',
     summary: null,
     messageCount: 2,
     lastMessageAt: new Date('2026-09-29T10:00:00.000Z'),
@@ -137,7 +137,7 @@ describe('ChatService', () => {
         languageId: 2,
         scenario: 'general',
         model: 'stub-v1',
-        promptVersion: 'm10-v1',
+        promptVersion: 'm10-v2',
       });
       expect(result.scenario).toBe('general');
       expect(result.created_at).toBe('2026-09-29T09:00:00.000Z');
