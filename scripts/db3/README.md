@@ -168,3 +168,21 @@ Xuất `examples.jsonl` theo example schema v1 ([contract](../../docs/plans/db3-
 - Deck: tạo/đồng bộ đủ 5 cấp, **N5 trước N1**, anchor primary sense; thiếu primary thì dừng. Chạy lại loại item rejected/đổi cấp/đổi primary, sửa position/item_count. Deck mới unpublished; deck hiện có giữ trạng thái publish và concept của anchor còn eligible. `--limit` chỉ trên DB local `_test` và **chỉ khi 5 slug seed chưa tồn tại**, để không thay deck đầy đủ bằng tập fixture.
 - Radical báo cáo các KRADFILE part chưa khớp hoặc khớp nhiều bộ qua exact character/variants; không tự suy mapping giữa 214 bộ và 253 cấu kiện.
 - API phục vụ ảnh KanjiVG thuộc **M14**; DB3-A chỉ seed metadata. DB3-B gloss/LLM và DB4 mapping không thuộc các script này.
+
+## B2 — Xếp hạng tần suất `wordfreq` (không LLM)
+
+```bash
+# 1) Sinh bảng xếp hạng (venv có `wordfreq`; không gọi API/LLM):
+psql "$DIRECT_URL" -tAc "SELECT DISTINCT lower(lemma) FROM core.lexeme WHERE language_id=1" > /tmp/en-lemmas.txt
+python scripts/db3/wordfreq-export.py --lang en --lemmas /tmp/en-lemmas.txt --out uploads/db3/wordfreq-en.tsv
+
+# 2) Dry-run / apply / rollback:
+npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv
+npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv --apply --allow-db <db>
+npx tsx scripts/db3/wordfreq.ts --rollback uploads/db3/<manifest>.json --apply --allow-db <db>
+```
+
+- Chỉ ghi `core.lexeme.frequency_rank` cho ngôn ngữ `--lang` (mặc định `en`); apply chỉ chạy khi **toàn bộ rank của ngôn ngữ đang NULL** (rollback = set NULL).
+- Mapping TSV + meta (version/license/sha256) ở `uploads/db3/` (gitignored); manifest giữ sha mapping, version wordfreq và số lexeme cập nhật; `public.source#wordfreq` được upsert version + sha.
+- wordfreq EN có 321.180 từ vựng; lemma không khớp giữ NULL (từ hiếm → xếp cuối trong search).
+
