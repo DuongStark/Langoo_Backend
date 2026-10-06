@@ -40,6 +40,20 @@ Kiểm tra thêm: cursor `q=走 lang=ja limit=1` 2 trang không trùng; `q=走�
 - **Chưa xử lý (để DB5)**: gloss cha lặp trong sense lồng của wiktextract ("apple" 13 sense cùng mở đầu một gloss — đúng dữ liệu nguồn); hợp nhất lexeme wordnet trong DB; UI "đồng âm" chuyên biệt.
 - Bản ghi wordnet (oewn/omw-en/omw-ja) vẫn trong DB, chỉ ẩn khỏi **search**; vẫn dùng cho concept linking (DB4).
 
+## 4b. Lọc nhiễu EN (bổ sung 2026-10-06, deploy VPS)
+
+Phát hiện khi tra `cat`: DB **không có frequency_rank** (0/2,37M lexeme — wordfreq import 0 row), nên các bản prefix xếp theo độ dài + id import → viết tắt rác (`CATI`, `CATL`, `CATV`, `CatCF`, `"Cat 5"`, `cat-`) chèn trước từ thật.
+
+Đã thêm vào `WHERE` (chỉ `language_id = 1`, không áp dụng khi `exact_rank = 0`):
+- bỏ bản toàn hoa / CamelCase / có số / khoảng trắng / hậu tố `-` khi **không khớp chính xác**;
+- query chữ thường → chỉ gợi ý bản chữ thường (ẩn tên riêng Title-case); query có chữ hoa giữ Title-case.
+
+Kết quả `q=cat (en)`: `cat×3 (adj/noun/verb)` → `cate, cath, cats, catch, cater…` (trước: `CATI, CATL, Cato, Caty, Catz, "Cat 5", CatCF…`).
+Gõ đúng `CATI`, `Cato`, `cat-` vẫn ra chính xác; cursor phân trang OK; JA/VI không đổi.
+
+**Việc lớn hơn (chưa làm):** import `wordfreq` vào `frequency_rank` (source 15 hiện 0 row) để ranking gợi ý theo tần suất thật thay vì độ dài/id.
+
+
 ## 5. Rollback
 
 ```bash

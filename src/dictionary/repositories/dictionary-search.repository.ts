@@ -104,6 +104,21 @@ export class DictionarySearchRepository {
       ' OR ',
     );
 
+    /* Query chữ thường → chỉ gợi ý bản chữ thường (ẩn tên riêng VIẾT HOA/Title khi
+       không khớp chính xác); query có chữ hoa thì giữ cả Title-case. */
+    const queryHasUpper = queries.some(
+      (query) => query !== query.toLowerCase(),
+    );
+    const enPrefixNoise = queryHasUpper
+      ? Prisma.sql`(
+          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
+          AND (surface !~ '[A-Z]' OR surface ~ '^[A-Z][^A-Z]*$')
+        )`
+      : Prisma.sql`(
+          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
+          AND surface = lower(surface)
+        )`;
+
     const cursorCondition = cursor
       ? Prisma.sql`
           AND (
@@ -254,6 +269,9 @@ export class DictionarySearchRepository {
           OR source_priority <= reading_priority
         )
         AND entry_rn = 1
+        /* EN: bỏ kết quả prefix nhiễu (viết tắt in hoa, có số/khoảng trắng,
+           hậu tố "-") — vẫn hiện nếu khớp chính xác. JA/VI không áp dụng. */
+        AND (language_id <> 1 OR exact_rank = 0 OR ${enPrefixNoise})
         ${cursorCondition}
       ORDER BY
         exact_rank ASC,
