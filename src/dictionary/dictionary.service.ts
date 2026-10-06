@@ -1,7 +1,8 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { toHiragana } from 'wanakana';
 import { DomainException } from '../common/errors/domain.exception';
 import { LanguageRepository } from '../db/repositories/language.repository';
+import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
 import { SearchQueryDto } from './dto/search-query.dto';
 import {
   decodeDictionarySearchCursor,
@@ -51,6 +52,7 @@ export class DictionaryService {
     private readonly kanjiRepo: KanjiRepository,
     private readonly historyRepo: SearchHistoryRepository,
     private readonly languages: LanguageRepository,
+    @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -225,6 +227,29 @@ export class DictionaryService {
       );
     }
     return toKanjiResponse(row);
+  }
+
+  /** Ảnh SVG thứ tự nét (KanjiVG) — đọc file từ storage, metadata từ core. */
+  async getKanjiStroke(
+    literal: string,
+  ): Promise<{ buffer: Buffer; mime: string; sha256: string }> {
+    const asset = await this.kanjiRepo.getStrokeAsset(literal);
+    if (!asset) {
+      throw new DomainException(
+        'KANJI_STROKE_NOT_FOUND',
+        'Chưa có ảnh nét cho chữ Hán này',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const buffer = await this.storage.get(asset.objectKey);
+    if (!buffer) {
+      throw new DomainException(
+        'KANJI_STROKE_NOT_FOUND',
+        'Chưa có ảnh nét cho chữ Hán này',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return { buffer, mime: asset.mime, sha256: asset.sha256 };
   }
 }
 

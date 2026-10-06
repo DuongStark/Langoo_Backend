@@ -1,10 +1,41 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { DomainException } from '../common/errors/domain.exception';
 import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
+import {
+  decodePostgresTimeCursor,
+  encodeTimeIdCursor,
+} from '../common/pagination/time-cursor';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
 import { AdminAuditService } from './admin-audit.service';
-import { UpdateUserStatusDto } from './dto/admin.dto';
+import {
+  AdminUserDto,
+  AdminUserQueryDto,
+  UpdateUserStatusDto,
+} from './dto/admin.dto';
+
+const DEFAULT_PAGE = 20;
+const MAX_PAGE = 100;
+
+function clampLimit(limit?: number): number {
+  if (limit === undefined) return DEFAULT_PAGE;
+  return Math.min(Math.max(limit, 1), MAX_PAGE);
+}
+
+function escapeLikePattern(value: string): string {
+  return value.replace(/[\\%_]/g, '\\$&');
+}
+
+interface UserRow {
+  id: bigint;
+  email: string;
+  displayName: string | null;
+  role: string;
+  status: string;
+  createdAt: Date;
+  lastLoginAt: Date | null;
+  createdAtKey?: string;
+}
 
 /**
  * Khoá/mở tài khoản người học (M13): chỉ đổi `active <-> locked`, không xoá cứng,
@@ -16,6 +47,63 @@ export class AdminUsersService {
     private readonly prisma: PrismaService,
     private readonly audit: AdminAuditService,
   ) {}
+
+  /** Danh sách/tìm người học — chỉ metadata tài khoản, keyset (created_at, id) desc. */
+  async list(query: AdminUserQueryDto): Promise<{
+    data: AdminUserDto[];
+    next_cursor: string | null;
+  }> {
+    const limit = clampLimit(query.limit);
+    const cursor =
+      query.cursor === undefined || query.cursor === ''
+        ? null
+        : decodePostgresTimeCursor(query.cursor, 'bigint');
+    const search =
+      query.q !== undefined && query.q.trim() !== ''
+        ? `%${escapeLikePattern(query.q.trim())}%`
+        : null;
+
+    const rows = await this.prisma.$queryRaw<UserRow[]>(Prisma.sql`
+      SELECT u.id, u.email, u.display_name AS "displayName", u.role, u.status,
+             u.created_at AS "createdAt", u.last_login_at AS "lastLoginAt",
+             to_char(u.created_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS "createdAtKey"
+      FROM app.users u
+      WHERE TRUE
+        ${query.status === undefined ? Prisma.empty : Prisma.sql`AND u.status = ${query.status}`}
+        ${query.role === undefined ? Prisma.empty : Prisma.sql`AND u.role = ${query.role}`}
+        ${
+          search === null
+            ? Prisma.empty
+            : Prisma.sql`AND (u.email ILIKE ${search} ESCAPE '\\' OR u.display_name ILIKE ${search} ESCAPE '\\')`
+        }
+        ${cursor ? Prisma.sql`AND (u.created_at, u.id) < (${cursor.createdAt}::timestamptz, ${cursor.id}::bigint)` : Prisma.empty}
+      ORDER BY u.created_at DESC, u.id DESC
+      LIMIT ${limit + 1}
+    `);
+
+    const hasNext = rows.length > limit;
+    const page = hasNext ? rows.slice(0, limit) : rows;
+    const last = page.at(-1);
+    return {
+      data: page.map((row) => ({
+        id: row.id.toString(),
+        email: row.email,
+        display_name: row.displayName,
+        role: row.role,
+        status: row.status,
+        created_at: row.createdAt.toISOString(),
+        last_login_at: row.lastLoginAt ? row.lastLoginAt.toISOString() : null,
+      })),
+      next_cursor:
+        hasNext && last
+          ? encodeTimeIdCursor({
+              createdAt: last.createdAt,
+              createdAtKey: last.createdAtKey,
+              id: last.id.toString(),
+            })
+          : null,
+    };
+  }
 
   async updateStatus(
     adminUserId: bigint,

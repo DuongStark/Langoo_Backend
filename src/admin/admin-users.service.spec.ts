@@ -109,4 +109,42 @@ describe('AdminUsersService', () => {
       }),
     );
   });
+
+  it('list: map metadata + trả cursor khi còn trang sau', async () => {
+    const { service, prisma } = createSetup();
+    const makeRow = (id: number) => ({
+      id: BigInt(id),
+      email: `u${id}@example.com`,
+      displayName: id === 3 ? 'Duong' : null,
+      role: 'user',
+      status: 'active',
+      createdAt: new Date('2026-10-06T10:00:00.000Z'),
+      lastLoginAt: null,
+      createdAtKey: '2026-10-06T10:00:00.000000Z',
+    });
+    prisma.$queryRaw.mockResolvedValue([makeRow(3), makeRow(2), makeRow(1)]);
+
+    const result = await service.list({ limit: 2 });
+
+    expect(result.data).toHaveLength(2);
+    expect(result.data[0]).toMatchObject({
+      id: '3',
+      email: 'u3@example.com',
+      display_name: 'Duong',
+      role: 'user',
+      status: 'active',
+      last_login_at: null,
+    });
+    expect(result.next_cursor).toEqual(expect.any(String));
+  });
+
+  it('list: hết trang → next_cursor null; q rỗng không lọc', async () => {
+    const { service, prisma } = createSetup();
+    prisma.$queryRaw.mockResolvedValue([]);
+
+    const result = await service.list({ q: '   ' });
+
+    expect(result).toEqual({ data: [], next_cursor: null });
+    expect(prisma.$queryRaw).toHaveBeenCalledTimes(1);
+  });
 });

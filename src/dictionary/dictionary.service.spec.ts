@@ -57,9 +57,10 @@ function createSetup(): {
       getForms: jest.Mock;
     };
     pairs: { findLinks: jest.Mock };
-    kanji: { getByLiteral: jest.Mock };
+    kanji: { getByLiteral: jest.Mock; getStrokeAsset: jest.Mock };
     history: { create: jest.Mock; listRecent: jest.Mock };
     languages: { findIdByCode: jest.Mock; findExistingIds: jest.Mock };
+    storage: { get: jest.Mock; put: jest.Mock; delete: jest.Mock };
   };
 } {
   const repos = {
@@ -77,9 +78,10 @@ function createSetup(): {
       getForms: jest.fn(),
     },
     pairs: { findLinks: jest.fn() },
-    kanji: { getByLiteral: jest.fn() },
+    kanji: { getByLiteral: jest.fn(), getStrokeAsset: jest.fn() },
     history: { create: jest.fn(), listRecent: jest.fn() },
     languages: { findIdByCode: jest.fn(), findExistingIds: jest.fn() },
+    storage: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
   };
   const service = new DictionaryService(
     repos.search as unknown as DictionarySearchRepository,
@@ -89,6 +91,7 @@ function createSetup(): {
     repos.kanji as unknown as KanjiRepository,
     repos.history as unknown as SearchHistoryRepository,
     repos.languages as unknown as LanguageRepository,
+    repos.storage,
   );
   return { service, repos };
 }
@@ -434,6 +437,45 @@ describe('DictionaryService', () => {
         radical: null,
       });
       expect(result.readings).toEqual({ on: ['ソウ'] });
+    });
+  });
+
+  describe('getKanjiStroke', () => {
+    it('trả buffer + mime + sha256 từ storage', async () => {
+      const { service, repos } = createSetup();
+      repos.kanji.getStrokeAsset.mockResolvedValue({
+        objectKey: 'kanjivg/0732b.svg',
+        mime: 'image/svg+xml',
+        sha256: 'abc123',
+        bytes: 10,
+      });
+      repos.storage.get.mockResolvedValue(Buffer.from('<svg/>'));
+
+      const result = await service.getKanjiStroke('猫');
+
+      expect(result.mime).toBe('image/svg+xml');
+      expect(result.sha256).toBe('abc123');
+      expect(result.buffer.toString()).toBe('<svg/>');
+      expect(repos.storage.get).toHaveBeenCalledWith('kanjivg/0732b.svg');
+    });
+
+    it('thiếu metadata hoặc thiếu file → KANJI_STROKE_NOT_FOUND', async () => {
+      const { service, repos } = createSetup();
+      repos.kanji.getStrokeAsset.mockResolvedValue(null);
+      await expect(service.getKanjiStroke('X')).rejects.toMatchObject({
+        code: 'KANJI_STROKE_NOT_FOUND',
+      });
+
+      repos.kanji.getStrokeAsset.mockResolvedValue({
+        objectKey: 'kanjivg/xxxx.svg',
+        mime: 'image/svg+xml',
+        sha256: 'abc123',
+        bytes: 10,
+      });
+      repos.storage.get.mockResolvedValue(null);
+      await expect(service.getKanjiStroke('X')).rejects.toMatchObject({
+        code: 'KANJI_STROKE_NOT_FOUND',
+      });
     });
   });
 });

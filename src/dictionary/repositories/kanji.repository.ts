@@ -21,6 +21,13 @@ export interface KanjiRow {
   media_kinds: string[] | null;
 }
 
+export interface KanjiStrokeRow {
+  objectKey: string;
+  mime: string;
+  sha256: string;
+  bytes: number;
+}
+
 /** Chi tiết chữ Hán — view `serve.kanji_card` (schema serve KHÔNG map Prisma). */
 @Injectable()
 export class KanjiRepository {
@@ -48,6 +55,19 @@ export class KanjiRepository {
         kc.media_kinds
       FROM serve.kanji_card kc
       WHERE kc.literal = ${literal}
+    `;
+    return rows[0] ?? null;
+  }
+
+  /** Asset SVG thứ tự nét (KanjiVG) cho một chữ Hán — metadata, chưa đọc file. */
+  async getStrokeAsset(literal: string): Promise<KanjiStrokeRow | null> {
+    const rows = await this.prisma.$queryRaw<KanjiStrokeRow[]>`
+      SELECT ma.object_key AS "objectKey", ma.mime, ma.sha256, ma.bytes
+      FROM core.kanji_media km
+      JOIN core.media_asset ma ON ma.id = km.asset_id
+      WHERE km.kanji_literal = ${literal} AND km.kind = 'stroke_svg'
+      ORDER BY ma.id ASC
+      LIMIT 1
     `;
     return rows[0] ?? null;
   }
