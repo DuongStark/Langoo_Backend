@@ -107,6 +107,13 @@ export class SenseCardDto {
 
   @ApiProperty({ nullable: true, example: '1' })
   concept_id!: string | null;
+
+  @ApiProperty({
+    type: () => [SenseCardDto],
+    description:
+      'Nghĩa con (subsense của wiktextract) gộp dưới nghĩa này — FE nên hiển thị thu gọn; mảng rỗng nếu không có',
+  })
+  sub_senses!: SenseCardDto[];
 }
 
 export class LexemeSensesResultDto {

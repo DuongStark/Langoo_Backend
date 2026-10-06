@@ -160,28 +160,46 @@ export class DictionaryService {
       else textsBySense.set(key, [row.text]);
     }
 
-    /* Wiktextract lặp gloss cha ở đầu mỗi sense con → nếu định nghĩa đã xuất hiện
-       ở sense trước trong cùng lexeme, chọn gloss kế tiếp chưa dùng để hiển thị. */
-    const usedDefinitions = new Set<string>();
-    const data = cards.map((card) => {
-      const original = card.definition;
-      if (original === null || original === '')
-        return toSenseCardResponse(card);
-      let display = original;
-      if (usedDefinitions.has(display)) {
-        const alternative = (
-          textsBySense.get(card.senseId.toString()) ?? []
-        ).find((text) => text !== original && !usedDefinitions.has(text));
-        if (alternative) display = alternative;
+    /* Wiktextract tách sense lồng nhau thành từng dòng, mỗi sense con lặp lại gloss
+       cha ở đầu. Gom các sense liên tiếp có cùng gloss đầu (gloss cha) vào một nhóm:
+       nghĩa cha đứng đầu, các nghĩa con nằm trong `sub_senses` (định nghĩa = gloss
+       riêng đầu tiên khác gloss cha) để FE hiển thị thu gọn. */
+    const textsOf = (card: SenseCard): string[] =>
+      textsBySense.get(card.senseId.toString()) ?? [];
+
+    interface Group {
+      parent: SenseCard;
+      rawFirst: string | null;
+      children: SenseCard[];
+    }
+    const groups: Group[] = [];
+    for (const card of cards) {
+      const rawFirst = textsOf(card)[0] ?? null;
+      const current = groups[groups.length - 1];
+      if (current && rawFirst !== null && current.rawFirst === rawFirst) {
+        current.children.push(card);
+      } else {
+        groups.push({ parent: card, rawFirst, children: [] });
       }
-      usedDefinitions.add(display);
-      return display === original
-        ? toSenseCardResponse(card)
-        : toSenseCardResponse({
-            ...card,
-            definition: display,
-            definitionLanguageId: enId,
-          });
+    }
+
+    const data: SenseCardResponse[] = groups.map((group) => {
+      const parent = toSenseCardResponse(group.parent);
+      if (group.rawFirst !== null) {
+        parent.definition = group.rawFirst;
+        parent.definition_language_id = enId;
+      }
+      parent.sub_senses = group.children.map((child) => {
+        const specific =
+          textsOf(child).find((text) => text !== group.rawFirst) ?? null;
+        const childCard = toSenseCardResponse(child);
+        if (specific !== null) {
+          childCard.definition = specific;
+          childCard.definition_language_id = enId;
+        }
+        return { ...childCard, sub_senses: [] };
+      });
+      return parent;
     });
     return { data, next_cursor: null };
   }
@@ -336,6 +354,7 @@ function toSenseCardResponse(card: SenseCard): SenseCardResponse {
     gloss_vi_reviewed: card.glossViReviewed,
     gloss_en: card.glossEn,
     concept_id: card.conceptId?.toString() ?? null,
+    sub_senses: [],
   };
 }
 

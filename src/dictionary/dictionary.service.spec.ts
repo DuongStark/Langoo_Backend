@@ -324,7 +324,7 @@ describe('DictionaryService', () => {
       expect(result.next_cursor).toBeNull();
     });
 
-    it('sense con trùng định nghĩa cha → hiển thị gloss khác chưa dùng', async () => {
+    it('sense con trùng gloss cha → gom vào sub_senses với gloss riêng', async () => {
       const { service, repos } = createSetup();
       repos.senseCard.hasLexeme.mockResolvedValue(true);
       repos.senseCard.getByLexemeId.mockResolvedValue([
@@ -350,8 +350,36 @@ describe('DictionaryService', () => {
 
       const result = await service.getLexemeSenses(1n);
 
+      expect(result.data).toHaveLength(1);
       expect(result.data[0].definition).toBe('A common fruit');
-      expect(result.data[1].definition).toBe('Any fruit or vegetable');
+      expect(result.data[0].sub_senses).toHaveLength(1);
+      expect(result.data[0].sub_senses[0]).toMatchObject({
+        sense_id: '11',
+        definition: 'Any fruit or vegetable',
+        sub_senses: [],
+      });
+    });
+
+    it('gloss cha khác nhau → tách nhóm riêng', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(true);
+      repos.senseCard.getByLexemeId.mockResolvedValue([
+        { ...senseCard, senseId: 10n, senseNo: 1, definition: 'A' },
+        { ...senseCard, senseId: 11n, senseNo: 2, definition: 'B' },
+      ]);
+      repos.languages.findIdByCode.mockResolvedValue(1);
+      repos.content.getGlossesByLexeme.mockResolvedValue([
+        { sense_id: 10n, text: 'A' },
+        { sense_id: 11n, text: 'B' },
+      ]);
+
+      const result = await service.getLexemeSenses(1n);
+
+      expect(result.data).toHaveLength(2);
+      expect(result.data.every((card) => card.sub_senses.length === 0)).toBe(
+        true,
+      );
+      expect(result.data[1].definition).toBe('B');
     });
   });
 

@@ -42,6 +42,8 @@ export interface SenseCardResponse {
   gloss_vi_reviewed: boolean | null;
   gloss_en: string | null;
   concept_id: string | null;
+  /** Nghĩa con (subsense wiktextract) — FE hiển thị thu gọn dưới nghĩa cha. */
+  sub_senses: SenseCardResponse[];
 }
 
 export interface SenseGlossItem {
