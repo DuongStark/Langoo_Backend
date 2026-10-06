@@ -87,6 +87,7 @@ function createSetup(): {
     repos.kanji as unknown as KanjiRepository,
     repos.history as unknown as SearchHistoryRepository,
     repos.languages as unknown as LanguageRepository,
+    { put: jest.fn(), get: jest.fn(), delete: jest.fn() },
   );
   return { service, repos };
 }

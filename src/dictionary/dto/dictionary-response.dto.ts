@@ -105,6 +105,13 @@ export class SenseCardDto {
   @ApiProperty({ nullable: true, example: 'to run' })
   gloss_en!: string | null;
 
+  @ApiProperty({
+    type: [String],
+    description:
+      'Toàn bộ EN gloss theo rank nguồn; giữ ngữ cảnh cha/con và các cách diễn đạt cùng nghĩa',
+  })
+  gloss_en_context!: string[];
+
   @ApiProperty({ nullable: true, example: '1' })
   concept_id!: string | null;
 }

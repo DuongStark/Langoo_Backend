@@ -4,8 +4,10 @@ Tra từ điển **công khai** (không bắt buộc đăng nhập). Riêng lị
 cần Bearer token. Tầng đọc dùng `serve.*`/`core.*` (chỉ đọc); ghi duy nhất `app.search_history`
 và `app.gloss_report`.
 
-> Lưu ý tìm kiếm: hiện dùng `ILIKE` (khớp chuỗi con) trên `surface`/`reading` — **chưa** có
-> `pg_trgm`/`unaccent` (production sẽ bổ sung, xem CONTEXT §13). Ký tự wildcard `% _ \` được escape.
+> DB2 đã có trigram/bigram indexes; repository dùng 3 nhánh matching mặt chữ/reading/romaji
+> với ILIKE kiểm chứng. Ký tự wildcard `% _ \` được escape.
+> **M4.2 / DB4-D0.2 (06/10): code xong local, chưa deploy VPS.** Contract dưới đây
+> cần migration **038_dictionary_source_projection.sql** trước khi deploy code mới.
 
 ## GET /v1/dictionary/search?q=&lang=&limit=
 
@@ -40,6 +42,8 @@ curl -s "http://localhost:3000/v1/dictionary/search?q=run" -H "Authorization: Be
 - Xếp hạng: khớp chính xác → khớp đầu chuỗi → tần suất (`NULLS LAST`) → độ dài → các khóa ổn định của face.
 - `limit` mặc định 20, tối đa 100. `q` 1–100 ký tự sau khi trim (`400 VALIDATION_FAILED` nếu rỗng).
 - `cursor` là chuỗi opaque trả từ response trước; cursor chỉ dùng lại với cùng `q` và `lang`, sai thì `400 VALIDATION_FAILED`.
+- M4.2 giữ **một matching face mỗi lexeme_id trước cursor/LIMIT+1**. Khác ID/nguồn/POS/reading vẫn giữ riêng cho tới khi equivalence/membership được xác nhận; không ẩn nguồn phụ chỉ vì trùng spelling.
+- Cursor M4.2 dùng **v2**; cursor v1 cũ trả `400 VALIDATION_FAILED`, client bắt đầu lại trang đầu. Không giải mã/sửa cursor ở FE.
 - Khi tìm tiếng Nhật, romaji được chuyển sang kana để tìm thêm. Ví dụ `q=hashiru&lang=ja` tìm được `走る` cả khi `core.lexeme.romanization` chưa có dữ liệu.
 
 ## GET /v1/lexemes/:id/senses
@@ -53,6 +57,24 @@ curl -s http://localhost:3000/v1/lexemes/5/senses
 
 Response `{ data, next_cursor }` chứa các `SenseCard` theo `sense_no`. Ví dụ lexeme `eat` trả
 `sense_id: "6"`; sau đó dùng ID này với `/v1/senses/6`.
+
+Sau migration 038, list và detail dùng cùng projection từ `serve.sense_card`:
+
+- `gloss_en_context: string[]` là field **additive**, đầy đủ EN gloss theo rank nguồn;
+  Wiktextract giữ cả gloss cha/con, JMdict giữ các cách diễn đạt cùng nghĩa.
+- Wiktextract English source-owned, cùng batch, rank liên tục, không machine/reviewed:
+  `gloss_en` chọn gloss cuối của chuỗi nguồn; `definition` chỉ đổi projection khi
+  đang rỗng hoặc bằng gloss đầu/cuối và language NULL/EN. Custom definition giữ nguyên.
+- Reviewed EN gloss vẫn giữ precedence khi chuỗi không đủ điều kiện projection;
+  JMdict không áp quy tắc leaf. Gloss VI và badge review không thay đổi.
+- FE hiển thị nghĩa ngắn từ card, có thể mở context; translator/mapping cần dùng
+  toàn bộ context + tags/restrictions, không chỉ một leaf. `/senses/:id` vẫn trả
+  toàn bộ raw `glosses[]`, không xóa/rank lại gloss gốc.
+- Không dùng gloss đầu của `glosses[]` làm nhãn chọn sense và không trình bày
+  từng gloss cha/con thành các sense độc lập. Với `dog`, các sense chó nhà,
+  thành viên họ Canidae và con đực có cùng gloss cha nhưng nghĩa cụ thể khác nhau.
+  Deploy BE cần kèm đối chiếu FE dùng card cho nghĩa chính và context riêng;
+  raw `glosses[]` vẫn chứa gloss cha sau migration/backfill.
 
 ## GET /v1/senses/:id
 
@@ -80,8 +102,15 @@ curl -s http://localhost:3000/v1/senses/1/links
 ```json
 {
   "data": [
-    { "sense_id": "2", "language_id": 1, "lemma": "run", "reading": null,
-      "romanization": null, "confidence": 1, "concept_id": "1" }
+    {
+      "sense_id": "2",
+      "language_id": 1,
+      "lemma": "run",
+      "reading": null,
+      "romanization": null,
+      "confidence": 1,
+      "concept_id": "1"
+    }
   ],
   "next_cursor": null
 }
@@ -122,9 +151,16 @@ curl -s -X POST http://localhost:3000/v1/gloss-reports \
 Response `201`:
 
 ```json
-{ "id": "12", "target_kind": "sense_gloss", "target_id": "2", "language_id": 3,
-  "issue": "wrong", "comment": "Nghĩa chưa đúng ngữ cảnh", "status": "open",
-  "created_at": "2026-09-27T00:00:00.000Z" }
+{
+  "id": "12",
+  "target_kind": "sense_gloss",
+  "target_id": "2",
+  "language_id": 3,
+  "issue": "wrong",
+  "comment": "Nghĩa chưa đúng ngữ cảnh",
+  "status": "open",
+  "created_at": "2026-09-27T00:00:00.000Z"
+}
 ```
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **dictionary**, **senses**, **kanji**).

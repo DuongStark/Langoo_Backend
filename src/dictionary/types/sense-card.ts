@@ -22,6 +22,7 @@ export interface SenseCardRow {
   gloss_vi_machine: boolean | null;
   gloss_vi_reviewed: boolean | null;
   gloss_en: string | null;
+  gloss_en_context?: string[];
   concept_id: bigint | null;
 }
 
@@ -50,5 +51,6 @@ export interface SenseCard {
   glossViMachine: boolean | null;
   glossViReviewed: boolean | null;
   glossEn: string | null;
+  glossEnContext?: string[];
   conceptId: bigint | null;
 }

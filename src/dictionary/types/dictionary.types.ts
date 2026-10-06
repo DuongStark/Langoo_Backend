@@ -41,6 +41,7 @@ export interface SenseCardResponse {
   gloss_vi_machine: boolean | null;
   gloss_vi_reviewed: boolean | null;
   gloss_en: string | null;
+  gloss_en_context?: string[];
   concept_id: string | null;
 }
 

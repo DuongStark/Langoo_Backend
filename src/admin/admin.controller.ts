@@ -24,6 +24,8 @@ import { AdminUsersService } from './admin-users.service';
 import {
   AdminGlossReportQueryDto,
   AdminListQueryDto,
+  AdminUserListResponseDto,
+  AdminUserQueryDto,
   TimeseriesQueryDto,
   UpdateGlossReportDto,
   UpdateUserStatusDto,
@@ -94,6 +96,16 @@ export class AdminGlossReportsController {
 @Controller('admin/users')
 export class AdminUsersController {
   constructor(private readonly users: AdminUsersService) {}
+
+  @Get()
+  @ApiOperation({
+    summary:
+      'Danh sách/tìm người học — filter status/role, q email/tên, cursor (chỉ metadata tài khoản)',
+  })
+  @ApiOkResponse({ type: AdminUserListResponseDto })
+  list(@Query() query: AdminUserQueryDto): Promise<AdminUserListResponseDto> {
+    return this.users.list(query);
+  }
 
   @Patch(':id')
   @ApiOperation({

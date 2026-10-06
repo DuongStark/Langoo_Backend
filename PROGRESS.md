@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-05 (M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-06 (M4.2 / DB4-D0.2 chuẩn bị deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -16,6 +16,7 @@
 | M3   | Profile & settings                                                        | ✅ hoàn thành (chờ review)                                                                                            |
 | M3.1 | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                                         |
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                 |
+| M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn                       | ✅ code xong local: per-lexeme matching trước cursor/LIMIT, cursor v2; cùng DB4-D0.2 projection view + EN context, 375 unit / 31 e2e pass, lint/build pass; [report](docs/reviews/db4-d0-2-m4-2-implementation-2026-10-06.md); chưa commit/push/deploy, migration 038 chưa áp VPS |
 | M5   | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                               |
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                         |
 | M6   | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                      |
@@ -39,6 +40,72 @@
 | DB5 | Curation + serve + go-live DB thật | Quy trình duyệt concept/gloss; refresh `serve.sense_pair`; giao M14 (admin ghi `core`); chuyển API VPS về DB thật | 📋 |
 
 ## Quyết định đã chốt
+
+### 2026-10-06 — M4.2 / DB4-D0.2 — Chuẩn bị deploy lên VPS
+
+- Chủ dự án đã yêu cầu deploy. Release worktree riêng loại code quiz/DB4-D1 chưa commit.
+- DB4-D0.1 bảo toàn sửa runtime VPS: admin user list, public sources và KanjiVG stroke.
+- Full gates release riêng: 343 unit / 204 E2E, lint và build pass. Sửa formatting
+  gloss-translate.ts ở base để CI pass, không đổi logic.
+- Backup code/dist + DB mới tại storage ngoài release; dump ~610MB, TOC đọc được.
+- Migration 038 chạy trước publish; không backfill/delete core data, chưa sửa FE.
+- [Report release](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md) ghi preflight/rollback;
+  chuẩn bị commit/push/deploy, chưa báo live thành công trước smoke.
+
+### 2026-10-06 — DB4-D0 — Rà soát bản ghi từ điển trùng
+
+Đã khảo sát mẫu EN/JA trên DB full local `55433/langoo` bằng query read-only và đọc
+search/importer: có search face lemma/kanji lặp cùng lexeme, lexeme đa nguồn,
+pipeline foundation ghi gloss cha vào definition và những trường hợp cùng gloss
+nhưng khác reading/etymology. [Báo cáo và phương pháp đề xuất](docs/reviews/db4-d0-dictionary-duplicates-2026-10-06.md).
+Ưu tiên sửa definition projection + search/group display bằng SQL/rule, giữ IDs/provenance;
+AI dành cho cặp còn mơ hồ. Khảo sát local không sửa runtime/DB; D0 tổng thể chưa hoàn tất.
+
+**Bổ sung khảo sát VPS cùng ngày:** SSH `langoo-vps`, 16 metric read-only (hai snapshot thống kê và một snapshot
+cross-check tổng); DB thật có 2.375.240 lexeme / 2.917.954 sense. View search có 218.794 cặp
+JA lặp face cùng ID; 55.997 sense Wiktextract cần xét projection đầu/cuối; 199.101
+nhóm EN WordNet cùng key/concept/definition đa nguồn. Không coi counts ứng viên là
+số ID được xóa. 8 anonymous HTTP GET đều 200; live đã có **3 file dictionary hotfix
+chưa commit trên VPS**, nên mẫu search không lặp nhưng list/detail/gloss_en còn lệch.
+Đã lưu patch để bảo toàn; không sửa/deploy/reset runtime. API đọc DB localhost VPS,
+migrations 001–037 trừ 028 đã áp; staging raw wikt/wn/jmdict rỗng, core gloss còn đủ.
+[Báo cáo + số liệu/SQL](docs/reviews/db4-d0-vps-duplicates-2026-10-06.md),
+[plan sửa](docs/plans/db4-dictionary-deduplication.md): **DB4-D0.1** bảo toàn/tích hợp
+hotfix → **DB4-D0.2 + M4.2** projection và search → **DB4-D0.3/D0.4** membership/reuse.
+Kiểm SQL/HTTP/JSON/count/link/diff; chưa chạy regression sửa app hoặc restore drill.
+Artifacts/report/plan chưa commit/push; chưa triển khai sửa DB/code theo plan.
+
+### 2026-10-06 — DB4-D0.1 / DB4-D0.2 / M4.2 — Sửa projection và search, chuẩn bị dọn trùng
+
+Chủ dự án duyệt hướng sửa nguyên nhân rồi dọn bản trùng thật. Đã tích hợp ý tưởng
+per-lexeme của hotfix VPS, thay source suppression và chọn gloss theo sense trước
+bằng source projection trong view dùng chung. Migration **038** thêm function
+Wiktextract guarded source/batch/rank/review + full EN context; list/detail cùng
+meaning, giữ custom/JMdict/VI. Backfill CLI export/apply/resume/rollback có exact
+target, full-context hash, immutable prepared journal, transaction và drift guards.
+Foundation writer ngoài repo đã sửa, [patch lưu trong repo](docs/reviews/db4-d0-2-foundation-writer-2026-10-06.patch).
+
+Dry-run VPS read-only: **55.997 eligible projection** (53.055 EN/1.869 JA/1.073 VI).
+DB4-D0.3 inventory mới có shortlist **500 cặp WordNet** full-scope bằng nhau, không
+thấy app FK trong mẫu; **50 cặp có examples**, 500 có sense_concept. Chưa có alias/
+importer resolution + child preservation nên chưa có run DELETE; không suy 500 cặp
+thành tỷ lệ/xóa toàn corpus. **0 request AI, 0 ID bị xóa; không đổi code/DB live**.
+
+Kiểm: DB test riêng `55433/langoo_dictionary_d0_20261006_test` tới 038; **48 suite /
+375 unit**, **3 suite / 31 e2e**, targeted ESLint/build pass; Python AST parse pass,
+chưa chạy full source ingest. [Report](docs/reviews/db4-d0-2-m4-2-implementation-2026-10-06.md),
+[dry-run summary](docs/reviews/db4-d0-2-m4-2-dryrun-2026-10-06.json),
+[handoff/CLI](docs/handoff/db4-d0-2-m4-2.md). Code/test/docs **chưa commit/push/deploy**;
+038 chỉ áp DB test riêng; VPS còn hotfix cũ. Preflight 13:10 UTC có thêm sửa stroke SVG,
+tổng 5 file dictionary modified; [patch runtime mới](docs/reviews/db4-d0-vps-dictionary-runtime-2026-10-06.patch)
+đã lưu để release không làm mất thay đổi ngoài scope. Membership/alias, physical cleanup
+DB4-D0.5 và cost/reuse DB4-D0.4 chưa hoàn tất, D0 tổng thể còn source/legacy audit.
+
+Follow-up ảnh `dog`: API live lexeme `998637` có 23 senses; ba sense đầu khác
+scope nhưng `gloss_en` cùng gloss cha. SSH xác nhận 038 chưa có, HEAD vẫn `7b13b90`.
+Đã bổ sung evidence/contract FE vào report/API docs: raw gloss cha/con là context,
+không là hai sense riêng. Chưa sửa FE; không push/deploy hay ghi DB trong follow-up.
+
 
 | Ngày       | Quyết định                                                                                                                                                                                                                                                                                                                                 | Lý do                                                                                                                |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------- |

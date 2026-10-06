@@ -1,0 +1,40 @@
+--- a/scripts/run_mapping.py
++++ b/scripts/run_mapping.py
+@@ -143,17 +143,26 @@
+                          coalesce(sx.obj->'glosses','[]'::jsonb)) WITH ORDINALITY g(obj,n)
+                        WHERE jsonb_typeof(g.obj)='string' AND btrim(g.obj #>> '{}')<>''
+                        ON CONFLICT (sense_id,language_id,rank) DO UPDATE SET
+-                         text=excluded.text,source_id=excluded.source_id,batch_id=excluded.batch_id"""
+-                )
+-                cur.execute(
+-                    """WITH first_gloss AS (
+-                         SELECT DISTINCT ON (g.sense_id) g.sense_id,g.text
+-                         FROM core.sense_gloss g
+-                         WHERE g.source_id=%s AND g.language_id=1
+-                         ORDER BY g.sense_id,g.rank
+-                       )
+-                       UPDATE core.sense s SET definition=g.text,definition_language_id=1
+-                       FROM first_gloss g WHERE g.sense_id=s.id""",
++                         text=excluded.text,source_id=excluded.source_id,batch_id=excluded.batch_id
++                       WHERE core.sense_gloss.source_id=excluded.source_id
++                         AND NOT core.sense_gloss.is_machine
++                         AND core.sense_gloss.reviewed_by IS NULL"""
++                )
++                cur.execute(
++                    # DB4-D0.2: shared source/batch/review guarded projection.
++                    # Requires backend migration 038; fail rather than restoring
++                    # parent glosses if an old database lacks the policy function.
++                    """UPDATE core.sense s
++                       SET definition=p.leaf_gloss,definition_language_id=p.en_id
++                       FROM core.sense target
++                       CROSS JOIN LATERAL core.wiktextract_en_projection(target.id) p
++                       WHERE s.id=target.id AND s.source_id=%s AND p.eligible
++                         AND (s.definition_language_id IS NULL
++                              OR s.definition_language_id=p.en_id)
++                         AND (s.definition IS NULL
++                              OR s.definition IN (p.first_gloss,p.leaf_gloss))
++                         AND (s.definition IS DISTINCT FROM p.leaf_gloss
++                              OR s.definition_language_id IS DISTINCT FROM p.en_id)""",
+                     (wikt_source,),
+                 )
+                 cur.execute(
