@@ -1,0 +1,2 @@
+# Preserve exact unified-diff artifacts, including blank context lines.
+docs/reviews/*.patch -whitespace

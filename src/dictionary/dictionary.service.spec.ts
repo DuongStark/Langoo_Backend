@@ -51,7 +51,6 @@ function createSetup(): {
     };
     content: {
       getGlosses: jest.Mock;
-      getGlossesByLexeme: jest.Mock;
       getExamples: jest.Mock;
       getPronunciations: jest.Mock;
       getForms: jest.Mock;
@@ -72,7 +71,6 @@ function createSetup(): {
     },
     content: {
       getGlosses: jest.fn(),
-      getGlossesByLexeme: jest.fn(),
       getExamples: jest.fn(),
       getPronunciations: jest.fn(),
       getForms: jest.fn(),
@@ -311,7 +309,6 @@ describe('DictionaryService', () => {
       repos.senseCard.hasLexeme.mockResolvedValue(true);
       repos.senseCard.getByLexemeId.mockResolvedValue([senseCard]);
       repos.languages.findIdByCode.mockResolvedValue(1);
-      repos.content.getGlossesByLexeme.mockResolvedValue([]);
 
       const result = await service.getLexemeSenses(1n);
 
@@ -324,7 +321,7 @@ describe('DictionaryService', () => {
       expect(result.next_cursor).toBeNull();
     });
 
-    it('sense con trùng gloss cha → gom vào sub_senses với gloss riêng', async () => {
+    it('sense con trùng supergloss → gom vào sub_senses với gloss lá', async () => {
       const { service, repos } = createSetup();
       repos.senseCard.hasLexeme.mockResolvedValue(true);
       repos.senseCard.getByLexemeId.mockResolvedValue([
@@ -332,20 +329,16 @@ describe('DictionaryService', () => {
           ...senseCard,
           senseId: 10n,
           senseNo: 1,
-          definition: 'A common fruit',
+          definition: 'A round fruit',
+          glossEnContext: ['A common fruit', 'A round fruit'],
         },
         {
           ...senseCard,
           senseId: 11n,
           senseNo: 2,
-          definition: 'A common fruit',
+          definition: 'Any fruit or vegetable',
+          glossEnContext: ['A common fruit', 'Any fruit or vegetable'],
         },
-      ]);
-      repos.languages.findIdByCode.mockResolvedValue(1);
-      repos.content.getGlossesByLexeme.mockResolvedValue([
-        { sense_id: 10n, text: 'A common fruit' },
-        { sense_id: 11n, text: 'A common fruit' },
-        { sense_id: 11n, text: 'Any fruit or vegetable' },
       ]);
 
       const result = await service.getLexemeSenses(1n);
@@ -360,17 +353,24 @@ describe('DictionaryService', () => {
       });
     });
 
-    it('gloss cha khác nhau → tách nhóm riêng', async () => {
+    it('supergloss khác nhau → tách nhóm riêng', async () => {
       const { service, repos } = createSetup();
       repos.senseCard.hasLexeme.mockResolvedValue(true);
       repos.senseCard.getByLexemeId.mockResolvedValue([
-        { ...senseCard, senseId: 10n, senseNo: 1, definition: 'A' },
-        { ...senseCard, senseId: 11n, senseNo: 2, definition: 'B' },
-      ]);
-      repos.languages.findIdByCode.mockResolvedValue(1);
-      repos.content.getGlossesByLexeme.mockResolvedValue([
-        { sense_id: 10n, text: 'A' },
-        { sense_id: 11n, text: 'B' },
+        {
+          ...senseCard,
+          senseId: 10n,
+          senseNo: 1,
+          definition: 'A',
+          glossEnContext: ['A'],
+        },
+        {
+          ...senseCard,
+          senseId: 11n,
+          senseNo: 2,
+          definition: 'B',
+          glossEnContext: ['B'],
+        },
       ]);
 
       const result = await service.getLexemeSenses(1n);

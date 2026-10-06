@@ -206,276 +206,282 @@ export async function translateGlossJob(
   };
   const sleep =
     options.sleep ?? ((ms: number) => delay(ms).then(() => undefined));
-  return withArtifactLock(artifactDir, `job-${job.jobKey.slice(0, 16)}`, async () => {
-    // Protect against two callers loading the old checkpoint before acquiring the lock.
-    const existing = resolveArtifactPath(
-      artifactDir,
-      options.jobFile ?? 'job.json',
-    );
-    if (existsSync(existing)) {
-      const current = parseGlossJob(
-        readArtifactJson(artifactDir, options.jobFile ?? 'job.json'),
+  return withArtifactLock(
+    artifactDir,
+    `job-${job.jobKey.slice(0, 16)}`,
+    async () => {
+      // Protect against two callers loading the old checkpoint before acquiring the lock.
+      const existing = resolveArtifactPath(
+        artifactDir,
+        options.jobFile ?? 'job.json',
       );
-      if (JSON.stringify(current) !== JSON.stringify(job))
-        throw new Error('Checkpoint changed; reload before resume');
-    }
-    save();
-    for (const entry of job.entries) {
-      const candidate = byKey.get(entry.candidateKey)!;
-      const cacheKey = computeGlossCacheKey(candidate, job.provider);
-      const cachePath = `cache/${cacheKey}.json`;
-      if (['validated', 'applied', 'rejected'].includes(entry.state)) {
-        // Completed outputs still need durable evidence; never silently trust a checkpoint alone.
-        const response = entry.attempts.findLast(
-          (a) => a.outcome === 'response',
-        )?.response;
-        if (response) {
-          const record = parseGlossResponseArtifact(
-            readArtifactJson(artifactDir, response.path, response.sha256),
+      if (existsSync(existing)) {
+        const current = parseGlossJob(
+          readArtifactJson(artifactDir, options.jobFile ?? 'job.json'),
+        );
+        if (JSON.stringify(current) !== JSON.stringify(job))
+          throw new Error('Checkpoint changed; reload before resume');
+      }
+      save();
+      for (const entry of job.entries) {
+        const candidate = byKey.get(entry.candidateKey)!;
+        const cacheKey = computeGlossCacheKey(candidate, job.provider);
+        const cachePath = `cache/${cacheKey}.json`;
+        if (['validated', 'applied', 'rejected'].includes(entry.state)) {
+          // Completed outputs still need durable evidence; never silently trust a checkpoint alone.
+          const response = entry.attempts.findLast(
+            (a) => a.outcome === 'response',
+          )?.response;
+          if (response) {
+            const record = parseGlossResponseArtifact(
+              readArtifactJson(artifactDir, response.path, response.sha256),
+            );
+            matchResponse(record, candidate, job);
+            if (JSON.stringify(record.output) !== JSON.stringify(entry.output))
+              throw new Error('Checkpoint output differs from response');
+            if (
+              record.output?.gloss_vi &&
+              !record.validationError &&
+              !existsSync(resolveArtifactPath(artifactDir, cachePath))
+            )
+              persist(artifactDir, cachePath, record);
+          } else if (entry.state !== 'rejected') {
+            const record = parseGlossResponseArtifact(
+              readArtifactJson(artifactDir, cachePath),
+            );
+            matchResponse(record, candidate, job, false);
+            if (JSON.stringify(record.output) !== JSON.stringify(entry.output))
+              throw new Error('Checkpoint output differs from cache');
+          }
+          continue;
+        }
+        if (entry.state === 'running') {
+          const attempt = entry.attempts.at(-1)!;
+          const intent = intentSchema.parse(
+            readArtifactJson(
+              artifactDir,
+              intentPath(job.jobKey, entry.candidateKey, attempt.attempt),
+            ),
           );
-          matchResponse(record, candidate, job);
-          if (JSON.stringify(record.output) !== JSON.stringify(entry.output))
-            throw new Error('Checkpoint output differs from response');
           if (
-            record.output?.gloss_vi &&
-            !record.validationError &&
-            !existsSync(resolveArtifactPath(artifactDir, cachePath))
+            intent.jobKey !== job.jobKey ||
+            intent.cacheKey !== cacheKey ||
+            intent.candidateKey !== candidate.candidateKey ||
+            intent.inputHash !== candidate.inputHash
           )
-            persist(artifactDir, cachePath, record);
-        } else if (entry.state !== 'rejected') {
-          const record = parseGlossResponseArtifact(
+            throw new Error('Attempt intent mismatch');
+          const file = responsePath(
+            job.jobKey,
+            entry.candidateKey,
+            attempt.attempt,
+          );
+          if (existsSync(resolveArtifactPath(artifactDir, file))) {
+            const record = parseGlossResponseArtifact(
+              readArtifactJson(artifactDir, file),
+            );
+            matchResponse(record, candidate, job);
+            if (record.attempt !== attempt.attempt)
+              throw new Error('Response attempt mismatch');
+            finalize(
+              entry,
+              record,
+              intent.reserved,
+              persist(artifactDir, file, record),
+            );
+            save();
+            if (
+              record.output?.gloss_vi &&
+              !record.validationError &&
+              !existsSync(resolveArtifactPath(artifactDir, cachePath))
+            )
+              persist(artifactDir, cachePath, record);
+            continue;
+          } else {
+            attempt.outcome = 'unknown';
+            entry.state = 'failed';
+            entry.error =
+              'Unknown previous attempt; explicit retryUnknown required';
+            save();
+          }
+        }
+        if (
+          entry.attempts.some((a) => a.outcome === 'unknown') &&
+          !options.retryUnknown
+        )
+          throw new Error(
+            'Unknown attempt may have consumed quota; resume requires explicit --retry-unknown',
+          );
+        if (entry.state === 'failed' && entry.validation === 'failed') continue;
+        if (
+          entry.attemptCount === 0 &&
+          existsSync(resolveArtifactPath(artifactDir, cachePath))
+        ) {
+          const cache = parseGlossResponseArtifact(
             readArtifactJson(artifactDir, cachePath),
           );
-          matchResponse(record, candidate, job, false);
-          if (JSON.stringify(record.output) !== JSON.stringify(entry.output))
-            throw new Error('Checkpoint output differs from cache');
+          matchResponse(cache, candidate, job, false);
+          if (!cache.output?.gloss_vi || cache.validationError)
+            throw new Error('Cache does not contain validated output');
+          entry.output = cache.output;
+          entry.state = 'validated';
+          entry.validation = 'passed';
+          entry.error = null;
+          save();
+          continue;
         }
-        continue;
-      }
-      if (entry.state === 'running') {
-        const attempt = entry.attempts.at(-1)!;
-        const intent = intentSchema.parse(
-          readArtifactJson(
+        while (entry.attemptCount < maxAttempts) {
+          const reserve = reservedUsage(candidate, adapter);
+          if (
+            job.usage.attemptCount >= job.caps.maxRequests ||
+            job.usage.costUsd + reserve.costUsd > job.caps.maxCostUsd + 1e-12 ||
+            (job.caps.maxTokens !== null &&
+              job.usage.tokens + reserve.tokens > job.caps.maxTokens)
+          ) {
+            save();
+            return job;
+          }
+          const attempt = {
+            attempt: entry.attemptCount + 1,
+            startedAt: new Date().toISOString(),
+            outcome: 'in_flight' as const,
+            response: null,
+          };
+          // Intent and budget checkpoint must both be durable before a provider can consume quota.
+          persist(
             artifactDir,
             intentPath(job.jobKey, entry.candidateKey, attempt.attempt),
-          ),
-        );
-        if (
-          intent.jobKey !== job.jobKey ||
-          intent.cacheKey !== cacheKey ||
-          intent.candidateKey !== candidate.candidateKey ||
-          intent.inputHash !== candidate.inputHash
-        )
-          throw new Error('Attempt intent mismatch');
-        const file = responsePath(
-          job.jobKey,
-          entry.candidateKey,
-          attempt.attempt,
-        );
-        if (existsSync(resolveArtifactPath(artifactDir, file))) {
-          const record = parseGlossResponseArtifact(
-            readArtifactJson(artifactDir, file),
+            {
+              jobKey: job.jobKey,
+              candidateKey: candidate.candidateKey,
+              inputHash: candidate.inputHash,
+              cacheKey,
+              reserved: reserve,
+            },
           );
-          matchResponse(record, candidate, job);
-          if (record.attempt !== attempt.attempt)
-            throw new Error('Response attempt mismatch');
-          finalize(
-            entry,
-            record,
-            intent.reserved,
-            persist(artifactDir, file, record),
-          );
+          entry.attempts.push(attempt);
+          entry.attemptCount++;
+          job.usage.attemptCount++;
+          job.usage.tokens += reserve.tokens;
+          job.usage.costUsd += reserve.costUsd;
+          entry.state = 'running';
+          entry.error = null;
+          entry.validation = 'pending';
           save();
-          if (
-            record.output?.gloss_vi &&
-            !record.validationError &&
-            !existsSync(resolveArtifactPath(artifactDir, cachePath))
-          )
-            persist(artifactDir, cachePath, record);
-          continue;
-        } else {
-          attempt.outcome = 'unknown';
-          entry.state = 'failed';
-          entry.error =
-            'Unknown previous attempt; explicit retryUnknown required';
-          save();
-        }
-      }
-      if (
-        entry.attempts.some((a) => a.outcome === 'unknown') &&
-        !options.retryUnknown
-      )
-        throw new Error(
-          'Unknown attempt may have consumed quota; resume requires explicit --retry-unknown',
-        );
-      if (entry.state === 'failed' && entry.validation === 'failed') continue;
-      if (
-        entry.attemptCount === 0 &&
-        existsSync(resolveArtifactPath(artifactDir, cachePath))
-      ) {
-        const cache = parseGlossResponseArtifact(
-          readArtifactJson(artifactDir, cachePath),
-        );
-        matchResponse(cache, candidate, job, false);
-        if (!cache.output?.gloss_vi || cache.validationError)
-          throw new Error('Cache does not contain validated output');
-        entry.output = cache.output;
-        entry.state = 'validated';
-        entry.validation = 'passed';
-        entry.error = null;
-        save();
-        continue;
-      }
-      while (entry.attemptCount < maxAttempts) {
-        const reserve = reservedUsage(candidate, adapter);
-        if (
-          job.usage.attemptCount >= job.caps.maxRequests ||
-          job.usage.costUsd + reserve.costUsd > job.caps.maxCostUsd + 1e-12 ||
-          (job.caps.maxTokens !== null &&
-            job.usage.tokens + reserve.tokens > job.caps.maxTokens)
-        ) {
-          save();
-          return job;
-        }
-        const attempt = {
-          attempt: entry.attemptCount + 1,
-          startedAt: new Date().toISOString(),
-          outcome: 'in_flight' as const,
-          response: null,
-        };
-        // Intent and budget checkpoint must both be durable before a provider can consume quota.
-        persist(
-          artifactDir,
-          intentPath(job.jobKey, entry.candidateKey, attempt.attempt),
-          {
+          let result: ProviderResult;
+          try {
+            result = await adapter.call(candidate, job.provider, job.sessionId);
+          } catch (error) {
+            const failure =
+              error instanceof GlossProviderError
+                ? error
+                : new GlossProviderError(
+                    'Provider adapter failed',
+                    false,
+                    'unknown',
+                  );
+            entry.attempts.at(-1)!.outcome = failure.outcome;
+            entry.state = 'failed';
+            entry.error = failure.message;
+            save();
+            if (failure.outcome === 'unknown' && !options.retryUnknown)
+              throw failure;
+            if (!failure.retryable || entry.attemptCount >= maxAttempts)
+              throw failure;
+            const wait = Math.max(
+              failure.retryAfterMs,
+              Math.min(
+                30_000,
+                500 * 2 ** (entry.attemptCount - 1) +
+                  Math.floor(Math.random() * 250),
+              ),
+            );
+            // Long Retry-After yields a checkpoint for a later resume instead of blocking the operator.
+            if (wait > 30_000)
+              throw new Error('Retry-After exceeds 30s; resume later');
+            await sleep(wait);
+            continue;
+          }
+          let output: GlossResponseArtifact['output'] = null;
+          let validationError = result.validationError;
+          try {
+            if (validationError === null)
+              output = parseGlossOutput(result.output, candidate.target!);
+          } catch {
+            validationError = 'Output JSON/schema/target validation failed';
+          }
+          const inputTokens = result.usage?.inputTokens ?? reserve.inputTokens;
+          const outputTokens =
+            result.usage?.outputTokens ?? reserve.outputTokens;
+          const record = parseGlossResponseArtifact({
+            schemaVersion: 1,
             jobKey: job.jobKey,
             candidateKey: candidate.candidateKey,
             inputHash: candidate.inputHash,
             cacheKey,
-            reserved: reserve,
-          },
-        );
-        entry.attempts.push(attempt);
-        entry.attemptCount++;
-        job.usage.attemptCount++;
-        job.usage.tokens += reserve.tokens;
-        job.usage.costUsd += reserve.costUsd;
-        entry.state = 'running';
-        entry.error = null;
-        entry.validation = 'pending';
-        save();
-        let result: ProviderResult;
-        try {
-          result = await adapter.call(candidate, job.provider, job.sessionId);
-        } catch (error) {
-          const failure =
-            error instanceof GlossProviderError
-              ? error
-              : new GlossProviderError(
-                  'Provider adapter failed',
-                  false,
-                  'unknown',
-                );
-          entry.attempts.at(-1)!.outcome = failure.outcome;
-          entry.state = 'failed';
-          entry.error = failure.message;
-          save();
-          if (failure.outcome === 'unknown' && !options.retryUnknown)
-            throw failure;
-          if (!failure.retryable || entry.attemptCount >= maxAttempts)
-            throw failure;
-          const wait = Math.max(
-            failure.retryAfterMs,
-            Math.min(
-              30_000,
-              500 * 2 ** (entry.attemptCount - 1) +
-                Math.floor(Math.random() * 250),
-            ),
+            attempt: attempt.attempt,
+            output,
+            validationError,
+            usage: {
+              inputTokens,
+              outputTokens,
+              tokens: inputTokens + outputTokens,
+              costUsd:
+                (inputTokens * adapter.inputRatePerMillion +
+                  outputTokens * adapter.outputRatePerMillion) /
+                1_000_000,
+              estimated: result.usage === null,
+            },
+            raw: result.raw,
+          });
+          const response = persist(
+            artifactDir,
+            responsePath(job.jobKey, entry.candidateKey, attempt.attempt),
+            record,
           );
-          // Long Retry-After yields a checkpoint for a later resume instead of blocking the operator.
-          if (wait > 30_000)
-            throw new Error('Retry-After exceeds 30s; resume later');
-          await sleep(wait);
-          continue;
+          finalize(entry, record, reserve, response);
+          save();
+          if (record.output?.gloss_vi && !record.validationError) {
+            if (existsSync(resolveArtifactPath(artifactDir, cachePath)))
+              throw new Error('Cache unexpectedly exists; refusing overwrite');
+            persist(artifactDir, cachePath, record);
+          }
+          if (
+            job.usage.costUsd > job.caps.maxCostUsd ||
+            (job.caps.maxTokens !== null &&
+              job.usage.tokens > job.caps.maxTokens)
+          )
+            return job;
+          break;
         }
-        let output: GlossResponseArtifact['output'] = null;
-        let validationError = result.validationError;
-        try {
-          if (validationError === null)
-            output = parseGlossOutput(result.output, candidate.target!);
-        } catch {
-          validationError = 'Output JSON/schema/target validation failed';
-        }
-        const inputTokens = result.usage?.inputTokens ?? reserve.inputTokens;
-        const outputTokens = result.usage?.outputTokens ?? reserve.outputTokens;
-        const record = parseGlossResponseArtifact({
-          schemaVersion: 1,
-          jobKey: job.jobKey,
-          candidateKey: candidate.candidateKey,
-          inputHash: candidate.inputHash,
-          cacheKey,
-          attempt: attempt.attempt,
-          output,
-          validationError,
-          usage: {
-            inputTokens,
-            outputTokens,
-            tokens: inputTokens + outputTokens,
-            costUsd:
-              (inputTokens * adapter.inputRatePerMillion +
-                outputTokens * adapter.outputRatePerMillion) /
-              1_000_000,
-            estimated: result.usage === null,
-          },
-          raw: result.raw,
-        });
-        const response = persist(
-          artifactDir,
-          responsePath(job.jobKey, entry.candidateKey, attempt.attempt),
-          record,
-        );
-        finalize(entry, record, reserve, response);
-        save();
-        if (record.output?.gloss_vi && !record.validationError) {
-          if (existsSync(resolveArtifactPath(artifactDir, cachePath)))
-            throw new Error('Cache unexpectedly exists; refusing overwrite');
-          persist(artifactDir, cachePath, record);
-        }
-        if (
-          job.usage.costUsd > job.caps.maxCostUsd ||
-          (job.caps.maxTokens !== null && job.usage.tokens > job.caps.maxTokens)
-        )
-          return job;
-        break;
       }
-    }
-    return job;
-    function finalize(
-      entry: GlossJob['entries'][number],
-      record: GlossResponseArtifact,
-      reserve: { tokens: number; costUsd: number },
-      response: { path: string; sha256: string },
-    ): void {
-      const a = entry.attempts.at(-1)!;
-      a.outcome = 'response';
-      a.response = response;
-      job.usage.tokens = Math.max(
-        0,
-        job.usage.tokens - reserve.tokens + record.usage.tokens,
-      );
-      job.usage.costUsd = Math.max(
-        0,
-        job.usage.costUsd - reserve.costUsd + record.usage.costUsd,
-      );
-      entry.output = record.output;
-      entry.state =
-        record.output?.gloss_vi && !record.validationError
-          ? 'validated'
-          : 'rejected';
-      entry.validation = entry.state === 'validated' ? 'passed' : 'failed';
-      entry.error = record.validationError ?? record.output?.reason ?? null;
-    }
-  });
+      return job;
+      function finalize(
+        entry: GlossJob['entries'][number],
+        record: GlossResponseArtifact,
+        reserve: { tokens: number; costUsd: number },
+        response: { path: string; sha256: string },
+      ): void {
+        const a = entry.attempts.at(-1)!;
+        a.outcome = 'response';
+        a.response = response;
+        job.usage.tokens = Math.max(
+          0,
+          job.usage.tokens - reserve.tokens + record.usage.tokens,
+        );
+        job.usage.costUsd = Math.max(
+          0,
+          job.usage.costUsd - reserve.costUsd + record.usage.costUsd,
+        );
+        entry.output = record.output;
+        entry.state =
+          record.output?.gloss_vi && !record.validationError
+            ? 'validated'
+            : 'rejected';
+        entry.validation = entry.state === 'validated' ? 'passed' : 'failed';
+        entry.error = record.validationError ?? record.output?.reason ?? null;
+      }
+    },
+  );
 }
 
 export async function main(args = process.argv.slice(2)): Promise<void> {

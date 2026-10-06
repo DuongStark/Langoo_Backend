@@ -39,11 +39,6 @@ export interface FormRow {
  * Nội dung chi tiết của một sense/lexeme (gloss, ví dụ, phát âm, form).
  * Chỉ đọc `core.*` — không ghi.
  */
-export interface LexemeGlossRow {
-  sense_id: bigint;
-  text: string;
-}
-
 /**
  * Toàn bộ gloss EN của các sense thuộc một lexeme (để chọn định nghĩa hiển thị
  * khác nhau cho sense con của wiktextract — tránh lặp định nghĩa cha).
@@ -51,19 +46,6 @@ export interface LexemeGlossRow {
 @Injectable()
 export class SenseContentRepository {
   constructor(private readonly prisma: PrismaService) {}
-
-  async getGlossesByLexeme(
-    lexemeId: bigint,
-    languageId: number,
-  ): Promise<LexemeGlossRow[]> {
-    return this.prisma.$queryRaw<LexemeGlossRow[]>`
-      SELECT g.sense_id, g.text
-      FROM core.sense s
-      JOIN core.sense_gloss g ON g.sense_id = s.id
-      WHERE s.lexeme_id = ${lexemeId} AND g.language_id = ${languageId}
-      ORDER BY g.sense_id ASC, g.rank ASC, g.id ASC
-    `;
-  }
 
   async getGlosses(senseId: bigint): Promise<GlossRow[]> {
     return this.prisma.$queryRaw<GlossRow[]>`

@@ -67,6 +67,7 @@ describe('SenseCardRepository', () => {
       glossViMachine: false,
       glossViReviewed: false,
       glossEn: 'to run',
+      glossEnContext: [],
       conceptId: 1n,
     });
   });

@@ -134,44 +134,57 @@ describe('Dictionary (e2e — langoo_test)', () => {
       ).toBe(true);
     });
 
-    it('search dùng cursor không lặp và không bỏ dòng', async () => {
-      const first = await request(server)
+    it('search dùng cursor không lặp ID và không bỏ lexeme', async () => {
+      const all = await request(server)
+        .get('/v1/dictionary/search')
+        .query({ q: 'る', lang: 'ja', limit: 100 })
+        .expect(200);
+      const expected = (all.body as { data: SearchHitBody[] }).data.map(
+        (h) => h.lexeme_id,
+      );
+      expect(expected.length).toBeGreaterThan(1);
+      const ids: string[] = [];
+      let cursor: string | null = null;
+      let firstCursor: string | null = null;
+      for (let page = 0; page < 20; page++) {
+        const result = await request(server)
+          .get('/v1/dictionary/search')
+          .query({
+            q: 'る',
+            lang: 'ja',
+            limit: 1,
+            ...(cursor ? { cursor } : {}),
+          })
+          .expect(200);
+        const body = result.body as {
+          data: SearchHitBody[];
+          next_cursor: string | null;
+        };
+        ids.push(...body.data.map((h) => h.lexeme_id));
+        cursor = body.next_cursor;
+        if (page === 0) firstCursor = cursor;
+        if (cursor === null) break;
+      }
+      expect(cursor).toBeNull();
+      expect(ids).toEqual(expected);
+      expect(new Set(ids).size).toBe(ids.length);
+      expect(firstCursor).toEqual(expect.any(String));
+      const invalid = await request(server)
+        .get('/v1/dictionary/search')
+        .query({ q: 'run', cursor: firstCursor! })
+        .expect(400);
+      expect(invalid.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+
+    it('một lexeme lemma/kanji trả đúng một hit và không tạo trang giả', async () => {
+      const result = await request(server)
         .get('/v1/dictionary/search')
         .query({ q: '走', lang: 'ja', limit: 1 })
         .expect(200);
-      const firstBody = first.body as {
-        data: SearchHitBody[];
-        next_cursor: string | null;
-      };
-      expect(firstBody.data).toHaveLength(1);
-      expect(firstBody.next_cursor).toEqual(expect.any(String));
-
-      const second = await request(server)
-        .get('/v1/dictionary/search')
-        .query({
-          q: '走',
-          lang: 'ja',
-          limit: 1,
-          cursor: firstBody.next_cursor!,
-        })
-        .expect(200);
-      const secondBody = second.body as {
-        data: SearchHitBody[];
-        next_cursor: string | null;
-      };
-      expect(secondBody.data).toHaveLength(1);
       expect(
-        `${secondBody.data[0].lexeme_id}:${secondBody.data[0].surface_kind}:${secondBody.data[0].surface}`,
-      ).not.toBe(
-        `${firstBody.data[0].lexeme_id}:${firstBody.data[0].surface_kind}:${firstBody.data[0].surface}`,
-      );
-      expect(secondBody.next_cursor).toBeNull();
-
-      const invalid = await request(server)
-        .get('/v1/dictionary/search')
-        .query({ q: 'run', cursor: firstBody.next_cursor! })
-        .expect(400);
-      expect(invalid.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+        (result.body as { data: SearchHitBody[]; next_cursor: string | null })
+          .next_cursor,
+      ).toBeNull();
     });
 
     it('search không token → không ghi lịch sử', async () => {

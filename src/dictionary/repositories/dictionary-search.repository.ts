@@ -29,7 +29,8 @@ export interface SearchRow {
  * trên MỘT cột nên planner dùng được index: GIN trigram (pattern ≥3 ký tự) và GIN bigram
  * `core.bigrams` (pattern 1–2 ký tự); biểu thức OR trộn nhiều cột/bảng như trước không
  * thể dùng index. `ILIKE` luôn giữ làm điều kiện kiểm chứng vì bigram chỉ là điều kiện
- * CẦN (mất thứ tự/khoảng cách). Tập kết quả giữ nguyên như OR cũ (`UNION` khử trùng lặp).
+ * CẦN (mất thứ tự/khoảng cách). Sau matching, giữ một face tốt nhất mỗi lexeme
+ * trước cursor/LIMIT; không loại nguồn hoặc homograph theo surface giống nhau.
  */
 export interface SearchParams {
   queries: string[];
@@ -86,13 +87,9 @@ export class DictionarySearchRepository {
       ),
       ' OR ',
     );
-    const surfaceExactCondition = Prisma.join(
-      queries.map(
-        (_query, index) =>
-          Prisma.sql`(lower(h.surface) = lower(${queries[index]}))`,
-      ),
-      ' OR ',
-    );
+    // Prefer the spelling actually typed; derived kana remains a reading match.
+    // Romaji search should still display the canonical kanji face when available.
+    const surfaceExactCondition = Prisma.sql`lower(h.surface) = lower(${queries[0]})`;
     const prefixCondition = Prisma.join(
       patterns.map(
         (pattern) => Prisma.sql`(
@@ -103,21 +100,6 @@ export class DictionarySearchRepository {
       ),
       ' OR ',
     );
-
-    /* Query chữ thường → chỉ gợi ý bản chữ thường (ẩn tên riêng VIẾT HOA/Title khi
-       không khớp chính xác); query có chữ hoa thì giữ cả Title-case. */
-    const queryHasUpper = queries.some(
-      (query) => query !== query.toLowerCase(),
-    );
-    const enPrefixNoise = queryHasUpper
-      ? Prisma.sql`(
-          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
-          AND (surface !~ '[A-Z]' OR surface ~ '^[A-Z][^A-Z]*$')
-        )`
-      : Prisma.sql`(
-          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
-          AND surface = lower(surface)
-        )`;
 
     const cursorCondition = cursor
       ? Prisma.sql`
@@ -199,51 +181,23 @@ export class DictionarySearchRepository {
           h.frequency_rank,
           h.homograph_no,
           h.surface_kind,
-          cl.source_id,
           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
           CASE WHEN ${surfaceExactCondition} THEN 0 ELSE 1 END AS surface_exact_rank,
+          CASE WHEN h.surface = cl.lemma THEN 0 ELSE 1 END AS canonical_face_rank,
           CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
           coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
-          length(h.surface) AS surface_length,
-          CASE
-            WHEN h.language_id = 2 AND cl.source_id = 1 THEN 0
-            WHEN h.language_id = 1 AND cl.source_id = 8 THEN 0
-            WHEN cl.source_id IN (1, 8) THEN 1
-            WHEN cl.source_id = 5 THEN 2
-            ELSE 3
-          END AS source_priority,
-          CASE WHEN h.surface_kind = 'lemma' THEN 1 ELSE 0 END AS kind_rank
+          length(h.surface) AS surface_length
         FROM hits h
         JOIN core.lexeme cl ON cl.id = h.lexeme_id
       ),
-      /* Một lexeme có thể khớp nhiều dòng (lemma + form) — giữ dòng tốt nhất,
-         ưu tiên form kanji/kana để nhãn hiển thị đúng "mặt chữ". */
       per_lexeme AS (
-        SELECT
-          ranked.*,
+        SELECT ranked.*,
           row_number() OVER (
             PARTITION BY lexeme_id
-            ORDER BY exact_rank, prefix_rank, surface_exact_rank, kind_rank, surface_length, surface_kind, surface
-          ) AS lexeme_rn
+            ORDER BY exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface
+          ) AS face_no
         FROM ranked
-      ),
-      kept AS (SELECT * FROM per_lexeme WHERE lexeme_rn = 1),
-      /* Gộp trùng nguồn: ẩn bản nguồn phụ khi cùng mặt chữ đã có nguồn ưu tiên
-         (jmdict/wiktextract), ẩn bản không reading khi có bản cùng surface+POS có
-         reading ưu tiên hơn, và giữ 1 dòng cho mỗi (ngôn ngữ, mặt chữ, POS, reading). */
-      enriched AS (
-        SELECT
-          kept.*,
-          min(source_priority) OVER (PARTITION BY language_id, lower(surface)) AS surface_priority,
-          min(CASE WHEN reading IS NOT NULL THEN source_priority END) OVER (
-            PARTITION BY language_id, lower(surface), pos
-          ) AS reading_priority,
-          row_number() OVER (
-            PARTITION BY language_id, lower(surface), pos, coalesce(reading, '')
-            ORDER BY source_priority, frequency_null_rank, frequency_sort, lexeme_id
-          ) AS entry_rn
-        FROM kept
       )
       SELECT
         lexeme_id,
@@ -261,17 +215,8 @@ export class DictionarySearchRepository {
         frequency_null_rank,
         frequency_sort,
         surface_length
-      FROM enriched
-      WHERE source_priority = surface_priority
-        AND (
-          reading IS NOT NULL
-          OR reading_priority IS NULL
-          OR source_priority <= reading_priority
-        )
-        AND entry_rn = 1
-        /* EN: bỏ kết quả prefix nhiễu (viết tắt in hoa, có số/khoảng trắng,
-           hậu tố "-") — vẫn hiện nếu khớp chính xác. JA/VI không áp dụng. */
-        AND (language_id <> 1 OR exact_rank = 0 OR ${enPrefixNoise})
+      FROM per_lexeme
+      WHERE face_no = 1
         ${cursorCondition}
       ORDER BY
         exact_rank ASC,

@@ -1,0 +1,206 @@
+diff --git a/src/dictionary/dictionary.service.ts b/src/dictionary/dictionary.service.ts
+index 863bfab..3af9134 100644
+--- a/src/dictionary/dictionary.service.ts
++++ b/src/dictionary/dictionary.service.ts
+@@ -142,11 +142,46 @@ export class DictionaryService {
+       );
+     }
+ 
+-    const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
+-    return {
+-      data: cards.map(toSenseCardResponse),
+-      next_cursor: null,
+-    };
++    const [cards, enId] = await Promise.all([
++      this.senseCardRepo.getByLexemeId(lexemeId),
++      this.languages.findIdByCode('en'),
++    ]);
++    const glossRows =
++      enId === null
++        ? []
++        : await this.contentRepo.getGlossesByLexeme(lexemeId, enId);
++    const textsBySense = new Map<string, string[]>();
++    for (const row of glossRows) {
++      const key = row.sense_id.toString();
++      const list = textsBySense.get(key);
++      if (list) list.push(row.text);
++      else textsBySense.set(key, [row.text]);
++    }
++
++    /* Wiktextract lặp gloss cha ở đầu mỗi sense con → nếu định nghĩa đã xuất hiện
++       ở sense trước trong cùng lexeme, chọn gloss kế tiếp chưa dùng để hiển thị. */
++    const usedDefinitions = new Set<string>();
++    const data = cards.map((card) => {
++      const original = card.definition;
++      if (original === null || original === '')
++        return toSenseCardResponse(card);
++      let display = original;
++      if (usedDefinitions.has(display)) {
++        const alternative = (
++          textsBySense.get(card.senseId.toString()) ?? []
++        ).find((text) => text !== original && !usedDefinitions.has(text));
++        if (alternative) display = alternative;
++      }
++      usedDefinitions.add(display);
++      return display === original
++        ? toSenseCardResponse(card)
++        : toSenseCardResponse({
++            ...card,
++            definition: display,
++            definitionLanguageId: enId,
++          });
++    });
++    return { data, next_cursor: null };
+   }
+ 
+   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {
+diff --git a/src/dictionary/repositories/dictionary-search.repository.ts b/src/dictionary/repositories/dictionary-search.repository.ts
+index c1af24f..8649213 100644
+--- a/src/dictionary/repositories/dictionary-search.repository.ts
++++ b/src/dictionary/repositories/dictionary-search.repository.ts
+@@ -86,6 +86,13 @@ export class DictionarySearchRepository {
+       ),
+       ' OR ',
+     );
++    const surfaceExactCondition = Prisma.join(
++      queries.map(
++        (_query, index) =>
++          Prisma.sql`(lower(h.surface) = lower(${queries[index]}))`,
++      ),
++      ' OR ',
++    );
+     const prefixCondition = Prisma.join(
+       patterns.map(
+         (pattern) => Prisma.sql`(
+@@ -97,6 +104,21 @@ export class DictionarySearchRepository {
+       ' OR ',
+     );
+ 
++    /* Query chữ thường → chỉ gợi ý bản chữ thường (ẩn tên riêng VIẾT HOA/Title khi
++       không khớp chính xác); query có chữ hoa thì giữ cả Title-case. */
++    const queryHasUpper = queries.some(
++      (query) => query !== query.toLowerCase(),
++    );
++    const enPrefixNoise = queryHasUpper
++      ? Prisma.sql`(
++          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
++          AND (surface !~ '[A-Z]' OR surface ~ '^[A-Z][^A-Z]*$')
++        )`
++      : Prisma.sql`(
++          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
++          AND surface = lower(surface)
++        )`;
++
+     const cursorCondition = cursor
+       ? Prisma.sql`
+           AND (
+@@ -177,13 +199,51 @@ export class DictionarySearchRepository {
+           h.frequency_rank,
+           h.homograph_no,
+           h.surface_kind,
++          cl.source_id,
+           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
+           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
++          CASE WHEN ${surfaceExactCondition} THEN 0 ELSE 1 END AS surface_exact_rank,
+           CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
+           coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
+-          length(h.surface) AS surface_length
++          length(h.surface) AS surface_length,
++          CASE
++            WHEN h.language_id = 2 AND cl.source_id = 1 THEN 0
++            WHEN h.language_id = 1 AND cl.source_id = 8 THEN 0
++            WHEN cl.source_id IN (1, 8) THEN 1
++            WHEN cl.source_id = 5 THEN 2
++            ELSE 3
++          END AS source_priority,
++          CASE WHEN h.surface_kind = 'lemma' THEN 1 ELSE 0 END AS kind_rank
+         FROM hits h
+         JOIN core.lexeme cl ON cl.id = h.lexeme_id
++      ),
++      /* Một lexeme có thể khớp nhiều dòng (lemma + form) — giữ dòng tốt nhất,
++         ưu tiên form kanji/kana để nhãn hiển thị đúng "mặt chữ". */
++      per_lexeme AS (
++        SELECT
++          ranked.*,
++          row_number() OVER (
++            PARTITION BY lexeme_id
++            ORDER BY exact_rank, prefix_rank, surface_exact_rank, kind_rank, surface_length, surface_kind, surface
++          ) AS lexeme_rn
++        FROM ranked
++      ),
++      kept AS (SELECT * FROM per_lexeme WHERE lexeme_rn = 1),
++      /* Gộp trùng nguồn: ẩn bản nguồn phụ khi cùng mặt chữ đã có nguồn ưu tiên
++         (jmdict/wiktextract), ẩn bản không reading khi có bản cùng surface+POS có
++         reading ưu tiên hơn, và giữ 1 dòng cho mỗi (ngôn ngữ, mặt chữ, POS, reading). */
++      enriched AS (
++        SELECT
++          kept.*,
++          min(source_priority) OVER (PARTITION BY language_id, lower(surface)) AS surface_priority,
++          min(CASE WHEN reading IS NOT NULL THEN source_priority END) OVER (
++            PARTITION BY language_id, lower(surface), pos
++          ) AS reading_priority,
++          row_number() OVER (
++            PARTITION BY language_id, lower(surface), pos, coalesce(reading, '')
++            ORDER BY source_priority, frequency_null_rank, frequency_sort, lexeme_id
++          ) AS entry_rn
++        FROM kept
+       )
+       SELECT
+         lexeme_id,
+@@ -201,8 +261,17 @@ export class DictionarySearchRepository {
+         frequency_null_rank,
+         frequency_sort,
+         surface_length
+-      FROM ranked
+-      WHERE TRUE
++      FROM enriched
++      WHERE source_priority = surface_priority
++        AND (
++          reading IS NOT NULL
++          OR reading_priority IS NULL
++          OR source_priority <= reading_priority
++        )
++        AND entry_rn = 1
++        /* EN: bỏ kết quả prefix nhiễu (viết tắt in hoa, có số/khoảng trắng,
++           hậu tố "-") — vẫn hiện nếu khớp chính xác. JA/VI không áp dụng. */
++        AND (language_id <> 1 OR exact_rank = 0 OR ${enPrefixNoise})
+         ${cursorCondition}
+       ORDER BY
+         exact_rank ASC,
+diff --git a/src/dictionary/repositories/sense-content.repository.ts b/src/dictionary/repositories/sense-content.repository.ts
+index ab3ed48..02717f8 100644
+--- a/src/dictionary/repositories/sense-content.repository.ts
++++ b/src/dictionary/repositories/sense-content.repository.ts
+@@ -39,10 +39,32 @@ export interface FormRow {
+  * Nội dung chi tiết của một sense/lexeme (gloss, ví dụ, phát âm, form).
+  * Chỉ đọc `core.*` — không ghi.
+  */
++export interface LexemeGlossRow {
++  sense_id: bigint;
++  text: string;
++}
++
++/**
++ * Toàn bộ gloss EN của các sense thuộc một lexeme (để chọn định nghĩa hiển thị
++ * khác nhau cho sense con của wiktextract — tránh lặp định nghĩa cha).
++ */
+ @Injectable()
+ export class SenseContentRepository {
+   constructor(private readonly prisma: PrismaService) {}
+ 
++  async getGlossesByLexeme(
++    lexemeId: bigint,
++    languageId: number,
++  ): Promise<LexemeGlossRow[]> {
++    return this.prisma.$queryRaw<LexemeGlossRow[]>`
++      SELECT g.sense_id, g.text
++      FROM core.sense s
++      JOIN core.sense_gloss g ON g.sense_id = s.id
++      WHERE s.lexeme_id = ${lexemeId} AND g.language_id = ${languageId}
++      ORDER BY g.sense_id ASC, g.rank ASC, g.id ASC
++    `;
++  }
++
+   async getGlosses(senseId: bigint): Promise<GlossRow[]> {
+     return this.prisma.$queryRaw<GlossRow[]>`
+       SELECT

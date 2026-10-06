@@ -1,0 +1,346 @@
+diff --git a/src/dictionary/dictionary.controller.ts b/src/dictionary/dictionary.controller.ts
+index 8e8c0f3..50be67a 100644
+--- a/src/dictionary/dictionary.controller.ts
++++ b/src/dictionary/dictionary.controller.ts
+@@ -1,4 +1,13 @@
+-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
++import {
++  Controller,
++  Get,
++  Param,
++  Query,
++  Req,
++  Res,
++  StreamableFile,
++  UseGuards,
++} from '@nestjs/common';
+ import {
+   ApiBadRequestResponse,
+   ApiNotFoundResponse,
+@@ -6,6 +15,7 @@ import {
+   ApiOperation,
+   ApiTags,
+ } from '@nestjs/swagger';
++import type { Response } from 'express';
+ import type { AuthenticatedRequest } from '../auth/guards/jwt-auth.guard';
+ import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
+ import { ErrorResponseDto } from '../common/swagger/error-response.dto';
+@@ -124,4 +134,28 @@ export class KanjiController {
+   get(@Param('literal') literal: string): Promise<KanjiCardResponse> {
+     return this.dictionaryService.getKanji(literal);
+   }
++
++  @Get(':literal/stroke.svg')
++  @ApiOperation({
++    summary: 'Ảnh SVG thứ tự nét (KanjiVG) — cache công khai 1 ngày',
++  })
++  @ApiOkResponse({ description: 'image/svg+xml' })
++  @ApiNotFoundResponse({
++    type: ErrorResponseDto,
++    description: 'KANJI_STROKE_NOT_FOUND',
++  })
++  async stroke(
++    @Param('literal') literal: string,
++    @Res({ passthrough: true }) res: Response,
++  ): Promise<StreamableFile> {
++    const { buffer, mime, sha256 } =
++      await this.dictionaryService.getKanjiStroke(literal);
++    res.set({
++      'Content-Type': mime,
++      'Content-Length': String(buffer.length),
++      'Cache-Control': 'public, max-age=86400, immutable',
++      ETag: `"${sha256}"`,
++    });
++    return new StreamableFile(buffer);
++  }
+ }
+diff --git a/src/dictionary/dictionary.service.ts b/src/dictionary/dictionary.service.ts
+index 863bfab..c064f5a 100644
+--- a/src/dictionary/dictionary.service.ts
++++ b/src/dictionary/dictionary.service.ts
+@@ -1,7 +1,8 @@
+-import { HttpStatus, Injectable } from '@nestjs/common';
++import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+ import { toHiragana } from 'wanakana';
+ import { DomainException } from '../common/errors/domain.exception';
+ import { LanguageRepository } from '../db/repositories/language.repository';
++import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
+ import { SearchQueryDto } from './dto/search-query.dto';
+ import {
+   decodeDictionarySearchCursor,
+@@ -51,6 +52,7 @@ export class DictionaryService {
+     private readonly kanjiRepo: KanjiRepository,
+     private readonly historyRepo: SearchHistoryRepository,
+     private readonly languages: LanguageRepository,
++    @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
+   ) {}
+ 
+   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
+@@ -142,11 +144,46 @@ export class DictionaryService {
+       );
+     }
+ 
+-    const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
+-    return {
+-      data: cards.map(toSenseCardResponse),
+-      next_cursor: null,
+-    };
++    const [cards, enId] = await Promise.all([
++      this.senseCardRepo.getByLexemeId(lexemeId),
++      this.languages.findIdByCode('en'),
++    ]);
++    const glossRows =
++      enId === null
++        ? []
++        : await this.contentRepo.getGlossesByLexeme(lexemeId, enId);
++    const textsBySense = new Map<string, string[]>();
++    for (const row of glossRows) {
++      const key = row.sense_id.toString();
++      const list = textsBySense.get(key);
++      if (list) list.push(row.text);
++      else textsBySense.set(key, [row.text]);
++    }
++
++    /* Wiktextract lặp gloss cha ở đầu mỗi sense con → nếu định nghĩa đã xuất hiện
++       ở sense trước trong cùng lexeme, chọn gloss kế tiếp chưa dùng để hiển thị. */
++    const usedDefinitions = new Set<string>();
++    const data = cards.map((card) => {
++      const original = card.definition;
++      if (original === null || original === '')
++        return toSenseCardResponse(card);
++      let display = original;
++      if (usedDefinitions.has(display)) {
++        const alternative = (
++          textsBySense.get(card.senseId.toString()) ?? []
++        ).find((text) => text !== original && !usedDefinitions.has(text));
++        if (alternative) display = alternative;
++      }
++      usedDefinitions.add(display);
++      return display === original
++        ? toSenseCardResponse(card)
++        : toSenseCardResponse({
++            ...card,
++            definition: display,
++            definitionLanguageId: enId,
++          });
++    });
++    return { data, next_cursor: null };
+   }
+ 
+   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {
+@@ -191,6 +228,29 @@ export class DictionaryService {
+     }
+     return toKanjiResponse(row);
+   }
++
++  /** Ảnh SVG thứ tự nét (KanjiVG) — đọc file từ storage, metadata từ core. */
++  async getKanjiStroke(
++    literal: string,
++  ): Promise<{ buffer: Buffer; mime: string; sha256: string }> {
++    const asset = await this.kanjiRepo.getStrokeAsset(literal);
++    if (!asset) {
++      throw new DomainException(
++        'KANJI_STROKE_NOT_FOUND',
++        'Chưa có ảnh nét cho chữ Hán này',
++        HttpStatus.NOT_FOUND,
++      );
++    }
++    const buffer = await this.storage.get(asset.objectKey);
++    if (!buffer) {
++      throw new DomainException(
++        'KANJI_STROKE_NOT_FOUND',
++        'Chưa có ảnh nét cho chữ Hán này',
++        HttpStatus.NOT_FOUND,
++      );
++    }
++    return { buffer, mime: asset.mime, sha256: asset.sha256 };
++  }
+ }
+ 
+ /** Escape ký tự đặc biệt của LIKE để client không "vô tình" tìm wildcard. */
+diff --git a/src/dictionary/repositories/dictionary-search.repository.ts b/src/dictionary/repositories/dictionary-search.repository.ts
+index c1af24f..8649213 100644
+--- a/src/dictionary/repositories/dictionary-search.repository.ts
++++ b/src/dictionary/repositories/dictionary-search.repository.ts
+@@ -86,6 +86,13 @@ export class DictionarySearchRepository {
+       ),
+       ' OR ',
+     );
++    const surfaceExactCondition = Prisma.join(
++      queries.map(
++        (_query, index) =>
++          Prisma.sql`(lower(h.surface) = lower(${queries[index]}))`,
++      ),
++      ' OR ',
++    );
+     const prefixCondition = Prisma.join(
+       patterns.map(
+         (pattern) => Prisma.sql`(
+@@ -97,6 +104,21 @@ export class DictionarySearchRepository {
+       ' OR ',
+     );
+ 
++    /* Query chữ thường → chỉ gợi ý bản chữ thường (ẩn tên riêng VIẾT HOA/Title khi
++       không khớp chính xác); query có chữ hoa thì giữ cả Title-case. */
++    const queryHasUpper = queries.some(
++      (query) => query !== query.toLowerCase(),
++    );
++    const enPrefixNoise = queryHasUpper
++      ? Prisma.sql`(
++          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
++          AND (surface !~ '[A-Z]' OR surface ~ '^[A-Z][^A-Z]*$')
++        )`
++      : Prisma.sql`(
++          surface ~ '^[A-Za-z]+([-''][A-Za-z]+)*$'
++          AND surface = lower(surface)
++        )`;
++
+     const cursorCondition = cursor
+       ? Prisma.sql`
+           AND (
+@@ -177,13 +199,51 @@ export class DictionarySearchRepository {
+           h.frequency_rank,
+           h.homograph_no,
+           h.surface_kind,
++          cl.source_id,
+           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
+           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
++          CASE WHEN ${surfaceExactCondition} THEN 0 ELSE 1 END AS surface_exact_rank,
+           CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
+           coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
+-          length(h.surface) AS surface_length
++          length(h.surface) AS surface_length,
++          CASE
++            WHEN h.language_id = 2 AND cl.source_id = 1 THEN 0
++            WHEN h.language_id = 1 AND cl.source_id = 8 THEN 0
++            WHEN cl.source_id IN (1, 8) THEN 1
++            WHEN cl.source_id = 5 THEN 2
++            ELSE 3
++          END AS source_priority,
++          CASE WHEN h.surface_kind = 'lemma' THEN 1 ELSE 0 END AS kind_rank
+         FROM hits h
+         JOIN core.lexeme cl ON cl.id = h.lexeme_id
++      ),
++      /* Một lexeme có thể khớp nhiều dòng (lemma + form) — giữ dòng tốt nhất,
++         ưu tiên form kanji/kana để nhãn hiển thị đúng "mặt chữ". */
++      per_lexeme AS (
++        SELECT
++          ranked.*,
++          row_number() OVER (
++            PARTITION BY lexeme_id
++            ORDER BY exact_rank, prefix_rank, surface_exact_rank, kind_rank, surface_length, surface_kind, surface
++          ) AS lexeme_rn
++        FROM ranked
++      ),
++      kept AS (SELECT * FROM per_lexeme WHERE lexeme_rn = 1),
++      /* Gộp trùng nguồn: ẩn bản nguồn phụ khi cùng mặt chữ đã có nguồn ưu tiên
++         (jmdict/wiktextract), ẩn bản không reading khi có bản cùng surface+POS có
++         reading ưu tiên hơn, và giữ 1 dòng cho mỗi (ngôn ngữ, mặt chữ, POS, reading). */
++      enriched AS (
++        SELECT
++          kept.*,
++          min(source_priority) OVER (PARTITION BY language_id, lower(surface)) AS surface_priority,
++          min(CASE WHEN reading IS NOT NULL THEN source_priority END) OVER (
++            PARTITION BY language_id, lower(surface), pos
++          ) AS reading_priority,
++          row_number() OVER (
++            PARTITION BY language_id, lower(surface), pos, coalesce(reading, '')
++            ORDER BY source_priority, frequency_null_rank, frequency_sort, lexeme_id
++          ) AS entry_rn
++        FROM kept
+       )
+       SELECT
+         lexeme_id,
+@@ -201,8 +261,17 @@ export class DictionarySearchRepository {
+         frequency_null_rank,
+         frequency_sort,
+         surface_length
+-      FROM ranked
+-      WHERE TRUE
++      FROM enriched
++      WHERE source_priority = surface_priority
++        AND (
++          reading IS NOT NULL
++          OR reading_priority IS NULL
++          OR source_priority <= reading_priority
++        )
++        AND entry_rn = 1
++        /* EN: bỏ kết quả prefix nhiễu (viết tắt in hoa, có số/khoảng trắng,
++           hậu tố "-") — vẫn hiện nếu khớp chính xác. JA/VI không áp dụng. */
++        AND (language_id <> 1 OR exact_rank = 0 OR ${enPrefixNoise})
+         ${cursorCondition}
+       ORDER BY
+         exact_rank ASC,
+diff --git a/src/dictionary/repositories/kanji.repository.ts b/src/dictionary/repositories/kanji.repository.ts
+index 816423f..9c80cc6 100644
+--- a/src/dictionary/repositories/kanji.repository.ts
++++ b/src/dictionary/repositories/kanji.repository.ts
+@@ -21,6 +21,13 @@ export interface KanjiRow {
+   media_kinds: string[] | null;
+ }
+ 
++export interface KanjiStrokeRow {
++  objectKey: string;
++  mime: string;
++  sha256: string;
++  bytes: number;
++}
++
+ /** Chi tiết chữ Hán — view `serve.kanji_card` (schema serve KHÔNG map Prisma). */
+ @Injectable()
+ export class KanjiRepository {
+@@ -51,4 +58,17 @@ export class KanjiRepository {
+     `;
+     return rows[0] ?? null;
+   }
++
++  /** Asset SVG thứ tự nét (KanjiVG) cho một chữ Hán — metadata, chưa đọc file. */
++  async getStrokeAsset(literal: string): Promise<KanjiStrokeRow | null> {
++    const rows = await this.prisma.$queryRaw<KanjiStrokeRow[]>`
++      SELECT ma.object_key AS "objectKey", ma.mime, ma.sha256, ma.bytes
++      FROM core.kanji_media km
++      JOIN core.media_asset ma ON ma.id = km.asset_id
++      WHERE km.kanji_literal = ${literal} AND km.kind = 'stroke_svg'
++      ORDER BY ma.id ASC
++      LIMIT 1
++    `;
++    return rows[0] ?? null;
++  }
+ }
+diff --git a/src/dictionary/repositories/sense-content.repository.ts b/src/dictionary/repositories/sense-content.repository.ts
+index ab3ed48..02717f8 100644
+--- a/src/dictionary/repositories/sense-content.repository.ts
++++ b/src/dictionary/repositories/sense-content.repository.ts
+@@ -39,10 +39,32 @@ export interface FormRow {
+  * Nội dung chi tiết của một sense/lexeme (gloss, ví dụ, phát âm, form).
+  * Chỉ đọc `core.*` — không ghi.
+  */
++export interface LexemeGlossRow {
++  sense_id: bigint;
++  text: string;
++}
++
++/**
++ * Toàn bộ gloss EN của các sense thuộc một lexeme (để chọn định nghĩa hiển thị
++ * khác nhau cho sense con của wiktextract — tránh lặp định nghĩa cha).
++ */
+ @Injectable()
+ export class SenseContentRepository {
+   constructor(private readonly prisma: PrismaService) {}
+ 
++  async getGlossesByLexeme(
++    lexemeId: bigint,
++    languageId: number,
++  ): Promise<LexemeGlossRow[]> {
++    return this.prisma.$queryRaw<LexemeGlossRow[]>`
++      SELECT g.sense_id, g.text
++      FROM core.sense s
++      JOIN core.sense_gloss g ON g.sense_id = s.id
++      WHERE s.lexeme_id = ${lexemeId} AND g.language_id = ${languageId}
++      ORDER BY g.sense_id ASC, g.rank ASC, g.id ASC
++    `;
++  }
++
+   async getGlosses(senseId: bigint): Promise<GlossRow[]> {
+     return this.prisma.$queryRaw<GlossRow[]>`
+       SELECT

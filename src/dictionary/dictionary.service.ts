@@ -119,7 +119,7 @@ export class DictionaryService {
       next_cursor:
         hasNext && lastRow
           ? encodeDictionarySearchCursor({
-              version: 1,
+              version: 3,
               query,
               lang: languageCode,
               exactRank: lastRow.exact_rank,
@@ -144,59 +144,37 @@ export class DictionaryService {
       );
     }
 
-    const [cards, enId] = await Promise.all([
-      this.senseCardRepo.getByLexemeId(lexemeId),
-      this.languages.findIdByCode('en'),
-    ]);
-    const glossRows =
-      enId === null
-        ? []
-        : await this.contentRepo.getGlossesByLexeme(lexemeId, enId);
-    const textsBySense = new Map<string, string[]>();
-    for (const row of glossRows) {
-      const key = row.sense_id.toString();
-      const list = textsBySense.get(key);
-      if (list) list.push(row.text);
-      else textsBySense.set(key, [row.text]);
-    }
+    const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
 
-    /* Wiktextract tách sense lồng nhau thành từng dòng, mỗi sense con lặp lại gloss
-       cha ở đầu. Gom các sense liên tiếp có cùng gloss đầu (gloss cha) vào một nhóm:
-       nghĩa cha đứng đầu, các nghĩa con nằm trong `sub_senses` (định nghĩa = gloss
-       riêng đầu tiên khác gloss cha) để FE hiển thị thu gọn. */
-    const textsOf = (card: SenseCard): string[] =>
-      textsBySense.get(card.senseId.toString()) ?? [];
-
+    /* Wiktextract tách sense lồng nhau: sense con lặp lại supergloss ở đầu
+       (`glossEnContext[0]`). Gom các sense liên tiếp cùng supergloss vào một nhóm:
+       nghĩa cha đứng đầu, nghĩa con nằm trong `sub_senses` (định nghĩa = gloss lá
+       khác supergloss) để FE hiển thị thu gọn; sense không có context đứng riêng. */
     interface Group {
       parent: SenseCard;
-      rawFirst: string | null;
+      superGloss: string | null;
       children: SenseCard[];
     }
     const groups: Group[] = [];
     for (const card of cards) {
-      const rawFirst = textsOf(card)[0] ?? null;
+      const superGloss = card.glossEnContext?.[0] ?? null;
       const current = groups[groups.length - 1];
-      if (current && rawFirst !== null && current.rawFirst === rawFirst) {
+      if (current && superGloss !== null && current.superGloss === superGloss) {
         current.children.push(card);
       } else {
-        groups.push({ parent: card, rawFirst, children: [] });
+        groups.push({ parent: card, superGloss, children: [] });
       }
     }
 
     const data: SenseCardResponse[] = groups.map((group) => {
       const parent = toSenseCardResponse(group.parent);
-      if (group.rawFirst !== null) {
-        parent.definition = group.rawFirst;
-        parent.definition_language_id = enId;
-      }
+      if (group.superGloss !== null) parent.definition = group.superGloss;
       parent.sub_senses = group.children.map((child) => {
-        const specific =
-          textsOf(child).find((text) => text !== group.rawFirst) ?? null;
         const childCard = toSenseCardResponse(child);
-        if (specific !== null) {
-          childCard.definition = specific;
-          childCard.definition_language_id = enId;
-        }
+        const specific =
+          child.glossEnContext?.find((text) => text !== group.superGloss) ??
+          null;
+        if (specific !== null) childCard.definition = specific;
         return { ...childCard, sub_senses: [] };
       });
       return parent;
@@ -353,6 +331,7 @@ function toSenseCardResponse(card: SenseCard): SenseCardResponse {
     gloss_vi_machine: card.glossViMachine,
     gloss_vi_reviewed: card.glossViReviewed,
     gloss_en: card.glossEn,
+    gloss_en_context: card.glossEnContext ?? [],
     concept_id: card.conceptId?.toString() ?? null,
     sub_senses: [],
   };
