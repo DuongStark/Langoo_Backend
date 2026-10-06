@@ -62,6 +62,8 @@ interface JudgeOptions {
   apiKey: string;
   timeoutMs: number;
   concurrency: number;
+  protocol: 'chat_completions' | 'responses';
+  effort: string | null;
 }
 
 function glossInputForJudge(
@@ -93,8 +95,29 @@ async function callJudge(
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), options.timeoutMs);
     try {
+      const endpoint =
+        options.protocol === 'responses' ? 'responses' : 'chat/completions';
+      const requestBody =
+        options.protocol === 'responses'
+          ? {
+              model: options.model,
+              instructions: JUDGE_PROMPT,
+              input: payload,
+              max_output_tokens: 2000,
+              ...(options.effort
+                ? { reasoning: { effort: options.effort } }
+                : {}),
+            }
+          : {
+              model: options.model,
+              max_tokens: 1500,
+              messages: [
+                { role: 'system', content: JUDGE_PROMPT },
+                { role: 'user', content: payload },
+              ],
+            };
       const response = await fetch(
-        `${options.baseUrl.replace(/\/$/, '')}/chat/completions`,
+        `${options.baseUrl.replace(/\/$/, '')}/${endpoint}`,
         {
           method: 'POST',
           headers: {
@@ -103,14 +126,7 @@ async function callJudge(
             'User-Agent': 'LangooDB3-judge/1.0',
             'x-opencode-session': 'b6e09b4e-6e5a-4a2e-9d0e-9f1a2b3c4d5e',
           },
-          body: JSON.stringify({
-            model: options.model,
-            max_tokens: 1500,
-            messages: [
-              { role: 'system', content: JUDGE_PROMPT },
-              { role: 'user', content: payload },
-            ],
-          }),
+          body: JSON.stringify(requestBody),
           signal: controller.signal,
           redirect: 'error',
         },
@@ -128,8 +144,20 @@ async function callJudge(
       }
       const body = (await response.json()) as {
         choices?: { message?: { content?: string | null } }[];
+        output?: { type?: string; content?: { text?: string }[] }[];
       };
-      const content = body.choices?.[0]?.message?.content ?? '';
+      let content = '';
+      if (options.protocol === 'responses') {
+        for (const item of body.output ?? []) {
+          if (item.type === 'message') {
+            for (const part of item.content ?? []) {
+              if (typeof part.text === 'string') content += part.text;
+            }
+          }
+        }
+      } else {
+        content = body.choices?.[0]?.message?.content ?? '';
+      }
       const jsonText = content
         .replace(/^```(?:json)?/i, '')
         .replace(/```\s*$/, '')
@@ -202,11 +230,21 @@ async function main(): Promise<void> {
   const model = flag('model', 'deepseek-v4.1-flash')!;
   const baseUrl = flag('base-url', 'https://opencode.ai/zen/go/v1')!;
   const concurrency = Number(flag('concurrency', '3'));
+  const protocolFlag = flag('protocol', 'chat_completions')!;
+  if (protocolFlag !== 'chat_completions' && protocolFlag !== 'responses') {
+    throw new Error('Invalid protocol');
+  }
+  const protocol = protocolFlag;
+  const effort = flag('effort') ?? null;
+  const timeoutMs = Number(flag('timeout-ms', '60000'));
   const limit = flag('limit') ? Number(flag('limit')) : undefined;
   const reviewer = flag(
     'reviewer',
     `auto-judge:${model} (owner-authorized 2026-10-06)`,
   )!;
+  const reviewSuffix = (flag('review-name', 'review') ?? 'review')
+    .replace(/[^a-z0-9-]/gi, '-')
+    .toLowerCase();
   const apiKey = (loadEnv(), process.env.DB3_AI_API_KEY ?? '');
   if (!apiKey) throw new Error('Missing DB3_AI_API_KEY');
 
@@ -241,7 +279,7 @@ async function main(): Promise<void> {
     allCandidates: GlossCandidate[],
   ): Promise<void> {
     const byKey = new Map(allCandidates.map((c) => [c.candidateKey, c]));
-    const reviewPath = `reviews/${job.jobKey}-review.json`;
+    const reviewPath = `reviews/${job.jobKey}-${reviewSuffix}.json`;
     if (existsSync(resolveArtifactPath(root, reviewPath))) {
       log(`đã có review (không ghi đè): ${reviewPath}`);
       return;
@@ -255,7 +293,14 @@ async function main(): Promise<void> {
         if (!candidate || !entry.output?.gloss_vi) {
           throw new Error(`candidate/output thiếu cho ${entry.candidateKey}`);
         }
-        const cacheFile = `judge/${job.jobKey}/${model}/${entry.candidateKey}.json`;
+        const modelSegment = [
+          model,
+          protocol === 'chat_completions' ? null : protocol,
+          effort,
+        ]
+          .filter(Boolean)
+          .join('-');
+        const cacheFile = `judge/${job.jobKey}/${modelSegment}/${entry.candidateKey}.json`;
         if (existsSync(resolveArtifactPath(root, cacheFile))) {
           return {
             ok: true as const,
@@ -264,7 +309,15 @@ async function main(): Promise<void> {
         }
         try {
           const verdict = await callJudge(
-            { baseUrl, model, apiKey, timeoutMs: 60000, concurrency },
+            {
+              baseUrl,
+              model,
+              apiKey,
+              timeoutMs,
+              concurrency,
+              protocol,
+              effort,
+            },
             glossInputForJudge(candidate, entry.output.gloss_vi),
             candidate.target!.targetId,
           );
@@ -318,7 +371,11 @@ async function main(): Promise<void> {
       }),
     });
     writeArtifactJson(root, reviewPath, review);
-    writeArtifactJson(root, `reviews/${job.jobKey}-judge-details.json`, {
+    const detailsPath =
+      reviewSuffix === 'review'
+        ? `reviews/${job.jobKey}-judge-details.json`
+        : `reviews/${job.jobKey}-judge-details-${reviewSuffix}.json`;
+    writeArtifactJson(root, detailsPath, {
       schemaVersion: 1,
       jobKey: job.jobKey,
       model,
