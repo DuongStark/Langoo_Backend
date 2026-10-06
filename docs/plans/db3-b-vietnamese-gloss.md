@@ -15,7 +15,7 @@
 | Model/key | Pilot dùng **`muse-spark-1.3-contributor`** qua Responses API, `reasoning.effort=minimal` (thấp nhất được nhận; `none` bị từ chối), 100 sense; `space-bunny-free` chỉ dự phòng, LongCat loại (bench JSON 6/8). Chủ dự án/ops thu hồi key cũ, cập nhật key mới trước B3 | Chủ dự án/ops |
 | Data policy | Muse Contributor đổi giá rẻ lấy quyền **dùng prompt/completion để train model Meta**, không ZDR — chấp nhận cho dữ liệu nguồn đã audit; tuyệt đối không gửi dữ liệu người học; `space-bunny-free` (no-train, 0-day) là phương án dự phòng | Chủ dự án |
 | Interface/hạ tầng | Tích hợp DB3-A trước; GPT đóng băng schema v1 trước B1/B2 song song; snapshot full local `55433`; VPS artifact `/opt/langoo/storage/db3b/` | GPT + người tích hợp/ops |
-| Review | Người biết JA và VI duyệt đủ 100 mẫu; chủ dự án chỉ định reviewer trước gate B4 | Chủ dự án, DeepSeek chuẩn bị mẫu |
+| Review | Quyết định mới 06/10: chủ dự án chấp nhận GPT chấm ngữ nghĩa đủ 100 mẫu thay reviewer con người; ghi rõ reviewer AI, giữ gate ≥98 pass/0 severe | GPT review, DeepSeek chuẩn bị mẫu |
 | Tài liệu | VPS DB3-A đã áp (`b052d2f`); Tatoeba 8.477 là cặp đã lọc; lưu contract request Go ở §5.1 | Người tích hợp |
 
 ## 1. Mục tiêu và phạm vi
@@ -70,7 +70,7 @@ Không tự sửa gloss cũ đáng ngờ; đưa vào báo cáo để người t�
 | B0 — Inventory | Query read-only, schema/source audit, chốt snapshot và target IDs | `db3-b-inventory-<date>.md/json`, baseline coverage và danh sách nguồn đủ điều kiện |
 | B1 — Harvest | Xuất target sense JA + EN gloss từ cùng sense, needs_translation; harvest VI/mapping hiện hữu theo rule, pivot lexical và cặp câu riêng | Candidate JSONL có lineage/count từng rule; không hứa VI sẵn có phủ JA; chạy hai lần cùng snapshot cho cùng hash; chưa ghi core |
 | B2 — Offline tooling | Provider stub, validator, cache/checkpoint, apply/rollback trên DB mới riêng | Regression các lỗi DB3-A và gloss rank/review/concurrency/resume đều pass |
-| B3 — Pilot LLM | Dùng contract Go đã kiểm chứng, kiểm tra key mới/model còn khả dụng; 100 sense JA, một model, concurrency 1; human audit | Báo cáo chất lượng, token/quota/cost, nguồn sai/nghĩa sai; không tự tăng batch/model |
+| B3 — Pilot LLM | Dùng contract Go đã kiểm chứng, kiểm tra key mới/model còn khả dụng; 100 sense JA, một model, concurrency 1; review ngữ nghĩa bằng GPT theo quyết định 06/10 | Báo cáo chất lượng, token/quota/cost, nguồn sai/nghĩa sai; không tự tăng batch/model |
 | B4 — Apply có giới hạn | Seed candidate đạt gate vào DB local cùng snapshot, từng lô nhỏ | Manifest trước/sau từng lô, kiểm chứng serving, count/rank/idempotency/rollback |
 | B5 — Mở rộng | N5 → N4 → N3 → N2 → N1, primary trước rồi các nghĩa khác đủ ngữ cảnh | Coverage thực theo từng đợt; full/VPS là bước vận hành được chỉ định riêng |
 
@@ -180,9 +180,9 @@ Các giá trị này là đề xuất cho pilot. Base URL/model/protocol phải 
 
 Pilot: chọn **100 sense JA riêng biệt**, EN gloss đủ và nguồn đã audit; ưu tiên N5/N4, ít nhất 10 ca đa nghĩa/đồng âm/POS dễ nhầm. Không lấy 20 concept trong pilot vì tập ưu tiên chưa có sense_concept. Cap 100 lần gọi bao gồm retry/smoke/attempt không rõ: nếu chưa đủ 100 output hợp lệ thì báo pilot chưa hoàn tất, không tự tăng cap hoặc tính ít mẫu thành gate 98/100. Bổ sung budget chỉ sau quyết định vận hành riêng.
 
-### 5.4 Người review và rubric
+### 5.4 Reviewer và rubric
 
-- **Chủ dự án chỉ định một người đọc được JA và VI trước B4**; có thể tự duyệt nếu đủ năng lực. DeepSeek xuất sheet/JSONL 100 mẫu gồm JA forms/reading/POS, EN gloss/source, output VI và các cảnh báo; GPT kiểm tra tự động, không thay review ngữ nghĩa của con người. Chưa có reviewer thì vẫn làm B0–B2; kết quả B3 giữ artifact, chưa apply.
+- **Quyết định chủ dự án 06/10/2026: chấp nhận GPT làm reviewer ngữ nghĩa cho pilot, không bắt buộc reviewer con người.** GPT đọc đủ 100 mẫu, đối chiếu đúng sense JA/EN, ngữ dụng và nguồn từ điển khi cần; artifact ghi reviewer là AI, không giả danh người biết JA–VI. Schema v1 đã có reviewer string nên giữ nguyên shape. Quyết định này thay yêu cầu human review cũ, không đổi gate ≥98 pass/0 severe hoặc quyền gọi thêm API/apply VPS. DeepSeek xuất sheet/JSONL gồm JA forms/reading/POS, EN gloss/source, output VI và cảnh báo.
 - Mỗi mẫu chấm pass/fail theo: (1) đúng sense JA và nghĩa EN; (2) đủ phần nghĩa chính, không mở rộng sang sense khác; (3) đúng POS/sắc thái/register/domain; (4) tiếng Việt tự nhiên, ngắn, không bịa chi tiết; (5) target/source/context đúng lineage. Ghi reviewer, thời điểm, verdict, severity và lý do; giữ output gốc nếu người duyệt đề xuất sửa.
 - Lỗi nghiêm trọng: đảo nghĩa/phủ định, sai sense/target, bịa nội dung làm sai cách dùng hoặc bỏ nghĩa chính làm người học hiểu sai. **Duyệt đủ 100 mẫu, ≥98 pass và 0 lỗi nghiêm trọng** mới qua gate. Mẫu fail không được apply; gate pass không biến mọi output thành reviewed.
 - Review pilot lưu artifact; output máy vẫn machine/unreviewed. Chỉ quy trình curator riêng mới ghi reviewed fields khi review từng dòng đã áp. Không dùng confidence của model hoặc check tự động làm chứng nhận chất lượng.
@@ -279,7 +279,7 @@ Mỗi nhánh/worktree riêng; ai sở hữu `_gloss-types.ts` và `_mutations.ts
 - [ ] Rollback lần hai giữ dữ liệu lần đầu; after-state đổi/đích sai/legacy/dry-run bị từ chối; bigint và timestamp không mất precision.
 - [ ] Trigger history vẫn hoạt động; rollback không xoá trace; metadata run còn để truy nguồn.
 - [ ] Lỗi ghi journal trước/sau COMMIT và rollback recovery được tái hiện trên DB test riêng.
-- [ ] Pilot 100 sense JA một model, đủ 100 output được human review, ≥98 pass/0 lỗi nghiêm trọng; request cap tính retry, thiếu mẫu phải ghi chưa đạt gate. Chỉ mẫu pass được apply.
+- [ ] Pilot 100 sense JA một model, đủ 100 output được GPT review ngữ nghĩa theo quyết định 06/10, ≥98 pass/0 lỗi nghiêm trọng; request cap tính retry, thiếu mẫu phải ghi chưa đạt gate. Chỉ mẫu pass được apply. [Kết quả output gốc 06/10](../reviews/db3-b-pilot-2026-10-06.md): 97 pass, 2 severe/1 minor fail, chưa đạt gate.
 - [ ] `serve.sense_card` chọn reviewed/native/machine đúng thứ tự, trả cờ machine/reviewed đúng; không làm thay đổi phục vụ sense_pair/concept curated.
 - [ ] FE badge và credits nguồn đúng đã xác nhận trước rollout VPS; source audit/attribution bàn giao, artifact path có backup/phục hồi ngoài release.
 - [ ] Build/lint/TypeScript, parser/unit/provider mock và regression DB liên quan pass; README/report đủ cách chạy và phục hồi.

@@ -123,7 +123,8 @@ npx tsx scripts/db3/gloss-review.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candid
 
 # Kiểm tra shape job, không ghi DB.
 npx tsx scripts/db3/gloss-apply.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --job pilot-job.json --dry-run
-# Chỉ sau gate human >=98/100 pass, 0 severe; chỉ dòng pass được apply.
+# Chỉ sau gate review ngữ nghĩa >=98/100 pass, 0 severe; chỉ dòng pass được apply.
+# Quyết định 06/10 cho phép GPT review pilot; reviewer phải ghi rõ AI.
 # DIRECT_URL phải trỏ đúng host/port/database của job snapshot.
 npx tsx scripts/db3/gloss-apply.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candidates "$DB3B_CANDIDATES" --job pilot-job.json --review review.json --apply --allow-db <database>
 npx tsx scripts/db3/verify-gloss.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --job pilot-job.json
@@ -134,7 +135,7 @@ npx tsx scripts/db3/gloss-apply.ts --artifact-dir "$DB3B_ARTIFACT_DIR" --candida
 - Muse pilot dùng Responses API, `reasoning.effort=minimal`, concurrency 1, không chấp nhận cấu hình khác rồi âm thầm bỏ qua. Space Bunny là lựa chọn dự phòng explicit; LongCat đã loại theo bench trong plan. Kiểm tra giá/model trước B3: policy giá trong tool không phải cap billing của provider.
 - Ghi intent và budget reservation trước request. Cache theo input/model/prompt/protocol, response/intent theo jobKey; resume kiểm tra hash, output và checkpoint trước khi dùng lại. Request timeout hoặc crash thiếu response trở thành `unknown`, giữ reservation; cần `--retry-unknown` explicit, có thể phát sinh tính phí lần nữa. Request đã hoàn tất có response bền vững được phục hồi mà không gọi lại. Tối đa 3 attempt/target, mọi attempt tính vào cap; Retry-After >30s dừng để resume sau.
 - Lỗi khóa `job.lock`: kiểm tra PID và tiến trình đang chạy trước khi xử lý lock cũ. Không sửa checkpoint để bỏ qua budget/gate. Nếu thiếu/sai hash response hoặc journal thì dừng và khôi phục từ backup.
-- Apply append lô 50, kiểm tra lại target/context/source/forms/JLPT trong transaction; không overwrite reviewed, không promote concept/cache/mapping. Mọi output LLM vẫn `is_machine=true`, `quality/reviewed_by/reviewed_at=NULL`; human pilot gate không đồng nghĩa curator đã duyệt từng dòng DB.
+- Apply append lô 50, kiểm tra lại target/context/source/forms/JLPT trong transaction; không overwrite reviewed, không promote concept/cache/mapping. Mọi output LLM vẫn `is_machine=true`, `quality/reviewed_by/reviewed_at=NULL`; pilot review gate không đồng nghĩa curator đã duyệt từng dòng DB. GPT review được chủ dự án chấp nhận cho pilot ngày 06/10; ghi reviewer AI trong artifact, giữ ngưỡng chất lượng và hash binding. [Pilot gốc](../../docs/reviews/db3-b-pilot-2026-10-06.md) chưa đạt gate.
 - Child được đăng ký trước mutation. Resume đối chiếu journal prepared/applied và DB; rollback giữ source/import_batch/mapping_run và history, đánh dấu run rolled_back. Nếu curator đã sửa hoặc job khác còn dùng lại gloss, rollback dừng. Rollback job phụ thuộc trước rồi job sở hữu gloss; job đã rollback không tự reapply.
 - B2 hiện nhận job dịch `needs_translation` cho sense/concept. `eligible_source` trực tiếp và `concept_label` cần contract/job riêng khi có candidate đủ điều kiện; B1 hiện có 0 eligible_source, OMW lemma bị blocked. Example chưa seed DB. FE badge/credits và curation vẫn là gate rollout.
 
