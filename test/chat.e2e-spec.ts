@@ -88,7 +88,7 @@ describe('Chat AI (e2e — langoo_test)', () => {
       language_id: 2,
       scenario: 'general',
       model: 'stub-v1',
-      prompt_version: 'm10-v2',
+      prompt_version: 'm10-v3',
       message_count: 0,
       last_message_at: null,
       archived_at: null,

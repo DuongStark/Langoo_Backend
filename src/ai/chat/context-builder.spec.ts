@@ -38,6 +38,19 @@ describe('buildChatMessages', () => {
     }
   });
 
+  it('giới hạn phạm vi: từ chối yêu cầu ngoài ngôn ngữ (code, toán…)', () => {
+    for (const scenario of [
+      'general',
+      'vocabulary',
+      'grammar',
+      'conversation',
+    ] as const) {
+      const messages = buildChatMessages({ ...base, scenario });
+      expect(messages[0].content).toContain('ngoài phạm vi');
+      expect(messages[0].content).toContain('viết code');
+    }
+  });
+
   it('chèn block ngữ cảnh sense khi có ref', () => {
     const messages = buildChatMessages({
       ...base,
