@@ -705,37 +705,56 @@ export function parseGlossReview(input: unknown): GlossReview {
 export function hashGlossOutput(output: GlossOutput): string {
   return hash(canonicalJson(GlossOutputSchema.parse(output)));
 }
+/** Keep reviewed rejects in the cohort after partial apply; omit invalid translations. */
+export function glossReviewEntries(
+  job: GlossJob,
+  allowPartial = false,
+): GlossJob['entries'] {
+  return allowPartial
+    ? job.entries.filter(
+        (entry) => entry.state !== 'rejected' || entry.validation === 'passed',
+      )
+    : job.entries;
+}
 export function validateGlossReview(
   job: GlossJob,
   candidates: GlossCandidate[],
   input: unknown,
+  options: { allowPartial?: boolean } = {},
 ): GlossReview {
   validateGlossJobCandidates(job, candidates);
   const review = parseGlossReview(input);
+  const partial = options.allowPartial === true;
+  const active = glossReviewEntries(job, partial);
   if (
     review.jobKey !== job.jobKey ||
-    review.entries.length !== 100 ||
-    job.entries.length !== 100
+    review.entries.length !== active.length ||
+    (!partial && active.length !== 100)
   )
     throw new Error('Pilot review needs exactly 100 outputs bound to the job');
   const targets = new Map(candidates.map((c) => [c.candidateKey, c.target]));
   if (
     new Set(
-      job.entries.map((e) => {
+      active.map((e) => {
         const target = targets.get(e.candidateKey)!;
         return `${target.targetType}:${target.targetId}`;
       }),
-    ).size !== 100
+    ).size !== active.length
   )
     throw new Error('Pilot requires 100 distinct target identities');
   if (
-    review.entries.filter((e) => e.verdict === 'pass').length < 98 ||
-    review.entries.some(
-      (e) => e.severity === 'severe' || e.reviewer === 'UNREVIEWED',
-    )
+    review.entries.some((e) => e.reviewer.trim().toUpperCase() === 'UNREVIEWED')
+  )
+    throw new Error('Every output needs a completed semantic review');
+  if (
+    !partial &&
+    (review.entries.filter((e) => e.verdict === 'pass').length < 98 ||
+      review.entries.some(
+        (e) => e.severity === 'severe' || e.reviewer === 'UNREVIEWED',
+      ))
   )
     throw new Error('Pilot review gate failed (98/100, zero severe)');
-  for (const e of job.entries) {
+  for (const e of active) {
     const record = review.entries.find(
       (r) => r.candidateKey === e.candidateKey,
     );
@@ -743,7 +762,14 @@ export function validateGlossReview(
       !record ||
       record.inputHash !== e.inputHash ||
       !e.output?.gloss_vi ||
-      !['validated', 'applied'].includes(e.state) ||
+      !(
+        ['validated', 'applied'].includes(e.state) ||
+        (partial &&
+          e.state === 'rejected' &&
+          e.validation === 'passed' &&
+          record.verdict === 'fail')
+      ) ||
+      (e.childRunKey !== null && record.verdict !== 'pass') ||
       record.outputHash !== hashGlossOutput(e.output)
     )
       throw new Error('Review input/output/status mismatch');

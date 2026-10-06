@@ -16,6 +16,8 @@ import {
   createGlossCandidate,
   createGlossJob,
   hashGlossText,
+  hashGlossOutput,
+  type GlossReview,
   parseGlossCandidate,
   parseGlossJob,
   type GlossCandidate,
@@ -693,6 +695,67 @@ void test('DB3-B apply/rollback uses a new private UUID test database', async (t
       );
     },
   );
+  await t.test(
+    'DB3-B2.1 partial apply/retry/rollback and fail exclusion preserve review binding',
+    async () => {
+      const directory = path.join(root, 'partial');
+      const job = fresh('mèo thử partial');
+      const partialCli = {
+        ...cli,
+        flags: new Map(cli.flags).set('allow-partial', true),
+      };
+      const review: GlossReview = {
+        schemaVersion: 1,
+        jobKey: job.jobKey,
+        entries: [
+          {
+            candidateKey: job.entries[0].candidateKey,
+            inputHash: job.entries[0].inputHash,
+            outputHash: hashGlossOutput(job.entries[0].output!),
+            verdict: 'pass',
+            severity: 'none',
+            reviewer: 'GPT fixture review',
+            reviewedAt: '2026-10-06T14:00:00Z',
+            reason: null,
+          },
+        ],
+      };
+      const opts = { ...makeOptions(job, directory), cli: partialCli, review };
+      const baseline = await count();
+      const applied = await applyGlossJob(opts);
+      assert.equal(applied.entries[0].state, 'applied');
+      assert.equal(await count(), baseline + 1);
+      await applyGlossJob({ ...opts, job: applied });
+      assert.equal(await count(), baseline + 1);
+      await rollbackGlossJob({ ...opts, job: applied });
+      assert.equal(await count(), baseline);
+      const rejected = fresh('sai nghĩa');
+      const rejectedReview: GlossReview = {
+        ...review,
+        jobKey: rejected.jobKey,
+        entries: [
+          {
+            ...review.entries[0],
+            outputHash: hashGlossOutput(rejected.entries[0].output!),
+            verdict: 'fail',
+            severity: 'minor',
+            reason: 'Thiếu nghĩa',
+          },
+        ],
+      };
+      const failOpts = {
+        ...makeOptions(rejected, path.join(root, 'partial-fail')),
+        cli: partialCli,
+        review: rejectedReview,
+      };
+      const failed = await applyGlossJob(failOpts);
+      assert.equal(failed.entries[0].state, 'rejected');
+      assert.equal(failed.children.length, 0);
+      await applyGlossJob({ ...failOpts, job: failed });
+      assert.equal(await count(), baseline);
+    },
+  );
+
   writeArtifactJson(root, 'result.json', {
     privateDatabase: name,
     testsFinished: true,

@@ -13,6 +13,10 @@ import {
   computeGlossCacheKey,
   hashGlossText,
   validateGlossJobCandidates,
+  createGlossJob,
+  validateGlossReview,
+  hashGlossOutput,
+  type GlossReview,
   type GlossCandidate,
   type GlossJob,
 } from './_gloss-types';
@@ -341,4 +345,148 @@ void test('job binding rejects mismatched dataset, input hash, missing/duplicate
   const duplicates = job();
   duplicates.entries.push(structuredClone(duplicates.entries[0]));
   assert.throws(() => parseGlossJob(duplicates));
+});
+
+void test('DB3-B2.1 partial review stays bound after rejected rows; never accepts unreviewed or changed outputs', () => {
+  const second = createGlossCandidate({
+    ...ready,
+    target: { ...readyTarget, targetId: '9007199254740994' },
+    context: {
+      ...ready.context,
+      rows: ready.context.rows.map((row) => ({
+        ...row,
+        senseId: '9007199254740994',
+      })),
+    },
+  });
+  const selected = [ready, second];
+  const j = createGlossJob({
+    ...job(),
+    entries: selected.map((c) => ({
+      ...job().entries[0],
+      candidateKey: c.candidateKey,
+      inputHash: c.inputHash,
+      state: 'validated',
+      validation: 'passed',
+      output: {
+        target_type: 'sense',
+        target_id: c.target!.targetId,
+        gloss_vi: 'mèo',
+        reason: null,
+      },
+    })),
+  });
+  const review: GlossReview = {
+    schemaVersion: 1,
+    jobKey: j.jobKey,
+    entries: j.entries.map((e, i) => ({
+      candidateKey: e.candidateKey,
+      inputHash: e.inputHash,
+      outputHash: hashGlossOutput(e.output!),
+      verdict: i === 0 ? 'pass' : 'fail',
+      severity: i === 0 ? 'none' : 'severe',
+      reason: i === 0 ? null : 'Sai nghĩa',
+      reviewer: 'GPT semantic review',
+      reviewedAt: '2026-10-06T14:00:00Z',
+    })),
+  };
+  assert.throws(() => validateGlossReview(j, selected, review));
+  validateGlossReview(j, selected, review, { allowPartial: true });
+  j.entries[1].state = 'rejected';
+  validateGlossReview(j, selected, review, { allowPartial: true });
+  const rejectedPass = structuredClone(review);
+  rejectedPass.entries[1].verdict = 'pass';
+  rejectedPass.entries[1].severity = 'none';
+  assert.throws(() =>
+    validateGlossReview(j, selected, rejectedPass, { allowPartial: true }),
+  );
+  const unreviewed = structuredClone(review);
+  unreviewed.entries[0].reviewer = 'UNREVIEWED';
+  assert.throws(
+    () => validateGlossReview(j, selected, unreviewed, { allowPartial: true }),
+    /completed semantic review/,
+  );
+  const tampered = structuredClone(review);
+  tampered.entries[0].outputHash = hashGlossText('changed');
+  assert.throws(() =>
+    validateGlossReview(j, selected, tampered, { allowPartial: true }),
+  );
+  const omitted = structuredClone(review);
+  omitted.entries.pop();
+  assert.throws(() =>
+    validateGlossReview(j, selected, omitted, { allowPartial: true }),
+  );
+  j.children.push({
+    runKey: 'test-child',
+    journalPath: 'journals/test.json',
+    inputHash: hashGlossText('child'),
+    state: 'registered',
+  });
+  j.entries[0].childRunKey = 'test-child';
+  const reclassified = structuredClone(review);
+  reclassified.entries[0].verdict = 'fail';
+  reclassified.entries[0].reason = 'Changed after registration';
+  assert.throws(() =>
+    validateGlossReview(j, selected, reclassified, { allowPartial: true }),
+  );
+});
+
+void test('DB3-B2.1 default pilot still requires 98/100 and zero severe', () => {
+  const selected = Array.from({ length: 100 }, (_, i) => {
+    const id = (9007199254742000n + BigInt(i)).toString();
+    return createGlossCandidate({
+      ...ready,
+      target: { ...readyTarget, targetId: id },
+      context: {
+        ...ready.context,
+        rows: ready.context.rows.map((row) => ({ ...row, senseId: id })),
+      },
+    });
+  });
+  const j = createGlossJob({
+    ...job(),
+    entries: selected.map((c) => ({
+      ...job().entries[0],
+      candidateKey: c.candidateKey,
+      inputHash: c.inputHash,
+      state: 'validated',
+      validation: 'passed',
+      output: {
+        target_type: 'sense',
+        target_id: c.target!.targetId,
+        gloss_vi: 'mèo',
+        reason: null,
+      },
+    })),
+  });
+  const review: GlossReview = {
+    schemaVersion: 1,
+    jobKey: j.jobKey,
+    entries: j.entries.map((e, i) => ({
+      candidateKey: e.candidateKey,
+      inputHash: e.inputHash,
+      outputHash: hashGlossOutput(e.output!),
+      verdict: i < 98 ? 'pass' : 'fail',
+      severity: i < 98 ? 'none' : 'minor',
+      reason: i < 98 ? null : 'Thiếu nghĩa',
+      reviewer: 'GPT review',
+      reviewedAt: '2026-10-06T14:00:00Z',
+    })),
+  };
+  validateGlossReview(j, selected, review);
+  review.entries[97] = {
+    ...review.entries[97],
+    verdict: 'fail',
+    severity: 'minor',
+    reason: 'Thiếu nghĩa',
+  };
+  assert.throws(() => validateGlossReview(j, selected, review), /gate failed/);
+  review.entries[97] = {
+    ...review.entries[97],
+    verdict: 'pass',
+    severity: 'none',
+    reason: null,
+  };
+  review.entries[99].severity = 'severe';
+  assert.throws(() => validateGlossReview(j, selected, review), /gate failed/);
 });

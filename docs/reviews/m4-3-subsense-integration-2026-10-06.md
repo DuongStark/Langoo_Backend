@@ -74,3 +74,10 @@ như thống kê mới nếu chưa audit toàn DB.
 - Smoke M4.3 đã chuẩn bị ở uploads/dictionary/m4-3-release-20261006/verify-live.py
   (ignored artifact): kiểm flat/grouped coverage, list/detail, cursorv3, JA, sources/stroke.
   Chưa chạy thành công trên runtime M4.3 vì chưa deploy.
+
+
+### Tiếp tục sau xác nhận của chủ dự án
+
+Chủ dự án trả lời phiên DB3-B đã xong, cho kiểm tra/tích hợp tiếp. Đã lấy bản đủ3script
+và sửa dưới [DB3-B2.1](db3-b2-1-partial-review-integration-2026-10-06.md), commit riêng.
+M4.3 không còn chờ phản hồi; sẽ publish CI/deploy lại sau gatesDB3-B2.1.

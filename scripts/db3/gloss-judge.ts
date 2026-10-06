@@ -8,6 +8,7 @@ import {
 } from './_gloss-artifacts';
 import {
   parseGlossJob,
+  glossReviewEntries,
   parseGlossReview,
   hashGlossOutput,
   validateGlossJobCandidates,
@@ -218,6 +219,34 @@ async function mapWithConcurrency<T, R>(
   return results;
 }
 
+/** Preserve the semantic verdict; severity alone must not promote a failed row. */
+export function buildGlossJudgeReview(
+  job: GlossJob,
+  entries: GlossJob['entries'],
+  verdicts: JudgeVerdict[],
+  reviewer: string,
+): GlossReview {
+  if (entries.length !== verdicts.length)
+    throw new Error('Judge result coverage mismatch');
+  return parseGlossReview({
+    schemaVersion: 1,
+    jobKey: job.jobKey,
+    entries: entries.map((entry, index) => {
+      const verdict = verdicts[index];
+      return {
+        candidateKey: entry.candidateKey,
+        inputHash: entry.inputHash,
+        outputHash: hashGlossOutput(entry.output!),
+        verdict: verdict.verdict,
+        severity: verdict.severity,
+        reviewer,
+        reviewedAt: new Date().toISOString(),
+        reason: verdict.reason,
+      };
+    }),
+  });
+}
+
 async function main(): Promise<void> {
   const cli = parseCli('gloss-judge', process.argv.slice(2));
   const flag = (key: string, fallback?: string): string | undefined => {
@@ -250,33 +279,42 @@ async function main(): Promise<void> {
 
   const candidates = loadGlossCandidates(root, candidatesFile);
   const lockName = `judge-${jobFile.replace(/[^a-z0-9-]+/gi, '-').toLowerCase()}`;
+  const partial = cli.flags.get('allow-partial') === true;
   await withArtifactLock(root, lockName, () => {
     const job = parseGlossJob(readArtifactJson(root, jobFile));
     validateGlossJobCandidates(job, candidates);
-    if (job.entries.length !== 100) {
+    const active = glossReviewEntries(job, partial);
+    if (!partial && active.length !== 100) {
       log(
-        `skip: job chỉ có ${job.entries.length} entry (apply gate yêu cầu đúng 100)`,
+        `skip: job chỉ có ${active.length} entry (apply gate yêu cầu đúng 100)`,
       );
       return Promise.resolve();
     }
-    if (job.entries.some((entry) => !entry.output?.gloss_vi)) {
+    if (active.some((entry) => !entry.output?.gloss_vi)) {
       log('skip: job còn entry thiếu output (null/rejected) — để runner xử lý');
       return Promise.resolve();
     }
     if (
-      job.entries.some(
-        (entry) => !['validated', 'applied'].includes(entry.state),
+      active.some(
+        (entry) =>
+          !['validated', 'applied'].includes(entry.state) &&
+          !(
+            partial &&
+            entry.state === 'rejected' &&
+            entry.validation === 'passed'
+          ),
       )
     ) {
       log('skip: job chưa hoàn tất (còn entry pending/running/failed)');
       return Promise.resolve();
     }
-    return judgeAndWrite(job, candidates).then(() => Promise.resolve());
+    return judgeAndWrite(job, candidates, active).then(() => Promise.resolve());
   });
 
   async function judgeAndWrite(
     job: GlossJob,
     allCandidates: GlossCandidate[],
+    active: GlossJob['entries'],
   ): Promise<void> {
     const byKey = new Map(allCandidates.map((c) => [c.candidateKey, c]));
     const reviewPath = `reviews/${job.jobKey}-${reviewSuffix}.json`;
@@ -284,7 +322,7 @@ async function main(): Promise<void> {
       log(`đã có review (không ghi đè): ${reviewPath}`);
       return;
     }
-    const entries = limit ? job.entries.slice(0, limit) : job.entries;
+    const entries = limit ? active.slice(0, limit) : active;
     const results = await mapWithConcurrency(
       entries,
       concurrency,
@@ -352,24 +390,12 @@ async function main(): Promise<void> {
       log('--limit: chỉ chấm thử, không ghi review.');
       return;
     }
-    const review: GlossReview = parseGlossReview({
-      schemaVersion: 1,
-      jobKey: job.jobKey,
-      entries: entries.map((entry, index) => {
-        const verdict = verdicts[index]!;
-        const blocked = verdict.severity === 'severe';
-        return {
-          candidateKey: entry.candidateKey,
-          inputHash: entry.inputHash,
-          outputHash: hashGlossOutput(entry.output!),
-          verdict: blocked ? 'fail' : 'pass',
-          severity: verdict.severity,
-          reviewer,
-          reviewedAt: new Date().toISOString(),
-          reason: verdict.reason,
-        };
-      }),
-    });
+    const review = buildGlossJudgeReview(
+      job,
+      entries,
+      verdicts as JudgeVerdict[],
+      reviewer,
+    );
     writeArtifactJson(root, reviewPath, review);
     const detailsPath =
       reviewSuffix === 'review'

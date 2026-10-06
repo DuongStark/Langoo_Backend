@@ -51,7 +51,14 @@ export function parseCli(
   if (flags.has('dry-run') && flags.has('apply')) {
     throw new Error('Không dùng đồng thời --dry-run và --apply');
   }
-  for (const key of ['apply', 'allow-test', 'fixture', 'recover', 'dry-run']) {
+  for (const key of [
+    'apply',
+    'allow-test',
+    'fixture',
+    'recover',
+    'dry-run',
+    'allow-partial',
+  ]) {
     if (flags.has(key) && flags.get(key) !== true) {
       throw new Error(`--${key} không nhận giá trị`);
     }

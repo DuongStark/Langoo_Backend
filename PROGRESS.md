@@ -457,3 +457,12 @@ chờ phiên đó làm xong. Không tiếp tục sửa/build/restart VPS. [Hando
 
 Entry lịch sử trên đã hết điều kiện chờ grouping khi nhận handoff46ec612;
 M4.3 tiếp tục và gặp thay đổi DB3-B mới như entry21:35.
+
+
+### 2026-10-06 — DB3-B2.1 — Tích hợp partial apply và bảo toàn review
+
+- Chủ dự án xác nhận phiên DB3-B xong, cho kiểm tra/tích hợp tiếp sau deploy hold.
+- Tích hợp3file VPS, sửa UNREVIEWED/resume cohort/judge fail-minor; default98/100 giữ.
+- Audit review mode/hash/count, tests node private DB + CI gate riêng. Không gọi AI/seed VPS.
+- [Report](docs/reviews/db3-b2-1-partial-review-integration-2026-10-06.md); code đang kiểm tra,
+  commit riêng rồi deploy chungM4.3. M4.3 không còn chờ phản hồi chủ dự án.
