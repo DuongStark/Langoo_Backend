@@ -1,57 +1,50 @@
-# Handoff — Gộp subsense wiktextract trong `/v1/lexemes/:id/senses` · 2026-10-06
+# M4.3 — Handoff nhóm nghĩa Wiktextract và bảo toàn sense
 
-> **Đã được thay thế bởi [M4.3](../reviews/m4-3-subsense-integration-2026-10-06.md).**
-> Bản ban đầu dùng context chưa guard nguồn, đổi definition cùng ID, và đổi cấu trúc data
-> nên không phải thay đổi chỉ additive. Dùng contract M4.3 dưới đây cho FE mới.
->
-> Branch: `parallel/deepseek-search-sources` (merge main M4.2: `3cbf913`) · Đã deploy VPS (build lại + restart `langoo-api`).
-> Nền tảng: M4.2 `serve.sense_card.gloss_en_context` (migration 038 `wiktextract-en-leaf-v1`).
+Ngày 2026-10-06. Nhánh DeepSeek `46ec612` đã tích hợp main; sửa M4.3 trong
+`9a52b68`, runtime VPS `f700658` (cùng DB3-B2.1). CI/deploy/live checks đã pass.
 
-## 1. API thay đổi (bản triển khai ban đầu, được sửa bởi M4.3)
+## Contract hiện tại
 
-`GET /v1/lexemes/:id/senses` giờ trả **chỉ nghĩa cha** trong `data`; mỗi cha có thêm:
+`GET /v1/lexemes/:id/senses?view=grouped|flat`, mặc định `grouped`. Đây là thay đổi
+cấu trúc danh sách; client chỉ duyệt `data` sẽ bỏ qua con. `view=flat` trả mọi sense.
 
-```jsonc
-{
-  "sense_id": "1809675",
-  "definition": "A common, firm, round fruit produced by a tree of the genus Malus.", // supergloss
-  "sub_senses": [
-    { "sense_id": "1809676", "definition": "Often with a qualifying word: any fruit or vegetable, …", "sub_senses": [] },
-    { "sense_id": "1809677", "definition": "Something which resembles the fruit of Malus domestica …", "sub_senses": [] }
-  ]
-  // …các field SenseCardDto khác giữ nguyên
-}
-```
+- Gom sense liên tiếp theo ancestor EN chỉ khi view 039 xác nhận hierarchy
+  Wiktextract hợp lệ theo 038 và definition thuộc nguồn/EN. JMdict, WordNet,
+  custom/reviewed, machine/gapped, mixed-source/batch-mismatch đứng riêng.
+- Card đầu nhóm vẫn là sense thật: ID/definition/gloss/badge/context giữ nguyên
+  như detail. `group_heading` là câu ancestor riêng, không phải nghĩa của ID đầu.
+- `sub_senses` là các card thật còn lại, giữ definition lá, kể cả chuỗi trên hai tầng.
+  Con có `group_heading: null`, `sub_senses: []`. Flatten giữ đủ mọi ID và thứ tự.
+- Detail `/v1/senses/:id` và `view=flat` có metadata nhóm null/rỗng.
+- `next_cursor: null`; invalid view trả 400. Search giữ cursor v3/canonical face M4.2.
 
-- Gom theo `gloss_en_context[0]` (supergloss) của các sense **liên tiếp** trong cùng lexeme.
-- `data[i].definition` của cha = supergloss; con = gloss lá (phần tử context đầu tiên khác supergloss).
-- Sense không có context (JA jmdict, wordnet, sense không eligible) → đứng riêng, `sub_senses: []` — **không đổi** so với trước.
-- Không đổi cursor/pagination (endpoint này vốn `next_cursor: null`).
+## FE cần làm
 
-## 2. FE nên render
+1. Dùng `group_heading` làm tiêu đề không chọn được, nếu khác nghĩa đầu.
+2. Render sense đầu thật và nút “N nghĩa khác ▸”, N = `sub_senses.length`.
+3. Mở nhóm để render từng con; chọn/thêm collection dùng đúng `sense_id` của card.
+4. Badge/VI/gloss lấy từ từng card, không gán heading hoặc gloss VI đầu nhóm cho con.
+5. Tổng sense = sum(1 + số con). Nếu chưa hỗ trợ UI con, gọi `view=flat`.
 
-- Render `data` như hiện tại.
-- Nếu `sub_senses.length > 0`: hiện dòng cha + nút thu gọn `"N nghĩa con ▸"`; mở ra thì render từng con (cùng shape, mỗi con có link sense riêng).
-- Badge/gloss VI của con lấy từ chính con (`gloss_vi*`).
+FE chưa sửa/deploy trong release backend này. Nhóm không có nghĩa các sense tương
+đương hoặc phổ biến; chọn vài nghĩa thông dụng cần FE/ranking riêng.
 
-## 3. Số liệu (local + VPS khớp)
+## Số liệu đã kiểm chứng live
 
-| Lexeme | Trước | Sau |
-| --- | --- | --- |
-| draw (verb, 1009311) | 138 dòng | **6 cha + 132 con** |
-| run (verb, 1764987) | 64 dòng | **38 cha + 26 con** |
-| apple (694408) | 20 dòng | **8 cha + 12 con** |
+| Từ/ID | Tổng sense | Nhóm | Con |
+| --- | ---: | ---: | ---: |
+| dog/998637 | 23 | 14 | 9 |
+| run/1764987 | 64 | 38 | 26 |
+| draw/1009311 | 138 | 6 | 132 |
+| apple/694408 | 20 | 8 | 12 |
 
-Toàn DB: 12.703 lexeme (0,85%) bị ảnh hưởng; JA/jmdict không đổi.
+12.703 lexeme/0,85% là số lịch sử DeepSeek, chưa audit lại dưới guard M4.3.
+Trùng lexeme đa nguồn (`cat`/`CAT`) vẫn thuộc D0.3/D0.5.
 
-## 4. Kiểm thử & rollback
+## Kiểm tra và vận hành
 
-- `jest` full: 47 suite / 353 test pass; eslint 0; build OK.
-- Migration 038 đã áp trên local full DB (55433) để test; VPS đã có sẵn từ M4.2.
-- Rollback code: khôi phục 3 file từ `main` rồi build lại:
-  `src/dictionary/dictionary.service.ts`, `src/dictionary/dto/dictionary-response.dto.ts`, `src/dictionary/types/dictionary.types.ts`.
-
-## 5. Ghi chú phối hợp
-
-- Trùng **đa nguồn theo surface** (`cat ×4`, `CAT ×2`…) vẫn còn sau M4.2 — nằm trong lộ trình `docs/plans/db4-dictionary-deduplication.md` **D0.3 (group đa nguồn) / D0.5 (dọn bản ghi trùng thật)**, không thuộc handoff này.
-- Hotfix runtime trước đó (ưu tiên nguồn + lọc nhiễu prefix EN) không còn trong runtime sau khi main M4.2 deploy; policy cho phần này do plan D0.3/D0.5 quyết định (prefix-noise filter có fixture riêng).
+354 unit / 207 E2E / 31 DB3 tests và lint/build CI pass; 46 live checks pass.
+Migration 038/039 đã áp VPS. Backup code/dist/patch tại
+`/opt/langoo/storage/db4/releases/m43-20261006`.
+[Report](../reviews/m4-3-subsense-integration-2026-10-06.md),
+[API đầy đủ](../api/dictionary.md). Rollback code giữ cột 039 tương thích 038.

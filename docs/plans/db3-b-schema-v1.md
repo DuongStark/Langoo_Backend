@@ -75,9 +75,9 @@ DeepSeek nhận commit interface vào branch B1 trước khi import module. GPT 
 
 ### 2026-10-06 — DB3-B2.1 — Review cohort cho partial apply
 
-Tích hợp theo xác nhận chủ dự án phiên VPS đã xong. Default pilot giữ98/100/0severe.
+Tích hợp theo xác nhận chủ dự án phiên VPS đã xong. Default pilot giữ 98/100/0 severe.
 `--allow-partial` thay gate aggregate bằng từng output có review hoàn tất; không thay
-schemaVersion1, không ghi reviewed fields. Cohort gồm output validation passed, giữ
+schemaVersion 1, không ghi reviewed fields. Cohort gồm output validation passed, giữ
 semantic rejected trong review khi resume; loại translation rejected/validation failed.
 Chỉ pass được apply; fail không được phục hồi bằng sửa verdict sau đăng ký/reject.
 Hash/count review và reviewMode được ghi mapping_run.parameters. Xem README/report.

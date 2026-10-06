@@ -174,9 +174,14 @@ ssh langoo-vps 'ufw status verbose'
 - Tổng quan dự án: [`PROGRESS.md`](../../PROGRESS.md), [`CONTEXT-DU-AN.md`](../../CONTEXT-DU-AN.md), [`CSDL-THAM-CHIEU.md`](../../CSDL-THAM-CHIEU.md).
 
 
-### M4.3 — trạng thái21:35 (06/10)
+### M4.3 / DB3-B2.1 — kết quả cuối 06/10
 
-Main9a52b68 đã push;039 đã áp. CI37480050307 canceled chủ động, Deploy37480283546
-skipped vì scripts DB3-B bị sửa thêm trên VPS sau backup. **Chưa deployM4.3**.
-Không rerun CI/deploy trước khi bàn giao phiên đang ghi; patch mới đã bảo toàn
-ở storage/m43-20261006. ReportM4.3 là nguồn trạng thái tiếp tục.
+Từng dừng deploy lúc 21:35 để bảo toàn scripts DB3-B đang được sửa trên VPS:
+CI 37480050307 canceled, Deploy 37480283546 skipped. Sau khi chủ dự án xác nhận
+phiên đó hoàn thành, tích hợp và sửa DB3-B2.1 trong commit `f700658`.
+
+CI 37481567514 / Deploy 37481886745 success. VPS runtime `f700658`, PM2 online,
+038/039 đã áp; 46 live checks pass. Runtime tracked code clean, hai file .bak cũ được
+ giữ. Backup cuối `runtime-final-code.tgz`/patch gồm cả ba script DB3-B.
+[Report](../reviews/m4-3-subsense-integration-2026-10-06.md) ghi số liệu và checks.
+FE cần render con hoặc dùng `view=flat`; DB3-W1 rollback thiếu journal vẫn bị khóa.

@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-06 (M4.2 / DB4-D0.2 đã deploy; M4.3 đang nghiệm thu tích hợp subsense; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-06 (M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -17,7 +17,7 @@
 | M3.1 | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                                         |
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                 |
 | M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn | ✅ commits04112dc/d861390 đã push/CI deploy VPS, migration038 đã áp; cursor v3/canonical face giữ trong M4.3; [report](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md) |
-| M4.3 | Nhóm nghĩa Wiktextract và bảo toàn sense | 🛠️ commit/push9a52b68, local354unit/207E2E pass; VPS039 đã áp; auto-deploy dừng vì phiên DB3-B sửa source lúc21:35; [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md) |
+| M4.3 | Nhóm nghĩa Wiktextract và bảo toàn sense | ✅ 9a52b68 + DB3-B2.1f700658 đã push/deploy;039 đã áp;354 unit/207 E2E/31 DB3 tests,46 live checks pass; FE render con còn chờ; [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md) |
 | M5   | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                               |
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                         |
 | M6   | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                      |
@@ -424,45 +424,37 @@ phân trang dùng face cũ. Đang kiểm/publish patch; chưa báo smoke hoàn t
 
 ### 2026-10-06 — M4.3 — Nhóm nghĩa Wiktextract và bảo toàn sense
 
-- Tiếp tục sau khi phiên VPS khác báo hoàn thành; nhánh nguồn 46ec612 đã merge M4.2.
-- Tích hợp grouping + test sources/admin/kanji và wordfreq scripts của nhánh nguồn.
-- Sửa 3 lỗi review: context mọi nguồn bị coi là hierarchy; rewrite definition sense đầu;
-  nghĩa nhiều tầng lấy câu trung gian. Migration 039 thêm flag dùng policy 038 và guard definition.
-- Contract: group_heading riêng; default grouped và view=flat; flatten giữ mọi ID/meaning.
-- Chưa sửa FE, chưa gộp lexeme đa nguồn/xóa core; D0.3/D0.5 vẫn còn.
-- Kiểm tra/Git/VPS cập nhật tại [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md).
+- Tích hợp nhánh DeepSeek `46ec612` đã merge M4.2. Commit M4.3 `9a52b68`.
+- Sửa context mọi nguồn bị coi là hierarchy, rewrite definition ID đầu và lấy câu
+  trung gian: guard nguồn/definition trong 039, `group_heading` riêng, giữ nghĩa lá.
+- Default grouped, có `view=flat`; flatten giữ mọi ID/thứ tự/card như detail.
+- FE render con/ưu tiên vài nghĩa và dedupe đa nguồn D0.3/D0.5 còn chờ.
+- [Report](docs/reviews/m4-3-subsense-integration-2026-10-06.md),
+  [handoff FE](docs/handoff/db4-subsense-grouping-2026-10-06.md).
 
 ### 2026-10-06 — DB3-W1 — Khóa rollback wordfreq thiếu journal
 
-- Review script tích hợp thấy rollback xoá frequency_rank toàn ngôn ngữ, vượt scope run.
-- Khóa --rollback trước kết nối DB; manifest cũ thiếu journal per-row không đủ phục hồi.
-- E2E kiểm rank có sẵn giữ nguyên khi rollback bị từ chối; không apply/rollback wordfreq VPS.
-- Lưu [README](scripts/db3/README.md) và [report wordfreq](docs/reviews/db3-wordfreq-2026-10-06.md).
-
-
-### 2026-10-06 — M4.3 — Deploy dừng để giữ thay đổi DB3-B trên VPS
-
-- Đã push9a52b68, local47suite/354unit +22suite/207E2E +lint/build pass; VPS039 đã áp.
-- Hai script DB3-B vừa sửa trực tiếp VPS21:35, ngoài handoff: _gloss-types.ts/gloss-apply.ts.
-  Lưu patch riêng; hủy CI37480050307 nên Deploy37480283546 skipped, chưa deployM4.3.
-- Cần phiên DB3-B hoàn thành/handoff để tiếp tục, tránh gitreset ghi đè. [Report](docs/reviews/m4-3-subsense-integration-2026-10-06.md).
-
-
-### 2026-10-06 — M4.2 / DB4-D0.2 — Tạm dừng deploy theo yêu cầu
-
-038 đã áp VPS, d861390 đã push và CI/Deploy success (344 unit / 204 E2E). Final
-smoke chưa đạt vì phiên khác sửa/build trực tiếp service/DTO/types trên VPS; patch
-đã lưu, restore guard dừng trước ghi do source tiếp tục đổi. Chủ dự án yêu cầu dừng
-chờ phiên đó làm xong. Không tiếp tục sửa/build/restart VPS. [Handoff trạng thái](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md); cập nhật này local/chưa commit/push.
-
-Entry lịch sử trên đã hết điều kiện chờ grouping khi nhận handoff46ec612;
-M4.3 tiếp tục và gặp thay đổi DB3-B mới như entry21:35.
-
+- Rollback cũ xóa frequency_rank toàn ngôn ngữ vượt scope run: khóa trước kết nối DB.
+- Apply recheck rank-null dưới table lock trong transaction; count::int dùng number.
+- E2E giữ rank có sẵn khi từ chối rollback. Không import/rollback wordfreq VPS.
+- [README](scripts/db3/README.md), [report](docs/reviews/db3-wordfreq-2026-10-06.md).
 
 ### 2026-10-06 — DB3-B2.1 — Tích hợp partial apply và bảo toàn review
 
-- Chủ dự án xác nhận phiên DB3-B xong, cho kiểm tra/tích hợp tiếp sau deploy hold.
-- Tích hợp3file VPS, sửa UNREVIEWED/resume cohort/judge fail-minor; default98/100 giữ.
-- Audit review mode/hash/count, tests node private DB + CI gate riêng. Không gọi AI/seed VPS.
-- [Report](docs/reviews/db3-b2-1-partial-review-integration-2026-10-06.md); code đang kiểm tra,
-  commit riêng rồi deploy chungM4.3. M4.3 không còn chờ phản hồi chủ dự án.
+- Khi phát hiện script VPS đổi lúc 21:35, hủy CI 37480050307 để bảo toàn patch;
+  Deploy 37480283546 skipped. Chủ dự án xác nhận phiên DB3-B xong, cho tích hợp tiếp.
+- Nhận ba file, sửa UNREVIEWED, resume cohort và judge promote fail/minor.
+  Default 100/≥98 pass/0 severe giữ nguyên; partial chỉ apply output pass đã review.
+- Audit mode/hash/count, 31 node tests pass và CI gate riêng. Không gọi AI/seed VPS.
+- Commit `f700658` đã push/deploy cùng M4.3.
+- [Report](docs/reviews/db3-b2-1-partial-review-integration-2026-10-06.md).
+
+### 2026-10-06 — M4.3 / DB3-B2.1 — Deploy và kiểm chứng live hoàn tất
+
+- Runtime `f700658`; CI 37481567514 và Deploy 37481886745 success; 038/039 đã áp.
+- 354 unit / 207 E2E / 31 DB3 tests, lint/build pass; 46 live checks pass.
+- run: 64 sense → 38 nhóm/26 con; draw: 138 → 6/132; apple: 20 → 8/12; dog: 23 → 14/9.
+- Flat/grouped giữ IDs/card/leaf; cursor v3/canonical, sources/stroke/admin/JMdict giữ.
+- Core 2.375.240 lexeme / 2.917.954 sense; runtime tracked code clean, giữ hai file .bak.
+- [Report + smoke](docs/reviews/m4-3-subsense-integration-2026-10-06.md);
+  tài liệu nghiệm thu được commit riêng sau deploy.
