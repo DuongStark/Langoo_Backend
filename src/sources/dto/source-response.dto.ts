@@ -59,6 +59,13 @@ export class DataSourceDto {
   })
   credit_line!: string;
 
+  @ApiProperty({
+    example: 1,
+    description:
+      'Số nguồn con đã gộp (vd các lô DB3-B cùng là gloss máy tiếng Việt)',
+  })
+  child_count!: number;
+
   @ApiProperty({ type: SourceUsageDto })
   usage!: SourceUsageDto;
 }

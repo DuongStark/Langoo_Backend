@@ -82,4 +82,60 @@ describe('SourcesService', () => {
 
     expect(listSources).toHaveBeenCalledTimes(1);
   });
+
+  it('gộp các source db3b-ai-* vào llm-vi (child_count + cộng gloss)', async () => {
+    const empty = jest.fn().mockResolvedValue([]);
+    const repo = {
+      listSources: jest.fn().mockResolvedValue([
+        {
+          id: 14,
+          code: 'llm-vi',
+          name: 'Gloss tiếng Việt do LLM sinh',
+          license: 'nội bộ',
+          attribution: 'Sinh bởi mô hình, chưa kiểm duyệt',
+          url: null,
+          version: null,
+        },
+        {
+          id: 90,
+          code: 'db3b-ai-aaa',
+          name: 'DB3-B machine gloss',
+          license: 'nội bộ',
+          attribution: 'Machine translation',
+          url: null,
+          version: null,
+        },
+        {
+          id: 91,
+          code: 'db3b-ai-bbb',
+          name: 'DB3-B machine gloss',
+          license: 'nội bộ',
+          attribution: 'Machine translation',
+          url: null,
+          version: null,
+        },
+      ]),
+      countLexemes: empty,
+      countSenses: empty,
+      countGlosses: jest.fn().mockResolvedValue([
+        { source_id: 14, count: 1000 },
+        { source_id: 90, count: 100 },
+        { source_id: 91, count: 100 },
+      ]),
+      countConcepts: empty,
+      countConceptGlosses: empty,
+      countKanji: empty,
+      countExamples: empty,
+    };
+    const service = new SourcesService(repo as unknown as SourcesRepository);
+
+    const data = await service.list();
+
+    expect(data).toHaveLength(1);
+    expect(data[0]).toMatchObject({
+      code: 'llm-vi',
+      child_count: 3,
+      usage: { glosses: 1200 },
+    });
+  });
 });

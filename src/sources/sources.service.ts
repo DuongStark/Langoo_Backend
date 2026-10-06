@@ -9,6 +9,9 @@ import {
 /** Credits ít đổi — cache trong process để tránh COUNT trên bảng lớn mỗi request. */
 const CACHE_TTL_MS = 10 * 60 * 1000;
 
+/** DB3-B apply tạo 1 source/lô (`db3b-ai-<jobKey>`); gộp khi hiển thị credits. */
+const MACHINE_SOURCE_PREFIX = 'db3b-ai-';
+
 function toCountMap(rows: SourceCountRow[]): Map<number, number> {
   return new Map(
     rows
@@ -83,6 +86,7 @@ export class SourcesService implements OnModuleInit {
       url: row.url,
       version: row.version,
       credit_line: creditLine(row),
+      child_count: 1,
       usage: {
         lexemes: lexemeCounts.get(row.id) ?? 0,
         senses: senseCounts.get(row.id) ?? 0,
@@ -94,7 +98,61 @@ export class SourcesService implements OnModuleInit {
       },
     }));
 
-    this.cache = { expiresAt: now + CACHE_TTL_MS, data };
-    return data;
+    const machineRows = data.filter((row) =>
+      row.code.startsWith(MACHINE_SOURCE_PREFIX),
+    );
+    const grouped =
+      machineRows.length === 0
+        ? data
+        : mergeMachineSources(
+            data.filter((row) => !machineRows.includes(row)),
+            machineRows,
+          );
+
+    this.cache = { expiresAt: now + CACHE_TTL_MS, data: grouped };
+    return grouped;
   }
+}
+
+/**
+ * Gộp các source `db3b-ai-*` (1 nguồn/lô apply) vào entry gloss-máy `llm-vi`:
+ * cộng số gloss, tăng child_count; nếu chưa có `llm-vi` thì tạo entry tổng hợp.
+ */
+function mergeMachineSources(
+  rest: DataSourceDto[],
+  machineRows: DataSourceDto[],
+): DataSourceDto[] {
+  const glossCount = machineRows.reduce(
+    (sum, row) => sum + row.usage.glosses,
+    0,
+  );
+  const target = rest.find((row) => row.code === 'llm-vi');
+  if (target) {
+    target.usage.glosses += glossCount;
+    target.child_count += machineRows.length;
+    return rest;
+  }
+  return [
+    ...rest,
+    {
+      id: 0,
+      code: 'db3b-ai',
+      name: 'DB3-B Vietnamese machine gloss',
+      license: 'nội bộ',
+      attribution: 'Machine translation; origin sense glosses',
+      url: null,
+      version: null,
+      credit_line: 'DB3-B Vietnamese machine gloss · nội bộ',
+      child_count: machineRows.length,
+      usage: {
+        lexemes: 0,
+        senses: 0,
+        glosses: glossCount,
+        concepts: 0,
+        concept_glosses: 0,
+        kanji: 0,
+        examples: 0,
+      },
+    },
+  ];
 }
