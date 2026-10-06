@@ -39,10 +39,6 @@ export interface FormRow {
  * Nội dung chi tiết của một sense/lexeme (gloss, ví dụ, phát âm, form).
  * Chỉ đọc `core.*` — không ghi.
  */
-/**
- * Toàn bộ gloss EN của các sense thuộc một lexeme (để chọn định nghĩa hiển thị
- * khác nhau cho sense con của wiktextract — tránh lặp định nghĩa cha).
- */
 @Injectable()
 export class SenseContentRepository {
   constructor(private readonly prisma: PrismaService) {}
