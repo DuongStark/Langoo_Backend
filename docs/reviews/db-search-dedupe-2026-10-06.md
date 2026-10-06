@@ -53,6 +53,24 @@ Gõ đúng `CATI`, `Cato`, `cat-` vẫn ra chính xác; cursor phân trang OK; J
 
 **Việc lớn hơn (chưa làm):** import `wordfreq` vào `frequency_rank` (source 15 hiện 0 row) để ranking gợi ý theo tần suất thật thay vì độ dài/id.
 
+## 4c. Định nghĩa lặp ở trang chi tiết (deploy 2026-10-06)
+
+`GET /v1/lexemes/:id/senses` trước đây trả `definition` = gloss đầu của từng sense; với wiktextract,
+sense con lặp gloss cha → "apple" 20 sense nhưng 13 dòng cùng định nghĩa.
+
+Đã sửa (`dictionary.service.ts` + `sense-content.repository.getGlossesByLexeme`): nếu định nghĩa đã
+xuất hiện ở sense trước trong cùng lexeme, chọn gloss EN kế tiếp chưa dùng để hiển thị (API shape
+không đổi, FE không cần sửa).
+
+Kết quả VPS: apple 20 sense → **0 định nghĩa lặp** (sense 2 = "Often with a qualifying word…",
+sense 3 = "Something which resembles…", sense 4 = "Ellipsis of Adam's apple…").
+
+**Còn lại (chưa xử lý):**
+- Cùng mặt chữ nhiều POS (`cat` adj/noun/verb) hoặc nhiều reading (`人` ひと/にん/じん/と) —
+  là các mục từ khác nhau, không phải bản sao; muốn gộp 1 dòng/từ cần đổi API/FE.
+- Prefix còn từ hiếm lowercase (`cate`, `cath`, `catio`…) — do thiếu frequency.
+
+
 
 ## 5. Rollback
 
