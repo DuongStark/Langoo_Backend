@@ -1,5 +1,4 @@
 import { existsSync, readFileSync } from 'node:fs';
-import { z } from 'zod';
 import {
   readBytes,
   resolveArtifact,
@@ -9,10 +8,6 @@ import {
 } from './_artifacts';
 import { parseMappingCli } from './_cli';
 import {
-  ArtifactRefSchema,
-  Count,
-  Sha256Schema,
-  Text,
   createMappingJob,
   jobBudgetUsage,
   parseMappingBundleIntegrity,
@@ -23,6 +18,8 @@ import {
   type MappingJob,
   type MappingJobEntry,
 } from './_mapping-types';
+import { BundlesManifestSchema } from './_pilot';
+import { createChatCompletionsAdapter } from './_adapter_openai';
 import { createStubAdapter, runJob, type ProviderAdapter } from './_runner';
 
 /**
@@ -45,27 +42,6 @@ import { createStubAdapter, runJob, type ProviderAdapter } from './_runner';
 const STUB_PROMPT_R1 = 'mapping-sense-concept-r1-v1';
 const STUB_PROMPT_R2 = 'mapping-sense-concept-r2-v1';
 const STUB_VERIFIED_AT = '2026-10-07T00:00:00+07:00';
-
-const BundlesManifestSchema = z.object({
-  schemaVersion: z.literal(1),
-  kind: z.literal('db4-bundles'),
-  mode: z.enum(['fixture', 'production']),
-  semanticInputFingerprint: Sha256Schema,
-  snapshot: ArtifactRefSchema,
-  pilot: ArtifactRefSchema,
-  policyVersion: Text,
-  seed: Text,
-  bundles: z.array(
-    z.object({
-      bundleKey: Sha256Schema,
-      targetKey: Sha256Schema,
-      senseKey: Text,
-      contextHash: Sha256Schema,
-      ref: ArtifactRefSchema,
-      candidateCount: Count,
-    }),
-  ),
-});
 
 function envInt(key: string, fallback: number): number {
   const raw = process.env[key];
@@ -93,31 +69,34 @@ function capsFromEnv(): MappingJob['caps'] {
   };
 }
 
-function stubRateEvidence(root: string): ArtifactRef {
-  const rel = 'providers/stub-rate.json';
-  const abs = resolveArtifact(root, rel);
-  if (existsSync(abs))
-    return { path: rel, sha256: sha256Bytes(readFileSync(abs)) };
-  return writeTextAtomic(
-    root,
-    rel,
-    stablePretty({
-      provider: 'stub',
-      note: 'stub nội bộ: 0 quota, dùng cho mock/pilot khô',
-      verifiedAt: STUB_VERIFIED_AT,
-    }),
-  );
-}
-
-function stubProviders(root: string): MappingJob['providers'] {
-  const evidence = stubRateEvidence(root);
-  const rate = {
+function zeroRate(evidence: ArtifactRef) {
+  return {
     inputMicrousdPerMillion: 0,
     outputMicrousdPerMillion: 0,
     reasoningMicrousdPerMillion: 0,
     verifiedAt: STUB_VERIFIED_AT,
     evidence,
   };
+}
+
+function rateEvidence(
+  root: string,
+  rel: string,
+  value: Record<string, unknown>,
+): ArtifactRef {
+  const abs = resolveArtifact(root, rel);
+  if (existsSync(abs))
+    return { path: rel, sha256: sha256Bytes(readFileSync(abs)) };
+  return writeTextAtomic(root, rel, stablePretty(value));
+}
+
+function stubProviders(root: string): MappingJob['providers'] {
+  const evidence = rateEvidence(root, 'providers/stub-rate.json', {
+    provider: 'stub',
+    note: 'stub nội bộ: 0 quota, dùng cho mock/pilot khô',
+    verifiedAt: STUB_VERIFIED_AT,
+  });
+  const rate = zeroRate(evidence);
   return {
     r1: {
       provider: 'stub',
@@ -144,17 +123,77 @@ function stubProviders(root: string): MappingJob['providers'] {
   };
 }
 
-function adapterFor(job: MappingJob, providerFlag: unknown): ProviderAdapter {
-  if (providerFlag !== 'stub')
+function openAiProviders(root: string): MappingJob['providers'] {
+  const endpoint = process.env.DB4_PROVIDER_ENDPOINT;
+  const model = process.env.DB4_PROVIDER_MODEL;
+  if (!endpoint || !model)
     throw new Error(
-      'Provider openai-compatible chưa hỗ trợ ở bản runner này (sẽ thêm sau pilot mock)',
+      'Cần env DB4_PROVIDER_ENDPOINT và DB4_PROVIDER_MODEL cho provider openai-compatible',
     );
+  const parsed = new URL(endpoint);
   if (
-    job.providers.r1.provider !== 'stub' ||
-    job.providers.r2.provider !== 'stub'
+    !['https:', 'http:'].includes(parsed.protocol) ||
+    parsed.username ||
+    parsed.password ||
+    parsed.search ||
+    parsed.hash
   )
-    throw new Error('Job hiện tại không phải provider stub');
-  return createStubAdapter();
+    throw new Error(`DB4_PROVIDER_ENDPOINT không hợp lệ: ${endpoint}`);
+  const slug = model.toLowerCase().replace(/[^a-z0-9.-]+/g, '-');
+  const evidence = rateEvidence(root, `providers/${slug}-rate.json`, {
+    provider: 'openai-compatible',
+    model,
+    endpoint,
+    note: 'free model: 0 µ$ theo catalog; token vẫn đếm vào caps',
+    verifiedAt: STUB_VERIFIED_AT,
+  });
+  const base = {
+    provider: 'openai-compatible' as const,
+    model,
+    endpoint,
+    protocol: 'chat-completions' as const,
+    responseSchemaVersion: 1 as const,
+    reasoningConfig: { effort: null, maxTokens: 0 },
+    rate: zeroRate(evidence),
+  };
+  return {
+    r1: { ...base, promptVersion: STUB_PROMPT_R1, sessionId: `db4-${slug}-r1` },
+    r2: { ...base, promptVersion: STUB_PROMPT_R2, sessionId: `db4-${slug}-r2` },
+  };
+}
+
+function providersFor(root: string, kind: string): MappingJob['providers'] {
+  if (kind === 'stub') return stubProviders(root);
+  if (kind === 'openai-compatible') return openAiProviders(root);
+  throw new Error(`Provider chưa hỗ trợ: ${kind}`);
+}
+
+function adapterFor(job: MappingJob): ProviderAdapter {
+  const first = job.providers.r1;
+  const second = job.providers.r2;
+  if (
+    first.provider !== second.provider ||
+    first.model !== second.model ||
+    first.endpoint !== second.endpoint
+  )
+    throw new Error('R1/R2 provider không cùng cấu hình');
+  if (first.provider === 'stub') return createStubAdapter();
+  const apiKey = process.env.DB4_PROVIDER_API_KEY;
+  if (!apiKey || !apiKey.trim())
+    throw new Error('Cần env DB4_PROVIDER_API_KEY (không lưu vào artifact)');
+  if (!first.endpoint) throw new Error('Job thiếu endpoint provider');
+  return createChatCompletionsAdapter({
+    endpoint: first.endpoint,
+    apiKey: apiKey.trim(),
+    model: first.model,
+    sessionId: first.sessionId,
+    maxTokens: job.caps.maxOutputTokens,
+    // longcat free: tắt thinking để tránh reasoning dài làm cắt JSON (17s vs 80s/call)
+    extraBody:
+      (process.env.DB4_PROVIDER_THINKING ?? 'off') === 'off'
+        ? { thinking: { type: 'disabled' } }
+        : {},
+  });
 }
 
 function newRun(
@@ -163,8 +202,7 @@ function newRun(
   bundlesRel: string,
   providerFlag: unknown,
 ): void {
-  if (providerFlag !== 'stub')
-    throw new Error(`Provider chưa hỗ trợ: ${String(providerFlag)}`);
+  const providers2 = providersFor(root, String(providerFlag));
   const manifestBytes = readBytes(root, bundlesRel);
   const manifest = BundlesManifestSchema.parse(
     JSON.parse(manifestBytes.toString('utf8')),
@@ -172,7 +210,7 @@ function newRun(
   for (const ref of [manifest.snapshot, manifest.pilot]) {
     verifyArtifactBytes(ref, readBytes(root, ref.path));
   }
-  const providers = stubProviders(root);
+  const providers = providers2;
   const sortedRows = [...manifest.bundles].sort((a, b) =>
     a.targetKey < b.targetKey ? -1 : 1,
   );
@@ -280,7 +318,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   const frozen = parseMappingJob(
     JSON.parse(readBytes(root, jobRel).toString('utf8')),
   );
-  const adapter = adapterFor(frozen, resume ? 'stub' : cli.flags.provider);
+  const adapter = adapterFor(frozen);
   const finalJob = await runJob({
     root,
     jobRel,

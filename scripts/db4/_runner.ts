@@ -62,7 +62,11 @@ export interface ProviderAdapterRequest {
 export interface ProviderAdapter {
   /** Nhãn provenance (ghi log/attempt retryReason), không dùng làm cache key. */
   readonly id: string;
-  review(request: ProviderAdapterRequest): Promise<{ raw: unknown }>;
+  review(request: ProviderAdapterRequest): Promise<{
+    raw: unknown;
+    /** Usage thật (provider trả); thiếu thì runner dùng ước lượng bị chặn trên. */
+    usage?: { tokens: number; costMicrousd: number };
+  }>;
 }
 
 export interface RunnerDeps {
@@ -186,15 +190,28 @@ function estimateLimits(
   caps: MappingJob['caps'],
 ) {
   return {
-    inputTokens: Math.ceil(rendered.utf8Bytes / 3.5) + 500,
+    inputTokens: rendered.utf8Bytes + 512,
     outputTokens: caps.maxOutputTokens,
     reasoningTokens: provider.reasoningConfig.maxTokens,
   };
 }
 
-function stubUsage(reservation: MappingJob['attempts'][number]['reservation']) {
-  const tokens = Math.max(1, Math.min(reservation.tokens, 800));
-  return { tokens, costMicrousd: 0 };
+function boundedUsage(
+  usage: { tokens: number; costMicrousd: number } | undefined,
+  reservation: MappingJob['attempts'][number]['reservation'],
+) {
+  if (!usage)
+    return {
+      tokens: Math.max(1, Math.min(reservation.tokens, 800)),
+      costMicrousd: 0,
+    };
+  return {
+    tokens: Math.max(0, Math.min(usage.tokens, reservation.tokens)),
+    costMicrousd: Math.max(
+      0,
+      Math.min(usage.costMicrousd, reservation.costMicrousd),
+    ),
+  };
 }
 
 function readOutput(
@@ -347,7 +364,7 @@ function recoverTargetPhase(
         outcome: 'response' as const,
         rawResponse: rawRef,
         validatedOutput: outRef,
-        actualUsage: stubUsage(last.reservation),
+        actualUsage: boundedUsage(undefined, last.reservation),
       };
       let next = transitionMappingTarget(job, targetKey, received, {
         attempts: replaceAttempt(job.attempts, last.index, finished),
@@ -679,6 +696,7 @@ async function runPhase(
 
   let attempt: MappingJob['attempts'][number] = baseAttempt;
   let rawValue: unknown = null;
+  let reportedUsage: { tokens: number; costMicrousd: number } | undefined;
   const validationError = (output: unknown): string | null => {
     try {
       parseMappingOutput(output, bundle);
@@ -690,7 +708,7 @@ async function runPhase(
   dispatchLoop: for (;;) {
     let message: string;
     try {
-      const { raw } = await deps.adapter.review({
+      const { raw, usage } = await deps.adapter.review({
         phase,
         bundle,
         rendered,
@@ -700,6 +718,7 @@ async function runPhase(
       const invalid = validationError(raw);
       if (invalid === null) {
         rawValue = raw;
+        reportedUsage = usage;
         break dispatchLoop;
       }
       message = `schema: ${invalid}`;
@@ -759,7 +778,7 @@ async function runPhase(
     outcome: 'response' as const,
     rawResponse: rawRef,
     validatedOutput: outRef,
-    actualUsage: stubUsage(reservation),
+    actualUsage: boundedUsage(reportedUsage, reservation),
   };
   current = transitionMappingTarget(
     current,
