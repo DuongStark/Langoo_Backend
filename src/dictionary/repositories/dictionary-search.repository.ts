@@ -204,17 +204,33 @@ export class DictionarySearchRepository {
           CASE WHEN h.surface = cl.lemma THEN 0 ELSE 1 END AS canonical_face_rank,
           CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
           coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
-          length(h.surface) AS surface_length
+          length(h.surface) AS surface_length,
+          CASE WHEN cl.source_id = 1 THEN 0 ELSE 1 END AS source_rank
         FROM hits h
         JOIN core.lexeme cl ON cl.id = h.lexeme_id
       ),
+      -- Ẩn bản sao không-JMdict (omw-ja, wiktextract...) khi đã có entry JMdict
+      -- cùng ngôn ngữ + mặt chữ; giữ nguyên các entry có reading hoặc không có
+      -- bản JMdict nào. Không đổi ORDER BY/cursor để không vỡ phân trang.
+      visible AS (
+        SELECT r.*
+        FROM ranked r
+        WHERE r.source_rank = 0
+           OR r.reading IS NOT NULL
+           OR NOT EXISTS (
+                SELECT 1 FROM ranked j
+                WHERE j.lang_code = r.lang_code
+                  AND lower(j.surface) = lower(r.surface)
+                  AND j.source_rank = 0
+              )
+      ),
       per_result AS (
-        SELECT ranked.*,
+        SELECT visible.*,
           row_number() OVER (
             PARTITION BY ${resultPartition}
             ORDER BY ${resultOrder}
           ) AS face_no
-        FROM ranked
+        FROM visible
       )
       SELECT
         lexeme_id,

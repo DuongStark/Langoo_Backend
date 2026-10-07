@@ -47,4 +47,17 @@ describe('DictionarySearchRepository', () => {
     const query = firstArg<Prisma.Sql>(queryRaw);
     expect(query.sql).toContain('PARTITION BY lexeme_id');
   });
+
+  it('ẩn bản sao không-JMdict cùng mặt chữ khi đã có entry JMdict', async () => {
+    const { repository, queryRaw } = createRepository();
+
+    await repository.search(params);
+
+    const query = firstArg<Prisma.Sql>(queryRaw);
+    expect(query.sql).toContain(
+      'CASE WHEN cl.source_id = 1 THEN 0 ELSE 1 END AS source_rank',
+    );
+    expect(query.sql).toContain('j.source_rank = 0');
+    expect(query.sql).toContain('FROM visible');
+  });
 });
