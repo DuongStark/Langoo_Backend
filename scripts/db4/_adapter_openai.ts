@@ -92,13 +92,15 @@ export function buildReviewPrompt(request: ProviderAdapterRequest): {
     })),
     candidates: bundle.candidates.map((candidate) => ({
       candidateKey: candidate.candidateKey,
-      conceptId: candidate.concept.id,
-      conceptPos: candidate.concept.pos,
-      conceptIli: candidate.concept.ili,
-      conceptDefinitions: candidate.conceptContext.definitions.map(
-        (row) => row.text,
-      ),
-      conceptLabels: candidate.conceptContext.labels.map((row) => row.text),
+      conceptId: candidate.concept.id ?? '',
+      concept: {
+        pos: candidate.concept.pos,
+        ili: candidate.concept.ili,
+        definitions: candidate.conceptContext.definitions.map(
+          (row) => row.text,
+        ),
+        labels: candidate.conceptContext.labels.map((row) => row.text),
+      },
     })),
   };
   return {

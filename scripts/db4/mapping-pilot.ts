@@ -95,13 +95,22 @@ export function main(argv = process.argv.slice(2)): void {
 
   const fromJobRel = flags.get('from-job');
   if (fromJobRel) {
-    const job = parseMappingJob(
-      JSON.parse(readBytes(root, fromJobRel).toString('utf8')),
-    );
-    const retryKeys = job.entries
-      .filter((entry) => entry.state !== 'decision_ready')
-      .map((entry) => entry.targetKey)
-      .sort();
+    const fromJobRels = fromJobRel
+      .split(',')
+      .map((value) => value.trim())
+      .filter(Boolean);
+    const jobs = fromJobRels.map((rel) => ({
+      rel,
+      job: parseMappingJob(JSON.parse(readBytes(root, rel).toString('utf8'))),
+    }));
+    const ready = new Set<string>();
+    const known = new Set<string>();
+    for (const { job } of jobs)
+      for (const entry of job.entries) {
+        known.add(entry.targetKey);
+        if (entry.state === 'decision_ready') ready.add(entry.targetKey);
+      }
+    const retryKeys = [...known].filter((key) => !ready.has(key)).sort();
     if (!retryKeys.length) throw new Error('Không có target cần retry');
     const retrySet = new Set(retryKeys);
     const pilot = parsePilotManifest({
@@ -149,7 +158,9 @@ export function main(argv = process.argv.slice(2)): void {
     BundlesManifestSchema.parse(JSON.parse(subsetBytes));
     writeTextAtomic(root, subsetRel, subsetBytes);
     console.log('== DB4 mapping-pilot (A retry) ==');
-    console.log(`  target cần retry: ${rows.length}/${job.entries.length}`);
+    console.log(
+      `  target cần retry: ${rows.length} (đã xong ${ready.size}/${known.size}, từ ${fromJobRels.length} job)`,
+    );
     console.log(`  pilot: ${pilotRel}`);
     console.log(`  manifest: ${subsetRel}`);
     return;

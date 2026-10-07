@@ -188,9 +188,11 @@ function adapterFor(job: MappingJob): ProviderAdapter {
     model: first.model,
     sessionId: first.sessionId,
     maxTokens: job.caps.maxOutputTokens,
-    // longcat free: tắt thinking để tránh reasoning dài làm cắt JSON (17s vs 80s/call)
-    extraBody:
-      (process.env.DB4_PROVIDER_THINKING ?? 'off') === 'off'
+    // longcat free: tắt thinking để tránh reasoning dài làm cắt JSON (~17s vs 80s/call).
+    // Model khác (deepseek): đặt DB4_PROVIDER_REASONING=minimal để giới hạn reasoning.
+    extraBody: process.env.DB4_PROVIDER_REASONING
+      ? { reasoning_effort: process.env.DB4_PROVIDER_REASONING }
+      : (process.env.DB4_PROVIDER_THINKING ?? 'off') === 'off'
         ? { thinking: { type: 'disabled' } }
         : {},
   });
