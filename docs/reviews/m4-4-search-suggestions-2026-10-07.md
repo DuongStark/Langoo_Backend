@@ -50,3 +50,15 @@ hit có rank và không thể bảo đảm “5 từ phổ biến nhất” tron
 - Không đổi schema/DB và không có migration.
 - Gate còn thiếu: chạy lại E2E khi PostgreSQL test local hoạt động; tích hợp endpoint
   vào source FE để thay dropdown hiện tại.
+
+## Triển khai VPS (2026-10-07, tiếp quản bởi phiên deepseek)
+
+- Đã commit nhánh `feat/m4-4-dictionary-suggestions` (`d458c50`), sau đó tích hợp sang nhánh
+  đang chạy kèm reverse lookup (`b14aa49`), deploy VPS bằng build lại + `pm2 restart langoo-api`.
+- Live smoke (`https://langoo-api.pixpress.art/v1/dictionary/suggestions`):
+  - `q=book&lang=en` → 5 kết quả, `book` (rank 357) đầu, `next_cursor=null`.
+  - `q=cat` → gộp trùng đúng (`cat` một mục, kế tiếp `catch/category/catholic/cats`).
+  - `q=hashiru&lang=ja` → `奔る, 疾る, 走る, 趨る, はしる` (romaji→kana).
+  - `q=run` → tối đa 5; `q=zzzz` → `data=[]`; `q= ` → `400 VALIDATION_FAILED`; `lang=xx` → `400 LANGUAGE_NOT_FOUND`.
+- Regression: `/v1/dictionary/reverse?q=cát` vẫn OK (sand/砂) sau restart.
+- E2E local vẫn chưa chạy (PostgreSQL test cổng 55432 không bật sau restart máy).

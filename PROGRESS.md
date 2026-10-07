@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-07 (M4.4: API suggestions code xong local; unit/lint/build pass; E2E chờ PostgreSQL local; FE consumer chưa có trong repo)
+> Cập nhật lần cuối: 2026-10-07 (M4.4 suggestions **đã deploy VPS**; kèm API tra ngược `/v1/dictionary/reverse`; FE gọi endpoint để đổi dropdown còn chờ)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -18,7 +18,7 @@
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                 |
 | M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn | ✅ commits04112dc/d861390 đã push/CI deploy VPS, migration038 đã áp; cursor v3/canonical face giữ trong M4.3; [report](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md) |
 | M4.3 | Nhóm nghĩa Wiktextract và bảo toàn sense | ✅ 9a52b68 + DB3-B2.1f700658 đã push/deploy;039 đã áp;354 unit/207 E2E/31 DB3 tests,46 live checks pass; FE render con còn chờ; [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md) |
-| M4.4 | Gợi ý tìm kiếm tối đa 5 từ phổ biến | 🛠️ API code xong local, 38 unit + lint file M4.4 + build pass; E2E thiếu DB local; FE gọi endpoint để cập nhật dropdown còn chờ; [report](docs/reviews/m4-4-search-suggestions-2026-10-07.md) |
+| M4.4 | Gợi ý tìm kiếm tối đa 5 từ phổ biến | ✅ đã deploy VPS 2026-10-07 (build + pm2 restart), live smoke pass (book/cat/hashiru/limit 5/lỗi 400); unit 42/42; FE gọi endpoint để cập nhật dropdown còn chờ; [report](docs/reviews/m4-4-search-suggestions-2026-10-07.md) |
 | M5   | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                               |
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                         |
 | M6   | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                      |
