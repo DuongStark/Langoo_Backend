@@ -6,8 +6,8 @@ và `app.gloss_report`.
 
 > DB2 đã có trigram/bigram indexes; repository dùng 3 nhánh matching mặt chữ/reading/romaji
 > với ILIKE kiểm chứng. Ký tự wildcard `% _ \` được escape.
-> **M4.2 / DB4-D0.2 (06/10): code xong local, chưa deploy VPS.** Contract dưới đây
-> cần migration **038_dictionary_source_projection.sql** trước khi deploy code mới.
+> **M4.2–M4.3 (06/10): đã deploy VPS; migrations 038/039 đã áp.** M4.4 bổ sung endpoint gợi ý
+> tìm kiếm dưới đây; endpoint search đầy đủ và cursor hiện tại không đổi.
 
 ## GET /v1/dictionary/search?q=&lang=&limit=
 
@@ -47,6 +47,29 @@ curl -s "http://localhost:3000/v1/dictionary/search?q=run" -H "Authorization: Be
 - M4.2 giữ **một matching face mỗi lexeme_id trước cursor/LIMIT+1**. Khác ID/nguồn/POS/reading vẫn giữ riêng cho tới khi equivalence/membership được xác nhận; không ẩn nguồn phụ chỉ vì trùng spelling.
 - Cursor M4.2 dùng **v3**; cursor v1/v2 cũ trả `400 VALIDATION_FAILED`, client bắt đầu lại trang đầu. Không giải mã/sửa cursor ở FE.
 - Khi tìm tiếng Nhật, romaji được chuyển sang kana để tìm thêm. Ví dụ `q=hashiru&lang=ja` tìm được `走る` cả khi `core.lexeme.romanization` chưa có dữ liệu.
+
+## GET /v1/dictionary/suggestions?q=&lang=
+
+Dùng cho dropdown autocomplete khi người dùng gõ. Endpoint trả **tối đa 5** gợi ý,
+không phân trang và không ghi lịch sử tìm kiếm. FE gọi endpoint này cho dropdown;
+khi người dùng xác nhận truy vấn thì tiếp tục dùng `/v1/dictionary/search` để xem đủ kết quả.
+
+```bash
+curl -s "http://localhost:3000/v1/dictionary/suggestions?q=book&lang=en"
+```
+
+Response có cùng shape với search (`data`, `next_cursor`), `next_cursor` luôn `null`.
+Các bản ghi có cùng ngôn ngữ, mặt chữ và cách đọc được gộp thành một gợi ý; endpoint
+giữ lexeme xếp cao nhất làm đại diện. Thứ tự ưu tiên khớp chính xác, khớp đầu chuỗi,
+rồi `frequency_rank` tăng dần (`NULLS LAST`) và các khóa ổn định. Nguồn chưa có
+`frequency_rank` sẽ đứng sau nguồn có hạng tần suất. Hạng tần suất hiện có độ phủ
+chính cho tiếng Anh; tiếng Nhật chưa được nạp wordfreq đầy đủ nên kết quả Nhật chưa
+thể bảo đảm là 5 từ phổ biến nhất nếu các hit không có `frequency_rank`.
+
+- `q` bắt buộc, 1–100 ký tự sau trim; rỗng trả `400 VALIDATION_FAILED`.
+- `lang` tùy chọn, dùng cùng danh sách và validation như `/search`.
+- Giới hạn luôn là 5; client không truyền `limit`/`cursor`.
+- Endpoint không dùng JWT và không ghi `search_history`, phù hợp gọi theo từng lần gõ.
 
 ## GET /v1/lexemes/:id/senses
 

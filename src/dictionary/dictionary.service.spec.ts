@@ -169,6 +169,41 @@ describe('DictionaryService', () => {
       expect(searchArgs.limit).toBe(6);
     });
 
+    it('suggestions giới hạn 5 mặt chữ duy nhất và không ghi history', async () => {
+      const { service, repos } = createSetup();
+      repos.search.search.mockResolvedValue([hitRow]);
+      repos.languages.findIdByCode.mockResolvedValue(1);
+
+      const result = await service.suggest({ q: '  book  ', lang: 'en' });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.next_cursor).toBeNull();
+      expect(repos.languages.findIdByCode).toHaveBeenCalledWith('en');
+      expect(repos.search.search).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queries: ['book'],
+          patterns: ['book'],
+          lang: 'en',
+          limit: 5,
+          cursor: null,
+          deduplicateSurface: true,
+        }),
+      );
+      expect(repos.history.create).not.toHaveBeenCalled();
+    });
+
+    it('suggestions từ chối ngôn ngữ không tồn tại', async () => {
+      const { service, repos } = createSetup();
+      repos.languages.findIdByCode.mockResolvedValue(null);
+
+      await expect(
+        service.suggest({ q: 'book', lang: 'xx' }),
+      ).rejects.toMatchObject({
+        code: 'LANGUAGE_NOT_FOUND',
+      });
+      expect(repos.search.search).not.toHaveBeenCalled();
+    });
+
     it('q chỉ có khoảng trắng → VALIDATION_FAILED và không chạm repository', async () => {
       const { service, repos } = createSetup();
 

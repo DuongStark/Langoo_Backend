@@ -31,6 +31,7 @@ import {
 } from './dto/dictionary-response.dto';
 import { LexemeSensesQueryDto } from './dto/lexeme-senses-query.dto';
 import { ReverseLookupQueryDto } from './dto/reverse-lookup-query.dto';
+import { SuggestionQueryDto } from './dto/suggestion-query.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import {
   KanjiCardResponse,
@@ -79,6 +80,19 @@ export class SearchController {
   })
   reverse(@Query() query: ReverseLookupQueryDto): Promise<ReverseLookupResult> {
     return this.dictionaryService.reverseLookup(query.q, query.to);
+  }
+
+  @Get('suggestions')
+  @ApiOperation({
+    summary: 'Gợi ý tìm kiếm tối đa 5 từ phổ biến, không ghi lịch sử tra từ',
+  })
+  @ApiOkResponse({ type: SearchResultDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'LANGUAGE_NOT_FOUND / VALIDATION_FAILED',
+  })
+  suggestions(@Query() query: SuggestionQueryDto): Promise<SearchResult> {
+    return this.dictionaryService.suggest(query);
   }
 }
 

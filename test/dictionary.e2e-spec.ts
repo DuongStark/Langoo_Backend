@@ -10,6 +10,7 @@ interface SearchHitBody {
   language_id: number;
   lang_code: string;
   surface: string;
+  reading?: string | null;
   surface_kind: string;
   is_exact: boolean;
 }
@@ -95,6 +96,27 @@ describe('Dictionary (e2e — langoo_test)', () => {
         lang_code: 'en',
         is_exact: true,
       });
+    });
+
+    it('gợi ý tìm kiếm trả tối đa 5 mặt chữ riêng biệt', async () => {
+      const res = await request(server)
+        .get('/v1/dictionary/suggestions')
+        .query({ q: 'run', lang: 'en' })
+        .expect(200);
+      const body = res.body as {
+        data: SearchHitBody[];
+        next_cursor: string | null;
+      };
+      const displayKeys = body.data.map(
+        (hit) =>
+          `${hit.lang_code}\u0000${hit.surface.toLocaleLowerCase()}\u0000${hit.reading?.toLocaleLowerCase() ?? ''}`,
+      );
+
+      expect(body.data.length).toBeGreaterThan(0);
+      expect(body.data.length).toBeLessThanOrEqual(5);
+      expect(body.data[0]).toMatchObject({ surface: 'run', is_exact: true });
+      expect(new Set(displayKeys).size).toBe(displayKeys.length);
+      expect(body.next_cursor).toBeNull();
     });
 
     it('lang không tồn tại → 400 LANGUAGE_NOT_FOUND', async () => {

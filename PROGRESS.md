@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-06 (M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ)
+> Cập nhật lần cuối: 2026-10-07 (M4.4: API suggestions code xong local; unit/lint/build pass; E2E chờ PostgreSQL local; FE consumer chưa có trong repo)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 
 ## Checklist milestone
@@ -18,6 +18,7 @@
 | M4   | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                 |
 | M4.2 | Search một lexeme một hit và bảo toàn nghĩa đa nguồn | ✅ commits04112dc/d861390 đã push/CI deploy VPS, migration038 đã áp; cursor v3/canonical face giữ trong M4.3; [report](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md) |
 | M4.3 | Nhóm nghĩa Wiktextract và bảo toàn sense | ✅ 9a52b68 + DB3-B2.1f700658 đã push/deploy;039 đã áp;354 unit/207 E2E/31 DB3 tests,46 live checks pass; FE render con còn chờ; [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md) |
+| M4.4 | Gợi ý tìm kiếm tối đa 5 từ phổ biến | 🛠️ API code xong local, 38 unit + lint file M4.4 + build pass; E2E thiếu DB local; FE gọi endpoint để cập nhật dropdown còn chờ; [report](docs/reviews/m4-4-search-suggestions-2026-10-07.md) |
 | M5   | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                               |
 | M5.1 | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                         |
 | M6   | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                      |
@@ -458,3 +459,16 @@ phân trang dùng face cũ. Đang kiểm/publish patch; chưa báo smoke hoàn t
 - Core 2.375.240 lexeme / 2.917.954 sense; runtime tracked code clean, giữ hai file .bak.
 - [Report + smoke](docs/reviews/m4-3-subsense-integration-2026-10-06.md);
   tài liệu nghiệm thu được commit riêng sau deploy.
+
+### 2026-10-07 — M4.4 — Gợi ý tìm kiếm tối đa 5 từ phổ biến
+
+- Thêm `GET /v1/dictionary/suggestions?q=&lang=` cho dropdown; giới hạn cứng 5,
+  gom cùng mặt chữ/cách đọc/ngôn ngữ để bản ghi đa nguồn không chiếm nhiều ô.
+- Giữ endpoint `/search` và luồng kết quả đầy đủ không đổi; suggestions không ghi
+  search history theo mỗi lần gõ.
+- API docs: [dictionary](docs/api/dictionary.md); chi tiết triển khai/gate:
+  [report M4.4](docs/reviews/m4-4-search-suggestions-2026-10-07.md).
+- Kiểm tra: 38 unit pass; ESLint trên file M4.4 và build pass; E2E chưa chạy được vì PostgreSQL
+  local `127.0.0.1:55432` không bật.
+- Trạng thái: code xong local, kiểm tra local một phần; chưa commit/push/deploy.
+- FE source không có trong repo hiện tại; cần gọi `/suggestions` cho dropdown để UI dùng giới hạn mới.

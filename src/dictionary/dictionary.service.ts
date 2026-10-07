@@ -4,6 +4,7 @@ import { DomainException } from '../common/errors/domain.exception';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
 import { SearchQueryDto } from './dto/search-query.dto';
+import { SuggestionQueryDto } from './dto/suggestion-query.dto';
 import {
   decodeDictionarySearchCursor,
   encodeDictionarySearchCursor,
@@ -41,6 +42,7 @@ import { SenseCard } from './types/sense-card';
 
 const EXAMPLES_LIMIT = 5;
 const DEFAULT_SEARCH_LIMIT = 20;
+const SUGGESTION_LIMIT = 5;
 
 /**
  * Đọc từ điển: search, sense detail, cặp song ngữ, kanji.
@@ -219,6 +221,45 @@ export class DictionaryService {
       en: targets.has('en') ? en : [],
       ja,
     };
+  }
+
+  /**
+   * Autocomplete: at most five distinct displayed forms. Does not record search
+   * history because clients call it for each keystroke.
+   */
+  async suggest(dto: SuggestionQueryDto): Promise<SearchResult> {
+    const query = dto.q.trim();
+    if (query.length === 0) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const languageCode = dto.lang ?? null;
+    if (dto.lang !== undefined) {
+      const languageId = await this.languages.findIdByCode(dto.lang);
+      if (languageId === null) {
+        throw new DomainException(
+          'LANGUAGE_NOT_FOUND',
+          `Ngôn ngữ không tồn tại: ${dto.lang}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    const queryVariants = getSearchQueryVariants(query, languageCode);
+    const rows = await this.searchRepo.search({
+      queries: queryVariants,
+      patterns: queryVariants.map(escapeLike),
+      lang: languageCode,
+      limit: SUGGESTION_LIMIT,
+      cursor: null,
+      deduplicateSurface: true,
+    });
+
+    return { data: rows.map(toSearchHit), next_cursor: null };
   }
 
   async getLexemeSenses(

@@ -29,8 +29,9 @@ export interface SearchRow {
  * trên MỘT cột nên planner dùng được index: GIN trigram (pattern ≥3 ký tự) và GIN bigram
  * `core.bigrams` (pattern 1–2 ký tự); biểu thức OR trộn nhiều cột/bảng như trước không
  * thể dùng index. `ILIKE` luôn giữ làm điều kiện kiểm chứng vì bigram chỉ là điều kiện
- * CẦN (mất thứ tự/khoảng cách). Sau matching, giữ một face tốt nhất mỗi lexeme
- * trước cursor/LIMIT; không loại nguồn hoặc homograph theo surface giống nhau.
+ * CẦN (mất thứ tự/khoảng cách). Search giữ face tốt nhất mỗi lexeme trước
+ * cursor/LIMIT; suggestions có thể gộp theo ngôn ngữ + surface + reading để nguồn
+ * trùng không chiếm nhiều mục autocomplete.
  */
 export interface SearchParams {
   queries: string[];
@@ -38,6 +39,8 @@ export interface SearchParams {
   lang: string | null;
   limit: number;
   cursor: DictionarySearchCursor | null;
+  /** Collapse source-level duplicates that display the same language/surface/reading. */
+  deduplicateSurface?: boolean;
 }
 
 @Injectable()
@@ -45,7 +48,14 @@ export class DictionarySearchRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async search(params: SearchParams): Promise<SearchRow[]> {
-    const { queries, patterns, lang, limit, cursor } = params;
+    const {
+      queries,
+      patterns,
+      lang,
+      limit,
+      cursor,
+      deduplicateSurface = false,
+    } = params;
     const langFilter =
       lang === null ? Prisma.sql`` : Prisma.sql`AND ds.lang_code = ${lang}`;
 
@@ -125,6 +135,13 @@ export class DictionarySearchRepository {
         `
       : Prisma.sql``;
 
+    const resultPartition = deduplicateSurface
+      ? Prisma.sql`lang_code, lower(surface), coalesce(lower(reading), '')`
+      : Prisma.sql`lexeme_id`;
+    const resultOrder = deduplicateSurface
+      ? Prisma.sql`exact_rank, prefix_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, lexeme_id`
+      : Prisma.sql`exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
+
     return this.prisma.$queryRaw<SearchRow[]>(Prisma.sql`
       WITH hits AS (
         SELECT
@@ -191,11 +208,11 @@ export class DictionarySearchRepository {
         FROM hits h
         JOIN core.lexeme cl ON cl.id = h.lexeme_id
       ),
-      per_lexeme AS (
+      per_result AS (
         SELECT ranked.*,
           row_number() OVER (
-            PARTITION BY lexeme_id
-            ORDER BY exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface
+            PARTITION BY ${resultPartition}
+            ORDER BY ${resultOrder}
           ) AS face_no
         FROM ranked
       )
@@ -215,7 +232,7 @@ export class DictionarySearchRepository {
         frequency_null_rank,
         frequency_sort,
         surface_length
-      FROM per_lexeme
+      FROM per_result
       WHERE face_no = 1
         ${cursorCondition}
       ORDER BY
