@@ -1,0 +1,81 @@
+{
+ "builderVersion": "db4-bundle-v1",
+ "candidates": {
+  "path": "candidates/cb5ef09ed496b543-db4-gen-v1/summary.json",
+  "sha256": "b81340c65bb4e794045b9cf2bafda29ca945af038b0d65a83211b00feb7c1943"
+ },
+ "counts": {
+  "bundles": 15199,
+  "candidateTotal": 75660,
+  "senses": 15199,
+  "skippedCandidates": 0
+ },
+ "export": {
+  "path": "exports/cb5ef09ed496b543158ad216e262df71d285a3c7a7a9fdd61cc16ba76201b1ca/manifest.json",
+  "sha256": "38803c26fefece0bcd8b58e228ff9851790861951dc7a986c3abd9f28a0fed7a"
+ },
+ "files": [
+  {
+   "path": "bundles/cb5ef09ed496b543-db4-bundle-v1/bundles.jsonl",
+   "sha256": "f055c06ad2521771802d341be6dcc3165d9e61e2682ddb18df6a6cbf1558ca3a"
+  },
+  {
+   "path": "snapshots/cb5ef09ed496b543.json",
+   "sha256": "2874d1495288a831f040928a688cda6d998b5e6a45ad089fb2a00b6b89a0dd74"
+  },
+  {
+   "path": "pilots/cb5ef09ed496b543-all.json",
+   "sha256": "d374bbb1d80bd9d308108c0e9ce0fd4653b688937fe5dd7d46bb61a235ee505b"
+  }
+ ],
+ "kind": "db4-bundles",
+ "mode": "production",
+ "pilot": {
+  "path": "pilots/cb5ef09ed496b543-all.json",
+  "sha256": "d374bbb1d80bd9d308108c0e9ce0fd4653b688937fe5dd7d46bb61a235ee505b"
+ },
+ "policyVersion": "mapping-policy-v1",
+ "schemaVersion": 1,
+ "seed": "db4-pilot-seed-v1",
+ "semanticInputFingerprint": "cb5ef09ed496b543158ad216e262df71d285a3c7a7a9fdd61cc16ba76201b1ca",
+ "snapshot": {
+  "path": "snapshots/cb5ef09ed496b543.json",
+  "sha256": "2874d1495288a831f040928a688cda6d998b5e6a45ad089fb2a00b6b89a0dd74"
+ },
+ "bundlesSample": [
+  {
+   "bundleKey": "a42429ff02f42316a771db9770aaccc939d9c0a52d31088bf6eb9a6d4ca0b9e5",
+   "candidateCount": 5,
+   "contextHash": "461c5c1b0b9823ba6c87fb5e6d131b92fe19437a63dbe69b5c12874924876e24",
+   "ref": {
+    "path": "bundles/cb5ef09ed496b543-db4-bundle-v1/items/a42429ff02f42316a771db9770aaccc939d9c0a52d31088bf6eb9a6d4ca0b9e5.json",
+    "sha256": "fcfb41b9522dd7a036765a9a60c2619a2e9f09a4ae1c9c063c2ca836699de7d5"
+   },
+   "senseKey": "sense:3b5cd545fdd9583f3299ca904efd89056dfd90ae8c0a3f435fb6306ab9d951ca",
+   "targetKey": "572128b132918809e5e9f38a47487d27d841665b967d82036be5b1519b05e117"
+  },
+  {
+   "bundleKey": "d333b4803a07b37fa6233312a3f6b506c9181287e8e184d9a985e384c9197040",
+   "candidateCount": 5,
+   "contextHash": "dcd93105c5b741d36bcb4280d811520276dbb3ee70f3364aef7ca68e5b0e9056",
+   "ref": {
+    "path": "bundles/cb5ef09ed496b543-db4-bundle-v1/items/d333b4803a07b37fa6233312a3f6b506c9181287e8e184d9a985e384c9197040.json",
+    "sha256": "ec273406a668738d5c61dd0a088dc6e7ba81bd1867eef80da2ce9bc7a9d1fd1c"
+   },
+   "senseKey": "sense:fa1239ac5f3f8dd41594a7c581c79b740f9d639fb96c724f29eead30220a7ab3",
+   "targetKey": "029730c90173b9bf8f8df593c036dda702e0204e2e3cdcf4707986a83d65ab41"
+  },
+  {
+   "bundleKey": "7bbd2accfba663500254dfe04b77ca7b86897c3b397d9936661ab51f21474412",
+   "candidateCount": 5,
+   "contextHash": "a6febcfa001fb9383e1cd64e67452b576aaff8cefdaf1b938858471dc65925e2",
+   "ref": {
+    "path": "bundles/cb5ef09ed496b543-db4-bundle-v1/items/7bbd2accfba663500254dfe04b77ca7b86897c3b397d9936661ab51f21474412.json",
+    "sha256": "83cad7441c1b409c7fe87e1fb3fecb3d6111cbf8619f1cb94a9784d51dfe1d88"
+   },
+   "senseKey": "sense:585be3181979de292acdbff10a9408682d5e1fb21d95cda876bd7c3e179364e1",
+   "targetKey": "f6cd053f88777f2e0ee503b57f4dca4371e5931b8b606a6df72f9328464ab4e2"
+  }
+ ],
+ "bundlesCount": 15199
+}
