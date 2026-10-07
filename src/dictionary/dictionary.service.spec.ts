@@ -550,6 +550,18 @@ describe('DictionaryService', () => {
         query_codes: null,
         used_in_forms: 12n,
         media_kinds: null,
+        parts: [
+          {
+            char: '走',
+            position: 1,
+            is_radical: true,
+            radical_number: 156,
+            name_vi: 'Tẩu',
+            meaning_vi: 'Chạy',
+          },
+          { char: 'x', position: null, is_radical: false },
+          { char: 123, position: 2, is_radical: false },
+        ],
       });
 
       const result = await service.getKanji('走');
@@ -561,6 +573,24 @@ describe('DictionaryService', () => {
         radical: null,
       });
       expect(result.readings).toEqual({ on: ['ソウ'] });
+      expect(result.parts).toEqual([
+        {
+          char: '走',
+          position: 1,
+          is_radical: true,
+          radical_number: 156,
+          name_vi: 'Tẩu',
+          meaning_vi: 'Chạy',
+        },
+        {
+          char: 'x',
+          position: null,
+          is_radical: false,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+      ]);
     });
   });
 

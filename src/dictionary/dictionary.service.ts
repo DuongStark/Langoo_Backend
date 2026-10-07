@@ -10,6 +10,7 @@ import {
   encodeDictionarySearchCursor,
 } from './dictionary-search-cursor';
 import {
+  KanjiPart,
   LexemeSensesResult,
   ReverseLookupEnHit,
   ReverseLookupJaHit,
@@ -541,7 +542,28 @@ function toKanjiResponse(row: KanjiRow): KanjiCardResponse {
     query_codes: row.query_codes,
     used_in_forms: Number(row.used_in_forms),
     media_kinds: row.media_kinds,
+    parts: normalizeKanjiParts(row.parts),
   };
+}
+
+/** jsonb parts từ core.kanji_radical → mảng typed, bỏ dữ liệu dị dạng. */
+function normalizeKanjiParts(value: unknown): KanjiPart[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(
+      (item): item is Record<string, unknown> =>
+        item !== null && typeof item === 'object',
+    )
+    .map((item) => ({
+      char: typeof item.char === 'string' ? item.char : '',
+      position: typeof item.position === 'number' ? item.position : null,
+      is_radical: item.is_radical === true,
+      radical_number:
+        typeof item.radical_number === 'number' ? item.radical_number : null,
+      name_vi: typeof item.name_vi === 'string' ? item.name_vi : null,
+      meaning_vi: typeof item.meaning_vi === 'string' ? item.meaning_vi : null,
+    }))
+    .filter((part) => part.char !== '');
 }
 
 function toStringRecord(value: unknown): Record<string, string> {

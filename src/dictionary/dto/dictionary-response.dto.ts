@@ -277,6 +277,29 @@ export class KanjiRadicalDto {
   meaning_vi!: string | null;
 }
 
+export class KanjiPartDto {
+  @ApiProperty({ example: '子' })
+  char!: string;
+
+  @ApiProperty({ nullable: true, example: 1 })
+  position!: number | null;
+
+  @ApiProperty({
+    example: true,
+    description: 'Thành phần này là một bộ thủ Kangxi (kể cả biến thể)',
+  })
+  is_radical!: boolean;
+
+  @ApiProperty({ nullable: true, example: 39 })
+  radical_number!: number | null;
+
+  @ApiProperty({ nullable: true, example: 'Tử' })
+  name_vi!: string | null;
+
+  @ApiProperty({ nullable: true, example: 'Con, đứa trẻ' })
+  meaning_vi!: string | null;
+}
+
 export class KanjiCardDto {
   @ApiProperty({ example: '走' })
   literal!: string;
@@ -319,6 +342,12 @@ export class KanjiCardDto {
 
   @ApiProperty({ nullable: true, type: [String] })
   media_kinds!: string[] | null;
+
+  @ApiProperty({
+    type: [KanjiPartDto],
+    description: 'Thành phần cấu tạo (KRADFILE) kèm tên/nghĩa VI nếu là bộ thủ',
+  })
+  parts!: KanjiPartDto[];
 }
 
 export class SearchHistoryItemDto {

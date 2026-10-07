@@ -113,6 +113,15 @@ export interface KanjiRadical {
   meaning_vi: string | null;
 }
 
+export interface KanjiPart {
+  char: string;
+  position: number | null;
+  is_radical: boolean;
+  radical_number: number | null;
+  name_vi: string | null;
+  meaning_vi: string | null;
+}
+
 export interface KanjiCardResponse {
   literal: string;
   codepoint_ucs: number;
@@ -128,6 +137,7 @@ export interface KanjiCardResponse {
   query_codes: unknown;
   used_in_forms: number;
   media_kinds: string[] | null;
+  parts: KanjiPart[];
 }
 
 export interface SearchHistoryItem {

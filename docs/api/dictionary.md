@@ -150,9 +150,23 @@ Khi chưa curate, `data` rỗng — đúng thiết kế.
 curl -s http://localhost:3000/v1/kanji/走
 ```
 
-Trả số nét, cấp (grade/JLPT cũ-mới), bộ thủ (`radical` — `name_vi/meaning_vi` sẽ có sau khi seed
-`public.radical`), `readings/meanings/nanori/query_codes` (jsonb), `used_in_forms`, `media_kinds`.
-Lỗi: `404 KANJI_NOT_FOUND`.
+Trả số nét, cấp (grade/JLPT cũ-mới), bộ thủ (`radical` — tên/nghĩa VI từ `public.radical`),
+`readings/meanings/nanori/query_codes` (jsonb), `used_in_forms`, `media_kinds`, và **`parts`** —
+thành phần cấu tạo (nguồn `core.kanji_radical`, kradfile-style) kèm tên/nghĩa VI nếu thành phần
+là bộ thủ (khớp cả biến thể, vd `亻→人`, `犭→犬`):
+
+```json
+"parts": [
+  {"char": "子", "position": 1, "is_radical": true,  "radical_number": 39, "name_vi": "Tử",  "meaning_vi": "Con, đứa trẻ"},
+  {"char": "尚", "position": 2, "is_radical": false, "radical_number": null, "name_vi": null, "meaning_vi": null},
+  {"char": "冖", "position": 3, "is_radical": true,  "radical_number": 14, "name_vi": "Mịch", "meaning_vi": "Trùm khăn lên"}
+]
+```
+
+- Phủ: kanji lớp 1–6 **100%**, jōyō ~99,8%, tổng 12.156 chữ.
+- Lưu ý: một số chữ phức tạp có thành phần dạng "residual" (vd `猫 → 田+犯+艾`) — phản ánh
+  dữ liệu nguồn hiện có; nếu cần breakdown chuẩn kiểu IDS/KanjiVG sẽ bổ sung sau.
+- Lỗi: `404 KANJI_NOT_FOUND`.
 
 ## GET /v1/me/search-history (Bearer)
 
