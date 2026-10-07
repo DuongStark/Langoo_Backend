@@ -4,6 +4,7 @@ import {
   fsyncSync,
   mkdirSync,
   openSync,
+  readFileSync,
   readSync,
   renameSync,
   writeSync,
@@ -55,6 +56,11 @@ export function fsyncDir(absDir: string): void {
   } finally {
     closeSync(fd);
   }
+}
+
+/** Đọc raw bytes của artifact (giữ nguyên để verify hash bytes file). */
+export function readBytes(root: string, rel: string): Buffer {
+  return readFileSync(resolveArtifact(root, rel));
 }
 
 export function writeTextAtomic(
