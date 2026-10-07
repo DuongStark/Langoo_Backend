@@ -56,9 +56,10 @@ function createSetup(): {
       getForms: jest.Mock;
     };
     pairs: { findLinks: jest.Mock };
-    kanji: { getByLiteral: jest.Mock };
+    kanji: { getByLiteral: jest.Mock; getStrokeAsset: jest.Mock };
     history: { create: jest.Mock; listRecent: jest.Mock };
     languages: { findIdByCode: jest.Mock; findExistingIds: jest.Mock };
+    storage: { get: jest.Mock; put: jest.Mock; delete: jest.Mock };
   };
 } {
   const repos = {
@@ -75,9 +76,10 @@ function createSetup(): {
       getForms: jest.fn(),
     },
     pairs: { findLinks: jest.fn() },
-    kanji: { getByLiteral: jest.fn() },
+    kanji: { getByLiteral: jest.fn(), getStrokeAsset: jest.fn() },
     history: { create: jest.fn(), listRecent: jest.fn() },
     languages: { findIdByCode: jest.fn(), findExistingIds: jest.fn() },
+    storage: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
   };
   const service = new DictionaryService(
     repos.search as unknown as DictionarySearchRepository,
@@ -87,6 +89,7 @@ function createSetup(): {
     repos.kanji as unknown as KanjiRepository,
     repos.history as unknown as SearchHistoryRepository,
     repos.languages as unknown as LanguageRepository,
+    repos.storage,
   );
   return { service, repos };
 }
@@ -305,6 +308,7 @@ describe('DictionaryService', () => {
       const { service, repos } = createSetup();
       repos.senseCard.hasLexeme.mockResolvedValue(true);
       repos.senseCard.getByLexemeId.mockResolvedValue([senseCard]);
+      repos.languages.findIdByCode.mockResolvedValue(1);
 
       const result = await service.getLexemeSenses(1n);
 
@@ -315,6 +319,124 @@ describe('DictionaryService', () => {
         lemma: '走る',
       });
       expect(result.next_cursor).toBeNull();
+    });
+
+    it('sense con trùng supergloss → gom vào sub_senses với gloss lá', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(true);
+      repos.senseCard.getByLexemeId.mockResolvedValue([
+        {
+          ...senseCard,
+          senseId: 10n,
+          senseNo: 1,
+          definition: 'A round fruit',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['A common fruit', 'A round fruit'],
+        },
+        {
+          ...senseCard,
+          senseId: 11n,
+          senseNo: 2,
+          definition: 'Any fruit or vegetable',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['A common fruit', 'Any fruit or vegetable'],
+        },
+      ]);
+
+      const result = await service.getLexemeSenses(1n);
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].definition).toBe('A round fruit');
+      expect(result.data[0].group_heading).toBe('A common fruit');
+      expect(result.data[0].sub_senses).toHaveLength(1);
+      expect(result.data[0].sub_senses[0]).toMatchObject({
+        sense_id: '11',
+        definition: 'Any fruit or vegetable',
+        sub_senses: [],
+      });
+    });
+
+    it('untrusted context stays separate; grouped and flat preserve every real card', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(true);
+      const input = [
+        {
+          ...senseCard,
+          senseId: 10n,
+          definition: 'Leaf one',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['Parent', 'Leaf one'],
+        },
+        {
+          ...senseCard,
+          senseId: 11n,
+          definition: 'Leaf two',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['Parent', 'Middle', 'Leaf two'],
+        },
+        {
+          ...senseCard,
+          senseId: 12n,
+          definition: 'Reviewed',
+          glossEnIsHierarchy: false,
+          glossEnContext: ['Parent', 'Reviewed'],
+        },
+        {
+          ...senseCard,
+          senseId: 13n,
+          definition: 'Later',
+          glossEnIsHierarchy: true,
+          glossEnContext: ['Parent', 'Later'],
+        },
+        {
+          ...senseCard,
+          senseId: 14n,
+          definition: 'JMdict',
+          glossEnContext: ['Parent', 'Alternative'],
+        },
+      ];
+      repos.senseCard.getByLexemeId.mockResolvedValue(input);
+      const grouped = await service.getLexemeSenses(1n);
+      const flat = await service.getLexemeSenses(1n, 'flat');
+      expect(grouped.data).toHaveLength(4);
+      expect(grouped.data[0].sub_senses[0].definition).toBe('Leaf two');
+      const expanded = grouped.data.flatMap((card) => [
+        { ...card, group_heading: null, sub_senses: [] },
+        ...card.sub_senses,
+      ]);
+      expect(expanded).toEqual(flat.data);
+      expect(flat.data.every((card) => card.sub_senses.length === 0)).toBe(
+        true,
+      );
+    });
+
+    it('supergloss khác nhau → tách nhóm riêng', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.hasLexeme.mockResolvedValue(true);
+      repos.senseCard.getByLexemeId.mockResolvedValue([
+        {
+          ...senseCard,
+          senseId: 10n,
+          senseNo: 1,
+          definition: 'A',
+          glossEnContext: ['A'],
+        },
+        {
+          ...senseCard,
+          senseId: 11n,
+          senseNo: 2,
+          definition: 'B',
+          glossEnContext: ['B'],
+        },
+      ]);
+
+      const result = await service.getLexemeSenses(1n);
+
+      expect(result.data).toHaveLength(2);
+      expect(result.data.every((card) => card.sub_senses.length === 0)).toBe(
+        true,
+      );
+      expect(result.data[1].definition).toBe('B');
     });
   });
 
@@ -400,6 +522,45 @@ describe('DictionaryService', () => {
         radical: null,
       });
       expect(result.readings).toEqual({ on: ['ソウ'] });
+    });
+  });
+
+  describe('getKanjiStroke', () => {
+    it('trả buffer + mime + sha256 từ storage', async () => {
+      const { service, repos } = createSetup();
+      repos.kanji.getStrokeAsset.mockResolvedValue({
+        objectKey: 'kanjivg/0732b.svg',
+        mime: 'image/svg+xml',
+        sha256: 'abc123',
+        bytes: 10,
+      });
+      repos.storage.get.mockResolvedValue(Buffer.from('<svg/>'));
+
+      const result = await service.getKanjiStroke('猫');
+
+      expect(result.mime).toBe('image/svg+xml');
+      expect(result.sha256).toBe('abc123');
+      expect(result.buffer.toString()).toBe('<svg/>');
+      expect(repos.storage.get).toHaveBeenCalledWith('kanjivg/0732b.svg');
+    });
+
+    it('thiếu metadata hoặc thiếu file → KANJI_STROKE_NOT_FOUND', async () => {
+      const { service, repos } = createSetup();
+      repos.kanji.getStrokeAsset.mockResolvedValue(null);
+      await expect(service.getKanjiStroke('X')).rejects.toMatchObject({
+        code: 'KANJI_STROKE_NOT_FOUND',
+      });
+
+      repos.kanji.getStrokeAsset.mockResolvedValue({
+        objectKey: 'kanjivg/xxxx.svg',
+        mime: 'image/svg+xml',
+        sha256: 'abc123',
+        bytes: 10,
+      });
+      repos.storage.get.mockResolvedValue(null);
+      await expect(service.getKanjiStroke('X')).rejects.toMatchObject({
+        code: 'KANJI_STROKE_NOT_FOUND',
+      });
     });
   });
 });

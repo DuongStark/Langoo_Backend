@@ -1,0 +1,598 @@
+{
+  "work_ids": ["DB4-D0.1", "DB4-D0.2", "M4.2", "DB4-D0.3"],
+  "observed_at": "2026-10-06T12:56:56.710Z",
+  "target": "VPS langoo; read-only",
+  "projection_policy": "wiktextract-en-leaf-v1",
+  "projection_sql_hash": "b7a1d7cbcee6290a8112067f9c03ade6940e666dcd112845b6b6e51ea9cbaec9",
+  "projection_totals": {
+    "snapshot": "2585:2585:",
+    "rows": [
+      {
+        "language": "en",
+        "first_last_differ": 53055,
+        "eligible": 53055,
+        "already_projected": 0,
+        "blocked": 0
+      },
+      {
+        "language": "ja",
+        "first_last_differ": 1869,
+        "eligible": 1869,
+        "already_projected": 0,
+        "blocked": 0
+      },
+      {
+        "language": "vi",
+        "first_last_differ": 1073,
+        "eligible": 1073,
+        "already_projected": 0,
+        "blocked": 0
+      }
+    ]
+  },
+  "projection_pilot": {
+    "records": 500,
+    "counts": {
+      "eligible": 500,
+      "unchanged": 0,
+      "blocked": 0
+    },
+    "truncated": true,
+    "digest": "c8987aa13ec58aac37ea1cf45b3aa7d8fa88137390a2a6c1c028da6fddedec3e"
+  },
+  "duplicate_pilot": {
+    "counts": {
+      "pairs": 500,
+      "sameScopeCandidates": 500,
+      "contextConflicts": 0,
+      "pairsWithAppReferences": 0,
+      "directlyDeletable": 0
+    },
+    "truncated": true,
+    "digest": "9f63e1d67fca0fec265968caec60541fbbffc822617cb5f68c93a15b7f637ddc",
+    "snapshot": "2583:2583:",
+    "pairs_with_direct_examples": 50,
+    "notes": [
+      "Only OEWN versus OMW-EN source-backed verified exact anchors.",
+      "Only known provenance keys lexicon/synset_id are excluded from scope; retained separately.",
+      "Same definition/concept with differing full payload is a conflict. No inferred equivalence for JA unknown reading.",
+      "Foreign-key counts contain no user row IDs or content. Zero FK does not prove zero external/artifact references.",
+      "Candidate equivalence is not a deletion approval. No IDs deleted or repointed."
+    ],
+    "first_10_pairs": [
+      {
+        "keep_sense_id": "253632",
+        "other_sense_id": "253633",
+        "concept_id": "19891",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "f6807a28a77d4b4cb9474cde0eea401a663408f16cd448f4c80ed48005a9e377",
+        "other_scope_hash": "f6807a28a77d4b4cb9474cde0eea401a663408f16cd448f4c80ed48005a9e377",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 1,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253634",
+        "other_sense_id": "253635",
+        "concept_id": "10106",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "eb98bcda7cb646c4dd4ba9b9a51f76cca58f923d8687344b0f27c704ca3ec986",
+        "other_scope_hash": "eb98bcda7cb646c4dd4ba9b9a51f76cca58f923d8687344b0f27c704ca3ec986",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 0,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253636",
+        "other_sense_id": "253637",
+        "concept_id": "19893",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "2e93dd9ce8830c4cb6f8931382762ef5be439737803cb8103b021c33ceae6ce6",
+        "other_scope_hash": "2e93dd9ce8830c4cb6f8931382762ef5be439737803cb8103b021c33ceae6ce6",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 1,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253638",
+        "other_sense_id": "253639",
+        "concept_id": "10107",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "7495242004966f6a954a7d6bdc72c59f7738a43034d7f2e4d9728ef497ff628c",
+        "other_scope_hash": "7495242004966f6a954a7d6bdc72c59f7738a43034d7f2e4d9728ef497ff628c",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 2,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253640",
+        "other_sense_id": "253641",
+        "concept_id": "19903",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "72c1e1c9da8098577a0e422ad9234a8be9420fede9fcdae8aebfbe0eb7004850",
+        "other_scope_hash": "72c1e1c9da8098577a0e422ad9234a8be9420fede9fcdae8aebfbe0eb7004850",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 0,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253642",
+        "other_sense_id": "253643",
+        "concept_id": "10127",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "0a4bf43ce8573e221f78316dda67b6185aba35427acfb678efca55652c5615d1",
+        "other_scope_hash": "0a4bf43ce8573e221f78316dda67b6185aba35427acfb678efca55652c5615d1",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 0,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253644",
+        "other_sense_id": "253645",
+        "concept_id": "20003",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "efa6d09a2b099c373c442b2c2622e0f379d791fbf0d8aeb47fae5bf7c2bd05a2",
+        "other_scope_hash": "efa6d09a2b099c373c442b2c2622e0f379d791fbf0d8aeb47fae5bf7c2bd05a2",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 0,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253646",
+        "other_sense_id": "253647",
+        "concept_id": "10160",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "026781e4877f73960a8e09be35c6a39ba433fc123c55442ff538c19875335f60",
+        "other_scope_hash": "026781e4877f73960a8e09be35c6a39ba433fc123c55442ff538c19875335f60",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 0,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253648",
+        "other_sense_id": "253649",
+        "concept_id": "20028",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "eab58a07a287a2098980a0feef717397c3e3ab7d7e087066b91ded8755137a27",
+        "other_scope_hash": "eab58a07a287a2098980a0feef717397c3e3ab7d7e087066b91ded8755137a27",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 0,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      },
+      {
+        "keep_sense_id": "253650",
+        "other_sense_id": "253651",
+        "concept_id": "10164",
+        "classification": "same_scope_candidate",
+        "keep_scope_hash": "0e76578aaea30ff2b2a612702df8b3f05f9b9fa60e3a64a45314d4a8d966f121",
+        "other_scope_hash": "0e76578aaea30ff2b2a612702df8b3f05f9b9fa60e3a64a45314d4a8d966f121",
+        "other_references": {
+          "core.jlpt_link.lexeme_id": 0,
+          "core.lexeme_form.lexeme_id": 0,
+          "core.lexeme_level.lexeme_id": 0,
+          "core.pronunciation.lexeme_id": 0,
+          "core.sense.lexeme_id": 1,
+          "core.source_entry_identity.lexeme_id": 0,
+          "core.source_form.lexeme_id": 0,
+          "core.translation_assertion.source_lexeme_id": 0,
+          "core.translation_target_candidate.target_lexeme_id": 0,
+          "app.chat_message.ref_sense_id": 0,
+          "app.collection_item.anchor_sense_id": 0,
+          "app.collection_item_face.sense_id": 0,
+          "app.search_history.matched_sense_id": 0,
+          "core.deck_item.anchor_sense_id": 0,
+          "core.example.sense_id": 0,
+          "core.example_sense.sense_id": 0,
+          "core.sense_concept.sense_id": 1,
+          "core.sense_concept_candidate.sense_id": 0,
+          "core.sense_form.sense_id": 0,
+          "core.sense_gloss.sense_id": 0,
+          "core.sense_relation.source_sense_id": 0,
+          "core.sense_relation.target_sense_id": 0,
+          "core.sense_relation_candidate.source_sense_id": 0,
+          "core.sense_relation_candidate.target_sense_id": 0,
+          "core.sense_tag.sense_id": 0,
+          "core.translation_assertion.source_sense_id": 0,
+          "core.translation_target_candidate.target_sense_id": 0
+        },
+        "blockers": [
+          "source_identity_alias_and_importer_resolution_required",
+          "dependent_rows_require_preservation_or_repoint"
+        ]
+      }
+    ]
+  },
+  "local_search_comparison": {
+    "observedAt": "2026-10-06T13:03:31.285Z",
+    "target": "local full 55433/langoo",
+    "method": "One interleaved sample per query/version; cache order may affect timing; not P95 or a VPS SLA",
+    "results": [
+      {
+        "q": "学校",
+        "lang": "ja",
+        "version": "HEAD",
+        "elapsedMs": 26,
+        "rows": 21,
+        "distinctIds": 13
+      },
+      {
+        "q": "学校",
+        "lang": "ja",
+        "version": "M4.2",
+        "elapsedMs": 14,
+        "rows": 21,
+        "distinctIds": 21
+      },
+      {
+        "q": "猫",
+        "lang": "ja",
+        "version": "HEAD",
+        "elapsedMs": 2140,
+        "rows": 21,
+        "distinctIds": 15
+      },
+      {
+        "q": "猫",
+        "lang": "ja",
+        "version": "M4.2",
+        "elapsedMs": 2261,
+        "rows": 21,
+        "distinctIds": 21
+      },
+      {
+        "q": "cat",
+        "lang": "en",
+        "version": "HEAD",
+        "elapsedMs": 217,
+        "rows": 21,
+        "distinctIds": 21
+      },
+      {
+        "q": "cat",
+        "lang": "en",
+        "version": "M4.2",
+        "elapsedMs": 170,
+        "rows": 21,
+        "distinctIds": 21
+      },
+      {
+        "q": "eat",
+        "lang": "en",
+        "version": "HEAD",
+        "elapsedMs": 150,
+        "rows": 21,
+        "distinctIds": 21
+      },
+      {
+        "q": "eat",
+        "lang": "en",
+        "version": "M4.2",
+        "elapsedMs": 127,
+        "rows": 21,
+        "distinctIds": 21
+      }
+    ]
+  },
+  "raw_artifacts": [
+    {
+      "path": "uploads/dictionary/db4-d0-20261006/vps-dryrun.json",
+      "bytes": 4588414,
+      "sha256": "dba993d08c702a999e110b39b75382f0a43d5adc914bc626c1f5b80f589cbbcf"
+    },
+    {
+      "path": "uploads/dictionary/db4-d0-20261006/local-projection.json",
+      "bytes": 2511794,
+      "sha256": "f1d12aa43f8340079c15446b0eaec744bfe9cad89215a4e1e5ce215b657dc8d3"
+    },
+    {
+      "path": "uploads/dictionary/db4-d0-20261006/local-duplicates.json",
+      "bytes": 1835400,
+      "sha256": "3bd108cfef880247b767725ceb46d15eb1fb1344026a1c5df8d1ef335cdd7b51"
+    },
+    {
+      "path": "uploads/dictionary/db4-d0-20261006/local-search-benchmark.json",
+      "bytes": 4873,
+      "sha256": "a64b62992f851806c6284f6a7c3da382ae25d9c0e7c2349ebfda564f86f85a08"
+    },
+    {
+      "path": "uploads/dictionary/db4-d0-20261006/local-search-comparison.json",
+      "bytes": 1356,
+      "sha256": "e769319f75d9c2595155135c658d05483b3e0de1e86c92c70077ea9c947f1135"
+    }
+  ],
+  "states": {
+    "production_migration_applied": false,
+    "production_backfill_applied": false,
+    "production_dictionary_deployed": false,
+    "deleted_ids": 0,
+    "ai_requests": 0,
+    "committed": false,
+    "pushed": false
+  },
+  "final_runtime_preflight": {
+    "observed_at": "2026-10-06T13:10:32.874366+00:00",
+    "migration_038_present": false,
+    "projection_function_present": false,
+    "head": "7b13b90d4239c3da4c1bd556069d2921db7a4a13",
+    "modified_dictionary_files": [
+      "src/dictionary/dictionary.controller.ts",
+      "src/dictionary/dictionary.service.ts",
+      "src/dictionary/repositories/dictionary-search.repository.ts",
+      "src/dictionary/repositories/kanji.repository.ts",
+      "src/dictionary/repositories/sense-content.repository.ts"
+    ],
+    "captured_patch": "docs/reviews/db4-d0-vps-dictionary-runtime-2026-10-06.patch",
+    "patch_sha256": "ebcac78bbe770494df7b0f906601bb17e45628f0e919b6fcda9a56b3444661e5",
+    "note": "Controller and kanji repository gained additional uncommitted edits outside this implementation scope; preserved, not applied/reverted by this task."
+  }
+}

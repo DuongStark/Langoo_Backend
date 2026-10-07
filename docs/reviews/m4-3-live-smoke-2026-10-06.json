@@ -1,0 +1,668 @@
+{
+  "verifiedAt": "2026-10-06T14:49:41.385197+00:00",
+  "health": {
+    "status": "ok",
+    "db": "ok",
+    "db_latency_ms": 2,
+    "db_timezone": "UTC",
+    "uptime_s": 32,
+    "time": "2026-10-06T14:49:22.101Z"
+  },
+  "checks": [
+    {
+      "path": "/v1/health",
+      "status": 200,
+      "durationMs": 220,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 111
+    },
+    {
+      "path": "/v1/kanji/%E6%97%A5/stroke.svg",
+      "status": 200,
+      "durationMs": 144,
+      "contentType": "image/svg+xml",
+      "bytes": 2407
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=100",
+      "status": 200,
+      "durationMs": 519,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 20394
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E7%8C%AB&lang=ja&limit=100",
+      "status": 200,
+      "durationMs": 6753,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 19319
+    },
+    {
+      "path": "/v1/dictionary/search?q=cat&lang=en&limit=100",
+      "status": 200,
+      "durationMs": 923,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 18516
+    },
+    {
+      "path": "/v1/dictionary/search?q=eat&lang=en&limit=100",
+      "status": 200,
+      "durationMs": 1636,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 18559
+    },
+    {
+      "path": "/v1/dictionary/search?q=dog&lang=en&limit=100",
+      "status": 200,
+      "durationMs": 512,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 18568
+    },
+    {
+      "path": "/v1/dictionary/search?q=run&lang=en&limit=100",
+      "status": 200,
+      "durationMs": 718,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 18537
+    },
+    {
+      "path": "/v1/dictionary/search?q=hashiru&lang=ja&limit=100",
+      "status": 200,
+      "durationMs": 381,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 3532
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E3%81%AF%E3%81%97%E3%82%8B&lang=ja&limit=100",
+      "status": 200,
+      "durationMs": 305,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 3348
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%A5%94%E3%82%8B&lang=ja&limit=100",
+      "status": 200,
+      "durationMs": 306,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 402
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1",
+      "status": 200,
+      "durationMs": 409,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 360
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjozLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MCwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MiwiaSI6IjEwNTIzNiIsImsiOiJrYW5qaSIsInMiOiLlrabmoKEifQ",
+      "status": 200,
+      "durationMs": 307,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 350
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjozLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MCwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MiwiaSI6IjU4MjkwNyIsImsiOiJsZW1tYSIsInMiOiLlrabmoKEifQ",
+      "status": 200,
+      "durationMs": 308,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 352
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjozLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MCwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MiwiaSI6IjIyNDgxMjkiLCJrIjoibGVtbWEiLCJzIjoi5a2m5qChIn0",
+      "status": 200,
+      "durationMs": 308,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 371
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjozLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MywiaSI6IjEwNTI0MCIsImsiOiJrYW5qaSIsInMiOiLlrabmoKHljLsifQ",
+      "status": 200,
+      "durationMs": 306,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 374
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjozLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MywiaSI6IjEwNTI0MSIsImsiOiJrYW5qaSIsInMiOiLlrabmoKHlkI0ifQ",
+      "status": 200,
+      "durationMs": 409,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 374
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjozLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MywiaSI6IjEwNTI1MiIsImsiOiJrYW5qaSIsInMiOiLlrabmoKHnpa0ifQ",
+      "status": 200,
+      "durationMs": 410,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 377
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjozLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MywiaSI6IjEwNTI1OCIsImsiOiJrYW5qaSIsInMiOiLlrabmoKHplbcifQ",
+      "status": 200,
+      "durationMs": 409,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 358
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjoxLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MCwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MiwiaSI6IjEwNTIzNiIsImsiOiJrYW5qaSIsInMiOiLlrabmoKEifQ",
+      "status": 400,
+      "durationMs": 118,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 65
+    },
+    {
+      "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=1&cursor=eyJ2IjoyLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MCwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MiwiaSI6IjEwNTIzNiIsImsiOiJrYW5qaSIsInMiOiLlrabmoKEifQ",
+      "status": 400,
+      "durationMs": 122,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 65
+    },
+    {
+      "path": "/v1/lexemes/998637/senses",
+      "status": 200,
+      "durationMs": 190,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 14286
+    },
+    {
+      "path": "/v1/lexemes/998637/senses?view=flat",
+      "status": 200,
+      "durationMs": 168,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 14195
+    },
+    {
+      "path": "/v1/senses/985788",
+      "status": 200,
+      "durationMs": 321,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 3155
+    },
+    {
+      "path": "/v1/senses/985789",
+      "status": 200,
+      "durationMs": 149,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 2115
+    },
+    {
+      "path": "/v1/senses/985790",
+      "status": 200,
+      "durationMs": 127,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 2044
+    },
+    {
+      "path": "/v1/lexemes/1764987/senses",
+      "status": 200,
+      "durationMs": 171,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 38092
+    },
+    {
+      "path": "/v1/lexemes/1764987/senses?view=flat",
+      "status": 200,
+      "durationMs": 162,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 37956
+    },
+    {
+      "path": "/v1/senses/2201004",
+      "status": 200,
+      "durationMs": 157,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 1828
+    },
+    {
+      "path": "/v1/senses/2201005",
+      "status": 200,
+      "durationMs": 137,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 1758
+    },
+    {
+      "path": "/v1/senses/2201006",
+      "status": 200,
+      "durationMs": 129,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 1472
+    },
+    {
+      "path": "/v1/lexemes/1009311/senses",
+      "status": 200,
+      "durationMs": 254,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 102171
+    },
+    {
+      "path": "/v1/lexemes/1009311/senses?view=flat",
+      "status": 200,
+      "durationMs": 235,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 101942
+    },
+    {
+      "path": "/v1/senses/1418281",
+      "status": 200,
+      "durationMs": 130,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 2607
+    },
+    {
+      "path": "/v1/senses/1418282",
+      "status": 200,
+      "durationMs": 122,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 1955
+    },
+    {
+      "path": "/v1/senses/1418283",
+      "status": 200,
+      "durationMs": 121,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 2271
+    },
+    {
+      "path": "/v1/lexemes/694408/senses",
+      "status": 200,
+      "durationMs": 158,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 16232
+    },
+    {
+      "path": "/v1/lexemes/694408/senses?view=flat",
+      "status": 200,
+      "durationMs": 157,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 16169
+    },
+    {
+      "path": "/v1/senses/1809675",
+      "status": 200,
+      "durationMs": 127,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 4039
+    },
+    {
+      "path": "/v1/senses/1809676",
+      "status": 200,
+      "durationMs": 119,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 4185
+    },
+    {
+      "path": "/v1/senses/1809677",
+      "status": 200,
+      "durationMs": 133,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 3512
+    },
+    {
+      "path": "/v1/sources",
+      "status": 200,
+      "durationMs": 121,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 8342
+    },
+    {
+      "path": "/v1/lexemes/1764987/senses?view=invalid",
+      "status": 400,
+      "durationMs": 126,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 152
+    },
+    {
+      "path": "/v1/lexemes/196006/senses",
+      "status": 200,
+      "durationMs": 131,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 4924
+    },
+    {
+      "path": "/v1/lexemes/196006/senses?view=flat",
+      "status": 200,
+      "durationMs": 129,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 4924
+    },
+    {
+      "path": "/v1/admin/users",
+      "status": 401,
+      "durationMs": 116,
+      "contentType": "application/json; charset=utf-8",
+      "bytes": 62
+    }
+  ],
+  "searches": {
+    "学校": {
+      "rows": 100,
+      "distinctIds": 100,
+      "firstIds": [
+        "105236",
+        "582907",
+        "2248129",
+        "105240",
+        "105241",
+        "105252",
+        "105258",
+        "582916"
+      ],
+      "firstSurfaces": [
+        "学校",
+        "学校",
+        "学校"
+      ]
+    },
+    "猫": {
+      "rows": 100,
+      "distinctIds": 100,
+      "firstIds": [
+        "156837",
+        "156838",
+        "605475",
+        "2282106",
+        "2282107",
+        "2282108",
+        "36055",
+        "36058"
+      ],
+      "firstSurfaces": [
+        "猫",
+        "猫",
+        "猫"
+      ]
+    },
+    "cat": {
+      "rows": 100,
+      "distinctIds": 100,
+      "firstIds": [
+        "265830",
+        "265831",
+        "265832",
+        "265833",
+        "265834",
+        "265835",
+        "838666",
+        "838667"
+      ],
+      "firstSurfaces": [
+        "cat",
+        "cat",
+        "cat"
+      ]
+    },
+    "eat": {
+      "rows": 100,
+      "distinctIds": 100,
+      "firstIds": [
+        "306288",
+        "306289",
+        "1024066",
+        "1024067",
+        "306306",
+        "306307",
+        "1024213",
+        "1024214"
+      ],
+      "firstSurfaces": [
+        "eat",
+        "eat",
+        "eat"
+      ]
+    },
+    "dog": {
+      "rows": 100,
+      "distinctIds": 100,
+      "firstIds": [
+        "301395",
+        "301396",
+        "301397",
+        "301398",
+        "998636",
+        "998637",
+        "998638",
+        "998639"
+      ],
+      "firstSurfaces": [
+        "dog",
+        "dog",
+        "dog"
+      ]
+    },
+    "run": {
+      "rows": 100,
+      "distinctIds": 100,
+      "firstIds": [
+        "463279",
+        "463280",
+        "463281",
+        "463282",
+        "1764985",
+        "1764986",
+        "1764987",
+        "1764988"
+      ],
+      "firstSurfaces": [
+        "run",
+        "run",
+        "run"
+      ]
+    },
+    "hashiru": {
+      "rows": 17,
+      "distinctIds": 17,
+      "firstIds": [
+        "196006",
+        "2201770",
+        "2133246",
+        "40902",
+        "81512",
+        "170555",
+        "199559",
+        "72649"
+      ],
+      "firstSurfaces": [
+        "走る",
+        "はしる",
+        "hashiru"
+      ]
+    },
+    "はしる": {
+      "rows": 16,
+      "distinctIds": 16,
+      "firstIds": [
+        "196006",
+        "2201770",
+        "40902",
+        "81512",
+        "170555",
+        "199559",
+        "72649",
+        "112032"
+      ],
+      "firstSurfaces": [
+        "はしる",
+        "はしる",
+        "ひた走る"
+      ]
+    },
+    "奔る": {
+      "rows": 2,
+      "distinctIds": 2,
+      "firstIds": [
+        "196006",
+        "2246512"
+      ],
+      "firstSurfaces": [
+        "奔る",
+        "奔る"
+      ]
+    }
+  },
+  "cursorIds": [
+    "105236",
+    "582907",
+    "2248129",
+    "105240",
+    "105241",
+    "105252",
+    "105258",
+    "582916"
+  ],
+  "oldCursorStatus": 400,
+  "lexemes": {
+    "998637": {
+      "senseCount": 23,
+      "groupCount": 14,
+      "nestedCount": 9,
+      "samples": [
+        {
+          "senseId": "985788",
+          "definition": "The species Canis familiaris (sometimes designated Canis lupus familiaris), domesticated for thousands of years and of highly variable appearance because of human breeding.",
+          "glossEn": "The species Canis familiaris (sometimes designated Canis lupus familiaris), domesticated for thousands of years and of highly variable appearance because of human breeding.",
+          "context": [
+            "A mammal of the family Canidae:",
+            "The species Canis familiaris (sometimes designated Canis lupus familiaris), domesticated for thousands of years and of highly variable appearance because of human breeding."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "985789",
+          "definition": "Any member of the family Canidae, including domestic dogs, wolves, coyotes, jackals, and their relatives (extant and extinct).",
+          "glossEn": "Any member of the family Canidae, including domestic dogs, wolves, coyotes, jackals, and their relatives (extant and extinct).",
+          "context": [
+            "A mammal of the family Canidae:",
+            "Any member of the family Canidae, including domestic dogs, wolves, coyotes, jackals, and their relatives (extant and extinct)."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "985790",
+          "definition": "A male dog, wolf, or fox, as opposed to a bitch or vixen.",
+          "glossEn": "A male dog, wolf, or fox, as opposed to a bitch or vixen.",
+          "context": [
+            "A mammal of the family Canidae:",
+            "A male dog, wolf, or fox, as opposed to a bitch or vixen."
+          ],
+          "rawGlossCount": 2
+        }
+      ]
+    },
+    "1764987": {
+      "senseCount": 64,
+      "groupCount": 38,
+      "nestedCount": 26,
+      "samples": [
+        {
+          "senseId": "2201004",
+          "definition": "To move forward quickly upon two feet by alternately making a short jump off either foot.",
+          "glossEn": "To move forward quickly upon two feet by alternately making a short jump off either foot.",
+          "context": [
+            "To move swiftly.",
+            "To move forward quickly upon two feet by alternately making a short jump off either foot."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "2201005",
+          "definition": "To go at a fast pace; to move quickly.",
+          "glossEn": "To go at a fast pace; to move quickly.",
+          "context": [
+            "To move swiftly.",
+            "To go at a fast pace; to move quickly."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "2201006",
+          "definition": "To cover (a course or a distance) by running.",
+          "glossEn": "To cover (a course or a distance) by running.",
+          "context": [
+            "To move swiftly.",
+            "To cover (a course or a distance) by running."
+          ],
+          "rawGlossCount": 2
+        }
+      ]
+    },
+    "1009311": {
+      "senseCount": 138,
+      "groupCount": 6,
+      "nestedCount": 132,
+      "samples": [
+        {
+          "senseId": "1418281",
+          "definition": "To pull (someone or something) in a particular direction or manner.",
+          "glossEn": "To pull (someone or something) in a particular direction or manner.",
+          "context": [
+            "Senses relating to exerting force or pulling.",
+            "To pull (someone or something) in a particular direction or manner."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "1418282",
+          "definition": "To move (a body part) in a particular direction.",
+          "glossEn": "To move (a body part) in a particular direction.",
+          "context": [
+            "Senses relating to exerting force or pulling.",
+            "To move (a body part) in a particular direction."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "1418283",
+          "definition": "Often followed by tight: to pull (something, such as a belt or string) so that it tightens or wraps around something more closely.",
+          "glossEn": "Often followed by tight: to pull (something, such as a belt or string) so that it tightens or wraps around something more closely.",
+          "context": [
+            "Senses relating to exerting force or pulling.",
+            "Often followed by tight: to pull (something, such as a belt or string) so that it tightens or wraps around something more closely."
+          ],
+          "rawGlossCount": 2
+        }
+      ]
+    },
+    "694408": {
+      "senseCount": 20,
+      "groupCount": 8,
+      "nestedCount": 12,
+      "samples": [
+        {
+          "senseId": "1809675",
+          "definition": "The fruit of the tree Malus domestica, chiefly with a green, red, or yellow skin, cultivated in temperate climates for cidermaking, cooking, and eating.",
+          "glossEn": "The fruit of the tree Malus domestica, chiefly with a green, red, or yellow skin, cultivated in temperate climates for cidermaking, cooking, and eating.",
+          "context": [
+            "A common, firm, round fruit produced by a tree of the genus Malus.",
+            "The fruit of the tree Malus domestica, chiefly with a green, red, or yellow skin, cultivated in temperate climates for cidermaking, cooking, and eating."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "1809676",
+          "definition": "Often with a qualifying word: any fruit or vegetable, or any other thing (such as a cone or gall) produced by a plant, especially if from a tree and similar to the fruit of Malus domestica (noun sense 1.1).",
+          "glossEn": "Often with a qualifying word: any fruit or vegetable, or any other thing (such as a cone or gall) produced by a plant, especially if from a tree and similar to the fruit of Malus domestica (noun sense 1.1).",
+          "context": [
+            "A common, firm, round fruit produced by a tree of the genus Malus.",
+            "Often with a qualifying word: any fruit or vegetable, or any other thing (such as a cone or gall) produced by a plant, especially if from a tree and similar to the fruit of Malus domestica (noun sense 1.1)."
+          ],
+          "rawGlossCount": 2
+        },
+        {
+          "senseId": "1809677",
+          "definition": "Something which resembles the fruit of Malus domestica (noun sense 1.1) in shape (such as a ball, breast, or globe) or colour.",
+          "glossEn": "Something which resembles the fruit of Malus domestica (noun sense 1.1) in shape (such as a ball, breast, or globe) or colour.",
+          "context": [
+            "A common, firm, round fruit produced by a tree of the genus Malus.",
+            "Something which resembles the fruit of Malus domestica (noun sense 1.1) in shape (such as a ball, breast, or globe) or colour."
+          ],
+          "rawGlossCount": 2
+        }
+      ]
+    }
+  },
+  "preserved": {
+    "strokeSha256": "e2b461dad3b8c2a7bb1a5b9318e83d90f44d9f62d903d4a27e5992e6469773b1",
+    "sourceCount": 18,
+    "adminAnonymousStatus": 401
+  },
+  "passed": true
+}

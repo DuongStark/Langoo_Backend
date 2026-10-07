@@ -29,7 +29,8 @@ export interface SearchRow {
  * trên MỘT cột nên planner dùng được index: GIN trigram (pattern ≥3 ký tự) và GIN bigram
  * `core.bigrams` (pattern 1–2 ký tự); biểu thức OR trộn nhiều cột/bảng như trước không
  * thể dùng index. `ILIKE` luôn giữ làm điều kiện kiểm chứng vì bigram chỉ là điều kiện
- * CẦN (mất thứ tự/khoảng cách). Tập kết quả giữ nguyên như OR cũ (`UNION` khử trùng lặp).
+ * CẦN (mất thứ tự/khoảng cách). Sau matching, giữ một face tốt nhất mỗi lexeme
+ * trước cursor/LIMIT; không loại nguồn hoặc homograph theo surface giống nhau.
  */
 export interface SearchParams {
   queries: string[];
@@ -86,6 +87,9 @@ export class DictionarySearchRepository {
       ),
       ' OR ',
     );
+    // Prefer the spelling actually typed; derived kana remains a reading match.
+    // Romaji search should still display the canonical kanji face when available.
+    const surfaceExactCondition = Prisma.sql`lower(h.surface) = lower(${queries[0]})`;
     const prefixCondition = Prisma.join(
       patterns.map(
         (pattern) => Prisma.sql`(
@@ -179,11 +183,21 @@ export class DictionarySearchRepository {
           h.surface_kind,
           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
+          CASE WHEN ${surfaceExactCondition} THEN 0 ELSE 1 END AS surface_exact_rank,
+          CASE WHEN h.surface = cl.lemma THEN 0 ELSE 1 END AS canonical_face_rank,
           CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
           coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
           length(h.surface) AS surface_length
         FROM hits h
         JOIN core.lexeme cl ON cl.id = h.lexeme_id
+      ),
+      per_lexeme AS (
+        SELECT ranked.*,
+          row_number() OVER (
+            PARTITION BY lexeme_id
+            ORDER BY exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface
+          ) AS face_no
+        FROM ranked
       )
       SELECT
         lexeme_id,
@@ -201,8 +215,8 @@ export class DictionarySearchRepository {
         frequency_null_rank,
         frequency_sort,
         surface_length
-      FROM ranked
-      WHERE TRUE
+      FROM per_lexeme
+      WHERE face_no = 1
         ${cursorCondition}
       ORDER BY
         exact_rank ASC,

@@ -1,7 +1,8 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { toHiragana } from 'wanakana';
 import { DomainException } from '../common/errors/domain.exception';
 import { LanguageRepository } from '../db/repositories/language.repository';
+import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
 import { SearchQueryDto } from './dto/search-query.dto';
 import {
   decodeDictionarySearchCursor,
@@ -51,6 +52,7 @@ export class DictionaryService {
     private readonly kanjiRepo: KanjiRepository,
     private readonly historyRepo: SearchHistoryRepository,
     private readonly languages: LanguageRepository,
+    @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -117,7 +119,7 @@ export class DictionaryService {
       next_cursor:
         hasNext && lastRow
           ? encodeDictionarySearchCursor({
-              version: 1,
+              version: 3,
               query,
               lang: languageCode,
               exactRank: lastRow.exact_rank,
@@ -133,7 +135,10 @@ export class DictionaryService {
     };
   }
 
-  async getLexemeSenses(lexemeId: bigint): Promise<LexemeSensesResult> {
+  async getLexemeSenses(
+    lexemeId: bigint,
+    view: 'grouped' | 'flat' = 'grouped',
+  ): Promise<LexemeSensesResult> {
     if (!(await this.senseCardRepo.hasLexeme(lexemeId))) {
       throw new DomainException(
         'LEXEME_NOT_FOUND',
@@ -143,10 +148,31 @@ export class DictionaryService {
     }
 
     const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
-    return {
-      data: cards.map(toSenseCardResponse),
-      next_cursor: null,
-    };
+
+    if (view === 'flat') {
+      return { data: cards.map(toSenseCardResponse), next_cursor: null };
+    }
+
+    // A group is a contiguous source hierarchy, not a semantic equivalence.
+    // The first actual sense remains selectable; its definition is never replaced.
+    const data: SenseCardResponse[] = [];
+    let currentHeading: string | null = null;
+    for (const card of cards) {
+      const heading =
+        card.glossEnIsHierarchy === true
+          ? (card.glossEnContext?.[0] ?? null)
+          : null;
+      const response = toSenseCardResponse(card);
+      const current = data.at(-1);
+      if (current && heading !== null && currentHeading === heading) {
+        current.sub_senses.push(response);
+      } else {
+        response.group_heading = heading;
+        data.push(response);
+        currentHeading = heading;
+      }
+    }
+    return { data, next_cursor: null };
   }
 
   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {
@@ -190,6 +216,29 @@ export class DictionaryService {
       );
     }
     return toKanjiResponse(row);
+  }
+
+  /** Ảnh SVG thứ tự nét (KanjiVG) — đọc file từ storage, metadata từ core. */
+  async getKanjiStroke(
+    literal: string,
+  ): Promise<{ buffer: Buffer; mime: string; sha256: string }> {
+    const asset = await this.kanjiRepo.getStrokeAsset(literal);
+    if (!asset) {
+      throw new DomainException(
+        'KANJI_STROKE_NOT_FOUND',
+        'Chưa có ảnh nét cho chữ Hán này',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const buffer = await this.storage.get(asset.objectKey);
+    if (!buffer) {
+      throw new DomainException(
+        'KANJI_STROKE_NOT_FOUND',
+        'Chưa có ảnh nét cho chữ Hán này',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    return { buffer, mime: asset.mime, sha256: asset.sha256 };
   }
 }
 
@@ -275,7 +324,10 @@ function toSenseCardResponse(card: SenseCard): SenseCardResponse {
     gloss_vi_machine: card.glossViMachine,
     gloss_vi_reviewed: card.glossViReviewed,
     gloss_en: card.glossEn,
+    gloss_en_context: card.glossEnContext ?? [],
     concept_id: card.conceptId?.toString() ?? null,
+    group_heading: null,
+    sub_senses: [],
   };
 }
 

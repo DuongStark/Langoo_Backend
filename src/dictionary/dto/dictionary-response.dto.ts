@@ -105,8 +105,29 @@ export class SenseCardDto {
   @ApiProperty({ nullable: true, example: 'to run' })
   gloss_en!: string | null;
 
+  @ApiProperty({
+    type: [String],
+    description:
+      'Toàn bộ EN gloss theo rank nguồn; giữ ngữ cảnh cha/con và các cách diễn đạt cùng nghĩa',
+  })
+  gloss_en_context!: string[];
+
   @ApiProperty({ nullable: true, example: '1' })
   concept_id!: string | null;
+
+  @ApiProperty({
+    type: () => [SenseCardDto],
+    description:
+      'Nghĩa con (subsense của wiktextract) gộp dưới nghĩa này — FE nên hiển thị thu gọn; mảng rỗng nếu không có',
+  })
+  sub_senses!: SenseCardDto[];
+
+  @ApiProperty({
+    nullable: true,
+    description:
+      'Shared Wiktextract ancestor for presentation; definition remains the actual sense meaning',
+  })
+  group_heading!: string | null;
 }
 
 export class LexemeSensesResultDto {

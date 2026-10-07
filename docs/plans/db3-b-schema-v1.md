@@ -71,3 +71,13 @@ npx eslint scripts/db3/_gloss-types.ts scripts/db3/gloss-types.test.ts --max-war
 ```
 
 DeepSeek nhận commit interface vào branch B1 trước khi import module. GPT sở hữu `_gloss-types.ts`/validator/job; DeepSeek sở hữu harvest và fixtures nguồn mới, không sửa shape v1 trực tiếp. B1 báo total/unique/hash theo từng lớp, invalid bị từ chối và source audit paths để B2 nối queue. Không cần chờ full B2 hoặc gọi API thật để bắt đầu harvest.
+
+
+### 2026-10-06 — DB3-B2.1 — Review cohort cho partial apply
+
+Tích hợp theo xác nhận chủ dự án phiên VPS đã xong. Default pilot giữ 98/100/0 severe.
+`--allow-partial` thay gate aggregate bằng từng output có review hoàn tất; không thay
+schemaVersion 1, không ghi reviewed fields. Cohort gồm output validation passed, giữ
+semantic rejected trong review khi resume; loại translation rejected/validation failed.
+Chỉ pass được apply; fail không được phục hồi bằng sửa verdict sau đăng ký/reject.
+Hash/count review và reviewMode được ghi mapping_run.parameters. Xem README/report.

@@ -1,4 +1,13 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  Query,
+  Req,
+  Res,
+  StreamableFile,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBadRequestResponse,
   ApiNotFoundResponse,
@@ -6,6 +15,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
+import type { Response } from 'express';
 import type { AuthenticatedRequest } from '../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../auth/guards/optional-jwt-auth.guard';
 import { ErrorResponseDto } from '../common/swagger/error-response.dto';
@@ -18,6 +28,7 @@ import {
   SenseDetailDto,
   SenseLinksResultDto,
 } from './dto/dictionary-response.dto';
+import { LexemeSensesQueryDto } from './dto/lexeme-senses-query.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import {
   KanjiCardResponse,
@@ -62,15 +73,23 @@ export class LexemeController {
   constructor(private readonly dictionaryService: DictionaryService) {}
 
   @Get(':id/senses')
-  @ApiOperation({ summary: 'Lấy toàn bộ nghĩa của một từ điển' })
+  @ApiOperation({
+    summary: 'Lấy nghĩa của từ: nhóm Wiktextract hoặc danh sách phẳng',
+  })
   @ApiOkResponse({ type: LexemeSensesResultDto })
   @ApiBadRequestResponse({ type: ErrorResponseDto })
   @ApiNotFoundResponse({
     type: ErrorResponseDto,
     description: 'LEXEME_NOT_FOUND',
   })
-  senses(@Param('id') id: string): Promise<LexemeSensesResult> {
-    return this.dictionaryService.getLexemeSenses(parseDictionaryId(id));
+  senses(
+    @Param('id') id: string,
+    @Query() query: LexemeSensesQueryDto,
+  ): Promise<LexemeSensesResult> {
+    return this.dictionaryService.getLexemeSenses(
+      parseDictionaryId(id),
+      query.view,
+    );
   }
 }
 
@@ -123,5 +142,29 @@ export class KanjiController {
   })
   get(@Param('literal') literal: string): Promise<KanjiCardResponse> {
     return this.dictionaryService.getKanji(literal);
+  }
+
+  @Get(':literal/stroke.svg')
+  @ApiOperation({
+    summary: 'Ảnh SVG thứ tự nét (KanjiVG) — cache công khai 1 ngày',
+  })
+  @ApiOkResponse({ description: 'image/svg+xml' })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'KANJI_STROKE_NOT_FOUND',
+  })
+  async stroke(
+    @Param('literal') literal: string,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<StreamableFile> {
+    const { buffer, mime, sha256 } =
+      await this.dictionaryService.getKanjiStroke(literal);
+    res.set({
+      'Content-Type': mime,
+      'Content-Length': String(buffer.length),
+      'Cache-Control': 'public, max-age=86400, immutable',
+      ETag: `"${sha256}"`,
+    });
+    return new StreamableFile(buffer);
   }
 }

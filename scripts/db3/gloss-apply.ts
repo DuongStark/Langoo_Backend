@@ -385,6 +385,25 @@ async function appendChild(
         jobKey: job.jobKey,
         inputHash: child.inputHash,
         batchId,
+        reviewMode:
+          options.cli.flags.get('allow-partial') === true
+            ? 'partial-reviewed-only'
+            : options.cli.flags.get('fixture') === true
+              ? 'fixture'
+              : 'pilot-98-100',
+        review: options.review
+          ? {
+              hash: hashGlossText(canonicalJson(options.review)),
+              reviewed: options.review.entries.length,
+              passed: options.review.entries.filter(
+                (entry) => entry.verdict === 'pass',
+              ).length,
+              severe: options.review.entries.filter(
+                (entry) => entry.severity === 'severe',
+              ).length,
+              jobEntries: job.entries.length,
+            }
+          : null,
         entries: payload,
       }),
       entries.length,
@@ -468,7 +487,9 @@ export async function applyGlossJob(
   if (!fixture && !options.review)
     throw new Error('Human pilot review gate is required before apply');
   if (options.review)
-    validateGlossReview(job, options.candidates, options.review);
+    validateGlossReview(job, options.candidates, options.review, {
+      allowPartial: options.cli.flags.get('allow-partial') === true,
+    });
   const accepted = options.review
     ? new Set(
         options.review.entries
@@ -577,6 +598,23 @@ export async function applyGlossJob(
     saveJob(options, job); // Crucially before creating a journal or opening the transaction.
     // Registered children use the same recovery path on initial apply and resume.
     return applyGlossJob({ ...options, job });
+  }
+  /* Chế độ --allow-partial: các dòng fail giữ 'validated' sau apply → đánh dấu
+     'rejected' để job kết thúc sạch (không bao giờ được apply). */
+  if (options.cli.flags.get('allow-partial') === true) {
+    const leftover = job.entries.filter(
+      (e) => e.state === 'validated' && !accepted.has(e.candidateKey),
+    );
+    if (leftover.length) {
+      for (const entry of leftover) {
+        entry.state = 'rejected';
+        entry.error =
+          options.review?.entries.find(
+            (record) => record.candidateKey === entry.candidateKey,
+          )?.reason ?? 'Excluded by semantic review';
+      }
+      saveJob(options, job);
+    }
   }
   return job;
 }

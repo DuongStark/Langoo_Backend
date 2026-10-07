@@ -1,0 +1,2325 @@
+{
+  "work_id": "DB4-D0",
+  "title": "Khảo sát trùng từ điển trên VPS",
+  "date": "2026-10-06",
+  "timezone": "Asia/Bangkok",
+  "scope": "VPS PostgreSQL langoo and unauthenticated loopback dictionary API; read-only",
+  "sql_file": "db4-d0-vps-duplicates-2026-10-06.sql",
+  "method_notes": [
+    "Counts are exact within each named snapshot. Main and follow-up snapshots differ. API probes are outside DB snapshot.",
+    "Lexical key = language_id, lemma, pos, reading. No normalization or identity inference.",
+    "Equal definition, first/last gloss difference and shared concept are separate evidence sets; do not sum them as duplicate counts.",
+    "WordNet membership counts can overlap across concepts; they are not counts of deletable sense IDs.",
+    "Gloss order alone does not prove a hierarchy. All first/last statistics are candidates for source projection review.",
+    "VPS HEAD is not the runtime source baseline: three dictionary source files have uncommitted changes.",
+    "Final exact_core_totals is a third read-only snapshot; lexeme/sense totals equal the source-group sums of the first snapshot. Later counts do not prove unchanged content hashes."
+  ],
+  "preflight": {
+    "observed_at": "2026-10-06T12:10:19Z",
+    "deployed_git_head": "7b13b90d4239c3da4c1bd556069d2921db7a4a13",
+    "env_database_target": {
+      "host": "127.0.0.1",
+      "port": 5432,
+      "database": "langoo"
+    },
+    "postgres_version": "16.15",
+    "ram_total_mb": 1975,
+    "ram_available_mb": 795,
+    "swap_used_mb": 111,
+    "disk_free_human": "9.6G",
+    "load_average": [0.01, 0.17, 0.32],
+    "applied_migrations": "001–037 excluding reserved 028",
+    "latest_backup": {
+      "filename": "langoo-2026-10-06-0930.dump",
+      "bytes": 606804634,
+      "file_mtime_server": "2026-10-06T09:32",
+      "restore_verified": false
+    }
+  },
+  "runtime": {
+    "pm2_app": "langoo-api",
+    "status": "online",
+    "script": "/opt/langoo/app/dist/main.js",
+    "pm2_db_url_override_present": false,
+    "modified_source_files": [
+      "src/dictionary/dictionary.service.ts",
+      "src/dictionary/repositories/dictionary-search.repository.ts",
+      "src/dictionary/repositories/sense-content.repository.ts"
+    ],
+    "untracked_backup": "src/dictionary/repositories/dictionary-search.repository.ts.bak-20261006",
+    "preserved_diff": "db4-d0-vps-dictionary-hotfix-2026-10-06.patch",
+    "preserved_diff_sha256": "fb860ce2269dc3597c14df262ab549f2543dd2d9711dc8e402a5a7d45bdb59b0",
+    "notes": "Source and compiled dist contain same hotfix logic; no app restart or deployment performed by audit."
+  },
+  "totals": {
+    "lexemes": 2375240,
+    "senses": 2917954,
+    "wiktextract_first_last_differ": 55997,
+    "sense_glosses": 2537621,
+    "forms": 499183
+  },
+  "metrics": [
+    {
+      "metric": "environment",
+      "rows": [
+        {
+          "observed_at": "2026-10-06T12:12:35.433461+00:00",
+          "database": "langoo",
+          "server_version": "16.15 (Ubuntu 16.15-1.pgdg22.04+2)",
+          "database_bytes": 6653303831,
+          "snapshot": "2336:2336:"
+        }
+      ]
+    },
+    {
+      "metric": "source_lexeme_sense_counts",
+      "rows": [
+        {
+          "language": "en",
+          "source": "oewn",
+          "lexemes": 161646,
+          "with_reading": 0,
+          "senses": 212478,
+          "with_definition": 212478
+        },
+        {
+          "language": "en",
+          "source": "omw-en",
+          "lexemes": 156584,
+          "with_reading": 0,
+          "senses": 206978,
+          "with_definition": 206978
+        },
+        {
+          "language": "en",
+          "source": "wiktextract",
+          "lexemes": 1492835,
+          "with_reading": 0,
+          "senses": 1787235,
+          "with_definition": 1786127
+        },
+        {
+          "language": "ja",
+          "source": "jmdict",
+          "lexemes": 218794,
+          "with_reading": 218794,
+          "senses": 253630,
+          "with_definition": 0
+        },
+        {
+          "language": "ja",
+          "source": "omw-ja",
+          "lexemes": 94002,
+          "with_reading": 0,
+          "senses": 158069,
+          "with_definition": 158069
+        },
+        {
+          "language": "ja",
+          "source": "wiktextract",
+          "lexemes": 199483,
+          "with_reading": 0,
+          "senses": 237327,
+          "with_definition": 183046
+        },
+        {
+          "language": "vi",
+          "source": "wiktextract",
+          "lexemes": 51896,
+          "with_reading": 0,
+          "senses": 62237,
+          "with_definition": 56761
+        }
+      ]
+    },
+    {
+      "metric": "staging_availability",
+      "rows": [
+        {
+          "wikt_entry": 0,
+          "wn_synset": 0,
+          "jmdict_entry": 0
+        }
+      ]
+    },
+    {
+      "metric": "lexical_candidate_groups",
+      "rows": [
+        {
+          "language": "en",
+          "lexical_keys": 1523794,
+          "lexemes": 1811065,
+          "repeated_keys": 174367,
+          "lexemes_in_repeated_keys": 461638,
+          "extra_lexical_rows": 287271,
+          "cross_source_keys": 158364,
+          "same_source_keys": 16003,
+          "unknown_reading_repeated_keys": 174367
+        },
+        {
+          "language": "ja",
+          "lexical_keys": 473125,
+          "lexemes": 512279,
+          "repeated_keys": 34200,
+          "lexemes_in_repeated_keys": 73354,
+          "extra_lexical_rows": 39154,
+          "cross_source_keys": 28749,
+          "same_source_keys": 5451,
+          "unknown_reading_repeated_keys": 33509
+        }
+      ]
+    },
+    {
+      "metric": "search_face_duplicates",
+      "rows": [
+        {
+          "language": "en",
+          "lexemes": 1811065,
+          "forms": 0,
+          "total_search_faces": 1811065,
+          "repeated_same_id_surface_pairs": 0,
+          "extra_search_faces": 0
+        },
+        {
+          "language": "ja",
+          "lexemes": 512279,
+          "forms": 499183,
+          "total_search_faces": 1011462,
+          "repeated_same_id_surface_pairs": 218794,
+          "extra_search_faces": 218794
+        },
+        {
+          "language": "vi",
+          "lexemes": 51896,
+          "forms": 0,
+          "total_search_faces": 51896,
+          "repeated_same_id_surface_pairs": 0,
+          "extra_search_faces": 0
+        }
+      ]
+    },
+    {
+      "metric": "same_lexeme_definition_candidates",
+      "rows": [
+        {
+          "language": "en",
+          "repeated_definition_groups": 13586,
+          "affected_lexemes": 11486,
+          "senses_in_groups": 57931,
+          "extra_same_definition_rows": 44345
+        },
+        {
+          "language": "ja",
+          "repeated_definition_groups": 878,
+          "affected_lexemes": 826,
+          "senses_in_groups": 2544,
+          "extra_same_definition_rows": 1666
+        },
+        {
+          "language": "vi",
+          "repeated_definition_groups": 470,
+          "affected_lexemes": 425,
+          "senses_in_groups": 1148,
+          "extra_same_definition_rows": 678
+        }
+      ]
+    },
+    {
+      "metric": "wiktextract_first_last_projection",
+      "rows": [
+        {
+          "language": "en",
+          "senses_with_en_group": 1785990,
+          "multi_gloss_senses": 53061,
+          "first_last_differ": 53055,
+          "definition_equals_parent": 53055,
+          "definition_equals_leaf": 0
+        },
+        {
+          "language": "ja",
+          "senses_with_en_group": 182998,
+          "multi_gloss_senses": 1869,
+          "first_last_differ": 1869,
+          "definition_equals_parent": 1869,
+          "definition_equals_leaf": 0
+        },
+        {
+          "language": "vi",
+          "senses_with_en_group": 56756,
+          "multi_gloss_senses": 1073,
+          "first_last_differ": 1073,
+          "definition_equals_parent": 1073,
+          "definition_equals_leaf": 0
+        }
+      ]
+    },
+    {
+      "metric": "verified_wordnet_shared_concept_groups",
+      "rows": [
+        {
+          "language": "en",
+          "groups": 205883,
+          "sense_memberships": 411766,
+          "extra_sense_memberships": 205883,
+          "groups_across_lexemes": 205883,
+          "groups_across_sources": 205883
+        }
+      ]
+    },
+    {
+      "metric": "core_id_fk_dependencies",
+      "rows": [
+        {
+          "schema": "core",
+          "referencing_table": "jlpt_link",
+          "conname": "jlpt_link_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "lexeme_form",
+          "conname": "lexeme_form_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "lexeme_level",
+          "conname": "lexeme_level_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (lexeme_id) REFERENCES core.lexeme(id)"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "pronunciation",
+          "conname": "pronunciation_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense",
+          "conname": "sense_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "source_entry_identity",
+          "conname": "source_entry_identity_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "source_form",
+          "conname": "source_form_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "translation_assertion",
+          "conname": "translation_assertion_source_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (source_lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "translation_target_candidate",
+          "conname": "translation_target_candidate_target_lexeme_id_fkey",
+          "referenced_table": "core.lexeme",
+          "definition": "FOREIGN KEY (target_lexeme_id) REFERENCES core.lexeme(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "app",
+          "referencing_table": "chat_message",
+          "conname": "chat_message_ref_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (ref_sense_id) REFERENCES core.sense(id) ON DELETE SET NULL"
+        },
+        {
+          "schema": "app",
+          "referencing_table": "collection_item",
+          "conname": "collection_item_anchor_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (anchor_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "app",
+          "referencing_table": "collection_item_face",
+          "conname": "collection_item_face_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "app",
+          "referencing_table": "search_history",
+          "conname": "search_history_matched_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (matched_sense_id) REFERENCES core.sense(id) ON DELETE SET NULL"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "deck_item",
+          "conname": "deck_item_anchor_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (anchor_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "example",
+          "conname": "example_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "example_sense",
+          "conname": "example_sense_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_concept",
+          "conname": "sense_concept_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_concept_candidate",
+          "conname": "sense_concept_candidate_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_form",
+          "conname": "sense_form_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE CASCADE"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_gloss",
+          "conname": "sense_gloss_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_relation",
+          "conname": "sense_relation_source_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (source_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_relation",
+          "conname": "sense_relation_target_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (target_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_relation_candidate",
+          "conname": "sense_relation_candidate_source_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (source_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_relation_candidate",
+          "conname": "sense_relation_candidate_target_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (target_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "sense_tag",
+          "conname": "sense_tag_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (sense_id) REFERENCES core.sense(id) ON DELETE CASCADE"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "translation_assertion",
+          "conname": "translation_assertion_source_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (source_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        },
+        {
+          "schema": "core",
+          "referencing_table": "translation_target_candidate",
+          "conname": "translation_target_candidate_target_sense_id_fkey",
+          "referenced_table": "core.sense",
+          "definition": "FOREIGN KEY (target_sense_id) REFERENCES core.sense(id) ON DELETE RESTRICT"
+        }
+      ]
+    },
+    {
+      "metric": "end",
+      "rows": [
+        {
+          "finished_at": "2026-10-06T12:13:48.683209+00:00"
+        }
+      ]
+    },
+    {
+      "metric": "followup_environment",
+      "rows": [
+        {
+          "observed_at": "2026-10-06T12:17:17.035903+00:00",
+          "snapshot": "2342:2342:"
+        }
+      ]
+    },
+    {
+      "metric": "jlpt_scope",
+      "rows": [
+        {
+          "source": "jmdict",
+          "lexemes": 7285,
+          "senses": 15245,
+          "with_definition": 0
+        }
+      ]
+    },
+    {
+      "metric": "wordnet_identical_definition_evidence",
+      "rows": [
+        {
+          "language": "en",
+          "groups_same_key_concept_definition": 199101,
+          "sense_memberships": 398202,
+          "extra_sense_memberships": 199101
+        }
+      ]
+    },
+    {
+      "metric": "projection_examples",
+      "rows": [
+        {
+          "sense_id": 1417635,
+          "lexeme_id": 838667,
+          "sense_no": 11,
+          "definition": "Terms relating to things.",
+          "attributes": {
+            "id": "en-cat-en-noun-lCUJ3RLI",
+            "tags": ["broadly", "countable", "uncountable"]
+          },
+          "en_glosses": [
+            {
+              "rank": 1,
+              "text": "Terms relating to things.",
+              "source_id": 8
+            },
+            {
+              "rank": 2,
+              "text": "A double tripod for holding a plate, etc., with six feet, of which three rest on the ground in whatever position it is placed.",
+              "source_id": 8
+            }
+          ]
+        },
+        {
+          "sense_id": 1417636,
+          "lexeme_id": 838667,
+          "sense_no": 12,
+          "definition": "Terms relating to things.",
+          "attributes": {
+            "id": "en-cat-en-noun-BD7imbWf",
+            "tags": ["archaic", "broadly", "uncountable"],
+            "topics": ["games"]
+          },
+          "en_glosses": [
+            {
+              "rank": 1,
+              "text": "Terms relating to things.",
+              "source_id": 8
+            },
+            {
+              "rank": 2,
+              "text": "The game of trap ball; also (countable), the trap in that game.",
+              "source_id": 8
+            }
+          ]
+        },
+        {
+          "sense_id": 1810300,
+          "lexeme_id": 1024067,
+          "sense_no": 1,
+          "definition": "To ingest.",
+          "attributes": {
+            "id": "en-eat-en-verb-GU075URU",
+            "tags": ["ambitransitive"],
+            "translations": [
+              {
+                "word": "食べる",
+                "roman": "taberu",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "ja"
+              },
+              {
+                "tags": ["vulgar"],
+                "word": "食う",
+                "roman": "kuu",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "ja"
+              },
+              {
+                "word": "食事する",
+                "roman": "shokuji suru",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "ja"
+              },
+              {
+                "tags": ["honorific"],
+                "word": "召し上がる",
+                "roman": "meshiagaru",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "ja"
+              },
+              {
+                "tags": ["humble"],
+                "word": "頂く",
+                "roman": "itadaku",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "ja"
+              },
+              {
+                "word": "ăn",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "vi"
+              },
+              {
+                "word": "ăn cơm",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "vi"
+              },
+              {
+                "word": "xơi",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "vi"
+              },
+              {
+                "word": "chén",
+                "sense": "to ingest — see also consume, ingest",
+                "lang_code": "vi"
+              }
+            ]
+          },
+          "en_glosses": [
+            {
+              "rank": 1,
+              "text": "To ingest.",
+              "source_id": 8
+            },
+            {
+              "rank": 2,
+              "text": "To consume (something solid or semi-solid, usually food) by putting it into the mouth and swallowing it.",
+              "source_id": 8
+            }
+          ]
+        },
+        {
+          "sense_id": 1810301,
+          "lexeme_id": 1024067,
+          "sense_no": 2,
+          "definition": "To ingest.",
+          "attributes": {
+            "id": "en-eat-en-verb-en:eat_a_meal",
+            "tags": ["intransitive"],
+            "senseid": ["en:eat a meal"],
+            "translations": [
+              {
+                "word": "食事をする",
+                "roman": "shokuji o suru",
+                "sense": "eat a meal",
+                "lang_code": "ja"
+              },
+              {
+                "word": "ăn cơm",
+                "sense": "eat a meal",
+                "lang_code": "vi"
+              }
+            ]
+          },
+          "en_glosses": [
+            {
+              "rank": 1,
+              "text": "To ingest.",
+              "source_id": 8
+            },
+            {
+              "rank": 2,
+              "text": "To consume a meal.",
+              "source_id": 8
+            }
+          ]
+        },
+        {
+          "sense_id": 1810302,
+          "lexeme_id": 1024067,
+          "sense_no": 3,
+          "definition": "To ingest.",
+          "attributes": {
+            "id": "en-eat-en-verb-n0zuI7ON",
+            "tags": ["copulative", "intransitive"]
+          },
+          "en_glosses": [
+            {
+              "rank": 1,
+              "text": "To ingest.",
+              "source_id": 8
+            },
+            {
+              "rank": 2,
+              "text": "To have a particular quality of diet; to be well-fed or underfed.",
+              "source_id": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "metric": "followup_end",
+      "rows": [
+        {
+          "finished_at": "2026-10-06T12:17:26.821719+00:00"
+        }
+      ]
+    },
+    {
+      "metric": "exact_core_totals",
+      "rows": [
+        {
+          "observed_at": "2026-10-06T12:24:08.729738+00:00",
+          "snapshot": "2458:2458:",
+          "lexemes": 2375240,
+          "senses": 2917954,
+          "sense_glosses": 2537621,
+          "forms": 499183
+        }
+      ]
+    }
+  ],
+  "api": {
+    "observed_at": "2026-10-06T12:15:46.196Z",
+    "origin": "VPS loopback API",
+    "authenticated": false,
+    "probes": [
+      {
+        "label": "health",
+        "path": "/v1/health",
+        "status": 200,
+        "elapsed_ms": 132,
+        "body": {
+          "status": "ok",
+          "db": "ok",
+          "db_latency_ms": 14,
+          "db_timezone": "UTC",
+          "uptime_s": 883,
+          "time": "2026-10-06T12:15:38.860Z"
+        }
+      },
+      {
+        "label": "ja_school",
+        "path": "/v1/dictionary/search?q=%E5%AD%A6%E6%A0%A1&lang=ja&limit=20",
+        "status": 200,
+        "elapsed_ms": 562,
+        "body": {
+          "data": [
+            {
+              "lexeme_id": "105236",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校",
+              "reading": "がっこう",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "105240",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校医",
+              "reading": "がっこうい",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105241",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校名",
+              "reading": "がっこうめい",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105252",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校祭",
+              "reading": "がっこうさい",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105258",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校長",
+              "reading": "がっこうちょう",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "582916",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校鞄",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "2248130",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校債",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105237",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校保健",
+              "reading": "がっこうほけん",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105238",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校債券",
+              "reading": "がっこうさいけん",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105239",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校制度",
+              "reading": "がっこうせいど",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105244",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校帰り",
+              "reading": "がっこうがえり",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105245",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校教育",
+              "reading": "がっこうきょういく",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105247",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校文法",
+              "reading": "がっこうぶんぽう",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105248",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校新聞",
+              "reading": "がっこうしんぶん",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105249",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校法人",
+              "reading": "がっこうほうじん",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105250",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校生活",
+              "reading": "がっこうせいかつ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105251",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校用品",
+              "reading": "がっこうようひん",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105253",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校給食",
+              "reading": "がっこうきゅうしょく",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "105256",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校行事",
+              "reading": "がっこうぎょうじ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "582911",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校教師",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            }
+          ],
+          "next_cursor": "eyJ2IjoxLCJxIjoi5a2m5qChIiwibCI6ImphIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6NCwiaSI6IjU4MjkxMSIsImsiOiJsZW1tYSIsInMiOiLlrabmoKHmlZnluKsifQ"
+        },
+        "summary": {
+          "rows": 20,
+          "distinct_lexeme_ids": 20,
+          "extra_same_id_rows": 0,
+          "exact_hits": [
+            {
+              "lexeme_id": "105236",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "学校",
+              "reading": "がっこう",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": true
+            }
+          ]
+        }
+      },
+      {
+        "label": "ja_cat",
+        "path": "/v1/dictionary/search?q=%E7%8C%AB&lang=ja&limit=20",
+        "status": 200,
+        "elapsed_ms": 4802,
+        "body": {
+          "data": [
+            {
+              "lexeme_id": "156837",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫",
+              "reading": "ねこ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "156838",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫",
+              "reading": "ねこま",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 2,
+              "surface_kind": "kanji",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "36055",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫族",
+              "reading": "ネコぞく",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "36058",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫科",
+              "reading": "ネコか",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156840",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫被",
+              "reading": "ねこかぶり",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156854",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫目",
+              "reading": "ねこのめ",
+              "pos": "expression",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156858",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫婆",
+              "reading": "ねこばば",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156861",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫跨",
+              "reading": "ねこまたぎ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156864",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫又",
+              "reading": "ねこまた",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156869",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫娘",
+              "reading": "ねこむすめ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156871",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫島",
+              "reading": "ねこじま",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156872",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫座",
+              "reading": "ねこざ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156874",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫板",
+              "reading": "ねこいた",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156875",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫柳",
+              "reading": "ねこやなぎ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156876",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫派",
+              "reading": "ねこは",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156881",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫砂",
+              "reading": "ねこすな",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156882",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫種",
+              "reading": "びょうしゅ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156883",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫缶",
+              "reading": "ねこかん",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156885",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫耳",
+              "reading": "ねこみみ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "156887",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫肉",
+              "reading": "ねこにく",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": false
+            }
+          ],
+          "next_cursor": "eyJ2IjoxLCJxIjoi54yrIiwibCI6ImphIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MiwiaSI6IjE1Njg4NyIsImsiOiJrYW5qaSIsInMiOiLnjKvogokifQ"
+        },
+        "summary": {
+          "rows": 20,
+          "distinct_lexeme_ids": 20,
+          "extra_same_id_rows": 0,
+          "exact_hits": [
+            {
+              "lexeme_id": "156837",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫",
+              "reading": "ねこ",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "kanji",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "156838",
+              "language_id": 2,
+              "lang_code": "ja",
+              "surface": "猫",
+              "reading": "ねこま",
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 2,
+              "surface_kind": "kanji",
+              "is_exact": true
+            }
+          ]
+        }
+      },
+      {
+        "label": "en_cat",
+        "path": "/v1/dictionary/search?q=cat&lang=en&limit=20",
+        "status": 200,
+        "elapsed_ms": 1116,
+        "body": {
+          "data": [
+            {
+              "lexeme_id": "838666",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cat",
+              "reading": null,
+              "pos": "adjective",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "838667",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cat",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "838670",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cat",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "839815",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cate",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840242",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cath",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840243",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cath",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840873",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cats",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840874",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cats",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "839418",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "catch",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "839419",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "catch",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840059",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cater",
+              "reading": null,
+              "pos": "adverb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840060",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cater",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840062",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cater",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840146",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cates",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840157",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "catex",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840582",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "caths",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840583",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "caths",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840613",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "catio",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840708",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "catly",
+              "reading": null,
+              "pos": "adjective",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "840709",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "catma",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            }
+          ],
+          "next_cursor": "eyJ2IjoxLCJxIjoiY2F0IiwibCI6ImVuIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6NSwiaSI6Ijg0MDcwOSIsImsiOiJsZW1tYSIsInMiOiJjYXRtYSJ9"
+        },
+        "summary": {
+          "rows": 20,
+          "distinct_lexeme_ids": 20,
+          "extra_same_id_rows": 0,
+          "exact_hits": [
+            {
+              "lexeme_id": "838666",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cat",
+              "reading": null,
+              "pos": "adjective",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "838667",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cat",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "838670",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "cat",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": true
+            }
+          ]
+        }
+      },
+      {
+        "label": "en_eat",
+        "path": "/v1/dictionary/search?q=eat&lang=en&limit=20",
+        "status": 200,
+        "elapsed_ms": 794,
+        "body": {
+          "data": [
+            {
+              "lexeme_id": "1024066",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eat",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eat",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "1024108",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eate",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024196",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eath",
+              "reading": null,
+              "pos": "adjective",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024197",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eath",
+              "reading": null,
+              "pos": "adverb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024364",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eats",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024365",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eats",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024457",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eaty",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024109",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eated",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024111",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eaten",
+              "reading": null,
+              "pos": "adjective",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024112",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eaten",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024180",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eater",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024190",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eates",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024208",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eathy",
+              "reading": null,
+              "pos": "adjective",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024076",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eatage",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024094",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eatche",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024095",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eatche",
+              "reading": null,
+              "pos": "pronoun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024187",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eaters",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024189",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eatery",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": false
+            },
+            {
+              "lexeme_id": "1024191",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eatest",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": false
+            }
+          ],
+          "next_cursor": "eyJ2IjoxLCJxIjoiZWF0IiwibCI6ImVuIiwiZSI6MSwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6NiwiaSI6IjEwMjQxOTEiLCJrIjoibGVtbWEiLCJzIjoiZWF0ZXN0In0"
+        },
+        "summary": {
+          "rows": 20,
+          "distinct_lexeme_ids": 20,
+          "extra_same_id_rows": 0,
+          "exact_hits": [
+            {
+              "lexeme_id": "1024066",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eat",
+              "reading": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "surface_kind": "lemma",
+              "is_exact": true
+            },
+            {
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lang_code": "en",
+              "surface": "eat",
+              "reading": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "surface_kind": "lemma",
+              "is_exact": true
+            }
+          ]
+        }
+      },
+      {
+        "label": "eat_senses",
+        "path": "/v1/lexemes/1024067/senses",
+        "status": 200,
+        "elapsed_ms": 38,
+        "body": {
+          "data": [
+            {
+              "sense_id": "1810300",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 1,
+              "definition": "To ingest.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": true,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To ingest.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810301",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 2,
+              "definition": "To consume a meal.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To ingest.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810302",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 3,
+              "definition": "To have a particular quality of diet; to be well-fed or underfed.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To ingest.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810303",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 4,
+              "definition": "To be ingested.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To be ingested.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810304",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 5,
+              "definition": "To be savored or enjoyed; to taste in a specified way.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To be savored or enjoyed; to taste in a specified way.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810305",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 6,
+              "definition": "To use up.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To use up.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810306",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 7,
+              "definition": "To consume (an exception, an event, etc.) so that other parts of the program do not receive it.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To use up.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810307",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 8,
+              "definition": "To damage, destroy, or fail to eject a removable part or an inserted object.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To use up.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810308",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 9,
+              "definition": "To consume money (or other instruments of value, such as a token) deposited or inserted by a user, while failing to either provide the intended product or service or return the payment.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To use up.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810309",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 10,
+              "definition": "To cause (someone) to worry.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To cause (someone) to worry.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810310",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 11,
+              "definition": "To take the loss in a transaction.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To take the loss in a transaction.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810311",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 12,
+              "definition": "To be injured or killed by (something such as a firearm or its projectile), especially in the mouth.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To be injured or killed by (something such as a firearm or its projectile), especially in the mouth.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810312",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 13,
+              "definition": "To corrode or erode.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To corrode or erode.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810313",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 14,
+              "definition": "To perform oral sex (on a person or body part).",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To perform oral sex (on a person or body part).",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810314",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 15,
+              "definition": "To do or perform well and stunningly; to consume a challenge successfully and stylishly; to rule, to slay.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To do or perform well and stunningly; to consume a challenge successfully and stylishly; to rule, to slay.",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810315",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 16,
+              "definition": "To act well (in a role); to be intensely devoted (to a role).",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To act well (in a role); to be intensely devoted (to a role).",
+              "concept_id": null
+            },
+            {
+              "sense_id": "1810316",
+              "lexeme_id": "1024067",
+              "language_id": 1,
+              "lemma": "eat",
+              "reading": null,
+              "romanization": null,
+              "pos": "verb",
+              "frequency_rank": null,
+              "homograph_no": 3,
+              "sense_no": 17,
+              "definition": "To annex.",
+              "definition_language_id": 1,
+              "register": null,
+              "domain": null,
+              "is_primary": false,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "To annex.",
+              "concept_id": null
+            }
+          ],
+          "next_cursor": null
+        }
+      },
+      {
+        "label": "school_senses",
+        "path": "/v1/lexemes/105236/senses",
+        "status": 200,
+        "elapsed_ms": 10,
+        "body": {
+          "data": [
+            {
+              "sense_id": "11911",
+              "lexeme_id": "105236",
+              "language_id": 2,
+              "lemma": "学校",
+              "reading": "がっこう",
+              "romanization": null,
+              "pos": "noun",
+              "frequency_rank": null,
+              "homograph_no": 1,
+              "sense_no": 1,
+              "definition": null,
+              "definition_language_id": null,
+              "register": null,
+              "domain": null,
+              "is_primary": true,
+              "gloss_vi": null,
+              "gloss_vi_machine": null,
+              "gloss_vi_reviewed": false,
+              "gloss_en": "school",
+              "concept_id": null
+            }
+          ],
+          "next_cursor": null
+        }
+      }
+    ]
+  },
+  "api_detail": {
+    "observed_at": "2026-10-06T12:17:17.638Z",
+    "path": "/v1/senses/1810301",
+    "status": 200,
+    "card": {
+      "sense_id": "1810301",
+      "lexeme_id": "1024067",
+      "language_id": 1,
+      "lemma": "eat",
+      "reading": null,
+      "romanization": null,
+      "pos": "verb",
+      "frequency_rank": null,
+      "homograph_no": 3,
+      "sense_no": 2,
+      "definition": "To ingest.",
+      "definition_language_id": 1,
+      "register": null,
+      "domain": null,
+      "is_primary": false,
+      "gloss_vi": null,
+      "gloss_vi_machine": null,
+      "gloss_vi_reviewed": false,
+      "gloss_en": "To ingest.",
+      "concept_id": null
+    },
+    "glosses": [
+      {
+        "id": "3539671",
+        "language_id": 1,
+        "text": "To ingest.",
+        "detail": null,
+        "is_machine": false,
+        "reviewed": false,
+        "quality": null,
+        "rank": 1
+      },
+      {
+        "id": "3539672",
+        "language_id": 1,
+        "text": "To consume a meal.",
+        "detail": null,
+        "is_machine": false,
+        "reviewed": false,
+        "quality": null,
+        "rank": 2
+      }
+    ]
+  }
+}

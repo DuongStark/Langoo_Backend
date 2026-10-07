@@ -168,3 +168,49 @@ Xuất `examples.jsonl` theo example schema v1 ([contract](../../docs/plans/db3-
 - Deck: tạo/đồng bộ đủ 5 cấp, **N5 trước N1**, anchor primary sense; thiếu primary thì dừng. Chạy lại loại item rejected/đổi cấp/đổi primary, sửa position/item_count. Deck mới unpublished; deck hiện có giữ trạng thái publish và concept của anchor còn eligible. `--limit` chỉ trên DB local `_test` và **chỉ khi 5 slug seed chưa tồn tại**, để không thay deck đầy đủ bằng tập fixture.
 - Radical báo cáo các KRADFILE part chưa khớp hoặc khớp nhiều bộ qua exact character/variants; không tự suy mapping giữa 214 bộ và 253 cấu kiện.
 - API phục vụ ảnh KanjiVG thuộc **M14**; DB3-A chỉ seed metadata. DB3-B gloss/LLM và DB4 mapping không thuộc các script này.
+
+## B2 — Xếp hạng tần suất `wordfreq` (không LLM)
+
+```bash
+# 1) Sinh bảng xếp hạng (venv có `wordfreq`; không gọi API/LLM):
+psql "$DIRECT_URL" -tAc "SELECT DISTINCT lower(lemma) FROM core.lexeme WHERE language_id=1" > /tmp/en-lemmas.txt
+python scripts/db3/wordfreq-export.py --lang en --lemmas /tmp/en-lemmas.txt --out uploads/db3/wordfreq-en.tsv
+
+# 2) Dry-run / apply:
+npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv
+npx tsx scripts/db3/wordfreq.ts --mapping uploads/db3/wordfreq-en.tsv --apply --allow-db <db>
+```
+
+- Chỉ ghi `core.lexeme.frequency_rank` cho ngôn ngữ `--lang` (mặc định `en`); apply chỉ chạy khi **toàn bộ rank của ngôn ngữ đang NULL** (rollback bị khóa do manifest thiếu journal theo từng lexeme).
+- Mapping TSV + meta (version/license/sha256) ở `uploads/db3/` (gitignored); manifest giữ sha mapping, version wordfreq và số lexeme cập nhật; `public.source#wordfreq` được upsert version + sha.
+- wordfreq EN có 321.180 từ vựng; lemma không khớp giữ NULL (từ hiếm → xếp cuối trong search).
+
+
+### 2026-10-06 — DB3-W1 — Khóa rollback wordfreq thiếu journal
+
+Manifest wordfreq cũ chỉ có count/SHA, không ghi before/after theo lexeme.
+`--rollback` hiện luôn từ chối trước kết nối DB; không xóa rank toàn ngôn ngữ.
+Không chạy lại apply trong lần tích hợp M4.3. Muốn phục hồi run đã áp phải dùng
+backup hoặc bổ sung journal per-row có guard drift/đúng target trước.
+
+
+## DB3-B2.1 — Apply các output được review riêng (2026-10-06)
+
+Mặc định giữ gate pilot đủ 100 output riêng biệt, ≥98 pass và 0 severe.
+`--allow-partial` là chế độ opt-in cho judge/apply: review phủ chính xác mọi output
+có code validation passed trong cohort, kể cả các dòng bị semantic review loại sau
+lần apply trước. Output translation rejected/validation failed không thuộc cohort.
+
+- Chỉ verdict pass được đăng ký child/ghi DB; fail/minor và fail/severe đều bị loại.
+- UNREVIEWED bị từ chối cả partial. Binding job/candidate/input/output hash,
+  target/source/artifact/budget, journal/rollback/host/port/database giữ nguyên.
+- Review fail giữ state rejected/validation passed cùng lý do; resume dùng cùng review.
+  Không sửa verdict của dòng đã đăng ký child hoặc biến dòng rejected thành pass.
+- mapping_run.parameters ghi reviewMode=partial-reviewed-only và hash/count review.
+  Partial **không có nghĩa pilot đã đạt 98/100**, không suy ra chất lượng batch/model.
+- Gloss vẫn máy/chưa duyệt, không ghi reviewed_by/quality như human curation.
+- Judge giữ nguyên verdict fail/minor; không đổi thành pass theo severity.
+
+Cờ cần đặt cả lúc tạo review subset bằng judge và apply. Không tự rerun judge hoặc
+seed VPS khi chỉ deploy code. Tests: `node --import tsx --test scripts/db3/gloss-types.test.ts scripts/db3/gloss-judge.test.ts scripts/db3/gloss-apply.test.ts`
+(trong env TEST_DIRECT_URL local*_test; apply test tự tạo/xóa UUID DB riêng).

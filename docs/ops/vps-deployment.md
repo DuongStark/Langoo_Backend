@@ -1,12 +1,12 @@
 # Vận hành VPS — Langoo API + PostgreSQL
 
-> Tài liệu cho **mọi phiên LLM/dev tiếp nhận dự án**. Cập nhật: 2026-10-05.
+> Tài liệu cho **mọi phiên LLM/dev tiếp nhận dự án**. Cập nhật: 2026-10-06 (DB4-D0 khảo sát read-only).
 > IP VPS: **163.223.210.135** · Domain API: **https://langoo-api.pixpress.art**
 > ⚠️ Bí mật (mật khẩu DB, key, `.env`) **KHÔNG** nằm trong repo — xem mục 8.
 
 ## 1. Tổng quan
 
-- VPS **Ubuntu 22.04.1 LTS** — 1 vCPU, 2GB RAM (+ swap 2GB `/swapfile`), đĩa 30GB (đang dùng ~16GB, còn ~13GB).
+- VPS **Ubuntu 22.04.1 LTS** — 1 vCPU, 2GB RAM (+ swap 2GB `/swapfile`), đĩa 30GB (đo 06/10: dùng ~19GB, còn ~9,6GB).
 - Thành phần & phiên bản: **PostgreSQL 16.15** (PGDG) · **Node.js v22.23.3** · **PM2 7.0.4** · **Caddy 2.11.4** (binary tĩnh) · **ufw**.
 - Sơ đồ luồng:
 
@@ -18,7 +18,8 @@ Internet
                  └─ PostgreSQL 16 — 127.0.0.1:5432
 ```
 
-- API hiện kết nối **DB Prisma cloud (demo)**; **DB thật** (6,3GB, dữ liệu từ điển đầy đủ) nằm cùng VPS.
+- **Xác minh 06/10:** API đang dùng **DB thật `127.0.0.1:5432/langoo` trên VPS**, thay trạng thái cloud demo ghi trước đây. `.env` được đọc có hai DB URL local, PM2 không có override URL; health/search/senses đã đối chiếu runtime và DB.
+- **Dictionary runtime có sửa chưa commit:** HEAD checkout `7b13b90`; khảo sát 12:15 UTC có 3 file dictionary modified và dist chứa cùng logic. Preflight 13:10 UTC ghi nhận **5 file modified**, thêm controller/kanji repository cho stroke SVG ngoài scope DB4-D0. HEAD không đủ mô tả code đang chạy; xem [khảo sát DB4-D0](../reviews/db4-d0-vps-duplicates-2026-10-06.md) và [patch mới cả dictionary](../reviews/db4-d0-vps-dictionary-runtime-2026-10-06.patch). Deploy reset có thể mất các sửa trực tiếp; review/reconcile patch mới trước lần deploy tiếp theo. Lượt DB4-D0 không sửa runtime.
 - User hệ thống: `root` (sudo), `langoo` (chạy app, sở hữu code + object DB), `postgres` (superuser DB), `caddy`.
 
 ## 2. Truy cập SSH
@@ -35,7 +36,7 @@ Internet
   `shared_buffers=512MB`, `max_connections=40`, `effective_cache_size=1200MB`, `work_mem=16MB`, `log_min_duration_statement=1000`…
 - **Ownership**: các schema `public/core/app/serve/staging` đều thuộc role `langoo` (staging được chuyển chủ ngày DB1) → **mọi migration phải chạy bằng `langoo`** (đừng tạo object bằng `postgres` rồi migrate bằng `langoo` — sẽ lỗi `must be owner`).
 - Dữ liệu: khôi phục từ dump local `public+core+app+serve` (577MB nén); schema `staging` tạo rỗng + data 2 bảng `import_batch` (16 dòng) và `jlpt_entry` (7,9k) để thoả FK `core.* → staging`.
-- Kích thước DB sau DB2: **~6,3GB** (core ~6,1GB + index tìm kiếm thêm ~200MB).
+- Kích thước DB đo 06/10: **6.653.303.831 bytes** (~6,65GB thập phân). Staging `wikt_entry`/`wn_synset`/`jmdict_entry` vẫn rỗng theo COUNT; full ranked gloss còn trong core.
 - Search (DB2): `pg_trgm` + `unaccent` + 4 GIN trigram (033) và hàm `core.bigrams` + 4 GIN bigram (035). **Repository search dùng `core.bigrams`** — xoá hàm này sẽ làm API search 500.
 
 ## 4. Backup & restore
@@ -53,11 +54,11 @@ Internet
 
 ## 5. Ứng dụng API (Node + PM2)
 
-- Code: `/opt/langoo/app` (clone từ GitHub; mỗi deploy `git fetch` + `git reset --hard origin/main` — **VPS luôn chạy đúng `origin/main`**).
+- Code: `/opt/langoo/app` (clone từ GitHub; mỗi deploy `git fetch` + `git reset --hard origin/main`). Sau deploy phải xác minh HEAD/source/dist và working tree; **06/10 dictionary có sửa trực tiếp chưa commit**, không coi runtime luôn bằng `origin/main`.
 - User chạy: `langoo`; PM2 app `langoo-api` (chế độ fork, `--max-memory-restart 600M`); auto-start sau reboot qua systemd **`pm2-langoo.service`** (enabled).
 - `.env`: `/opt/langoo/app/.env` (chmod 600, user `langoo`):
-  - Hiện trỏ **Prisma cloud** (`DATABASE_URL`/`DIRECT_URL`) theo file env chủ dự án (02/10).
-  - Bản trỏ **DB thật VPS** giữ tại `/opt/langoo/app/.env.localdb.bak` — đổi 2 dòng `DATABASE_URL`/`DIRECT_URL` sang `postgresql://langoo:<pass>@127.0.0.1:5432/langoo` rồi `pm2 restart` là về DB thật.
+  - **Hiện trỏ DB thật VPS** (`DATABASE_URL`/`DIRECT_URL`: `127.0.0.1:5432/langoo`), xác minh 06/10. Không xuất URL chứa mật khẩu trong report.
+  - `/opt/langoo/app/.env.localdb.bak` là bản cấu hình DB thật lưu trước đó; không cần chuyển env để đọc DB thật trong trạng thái hiện tại. Kiểm lại target trước thao tác ops.
   - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS=*`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`…
   - **AI production (05/10)**: `AI_PROVIDER=openai`, `AI_BASE_URL=https://api.groq.com/openai/v1`, `AI_CHAT_MODEL=openai/gpt-oss-120b`, key Groq (free tier: 30 RPM / 1.000 req/ngày / 8K TPM). Đo thực tế: **~0,6–2,2s/câu** (nhanh hơn hẳn Zen free), streaming hoạt động.
   - Phương án dự phòng đã thử:
@@ -86,22 +87,24 @@ Internet
 
 ## 7. Auto-deploy & migration
 
-- Workflow `.github/workflows/deploy.yml`: chạy khi **CI xanh trên `main`** (`workflow_run`) → SSH vào VPS → `sudo -u langoo -H /opt/langoo/deploy.sh`.
-- `/opt/langoo/deploy.sh`: `git fetch` + `git reset --hard origin/main` → `npm ci --include=dev` → `npm run build` → `pm2 reload langoo-api` → health check `/v1/health` (fail thì job đỏ).
-- Secrets GitHub: `VPS_HOST` = IP, `VPS_USER` = `root`, `VPS_SSH_KEY` = key riêng chỉ dùng để deploy.
-- **Quy tắc vàng: DB migration chạy THỦ CÔNG TRƯỚC khi push** (bài học sự cố 30/9: code lên trước migration làm API 500).
-- Chạy migration trên VPS (mật khẩu ở `~/.langoo-vps.env` máy chủ dự án):
-  ```bash
-  ssh langoo-vps
-  sudo -u langoo -H env \
-    DATABASE_URL='postgresql://langoo:<PASS>@127.0.0.1:5432/langoo' \
-    DIRECT_URL='postgresql://langoo:<PASS>@127.0.0.1:5432/langoo' \
-    bash -c 'cd /opt/langoo/app && npx tsx scripts/db/migrate.ts'
-  ```
-  - **Không dùng IP công khai** trong URL (PG chỉ nghe localhost → `ECONNREFUSED`).
-  - **Không pipe qua `tail`** — pipeline che mất lỗi/exit code (đã từng bỏ sót lỗi `must be owner`).
-  - Chờ **deploy xong** mới chạy (deploy đang `npm ci` có thể làm `tsx: not found`).
-- Trạng thái migration: file trong `db/migrations/` — **001–037, số 028 để trống** (dành đợt B xác thực email). VPS đã áp tới **035** (031/032 = DB1; 033/035 = DB2); 034/036/037 (M7/M8/M10) đã áp DB test local, **chưa apply cloud/VPS** — áp trước khi deploy code tương ứng.
+### M4.2 / DB4-D0.2 — release 06/10
+
+Migration038 đã áp VPS; commits04112dc/d861390 đã CI deploy. Phiên DeepSeek
+sau đó deploy subsense lên code chưa commit trên VPS. User cho tạm dừng tích hợp,
+sau khi có handoff46ec612 thì triển khai M4.3.
+
+### M4.3 — Nhóm nghĩa Wiktextract và bảo toàn sense
+
+- Migration039 append gloss_en_is_hierarchy vào view; chạy trước publish main.
+- Backup runtime DeepSeek + patch + schema/count snapshot tại
+  `/opt/langoo/storage/db4/releases/m43-20261006` (private, ngoài working tree).
+  Backup DB đầy đủ M4.2 vẫn ở sibling `m42-20261006`; M4.3 chỉ đổi view.
+- Có `view=flat` cho FE cũ; grouped cần group_heading + render sub_senses.
+- Không áp lại wordfreq. DB3-W1 khóa rollback thiếu journal per-row.
+- Rollback code runtime trước từ archive; giữ cột039 (tương thích038), build/reload
+  một phiên. Không rollback DB dump hoặc git clean toàn working tree.
+- Kết quả CI/deploy/smoke và commit cuối ghi tại
+  [report M4.3](../reviews/m4-3-subsense-integration-2026-10-06.md).
 
 ## 8. Bí mật & các DB liên quan
 
@@ -109,8 +112,8 @@ Internet
 | --- | --- | --- |
 | `~/.langoo-vps.env` (máy chủ dự án) | `VPS_DB_URL=postgresql://langoo:<pass>@163.223.210.135:5432/langoo`, host/user | Không commit |
 | `/opt/langoo/app/.env` (VPS) | URL DB đang dùng, JWT secret, Google IDs, CORS, AI… | chmod 600, user `langoo` |
-| `/opt/langoo/app/.env.localdb.bak` | Bản trỏ **DB thật VPS** (để quay về) | chmod 600 |
-| **Prisma cloud (demo)** | DB mà **API live đang dùng**; migration đã áp: 001–030 + **035** (hàm `core.bigrams` bắt buộc có) | 036/037 chưa áp |
+| `/opt/langoo/app/.env.localdb.bak` | Bản cấu hình **DB thật VPS** lưu trước đó | chmod 600; `.env` hiện cũng đọc DB thật |
+| **Prisma cloud (demo)** | DB demo, không phải target API VPS tại lần kiểm 06/10 | Không kiểm lại cloud trong audit này; lịch sử migration 05/10 ở PROGRESS |
 | **PG nhúng local** (máy chủ dự án) | `127.0.0.1:55432`, DB `langoo` (full data) + `langoo_test` | Bật bằng `data-Langoo/scripts/pgdev.sh start`; `.env` repo trỏ `langoo_test` — muốn thao tác DB full phải override `DATABASE_URL/DIRECT_URL`. ⚠️ Phiên khác có thể chạy PG tạm chiếm port 55432 (vd `/tmp/langoo-m11-pg`): kiểm tra `ps aux \| grep postgres`, nếu vậy start PG thật ở port khác `pg_ctl -D ~/.local/share/langoo/pgdata -o '-p 55433' start` |
 
 - `psql` trên máy chủ dự án thiếu SSL nên **không nối được Prisma cloud**; dùng `psql` trên VPS để thao tác cloud (VPS nối cloud tốt).
@@ -169,3 +172,16 @@ ssh langoo-vps 'ufw status verbose'
 
 - Kế hoạch & kết quả: [`docs/plans/db1-schema-cleanup.md`](../plans/db1-schema-cleanup.md), [`docs/plans/db2-search-infra.md`](../plans/db2-search-infra.md).
 - Tổng quan dự án: [`PROGRESS.md`](../../PROGRESS.md), [`CONTEXT-DU-AN.md`](../../CONTEXT-DU-AN.md), [`CSDL-THAM-CHIEU.md`](../../CSDL-THAM-CHIEU.md).
+
+
+### M4.3 / DB3-B2.1 — kết quả cuối 06/10
+
+Từng dừng deploy lúc 21:35 để bảo toàn scripts DB3-B đang được sửa trên VPS:
+CI 37480050307 canceled, Deploy 37480283546 skipped. Sau khi chủ dự án xác nhận
+phiên đó hoàn thành, tích hợp và sửa DB3-B2.1 trong commit `f700658`.
+
+CI 37481567514 / Deploy 37481886745 success. VPS runtime `f700658`, PM2 online,
+038/039 đã áp; 46 live checks pass. Runtime tracked code clean, hai file .bak cũ được
+ giữ. Backup cuối `runtime-final-code.tgz`/patch gồm cả ba script DB3-B.
+[Report](../reviews/m4-3-subsense-integration-2026-10-06.md) ghi số liệu và checks.
+FE cần render con hoặc dùng `view=flat`; DB3-W1 rollback thiếu journal vẫn bị khóa.

@@ -32,6 +32,8 @@ export class SenseCardRepository {
         sc.gloss_vi_machine,
         sc.gloss_vi_reviewed,
         sc.gloss_en,
+        sc.gloss_en_context,
+        sc.gloss_en_is_hierarchy,
         sc.concept_id
       FROM serve.sense_card sc
       WHERE sc.sense_id = ${senseId}
@@ -73,6 +75,8 @@ export class SenseCardRepository {
         sc.gloss_vi_machine,
         sc.gloss_vi_reviewed,
         sc.gloss_en,
+        sc.gloss_en_context,
+        sc.gloss_en_is_hierarchy,
         sc.concept_id
       FROM serve.sense_card sc
       WHERE sc.lexeme_id = ${lexemeId}
@@ -104,6 +108,8 @@ function toSenseCard(row: SenseCardRow): SenseCard {
     glossViMachine: row.gloss_vi_machine,
     glossViReviewed: row.gloss_vi_reviewed,
     glossEn: row.gloss_en,
+    glossEnContext: row.gloss_en_context ?? [],
+    glossEnIsHierarchy: row.gloss_en_is_hierarchy === true,
     conceptId: row.concept_id,
   };
 }

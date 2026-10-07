@@ -60,3 +60,5 @@ jobs:
       - name: Đảm bảo db:migrate không còn file cần chạy (đủ 027)
         run: npm run db:migrate
       - run: npm run test:e2e
+      - name: DB3-B2.1 review/apply regressions
+        run: node --import tsx --test scripts/db3/gloss-types.test.ts scripts/db3/gloss-judge.test.ts scripts/db3/gloss-apply.test.ts

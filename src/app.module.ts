@@ -18,6 +18,7 @@ import { GamificationModule } from './gamification/gamification.module';
 import { HealthModule } from './health/health.module';
 import { SrsModule } from './srs/srs.module';
 import { SessionsModule } from './sessions/sessions.module';
+import { SourcesModule } from './sources/sources.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
 
@@ -70,6 +71,7 @@ import { UsersModule } from './users/users.module';
     FeedbackModule,
     AdminModule,
     HealthModule,
+    SourcesModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
