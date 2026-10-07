@@ -268,139 +268,195 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   const dry = process.env.DB4_AUDIT_DRY === '1';
   if (limit !== null && (!Number.isSafeInteger(limit) || limit < 1))
     throw new Error('DB4_AUDIT_LIMIT không hợp lệ');
-
-  const loaded = loadBoundJob({
-    root,
-    jobRel,
-    adapter: createStubAdapter(),
-  });
-  const job = loaded.job;
-  const bundles = loaded.bundles;
-  const pilot = parsePilotManifest(
-    JSON.parse(readBytes(root, job.pilotManifest.path).toString('utf8')),
-  );
-  const entries = limit === null ? job.entries : job.entries.slice(0, limit);
+  const extraJobs = (process.env.DB4_AUDIT_EXTRA_JOBS ?? '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter(Boolean);
+  const jobRels = [jobRel, ...extraJobs];
+  const gatePilotRel = process.env.DB4_AUDIT_GATE_PILOT;
   const reviewer = dry ? null : reviewerFromEnv();
   const tokenUsage = { tokens: 0, costMicrousd: 0 };
-
   const results: TargetAuditResult[] = [];
   const failures: { targetKey: string; error: string }[] = [];
   const packets: unknown[] = [];
-
-  for (const entry of entries) {
-    const bundle = bundles.get(entry.bundleKey);
-    if (!bundle)
-      throw new Error(`Thiếu bundle ${entry.bundleKey.slice(0, 12)}`);
-    const decisionsRef: ArtifactRef =
-      entry.decision ?? throwMissing(entry.targetKey);
-    const decisionBytes = readBytes(root, decisionsRef.path);
-    verifyArtifactBytes(decisionsRef, decisionBytes);
-    const decisionFile = DecisionFileSchema.parse(
-      JSON.parse(decisionBytes.toString('utf8')),
-    );
-    const r1 = readPhaseOutput(root, job, entry.targetKey, 'r1', bundle);
-    const r2 = readPhaseOutput(root, job, entry.targetKey, 'r2', bundle);
-    const packet = buildPacket(bundle, r1, r2, decisionFile.decisions);
-    if (dry) {
-      packets.push({ targetKey: entry.targetKey, packet });
-      continue;
-    }
-    for (const decision of decisionFile.decisions) {
-      if (
-        decision.outputHashR1 !== hashJson(r1) ||
-        decision.outputHashR2 !== hashJson(r2)
+  const jobSummaries: {
+    jobKey: string;
+    jobRel: string;
+    entries: number;
+    audited: number;
+  }[] = [];
+  const budgetReports: {
+    jobKey: string;
+    ref: ArtifactRef;
+    withinCaps: boolean;
+  }[] = [];
+  let gatePilot = gatePilotRel
+    ? parsePilotManifest(
+        JSON.parse(readBytes(root, gatePilotRel).toString('utf8')),
       )
-        throw new Error(`Decision lineage lệch output: ${entry.targetKey}`);
-    }
-    try {
-      const prompt = buildAuditPrompt(packet);
-      const completion = await callChatCompletion(
-        {
-          endpoint: reviewer!.endpoint,
-          apiKey: reviewer!.apiKey,
-          model: reviewer!.model,
-          sessionId: reviewer!.sessionId,
-          maxTokens: 2400,
-          timeoutMs: reviewer!.timeoutMs,
-          extraBody: reviewer!.extraBody,
-        },
-        {
-          messages: [
-            { role: 'system', content: prompt.system },
-            { role: 'user', content: prompt.user },
-          ],
-          maxTokens: 2400,
-        },
+    : null;
+  let combinedWithinCaps = true;
+  let combinedUnknown = 0;
+
+  outer: for (const rel of jobRels) {
+    const loaded = loadBoundJob({
+      root,
+      jobRel: rel,
+      adapter: createStubAdapter(),
+    });
+    const job = loaded.job;
+    const bundles = loaded.bundles;
+    if (!gatePilot)
+      gatePilot = parsePilotManifest(
+        JSON.parse(readBytes(root, job.pilotManifest.path).toString('utf8')),
       );
-      tokenUsage.tokens += completion.usage.totalTokens;
-      const items = parseAuditResponse(
-        extractJsonObject(completion.content),
-        bundle.candidates.length,
+    let audited = 0;
+    for (const entry of job.entries) {
+      if (results.some((result) => result.targetKey === entry.targetKey))
+        continue;
+      if (limit !== null && results.length >= limit) break outer;
+      const bundle = bundles.get(entry.bundleKey);
+      if (!bundle)
+        throw new Error(`Thiếu bundle ${entry.bundleKey.slice(0, 12)}`);
+      const decisionsRef: ArtifactRef =
+        entry.decision ?? throwMissing(entry.targetKey);
+      const decisionBytes = readBytes(root, decisionsRef.path);
+      verifyArtifactBytes(decisionsRef, decisionBytes);
+      const decisionFile = DecisionFileSchema.parse(
+        JSON.parse(decisionBytes.toString('utf8')),
       );
-      const reviewedAt = new Date().toISOString();
-      const audits = items.map((item) => {
-        const decision = decisionFile.decisions.find(
-          (candidate) =>
-            candidate.candidateKey ===
-            bundle.candidates[item.index - 1].candidateKey,
-        );
-        if (!decision)
-          throw new Error(`Thiếu decision cho index ${item.index}`);
-        return parseMappingAudit(
+      const r1 = readPhaseOutput(root, job, entry.targetKey, 'r1', bundle);
+      const r2 = readPhaseOutput(root, job, entry.targetKey, 'r2', bundle);
+      const packet = buildPacket(bundle, r1, r2, decisionFile.decisions);
+      if (dry) {
+        packets.push({ targetKey: entry.targetKey, packet });
+        continue;
+      }
+      for (const decision of decisionFile.decisions) {
+        if (
+          decision.outputHashR1 !== hashJson(r1) ||
+          decision.outputHashR2 !== hashJson(r2)
+        )
+          throw new Error(`Decision lineage lệch output: ${entry.targetKey}`);
+      }
+      try {
+        const prompt = buildAuditPrompt(packet);
+        const completion = await callChatCompletion(
           {
-            schemaVersion: 1,
-            candidateKey: decision.candidateKey,
-            inputHash: decision.inputHash,
-            outputHashR1: decision.outputHashR1,
-            outputHashR2: decision.outputHashR2,
-            decisionHash: hashJson(decision),
-            reviewerKind: 'llm',
-            reviewerId: reviewer!.model,
-            reviewerSession: reviewer!.sessionId,
-            reviewedAt,
-            verdict: item.verdict,
-            severity: item.severity,
-            reason: item.reason,
-            suggestedDecision: item.suggested,
-          },
-          decision,
-        );
-      });
-      const aggregate = aggregateTargetVerdict(audits);
-      const auditRef = writeTextAtomic(
-        root,
-        `audits/${job.jobKey}/${entry.targetKey}.json`,
-        stablePretty({
-          schemaVersion: 1,
-          targetKey: entry.targetKey,
-          reviewer: {
+            endpoint: reviewer!.endpoint,
+            apiKey: reviewer!.apiKey,
             model: reviewer!.model,
-            session: reviewer!.sessionId,
-            packet,
+            sessionId: reviewer!.sessionId,
+            maxTokens: 2400,
+            timeoutMs: reviewer!.timeoutMs,
+            extraBody: reviewer!.extraBody,
           },
+          {
+            messages: [
+              { role: 'system', content: prompt.system },
+              { role: 'user', content: prompt.user },
+            ],
+            maxTokens: 2400,
+          },
+        );
+        tokenUsage.tokens += completion.usage.totalTokens;
+        const items = parseAuditResponse(
+          extractJsonObject(completion.content),
+          bundle.candidates.length,
+        );
+        const reviewedAt = new Date().toISOString();
+        const audits = items.map((item) => {
+          const decision = decisionFile.decisions.find(
+            (candidate) =>
+              candidate.candidateKey ===
+              bundle.candidates[item.index - 1].candidateKey,
+          );
+          if (!decision)
+            throw new Error(`Thiếu decision cho index ${item.index}`);
+          return parseMappingAudit(
+            {
+              schemaVersion: 1,
+              candidateKey: decision.candidateKey,
+              inputHash: decision.inputHash,
+              outputHashR1: decision.outputHashR1,
+              outputHashR2: decision.outputHashR2,
+              decisionHash: hashJson(decision),
+              reviewerKind: 'llm',
+              reviewerId: reviewer!.model,
+              reviewerSession: reviewer!.sessionId,
+              reviewedAt,
+              verdict: item.verdict,
+              severity: item.severity,
+              reason: item.reason,
+              suggestedDecision: item.suggested,
+            },
+            decision,
+          );
+        });
+        const aggregate = aggregateTargetVerdict(audits);
+        const auditRef = writeTextAtomic(
+          root,
+          `audits/${job.jobKey}/${entry.targetKey}.json`,
+          stablePretty({
+            schemaVersion: 1,
+            targetKey: entry.targetKey,
+            reviewer: {
+              model: reviewer!.model,
+              session: reviewer!.sessionId,
+              packet,
+            },
+            audits,
+          }),
+        );
+        results.push({
+          targetKey: entry.targetKey,
+          verdict: aggregate.verdict,
+          severity: aggregate.severity,
+          auditRef,
           audits,
-        }),
-      );
-      results.push({
-        targetKey: entry.targetKey,
-        verdict: aggregate.verdict,
-        severity: aggregate.severity,
-        auditRef,
-        audits,
-        usageTokens: completion.usage.totalTokens,
-      });
-    } catch (error) {
-      failures.push({
-        targetKey: entry.targetKey,
-        error: error instanceof Error ? error.message : String(error),
-      });
+          usageTokens: completion.usage.totalTokens,
+        });
+        audited += 1;
+      } catch (error) {
+        failures.push({
+          targetKey: entry.targetKey,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
     }
+    jobSummaries.push({
+      jobKey: job.jobKey,
+      jobRel: rel,
+      entries: job.entries.length,
+      audited,
+    });
+    const usage = jobBudgetUsage(job);
+    const withinCaps =
+      usage.requests <= job.caps.maxRequests &&
+      usage.tokens <= job.caps.maxTokens &&
+      usage.costMicrousd <= job.caps.maxCostMicrousd;
+    const budgetRef = writeTextAtomic(
+      root,
+      `reports/pilot-a-budget-${job.jobKey.slice(0, 12)}.json`,
+      stablePretty({
+        schemaVersion: 1,
+        jobKey: job.jobKey,
+        jobRel: rel,
+        usage,
+        caps: job.caps,
+        budgetWithinCaps: withinCaps,
+        unknownRequests: usage.unknownRequests,
+      }),
+    );
+    budgetReports.push({ jobKey: job.jobKey, ref: budgetRef, withinCaps });
+    combinedWithinCaps = combinedWithinCaps && withinCaps;
+    combinedUnknown += usage.unknownRequests;
   }
 
   if (dry) {
     const ref = writeTextAtomic(
       root,
-      `audits/${job.jobKey}/packets.jsonl`,
+      'audits/dry-packets.jsonl',
       packets.map((row) => JSON.stringify(row)).join('\n') + '\n',
     );
     console.log(`== DB4 mapping-audit (dry) ==`);
@@ -415,33 +471,29 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     severe: results.filter((result) => result.severity === 'severe').length,
     minor: results.filter((result) => result.severity === 'minor').length,
   };
-  const usage = jobBudgetUsage(job);
-  const budgetWithinCaps =
-    usage.requests <= job.caps.maxRequests &&
-    usage.tokens <= job.caps.maxTokens &&
-    usage.costMicrousd <= job.caps.maxCostMicrousd;
+  const jobsHash = hashJson(jobSummaries.map((job) => job.jobKey)).slice(0, 12);
   const budgetRef = writeTextAtomic(
     root,
-    `reports/pilot-a-budget-${job.jobKey.slice(0, 12)}.json`,
+    `reports/pilot-a-budget-${jobsHash}.json`,
     stablePretty({
       schemaVersion: 1,
-      jobKey: job.jobKey,
-      usage,
-      caps: job.caps,
-      budgetWithinCaps,
-      unknownRequests: usage.unknownRequests,
+      jobs: budgetReports.map((report) => ({
+        jobKey: report.jobKey,
+        withinCaps: report.withinCaps,
+        report: report.ref,
+      })),
+      budgetWithinCaps: combinedWithinCaps,
+      unknownRequests: combinedUnknown,
     }),
   );
   const reportRef = writeTextAtomic(
     root,
-    `reports/pilot-a-audit-${job.jobKey.slice(0, 12)}.json`,
+    `reports/pilot-a-audit-${jobsHash}.json`,
     stablePretty({
       schemaVersion: 1,
       kind: 'db4-pilot-audit',
-      jobKey: job.jobKey,
-      jobRel,
+      jobs: jobSummaries,
       auditedTargets: results.length,
-      requestedTargets: entries.length,
       counts,
       reviewer: reviewer
         ? {
@@ -463,27 +515,41 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   );
 
   let gateSummary: { eligible: boolean; reasons: string[] } | null = null;
-  if (failures.length === 0 && results.length === pilot.targetKeys.length) {
-    const gateValue = {
-      schemaVersion: 1,
-      pilotManifestHash: hashJson(pilot),
-      policyVersion: pilot.policyVersion,
-      report: reportRef,
-      budgetReport: budgetRef,
-      targetAudits: results.map((result) => ({
-        targetKey: result.targetKey,
+  if (
+    gatePilot &&
+    failures.length === 0 &&
+    results.length === gatePilot.targetKeys.length
+  ) {
+    const byKey = new Map(results.map((result) => [result.targetKey, result]));
+    const targetAudits = gatePilot.targetKeys.map((targetKey) => {
+      const result = byKey.get(targetKey);
+      if (!result) throw new Error(`Thiếu audit cho ${targetKey.slice(0, 12)}`);
+      return {
+        targetKey,
         verdict: result.verdict,
         severity: result.severity,
         audit: result.auditRef,
         twoPassValidated: true,
         noCandidatesAudited: false,
         proposalAudited: true,
-      })),
-      budgetWithinCaps,
-      unknownRequests: usage.unknownRequests,
+      };
+    });
+    const gateValue = {
+      schemaVersion: 1,
+      pilotManifestHash: hashJson(gatePilot),
+      policyVersion: gatePilot.policyVersion,
+      report: reportRef,
+      budgetReport: budgetRef,
+      targetAudits,
+      budgetWithinCaps: combinedWithinCaps,
+      unknownRequests: combinedUnknown,
     };
-    writeTextAtomic(root, `gates/${job.jobKey}.json`, stablePretty(gateValue));
-    const evaluation = evaluateMappingGate(pilot, gateValue);
+    writeTextAtomic(
+      root,
+      `gates/pilot-a-${jobsHash}.json`,
+      stablePretty(gateValue),
+    );
+    const evaluation = evaluateMappingGate(gatePilot, gateValue);
     gateSummary = {
       eligible: evaluation.eligible,
       reasons: evaluation.reasons,
@@ -492,7 +558,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
 
   console.log('== DB4 mapping-audit ==');
   console.log(
-    `  target: ${results.length}/${entries.length} | pass ${counts.pass} | fail ${counts.fail} | deferred ${counts.deferred} | severe ${counts.severe} | minor ${counts.minor}`,
+    `  target: ${results.length} | pass ${counts.pass} | fail ${counts.fail} | deferred ${counts.deferred} | severe ${counts.severe} | minor ${counts.minor}`,
   );
   console.log(
     `  reviewer: ${reviewer!.model} (${reviewer!.sessionId}) | tokens ${tokenUsage.tokens}`,

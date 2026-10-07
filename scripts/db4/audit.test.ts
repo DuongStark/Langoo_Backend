@@ -4,6 +4,7 @@ import {
   existsSync,
   mkdirSync,
   mkdtempSync,
+  readdirSync,
   readFileSync,
   writeFileSync,
 } from 'node:fs';
@@ -239,17 +240,20 @@ void test('audit e2e trên fixture: reviewer mock pass → report + gate', async
     delete process.env.DB4_AUDIT_API_KEY;
   }
 
-  const prefix = job0.jobKey.slice(0, 12);
+  const reportFile = readdirSync(resolveArtifact(root, 'reports')).find(
+    (name) => /^pilot-a-audit-.*\.json$/.test(name),
+  );
+  assert.ok(reportFile);
   const report = JSON.parse(
-    readFileSync(
-      resolveArtifact(root, `reports/pilot-a-audit-${prefix}.json`),
-      'utf8',
-    ),
+    readFileSync(resolveArtifact(root, `reports/${reportFile}`), 'utf8'),
   ) as { counts: { pass: number; fail: number }; failures: unknown[] };
   assert.equal(report.counts.pass, 1);
   assert.equal(report.counts.fail, 0);
   assert.equal(report.failures.length, 0);
-  assert.ok(existsSync(resolveArtifact(root, `gates/${job0.jobKey}.json`)));
+  const gateFile = readdirSync(resolveArtifact(root, 'gates')).find((name) =>
+    /^pilot-a-.*\.json$/.test(name),
+  );
+  assert.ok(gateFile);
   const auditFile = JSON.parse(
     readFileSync(
       resolveArtifact(
