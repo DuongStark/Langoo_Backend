@@ -178,11 +178,11 @@ export class DictionaryService {
       seenLexeme.add(key);
       sourceIds.push(row.source_lexeme_id);
       en.push({
-        lexemeId: key,
+        lexeme_id: key,
         lemma: row.en_lemma,
         pos: row.en_pos,
-        frequencyRank: row.frequency_rank,
-        senseHint: row.sense_hint,
+        frequency_rank: row.frequency_rank,
+        sense_hint: row.sense_hint,
       });
       if (en.length >= 10) break;
     }
@@ -190,12 +190,12 @@ export class DictionaryService {
     if (targets.has('ja') && en.length > 0) {
       const hintByLexeme = new Map(
         en.map((hit) => [
-          String(hit.lexemeId),
-          hit.senseHint ? hit.senseHint.toLowerCase() : null,
+          hit.lexeme_id,
+          hit.sense_hint ? hit.sense_hint.toLowerCase() : null,
         ]),
       );
       const lemmaByLexeme = new Map(
-        en.map((hit) => [String(hit.lexemeId), hit.lemma]),
+        en.map((hit) => [hit.lexeme_id, hit.lemma]),
       );
       const rows = await this.reverseRepo.findJaTargets(sourceIds);
       const seenJa = new Set<string>();
@@ -204,10 +204,10 @@ export class DictionaryService {
           const hint = hintByLexeme.get(String(row.source_lexeme_id)) ?? null;
           return {
             text: row.target_text,
-            senseHint: row.sense_hint,
-            viaLexemeId: String(row.source_lexeme_id),
-            viaLemma: lemmaByLexeme.get(String(row.source_lexeme_id)) ?? '',
-            exactSense:
+            sense_hint: row.sense_hint,
+            via_lexeme_id: String(row.source_lexeme_id),
+            via_lemma: lemmaByLexeme.get(String(row.source_lexeme_id)) ?? '',
+            exact_sense:
               row.sense_hint !== null &&
               hint !== null &&
               row.sense_hint.toLowerCase() === hint,
@@ -218,7 +218,7 @@ export class DictionaryService {
           seenJa.add(hit.text);
           return true;
         })
-        .sort((a, b) => Number(b.exactSense) - Number(a.exactSense))
+        .sort((a, b) => Number(b.exact_sense) - Number(a.exact_sense))
         .slice(0, 12);
     }
     return {

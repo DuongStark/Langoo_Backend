@@ -788,11 +788,11 @@ describe('DictionaryService', () => {
       expect(result.en).toHaveLength(1);
       expect(result.en[0]).toMatchObject({
         lemma: 'sand',
-        frequencyRank: 3409,
+        frequency_rank: 3409,
       });
       expect(result.ja.map((hit) => hit.text)).toEqual(['砂', '砂浜']);
-      expect(result.ja[0].exactSense).toBe(true);
-      expect(result.ja[0].viaLemma).toBe('sand');
+      expect(result.ja[0].exact_sense).toBe(true);
+      expect(result.ja[0].via_lemma).toBe('sand');
       expect(repos.reverse.findViSources).toHaveBeenCalledWith('cát', 'cát');
     });
 
