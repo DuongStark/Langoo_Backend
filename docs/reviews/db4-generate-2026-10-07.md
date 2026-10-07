@@ -17,7 +17,7 @@
 | Thời gian / kích thước | ~366s · 664MB |
 
 - Cấu hình v1: `db4-gen-v1` / rank `db4-rank-v1`; branch topK 40 → union 40 → rerank 12 → **shortlist ≤5**; G1 boost 0.05; IDF theo tần suất posting; tokenizer `db4-en-token-v1`.
-- Determinism: pairs/unresolved bytes giống nhau giữa 2 lần chạy (`pairs sha f55c2f6b…`, `unresolved sha 1b16545b…`); rerun idempotent (so bytes summary).
+- Determinism: chạy lặp 3 lần cho cùng bytes — `pairs sha f55c2f6b…`, `unresolved sha 1b16545b…`, `summary sha b81340c65bb4`; rerun idempotent (so bytes summary, giữ nguyên artifact cũ).
 
 ## 2. Kiểm tra chất lượng (ví dụ)
 
