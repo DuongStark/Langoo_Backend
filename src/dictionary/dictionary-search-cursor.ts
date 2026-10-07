@@ -5,11 +5,13 @@ const MAX_SIGNED_BIGINT = 9223372036854775807n;
 const MAX_CURSOR_TEXT = 1000;
 
 export interface DictionarySearchCursor {
-  version: 3;
+  version: 5;
   query: string;
   lang: string | null;
   exactRank: 0 | 1;
   prefixRank: 0 | 1;
+  jaSourceRank: 0 | 1;
+  viTranslationRank: 0 | 1;
   frequencyNullRank: 0 | 1;
   frequencyRank: number;
   surfaceLength: number;
@@ -28,6 +30,8 @@ export function encodeDictionarySearchCursor(
       l: cursor.lang,
       e: cursor.exactRank,
       p: cursor.prefixRank,
+      j: cursor.jaSourceRank,
+      t: cursor.viTranslationRank,
       n: cursor.frequencyNullRank,
       f: cursor.frequencyRank,
       z: cursor.surfaceLength,
@@ -52,7 +56,7 @@ export function decodeDictionarySearchCursor(
     ) as Record<string, unknown>;
 
     if (
-      parsed.v !== 3 ||
+      parsed.v !== 5 ||
       typeof parsed.q !== 'string' ||
       parsed.q.length === 0 ||
       parsed.q.length > 100 ||
@@ -60,6 +64,8 @@ export function decodeDictionarySearchCursor(
         (typeof parsed.l !== 'string' || parsed.l.length > 10)) ||
       !isBinaryRank(parsed.e) ||
       !isBinaryRank(parsed.p) ||
+      !isBinaryRank(parsed.j) ||
+      !isBinaryRank(parsed.t) ||
       !isBinaryRank(parsed.n) ||
       !isPositiveInt(parsed.f) ||
       !isPositiveInt(parsed.z) ||
@@ -78,11 +84,13 @@ export function decodeDictionarySearchCursor(
     }
 
     return {
-      version: 3,
+      version: 5,
       query: parsed.q,
       lang: parsed.l,
       exactRank: parsed.e,
       prefixRank: parsed.p,
+      jaSourceRank: parsed.j,
+      viTranslationRank: parsed.t,
       frequencyNullRank: parsed.n,
       frequencyRank: parsed.f,
       surfaceLength: parsed.z,

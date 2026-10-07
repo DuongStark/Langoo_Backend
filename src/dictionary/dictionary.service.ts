@@ -18,6 +18,7 @@ import {
   KanjiCardResponse,
   SearchHit,
 } from './types/dictionary.types';
+import { JapanesePriorityRepository } from './repositories/japanese-priority.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository, KanjiRow } from './repositories/kanji.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
@@ -53,6 +54,7 @@ export class DictionaryService {
     private readonly historyRepo: SearchHistoryRepository,
     private readonly languages: LanguageRepository,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
+    private readonly japanesePriority: JapanesePriorityRepository,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -101,7 +103,7 @@ export class DictionaryService {
     });
     const hasNext = rows.length > limit;
     const pageRows = hasNext ? rows.slice(0, limit) : rows;
-    const data = pageRows.map(toSearchHit);
+    const data = await this.addJapanesePreviews(pageRows.map(toSearchHit));
 
     if (userId !== undefined && cursor === null) {
       await this.historyRepo.create({
@@ -119,11 +121,13 @@ export class DictionaryService {
       next_cursor:
         hasNext && lastRow
           ? encodeDictionarySearchCursor({
-              version: 3,
+              version: 5,
               query,
               lang: languageCode,
               exactRank: lastRow.exact_rank,
               prefixRank: lastRow.prefix_rank,
+              jaSourceRank: lastRow.ja_source_rank,
+              viTranslationRank: lastRow.vi_translation_rank,
               frequencyNullRank: lastRow.frequency_null_rank,
               frequencyRank: lastRow.frequency_sort,
               surfaceLength: lastRow.surface_length,
@@ -153,6 +157,14 @@ export class DictionaryService {
       return { data: cards.map(toSenseCardResponse), next_cursor: null };
     }
 
+    const preferences = await this.japanesePriority.getByLexemes([lexemeId]);
+    const bySense = new Map(preferences.map((row) => [row.sense_id, row]));
+    cards.sort(
+      (a, b) =>
+        (bySense.get(a.senseId)?.display_order ?? a.senseNo) -
+        (bySense.get(b.senseId)?.display_order ?? b.senseNo),
+    );
+
     // A group is a contiguous source hierarchy, not a semantic equivalence.
     // The first actual sense remains selectable; its definition is never replaced.
     const data: SenseCardResponse[] = [];
@@ -172,7 +184,37 @@ export class DictionaryService {
         currentHeading = heading;
       }
     }
-    return { data, next_cursor: null };
+    return {
+      data,
+      next_cursor: null,
+      recommended_sense_ids: preferences
+        .filter((row) => row.recommended)
+        .map((row) => row.sense_id.toString()),
+      priority_basis: preferences[0]?.basis ?? null,
+    };
+  }
+
+  private async addJapanesePreviews(hits: SearchHit[]): Promise<SearchHit[]> {
+    const ids = hits
+      .filter((hit) => hit.lang_code === 'ja')
+      .map((hit) => BigInt(hit.lexeme_id));
+    const preferences = await this.japanesePriority.getByLexemes(ids);
+    const selected = new Map<bigint, bigint>();
+    for (const row of preferences) {
+      if (row.recommended && !selected.has(row.lexeme_id))
+        selected.set(row.lexeme_id, row.sense_id);
+    }
+    // One content query for the page, rather than a detail request for every hit.
+    const cards =
+      selected.size > 0
+        ? await this.senseCardRepo.getBySenseIds([...selected.values()])
+        : [];
+    const bySense = new Map(cards.map((card) => [card.senseId, card]));
+    return hits.map((hit) => {
+      const id = selected.get(BigInt(hit.lexeme_id));
+      const card = id === undefined ? undefined : bySense.get(id);
+      return card ? { ...hit, preview: toSenseCardResponse(card) } : hit;
+    });
   }
 
   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {
@@ -285,6 +327,7 @@ function toSearchHit(row: {
   reading: string | null;
   pos: string | null;
   frequency_rank: number | null;
+  frequency_source?: string | null;
   homograph_no: number | null;
   surface_kind: string;
   is_exact: boolean;
@@ -297,6 +340,7 @@ function toSearchHit(row: {
     reading: row.reading,
     pos: row.pos,
     frequency_rank: row.frequency_rank,
+    frequency_source: row.frequency_source ?? null,
     homograph_no: row.homograph_no,
     surface_kind: row.surface_kind,
     is_exact: row.is_exact,

@@ -11,6 +11,9 @@ export interface SearchRow {
   reading: string | null;
   pos: string | null;
   frequency_rank: number | null;
+  frequency_source: string | null;
+  ja_source_rank: 0 | 1;
+  vi_translation_rank: 0 | 1;
   homograph_no: number | null;
   surface_kind: string;
   is_exact: boolean;
@@ -38,6 +41,8 @@ export interface SearchParams {
   lang: string | null;
   limit: number;
   cursor: DictionarySearchCursor | null;
+  /** Collapse source-level duplicates that display the same language/surface/reading. */
+  deduplicateSurface?: boolean;
 }
 
 @Injectable()
@@ -45,7 +50,14 @@ export class DictionarySearchRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async search(params: SearchParams): Promise<SearchRow[]> {
-    const { queries, patterns, lang, limit, cursor } = params;
+    const {
+      queries,
+      patterns,
+      lang,
+      limit,
+      cursor,
+      deduplicateSurface = false,
+    } = params;
     const langFilter =
       lang === null ? Prisma.sql`` : Prisma.sql`AND ds.lang_code = ${lang}`;
 
@@ -106,6 +118,8 @@ export class DictionarySearchRepository {
           AND (
             exact_rank,
             prefix_rank,
+            ja_source_rank,
+            vi_translation_rank,
             frequency_null_rank,
             frequency_sort,
             surface_length,
@@ -115,6 +129,8 @@ export class DictionarySearchRepository {
           ) > (
             ${cursor.exactRank},
             ${cursor.prefixRank},
+            ${cursor.jaSourceRank},
+            ${cursor.viTranslationRank},
             ${cursor.frequencyNullRank},
             ${cursor.frequencyRank},
             ${cursor.surfaceLength},
@@ -124,6 +140,13 @@ export class DictionarySearchRepository {
           )
         `
       : Prisma.sql``;
+
+    const resultPartition = deduplicateSurface
+      ? Prisma.sql`lang_code, lower(surface), coalesce(lower(reading), '')`
+      : Prisma.sql`lexeme_id`;
+    const resultOrder = deduplicateSurface
+      ? Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, lexeme_id`
+      : Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
 
     return this.prisma.$queryRaw<SearchRow[]>(Prisma.sql`
       WITH hits AS (
@@ -170,34 +193,70 @@ export class DictionarySearchRepository {
         WHERE (${romanizationMatch})
           ${langFilter}
       ),
+      lexeme_priority AS MATERIALIZED (
+        SELECT cl.id AS lexeme_id,cl.lemma,cl.romanization,
+          coalesce(jp.corpus_rank,cl.frequency_rank) AS frequency_rank,
+          CASE WHEN jp.corpus_rank IS NOT NULL THEN 'bccwj-suw'
+               WHEN cl.frequency_rank IS NOT NULL THEN 'lexeme' ELSE NULL END AS frequency_source,
+          CASE WHEN coalesce(jp.corpus_rank,cl.frequency_rank) IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
+          coalesce(jp.corpus_rank,cl.frequency_rank,
+            CASE WHEN hit_ids.lang_code='ja' AND src.code='jmdict' THEN
+              CASE WHEN EXISTS (
+                SELECT 1 FROM jsonb_array_elements(
+                  coalesce(cl.attributes->'kanji','[]'::jsonb) || coalesce(cl.attributes->'kana','[]'::jsonb)
+                ) form WHERE form->>'common'='true'
+              ) THEN 2147483645 ELSE 2147483646 END
+            ELSE 2147483647 END) AS frequency_sort,
+          CASE WHEN src.code='jmdict' THEN 0 ELSE 1 END AS source_rank,
+          CASE WHEN hit_ids.lang_code='ja' AND src.code='jmdict' THEN 0
+               WHEN hit_ids.lang_code='ja' THEN 1 ELSE 0 END AS ja_source_rank,
+          CASE WHEN hit_ids.lang_code='ja' AND EXISTS (
+              SELECT 1
+              FROM core.sense vi_s
+              JOIN core.sense_gloss vi_g ON vi_g.sense_id=vi_s.id
+              JOIN public.language vi_l ON vi_l.id=vi_g.language_id AND vi_l.code='vi'
+              WHERE vi_s.lexeme_id=cl.id AND NULLIF(btrim(vi_g.text),'') IS NOT NULL
+            ) THEN 0 ELSE 1 END AS vi_translation_rank
+        FROM (SELECT DISTINCT lexeme_id,lang_code FROM hits) hit_ids
+        JOIN core.lexeme cl ON cl.id=hit_ids.lexeme_id
+        LEFT JOIN public.source src ON src.id=cl.source_id
+        LEFT JOIN LATERAL (
+          SELECT p.corpus_rank FROM serve.japanese_lexeme_priority p
+          WHERE p.lexeme_id=cl.id AND hit_ids.lang_code='ja'
+          LIMIT 1
+        ) jp ON true
+      ),
       ranked AS (
-        SELECT
-          h.lexeme_id,
-          h.language_id,
-          h.lang_code,
-          h.surface,
-          h.reading,
-          h.pos,
-          h.frequency_rank,
-          h.homograph_no,
-          h.surface_kind,
+        SELECT h.lexeme_id,h.language_id,h.lang_code,h.surface,h.reading,h.pos,
+          cl.frequency_rank,cl.frequency_source,h.homograph_no,h.surface_kind,
           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
           CASE WHEN ${surfaceExactCondition} THEN 0 ELSE 1 END AS surface_exact_rank,
-          CASE WHEN h.surface = cl.lemma THEN 0 ELSE 1 END AS canonical_face_rank,
-          CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
-          coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
-          length(h.surface) AS surface_length
-        FROM hits h
-        JOIN core.lexeme cl ON cl.id = h.lexeme_id
+          CASE WHEN h.surface=cl.lemma THEN 0 ELSE 1 END AS canonical_face_rank,
+          cl.frequency_null_rank,cl.frequency_sort,length(h.surface) AS surface_length,
+          cl.source_rank,cl.ja_source_rank,cl.vi_translation_rank
+        FROM hits h JOIN lexeme_priority cl ON cl.lexeme_id=h.lexeme_id
       ),
-      per_lexeme AS (
-        SELECT ranked.*,
+      -- Preserve the live source-duplicate visibility policy below.
+      visible AS (
+        SELECT r.*
+        FROM ranked r
+        WHERE r.source_rank = 0
+           OR r.reading IS NOT NULL
+           OR NOT EXISTS (
+                SELECT 1 FROM ranked j
+                WHERE j.lang_code = r.lang_code
+                  AND lower(j.surface) = lower(r.surface)
+                  AND j.source_rank = 0
+              )
+      ),
+      per_result AS (
+        SELECT visible.*,
           row_number() OVER (
-            PARTITION BY lexeme_id
-            ORDER BY exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface
+            PARTITION BY ${resultPartition}
+            ORDER BY ${resultOrder}
           ) AS face_no
-        FROM ranked
+        FROM visible
       )
       SELECT
         lexeme_id,
@@ -207,6 +266,9 @@ export class DictionarySearchRepository {
         reading,
         pos,
         frequency_rank,
+        frequency_source,
+        ja_source_rank,
+        vi_translation_rank,
         homograph_no,
         surface_kind,
         (exact_rank = 0) AS is_exact,
@@ -215,12 +277,14 @@ export class DictionarySearchRepository {
         frequency_null_rank,
         frequency_sort,
         surface_length
-      FROM per_lexeme
+      FROM per_result
       WHERE face_no = 1
         ${cursorCondition}
       ORDER BY
         exact_rank ASC,
         prefix_rank ASC,
+        ja_source_rank ASC,
+        vi_translation_rank ASC,
         frequency_null_rank ASC,
         frequency_sort ASC,
         surface_length ASC,

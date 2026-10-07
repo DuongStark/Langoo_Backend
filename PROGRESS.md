@@ -458,3 +458,27 @@ phân trang dùng face cũ. Đang kiểm/publish patch; chưa báo smoke hoàn t
 - Core 2.375.240 lexeme / 2.917.954 sense; runtime tracked code clean, giữ hai file .bak.
 - [Report + smoke](docs/reviews/m4-3-subsense-integration-2026-10-06.md);
   tài liệu nghiệm thu được commit riêng sau deploy.
+
+### 2026-10-08 — M4.5 — Ưu tiên mục từ và nghĩa tiếng Nhật bằng BCCWJ
+
+- Migration 040, offline matching spelling/reading/POS/restrictions; 66.041 JMdict
+  profiles + 10 lựa chọn nghĩa cho 4 entry; run/hash guard, dry-run/apply/deactivate.
+- BE search/preview/recommended tối đa 3; giữ sense ID/gloss, flat giữ thứ tự nguồn.
+  Đã apply/deploy VPS; HTTP smoke pass. Không gọi AI, không sửa DB4/SRS.
+- Kiểm tra: isolated DB integration 15 checks, final targeted 7/55, build/dictionary
+  eslint và HTTP pass. FE consume, audit rộng và EN scope còn riêng.
+- [Plan](docs/plans/m4.5-ja-bccwj-priority.md),
+  [report](docs/reviews/m4.5-ja-bccwj-deploy-2026-10-08.md),
+  [handoff](docs/handoff/m4.5-ja-bccwj-priority.md). Code/docs chưa commit/push.
+
+### 2026-10-08 — M4.5 — Ưu tiên JMdict có gloss Việt khi tra JA
+
+- Search JA ưu tiên JMdict, rồi mục có gloss VI, sau đó rank BCCWJ (tần suất từ).
+  Sense JMdict có gloss VI đứng trước; sense khác, ID, gloss và dữ liệu học giữ nguyên.
+- Cursor v5 thêm khóa nguồn/bản dịch; v1–v4 cũ bị từ chối. Không cần migration/API AI.
+- Files: search/priority repository, cursor/service, regression test,
+  [API](docs/api/dictionary.md), [handoff](docs/handoff/m4.5-ja-bccwj-priority.md),
+  [report](docs/reviews/m4.5-ja-vietnamese-gloss-priority-2026-10-08.md).
+- Kiểm tra: build; 2 suites/31 tests; eslint, syntax, Prettier; isolated VPS DB `_test`
+  17 checks pass. HTTP production smoke/deploy đang chờ.
+- Git: chưa commit/push; deploy follow-up chưa thực hiện.

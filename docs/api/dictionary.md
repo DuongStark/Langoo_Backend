@@ -39,13 +39,13 @@ curl -s "http://localhost:3000/v1/dictionary/search?q=run" -H "Authorization: Be
 ```
 
 - `lang` ∈ `en|ja|vi|zh-Hans` (kiểm tra tồn tại trong `public.language` → sai thì `400 LANGUAGE_NOT_FOUND`).
-- Xếp hạng: khớp chính xác → khớp đầu chuỗi → tần suất (`NULLS LAST`) → độ dài → các khóa ổn định của face.
+- Xếp hạng: khớp chính xác → khớp đầu chuỗi → tiếng Nhật ưu tiên nguồn JMdict và mục có gloss Việt → tần suất (`NULLS LAST`) → độ dài → các khóa ổn định của face. Với ngôn ngữ khác, hai tín hiệu tiếng Nhật luôn bằng nhau và không đổi thứ tự.
 - `limit` mặc định 20, tối đa 100. `q` 1–100 ký tự sau khi trim (`400 VALIDATION_FAILED` nếu rỗng).
 - `cursor` là chuỗi opaque trả từ response trước; cursor chỉ dùng lại với cùng `q` và `lang`, sai thì `400 VALIDATION_FAILED`.
 - M4.2 ưu tiên mặt chữ khớp truy vấn trực tiếp, sau đó lemma chính; romaji
   `hashiru` trả `走る`, còn tìm trực tiếp `奔る` vẫn trả biến thể đó.
-- M4.2 giữ **một matching face mỗi lexeme_id trước cursor/LIMIT+1**. Khác ID/nguồn/POS/reading vẫn giữ riêng cho tới khi equivalence/membership được xác nhận; không ẩn nguồn phụ chỉ vì trùng spelling.
-- Cursor M4.2 dùng **v3**; cursor v1/v2 cũ trả `400 VALIDATION_FAILED`, client bắt đầu lại trang đầu. Không giải mã/sửa cursor ở FE.
+- Giữ **một matching face mỗi lexeme_id trước cursor/LIMIT+1**. EN khác ID/nguồn/POS/reading vẫn giữ riêng. Policy JA đang live ẩn hit nguồn phụ không có reading khi đã có JMdict cùng mặt chữ/ngôn ngữ; giữ các entry có reading, không gộp hay xóa ID.
+- Cursor hiện dùng **v5**; cursor v1–v4 cũ trả `400 VALIDATION_FAILED`, client bắt đầu lại trang đầu. Không giải mã/sửa cursor ở FE.
 - Khi tìm tiếng Nhật, romaji được chuyển sang kana để tìm thêm. Ví dụ `q=hashiru&lang=ja` tìm được `走る` cả khi `core.lexeme.romanization` chưa có dữ liệu.
 
 ## GET /v1/lexemes/:id/senses
@@ -69,6 +69,10 @@ Sau migration 038, list và detail dùng cùng projection từ `serve.sense_card
   đang rỗng hoặc bằng gloss đầu/cuối và language NULL/EN. Custom definition giữ nguyên.
 - Reviewed EN gloss vẫn giữ precedence khi chuỗi không đủ điều kiện projection;
   JMdict không áp quy tắc leaf. Gloss VI và badge review không thay đổi.
+- JA: list vẫn giữ mọi sense nhưng đưa sense có gloss Việt không rỗng lên trước,
+  rồi xét curated order và metadata JMdict. Gloss máy cũng được tính nếu card đang
+  trả nó; `gloss_vi_machine`/`gloss_vi_reviewed` vẫn cho FE biết trạng thái. Tín
+  hiệu này chỉ thể hiện có bản dịch, không phải độ phổ biến của sense.
 - FE hiển thị nghĩa ngắn từ card, có thể mở context; translator/mapping cần dùng
   toàn bộ context + tags/restrictions, không chỉ một leaf. `/senses/:id` vẫn trả
   toàn bộ raw `glosses[]`, không xóa/rank lại gloss gốc.
@@ -191,3 +195,37 @@ không gán nghĩa heading vào ID đầu nhóm, không lấy gloss VI của cha
 Khi đếm toàn bộ: tổng `1 + sub_senses.length` mỗi nhóm. Khi mở nhóm, giữ thứ tự
 sense_no/ID; không dùng nhóm để tuyên bố equivalent hoặc gộp dữ liệu nguồn.
 Giữ nội dung nguồn/badge gloss máy. Chưa có triển khai FE trong release backend này.
+
+## M4.5 — JA learner priority / BCCWJ (deploy 08/10/2026)
+
+Migration `040_japanese_learner_priority.sql` và run `ja-bccwj-v1` bổ sung:
+
+- Search/suggestions: JA JMdict ghép được BCCWJ dùng `frequency_rank` của corpus,
+  `frequency_source: "bccwj-suw"`. Rank này là tần suất **mục từ**, không phải
+  tần suất nghĩa. EN giữ rank cũ, `frequency_source: "lexeme"`; chưa có rank trả null.
+- Ghép offline bằng spelling + reading + POS; mapping mơ hồ không được gán rank.
+  Khi không ghép được, ưu tiên metadata `common` của JMdict và thứ tự ổn định;
+  fallback này không tạo ra số tần suất giả trong response.
+- Có thể thêm `preview: SenseCard` cho hit JA: nghĩa đầu trong tập dành cho người học,
+  giữ đúng sense ID, gloss máy/review và tất cả EN context.
+- `/lexemes/:id/senses` mặc định vẫn trả **đủ** sense, nhưng JA có thứ tự hiển thị riêng.
+  `recommended_sense_ids: string[]` chọn tối đa 3 nghĩa; `priority_basis` là
+  `curated_learner` (lựa chọn đã audit bởi GPT) hoặc `source_metadata` (thứ tự JMdict,
+  giảm ưu tiên tag cổ/hiếm và lĩnh vực chuyên môn). Không gọi đây là tần suất nghĩa đo được.
+- `view=flat` giữ `sense_no`/thứ tự nguồn, không áp lựa chọn người học; detail/links,
+  `is_primary`, collection/SRS, ID và mapping DB4 không đổi.
+- Cursor hiện dùng **v5** vì ranking JA thay đổi. Cursor v1–v4 trả 400; FE bỏ cursor
+  cũ và gọi lại trang đầu. Cursor vẫn opaque, không tự sửa token.
+
+Consumer FE: dùng `preview` làm nhãn search nếu có; trong modal lấy các card theo
+`recommended_sense_ids` làm phần “Nghĩa thường gặp”, các card còn lại trong “Xem tất
+cả nghĩa”. Nếu recommended rỗng, dùng data với nhãn “Nghĩa”. Dùng `sense_id` khi thêm vào collection; không dùng vị trí hiển thị hoặc
+`sense_no` làm ID. Badge gloss máy chưa review vẫn bắt buộc. Backend không cắt bỏ
+nghĩa chuyên môn/hiếm và không quyết định nghĩa trong một câu cụ thể.
+
+Credits dùng nguồn `bccwj-suw` từ `/v1/sources`: NINJAL, BCCWJ short-unit frequency
+list v1.0 ([dataset](https://doi.org/10.15084/00003218),
+[thông tin nguồn](https://clrd.ninjal.ac.jp/bccwj/en/freq-list.html)). Raw ZIP/TSV và
+artifact corpus ở storage riêng, không đưa vào Git hoặc response API.
+
+Chi tiết vận hành: [M4.5 handoff](../handoff/m4.5-ja-bccwj-priority.md).

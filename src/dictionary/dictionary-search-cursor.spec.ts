@@ -5,11 +5,13 @@ import {
 } from './dictionary-search-cursor';
 
 const cursor = {
-  version: 3 as const,
+  version: 5 as const,
   query: '走',
   lang: 'ja',
   exactRank: 1 as const,
   prefixRank: 0 as const,
+  jaSourceRank: 0 as const,
+  viTranslationRank: 0 as const,
   frequencyNullRank: 0 as const,
   frequencyRank: 100,
   surfaceLength: 2,
@@ -19,7 +21,7 @@ const cursor = {
 };
 
 describe('dictionary search cursor', () => {
-  it.each([1, 2])(
+  it.each([1, 2, 3, 4])(
     'rejects a valid legacy v%s cursor after ranking changes',
     (version) => {
       const old = JSON.parse(

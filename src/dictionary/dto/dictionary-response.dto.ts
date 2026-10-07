@@ -1,48 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class SearchHitDto {
-  @ApiProperty({ example: '2' })
-  lexeme_id!: string;
-
-  @ApiProperty({ example: 1 })
-  language_id!: number;
-
-  @ApiProperty({ example: 'en' })
-  lang_code!: string;
-
-  @ApiProperty({ example: 'run' })
-  surface!: string;
-
-  @ApiProperty({ nullable: true, example: null })
-  reading!: string | null;
-
-  @ApiProperty({ nullable: true, example: 'verb' })
-  pos!: string | null;
-
-  @ApiProperty({ nullable: true, example: 110 })
-  frequency_rank!: number | null;
-
-  @ApiProperty({ nullable: true, example: 1 })
-  homograph_no!: number | null;
-
-  @ApiProperty({
-    example: 'lemma',
-    description: "Nguồn khớp: 'lemma' hoặc kind của form (kanji/kana)",
-  })
-  surface_kind!: string;
-
-  @ApiProperty({ example: true })
-  is_exact!: boolean;
-}
-
-export class SearchResultDto {
-  @ApiProperty({ type: [SearchHitDto] })
-  data!: SearchHitDto[];
-
-  @ApiProperty({ nullable: true, example: null })
-  next_cursor!: string | null;
-}
-
 export class SenseCardDto {
   @ApiProperty({ example: '1' })
   sense_id!: string;
@@ -130,7 +87,74 @@ export class SenseCardDto {
   group_heading!: string | null;
 }
 
+export class SearchHitDto {
+  @ApiProperty({ example: '2' })
+  lexeme_id!: string;
+
+  @ApiProperty({ example: 1 })
+  language_id!: number;
+
+  @ApiProperty({ example: 'en' })
+  lang_code!: string;
+
+  @ApiProperty({ example: 'run' })
+  surface!: string;
+
+  @ApiProperty({ nullable: true, example: null })
+  reading!: string | null;
+
+  @ApiProperty({ nullable: true, example: 'verb' })
+  pos!: string | null;
+
+  @ApiProperty({ nullable: true, example: 110 })
+  frequency_rank!: number | null;
+
+  @ApiProperty({ nullable: true, example: 1 })
+  homograph_no!: number | null;
+
+  @ApiProperty({
+    example: 'lemma',
+    description: "Nguồn khớp: 'lemma' hoặc kind của form (kanji/kana)",
+  })
+  surface_kind!: string;
+
+  @ApiProperty({ example: true })
+  is_exact!: boolean;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    description: 'bccwj-suw = word frequency, not sense frequency',
+  })
+  frequency_source?: string | null;
+
+  @ApiPropertyOptional({
+    type: () => SenseCardDto,
+    description: 'Selected JA learner sense; uses existing sense ID/gloss',
+  })
+  preview?: SenseCardDto;
+}
+
+export class SearchResultDto {
+  @ApiProperty({ type: [SearchHitDto] })
+  data!: SearchHitDto[];
+
+  @ApiProperty({ nullable: true, example: null })
+  next_cursor!: string | null;
+}
+
 export class LexemeSensesResultDto {
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Up to three learner senses; all other senses remain in data',
+  })
+  recommended_sense_ids?: string[];
+
+  @ApiPropertyOptional({
+    nullable: true,
+    enum: ['curated_learner', 'source_metadata'],
+  })
+  priority_basis?: string | null;
+
   @ApiProperty({ type: [SenseCardDto] })
   data!: SenseCardDto[];
 

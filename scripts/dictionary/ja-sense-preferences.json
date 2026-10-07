@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "policy": "ja-bccwj-v1",
+  "reviewer_kind": "llm",
+  "entries": [
+    {
+      "semantic_key": "jmdict:1467640",
+      "lemma": "猫",
+      "reading": "ねこ",
+      "senses": [
+        {
+          "sense_no": 1,
+          "contains_gloss": "cat",
+          "reason": "Nghĩa động vật dành cho người học; các nghĩa shamisen/geisha vẫn giữ trong danh sách đầy đủ."
+        }
+      ]
+    },
+    {
+      "semantic_key": "jmdict:1495770",
+      "lemma": "付ける",
+      "reading": "つける",
+      "senses": [
+        {
+          "sense_no": 1,
+          "contains_gloss": "to attach",
+          "reason": "Gắn, thêm, nối: nghĩa cơ bản của động từ."
+        },
+        {
+          "sense_no": 3,
+          "contains_gloss": "to wear",
+          "reason": "Mặc/đeo phụ kiện: cách dùng đời thường."
+        },
+        {
+          "sense_no": 13,
+          "contains_gloss": "to turn on",
+          "reason": "Bật điện/thiết bị: cách dùng đời thường."
+        }
+      ]
+    },
+    {
+      "semantic_key": "jmdict:1207610",
+      "lemma": "掛ける",
+      "reading": "かける",
+      "senses": [
+        {
+          "sense_no": 1,
+          "contains_gloss": "to hang",
+          "reason": "Treo: nghĩa cơ bản."
+        },
+        {
+          "sense_no": 4,
+          "contains_gloss": "to make (a call)",
+          "reason": "Gọi điện: cách dùng đời thường."
+        },
+        {
+          "sense_no": 5,
+          "contains_gloss": "to spend",
+          "reason": "Dành thời gian/tiền bạc: cách dùng đời thường."
+        }
+      ]
+    },
+    {
+      "semantic_key": "jmdict:1254760",
+      "lemma": "結構",
+      "reading": "けっこう",
+      "senses": [
+        {
+          "sense_no": 4,
+          "contains_gloss": "quite",
+          "reason": "Khá/tương đối: cách dùng phổ biến trong giao tiếp."
+        },
+        {
+          "sense_no": 2,
+          "contains_gloss": "sufficient",
+          "reason": "Đủ/được rồi: hữu ích cho người học."
+        },
+        {
+          "sense_no": 3,
+          "contains_gloss": "no, thank you",
+          "reason": "Từ chối lịch sự, phụ thuộc ngữ cảnh."
+        }
+      ]
+    }
+  ]
+}

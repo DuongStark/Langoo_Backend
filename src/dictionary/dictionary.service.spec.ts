@@ -1,3 +1,4 @@
+import { JapanesePriorityRepository } from './repositories/japanese-priority.repository';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository } from './repositories/kanji.repository';
@@ -44,8 +45,10 @@ function createSetup(): {
   service: DictionaryService;
   repos: {
     search: { search: jest.Mock };
+    priority: { getByLexemes: jest.Mock };
     senseCard: {
       getBySenseId: jest.Mock;
+      getBySenseIds: jest.Mock;
       hasLexeme: jest.Mock;
       getByLexemeId: jest.Mock;
     };
@@ -64,8 +67,10 @@ function createSetup(): {
 } {
   const repos = {
     search: { search: jest.fn() },
+    priority: { getByLexemes: jest.fn().mockResolvedValue([]) },
     senseCard: {
       getBySenseId: jest.fn(),
+      getBySenseIds: jest.fn().mockResolvedValue([]),
       hasLexeme: jest.fn(),
       getByLexemeId: jest.fn(),
     },
@@ -90,6 +95,7 @@ function createSetup(): {
     repos.history as unknown as SearchHistoryRepository,
     repos.languages as unknown as LanguageRepository,
     repos.storage,
+    repos.priority as unknown as JapanesePriorityRepository,
   );
   return { service, repos };
 }
@@ -582,4 +588,52 @@ describe('escapeLike / normalizeQuery', () => {
     ]);
     expect(getSearchQueryVariants('run', 'en')).toEqual(['run']);
   });
+});
+
+describe('M4.5 Japanese learner presentation', () => {
+  it('reorders display while retaining every source sense and flat source order', async () => {
+    const { service, repos } = createSetup();
+    const first = { ...senseCard, senseId: 10n, senseNo: 1 };
+    const other = { ...senseCard, senseId: 20n, senseNo: 2 };
+    const preferred = { ...senseCard, senseId: 30n, senseNo: 13 };
+    repos.senseCard.hasLexeme.mockResolvedValue(true);
+    repos.senseCard.getByLexemeId.mockImplementation(() =>
+      Promise.resolve([first, other, preferred]),
+    );
+    repos.priority.getByLexemes.mockResolvedValue([
+      {
+        lexeme_id: 1n,
+        sense_id: 30n,
+        display_order: 1,
+        recommended: true,
+        basis: 'curated_learner',
+      },
+      {
+        lexeme_id: 1n,
+        sense_id: 10n,
+        display_order: 2,
+        recommended: false,
+        basis: 'curated_learner',
+      },
+      {
+        lexeme_id: 1n,
+        sense_id: 20n,
+        display_order: 3,
+        recommended: false,
+        basis: 'curated_learner',
+      },
+    ]);
+    const grouped = await service.getLexemeSenses(1n);
+    expect(grouped.data.map((card) => card.sense_id)).toEqual([
+      '30',
+      '10',
+      '20',
+    ]);
+    expect(grouped.data[0].sense_no).toBe(13);
+    expect(grouped.recommended_sense_ids).toEqual(['30']);
+    const flat = await service.getLexemeSenses(1n, 'flat');
+    expect(flat.data.map((card) => card.sense_id)).toEqual(['10', '20', '30']);
+    expect(repos.priority.getByLexemes).toHaveBeenCalledTimes(1);
+  });
+
 });
