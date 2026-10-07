@@ -13,6 +13,7 @@ import { SearchHistoryService } from './search-history.service';
 import { FeedbackService } from './feedback.service';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository } from './repositories/kanji.repository';
+import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import { SenseContentRepository } from './repositories/sense-content.repository';
@@ -41,6 +42,7 @@ import { SensePairRepository } from './repositories/sense-pair.repository';
     SenseContentRepository,
     SensePairRepository,
     KanjiRepository,
+    ReverseLookupRepository,
     SearchHistoryRepository,
   ],
   exports: [DictionaryService, SenseCardRepository],

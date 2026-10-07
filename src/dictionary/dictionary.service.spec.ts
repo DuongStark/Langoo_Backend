@@ -1,6 +1,7 @@
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository } from './repositories/kanji.repository';
+import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import { SenseContentRepository } from './repositories/sense-content.repository';
@@ -60,6 +61,7 @@ function createSetup(): {
     history: { create: jest.Mock; listRecent: jest.Mock };
     languages: { findIdByCode: jest.Mock; findExistingIds: jest.Mock };
     storage: { get: jest.Mock; put: jest.Mock; delete: jest.Mock };
+    reverse: { findViSources: jest.Mock; findJaTargets: jest.Mock };
   };
 } {
   const repos = {
@@ -80,6 +82,7 @@ function createSetup(): {
     history: { create: jest.fn(), listRecent: jest.fn() },
     languages: { findIdByCode: jest.fn(), findExistingIds: jest.fn() },
     storage: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
+    reverse: { findViSources: jest.fn(), findJaTargets: jest.fn() },
   };
   const service = new DictionaryService(
     repos.search as unknown as DictionarySearchRepository,
@@ -90,6 +93,7 @@ function createSetup(): {
     repos.history as unknown as SearchHistoryRepository,
     repos.languages as unknown as LanguageRepository,
     repos.storage,
+    repos.reverse as unknown as ReverseLookupRepository,
   );
   return { service, repos };
 }
@@ -563,8 +567,82 @@ describe('DictionaryService', () => {
       });
     });
   });
-});
 
+  describe('reverseLookup', () => {
+    it('VI → EN + JA: exact_sense lên trước, dedupe, gọi repo đúng tham số', async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([
+        {
+          source_lexeme_id: 1775198n,
+          target_text: 'cát',
+          sense_hint: 'finely ground rock',
+          source_ordinal: 1,
+          en_lemma: 'sand',
+          en_pos: 'noun',
+          frequency_rank: 3409,
+        },
+      ]);
+      repos.reverse.findJaTargets.mockResolvedValue([
+        {
+          source_lexeme_id: 1775198n,
+          target_text: '砂浜',
+          sense_hint: 'beach or other expanse of sand',
+          source_ordinal: 1,
+        },
+        {
+          source_lexeme_id: 1775198n,
+          target_text: '砂',
+          sense_hint: 'finely ground rock',
+          source_ordinal: 2,
+        },
+      ]);
+      const result = await service.reverseLookup('  cát  ', undefined);
+      expect(result.matched).toBe(true);
+      expect(result.en).toHaveLength(1);
+      expect(result.en[0]).toMatchObject({
+        lemma: 'sand',
+        frequencyRank: 3409,
+      });
+      expect(result.ja.map((hit) => hit.text)).toEqual(['砂', '砂浜']);
+      expect(result.ja[0].exactSense).toBe(true);
+      expect(result.ja[0].viaLemma).toBe('sand');
+      expect(repos.reverse.findViSources).toHaveBeenCalledWith('cát', 'cát');
+    });
+
+    it("to='en' không truy vấn JA", async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([
+        {
+          source_lexeme_id: 1n,
+          target_text: 'nước',
+          sense_hint: null,
+          source_ordinal: 1,
+          en_lemma: 'water',
+          en_pos: 'noun',
+          frequency_rank: 100,
+        },
+      ]);
+      const result = await service.reverseLookup('nước', 'en');
+      expect(result.en[0].lemma).toBe('water');
+      expect(result.ja).toEqual([]);
+      expect(repos.reverse.findJaTargets).not.toHaveBeenCalled();
+    });
+
+    it('không match → matched=false, mảng rỗng', async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([]);
+      const result = await service.reverseLookup('zzz', undefined);
+      expect(result).toEqual({ query: 'zzz', matched: false, en: [], ja: [] });
+    });
+
+    it('từ khóa rỗng → VALIDATION_FAILED', async () => {
+      const { service } = createSetup();
+      await expect(
+        service.reverseLookup('   ', undefined),
+      ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+  });
+});
 describe('escapeLike / normalizeQuery', () => {
   it('escape đúng %, _, \\', () => {
     expect(escapeLike('100%_run\\')).toBe('100\\%\\_run\\\\');

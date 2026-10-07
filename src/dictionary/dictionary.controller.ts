@@ -24,14 +24,17 @@ import { DictionaryService } from './dictionary.service';
 import {
   LexemeSensesResultDto,
   KanjiCardDto,
+  ReverseLookupResultDto,
   SearchResultDto,
   SenseDetailDto,
   SenseLinksResultDto,
 } from './dto/dictionary-response.dto';
 import { LexemeSensesQueryDto } from './dto/lexeme-senses-query.dto';
+import { ReverseLookupQueryDto } from './dto/reverse-lookup-query.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import {
   KanjiCardResponse,
+  ReverseLookupResult,
   SearchResult,
   SenseDetailResponse,
   SenseLinksResult,
@@ -63,6 +66,19 @@ export class SearchController {
   ): Promise<SearchResult> {
     const userId = request.user ? BigInt(request.user.sub) : undefined;
     return this.dictionaryService.search(query, userId);
+  }
+
+  @Get('reverse')
+  @ApiOperation({
+    summary: 'Tra ngược Việt→Anh/Nhật (vd cát → sand, 砂)',
+  })
+  @ApiOkResponse({ type: ReverseLookupResultDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'VALIDATION_FAILED',
+  })
+  reverse(@Query() query: ReverseLookupQueryDto): Promise<ReverseLookupResult> {
+    return this.dictionaryService.reverseLookup(query.q, query.to);
   }
 }
 

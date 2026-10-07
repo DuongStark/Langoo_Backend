@@ -155,3 +155,26 @@ export interface GlossReportResponse {
   status: string;
   created_at: string;
 }
+
+export interface ReverseLookupEnHit {
+  lexemeId: string;
+  lemma: string;
+  pos: string | null;
+  frequencyRank: number | null;
+  senseHint: string | null;
+}
+
+export interface ReverseLookupJaHit {
+  text: string;
+  senseHint: string | null;
+  viaLexemeId: string;
+  viaLemma: string;
+  exactSense: boolean;
+}
+
+export interface ReverseLookupResult {
+  query: string;
+  matched: boolean;
+  en: ReverseLookupEnHit[];
+  ja: ReverseLookupJaHit[];
+}

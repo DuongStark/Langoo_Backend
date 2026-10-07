@@ -10,6 +10,9 @@ import {
 } from './dictionary-search-cursor';
 import {
   LexemeSensesResult,
+  ReverseLookupEnHit,
+  ReverseLookupJaHit,
+  ReverseLookupResult,
   SearchResult,
   SenseCardResponse,
   SenseDetailResponse,
@@ -20,6 +23,7 @@ import {
 } from './types/dictionary.types';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository, KanjiRow } from './repositories/kanji.repository';
+import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import {
@@ -53,6 +57,7 @@ export class DictionaryService {
     private readonly historyRepo: SearchHistoryRepository,
     private readonly languages: LanguageRepository,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
+    private readonly reverseRepo: ReverseLookupRepository,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -132,6 +137,87 @@ export class DictionaryService {
               surface: lastRow.surface,
             })
           : null,
+    };
+  }
+
+  /**
+   * Tra ngược Việt→Anh/Nhật: VI assertion → source lexeme tiếng Anh → JA assertions.
+   * `to`: 'en', 'ja' hoặc 'en,ja' (mặc định en,ja). Không match → matched=false.
+   */
+  async reverseLookup(q: string, to?: string): Promise<ReverseLookupResult> {
+    const query = q.trim().replace(/\s+/g, ' ');
+    if (query.length === 0)
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    if (query.length > 64)
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa tối đa 64 ký tự',
+        HttpStatus.BAD_REQUEST,
+      );
+    const targets = new Set((to ?? 'en,ja').split(','));
+    const lowered = query.toLowerCase();
+    const sources = await this.reverseRepo.findViSources(query, lowered);
+    const en: ReverseLookupEnHit[] = [];
+    const sourceIds: bigint[] = [];
+    const seenLexeme = new Set<string>();
+    for (const row of sources) {
+      const key = String(row.source_lexeme_id);
+      if (seenLexeme.has(key)) continue;
+      seenLexeme.add(key);
+      sourceIds.push(row.source_lexeme_id);
+      en.push({
+        lexemeId: key,
+        lemma: row.en_lemma,
+        pos: row.en_pos,
+        frequencyRank: row.frequency_rank,
+        senseHint: row.sense_hint,
+      });
+      if (en.length >= 10) break;
+    }
+    let ja: ReverseLookupJaHit[] = [];
+    if (targets.has('ja') && en.length > 0) {
+      const hintByLexeme = new Map(
+        en.map((hit) => [
+          String(hit.lexemeId),
+          hit.senseHint ? hit.senseHint.toLowerCase() : null,
+        ]),
+      );
+      const lemmaByLexeme = new Map(
+        en.map((hit) => [String(hit.lexemeId), hit.lemma]),
+      );
+      const rows = await this.reverseRepo.findJaTargets(sourceIds);
+      const seenJa = new Set<string>();
+      ja = rows
+        .map((row) => {
+          const hint = hintByLexeme.get(String(row.source_lexeme_id)) ?? null;
+          return {
+            text: row.target_text,
+            senseHint: row.sense_hint,
+            viaLexemeId: String(row.source_lexeme_id),
+            viaLemma: lemmaByLexeme.get(String(row.source_lexeme_id)) ?? '',
+            exactSense:
+              row.sense_hint !== null &&
+              hint !== null &&
+              row.sense_hint.toLowerCase() === hint,
+          };
+        })
+        .filter((hit) => {
+          if (seenJa.has(hit.text)) return false;
+          seenJa.add(hit.text);
+          return true;
+        })
+        .sort((a, b) => Number(b.exactSense) - Number(a.exactSense))
+        .slice(0, 12);
+    }
+    return {
+      query,
+      matched: en.length > 0,
+      en: targets.has('en') ? en : [],
+      ja,
     };
   }
 

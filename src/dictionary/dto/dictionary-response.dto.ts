@@ -377,3 +377,55 @@ export class GlossReportResponseDto {
   @ApiProperty({ example: '2026-09-27T00:00:00.000Z' })
   created_at!: string;
 }
+
+export class ReverseLookupEnHitDto {
+  @ApiProperty({ example: '1775198' })
+  lexeme_id!: string;
+
+  @ApiProperty({ example: 'sand' })
+  lemma!: string;
+
+  @ApiProperty({ nullable: true, example: 'noun' })
+  pos!: string | null;
+
+  @ApiProperty({ nullable: true, example: 3409 })
+  frequency_rank!: number | null;
+
+  @ApiProperty({ nullable: true, example: 'finely ground rock' })
+  sense_hint!: string | null;
+}
+
+export class ReverseLookupJaHitDto {
+  @ApiProperty({ example: '砂' })
+  text!: string;
+
+  @ApiProperty({ nullable: true, example: 'finely ground rock' })
+  sense_hint!: string | null;
+
+  @ApiProperty({ example: '1775198' })
+  via_lexeme_id!: string;
+
+  @ApiProperty({ example: 'sand' })
+  via_lemma!: string;
+
+  @ApiProperty({
+    example: true,
+    description:
+      'sense_hint của tiếng Nhật khớp sense_hint của nghĩa tiếng Việt',
+  })
+  exact_sense!: boolean;
+}
+
+export class ReverseLookupResultDto {
+  @ApiProperty({ example: 'cát' })
+  query!: string;
+
+  @ApiProperty({ example: true })
+  matched!: boolean;
+
+  @ApiProperty({ type: [ReverseLookupEnHitDto] })
+  en!: ReverseLookupEnHitDto[];
+
+  @ApiProperty({ type: [ReverseLookupJaHitDto] })
+  ja!: ReverseLookupJaHitDto[];
+}
