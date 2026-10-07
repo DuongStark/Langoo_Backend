@@ -11,6 +11,7 @@ import {
   ArtifactRefSchema,
   hashJson,
   mappingTargetKey,
+  parseMappingJob,
   parsePilotManifest,
   verifyArtifactBytes,
   type ArtifactRef,
@@ -42,7 +43,7 @@ function parseCliFlags(argv: readonly string[]): Map<string, string> {
     if (!token.startsWith('--') || token.includes('='))
       throw new Error(`Tham số lạ: ${token}`);
     const key = token.slice(2);
-    if (!['artifact-dir', 'bundles', 'seed', 'size'].includes(key))
+    if (!['artifact-dir', 'bundles', 'seed', 'size', 'from-job'].includes(key))
       throw new Error(`Flag không hỗ trợ: --${key}`);
     const value = argv[++i];
     if (!value || value.startsWith('--'))
@@ -91,6 +92,68 @@ export function main(argv = process.argv.slice(2)): void {
   const strata = new Map(
     strataManifest.strata.map((row) => [row.targetKey, row]),
   );
+
+  const fromJobRel = flags.get('from-job');
+  if (fromJobRel) {
+    const job = parseMappingJob(
+      JSON.parse(readBytes(root, fromJobRel).toString('utf8')),
+    );
+    const retryKeys = job.entries
+      .filter((entry) => entry.state !== 'decision_ready')
+      .map((entry) => entry.targetKey)
+      .sort();
+    if (!retryKeys.length) throw new Error('Không có target cần retry');
+    const retrySet = new Set(retryKeys);
+    const pilot = parsePilotManifest({
+      ...strataManifest,
+      targetKeys: retryKeys,
+      positiveTargetKeys: strataManifest.positiveTargetKeys.filter((key) =>
+        retrySet.has(key),
+      ),
+      hardNegativeTargetKeys: strataManifest.hardNegativeTargetKeys.filter(
+        (key) => retrySet.has(key),
+      ),
+      strata: [...strataManifest.strata]
+        .filter((row) => retrySet.has(row.targetKey))
+        .sort((a, b) => (a.targetKey < b.targetKey ? -1 : 1)),
+      exclusions: [],
+    });
+    const fp16 = fingerprint.slice(0, 16);
+    const pilotRel = `pilots/${fp16}-pilot-a-retry.json`;
+    const pilotBytes = stablePretty(pilot);
+    writeTextAtomic(root, pilotRel, pilotBytes);
+    const pilotRef = { path: pilotRel, sha256: sha256Bytes(pilotBytes) };
+    const rowByTarget = new Map(
+      manifest.bundles.map((row) => [row.targetKey, row]),
+    );
+    const rows = retryKeys.map((targetKey) => {
+      const row = rowByTarget.get(targetKey);
+      if (!row) throw new Error(`Thiếu bundle row cho target ${targetKey}`);
+      return row;
+    });
+    const subsetRel = `pilots/${fp16}-pilot-a-retry.manifest.json`;
+    const subsetBytes = stablePretty({
+      ...raw,
+      pilot: pilotRef,
+      bundles: rows,
+      counts: { bundles: rows.length, senses: rows.length },
+      pilotSample: {
+        kind: 'db4-pilot-a-retry-v1',
+        fromJob: { path: fromJobRel },
+        sourceManifest: {
+          path: bundlesRel,
+          sha256: sha256Bytes(manifestBytes),
+        },
+      },
+    });
+    BundlesManifestSchema.parse(JSON.parse(subsetBytes));
+    writeTextAtomic(root, subsetRel, subsetBytes);
+    console.log('== DB4 mapping-pilot (A retry) ==');
+    console.log(`  target cần retry: ${rows.length}/${job.entries.length}`);
+    console.log(`  pilot: ${pilotRel}`);
+    console.log(`  manifest: ${subsetRel}`);
+    return;
+  }
 
   const exportRef = ArtifactRefSchema.parse(raw.export);
   verifyArtifactBytes(exportRef, readBytes(root, exportRef.path));
