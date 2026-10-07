@@ -7,6 +7,8 @@ import {
   hashJson,
   jobBudgetUsage,
   parseMappingAudit,
+  parseMappingBundleIntegrity,
+  parseMappingJob,
   parseMappingOutput,
   parsePilotManifest,
   verifyArtifactBytes,
@@ -18,7 +20,6 @@ import {
 } from './_mapping-types';
 import { parseMappingCli } from './_cli';
 import { callChatCompletion, extractJsonObject } from './_adapter_openai';
-import { createStubAdapter, loadBoundJob } from './_runner';
 
 /**
  * `mapping-audit` (D5) — audit từng target của job theo rubric plan §12.2:
@@ -153,6 +154,31 @@ function readPhaseOutput(
   const bytes = readBytes(root, attempt.validatedOutput.path);
   verifyArtifactBytes(attempt.validatedOutput, bytes);
   return parseMappingOutput(JSON.parse(bytes.toString('utf8')), bundle);
+}
+
+/** Load job cho audit: verify sha từng bundle ref (không bind pilot ref vì file pilot có thể đã đổi tên/ghi đè). */
+function loadAuditContext(
+  root: string,
+  jobRel: string,
+): { job: MappingJob; bundles: Map<string, MappingBundle> } {
+  const job = parseMappingJob(
+    JSON.parse(readBytes(root, jobRel).toString('utf8')),
+  );
+  const bundles = new Map<string, MappingBundle>();
+  for (const entry of job.entries) {
+    const bytes = readBytes(root, entry.bundle.path);
+    verifyArtifactBytes(entry.bundle, bytes);
+    const parsed: unknown = JSON.parse(bytes.toString('utf8'));
+    const value =
+      parsed !== null && typeof parsed === 'object' && 'bundle' in parsed
+        ? parsed.bundle
+        : parsed;
+    const bundle = parseMappingBundleIntegrity(value);
+    if (bundle.bundleKey !== entry.bundleKey)
+      throw new Error(`Bundle lệch entry: ${entry.bundleKey.slice(0, 12)}`);
+    bundles.set(bundle.bundleKey, bundle);
+  }
+  return { job, bundles };
 }
 
 function buildPacket(
@@ -299,13 +325,7 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
   let combinedUnknown = 0;
 
   outer: for (const rel of jobRels) {
-    const loaded = loadBoundJob({
-      root,
-      jobRel: rel,
-      adapter: createStubAdapter(),
-    });
-    const job = loaded.job;
-    const bundles = loaded.bundles;
+    const { job, bundles } = loadAuditContext(root, rel);
     if (!gatePilot)
       gatePilot = parsePilotManifest(
         JSON.parse(readBytes(root, job.pilotManifest.path).toString('utf8')),
@@ -314,12 +334,13 @@ export async function main(argv = process.argv.slice(2)): Promise<void> {
     for (const entry of job.entries) {
       if (results.some((result) => result.targetKey === entry.targetKey))
         continue;
+      // job bị dừng giữa chừng có entry chưa decision — bỏ qua, job sau sẽ phủ
+      if (entry.state !== 'decision_ready' || !entry.decision) continue;
       if (limit !== null && results.length >= limit) break outer;
       const bundle = bundles.get(entry.bundleKey);
       if (!bundle)
         throw new Error(`Thiếu bundle ${entry.bundleKey.slice(0, 12)}`);
-      const decisionsRef: ArtifactRef =
-        entry.decision ?? throwMissing(entry.targetKey);
+      const decisionsRef: ArtifactRef = entry.decision;
       const decisionBytes = readBytes(root, decisionsRef.path);
       verifyArtifactBytes(decisionsRef, decisionBytes);
       const decisionFile = DecisionFileSchema.parse(

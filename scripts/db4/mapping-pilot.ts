@@ -128,7 +128,8 @@ export function main(argv = process.argv.slice(2)): void {
       exclusions: [],
     });
     const fp16 = fingerprint.slice(0, 16);
-    const pilotRel = `pilots/${fp16}-pilot-a-retry.json`;
+    const suffix = hashJson(retryKeys).slice(0, 8);
+    const pilotRel = `pilots/${fp16}-pilot-a-retry-${suffix}.json`;
     const pilotBytes = stablePretty(pilot);
     writeTextAtomic(root, pilotRel, pilotBytes);
     const pilotRef = { path: pilotRel, sha256: sha256Bytes(pilotBytes) };
@@ -140,7 +141,7 @@ export function main(argv = process.argv.slice(2)): void {
       if (!row) throw new Error(`Thiếu bundle row cho target ${targetKey}`);
       return row;
     });
-    const subsetRel = `pilots/${fp16}-pilot-a-retry.manifest.json`;
+    const subsetRel = `pilots/${fp16}-pilot-a-retry-${suffix}.manifest.json`;
     const subsetBytes = stablePretty({
       ...raw,
       pilot: pilotRef,
