@@ -10,6 +10,7 @@ import {
   encodeDictionarySearchCursor,
 } from './dictionary-search-cursor';
 import {
+  KanjiComponent,
   KanjiPart,
   LexemeSensesResult,
   ReverseLookupEnHit,
@@ -24,7 +25,11 @@ import {
   SearchHit,
 } from './types/dictionary.types';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
-import { KanjiRepository, KanjiRow } from './repositories/kanji.repository';
+import {
+  KanjiComponentRow,
+  KanjiRepository,
+  KanjiRow,
+} from './repositories/kanji.repository';
 import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
@@ -343,7 +348,11 @@ export class DictionaryService {
         HttpStatus.NOT_FOUND,
       );
     }
-    return toKanjiResponse(row);
+    const componentRows = await this.kanjiRepo.getComponents(literal);
+    return {
+      ...toKanjiResponse(row),
+      components: buildKanjiComponentTree(componentRows),
+    };
   }
 
   /** Ảnh SVG thứ tự nét (KanjiVG) — đọc file từ storage, metadata từ core. */
@@ -513,7 +522,7 @@ function toSenseLinkItem(row: SenseLinkRow): SenseLinkItem {
   };
 }
 
-function toKanjiResponse(row: KanjiRow): KanjiCardResponse {
+function toKanjiResponse(row: KanjiRow): Omit<KanjiCardResponse, 'components'> {
   const hasRadical =
     row.radical_classical !== null ||
     row.radical_char !== null ||
@@ -544,6 +553,36 @@ function toKanjiResponse(row: KanjiRow): KanjiCardResponse {
     media_kinds: row.media_kinds,
     parts: normalizeKanjiParts(row.parts),
   };
+}
+
+/** Cây thành phần KanjiVG (preorder ord/parent_ord) → cấu trúc lồng nhau. */
+export function buildKanjiComponentTree(
+  rows: readonly KanjiComponentRow[],
+): KanjiComponent | null {
+  if (rows.length === 0) return null;
+  const nodes = new Map<number, KanjiComponent>();
+  let root: KanjiComponent | null = null;
+  for (const row of [...rows].sort((a, b) => a.ord - b.ord)) {
+    const node: KanjiComponent = {
+      char: row.component,
+      original: row.original,
+      is_variant: row.is_variant,
+      position: row.position,
+      is_radical: row.is_radical,
+      is_phonetic: row.is_phonetic,
+      part: row.part,
+      strokes: row.strokes,
+      stroke_count: row.stroke_count,
+      radical_number: row.radical_number,
+      name_vi: row.name_vi,
+      meaning_vi: row.meaning_vi,
+      children: [],
+    };
+    if (row.parent_ord === null) root = node;
+    else nodes.get(row.parent_ord)?.children.push(node);
+    nodes.set(row.ord, node);
+  }
+  return root;
 }
 
 /** jsonb parts từ core.kanji_radical → mảng typed, bỏ dữ liệu dị dạng. */

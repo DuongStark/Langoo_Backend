@@ -164,8 +164,25 @@ là bộ thủ (khớp cả biến thể, vd `亻→人`, `犭→犬`):
 ```
 
 - Phủ: kanji lớp 1–6 **100%**, jōyō ~99,8%, tổng 12.156 chữ.
-- Lưu ý: một số chữ phức tạp có thành phần dạng "residual" (vd `猫 → 田+犯+艾`) — phản ánh
-  dữ liệu nguồn hiện có; nếu cần breakdown chuẩn kiểu IDS/KanjiVG sẽ bổ sung sau.
+- `components` — **cây thành phần chuẩn KanjiVG** (CC BY-SA 3.0, Ulrich Apel), đệ quy, có
+  `original` (dạng gốc biến thể), `position`, `is_radical`, `is_phonetic` (biểu âm), `part`,
+  `strokes` (số nét thuộc thành phần — dùng để highlight trên ảnh KanjiVG):
+
+```json
+"components": {
+  "char": "猫", "children": [
+    {"char": "⺨", "original": "犬", "position": "left", "is_radical": true, "strokes": [1,2,3]},
+    {"char": "苗", "position": "right", "is_phonetic": true, "children": [
+      {"char": "艹", "original": "艸", "position": "top", "strokes": [4,5,6]},
+      {"char": "田", "position": "bottom", "strokes": [7,8,9,10,11]}
+    ]}
+  ]
+}
+```
+
+- Ưu tiên hiển thị `components` khi có (kyōiku/jōyō 100%, tổng 6.416 chữ); nếu `null` thì
+  dùng `parts` (KRADFILE) — một số chữ phức tạp ở nguồn KRADFILE có thành phần "residual"
+  (vd `猫 → 田+犯+艾`) nên chỉ là fallback.
 - Lỗi: `404 KANJI_NOT_FOUND`.
 
 ## GET /v1/me/search-history (Bearer)

@@ -57,7 +57,11 @@ function createSetup(): {
       getForms: jest.Mock;
     };
     pairs: { findLinks: jest.Mock };
-    kanji: { getByLiteral: jest.Mock; getStrokeAsset: jest.Mock };
+    kanji: {
+      getByLiteral: jest.Mock;
+      getStrokeAsset: jest.Mock;
+      getComponents: jest.Mock;
+    };
     history: { create: jest.Mock; listRecent: jest.Mock };
     languages: { findIdByCode: jest.Mock; findExistingIds: jest.Mock };
     storage: { get: jest.Mock; put: jest.Mock; delete: jest.Mock };
@@ -78,7 +82,11 @@ function createSetup(): {
       getForms: jest.fn(),
     },
     pairs: { findLinks: jest.fn() },
-    kanji: { getByLiteral: jest.fn(), getStrokeAsset: jest.fn() },
+    kanji: {
+      getByLiteral: jest.fn(),
+      getStrokeAsset: jest.fn(),
+      getComponents: jest.fn(),
+    },
     history: { create: jest.fn(), listRecent: jest.fn() },
     languages: { findIdByCode: jest.fn(), findExistingIds: jest.fn() },
     storage: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
@@ -564,6 +572,8 @@ describe('DictionaryService', () => {
         ],
       });
 
+      repos.kanji.getComponents.mockResolvedValue([]);
+
       const result = await service.getKanji('走');
 
       expect(result).toMatchObject({
@@ -571,6 +581,7 @@ describe('DictionaryService', () => {
         stroke_count: 7,
         used_in_forms: 12,
         radical: null,
+        components: null,
       });
       expect(result.readings).toEqual({ on: ['ソウ'] });
       expect(result.parts).toEqual([
@@ -591,6 +602,117 @@ describe('DictionaryService', () => {
           meaning_vi: null,
         },
       ]);
+    });
+
+    it('dựng cây components từ rows KanjiVG (preorder → nested)', async () => {
+      const { service, repos } = createSetup();
+      repos.kanji.getByLiteral.mockResolvedValue({
+        literal: '猫',
+        codepoint_ucs: 29483,
+        grade: null,
+        stroke_count: 11,
+        frequency_rank: null,
+        jlpt_old: null,
+        jlpt_new: null,
+        radical_classical: 94,
+        radical_char: '犬',
+        radical_name_vi: 'Khuyển',
+        radical_meaning_vi: 'Con chó',
+        readings: {},
+        meanings: {},
+        nanori: null,
+        query_codes: null,
+        used_in_forms: 0n,
+        media_kinds: ['stroke_svg'],
+        parts: [],
+      });
+      repos.kanji.getComponents.mockResolvedValue([
+        {
+          ord: 0,
+          parent_ord: null,
+          depth: 0,
+          component: '猫',
+          original: null,
+          is_variant: false,
+          is_radical: false,
+          is_phonetic: false,
+          position: null,
+          part: null,
+          strokes: [],
+          stroke_count: 0,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+        {
+          ord: 1,
+          parent_ord: 0,
+          depth: 1,
+          component: '⺨',
+          original: '犬',
+          is_variant: true,
+          is_radical: true,
+          is_phonetic: false,
+          position: 'left',
+          part: null,
+          strokes: [1, 2, 3],
+          stroke_count: 3,
+          radical_number: 94,
+          name_vi: 'Khuyển',
+          meaning_vi: 'Con chó',
+        },
+        {
+          ord: 2,
+          parent_ord: 0,
+          depth: 1,
+          component: '苗',
+          original: null,
+          is_variant: false,
+          is_radical: false,
+          is_phonetic: true,
+          position: 'right',
+          part: null,
+          strokes: [],
+          stroke_count: 0,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+        {
+          ord: 3,
+          parent_ord: 2,
+          depth: 2,
+          component: '艹',
+          original: '艸',
+          is_variant: true,
+          is_radical: false,
+          is_phonetic: false,
+          position: 'top',
+          part: null,
+          strokes: [4, 5, 6],
+          stroke_count: 3,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+      ]);
+
+      const result = await service.getKanji('猫');
+
+      expect(result.components?.char).toBe('猫');
+      expect(result.components?.children).toHaveLength(2);
+      expect(result.components?.children[0]).toMatchObject({
+        char: '⺨',
+        original: '犬',
+        position: 'left',
+        is_radical: true,
+        strokes: [1, 2, 3],
+      });
+      expect(result.components?.children[1].children[0]).toMatchObject({
+        char: '艹',
+        original: '艸',
+        position: 'top',
+      });
     });
   });
 

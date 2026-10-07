@@ -28,4 +28,19 @@ describe('KanjiRepository', () => {
     expect(text).toContain('AS parts');
     expect(text).toContain('ORDER BY kr.position NULLS LAST, kr.part');
   });
+
+  it('components lấy từ core.kanji_component + join public.radical (biến thể)', async () => {
+    const { repository, queryRaw } = createRepository();
+
+    await repository.getComponents('猫');
+
+    const call = queryRaw.mock.calls[0] as unknown[];
+    const first = call[0];
+    const text = Array.isArray(first)
+      ? (first as string[]).join('$')
+      : (first as Prisma.Sql).sql;
+    expect(text).toContain('FROM core.kanji_component c');
+    expect(text).toContain('ANY (r.variants)');
+    expect(text).toContain('ORDER BY c.ord ASC');
+  });
 });
