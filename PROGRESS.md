@@ -479,6 +479,8 @@ phân trang dùng face cũ. Đang kiểm/publish patch; chưa báo smoke hoàn t
 - Files: search/priority repository, cursor/service, regression test,
   [API](docs/api/dictionary.md), [handoff](docs/handoff/m4.5-ja-bccwj-priority.md),
   [report](docs/reviews/m4.5-ja-vietnamese-gloss-priority-2026-10-08.md).
-- Kiểm tra: build; 2 suites/31 tests; eslint, syntax, Prettier; isolated VPS DB `_test`
-  17 checks pass. HTTP production smoke/deploy đang chờ.
-- Git: chưa commit/push; deploy follow-up chưa thực hiện.
+- Kiểm tra: build pass; 2 suites/30 tests pass trên commit e740ace; eslint, syntax,
+  Prettier pass; integration DB `_test` trên VPS 17 checks pass; HTTP smoke live
+  15/15 pass, EN run/book không đổi.
+- Git / triển khai: commit `e740ace` đã deploy lên `langoo-vps`; health app/DB OK;
+  backup source + dist được lưu ở storage. Chưa push.

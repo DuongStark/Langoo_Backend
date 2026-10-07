@@ -1,0 +1,144 @@
+{
+  "status": "pass",
+  "firsts": [
+    {
+      "q": "来る",
+      "lexeme_id": "137747",
+      "surface": "来る",
+      "reading": "くる",
+      "rank": 43,
+      "preview_gloss": "to come (spatially or temporally)"
+    },
+    {
+      "q": "できる",
+      "lexeme_id": "79879",
+      "surface": "できる",
+      "reading": "できる",
+      "rank": 50,
+      "preview_gloss": "to be able to do"
+    },
+    {
+      "q": "する",
+      "lexeme_id": "152799",
+      "surface": "する",
+      "reading": "する",
+      "rank": 8,
+      "preview_gloss": "to do"
+    },
+    {
+      "q": "ある",
+      "lexeme_id": "135748",
+      "surface": "ある",
+      "reading": "ある",
+      "rank": 16,
+      "preview_gloss": "to be"
+    },
+    {
+      "q": "いる",
+      "lexeme_id": "110473",
+      "surface": "いる",
+      "reading": "いる",
+      "rank": 13,
+      "preview_gloss": "to be (of animate objects)"
+    },
+    {
+      "q": "入る",
+      "lexeme_id": "75572",
+      "surface": "入る",
+      "reading": "はいる",
+      "rank": 152,
+      "preview_gloss": "to enter"
+    }
+  ],
+  "checks": [
+    "six_queries",
+    "previews",
+    "suggestion_cap",
+    "cat_main_sense",
+    "curated_three",
+    "all_senses_preserved",
+    "flat_source_order",
+    "sense_detail",
+    "cursor_v5",
+    "old_cursor_rejected",
+    "english_unchanged",
+    "kanji_parts",
+    "stroke",
+    "reverse",
+    "source_attribution"
+  ],
+  "requests": [
+    {
+      "path": "/dictionary/search?q=run&lang=en&limit=5",
+      "ms": 146,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=book&lang=en&limit=5",
+      "ms": 70,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E6%9D%A5%E3%82%8B&lang=ja&limit=5",
+      "ms": 104,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E3%81%A7%E3%81%8D%E3%82%8B&lang=ja&limit=5",
+      "ms": 69,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E3%81%99%E3%82%8B&lang=ja&limit=5",
+      "ms": 505,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E3%81%82%E3%82%8B&lang=ja&limit=5",
+      "ms": 66,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E3%81%84%E3%82%8B&lang=ja&limit=5",
+      "ms": 71,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E5%85%A5%E3%82%8B&lang=ja&limit=5",
+      "ms": 42,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/suggestions?q=%E3%81%99%E3%82%8B&lang=ja",
+      "ms": 481,
+      "status": 200
+    },
+    { "path": "/lexemes/156837/senses", "ms": 23, "status": 200 },
+    { "path": "/lexemes/68759/senses", "ms": 19, "status": 200 },
+    { "path": "/lexemes/68759/senses?view=flat", "ms": 9, "status": 200 },
+    { "path": "/senses/157388", "ms": 48, "status": 200 },
+    {
+      "path": "/dictionary/search?q=%E6%9D%A5&lang=ja&limit=2",
+      "ms": 1782,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E6%9D%A5&lang=ja&limit=2&cursor=eyJ2Ijo1LCJxIjoi5p2lIiwibCI6ImphIiwiZSI6MSwicCI6MCwiaiI6MCwidCI6MCwibiI6MCwiZiI6NDMsInoiOjIsImkiOiIxMzc3NDciLCJrIjoia2FuamkiLCJzIjoi5p2l44KLIn0",
+      "ms": 1633,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E6%9D%A5&lang=ja&limit=2&cursor=eyJ2Ijo1LCJxIjoi5p2lIiwibCI6ImphIiwiZSI6MSwicCI6MCwiaiI6MCwidCI6MCwibiI6MCwiZiI6NTE1OSwieiI6MiwiaSI6IjEzNzg2MiIsImsiOiJrYW5qaSIsInMiOiLmnaXpgLEifQ",
+      "ms": 1669,
+      "status": 200
+    },
+    {
+      "path": "/dictionary/search?q=%E6%9D%A5&lang=ja&cursor=eyJ2Ijo0LCJxIjoi5p2lIiwibCI6ImphIiwiZSI6MCwicCI6MCwibiI6MSwiZiI6MjE0NzQ4MzY0NywieiI6MSwiaSI6IjEiLCJrIjoibGVtbWEiLCJzIjoi5p2lIn0",
+      "ms": 7,
+      "status": 400
+    },
+    { "path": "/kanji/%E7%8C%AB", "ms": 8, "status": 200 },
+    { "path": "/dictionary/reverse?q=c%C3%A1t", "ms": 44, "status": 200 },
+    { "path": "/sources", "ms": 4, "status": 200 }
+  ]
+}

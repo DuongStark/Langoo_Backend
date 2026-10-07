@@ -118,11 +118,11 @@ for (let i = 0; i < 3; i++) {
   }
   cursor = response.next_cursor;
   if (!cursor) break;
-  assert.equal(JSON.parse(Buffer.from(cursor, 'base64url')).v, 4);
+  assert.equal(JSON.parse(Buffer.from(cursor, 'base64url')).v, 5);
 }
 const old = Buffer.from(
   JSON.stringify({
-    v: 3,
+    v: 4,
     q: '来',
     l: 'ja',
     e: 0,
