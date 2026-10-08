@@ -205,13 +205,22 @@ export class DictionarySearchRepository {
           CASE WHEN h.frequency_rank IS NULL THEN 1 ELSE 0 END AS frequency_null_rank,
           coalesce(h.frequency_rank, 2147483647) AS frequency_sort,
           length(h.surface) AS surface_length,
-          CASE WHEN cl.source_id = 1 THEN 0 ELSE 1 END AS source_rank
+          CASE WHEN cl.source_id = 1 THEN 0
+               WHEN h.lang_code = 'en' AND EXISTS (
+                 SELECT 1 FROM core.sense cs
+                 JOIN core.sense_learner_priority cp ON cp.sense_id = cs.id
+                 JOIN core.dictionary_priority_run cr ON cr.id = cp.run_id
+                   AND cr.active AND cr.policy = 'en-m10.5-v1'
+                 WHERE cs.lexeme_id = cl.id
+               ) THEN 0
+               ELSE 1 END AS source_rank
         FROM hits h
         JOIN core.lexeme cl ON cl.id = h.lexeme_id
       ),
-      -- Ẩn bản sao không-JMdict (omw-ja, wiktextract...) khi đã có entry JMdict
-      -- cùng ngôn ngữ + mặt chữ; giữ nguyên các entry có reading hoặc không có
-      -- bản JMdict nào. Không đổi ORDER BY/cursor để không vỡ phân trang.
+      -- Ẩn bản sao: JA ẩn non-JMdict (omw-ja, wiktextract...) khi đã có entry JMdict
+      -- cùng ngôn ngữ + mặt chữ; EN ẩn entry không curation khi có entry curated
+      -- (M10.5) cùng mặt chữ + POS. Giữ nguyên entry có reading hoặc không có
+      -- bản "chuẩn" nào. Không đổi ORDER BY/cursor để không vỡ phân trang.
       visible AS (
         SELECT r.*
         FROM ranked r
@@ -222,6 +231,7 @@ export class DictionarySearchRepository {
                 WHERE j.lang_code = r.lang_code
                   AND lower(j.surface) = lower(r.surface)
                   AND j.source_rank = 0
+                  AND (r.lang_code <> 'en' OR j.pos IS NOT DISTINCT FROM r.pos)
               )
       ),
       per_result AS (

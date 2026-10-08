@@ -48,16 +48,16 @@ describe('DictionarySearchRepository', () => {
     expect(query.sql).toContain('PARTITION BY lexeme_id');
   });
 
-  it('ẩn bản sao không-JMdict cùng mặt chữ khi đã có entry JMdict', async () => {
+  it('ẩn bản sao: JA theo JMdict, EN theo entry curated (M10.5)', async () => {
     const { repository, queryRaw } = createRepository();
 
     await repository.search(params);
 
     const query = firstArg<Prisma.Sql>(queryRaw);
-    expect(query.sql).toContain(
-      'CASE WHEN cl.source_id = 1 THEN 0 ELSE 1 END AS source_rank',
-    );
+    expect(query.sql).toContain('CASE WHEN cl.source_id = 1 THEN 0');
+    expect(query.sql).toContain("cr.policy = 'en-m10.5-v1'");
     expect(query.sql).toContain('j.source_rank = 0');
+    expect(query.sql).toContain('j.pos IS NOT DISTINCT FROM r.pos');
     expect(query.sql).toContain('FROM visible');
   });
 });
