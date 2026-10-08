@@ -2,6 +2,7 @@ import { LanguageRepository } from '../db/repositories/language.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository } from './repositories/kanji.repository';
 import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
+import { EnglishPriorityRepository } from './repositories/english-priority.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import { SenseContentRepository } from './repositories/sense-content.repository';
@@ -91,6 +92,7 @@ function createSetup(): {
     languages: { findIdByCode: jest.fn(), findExistingIds: jest.fn() },
     storage: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
     reverse: { findViSources: jest.fn(), findJaTargets: jest.fn() },
+    englishPriority: { getByLexemes: jest.fn().mockResolvedValue([]) },
   };
   const service = new DictionaryService(
     repos.search as unknown as DictionarySearchRepository,
@@ -102,6 +104,7 @@ function createSetup(): {
     repos.languages as unknown as LanguageRepository,
     repos.storage,
     repos.reverse as unknown as ReverseLookupRepository,
+    repos.englishPriority as unknown as EnglishPriorityRepository,
   );
   return { service, repos };
 }

@@ -131,6 +131,18 @@ export class SenseCardDto {
 }
 
 export class LexemeSensesResultDto {
+  @ApiPropertyOptional({
+    type: [String],
+    description: 'Up to three learner senses; all other senses remain in data',
+  })
+  recommended_sense_ids?: string[];
+
+  @ApiPropertyOptional({
+    nullable: true,
+    enum: ['curated_learner', 'source_metadata'],
+  })
+  priority_basis?: string | null;
+
   @ApiProperty({ type: [SenseCardDto] })
   data!: SenseCardDto[];
 

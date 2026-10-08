@@ -17,6 +17,8 @@ export interface SearchResult {
 }
 
 export interface LexemeSensesResult {
+  recommended_sense_ids?: string[];
+  priority_basis?: 'curated_learner' | 'source_metadata' | null;
   data: SenseCardResponse[];
   next_cursor: null;
 }

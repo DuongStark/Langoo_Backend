@@ -31,6 +31,7 @@ import {
   KanjiRow,
 } from './repositories/kanji.repository';
 import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
+import { EnglishPriorityRepository } from './repositories/english-priority.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import {
@@ -66,6 +67,7 @@ export class DictionaryService {
     private readonly languages: LanguageRepository,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
     private readonly reverseRepo: ReverseLookupRepository,
+    private readonly englishPriority: EnglishPriorityRepository,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -286,6 +288,14 @@ export class DictionaryService {
       return { data: cards.map(toSenseCardResponse), next_cursor: null };
     }
 
+    const preferences = await this.englishPriority.getByLexemes([lexemeId]);
+    const bySense = new Map(preferences.map((row) => [row.sense_id, row]));
+    cards.sort(
+      (a, b) =>
+        (bySense.get(a.senseId)?.display_order ?? a.senseNo) -
+        (bySense.get(b.senseId)?.display_order ?? b.senseNo),
+    );
+
     // A group is a contiguous source hierarchy, not a semantic equivalence.
     // The first actual sense remains selectable; its definition is never replaced.
     const data: SenseCardResponse[] = [];
@@ -305,7 +315,14 @@ export class DictionaryService {
         currentHeading = heading;
       }
     }
-    return { data, next_cursor: null };
+    return {
+      data,
+      next_cursor: null,
+      recommended_sense_ids: preferences
+        .filter((row) => row.recommended)
+        .map((row) => row.sense_id.toString()),
+      priority_basis: preferences[0]?.basis ?? null,
+    };
   }
 
   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {

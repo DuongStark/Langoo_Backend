@@ -12,6 +12,7 @@ import { SearchHistoryController } from './search-history.controller';
 import { SearchHistoryService } from './search-history.service';
 import { FeedbackService } from './feedback.service';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
+import { EnglishPriorityRepository } from './repositories/english-priority.repository';
 import { KanjiRepository } from './repositories/kanji.repository';
 import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
@@ -39,6 +40,7 @@ import { SensePairRepository } from './repositories/sense-pair.repository';
     FeedbackService,
     SenseCardRepository,
     DictionarySearchRepository,
+    EnglishPriorityRepository,
     SenseContentRepository,
     SensePairRepository,
     KanjiRepository,
