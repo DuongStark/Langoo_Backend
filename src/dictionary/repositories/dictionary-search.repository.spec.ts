@@ -60,4 +60,14 @@ describe('DictionarySearchRepository', () => {
     expect(query.sql).toContain('j.pos IS NOT DISTINCT FROM r.pos');
     expect(query.sql).toContain('FROM visible');
   });
+
+  it('EN tạm thời VI-only: chỉ hiện lexeme EN có ít nhất 1 gloss VI', async () => {
+    const { repository, queryRaw } = createRepository();
+
+    await repository.search(params);
+
+    const query = firstArg<Prisma.Sql>(queryRaw);
+    expect(query.sql).toContain("r.lang_code <> 'en' OR r.vi_rank = 0");
+    expect(query.sql).toContain("vi_l.code = 'vi'");
+  });
 });

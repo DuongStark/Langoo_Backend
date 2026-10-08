@@ -283,14 +283,23 @@ export class DictionaryService {
     }
 
     const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
+    // EN tạm thời: chỉ trả sense đã có gloss VI (fallback giữ nguyên nếu không có sense nào).
+    const enId = await this.languages.findIdByCode('en');
+    const translated =
+      enId === null
+        ? cards
+        : cards.filter(
+            (card) => card.languageId !== enId || (card.glossVi ?? '').trim() !== '',
+          );
+    const visibleCards = translated.length > 0 ? translated : cards;
 
     if (view === 'flat') {
-      return { data: cards.map(toSenseCardResponse), next_cursor: null };
+      return { data: visibleCards.map(toSenseCardResponse), next_cursor: null };
     }
 
     const preferences = await this.englishPriority.getByLexemes([lexemeId]);
     const bySense = new Map(preferences.map((row) => [row.sense_id, row]));
-    cards.sort(
+    visibleCards.sort(
       (a, b) =>
         (bySense.get(a.senseId)?.display_order ?? a.senseNo) -
         (bySense.get(b.senseId)?.display_order ?? b.senseNo),
@@ -300,7 +309,7 @@ export class DictionaryService {
     // The first actual sense remains selectable; its definition is never replaced.
     const data: SenseCardResponse[] = [];
     let currentHeading: string | null = null;
-    for (const card of cards) {
+    for (const card of visibleCards) {
       const heading =
         card.glossEnIsHierarchy === true
           ? (card.glossEnContext?.[0] ?? null)
@@ -315,11 +324,12 @@ export class DictionaryService {
         currentHeading = heading;
       }
     }
+    const visibleIds = new Set(visibleCards.map((card) => card.senseId));
     return {
       data,
       next_cursor: null,
       recommended_sense_ids: preferences
-        .filter((row) => row.recommended)
+        .filter((row) => row.recommended && visibleIds.has(row.sense_id))
         .map((row) => row.sense_id.toString()),
       priority_basis: preferences[0]?.basis ?? null,
     };
@@ -330,17 +340,31 @@ export class DictionaryService {
       .filter((hit) => hit.lang_code === 'en')
       .map((hit) => BigInt(hit.lexeme_id));
     const preferences = await this.englishPriority.getByLexemes(ids);
-    const selected = new Map<bigint, bigint>();
+    const recommended = new Map<bigint, bigint[]>();
     for (const row of preferences) {
-      if (row.recommended && !selected.has(row.lexeme_id))
-        selected.set(row.lexeme_id, row.sense_id);
+      if (!row.recommended) continue;
+      const list = recommended.get(row.lexeme_id);
+      if (list) list.push(row.sense_id);
+      else recommended.set(row.lexeme_id, [row.sense_id]);
     }
+    const candidateIds = new Set<bigint>();
+    for (const list of recommended.values())
+      for (const id of list) candidateIds.add(id);
     // One content query for the page, rather than a detail request for every hit.
     const cards =
-      selected.size > 0
-        ? await this.senseCardRepo.getBySenseIds([...selected.values()])
+      candidateIds.size > 0
+        ? await this.senseCardRepo.getBySenseIds([...candidateIds])
         : [];
     const bySense = new Map(cards.map((card) => [card.senseId, card]));
+    const selected = new Map<bigint, bigint>();
+    for (const [lexemeId, senseIds] of recommended) {
+      // Ưu tiên sense recommended đã có gloss VI cho preview.
+      const pick =
+        senseIds.find(
+          (id) => (bySense.get(id)?.glossVi ?? '').trim() !== '',
+        ) ?? senseIds[0];
+      selected.set(lexemeId, pick);
+    }
     return hits.map((hit) => {
       const id = selected.get(BigInt(hit.lexeme_id));
       const card = id === undefined ? undefined : bySense.get(id);

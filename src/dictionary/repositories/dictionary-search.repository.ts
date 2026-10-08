@@ -213,26 +213,37 @@ export class DictionarySearchRepository {
                    AND cr.active AND cr.policy = 'en-m10.5-v1'
                  WHERE cs.lexeme_id = cl.id
                ) THEN 0
-               ELSE 1 END AS source_rank
+               ELSE 1 END AS source_rank,
+          CASE WHEN EXISTS (
+                 SELECT 1
+                 FROM core.sense vi_s
+                 JOIN core.sense_gloss vi_g ON vi_g.sense_id = vi_s.id
+                 JOIN public.language vi_l ON vi_l.id = vi_g.language_id
+                   AND vi_l.code = 'vi'
+                 WHERE vi_s.lexeme_id = cl.id
+                   AND NULLIF(btrim(vi_g.text), '') IS NOT NULL
+               ) THEN 0 ELSE 1 END AS vi_rank
         FROM hits h
         JOIN core.lexeme cl ON cl.id = h.lexeme_id
       ),
       -- Ẩn bản sao: JA ẩn non-JMdict (omw-ja, wiktextract...) khi đã có entry JMdict
       -- cùng ngôn ngữ + mặt chữ; EN ẩn entry không curation khi có entry curated
-      -- (M10.5) cùng mặt chữ + POS. Giữ nguyên entry có reading hoặc không có
+      -- (M10.5) cùng mặt chữ + POS. EN tạm thời VI-only: chỉ hiện từ EN đã có
+      -- ít nhất 1 sense gloss VI. Giữ nguyên entry có reading hoặc không có
       -- bản "chuẩn" nào. Không đổi ORDER BY/cursor để không vỡ phân trang.
       visible AS (
         SELECT r.*
         FROM ranked r
-        WHERE r.source_rank = 0
-           OR r.reading IS NOT NULL
-           OR NOT EXISTS (
+        WHERE (r.lang_code <> 'en' OR r.vi_rank = 0)
+          AND (r.source_rank = 0
+            OR r.reading IS NOT NULL
+            OR NOT EXISTS (
                 SELECT 1 FROM ranked j
                 WHERE j.lang_code = r.lang_code
                   AND lower(j.surface) = lower(r.surface)
                   AND j.source_rank = 0
                   AND (r.lang_code <> 'en' OR j.pos IS NOT DISTINCT FROM r.pos)
-              )
+              ))
       ),
       per_result AS (
         SELECT visible.*,
