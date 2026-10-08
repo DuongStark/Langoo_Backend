@@ -6,6 +6,7 @@ export interface SearchHit {
   reading: string | null;
   pos: string | null;
   frequency_rank: number | null;
+  preview?: SenseCardResponse;
   homograph_no: number | null;
   surface_kind: string;
   is_exact: boolean;

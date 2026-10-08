@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../db/prisma.service';
 import { SenseCard, SenseCardRow } from '../types/sense-card';
 
@@ -41,6 +42,38 @@ export class SenseCardRepository {
 
     const [row] = rows;
     return row ? toSenseCard(row) : null;
+  }
+
+  async getBySenseIds(ids: bigint[]): Promise<SenseCard[]> {
+    if (ids.length === 0) return [];
+    const rows = await this.prisma.$queryRaw<SenseCardRow[]>(Prisma.sql`
+      SELECT
+        sc.sense_id,
+        sc.lexeme_id,
+        sc.language_id,
+        sc.lemma,
+        sc.reading,
+        sc.romanization,
+        sc.pos,
+        sc.frequency_rank,
+        sc.homograph_no,
+        sc.sense_no,
+        sc.definition,
+        sc.definition_language_id,
+        sc.register,
+        sc.domain,
+        sc.is_primary,
+        sc.gloss_vi,
+        sc.gloss_vi_machine,
+        sc.gloss_vi_reviewed,
+        sc.gloss_en,
+        sc.gloss_en_context,
+        sc.gloss_en_is_hierarchy,
+        sc.concept_id
+      FROM serve.sense_card sc
+      WHERE sc.sense_id IN (${Prisma.join(ids)})
+    `);
+    return rows.map(toSenseCard);
   }
 
   async hasLexeme(lexemeId: bigint): Promise<boolean> {

@@ -116,7 +116,7 @@ export class DictionaryService {
     });
     const hasNext = rows.length > limit;
     const pageRows = hasNext ? rows.slice(0, limit) : rows;
-    const data = pageRows.map(toSearchHit);
+    const data = await this.addEnglishPreviews(pageRows.map(toSearchHit));
 
     if (userId !== undefined && cursor === null) {
       await this.historyRepo.create({
@@ -323,6 +323,29 @@ export class DictionaryService {
         .map((row) => row.sense_id.toString()),
       priority_basis: preferences[0]?.basis ?? null,
     };
+  }
+
+  private async addEnglishPreviews(hits: SearchHit[]): Promise<SearchHit[]> {
+    const ids = hits
+      .filter((hit) => hit.lang_code === 'en')
+      .map((hit) => BigInt(hit.lexeme_id));
+    const preferences = await this.englishPriority.getByLexemes(ids);
+    const selected = new Map<bigint, bigint>();
+    for (const row of preferences) {
+      if (row.recommended && !selected.has(row.lexeme_id))
+        selected.set(row.lexeme_id, row.sense_id);
+    }
+    // One content query for the page, rather than a detail request for every hit.
+    const cards =
+      selected.size > 0
+        ? await this.senseCardRepo.getBySenseIds([...selected.values()])
+        : [];
+    const bySense = new Map(cards.map((card) => [card.senseId, card]));
+    return hits.map((hit) => {
+      const id = selected.get(BigInt(hit.lexeme_id));
+      const card = id === undefined ? undefined : bySense.get(id);
+      return card ? { ...hit, preview: toSenseCardResponse(card) } : hit;
+    });
   }
 
   async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {

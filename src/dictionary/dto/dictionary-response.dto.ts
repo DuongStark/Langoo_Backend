@@ -33,6 +33,12 @@ export class SearchHitDto {
 
   @ApiProperty({ example: true })
   is_exact!: boolean;
+
+  @ApiPropertyOptional({
+    type: () => SenseCardDto,
+    description: 'Selected learner sense; uses existing sense ID/gloss',
+  })
+  preview?: SenseCardDto;
 }
 
 export class SearchResultDto {
