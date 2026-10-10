@@ -1,12 +1,14 @@
 # DB4-D4/D5 — Mapping tự động theo batch có checkpoint
 
 Ngày lập: **2026-10-10**; cập nhật trạng thái **2026-10-11**. DB4-D2 cohort
-1.000 đã freeze trên VPS. Release `8a2c475` pass read-only preflight và Muse
-đã nhận một R1 smoke request (response lưu 5.203 byte sau 36 giây). D1 validation
-bị chặn bởi mismatch trong event `dispatch_acknowledged` thiếu `phase`; regression
-fix đã pass local nhưng cần push/cài và validate lại response đã lưu. Chưa gửi R2,
-chưa chạy shadow 1.000, chưa apply DB hoặc deploy app. Expansion, format-repair
-dispatch và Pilot A/B audit coordinator còn thiếu.
+1.000 đã freeze trên VPS. Release `8a2c475` nhận đúng một R1 smoke request và lưu
+response 5.203 byte sau 36,138 giây. Hotfix `b955bfa` đã push; replay D1 trên
+response đã lưu kết luận `invalid_output`: Muse chỉ trả 4/5 verdict bắt buộc.
+Không đủ điều kiện R2 và không gửi lại R1. Final batch report chưa hoàn tất: lần
+chạy bị dừng khi memory PSI vượt ngưỡng; 564 evaluation artifacts còn lại là
+phần dở, chưa có summary/target-results/report manifest. Chưa chạy shadow 1.000,
+chưa apply DB hoặc deploy app. Expansion, format-repair dispatch và Pilot A/B
+audit coordinator còn thiếu.
 Phạm vi: sense JA → concept đã xác minh;
 Muse là model duy nhất cho review tự động, MiniLM chạy local cho retrieval.
 
@@ -984,12 +986,12 @@ unresolved đã review.
 - [ ] DB4-D5: AI audit cap + full gate/denominator report.
 - [x] DB4-D4/D5: initial-generation status/report/systemd/runbook và local technical tests.
 - [x] DB4-D4/D5: remote read-only preflight; lazy-load runner + request loading pass trong sandbox systemd.
-- [ ] DB4-D4/D5: capped transport smoke đã nhận/lưu 1 R1; D1 validation gặp lỗi phase trên acknowledgement cũ. Fix tương thích đang chờ push/cài và xác thực artifact đã lưu; R2 chưa được gửi.
+- [ ] DB4-D4/D5: bounded smoke đã ACK/lưu 1 R1; D1 replay với `b955bfa` trả `invalid_output` do thiếu 1/5 verdict. Không đủ điều kiện R2; không retry R1. Final report chưa xong vì VPS memory pressure, hiện còn 564/966 evaluation artifact nhưng không có summary/target-results/report manifest.
 - [ ] DB4-D4/D5: shadow 1.000, không apply.
 - [ ] DB4-D5: đủ Pilot A/B; provenance/CI/recall, không giả human gold.
 - [ ] DB4-D6: journal/preflight/dry-run/reapply/rollback/concurrency.
 - [ ] DB4-D7: exact-only/curation/confidence/stale-safe refresh/API tests.
-- [x] Commit/push foundation DB4-D4/D5 đúng phạm vi; follow-up memory fix sẽ commit riêng.
+- [x] Commit/push foundation và hotfix DB4-D4/D5 đúng phạm vi.
 
 ## 24. Nhật ký tài liệu
 
@@ -1093,3 +1095,24 @@ unresolved đã review.
   Shadow 1.000, expansion, repair, Pilot A/B, DB apply và app deploy vẫn đóng.
 - Git / triển khai: hotfix và docs đang local; chưa push/cài release fix. Run ID
   `db4-smoke-20261011-8a2c475`; manifest `apply=false`, `promotionReady=false`.
+
+### 2026-10-11 — DB4-D4/D5 — Replay D1 và dừng report theo ngưỡng RAM
+
+- Thay đổi / lý do: hoàn tất kiểm tra offline response đã lưu sau khi hotfix
+  `b955bfa` được push. D1 chấp nhận ACK legacy nhưng từ chối nội dung Muse vì
+  shortlist cần 5 verdict mà response chỉ có 4; giữ nguyên response, không gửi
+  lại R1 và không mở conditional R2.
+- File / phạm vi: plan này, [review batch runner](../reviews/db4-d4-d5-batch-runner-2026-10-10.md)
+  và `PROGRESS.md`; không thay DB, app hoặc run manifest.
+- Kiểm tra / kết quả: validation manifest `r1-5a43e5931423d276`, SHA256
+  `f03f319c3bf0332d2e561fe8e2c4f6056462bf96adecb8b6fb17900ec09a9e9e`;
+  1 `invalid_output`, 965 `pending`. R2 có 966 `pending`. Report tổng bị dừng
+  khi memory PSI `full avg10` đạt 1,36%; có 564 evaluation artifacts một phần,
+  chưa có target-results, summary hay report manifest. Sau khi dừng, tiến trình
+  inactive và RAM khả dụng hồi lên khoảng 646 MiB.
+- Gate còn thiếu: report đầy đủ; format repair chưa được triển khai; D1 output
+  hợp lệ, Pilot A/B, shadow 1.000 và D6/D7. Không apply DB/deploy app.
+- Git / triển khai: code hotfix `b955bfa` đã commit/push; plan/review/PROGRESS
+  được lưu trong follow-up docs commit. VPS có release sidecar dùng replay
+  validation offline; systemd smoke còn pin `8a2c475`. Đúng một R1 đã dispatch;
+  không R2, không DB write/app deploy.

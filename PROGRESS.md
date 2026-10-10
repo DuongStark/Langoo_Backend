@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-11 (DB4-D2 commit/push `0208649`; VPS cohort 15.245→1.000 (200/800) frozen; source audit + ONNX/RRF 966/1.000 shortlist, semantic quality chưa đo; DB4-D4/D5 runner local tests + full-artifact preflight pass; VPS preflight and phase loading pass in systemd sandbox; service failed EROFS on lock directory before ledger/dispatch; unit fix pending; commit/push `b74268d`; DB4-D3/D4 conditional R2 77/77 tests, commit/push `406c8b2`; no deploy/apply; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
+> Cập nhật lần cuối: 2026-10-11 (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
 > mọi thay đổi code phải lưu tài liệu, kiểm tra và trạng thái Git/triển khai.
@@ -81,9 +81,9 @@
 | DB4    | Hoàn tất mapping sense↔concept | Candidate generation, scoring, LLM review, audit, apply/rollback và serving | 📋 D1 hoàn tất; D2 code đã push, cohort N1–N5 đã freeze VPS (15.245 → 1.000, 200/800, 10 shard); D4/D5 quality gate chưa đạt; D0, D6/D7 còn chờ |
 | DB5    | Curation + serve + go-live DB thật | Quy trình duyệt concept/gloss; refresh `serve.sense_pair`; giao M14 (admin ghi `core`); kiểm readiness DB thật                                                       | 📋 curation/serving còn chờ; API VPS đã đọc DB thật (xác minh 06/10), chưa đồng nghĩa DB5 đạt gate                                                                                                                |
 | DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
-| DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; Muse chờ runner/recovery smoke; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
+| DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; D4 transport smoke đã lưu 1 response nhưng D1 invalid; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
 | DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
-| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 `8a2c475` đã push/cài VPS: 1 R1 được ACK, response 5.203 byte lưu sau 36 giây; D1 validator lỗi vì ACK legacy thiếu phase. Fix tương thích + emitter regression local pass 85 TS/14 Python/3 ops; chờ push/cài và validate artifact đã lưu. Không gửi lại R1; chưa R2, shadow 1.000, expansion, repair, Pilot A/B, apply/deploy vẫn đóng |
+| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 `b955bfa` đã push; một R1 ACK/lưu response 5.203 byte sau 36,138 giây; D1 replay invalid vì Muse trả 4/5 verdict; 965 pending, R2 không đủ điều kiện. Final report incomplete do memory pressure (564/966 evaluation artifacts, không có summary). Không retry R1; chưa shadow 1.000, expansion/repair, Pilot A/B, apply/deploy |
 | DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
 
 ### 2026-10-10 — DB4-D4/D5 — Mapping tự động theo batch có checkpoint
@@ -1262,19 +1262,20 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - Git / triển khai: 9677b05 đã push/cài unit; chunk fix/tests/docs đang local.
   Run cũ không được retry; không DB write/apply hay app deploy.
 
-### 2026-10-11 — DB4-D4/D5 — Khôi phục D1 validation cho R1 Muse smoke
+### 2026-10-11 — DB4-D4/D5 — Replay D1 và dừng report theo ngưỡng RAM
 
-- Thay đổi / lý do: transport chunking đã gửi một R1 smoke và lưu response; D1
-  validator chặn vì `dispatch_acknowledged` không có `phase`. Runner mới ghi thêm
-  phase/generation/attempt; validator tương thích event legacy thiếu phase nhưng
-  vẫn từ chối phase sai. Không gửi lại request đã hoàn tất.
-- File / phạm vi: `scripts/db4/muse-batch-runner.py`, `batch-validate.ts` và tests;
+- Thay đổi / lý do: replay offline response R1 đã lưu sau khi ACK hotfix được
+  push; D1 tương thích ACK legacy và phân loại đúng output thiếu verdict.
+- File / phạm vi: runner/validator và regression tests ở commit `b955bfa`;
   [plan](docs/plans/db4-d4-d5-automated-batch-rollout.md),
-  [review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md).
-- Kiểm tra / kết quả: 85/85 DB4 TypeScript tests, 14/14 runner tests, 3/3 ops tests,
-  DB4 typecheck, ESLint, Prettier và Python compile pass. Artifact VPS có một response
-  5.203 byte; D1 replay sau khi cài fix đang chờ.
-- Gate còn thiếu: D1 verdict, conditional R2 nếu đủ điều kiện và final read-only
-  report. Không shadow 1.000, DB apply hoặc app deploy.
-- Git / triển khai: code/test/docs local, chưa commit/push hotfix; run `db4-smoke-20261011-8a2c475`
-  đang lưu bền vững trên VPS, `apply=false`.
+  [review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md); không sửa DB/app.
+- Kiểm tra / kết quả: validation manifest `r1-5a43e5931423d276` có SHA256
+  `f03f319c3bf0332d2e561fe8e2c4f6056462bf96adecb8b6fb17900ec09a9e9e`;
+  Muse trả 4/5 verdict, nên D1 ghi `invalid_output: 1`, `pending: 965`.
+  R2 còn 966 pending và không dispatch. Một R1 duy nhất được ACK/lưu; không retry.
+  Final report bị dừng khi memory PSI `full avg10` đạt 1,36%; còn 564/966
+  evaluation artifact nhưng chưa có target-results/summary/report manifest.
+- Gate còn thiếu: report đầy đủ, format repair, output D1 hợp lệ, Pilot A/B,
+  shadow 1.000 và D6/D7. Không apply DB hoặc deploy app.
+- Git / triển khai: code hotfix `b955bfa` đã commit/push; plan/review/PROGRESS được lưu trong follow-up docs commit. VPS sidecar chỉ dùng replay D1;
+  systemd vẫn pin `8a2c475`. Không R2, không DB write/app deploy.
