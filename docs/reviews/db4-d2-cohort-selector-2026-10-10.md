@@ -1,7 +1,7 @@
 # DB4-D2 — Selector cohort JLPT với split lexeme-disjoint
 
-Ngày: 2026-10-10. Trạng thái: code local, static checks pass; chưa export/freeze
-cohort thật, chưa chạy MiniLM/Muse hoặc apply DB.
+Ngày: 2026-10-10. Trạng thái: code đã commit/push `0208649`; export và selector
+đã chạy trên VPS, cohort artifact đã freeze; chưa chạy MiniLM/Muse hoặc apply DB.
 
 ## Thay đổi
 
@@ -67,8 +67,33 @@ prepare; selector không gọi Muse hoặc ghi DB.
 - Known-development JSON parse + kiểm 41 ID sorted/unique — pass.
 - Scoped `git diff --check` — pass. Full-tree check có trailing whitespace có sẵn
   tại `docs/handoff/fe-handoff-2026-10-08.md:3` của WIP khác; không sửa.
-- Unit/integration tests không chạy theo phạm vi lượt này. Chưa chạy export,
-  selector trên dữ liệu thật, MiniLM, Muse, DB write hoặc VPS deploy.
+- Unit/integration tests không chạy theo phạm vi lượt này. Kết quả export/selector
+  trên dữ liệu thật được ghi ở mục kế tiếp.
+
+## Kết quả chạy VPS — 2026-10-10
+
+- Code lấy từ commit `0208649` trong checkout tạm `/tmp`; không pull, deploy hoặc
+  ghi đè working tree `/opt/langoo/app` vì có WIP M4.5 chưa commit.
+- VPS `.env` không có `DB4_DATABASE_URL`; tiến trình được truyền rõ
+  `DATABASE_URL` hiện có dưới tên `DB4_DATABASE_URL` chỉ trong lần chạy này,
+  không sửa file ENV. Export xác nhận
+  `BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY`,
+  `transaction_read_only=on`, rồi `ROLLBACK`; không có DB writes.
+- Export cohort `jlpt-n1-n5`: population 15.245, xuất đủ 15.245 sense và 120.875
+  concept, `truncated=false`, limit 20.000. Export mất khoảng 8m24s; selector
+  mất khoảng 3m42s. Tổng artifact 796.500.592 bytes (~797 MB); còn 9,0 GB disk.
+- Selector tạo đúng 1.000 target: 200 development + 800 holdout, 10 shard đủ 100
+  mỗi shard. Lexeme leakage 0, duplicate sense key 0, cao nhất 3 sense/lexeme
+  (cap 5). JLPT selected: dev N1–N5 = 60/39/53/21/27; holdout =
+  244/148/247/76/85. 41/41 pilot lexeme có trong population; 7 vào sample và
+  cả 7 ở development. Trong sample, original status đều là `unlinked`.
+- Export artifact hash checks và selected JSONL hash đều pass; gates
+  `lexemeDisjoint`, `pilotLexemesInDevelopment`, quotas, unique sense keys và
+  shard cap đều pass.
+- Storage: `/opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649`.
+  Manifest SHA256 `34eb02c2e6bfa865b326a57135b436e79b34b6af539b349d40d97387d26e3be6`;
+  selected SHA256 `8a224400f36abdbad7ae9c1eb694e6cdc530809abf67976be99bcef5c2628fd2`;
+  sampling SHA256 `00bf325930a1c08f276b0afa8feb02f1c43e27d2f34682ce30011a75f93cf528`.
 
 ## Còn thiếu và Git
 
@@ -76,5 +101,7 @@ prepare; selector không gọi Muse hoặc ghi DB.
   nhận đúng 200/800, không leakage, strata/shard counts và unmatched pilot IDs.
 - Thực hiện source audit rồi retrieval RRF; chưa có semantic measurements,
   runner/resume, D5 quality gate, D6 apply hoặc D7 serving.
-- Code/docs local chưa commit/push. Không deploy code hoặc artifact; không đổi DB,
-  ENV hay service. Giữ nguyên các WIP khác trong working tree.
+- Commit code/docs `0208649` đã push. VPS chỉ nhận artifact cohort trong storage;
+  app code không deploy, DB không đổi, `.env` không sửa, MiniLM/Muse chưa chạy.
+- Còn source audit, ONNX/RRF recall/quality measurement, Muse batch và các gate
+  D5/D6/D7. Không xem cohort freeze là mapping hoàn tất.

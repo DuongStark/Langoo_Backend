@@ -97,6 +97,7 @@ exclusions và shard counts. Selector chỉ ghi immutable artifacts, không quer
 hay gọi Muse; CLI và gate được mô tả trong handoff và
 [review selector](../reviews/db4-d2-cohort-selector-2026-10-10.md).
 
-Code local đã qua TypeScript/ESLint/Prettier static checks. Chưa chạy test suite,
-export full snapshot, tạo cohort artifact, benchmark ONNX, gọi Muse, commit/push,
-deploy hoặc apply DB. Xem [review selector](../reviews/db4-d2-cohort-selector-2026-10-10.md).
+Code đã qua TypeScript/ESLint/Prettier static checks và được commit/push trong
+`0208649`. Cohort artifact đã được export/selector trên VPS; kết quả/hash ở
+[review selector](../reviews/db4-d2-cohort-selector-2026-10-10.md). Chưa chạy test
+suite, benchmark ONNX, gọi Muse, deploy app hoặc apply DB.

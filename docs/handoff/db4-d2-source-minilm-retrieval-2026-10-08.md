@@ -216,6 +216,14 @@ gate chưa đạt. Split không dùng database numeric ID.
 Population hiện không có tần suất corpus; JLPT level chỉ là level JLPT. Không
 diễn giải nó là số lần dùng từ. Không có sampling weights. Selector kiểm hash
 manifest, sense file và inventory; bước `loadExport` tiếp tục kiểm full concept
-file trước khi retrieval. Các lệnh trên chưa chạy trên VPS; xem
-[review DB4-D2 selector](../reviews/db4-d2-cohort-selector-2026-10-10.md) và
-[review selector DB4-D2](../reviews/db4-d2-cohort-selector-2026-10-10.md).
+file trước khi retrieval. Đã chạy cohort trên VPS từ commit `0208649`:
+15.245 sense, 120.875 concept, `truncated=false`, tạo đúng 200 development + 800
+holdout và 10 shard × 100. Artifact ở
+`/opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649`; manifest
+SHA256 `34eb02c2e6bfa865b326a57135b436e79b34b6af539b349d40d97387d26e3be6`, selected
+SHA256 `8a224400f36abdbad7ae9c1eb694e6cdc530809abf67976be99bcef5c2628fd2`.
+VPS thiếu `DB4_DATABASE_URL`; lần chạy truyền `DATABASE_URL` hiện có rõ ràng cho
+tiến trình, không sửa `.env`. Guard READ ONLY được xác nhận trước truy vấn và
+transaction được rollback. App code không deploy do working tree VPS có WIP khác.
+Xem [review DB4-D2 selector](../reviews/db4-d2-cohort-selector-2026-10-10.md) và
+[review DB4-D2 RRF](../reviews/db4-d2-hybrid-rrf-2026-10-10.md).
