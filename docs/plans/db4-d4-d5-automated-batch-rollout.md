@@ -612,16 +612,17 @@ trong `/opt/langoo/storage/db4-batches`, account lock dùng chung với Muse nat
   chỉ cho ghi file account lock, trong khi runner chmod thư mục cha mode 0700.
   Commit `2cca836` thêm thư mục Muse vào `ReadWritePaths`; template đã cài và
   kiểm tra trên VPS, cookie file vẫn nằm trong `ReadOnlyPaths`.
-- Retry vẫn không dispatch: unit khởi chạy `/usr/bin/python3`, thiếu package
-  `noise` của Muse Native nên mọi R1 còn pending và ledger có 0 dispatch intent.
-  Python trong `/opt/langoo/services/muse-native/venv` import được gateway; probe
-  khởi tạo Gateway thành công, không gửi generation. Lúc runner đang đọc lại
-  artifact cho R2, cgroup đạt khoảng 723 MiB và PSI tăng; đã dừng service trước
-  mọi dispatch. Không có Muse generation, DB write/apply hoặc app deploy.
-- Follow-up DB4-D4/D5 đổi ExecStart sang Muse Native virtualenv. Cài/verify unit
-  đó trên VPS rồi resume đúng manifest, cap R1=1/R2=1; theo dõi RAM và PSI trong
-  từng phase. Shadow 1.000, expansion, format repair, Pilot A/B, apply và deploy
-  vẫn đóng.
+- Retry trên unit `9677b05` dùng đúng Muse virtualenv, nhưng R1 ghi một
+  `dispatch_intent_persisted` rồi lỗi `NoiseInvalidMessage`; rendered prompt dài
+  90.681 ký tự, vượt plaintext limit 65.535 byte của Noise. Kiểm tra thư viện cho
+  thấy lỗi ném ở `encrypt` trước `WebSocket.send_bytes`; không có
+  `dispatch_acknowledged`/`response_saved`. Reconcile chỉ đọc tìm được 0 phản hồi
+  hoàn tất, giữ 1 `transport_unknown`, 0 dispatch mới. Không retry lại run ID này.
+- Follow-up DB4-D4/D5 chia service envelope thành frame Noise 48 KiB theo cơ chế
+  đã có trong runner Muse cũ; test tái lắp payload và kiểm tra mỗi frame dưới
+  65.535 byte. Sau commit/push, tạo release/manifest/run ID mới, giữ cap R1=1,
+  R2=1 và theo dõi RAM/PSI. Shadow 1.000, expansion, format repair, Pilot A/B,
+  apply và deploy vẫn đóng.
 
 ## 14. DB4-D5 — Audit và gate tự động
 

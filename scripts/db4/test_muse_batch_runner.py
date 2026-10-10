@@ -3,9 +3,13 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import struct
 import tempfile
+import threading
+import types
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 
 RUNNER_PATH = Path(__file__).with_name('muse-batch-runner.py')
@@ -17,6 +21,88 @@ SPEC.loader.exec_module(runner)
 
 class SimulatedCrash(BaseException):
     pass
+
+
+class NativeMuseEnvelopeChunkingTests(unittest.TestCase):
+    def test_large_service_envelope_is_split_under_noise_limit(self):
+        sent_frames = []
+        encoded_frames = []
+
+        class FakeRequest:
+            def __init__(self, service, payload):
+                self.service = service
+                self.payload = payload
+
+            def SerializeToString(self):
+                return bytes([self.service]) + self.payload
+
+        class FakeNoiseFrame:
+            def __init__(self, chunk_id, chunk_index, total_chunks, payload):
+                self.chunk_id = chunk_id
+                self.chunk_index = chunk_index
+                self.total_chunks = total_chunks
+                self.payload = payload
+
+            def SerializeToString(self):
+                encoded = struct.pack(
+                    '<qII', self.chunk_id, self.chunk_index, self.total_chunks
+                ) + self.payload
+                encoded_frames.append(encoded)
+                return encoded
+
+        class FakeNoise:
+            def encrypt(self, value):
+                return value
+
+        class FakeSocket:
+            def send_bytes(self, value):
+                sent_frames.append(value)
+
+        class FakeGateway:
+            def __init__(self, cookies):
+                self.cookies = cookies
+                self._send_lock = threading.Lock()
+                self.noise = FakeNoise()
+                self.ws = FakeSocket()
+
+        muse_module = types.ModuleType('muse')
+        muse_module.Gateway = FakeGateway
+        muse_module.NoiseTransportFrame = FakeNoiseFrame
+        muse_module.ServiceRequest = FakeRequest
+        muse_module.load_cookies = lambda path: 'fixture-cookie'
+        noise_module = types.ModuleType('noise')
+        noise_module.__path__ = []
+        noise_constants = types.ModuleType('noise.constants')
+        noise_constants.MAX_MESSAGE_LEN = 65_535
+
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            cookie_file = root / 'cookies.json'
+            cookie_file.write_text('{}', encoding='utf-8')
+            with (
+                patch.object(runner, 'TRANSPORT_ROOT', root),
+                patch.object(runner, 'COOKIE_FILE', cookie_file),
+                patch.dict('sys.modules', {
+                    'muse': muse_module,
+                    'noise': noise_module,
+                    'noise.constants': noise_constants,
+                }),
+            ):
+                gateway = runner.NativeMuseTransport._gateway()
+                payload = b'large-request-' * 8_000
+                gateway._send_envelope(2, payload)
+
+        self.assertEqual(len(sent_frames), 3)
+        self.assertEqual(len(encoded_frames), 3)
+        self.assertEqual(
+            b''.join(frame[16:] for frame in encoded_frames),
+            bytes([2]) + payload,
+        )
+        self.assertLessEqual(max(map(len, sent_frames)), 65_535)
+        self.assertEqual(
+            [struct.unpack('<qII', frame[:16])[1:] for frame in encoded_frames],
+            [(0, 3), (1, 3), (2, 3)],
+        )
 
 
 def make_request(index: int, phase: str = 'r1', dependency: str | None = None):

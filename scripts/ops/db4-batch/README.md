@@ -26,6 +26,11 @@ transport packages (`curl_cffi`, `noise`, and protobuf). The base system Python
 does not include these packages and would leave every request pending before a
 dispatch intent is recorded.
 
+Muse's Noise implementation accepts at most 65,535 plaintext bytes per encrypted
+frame. DB4 splits the larger serialized service envelope into ordered 48 KiB
+`NoiseTransportFrame` chunks with one shared chunk ID. Keep the full prompt and
+candidate context intact; do not truncate a request to fit one frame.
+
 ```sh
 install -d -o root -g root -m 0755 /opt/langoo/services/db4-batch/releases
 git clone <repository-url> /opt/langoo/services/db4-batch/releases/<commit>

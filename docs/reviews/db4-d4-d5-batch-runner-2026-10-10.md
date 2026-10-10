@@ -1,12 +1,12 @@
 # DB4-D4/D5 — Review batch runner và preflight
 
 Ngày lập: 2026-10-10; cập nhật lần cuối: 2026-10-11
-Trạng thái: **Foundation `708e3b8`, memory fix `cbe9e56`, và lock-directory unit
-fix `2cca836` đã commit/push; unit lock fix đã cài trên VPS. Smoke vẫn chưa gọi
-model: unit dùng system Python thiếu dependency `noise`, khiến R1 còn pending;
-R2 preflight bị dừng khi cgroup vượt MemoryHigh. Đổi interpreter sang Muse
-Native virtualenv đang được kiểm tra.** Đây là shadow runner cho initial
-generation, chưa phải quality gate hay DB/app deployment.
+Trạng thái: **Foundation `708e3b8`, memory fix `cbe9e56`, lock-directory fix
+`2cca836`, và Muse virtualenv unit fix `9677b05` đã push; unit `9677b05` đã cài
+trên VPS. Smoke đã tạo một intent R1 nhưng frame vượt limit Noise trước khi được
+gửi; reconcile chỉ đọc tìm 0 reply hoàn tất. Chunking 48 KiB đang được thêm trước
+run mới.** Đây là shadow runner cho initial generation, chưa phải quality gate
+hay DB/app deployment.
 
 ## Phạm vi đã làm
 
@@ -51,6 +51,9 @@ generation, chưa phải quality gate hay DB/app deployment.
 | Runner memory follow-up                                                         | 13/13 Python tests pass; `py_compile` passes; sandbox preflight + 966 R1 request load pass, cgroup ~457 MiB                                                       |
 | Account-lock sandbox diagnosis                                                  | Old unit failed `EROFS` while chmodding `/opt/langoo/storage/muse-native`; no ledger event or dispatch; transient test passes with parent directory writable      |
 | Muse interpreter probe                                                          | Base `/usr/bin/python3` cannot import `noise`; Muse Native virtualenv imports and opens the authenticated gateway; no generation request was sent                 |
+| Noise payload limit                                                             | R1 prompt was 90,681 characters; `NoiseConnection.encrypt` rejects plaintext >65,535 bytes; the failure happened before WebSocket send                            |
+| Bounded smoke reconcile                                                         | One R1 intent; `recoveredCompletedReplies=0`, `transportUnknown=1`, `newDispatches=0`; no R2 request, DB write/apply or app deployment                            |
+| Noise frame chunking                                                            | 14/14 runner tests pass, including reconstruction of a >100 KiB service envelope from 48 KiB frames; VPS run pending a fresh pinned release                       |
 
 The capped preflight is slower than a small unit test because it revalidates the
 full 1,000-target artifact and embedded source, candidate, prompt and request
@@ -68,27 +71,28 @@ refs. It is read-only; it did not invoke the transport or write the database.
   call. The memory-safe service run on `cbe9e56` then failed within one second:
   runner `ensure_private_dir` chmodded `/opt/langoo/storage/muse-native`, but the
   unit allowed writes only to `runner-account.lock`. The transient test
-  reproduced `EROFS`; commit `2cca836` allowed the parent in `ReadWritePaths`,
-  and the unit is now installed on VPS. The retry on `cbe9e56` then executed with
-  system Python, which lacks Muse Native's `noise` dependency. R1 validation
-  retained all 966 as pending, with 0 dispatch intents. The coordinator entered
-  a redundant R2 preflight; cgroup reached ~723 MiB and PSI rose, so the service
-  was stopped before R2 dispatch. No generation request was sent. The same
-  virtualenv used by the existing Muse Native service successfully initialized
-  `Gateway` in a separate probe.
-- Unit follow-up changes `ExecStart` to
-  `/opt/langoo/services/muse-native/venv/bin/python`; it still needs commit/push,
-  VPS install/verify, and a bounded resume of this run ID. Confirm RAM/PSI and
-  account lock first. Keep R1=1/R2=1; R2 remains conditional. No DB write/apply
-  or app deployment.
+  reproduced `EROFS`; commit `2cca836` fixed it and is installed on VPS. The next
+  retry revealed the system-Python dependency issue; commit `9677b05` points the
+  service at the Muse Native virtualenv and is installed/verified. With that
+  interpreter, R1 reached generation preparation but its 90,681-character
+  rendered prompt overflowed Noise's 65,535-byte plaintext limit. The client
+  raised `NoiseInvalidMessage` during encryption, before WebSocket send; ledger
+  has one intent and one `transport_unknown`, no ACK or saved response. The
+  read-only reconciliation returned 0 completed replies, 1 unknown and 0 new
+  dispatches. No retry is made against this run ID.
+- The transport follow-up uses Muse's existing frame-chunk protocol (48 KiB
+  payloads) and an offline reassembly regression. After commit/push, prepare a
+  fresh release and run ID, recheck RAM/PSI/account lock, and keep R1=1/R2=1.
+  R2 remains conditional. No DB write/apply or app deployment.
 - Retrieval expansion, one-time format repair, and Pilot A/B audit coordinator
   are not implemented. Therefore the 1,000-target shadow is not authorized by
   this smoke and remains closed.
 
 ## Git / triển khai
 
-Foundation `708e3b8`, memory-safe runner `cbe9e56`, and lock-directory unit fix
-`2cca836` are pushed; that unit version is installed on VPS. The Muse virtualenv
-interpreter fix is local and still needs a separate scoped commit/push/install.
-The capped run is stopped with 0 dispatch intents; unrelated DB4/FE WIP remains
-unstaged. Update this section with the resumed smoke result.
+Foundation `708e3b8`, memory-safe runner `cbe9e56`, lock-directory fix `2cca836`,
+and Muse virtualenv unit fix `9677b05` are pushed; `9677b05` is installed on VPS.
+The initial capped run has one persisted but locally rejected R1 intent; the
+read-only reconcile found no completed reply. Noise chunking and its test are in
+the worktree; a fresh pinned release and bounded smoke remain pending. Unrelated
+DB4/FE WIP remains unstaged.

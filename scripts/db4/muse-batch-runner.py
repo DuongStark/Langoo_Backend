@@ -14,6 +14,7 @@ import re
 import resource
 import signal
 import stat
+import struct
 import subprocess
 import sys
 import threading
@@ -27,6 +28,7 @@ COOKIE_FILE = Path('/opt/langoo/storage/muse-native/cookies.json')
 ACCOUNT_LOCK = Path('/opt/langoo/storage/muse-native/runner-account.lock')
 MAX_REPLY_BYTES = 64 * 1024 * 1024
 MAX_MESSAGE_CHARS = 250_000
+NOISE_CHUNK_BYTES = 48 * 1024
 MAX_EVENT_BYTES = 64 * 1024 * 1024
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
@@ -1136,9 +1138,37 @@ class NativeMuseTransport(Transport):
         if not TRANSPORT_ROOT.is_dir() or not COOKIE_FILE.is_file():
             raise RunnerError('Native Muse runtime/session is unavailable')
         sys.path.insert(0, str(TRANSPORT_ROOT))
-        from muse import Gateway, load_cookies
+        from muse import Gateway, NoiseTransportFrame, ServiceRequest, load_cookies
+        from noise.constants import MAX_MESSAGE_LEN
 
         class ObservedGateway(Gateway):
+            def _send_envelope(self_inner, service_id, frame_bytes):
+                # Keep encrypted plaintext below Noise's per-message limit.
+                # Muse's transport frame reassembles ordered chunks by chunk_id.
+                envelope = ServiceRequest(
+                    service=service_id, payload=frame_bytes
+                ).SerializeToString()
+                total = max(
+                    1,
+                    (len(envelope) + NOISE_CHUNK_BYTES - 1) // NOISE_CHUNK_BYTES,
+                )
+                chunk_id = struct.unpack('<q', os.urandom(8))[0]
+                with self_inner._send_lock:
+                    for index in range(total):
+                        offset = index * NOISE_CHUNK_BYTES
+                        frame = NoiseTransportFrame(
+                            chunk_id=chunk_id,
+                            chunk_index=index,
+                            total_chunks=total,
+                            payload=envelope[offset:offset + NOISE_CHUNK_BYTES],
+                        )
+                        encoded = frame.SerializeToString()
+                        if len(encoded) > MAX_MESSAGE_LEN:
+                            raise RunnerError('Muse Noise chunk exceeds transport message limit')
+                        self_inner.ws.send_bytes(
+                            bytes(self_inner.noise.encrypt(encoded))
+                        )
+
             def _read_frame(self_inner):
                 frame = super(ObservedGateway, self_inner)._read_frame()
                 stream_id = getattr(self_inner, 'generation_stream', None)

@@ -83,7 +83,7 @@
 | DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
 | DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; Muse chờ runner/recovery smoke; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
 | DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
-| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 Foundation `708e3b8`, `cbe9e56`, `2cca836` đã push; unit lock fix đã cài VPS. Smoke chưa gọi generation: system Python thiếu `noise`, 966 R1 pending, 0 dispatch intent. Dừng trước dispatch khi R2 preflight chạm ~723 MiB cgroup/PSI tăng. Muse virtualenv probe pass; ExecStart venv fix local, bounded resume còn thiếu. Expansion, repair, Pilot A/B, apply/deploy vẫn đóng |
+| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 Foundation 708e3b8, memory fix cbe9e56, lock fix 2cca836, Muse virtualenv unit 9677b05 đã push/cài. Smoke tạo 1 R1 intent nhưng Noise plaintext limit chặn prompt 90.681 ký tự trước WebSocket send; reconcile 0 completed, 1 unknown, 0 dispatch mới. Không retry run cũ. Chunk 48 KiB + 14/14 tests local; fresh release/run cap 1+1 còn chờ. Shadow 1.000, expansion, repair, Pilot A/B, apply/deploy đóng |
 | DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
 
 ### 2026-10-10 — DB4-D4/D5 — Mapping tự động theo batch có checkpoint
@@ -1245,3 +1245,19 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   kiểm tra report/dispatch thực tế. Không chạy shadow 1.000, không apply DB hay deploy app.
 - Git / triển khai: fix unit/docs/tests local; commits `cbe9e56` và `2cca836` đã push;
   VPS đang dùng unit `2cca836`, service smoke dừng, chưa có Muse generation hay DB write.
+
+### 2026-10-11 — DB4-D4/D5 — Chia envelope theo Noise frame limit
+
+- Thay đổi / lý do: một R1 prompt 90.681 ký tự bị NoiseInvalidMessage; Noise
+  giới hạn plaintext 65.535 byte. Chia serialized Muse service envelope thành
+  frame 48 KiB, giữ nguyên toàn bộ payload ứng dụng.
+- File / phạm vi: DB4 Muse batch runner + regression test; DB4-D4/D5 runbook,
+  plan/review và PROGRESS.md.
+- Kiểm tra / kết quả: runner tests 14/14, ops tests 3/3, Python compile và
+  scoped git diff check pass; test tái lắp envelope >100 KiB từ ba frame.
+  Reconcile VPS chỉ đọc: 0 reply hoàn tất, 1 intent unknown, 0 dispatch mới.
+- Gate còn thiếu: commit/push chunking, cài release pin mới và chạy manifest/run
+  ID mới với cap R1=1/R2=1; kiểm tra report. Không chạy shadow 1.000, không apply
+  DB hoặc deploy app.
+- Git / triển khai: 9677b05 đã push/cài unit; chunk fix/tests/docs đang local.
+  Run cũ không được retry; không DB write/apply hay app deploy.
