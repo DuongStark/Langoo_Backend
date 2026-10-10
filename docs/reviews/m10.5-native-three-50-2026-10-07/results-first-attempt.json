@@ -1,0 +1,915 @@
+{
+  "version": "m10.5-native-ranking-v2",
+  "snapshot_sha256": "079c69f44d875eae5762284e8466b9218f81d14eee07b922b3d43e672946688b",
+  "items": [
+    {
+      "lemma": "cat",
+      "selections": [
+        {
+          "id": "1417626",
+          "anchor": "A carnivorous, four-legged, generally furry domesticated species (Felis catus) o"
+        },
+        {
+          "id": "1417628",
+          "anchor": "Any similar, chiefly non-domesticated, carnivorous mammal of the family Felidae,"
+        }
+      ],
+      "reason": "Con mèo nhà nuôi trong nhà là nghĩa phổ thông nhất; mèo lớn hoang dã (sư tử, hổ, báo) là nghĩa phụ quan trọng. Bỏ lệnh Unix và nghĩa hẹp như roi vọt, rượu ma túy.",
+      "needs_review": false
+    },
+    {
+      "lemma": "dog",
+      "selections": [
+        {
+          "id": "985788",
+          "anchor": "The species Canis familiaris (sometimes designated Canis lupus familiaris), dome"
+        },
+        {
+          "id": "985802",
+          "anchor": "A hot dog: a frankfurter, wiener, or similar sausage; or a sandwich made from th"
+        },
+        {
+          "id": "2877088",
+          "anchor": "To pursue with the intent to catch."
+        }
+      ],
+      "reason": "Nghĩa cốt lõi là con chó (động vật quen thuộc nhất với người học). Hot dog là nghĩa đời thường rất hay gặp. Động từ 'đuổi theo/bám theo' xuất hiện trong cụm 'dogged pursuit', hữu ích khi đọc hiểu.",
+      "needs_review": false
+    },
+    {
+      "lemma": "book",
+      "selections": [
+        {
+          "id": "2591482",
+          "anchor": "A collection of sheets of paper bound together to hinge at one edge, containing "
+        },
+        {
+          "id": "2591483",
+          "anchor": "A long work fit for publication, typically prose, such as a novel or textbook, a"
+        },
+        {
+          "id": "1613339",
+          "anchor": "To reserve (something) for future use."
+        }
+      ],
+      "reason": "Nghĩa cốt lõi: quyển sách vật lý; tác phẩm để xuất bản (tiểu thuyết, sách giáo khoa, ebook); động từ đặt trước (vé, phòng). Bỏ nghĩa chuyên biệt như cược ngựa hay làm sách.",
+      "needs_review": false
+    },
+    {
+      "lemma": "run",
+      "selections": [
+        {
+          "id": "2201004",
+          "anchor": "To move forward quickly upon two feet by alternately making a short jump off eit"
+        },
+        {
+          "id": "2201028",
+          "anchor": "To control or manage; to be in charge of."
+        },
+        {
+          "id": "2201042",
+          "anchor": "To execute or carry out a plan, procedure, or program."
+        }
+      ],
+      "reason": "Ba nghĩa thông dụng nhất cho người mới học: chạy bộ (cốt lõi), điều hành/quản lý (run a business), chạy chương trình/máy (run a program). Loại bỏ nghĩa danh từ phụ và nghĩa chính trị, máy móc trùng lặp.",
+      "needs_review": false
+    },
+    {
+      "lemma": "draw",
+      "selections": [
+        {
+          "id": "365125",
+          "anchor": "represent by making a drawing of, as with a pencil, chalk, etc. on a surface"
+        },
+        {
+          "id": "365119",
+          "anchor": "cause to move by pulling"
+        },
+        {
+          "id": "365112",
+          "anchor": "choose at random"
+        }
+      ],
+      "reason": "Ba nghĩa đời thường hữu ích nhất cho người mới học: vẽ tranh (ưu tiên theo yêu cầu), kéo/di chuyển bằng cách kéo, và chọn ngẫu nhiên (rút thăm). Mỗi nghĩa chỉ lấy một đại diện, anchor trích nguyên văn từ nguồn.",
+      "needs_review": false
+    },
+    {
+      "lemma": "bank",
+      "selections": [
+        {
+          "id": "283716",
+          "anchor": "a financial institution that accepts deposits and channels the money into lendin"
+        },
+        {
+          "id": "283719",
+          "anchor": "sloping land (especially the slope beside a body of water)"
+        },
+        {
+          "id": "283737",
+          "anchor": "put into a bank account"
+        }
+      ],
+      "reason": "Ba nghĩa đời thường nhất: ngân hàng (tổ chức tài chính), bờ sông, và động từ gửi tiền vào ngân hàng.",
+      "needs_review": false
+    },
+    {
+      "lemma": "plant",
+      "selections": [
+        {
+          "id": "535358",
+          "anchor": "(botany) a living organism lacking the power of locomotion"
+        },
+        {
+          "id": "535369",
+          "anchor": "put or set (seeds, seedlings, or plants) into the ground"
+        },
+        {
+          "id": "535359",
+          "anchor": "buildings for carrying on industrial labor"
+        }
+      ],
+      "reason": "Nghĩa cây xanh quen thuộc nhất, tiếp theo là động từ trồng cây, và nghĩa nhà máy như power plant cũng phổ biến.",
+      "needs_review": false
+    },
+    {
+      "lemma": "table",
+      "selections": [
+        {
+          "id": "622167",
+          "anchor": "a piece of furniture having a smooth flat top that is usually supported by one o"
+        },
+        {
+          "id": "622170",
+          "anchor": "a set of data arranged in rows and columns"
+        }
+      ],
+      "reason": "Bàn (đồ nội thất) là nghĩa cốt lõi, gặp hằng ngày; bảng dữ liệu theo hàng/cột cũng rất phổ biến trong học tập và công việc, cả hai đều rõ ràng và độc lập.",
+      "needs_review": false
+    },
+    {
+      "lemma": "light",
+      "selections": [
+        {
+          "id": "470802",
+          "anchor": "of comparatively little physical weight or density"
+        },
+        {
+          "id": "470850",
+          "anchor": "the quality of being luminous; emitting or reflecting light"
+        },
+        {
+          "id": "2135431",
+          "anchor": "Having light; bright; clear; not dark or obscure."
+        }
+      ],
+      "reason": "Ba nghĩa phổ thông nhất cho người mới học: nhẹ (không nặng), ánh sáng (danh từ), và sáng sủa trái với tối (tính từ).",
+      "needs_review": false
+    },
+    {
+      "lemma": "right",
+      "selections": [
+        {
+          "id": "568009",
+          "anchor": "free from error; especially conforming to fact or truth"
+        },
+        {
+          "id": "1809834",
+          "anchor": "The right side or direction."
+        },
+        {
+          "id": "1809833",
+          "anchor": "A legal, just or moral entitlement."
+        }
+      ],
+      "reason": "Ba nghĩa thông dụng nhất cho người mới học: đúng/chính xác, bên phải (hướng), và quyền (quyền lợi). Nghĩa rõ ràng, độc lập, dùng hàng ngày, tránh nghĩa hiếm/kỹ thuật.",
+      "needs_review": false
+    },
+    {
+      "lemma": "get",
+      "selections": [
+        {
+          "id": "2331982",
+          "anchor": "To obtain; to acquire."
+        },
+        {
+          "id": "2331983",
+          "anchor": "To receive."
+        },
+        {
+          "id": "2331986",
+          "anchor": "To become, or cause oneself to become (often with temporary states, past partici"
+        }
+      ],
+      "reason": "Ba nghĩa cơ bản nhất cho người mới: nhận/được cái gì, nhận từ ai, và become (get tired, get married) rất hay gặp.",
+      "needs_review": false
+    },
+    {
+      "lemma": "take",
+      "selections": [
+        {
+          "id": "2787829",
+          "anchor": "To get into one's hands, possession, or control, with or without force."
+        },
+        {
+          "id": "2787895",
+          "anchor": "To make (a photograph, film, or other reproduction of something)."
+        },
+        {
+          "id": "2787857",
+          "anchor": "To use as a means of transportation."
+        }
+      ],
+      "reason": "Các nghĩa phổ biến nhất cho người học: cầm/lấy, chụp ảnh (take a photo), đi (take a bus/taxi).",
+      "needs_review": false
+    },
+    {
+      "lemma": "make",
+      "selections": [
+        {
+          "id": "1353223",
+          "anchor": "To build, construct, produce, or originate."
+        },
+        {
+          "id": "1353236",
+          "anchor": "To cause (to do something); to compel (to do something)."
+        },
+        {
+          "id": "480452",
+          "anchor": "earn on some commercial or business transaction; earn as salary or wages"
+        }
+      ],
+      "reason": "Nghĩa cốt lõi và thông dụng nhất: tạo ra, làm ra thứ gì (make a cake, make a plan). Rất hay gặp: khiến cho/bắt ai làm gì (make me laugh, make him go). Cụm phổ biến: kiếm tiền, kiếm được (make money).",
+      "needs_review": false
+    },
+    {
+      "lemma": "go",
+      "selections": [
+        {
+          "id": "2722900",
+          "anchor": "To move through space (especially to or through a place). (May be used of tangib"
+        },
+        {
+          "id": "2722918",
+          "anchor": "To become (often used with colors and negative states)."
+        },
+        {
+          "id": "1549024",
+          "anchor": "An attempt, a try."
+        }
+      ],
+      "reason": "Ba nghĩa đời thường nhất cho người mới học: đi/di chuyển, trở nên (go bad, go red), và danh từ chỉ lần thử; loại nghĩa cổ, hẹp và trùng lặp.",
+      "needs_review": false
+    },
+    {
+      "lemma": "come",
+      "selections": [
+        {
+          "id": "330024",
+          "anchor": "reach a destination; arrive by movement or progress"
+        },
+        {
+          "id": "330033",
+          "anchor": "come from; be connected by a relationship of blood, for example"
+        },
+        {
+          "id": "2266763",
+          "anchor": "To happen."
+        }
+      ],
+      "reason": "Ba nghĩa độc lập và thông dụng nhất: đến/tới nơi, đến từ/xuất xứ, và xảy ra; đều rõ ràng, thường gặp trong giao tiếp cơ bản cho người mới học.",
+      "needs_review": false
+    },
+    {
+      "lemma": "look",
+      "selections": [
+        {
+          "id": "475360",
+          "anchor": "perceive with attention; direct one's gaze towards; look"
+        },
+        {
+          "id": "2788329",
+          "anchor": "To appear, to seem."
+        },
+        {
+          "id": "475362",
+          "anchor": "search or seek"
+        }
+      ],
+      "reason": "Ba nghĩa thông dụng nhất: nhìn bằng mắt, trông có vẻ, và tìm kiếm (look for); đều độc lập, hiện đại, bỏ nghĩa cổ/hẹp và ghi chú ngữ pháp.",
+      "needs_review": false
+    },
+    {
+      "lemma": "see",
+      "selections": [
+        {
+          "id": "1352889",
+          "anchor": "To perceive or detect someone or something with the eyes, or as if by sight."
+        },
+        {
+          "id": "1352893",
+          "anchor": "To understand."
+        },
+        {
+          "id": "1352891",
+          "anchor": "To watch (a movie) at a cinema, or a show on television etc."
+        }
+      ],
+      "reason": "Ba nghĩa thông dụng nhất: nhìn thấy bằng mắt; hiểu (I see); xem phim hoặc chương trình trên TV.",
+      "needs_review": false
+    },
+    {
+      "lemma": "work",
+      "selections": [
+        {
+          "id": "1157109",
+          "anchor": "To do a specific task by employing physical or mental powers."
+        },
+        {
+          "id": "1809775",
+          "anchor": "Labour, occupation, job."
+        },
+        {
+          "id": "1809779",
+          "anchor": "Effort expended on a particular task."
+        }
+      ],
+      "reason": "Ba nghĩa phổ thông nhất cho người mới học: động từ làm việc, danh từ công việc/nghề nghiệp, danh từ việc làm nói chung; bỏ nghĩa vật lý, kỹ thuật, lóng, hiếm.",
+      "needs_review": false
+    },
+    {
+      "lemma": "play",
+      "selections": [
+        {
+          "id": "2657683",
+          "anchor": "To act in a manner such that one has fun; to engage in activities expressly for "
+        },
+        {
+          "id": "2657685",
+          "anchor": "To perform in (a sport); to participate in (a game)."
+        },
+        {
+          "id": "2657694",
+          "anchor": "To produce music using a musical instrument."
+        }
+      ],
+      "reason": "Ba nghĩa động từ quen thuộc nhất: vui chơi/chơi đùa, chơi thể thao hoặc trò chơi, và chơi nhạc cụ.",
+      "needs_review": false
+    },
+    {
+      "lemma": "give",
+      "selections": [
+        {
+          "id": "415973",
+          "anchor": "transfer possession of something concrete or abstract to somebody"
+        },
+        {
+          "id": "415975",
+          "anchor": "give as a present; make a gift of"
+        },
+        {
+          "id": "415977",
+          "anchor": "convey or reveal information"
+        }
+      ],
+      "reason": "Nghĩa cốt lõi nhất là trao/đưa cho ai cái gì; thêm nghĩa tặng quà và nghĩa cho biết thông tin, bao phủ hầu hết cách dùng hàng ngày của give.",
+      "needs_review": false
+    },
+    {
+      "lemma": "find",
+      "selections": [
+        {
+          "id": "2397288",
+          "anchor": "To encounter or discover something being searched for; to locate."
+        },
+        {
+          "id": "2397287",
+          "anchor": "To encounter or discover by accident; to happen upon."
+        },
+        {
+          "id": "2397295",
+          "anchor": "To decide that, to conclude that, to form the opinion that, to consider."
+        }
+      ],
+      "reason": "Nghĩa tìm thấy sau khi tìm kiếm là cốt lõi; tìm thấy tình cờ và cách dùng I find it... để nêu nhận xét cũng rất thông dụng.",
+      "needs_review": false
+    },
+    {
+      "lemma": "know",
+      "selections": [
+        {
+          "id": "462199",
+          "anchor": "be cognizant or aware of a fact or a specific piece of information; possess know"
+        },
+        {
+          "id": "462200",
+          "anchor": "know how to do or perform something"
+        },
+        {
+          "id": "462198",
+          "anchor": "be familiar or acquainted with a person or an object"
+        }
+      ],
+      "reason": "Ba nghĩa cốt lõi cho người mới học: biết thông tin/sự việc, biết cách làm gì, và quen biết ai; đều độc lập, hiện đại, tránh nghĩa cổ và danh từ hiếm.",
+      "needs_review": false
+    },
+    {
+      "lemma": "think",
+      "selections": [
+        {
+          "id": "629729",
+          "anchor": "expect, believe, or suppose"
+        },
+        {
+          "id": "629734",
+          "anchor": "ponder; reflect on, or reason about"
+        },
+        {
+          "id": "629736",
+          "anchor": "imagine or visualize"
+        }
+      ],
+      "reason": "Ưu tiên 'cho rằng/tin rằng' (I think...) dùng nhiều nhất, rồi 'suy nghĩ, ngẫm nghĩ', rồi 'tưởng tượng, hình dung'.",
+      "needs_review": false
+    },
+    {
+      "lemma": "feel",
+      "selections": [
+        {
+          "id": "1222365",
+          "anchor": "To become aware of through the skin; to use the sense of touch on."
+        },
+        {
+          "id": "1222371",
+          "anchor": "To experience an emotion or other mental state."
+        },
+        {
+          "id": "1222370",
+          "anchor": "To think, believe, or have an impression concerning."
+        }
+      ],
+      "reason": "Ba nghĩa cốt lõi: cảm nhận bằng xúc giác, trải qua cảm xúc/trạng thái, và nghĩ/cho rằng.",
+      "needs_review": false
+    },
+    {
+      "lemma": "say",
+      "selections": [
+        {
+          "id": "578351",
+          "anchor": "express in words"
+        },
+        {
+          "id": "578352",
+          "anchor": "state as one's opinion or judgement; declare"
+        }
+      ],
+      "reason": "Hai nghĩa động từ cốt lõi: nói/diễn đạt bằng lời và phát biểu ý kiến/cho rằng; đều độc lập, hiện đại, bỏ nghĩa danh từ và nghĩa hiếm.",
+      "needs_review": false
+    },
+    {
+      "lemma": "eat",
+      "selections": [
+        {
+          "id": "369220",
+          "anchor": "take in solid food"
+        },
+        {
+          "id": "369219",
+          "anchor": "eat a meal; take a meal"
+        },
+        {
+          "id": "369218",
+          "anchor": "use up (resources or materials)"
+        }
+      ],
+      "reason": "Nghĩa 'ăn thức ăn' và 'ăn một bữa' là cốt lõi; thêm nghĩa bóng 'tiêu hao, dùng hết' (tiền, thời gian) khá phổ biến.",
+      "needs_review": false
+    },
+    {
+      "lemma": "drink",
+      "selections": [
+        {
+          "id": "1287591",
+          "anchor": "To consume (a liquid) through the mouth."
+        },
+        {
+          "id": "2134927",
+          "anchor": "A beverage."
+        },
+        {
+          "id": "1287593",
+          "anchor": "To consume alcoholic beverages."
+        }
+      ],
+      "reason": "Nghĩa động từ uống chất lỏng là cốt lõi, danh từ đồ uống rất thông dụng, thêm uống rượu bia; đều hiện đại, tránh nghĩa bóng và nghĩa cổ.",
+      "needs_review": false
+    },
+    {
+      "lemma": "read",
+      "selections": [
+        {
+          "id": "831274",
+          "anchor": "To look at and interpret letters or other information that is written."
+        },
+        {
+          "id": "831277",
+          "anchor": "To speak aloud words or other information that is written. (often construed with"
+        },
+        {
+          "id": "831278",
+          "anchor": "To interpret, or infer a meaning, significance, thought, intention, etc., from."
+        }
+      ],
+      "reason": "Ba nghĩa động từ phổ biến nhất: đọc chữ/văn bản, đọc to thành tiếng, và hiểu/suy ra ý nghĩa (đọc tình huống).",
+      "needs_review": false
+    },
+    {
+      "lemma": "write",
+      "selections": [
+        {
+          "id": "1483303",
+          "anchor": "To form letters, words or symbols on a surface in order to communicate."
+        },
+        {
+          "id": "1483304",
+          "anchor": "To be the author of (a book, article, poem, etc.)."
+        }
+      ],
+      "reason": "Nghĩa thông dụng nhất: viết chữ để truyền đạt và viết tác phẩm (sách, bài báo). Các nghĩa kỹ thuật như ghi dữ liệu, bán quyền chọn bị loại.",
+      "needs_review": false
+    },
+    {
+      "lemma": "speak",
+      "selections": [
+        {
+          "id": "2266819",
+          "anchor": "To communicate with one's voice, to say words out loud."
+        },
+        {
+          "id": "2266823",
+          "anchor": "To be able to communicate in a language."
+        },
+        {
+          "id": "2266820",
+          "anchor": "To have a conversation."
+        }
+      ],
+      "reason": "Nghĩa nói bằng lời là chính; biết nói một ngôn ngữ rất thiết thực cho người học; trò chuyện là nghĩa giao tiếp hàng ngày.",
+      "needs_review": false
+    },
+    {
+      "lemma": "hear",
+      "selections": [
+        {
+          "id": "2788292",
+          "anchor": "To perceive sounds through the ear."
+        },
+        {
+          "id": "2788296",
+          "anchor": "To receive information about; to come to learn of."
+        },
+        {
+          "id": "429399",
+          "anchor": "listen and pay attention"
+        }
+      ],
+      "reason": "Ưu tiên 'nghe thấy bằng tai', rồi 'nghe tin/biết được thông tin', rồi 'lắng nghe, chú ý'; bỏ nghĩa pháp lý, hiếm.",
+      "needs_review": false
+    },
+    {
+      "lemma": "watch",
+      "selections": [
+        {
+          "id": "1875960",
+          "anchor": "To look at, see, or view for a period of time."
+        },
+        {
+          "id": "1745808",
+          "anchor": "A portable or wearable timepiece."
+        },
+        {
+          "id": "660708",
+          "anchor": "be vigilant, be on the lookout or be careful"
+        }
+      ],
+      "reason": "Động từ 'xem/nhìn trong một khoảng thời gian' là nghĩa dùng nhiều nhất. Danh từ 'đồng hồ đeo tay' là nghĩa quen thuộc. Nghĩa 'cẩn thận, đề phòng' (watch out!) rất đời thường và khác biệt rõ rệt.",
+      "needs_review": false
+    },
+    {
+      "lemma": "live",
+      "selections": [
+        {
+          "id": "2332240",
+          "anchor": "To have permanent residence somewhere, to inhabit, to reside."
+        },
+        {
+          "id": "2332239",
+          "anchor": "To be alive; to have life."
+        },
+        {
+          "id": "1353639",
+          "anchor": "Being broadcast (“on the air”), as it happens."
+        }
+      ],
+      "reason": "Ba nghĩa đời thường nhất: sống/cư trú ở đâu, còn sống, và chương trình phát sóng trực tiếp.",
+      "needs_review": false
+    },
+    {
+      "lemma": "leave",
+      "selections": [
+        {
+          "id": "467575",
+          "anchor": "go away from a place"
+        },
+        {
+          "id": "467574",
+          "anchor": "go and leave behind, either intentionally or by neglect or forgetfulness"
+        },
+        {
+          "id": "467567",
+          "anchor": "the period of time during which you are absent from work or duty"
+        }
+      ],
+      "reason": "Nghĩa động từ rời đi và để quên/để lại đồ vật là thông dụng nhất; nghĩa danh từ kỳ nghỉ phép cũng rất hay gặp.",
+      "needs_review": false
+    },
+    {
+      "lemma": "open",
+      "selections": [
+        {
+          "id": "1287509",
+          "anchor": "To make or become accessible or clear for passage by moving from a shut position"
+        },
+        {
+          "id": "2853450",
+          "anchor": "Not covered, sealed, etc.; having an opening or aperture showing what is inside."
+        },
+        {
+          "id": "1287519",
+          "anchor": "To make or become operative or available."
+        }
+      ],
+      "reason": "Ba nghĩa thông dụng nhất cho người mới học: động từ mở cửa/hộp, tính từ ở trạng thái đang mở, và nghĩa mở cửa hàng/dịch vụ để hoạt động. Đều là nghĩa độc lập, dùng hằng ngày.",
+      "needs_review": false
+    },
+    {
+      "lemma": "start",
+      "selections": [
+        {
+          "id": "897541",
+          "anchor": "To begin."
+        },
+        {
+          "id": "2397566",
+          "anchor": "The beginning of an activity."
+        }
+      ],
+      "reason": "Nghĩa cốt lõi nhất của start là 'bắt đầu' (động từ) và 'sự bắt đầu' (danh từ). Các nghĩa hẹp như giật mình, khởi động xe bị loại.",
+      "needs_review": false
+    },
+    {
+      "lemma": "stop",
+      "selections": [
+        {
+          "id": "2462768",
+          "anchor": "To cease moving."
+        },
+        {
+          "id": "2462770",
+          "anchor": "To cause (something) to cease moving or progressing."
+        },
+        {
+          "id": "1940200",
+          "anchor": "A (usually marked) place where buses, trams or trains halt to let passengers get"
+        }
+      ],
+      "reason": "Ba nghĩa giao tiếp hằng ngày nhất: tự dừng lại, làm cho cái gì dừng/chấm dứt, và điểm dừng xe buýt; bao quát cách dùng nội động từ, ngoại động từ và danh từ phổ biến của người mới học.",
+      "needs_review": false
+    },
+    {
+      "lemma": "use",
+      "selections": [
+        {
+          "id": "2528667",
+          "anchor": "To employ; to apply; to utilize."
+        },
+        {
+          "id": "2528668",
+          "anchor": "To expend; to consume by employing."
+        },
+        {
+          "id": "2528676",
+          "anchor": "To habitually do; to be wont to do. (Now chiefly in past-tense forms; see used t"
+        }
+      ],
+      "reason": "Nghĩa dùng/sử dụng, dùng hết/tiêu thụ, và thói quen trong quá khứ (used to).",
+      "needs_review": false
+    },
+    {
+      "lemma": "need",
+      "selections": [
+        {
+          "id": "2594341",
+          "anchor": "A requirement for something; something needed."
+        },
+        {
+          "id": "2334074",
+          "anchor": "To have an absolute requirement for."
+        },
+        {
+          "id": "2334076",
+          "anchor": "To be obliged or required (to do something)."
+        }
+      ],
+      "reason": "Danh từ: điều cần thiết; động từ: cần có/muốn có; dạng khuyết thiếu need to (buộc phải làm). Đều là nghĩa hằng ngày rõ ràng.",
+      "needs_review": false
+    },
+    {
+      "lemma": "want",
+      "selections": [
+        {
+          "id": "659816",
+          "anchor": "feel or have a desire for; want strongly"
+        },
+        {
+          "id": "659814",
+          "anchor": "have need of"
+        }
+      ],
+      "reason": "Nghĩa động từ cốt lõi 'muốn' và nghĩa 'cần/có nhu cầu' là hai cách dùng hằng ngày nhất; danh từ 'want' hiếm gặp nên không chọn.",
+      "needs_review": false
+    },
+    {
+      "lemma": "love",
+      "selections": [
+        {
+          "id": "1222507",
+          "anchor": "To have a strong affection for (someone or something)."
+        },
+        {
+          "id": "2722261",
+          "anchor": "A profound and caring affection towards someone."
+        },
+        {
+          "id": "476399",
+          "anchor": "get pleasure from"
+        }
+      ],
+      "reason": "Động từ 'yêu thương ai/cái gì' và danh từ 'tình yêu, lòng yêu mến' là hai nghĩa nền tảng nhất. Động từ 'thích thú, mê' (I love pizza) là cách dùng hàng ngày rất phổ biến, khác biệt với yêu thương con người.",
+      "needs_review": false
+    },
+    {
+      "lemma": "like",
+      "selections": [
+        {
+          "id": "1811826",
+          "anchor": "To enjoy, be pleased by; favor; be in favor of."
+        },
+        {
+          "id": "1811831",
+          "anchor": "To want, desire. See also would like."
+        },
+        {
+          "id": "2724458",
+          "anchor": "Similar."
+        }
+      ],
+      "reason": "Ba nghĩa cốt lõi cho người học: thích/thưởng thức, muốn (would like), và giống nhau; bỏ qua nghĩa nút like mạng xã hội và nghĩa hiếm.",
+      "needs_review": false
+    },
+    {
+      "lemma": "water",
+      "selections": [
+        {
+          "id": "2486090",
+          "anchor": "An inorganic compound (of molecular formula H₂O) found at room temperature and p"
+        },
+        {
+          "id": "2877735",
+          "anchor": "To wet or supply with water; to moisten; to overflow with water; to irrigate."
+        },
+        {
+          "id": "2486094",
+          "anchor": "Water in a body; an area of open water."
+        }
+      ],
+      "reason": "Nghĩa danh từ chỉ chất lỏng nước là phổ biến nhất cho người mới học; động từ tưới/cấp nước rất thường gặp; nghĩa vùng nước thường dùng ở số nhiều.",
+      "needs_review": false
+    },
+    {
+      "lemma": "fire",
+      "selections": [
+        {
+          "id": "392057",
+          "anchor": "the process of combustion of inflammable materials producing heat and light and "
+        },
+        {
+          "id": "392080",
+          "anchor": "terminate the employment of; discharge from an office or position"
+        },
+        {
+          "id": "2788488",
+          "anchor": "To shoot (a gun, rocket/missile, or analogous device)."
+        }
+      ],
+      "reason": "Ba nghĩa thông dụng nhất cho người mới học: danh từ chỉ lửa/sự cháy, động từ sa thải nhân viên, động từ bắn súng; loại nghĩa cổ, hiếm, kỹ thuật và các định nghĩa trùng lặp giữa các nguồn.",
+      "needs_review": false
+    },
+    {
+      "lemma": "head",
+      "selections": [
+        {
+          "id": "831186",
+          "anchor": "The part of the body of an animal or human which contains the brain, mouth, and "
+        },
+        {
+          "id": "2265788",
+          "anchor": "To move in a specified direction."
+        },
+        {
+          "id": "831222",
+          "anchor": "A leader or expert."
+        }
+      ],
+      "reason": "Nghĩa 'đầu' (bộ phận cơ thể) là nghĩa cốt lõi nhất cho người mới học; 'head home' (đi về hướng nào đó) và nghĩa người đứng đầu là hai nghĩa thông dụng hằng ngày.",
+      "needs_review": false
+    },
+    {
+      "lemma": "hand",
+      "selections": [
+        {
+          "id": "2135049",
+          "anchor": "The part of the forelimb below the forearm or wrist in humans and other primates"
+        },
+        {
+          "id": "1744526",
+          "anchor": "To give, pass or transmit with the hand, literally or figuratively."
+        },
+        {
+          "id": "2135062",
+          "anchor": "An instance of helping."
+        }
+      ],
+      "reason": "Ba nghĩa thông dụng nhất: bàn tay (danh từ), động từ trao/đưa bằng tay, và 'give a hand' = giúp đỡ. Các nghĩa chuyên ngành và cổ điển bị loại.",
+      "needs_review": false
+    },
+    {
+      "lemma": "face",
+      "selections": [
+        {
+          "id": "383162",
+          "anchor": "the front of the human head from the forehead to the chin and ear to ear"
+        },
+        {
+          "id": "383181",
+          "anchor": "deal with (something unpleasant) head on"
+        },
+        {
+          "id": "1287882",
+          "anchor": "To have the front in a certain direction."
+        }
+      ],
+      "reason": "Ba nghĩa độc lập, thường gặp nhất cho người mới học: mặt người; đối mặt/đương đầu việc khó; hướng/quay về phía nào đó. Rõ ràng, tránh nghĩa hiếm, kỹ thuật.",
+      "needs_review": false
+    },
+    {
+      "lemma": "time",
+      "selections": [
+        {
+          "id": "632364",
+          "anchor": "the continuum of experience in which events pass from the future through the pre"
+        },
+        {
+          "id": "632369",
+          "anchor": "a reading of a point in time as given by a clock"
+        },
+        {
+          "id": "632387",
+          "anchor": "assign a time for an activity or event"
+        }
+      ],
+      "reason": "Ba nghĩa đời thường nhất: thời gian nói chung; giờ trên đồng hồ (What time is it?); động từ hẹn/chọn thời gian cho việc gì đó.",
+      "needs_review": false
+    },
+    {
+      "lemma": "day",
+      "selections": [
+        {
+          "id": "1027373",
+          "anchor": "A period of time equal or almost equal to a full day-night cycle, being 24 hours"
+        },
+        {
+          "id": "1027372",
+          "anchor": "The time when the Sun is above the horizon and it lights the sky."
+        },
+        {
+          "id": "1027380",
+          "anchor": "An observance lasting for a day, such as an annual holiday."
+        }
+      ],
+      "reason": "Ba nghĩa danh từ thiết thực: ngày 24 giờ, ban ngày (trái ban đêm), và ngày lễ/kỷ niệm; bỏ nghĩa thiên văn, kỹ thuật.",
+      "needs_review": false
+    }
+  ],
+  "complete": false,
+  "blocked_finals": []
+}

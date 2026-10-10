@@ -1,0 +1,30 @@
+[Unit]
+Description=M10.5 Muse learner-priority bulk job (%i)
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+User=langoo
+Group=langoo
+WorkingDirectory=/opt/langoo/services/muse-native
+UMask=0077
+ExecStart=/opt/langoo/services/muse-native/venv/bin/python -B /opt/langoo/services/muse-native/bulk_runner.py run --out /opt/langoo/storage/muse-native/bulk/%i
+Restart=on-failure
+RestartSec=15min
+RestartPreventExitStatus=130
+TimeoutStopSec=40
+KillMode=control-group
+MemoryHigh=280M
+MemoryMax=350M
+CPUQuota=100%
+Nice=10
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/langoo/storage/muse-native/bulk/%i
+
+[Install]
+WantedBy=multi-user.target

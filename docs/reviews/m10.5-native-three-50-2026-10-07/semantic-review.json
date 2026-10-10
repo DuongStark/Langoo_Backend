@@ -1,0 +1,434 @@
+{
+  "task": "M10.5",
+  "date": "2026-10-07",
+  "reviewer": "GPT agent",
+  "scope": "Final 50 after two guarded re-rank repairs; qualitative learner usefulness, not measured most-frequent sense accuracy",
+  "rubric": {
+    "pass": "Useful modern primary and secondary selection; no material scope/priority issue",
+    "minor": "Primary core meaning acceptable; secondary slot/scope/priority/reason needs editing",
+    "severe": "Wrong or misleading source meaning / basic primary excluded by unrelated sense",
+    "primary_ok": "A modern everyday primary sense is acceptable; not a claim that it is statistically the most frequent"
+  },
+  "snapshot_sha256": "079c69f44d875eae5762284e8466b9218f81d14eee07b922b3d43e672946688b",
+  "output_sha256": "8d73f243a72667589f60bfb5214f471366d7b246f6c1338b5ec1bd837a582405",
+  "items": [
+    {
+      "lemma": "cat",
+      "verdict": "minor",
+      "primary_ok": true,
+      "primary_vi": "mèo (định nghĩa nguồn gồm mèo nhà và mèo hoang)",
+      "note": "Nghĩa đầu chứa mèo nhà nhưng definition rộng cả mèo hoang; thêm big cats không cần cho mặc định cơ bản. Ưu tiên ID mô tả mèo nhà rõ ràng, chỉ một slot.",
+      "suggested_ids": [
+        "1417626"
+      ]
+    },
+    {
+      "lemma": "dog",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "chó nhà",
+      "note": "Chỉ giữ chó nhà, không thêm hot dog hay nghĩa động từ bám riết không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "book",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "quyển sách",
+      "note": "Sách + đặt trước là hai nghĩa độc lập, hữu ích; không giữ nhiều bản nguồn cùng nghĩa sách.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "run",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "chạy bằng chân",
+      "note": "Chạy bằng chân / quản lý / máy-chương trình hoạt động đều là nghĩa hiện đại rõ ràng.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "draw",
+      "verdict": "minor",
+      "primary_ok": true,
+      "primary_vi": "vẽ",
+      "note": "Vẽ đứng đầu đúng, ba ID không lệch scope. Reason gọi nghĩa hòa trận đấu là kỹ thuật/hiếm là đánh giá sai; đó là cách dùng đời thường. Không cần đổi các ID đã chọn nếu mục tiêu gồm draw a conclusion, cần sửa reason và tránh khẳng định tần suất.",
+      "suggested_ids": [
+        "1418409",
+        "1418281",
+        "1418389"
+      ]
+    },
+    {
+      "lemma": "bank",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "ngân hàng",
+      "note": "Ngân hàng đứng đầu; bờ sông là nghĩa phổ thông khác. Không chọn nghĩa máy bay nghiêng.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "plant",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "cây/thực vật",
+      "note": "Cây / trồng / nhà máy đều đúng; tag botany không biến cây thành nghĩa hiếm. Gloss WordNet hơi khái quát, không sửa text nguồn trong job rank.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "table",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "cái bàn",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "light",
+      "verdict": "minor",
+      "primary_ok": true,
+      "primary_vi": "nhẹ, không nặng",
+      "note": "Nhẹ/sáng/đèn đều là nghĩa thật, đời thường, nhưng thiếu danh từ ánh sáng. Nên ưu tiên ánh sáng và nhẹ; đèn là slot tùy chọn, thay nghĩa tính từ sáng nếu chỉ có ba slot.",
+      "suggested_ids": [
+        "2527232",
+        "470802",
+        "470846"
+      ]
+    },
+    {
+      "lemma": "right",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "đúng/chính xác",
+      "note": "Đúng / bên phải / quyền là các mục học khác nhau, rõ ràng.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "get",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "có được/nhận được",
+      "note": "Có được / trở nên / đi lấy khác nhau, đều hữu ích.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "take",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "lấy/cầm lấy",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "make",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "tạo ra/làm ra",
+      "note": "Tạo ra / khiến trở nên / kiếm được đúng ID nguồn. Reason thêm làm gì hơi rộng hơn riêng ID trạng thái; đây vẫn là nhóm causative cơ bản, không đổi ID sang nghĩa xa.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "go",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "đi/di chuyển",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "come",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "đến về phía người nói",
+      "note": "Đến về phía người nói / xảy ra / xuất phát từ đều thuộc scope definitions; không chọn nghĩa thô tục.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "look",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "nhìn",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "see",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "nhìn thấy",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "work",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "làm việc",
+      "note": "Làm việc / công việc / hoạt động đúng chức năng, đã tránh hai noun công việc gần trùng.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "play",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "vui chơi",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "give",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "đưa/trao cho",
+      "note": "Trao cho và tặng phân biệt sắc thái hành động; không chọn noun độ đàn hồi.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "find",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "tìm thấy thứ đang tìm",
+      "note": "Tìm sau khi tìm kiếm / nhận định / tình cờ bắt gặp đúng scope từng ID.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "know",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "biết thông tin/sự thật",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "think",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "nghĩ rằng/cho rằng",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "feel",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "sờ/cảm nhận qua xúc giác",
+      "note": "Xúc giác / cảm xúc-trạng thái / có vẻ qua cảm nhận đều là cách dùng hiện đại. Thứ tự xúc giác/cảm xúc không coi là số đo tần suất.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "say",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "nói thành lời",
+      "note": "Nói thành lời và nêu ý kiến đúng nguồn, không chọn nghĩa phỏng đoán làm nghĩa chính.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "eat",
+      "verdict": "minor",
+      "primary_ok": true,
+      "primary_vi": "ăn thức ăn",
+      "note": "Ăn thức ăn và dùng bữa đều đúng nhưng gần cùng mục học; hai slot chưa tạo khác biệt hữu ích. Mặc định nên giữ một ID ăn, mở rộng subsense khi cần.",
+      "suggested_ids": [
+        "1810300"
+      ]
+    },
+    {
+      "lemma": "drink",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "uống",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "read",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "đọc chữ/văn bản",
+      "note": "Đọc văn bản / đọc to / suy ra-diễn giải đều phổ thông; không thêm noun read chỉ dùng trong cụm.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "write",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "viết chữ để giao tiếp",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "speak",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "nói thành lời",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "hear",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "nghe thấy",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "watch",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "xem/theo dõi",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "live",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "sống/còn sống",
+      "note": "Sống / cư trú / phát sóng trực tiếp đúng POS và scope.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "leave",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "rời đi",
+      "note": "Rời đi / để nguyên không lấy-động đến / nghỉ phép là các nghĩa hiện đại. Slot hai không được dịch thành chỉ bỏ quên.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "open",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "mở",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "close",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "đóng",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "start",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "bắt đầu",
+      "note": "Bắt đầu / làm chuyển động-khởi động / sự bắt đầu đều phù hợp. Một số overlap là khác cấu trúc, không phải bản nguồn trùng nghĩa.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "stop",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "dừng di chuyển",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "use",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "sử dụng",
+      "note": "Sử dụng / thói quen với used to đúng scope; giữ chú thích chỉ cách dùng quá khứ.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "need",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "cần",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "want",
+      "verdict": "minor",
+      "primary_ok": true,
+      "primary_vi": "muốn",
+      "note": "Muốn đúng. Nghĩa have need of có cách dùng nhưng kém thiết yếu cho người mới; noun desire cũng không cần một slot mặc định. Ví dụ I want tea không chứng minh đó là nghĩa cần. Giữ một nghĩa muốn.",
+      "suggested_ids": [
+        "659816"
+      ]
+    },
+    {
+      "lemma": "love",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "yêu/thích",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "like",
+      "verdict": "minor",
+      "primary_ok": true,
+      "primary_vi": "thích",
+      "note": "Thích/would like đúng. Similar (adjective) không phải giới từ giống như rất phổ biến; reason dùng adjective để phủ cách dùng so sánh rộng hơn scope. Chọn ID Similar to, reminiscent of.; POS unknown là vấn đề metadata nguồn riêng.",
+      "suggested_ids": [
+        "1811826",
+        "1811831",
+        "2268522"
+      ]
+    },
+    {
+      "lemma": "water",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "nước",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "fire",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "lửa/sự cháy",
+      "note": "Sự cháy / vụ cháy / sa thải là các cách dùng đời thường khác nhau. Không suy ra chỉ nghĩa hóa học chuyên ngành từ definition combustion.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "head",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "đầu (bộ phận cơ thể)",
+      "note": "Đầu / đứng đầu-điều khiển / đi về hướng đúng ID; head of school trong reason là noun construction, cần hiểu đây là ví dụ cùng nhóm chứ không label verb của noun.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "hand",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "bàn tay",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "face",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "khuôn mặt",
+      "note": "Mặt người / đối mặt khó khăn / thể diện đều đúng ID. Không tái diễn lỗi ốp mặt vật liệu từ pilot v1.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "time",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "thời gian",
+      "note": "Các ID được chọn là nghĩa đời thường, đúng scope/pos nguồn; không thấy nghĩa cổ, hẹp hay bản nguồn tương đương bị lặp không cần thiết.",
+      "suggested_ids": []
+    },
+    {
+      "lemma": "day",
+      "verdict": "pass",
+      "primary_ok": true,
+      "primary_vi": "ngày 24 giờ",
+      "note": "Ngày 24 giờ / ban ngày / ngày dành hoạt động cụ thể là nghĩa thật. Birthday không phải ví dụ tối ưu cho slot 3, không làm lệch core ngày.",
+      "suggested_ids": []
+    }
+  ]
+}

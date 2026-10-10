@@ -1,0 +1,4 @@
+# M10.5 — upstream transport dependencies, installed only in isolated VPS venv.
+curl_cffi>=0.11
+noiseprotocol>=0.3
+protobuf>=5.0

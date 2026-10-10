@@ -1,0 +1,32 @@
+{
+  "label": "single-smoke",
+  "job_id": "a278a71e-6e44-4a9d-b84f-8b7c648a88fa",
+  "ok": true,
+  "sent": true,
+  "started_at": 1791364598.2626183,
+  "session_hash": "89f92ac5c504e37275b2dbad4443326f9e1483cbcfbc8ecd1b9707d79b01d6ce",
+  "dispatch_started": true,
+  "send_at": 1791364602.2922812,
+  "reply": "{\"job_id\": \"a278a71e-6e44-4a9d-b84f-8b7c648a88fa\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+  "output": {
+    "job_id": "a278a71e-6e44-4a9d-b84f-8b7c648a88fa",
+    "items": [
+      {
+        "lemma": "cat",
+        "sense_id": "1001"
+      },
+      {
+        "lemma": "bank",
+        "sense_id": "2001"
+      },
+      {
+        "lemma": "draw",
+        "sense_id": "3001"
+      }
+    ]
+  },
+  "semantic_ok": true,
+  "finished_at": 1791364607.2083068,
+  "elapsed_ms": 8946,
+  "peak_process_rss_kib": 42608
+}

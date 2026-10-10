@@ -1,0 +1,19 @@
+{
+  "task": "M10.5",
+  "reviewer": "GPT agent; not independent human/corpus gold",
+  "words": 50,
+  "pass": 44,
+  "minor": 6,
+  "severe": 0,
+  "primary_ok": 50,
+  "gate_pass": false,
+  "wall_ms": 423459,
+  "workers": 3,
+  "dispatches": 41,
+  "words_per_minute": 7.08,
+  "median_latency_ms": 14868,
+  "p95_latency_ms": 37247,
+  "peak_rss_mib": 75.89,
+  "snapshot_sha256": "079c69f44d875eae5762284e8466b9218f81d14eee07b922b3d43e672946688b",
+  "output_sha256": "8d73f243a72667589f60bfb5214f471366d7b246f6c1338b5ec1bd837a582405"
+}

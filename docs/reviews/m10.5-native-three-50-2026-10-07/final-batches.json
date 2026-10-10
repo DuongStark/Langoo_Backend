@@ -1,0 +1,1246 @@
+[
+  {
+    "batch_id": "c60d1fdb55b48bebcecb73a2",
+    "solo": true,
+    "tasks": [
+      {
+        "task_id": "run:final:0",
+        "stage": "final",
+        "lemma": "run",
+        "senses": [
+          {
+            "id": "573108",
+            "lexeme_id": "463281",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 8,
+            "display_definition": "run, stand, or compete for an office or a position",
+            "core_definition": "run, stand, or compete for an office or a position",
+            "gloss_path": [],
+            "anchor": "run, stand, or compete for an office or a position",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "573130",
+            "lexeme_id": "463281",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 30,
+            "display_definition": "direct or control; projects, businesses, etc.",
+            "core_definition": "direct or control; projects, businesses, etc.",
+            "gloss_path": [],
+            "anchor": "direct or control; projects, businesses, etc.",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "573132",
+            "lexeme_id": "463281",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 32,
+            "display_definition": "carry out a process or program, as on a computer or a machine",
+            "core_definition": "carry out a process or program, as on a computer or a machine",
+            "gloss_path": [],
+            "anchor": "carry out a process or program, as on a computer or a machine",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2592282",
+            "lexeme_id": "1764986",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 1,
+            "display_definition": "Act or instance of running, of moving rapidly using the feet.",
+            "core_definition": "Act or instance of running, of moving rapidly using the feet.",
+            "gloss_path": [
+              "Act or instance of running, of moving rapidly using the feet."
+            ],
+            "anchor": "Act or instance of running, of moving rapidly using the feet.",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2592300",
+            "lexeme_id": "1764986",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 19,
+            "display_definition": "A continuous period (of time) marked by a trend; a period marked by a continuing trend.",
+            "core_definition": "Something continuous or sequential.",
+            "gloss_path": [
+              "Something continuous or sequential.",
+              "A continuous period (of time) marked by a trend; a period marked by a continuing trend."
+            ],
+            "anchor": "A continuous period (of time) marked by a trend; a period marked by a continuing",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2201004",
+            "lexeme_id": "1764987",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 1,
+            "display_definition": "To move forward quickly upon two feet by alternately making a short jump off either foot.",
+            "core_definition": "To move swiftly.",
+            "gloss_path": [
+              "To move swiftly.",
+              "To move forward quickly upon two feet by alternately making a short jump off either foot."
+            ],
+            "anchor": "To move forward quickly upon two feet by alternately making a short jump off eit",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2201020",
+            "lexeme_id": "1764987",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 17,
+            "display_definition": "Of a liquid or electric current, to flow.",
+            "core_definition": "To flow.",
+            "gloss_path": [
+              "To flow.",
+              "Of a liquid or electric current, to flow."
+            ],
+            "anchor": "Of a liquid or electric current, to flow.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2201028",
+            "lexeme_id": "1764987",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 25,
+            "display_definition": "To control or manage; to be in charge of.",
+            "core_definition": "To control or manage; to be in charge of.",
+            "gloss_path": [
+              "To control or manage; to be in charge of."
+            ],
+            "anchor": "To control or manage; to be in charge of.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2201029",
+            "lexeme_id": "1764987",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 26,
+            "display_definition": "To be a candidate in an election.",
+            "core_definition": "To be a candidate in an election.",
+            "gloss_path": [
+              "To be a candidate in an election."
+            ],
+            "anchor": "To be a candidate in an election.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2201038",
+            "lexeme_id": "1764987",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 35,
+            "display_definition": "To extend in time, to last, to continue (usually with a measure phrase).",
+            "core_definition": "To extend or persist, statically or dynamically, through space or time.",
+            "gloss_path": [
+              "To extend or persist, statically or dynamically, through space or time.",
+              "To extend in time, to last, to continue (usually with a measure phrase)."
+            ],
+            "anchor": "To extend in time, to last, to continue (usually with a measure phrase).",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2201040",
+            "lexeme_id": "1764987",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 37,
+            "display_definition": "Of a machine, including computer programs, to be operating or working normally.",
+            "core_definition": "To extend or persist, statically or dynamically, through space or time.",
+            "gloss_path": [
+              "To extend or persist, statically or dynamically, through space or time.",
+              "Of a machine, including computer programs, to be operating or working normally."
+            ],
+            "anchor": "Of a machine, including computer programs, to be operating or working normally.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2201042",
+            "lexeme_id": "1764987",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 39,
+            "display_definition": "To execute or carry out a plan, procedure, or program.",
+            "core_definition": "To execute or carry out a plan, procedure, or program.",
+            "gloss_path": [
+              "To execute or carry out a plan, procedure, or program."
+            ],
+            "anchor": "To execute or carry out a plan, procedure, or program.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          }
+        ],
+        "coverage": {
+          "source_senses": 232,
+          "all_fragments_examined": true,
+          "shortlist_senses": 12
+        }
+      }
+    ],
+    "prompt_chars": 6271
+  },
+  {
+    "batch_id": "8f0cdfac90b883a14e1cc233",
+    "solo": true,
+    "tasks": [
+      {
+        "task_id": "draw:final:0",
+        "stage": "final",
+        "lemma": "draw",
+        "senses": [
+          {
+            "id": "365112",
+            "lexeme_id": "303390",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 11,
+            "display_definition": "choose at random",
+            "core_definition": "choose at random",
+            "gloss_path": [],
+            "anchor": "choose at random",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "365120",
+            "lexeme_id": "303390",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 19,
+            "display_definition": "direct toward itself or oneself by means of some psychological power or physical attributes",
+            "core_definition": "direct toward itself or oneself by means of some psychological power or physical attributes",
+            "gloss_path": [],
+            "anchor": "direct toward itself or oneself by means of some psychological power or physical",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "365125",
+            "lexeme_id": "303390",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 24,
+            "display_definition": "represent by making a drawing of, as with a pencil, chalk, etc. on a surface",
+            "core_definition": "represent by making a drawing of, as with a pencil, chalk, etc. on a surface",
+            "gloss_path": [],
+            "anchor": "represent by making a drawing of, as with a pencil, chalk, etc. on a surface",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1810170",
+            "lexeme_id": "1009310",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 5,
+            "display_definition": "The result of a contest that neither side has won.",
+            "core_definition": "The result of drawing:",
+            "gloss_path": [
+              "The result of drawing:",
+              "The result of a contest that neither side has won."
+            ],
+            "anchor": "The result of a contest that neither side has won.",
+            "tags": [
+              "countable",
+              "uncountable"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418281",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 1,
+            "display_definition": "To pull (someone or something) in a particular direction or manner.",
+            "core_definition": "Senses relating to exerting force or pulling.",
+            "gloss_path": [
+              "Senses relating to exerting force or pulling.",
+              "To pull (someone or something) in a particular direction or manner."
+            ],
+            "anchor": "To pull (someone or something) in a particular direction or manner.",
+            "tags": [
+              "formal",
+              "often",
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418285",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 5,
+            "display_definition": "To pull (blinds, a curtain, etc.) open or closed.",
+            "core_definition": "Senses relating to exerting force or pulling.",
+            "gloss_path": [
+              "Senses relating to exerting force or pulling.",
+              "To pull (blinds, a curtain, etc.) open or closed."
+            ],
+            "anchor": "To pull (blinds, a curtain, etc.) open or closed.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418327",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 47,
+            "display_definition": "To induce (the attention, the eyes or mind, etc.) to be directed at or focused on something.",
+            "core_definition": "Senses relating to attracting.",
+            "gloss_path": [
+              "Senses relating to attracting.",
+              "To induce (the attention, the eyes or mind, etc.) to be directed at or focused on something."
+            ],
+            "anchor": "To induce (the attention, the eyes or mind, etc.) to be directed at or focused o",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418328",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 48,
+            "display_definition": "To attract or cause (someone) to come to a particular place or to take a particular course of action; also, to cause (someone) to turn away from a particular condition or course of action.",
+            "core_definition": "Senses relating to attracting.",
+            "gloss_path": [
+              "Senses relating to attracting.",
+              "To attract or cause (someone) to come to a particular place or to take a particular course of action; also, to cause (someone) to turn away from a particular condition or course of action."
+            ],
+            "anchor": "To attract or cause (someone) to come to a particular place or to take a particu",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418357",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 77,
+            "display_definition": "To extract (a small amount of liquid, especially blood) by puncturing a surface, or by using a pipette, syringe, or other suction device.",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To pull (something) out; to extract, to remove.",
+              "To extract (a small amount of liquid, especially blood) by puncturing a surface, or by using a pipette, syringe, or other suction device."
+            ],
+            "anchor": "To extract (a small amount of liquid, especially blood) by puncturing a surface,",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418368",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 88,
+            "display_definition": "To select (one or more things) at random from a collection of similar things to decide which of a group of people will receive something such as a prize, or undergo something such as an assignment; also, to select (someone) by this process; to win (a prize) in a lottery or lucky draw.",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To select (one or more things) at random from a collection of similar things to decide which of a group of people will receive something such as a prize, or undergo something such as an assignment; also, to select (someone) by this process; to win (a prize) in a lottery or lucky draw."
+            ],
+            "anchor": "To select (one or more things) at random from a collection of similar things to ",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418375",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 95,
+            "display_definition": "To be dealt or to take (a playing card) from the deck; also, to have (a particular hand) as a result of this.",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To be dealt or to take (a playing card) from the deck; also, to have (a particular hand) as a result of this."
+            ],
+            "anchor": "To be dealt or to take (a playing card) from the deck; also, to have (a particul",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [
+              "card-games",
+              "games"
+            ],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418378",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 98,
+            "display_definition": "To end (a game or match) with neither side winning, that is, in a draw.",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To end (a game or match) with neither side winning, that is, in a draw."
+            ],
+            "anchor": "To end (a game or match) with neither side winning, that is, in a draw.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [
+              "hobbies",
+              "lifestyle",
+              "sports"
+            ],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418389",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 109,
+            "display_definition": "To deduce or infer (a conclusion); to make (a deduction).",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To obtain, elicit.",
+              "To deduce or infer (a conclusion); to make (a deduction)."
+            ],
+            "anchor": "To deduce or infer (a conclusion); to make (a deduction).",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418394",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 114,
+            "display_definition": "To select one or more things at random from a collection of similar things to decide which of a group of people will receive or undergo something.",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To select one or more things at random from a collection of similar things to decide which of a group of people will receive or undergo something."
+            ],
+            "anchor": "To select one or more things at random from a collection of similar things to de",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418400",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 120,
+            "display_definition": "To be dealt or to take a playing card from the deck.",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To be dealt or to take a playing card from the deck."
+            ],
+            "anchor": "To be dealt or to take a playing card from the deck.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [
+              "card-games",
+              "games"
+            ],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418402",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 122,
+            "display_definition": "To end a game or match with neither side winning, that is, in a draw; to tie.",
+            "core_definition": "Senses relating to extracting or selecting.",
+            "gloss_path": [
+              "Senses relating to extracting or selecting.",
+              "To end a game or match with neither side winning, that is, in a draw; to tie."
+            ],
+            "anchor": "To end a game or match with neither side winning, that is, in a draw; to tie.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [
+              "hobbies",
+              "lifestyle",
+              "sports"
+            ],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418409",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 129,
+            "display_definition": "To produce (a figure, line, picture, representation of something, etc.) with a piece of chalk, a crayon, a pen, a pencil, or other instrument.",
+            "core_definition": "Senses relating to depicting or representing.",
+            "gloss_path": [
+              "Senses relating to depicting or representing.",
+              "To produce (a figure, line, picture, representation of something, etc.) with a piece of chalk, a crayon, a pen, a pencil, or other instrument."
+            ],
+            "anchor": "To produce (a figure, line, picture, representation of something, etc.) with a p",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "1418411",
+            "lexeme_id": "1009311",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 131,
+            "display_definition": "To make (a comparison or contrast) between two or more things; to compare; to contrast, to distinguish.",
+            "core_definition": "Senses relating to depicting or representing.",
+            "gloss_path": [
+              "Senses relating to depicting or representing.",
+              "To make (a comparison or contrast) between two or more things; to compare; to contrast, to distinguish."
+            ],
+            "anchor": "To make (a comparison or contrast) between two or more things; to compare; to co",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          }
+        ],
+        "coverage": {
+          "source_senses": 246,
+          "all_fragments_examined": true,
+          "shortlist_senses": 18
+        }
+      }
+    ],
+    "prompt_chars": 10962
+  },
+  {
+    "batch_id": "8f376dcb57cd47130e6a4100",
+    "solo": true,
+    "tasks": [
+      {
+        "task_id": "take:final:0",
+        "stage": "final",
+        "lemma": "take",
+        "senses": [
+          {
+            "id": "622956",
+            "lexeme_id": "499183",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 35,
+            "display_definition": "require (time or space)",
+            "core_definition": "require (time or space)",
+            "gloss_path": [],
+            "anchor": "require (time or space)",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787829",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 1,
+            "display_definition": "To get into one's hands, possession, or control, with or without force.",
+            "core_definition": "To get into one's hands, possession, or control, with or without force.",
+            "gloss_path": [
+              "To get into one's hands, possession, or control, with or without force."
+            ],
+            "anchor": "To get into one's hands, possession, or control, with or without force.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787836",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 8,
+            "display_definition": "To receive or accept (something, especially something which was given).",
+            "core_definition": "To receive or accept (something, especially something which was given).",
+            "gloss_path": [
+              "To receive or accept (something, especially something which was given)."
+            ],
+            "anchor": "To receive or accept (something, especially something which was given).",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787851",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 23,
+            "display_definition": "To carry or lead (something or someone).",
+            "core_definition": "To carry or lead (something or someone).",
+            "gloss_path": [
+              "To carry or lead (something or someone)."
+            ],
+            "anchor": "To carry or lead (something or someone).",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787857",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 29,
+            "display_definition": "To use as a means of transportation.",
+            "core_definition": "To use as a means of transportation.",
+            "gloss_path": [
+              "To use as a means of transportation."
+            ],
+            "anchor": "To use as a means of transportation.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787895",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 67,
+            "display_definition": "To make (a photograph, film, or other reproduction of something).",
+            "core_definition": "To make (a photograph, film, or other reproduction of something).",
+            "gloss_path": [
+              "To make (a photograph, film, or other reproduction of something)."
+            ],
+            "anchor": "To make (a photograph, film, or other reproduction of something).",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787898",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 70,
+            "display_definition": "To apply oneself to the study of.",
+            "core_definition": "To apply oneself to the study of.",
+            "gloss_path": [
+              "To apply oneself to the study of."
+            ],
+            "anchor": "To apply oneself to the study of.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787899",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 71,
+            "display_definition": "To deal with.",
+            "core_definition": "To deal with.",
+            "gloss_path": [
+              "To deal with."
+            ],
+            "anchor": "To deal with.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787900",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 72,
+            "display_definition": "To consider in a particular way, or to consider as an example.",
+            "core_definition": "To consider in a particular way, or to consider as an example.",
+            "gloss_path": [
+              "To consider in a particular way, or to consider as an example."
+            ],
+            "anchor": "To consider in a particular way, or to consider as an example.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787905",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 77,
+            "display_definition": "To get or accept (something) into one's possession.",
+            "core_definition": "To get or accept (something) into one's possession.",
+            "gloss_path": [
+              "To get or accept (something) into one's possession."
+            ],
+            "anchor": "To get or accept (something) into one's possession.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787906",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 78,
+            "display_definition": "To engage, take hold or have effect.",
+            "core_definition": "To engage, take hold or have effect.",
+            "gloss_path": [
+              "To engage, take hold or have effect."
+            ],
+            "anchor": "To engage, take hold or have effect.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2787912",
+            "lexeme_id": "1927866",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 84,
+            "display_definition": "To become; to be affected in a specified way.",
+            "core_definition": "To become; to be affected in a specified way.",
+            "gloss_path": [
+              "To become; to be affected in a specified way."
+            ],
+            "anchor": "To become; to be affected in a specified way.",
+            "tags": [
+              "copulative",
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          }
+        ],
+        "coverage": {
+          "source_senses": 190,
+          "all_fragments_examined": true,
+          "shortlist_senses": 12
+        }
+      }
+    ],
+    "prompt_chars": 5441
+  },
+  {
+    "batch_id": "53b109be1fdde99ee6a6cb9a",
+    "solo": true,
+    "tasks": [
+      {
+        "task_id": "head:final:0",
+        "stage": "final",
+        "lemma": "head",
+        "senses": [
+          {
+            "id": "428955",
+            "lexeme_id": "353277",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 3,
+            "display_definition": "to go or travel towards",
+            "core_definition": "to go or travel towards",
+            "gloss_path": [],
+            "anchor": "to go or travel towards",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "831186",
+            "lexeme_id": "1199337",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 1,
+            "display_definition": "The part of the body of an animal or human which contains the brain, mouth, and main sense organs.",
+            "core_definition": "The part of the body of an animal or human which contains the brain, mouth, and main sense organs.",
+            "gloss_path": [
+              "The part of the body of an animal or human which contains the brain, mouth, and main sense organs."
+            ],
+            "anchor": "The part of the body of an animal or human which contains the brain, mouth, and ",
+            "tags": [
+              "countable"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "831188",
+            "lexeme_id": "1199337",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 3,
+            "display_definition": "Mind; one's own thoughts.",
+            "core_definition": "The part of the body of an animal or human which contains the brain, mouth, and main sense organs.",
+            "gloss_path": [
+              "The part of the body of an animal or human which contains the brain, mouth, and main sense organs.",
+              "To do with heads.",
+              "Mind; one's own thoughts."
+            ],
+            "anchor": "Mind; one's own thoughts.",
+            "tags": [
+              "countable",
+              "figuratively",
+              "metonymically",
+              "uncountable"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "831191",
+            "lexeme_id": "1199337",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 6,
+            "display_definition": "An individual person.",
+            "core_definition": "The part of the body of an animal or human which contains the brain, mouth, and main sense organs.",
+            "gloss_path": [
+              "The part of the body of an animal or human which contains the brain, mouth, and main sense organs.",
+              "To do with heads.",
+              "An individual person."
+            ],
+            "anchor": "An individual person.",
+            "tags": [
+              "countable",
+              "figuratively",
+              "metonymically",
+              "uncountable"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "831195",
+            "lexeme_id": "1199337",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 10,
+            "display_definition": "The topmost, foremost, or leading part.",
+            "core_definition": "The topmost, foremost, or leading part.",
+            "gloss_path": [
+              "The topmost, foremost, or leading part."
+            ],
+            "anchor": "The topmost, foremost, or leading part.",
+            "tags": [
+              "countable"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "831222",
+            "lexeme_id": "1199337",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "noun",
+            "source_order": 37,
+            "display_definition": "A leader or expert.",
+            "core_definition": "A leader or expert.",
+            "gloss_path": [
+              "A leader or expert."
+            ],
+            "anchor": "A leader or expert.",
+            "tags": [
+              "countable",
+              "metonymically"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2265785",
+            "lexeme_id": "1199338",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 1,
+            "display_definition": "To be in command of. (See also head up.)",
+            "core_definition": "To be in command of. (See also head up.)",
+            "gloss_path": [
+              "To be in command of. (See also head up.)"
+            ],
+            "anchor": "To be in command of. (See also head up.)",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2265786",
+            "lexeme_id": "1199338",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 2,
+            "display_definition": "To come at the beginning or front of; to commence.",
+            "core_definition": "To come at the beginning or front of; to commence.",
+            "gloss_path": [
+              "To come at the beginning or front of; to commence."
+            ],
+            "anchor": "To come at the beginning or front of; to commence.",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2265787",
+            "lexeme_id": "1199338",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 3,
+            "display_definition": "To strike with the head",
+            "core_definition": "To strike with the head",
+            "gloss_path": [
+              "To strike with the head"
+            ],
+            "anchor": "To strike with the head",
+            "tags": [
+              "transitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "2265788",
+            "lexeme_id": "1199338",
+            "source": "wiktextract",
+            "source_version": null,
+            "pos": "verb",
+            "source_order": 4,
+            "display_definition": "To move in a specified direction.",
+            "core_definition": "To move in a specified direction.",
+            "gloss_path": [
+              "To move in a specified direction."
+            ],
+            "anchor": "To move in a specified direction.",
+            "tags": [
+              "intransitive"
+            ],
+            "topics": [],
+            "register": null,
+            "domain": null
+          }
+        ],
+        "coverage": {
+          "source_senses": 163,
+          "all_fragments_examined": true,
+          "shortlist_senses": 10
+        }
+      }
+    ],
+    "prompt_chars": 5322
+  },
+  {
+    "batch_id": "15a27531858e04708fe3bfa4",
+    "solo": true,
+    "tasks": [
+      {
+        "task_id": "open:final:0",
+        "stage": "final",
+        "lemma": "open",
+        "senses": [
+          {
+            "id": "513891",
+            "lexeme_id": "419789",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "adjective",
+            "source_order": 3,
+            "display_definition": "openly straightforward and direct without reserve or secretiveness",
+            "core_definition": "openly straightforward and direct without reserve or secretiveness",
+            "gloss_path": [],
+            "anchor": "openly straightforward and direct without reserve or secretiveness",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "513894",
+            "lexeme_id": "419789",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "adjective",
+            "source_order": 6,
+            "display_definition": "affording unobstructed entrance and exit; not shut or closed",
+            "core_definition": "affording unobstructed entrance and exit; not shut or closed",
+            "gloss_path": [],
+            "anchor": "affording unobstructed entrance and exit; not shut or closed",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "513902",
+            "lexeme_id": "419789",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "adjective",
+            "source_order": 14,
+            "display_definition": "ready or willing to receive favorably",
+            "core_definition": "ready or willing to receive favorably",
+            "gloss_path": [],
+            "anchor": "ready or willing to receive favorably",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "513903",
+            "lexeme_id": "419789",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "adjective",
+            "source_order": 15,
+            "display_definition": "accessible to all",
+            "core_definition": "accessible to all",
+            "gloss_path": [],
+            "anchor": "accessible to all",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "513942",
+            "lexeme_id": "419793",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 4,
+            "display_definition": "cause to open or to become open",
+            "core_definition": "cause to open or to become open",
+            "gloss_path": [],
+            "anchor": "cause to open or to become open",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          },
+          {
+            "id": "513947",
+            "lexeme_id": "419793",
+            "source": "oewn",
+            "source_version": "2024",
+            "pos": "verb",
+            "source_order": 9,
+            "display_definition": "start to operate or function or cause to start operating or functioning",
+            "core_definition": "start to operate or function or cause to start operating or functioning",
+            "gloss_path": [],
+            "anchor": "start to operate or function or cause to start operating or functioning",
+            "tags": [],
+            "topics": [],
+            "register": null,
+            "domain": null
+          }
+        ],
+        "coverage": {
+          "source_senses": 141,
+          "all_fragments_examined": true,
+          "shortlist_senses": 6
+        }
+      }
+    ],
+    "prompt_chars": 3496
+  }
+]

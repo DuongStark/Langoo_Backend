@@ -1,0 +1,27 @@
+{
+  "task": "M10.5",
+  "records": [
+    {
+      "lemma": "bank",
+      "job_id": "8c0017f6-d597-4e67-9414-376aa75dbc66",
+      "sense_id": "1092754",
+      "definition": "An institution where one can place and borrow money and take care of financial affairs.",
+      "verdict": "pass",
+      "note": "Ngân hàng/tổ chức tài chính đúng nghĩa phổ thông.",
+      "reviewer": "GPT agent",
+      "complete_source_senses": 78
+    },
+    {
+      "lemma": "light",
+      "job_id": "fe8c4f91-d042-4651-b3cd-e47ca252b6ee",
+      "sense_id": "2527232",
+      "definition": "Electromagnetic radiation in the wavelength range visible to the human eye (about 400–750 nanometers): visible light.",
+      "verdict": "pass",
+      "note": "Ánh sáng nhìn thấy đúng nghĩa danh từ phổ thông.",
+      "reviewer": "GPT agent",
+      "complete_source_senses": 156
+    }
+  ],
+  "semantic_pass": true,
+  "ranking_frequency_measured": false
+}

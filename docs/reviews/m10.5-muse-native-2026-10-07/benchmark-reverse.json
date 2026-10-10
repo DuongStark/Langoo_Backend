@@ -1,0 +1,284 @@
+{
+  "task": "M10.5",
+  "phases": [
+    {
+      "concurrency": 2,
+      "jobs": [
+        {
+          "label": "c2-reverse-0",
+          "job_id": "f09dc858-14e0-45f8-a270-6b22612764fb",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364893.8467987,
+          "session_hash": "a5795270fff3171bd690d8288876ace70956ccbff6b062eb595ff3677503f7c9",
+          "dispatch_started": true,
+          "send_at": 1791364897.6232865,
+          "input_chars": 880,
+          "reply": "{\"job_id\": \"f09dc858-14e0-45f8-a270-6b22612764fb\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+          "output": {
+            "job_id": "f09dc858-14e0-45f8-a270-6b22612764fb",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364900.1696212,
+          "elapsed_ms": 6323,
+          "peak_process_rss_kib": 44112
+        },
+        {
+          "label": "c2-reverse-1",
+          "job_id": "822303da-c3aa-45d5-b29e-ce94297ec499",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364893.8494246,
+          "session_hash": "e12bbf0a2e1a099fa1e032a3f21a420a1d0fde9d49ed836078d59da0ebdf6d5e",
+          "dispatch_started": true,
+          "send_at": 1791364897.193243,
+          "input_chars": 880,
+          "reply": "{\"job_id\":\"822303da-c3aa-45d5-b29e-ce94297ec499\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "822303da-c3aa-45d5-b29e-ce94297ec499",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364904.213156,
+          "elapsed_ms": 10364,
+          "peak_process_rss_kib": 44640
+        },
+        {
+          "label": "c2-reverse-2",
+          "job_id": "8664cac4-8a37-4225-ae1d-28c964d0f12e",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364900.172264,
+          "session_hash": "626a44511faf724878c573f9074e399595c0435c6a7d5da137979f284ee30779",
+          "dispatch_started": true,
+          "send_at": 1791364904.2772844,
+          "input_chars": 880,
+          "reply": "{\"job_id\": \"8664cac4-8a37-4225-ae1d-28c964d0f12e\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+          "output": {
+            "job_id": "8664cac4-8a37-4225-ae1d-28c964d0f12e",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364906.8285317,
+          "elapsed_ms": 6656,
+          "peak_process_rss_kib": 44984
+        },
+        {
+          "label": "c2-reverse-3",
+          "job_id": "5735fc49-d0ac-4c76-9920-1d8b7b03c631",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364904.2158594,
+          "session_hash": "a44887627c175e9e2fedc114c5ca6294ad7174aa6a50c37214edb5f066fff160",
+          "dispatch_started": true,
+          "send_at": 1791364907.9043036,
+          "input_chars": 880,
+          "reply": "{\"job_id\":\"5735fc49-d0ac-4c76-9920-1d8b7b03c631\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "5735fc49-d0ac-4c76-9920-1d8b7b03c631",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364917.2454424,
+          "elapsed_ms": 13030,
+          "peak_process_rss_kib": 45248
+        }
+      ],
+      "wall_ms": 23403
+    },
+    {
+      "concurrency": 1,
+      "jobs": [
+        {
+          "label": "c1-reverse-0",
+          "job_id": "0ecd8fdd-e337-4d69-aa89-1411d8967dde",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364917.2511528,
+          "session_hash": "0a22be368074c4f4a85d0c31755894764e0b49416905fa272ea30a8c86b6eb5f",
+          "dispatch_started": true,
+          "send_at": 1791364920.553744,
+          "input_chars": 880,
+          "reply": "{\"job_id\":\"0ecd8fdd-e337-4d69-aa89-1411d8967dde\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "0ecd8fdd-e337-4d69-aa89-1411d8967dde",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364925.354638,
+          "elapsed_ms": 8103,
+          "peak_process_rss_kib": 45256
+        },
+        {
+          "label": "c1-reverse-1",
+          "job_id": "c375e886-ea2b-4e18-a797-3039b837fd17",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364925.357152,
+          "session_hash": "5c59f97fc82e5e77537d59138337f3e6dfcc095a990196f7686e4dacbd13c4bb",
+          "dispatch_started": true,
+          "send_at": 1791364929.004209,
+          "input_chars": 880,
+          "reply": "{\"job_id\": \"c375e886-ea2b-4e18-a797-3039b837fd17\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+          "output": {
+            "job_id": "c375e886-ea2b-4e18-a797-3039b837fd17",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364931.540169,
+          "elapsed_ms": 6183,
+          "peak_process_rss_kib": 45480
+        },
+        {
+          "label": "c1-reverse-2",
+          "job_id": "9dc8ed8e-ff68-41cb-a32b-cb5f28ead647",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364931.543098,
+          "session_hash": "1fea957ef78d8f535db5db6848fd7eee9f34e729b8c3fa959c4f67ee46f47a16",
+          "dispatch_started": true,
+          "send_at": 1791364934.9384859,
+          "input_chars": 880,
+          "reply": "{\"job_id\":\"9dc8ed8e-ff68-41cb-a32b-cb5f28ead647\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "9dc8ed8e-ff68-41cb-a32b-cb5f28ead647",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364939.7544389,
+          "elapsed_ms": 8211,
+          "peak_process_rss_kib": 45480
+        },
+        {
+          "label": "c1-reverse-3",
+          "job_id": "7ac402bc-aa56-4e98-b475-7ddcf1594d31",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364939.7575796,
+          "session_hash": "89aff28ab68875630f901b168a9bce344ed9a7120b334de66dab43c788fc3542",
+          "dispatch_started": true,
+          "send_at": 1791364945.2950878,
+          "input_chars": 880,
+          "reply": "{\"job_id\":\"7ac402bc-aa56-4e98-b475-7ddcf1594d31\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "7ac402bc-aa56-4e98-b475-7ddcf1594d31",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364947.836593,
+          "elapsed_ms": 8079,
+          "peak_process_rss_kib": 45480
+        }
+      ],
+      "wall_ms": 30589
+    }
+  ],
+  "peak_process_rss_kib": 45480,
+  "speedup": 1.3070546511131051,
+  "gate": false
+}

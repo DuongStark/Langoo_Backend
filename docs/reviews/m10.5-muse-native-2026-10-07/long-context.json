@@ -1,0 +1,57 @@
+{
+  "task": "M10.5",
+  "jobs": [
+    {
+      "label": "long-bank",
+      "job_id": "8c0017f6-d597-4e67-9414-376aa75dbc66",
+      "ok": true,
+      "sent": true,
+      "started_at": 1791365027.314464,
+      "session_hash": "abf5425ce43047461e6113cae4af1d4b1da726cb691f32127d6cb4001ff92d44",
+      "dispatch_started": true,
+      "send_at": 1791365030.9560716,
+      "input_chars": 23543,
+      "reply": "{\"job_id\":\"8c0017f6-d597-4e67-9414-376aa75dbc66\",\"items\":[{\"lemma\":\"bank\",\"sense_id\":\"1092754\"}]}",
+      "output": {
+        "job_id": "8c0017f6-d597-4e67-9414-376aa75dbc66",
+        "items": [
+          {
+            "lemma": "bank",
+            "sense_id": "1092754"
+          }
+        ]
+      },
+      "semantic_ok": null,
+      "finished_at": 1791365035.9019232,
+      "elapsed_ms": 8587,
+      "peak_process_rss_kib": 47032
+    },
+    {
+      "label": "long-light",
+      "job_id": "fe8c4f91-d042-4651-b3cd-e47ca252b6ee",
+      "ok": true,
+      "sent": true,
+      "started_at": 1791365027.3169005,
+      "session_hash": "24303f30a46b2b5eb5e5778e3eadae43fec46c94e97c843d553c6f42c0513263",
+      "dispatch_started": true,
+      "send_at": 1791365030.9594345,
+      "input_chars": 43682,
+      "reply": "{\"job_id\": \"fe8c4f91-d042-4651-b3cd-e47ca252b6ee\", \"items\": [{\"lemma\": \"light\", \"sense_id\": \"2527232\"}]}",
+      "output": {
+        "job_id": "fe8c4f91-d042-4651-b3cd-e47ca252b6ee",
+        "items": [
+          {
+            "lemma": "light",
+            "sense_id": "2527232"
+          }
+        ]
+      },
+      "semantic_ok": null,
+      "finished_at": 1791365050.5614595,
+      "elapsed_ms": 23245,
+      "peak_process_rss_kib": 50084
+    }
+  ],
+  "transport_ok": true,
+  "semantic_review_pending": true
+}

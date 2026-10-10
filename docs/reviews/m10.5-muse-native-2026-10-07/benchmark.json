@@ -1,0 +1,276 @@
+{
+  "task": "M10.5",
+  "phases": [
+    {
+      "concurrency": 1,
+      "jobs": [
+        {
+          "label": "c1-0",
+          "job_id": "643c1b22-637b-45fa-bb01-7e7ff3cde089",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364723.5807822,
+          "session_hash": "0f2c7470f8f151b2f0ffb26f53f5e20ce40b920d69d8a0da075174c3e00364d7",
+          "dispatch_started": true,
+          "send_at": 1791364727.2931483,
+          "reply": "{\"job_id\":\"643c1b22-637b-45fa-bb01-7e7ff3cde089\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "643c1b22-637b-45fa-bb01-7e7ff3cde089",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364734.3755097,
+          "elapsed_ms": 10795,
+          "peak_process_rss_kib": 43012
+        },
+        {
+          "label": "c1-1",
+          "job_id": "0861e3a9-e2c9-4fa5-994f-672e461820b6",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364734.3793693,
+          "session_hash": "78bb621a72b27284ffd4d89c01ba04c982e4f0c9c56b02bf42db0aadb2f2c0b9",
+          "dispatch_started": true,
+          "send_at": 1791364737.9868543,
+          "reply": "{\"job_id\": \"0861e3a9-e2c9-4fa5-994f-672e461820b6\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+          "output": {
+            "job_id": "0861e3a9-e2c9-4fa5-994f-672e461820b6",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364742.804647,
+          "elapsed_ms": 8425,
+          "peak_process_rss_kib": 43540
+        },
+        {
+          "label": "c1-2",
+          "job_id": "07d0bb64-33ff-4e56-936d-52619e3e2f2b",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364742.808815,
+          "session_hash": "8f48a0fa850274b18800b156146d93f3a5d9354899b2ca06def9f86070d21183",
+          "dispatch_started": true,
+          "send_at": 1791364746.4199574,
+          "reply": "{\"job_id\":\"07d0bb64-33ff-4e56-936d-52619e3e2f2b\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "07d0bb64-33ff-4e56-936d-52619e3e2f2b",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364748.9580295,
+          "elapsed_ms": 6149,
+          "peak_process_rss_kib": 43804
+        },
+        {
+          "label": "c1-3",
+          "job_id": "36a70607-bce0-4d13-9301-774cf5b7f467",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364748.9607983,
+          "session_hash": "f4e432917ed5cd418acf4037dac1e0e162ab4c759080b8540fcdc75c49c3dede",
+          "dispatch_started": true,
+          "send_at": 1791364752.4747462,
+          "reply": "{\"job_id\": \"36a70607-bce0-4d13-9301-774cf5b7f467\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+          "output": {
+            "job_id": "36a70607-bce0-4d13-9301-774cf5b7f467",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364755.0118897,
+          "elapsed_ms": 6051,
+          "peak_process_rss_kib": 43804
+        }
+      ],
+      "wall_ms": 31435
+    },
+    {
+      "concurrency": 2,
+      "jobs": [
+        {
+          "label": "c2-0",
+          "job_id": "a47952da-09c0-4f0d-aaf4-6e8eb3fa2828",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364755.016376,
+          "session_hash": "e9a4d8076d68573d7148c6dc737220cc66561fe65b8135b8b3d6f766aac25595",
+          "dispatch_started": true,
+          "send_at": 1791364758.7746975,
+          "reply": "{\"job_id\": \"a47952da-09c0-4f0d-aaf4-6e8eb3fa2828\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+          "output": {
+            "job_id": "a47952da-09c0-4f0d-aaf4-6e8eb3fa2828",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364761.334115,
+          "elapsed_ms": 6318,
+          "peak_process_rss_kib": 45412
+        },
+        {
+          "label": "c2-1",
+          "job_id": "79171dea-20e8-4eb4-be69-6882e3df922e",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364755.0184119,
+          "session_hash": "fe1271ab62a1c3f16e9f69dc5fb3e8c02d121b2490ef5a50a7430376908fc373",
+          "dispatch_started": true,
+          "send_at": 1791364758.5545304,
+          "reply": "{\"job_id\":\"79171dea-20e8-4eb4-be69-6882e3df922e\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "79171dea-20e8-4eb4-be69-6882e3df922e",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364761.0922127,
+          "elapsed_ms": 6074,
+          "peak_process_rss_kib": 45408
+        },
+        {
+          "label": "c2-2",
+          "job_id": "7dd9e98b-30f1-484b-a8a6-8d34a76778f3",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364761.095468,
+          "session_hash": "5811753d92ba9dad5916ab5a837d25ef966d7ef6215f7cba21df24929bffee8e",
+          "dispatch_started": true,
+          "send_at": 1791364764.7612634,
+          "reply": "{\"job_id\": \"7dd9e98b-30f1-484b-a8a6-8d34a76778f3\", \"items\": [{\"lemma\": \"cat\", \"sense_id\": \"1001\"}, {\"lemma\": \"bank\", \"sense_id\": \"2001\"}, {\"lemma\": \"draw\", \"sense_id\": \"3001\"}]}",
+          "output": {
+            "job_id": "7dd9e98b-30f1-484b-a8a6-8d34a76778f3",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364767.4601789,
+          "elapsed_ms": 6365,
+          "peak_process_rss_kib": 45676
+        },
+        {
+          "label": "c2-3",
+          "job_id": "2deb6926-c2d9-4738-b8a6-d5efd3c47df7",
+          "ok": true,
+          "sent": true,
+          "started_at": 1791364761.3366833,
+          "session_hash": "645d2c4693b7c32ac0aa44bde2f9b91185d41f3aeff994f41eb65d1b4d784315",
+          "dispatch_started": true,
+          "send_at": 1791364764.981004,
+          "reply": "{\"job_id\":\"2deb6926-c2d9-4738-b8a6-d5efd3c47df7\",\"items\":[{\"lemma\":\"cat\",\"sense_id\":\"1001\"},{\"lemma\":\"bank\",\"sense_id\":\"2001\"},{\"lemma\":\"draw\",\"sense_id\":\"3001\"}]}",
+          "output": {
+            "job_id": "2deb6926-c2d9-4738-b8a6-d5efd3c47df7",
+            "items": [
+              {
+                "lemma": "cat",
+                "sense_id": "1001"
+              },
+              {
+                "lemma": "bank",
+                "sense_id": "2001"
+              },
+              {
+                "lemma": "draw",
+                "sense_id": "3001"
+              }
+            ]
+          },
+          "semantic_ok": true,
+          "finished_at": 1791364767.555535,
+          "elapsed_ms": 6219,
+          "peak_process_rss_kib": 45676
+        }
+      ],
+      "wall_ms": 12543
+    }
+  ],
+  "peak_process_rss_kib": 45724,
+  "speedup": 2.5061787451167983,
+  "gate": true
+}

@@ -1,0 +1,31 @@
+{
+  "task": "M10.5",
+  "transport_pass": true,
+  "generation_count": 19,
+  "cap": 20,
+  "synthetic_generations": 17,
+  "real_source_generations": 2,
+  "invalid_outputs": 0,
+  "cross_chat_mixing_observed": 0,
+  "round_speedups": [
+    2.5061787451167983,
+    1.3070546511131051
+  ],
+  "pooled_speedup": 1.7254771045457074,
+  "stable_speedup_gate_1_5_each_round": false,
+  "peak_rss_mib": 48.91015625,
+  "long_contexts": [
+    {
+      "lemma": "bank",
+      "source_senses": 78
+    },
+    {
+      "lemma": "light",
+      "source_senses": 156
+    }
+  ],
+  "browser_restored": true,
+  "db_mutations": 0,
+  "default_provider_changed": false,
+  "paid_model_api_calls": 0
+}
