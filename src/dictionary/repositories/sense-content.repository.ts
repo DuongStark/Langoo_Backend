@@ -63,9 +63,37 @@ export class SenseContentRepository {
 
   async getExamples(senseId: bigint, limit: number): Promise<ExampleRow[]> {
     return this.prisma.$queryRaw<ExampleRow[]>`
-      SELECT e.id, e.language_id, e.text, e.translation, e.difficulty,
+      WITH candidates AS (
+        SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
+        FROM core.example e
+        WHERE e.sense_id = ${senseId}
+        UNION
+        SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
+        FROM core.example_sense es
+        JOIN core.example e ON e.id = es.example_id
+        WHERE es.sense_id = ${senseId}
+          AND es.relation = 'illustrates'
+          AND e.sense_id IS DISTINCT FROM ${senseId}
+      ),
+      dedup AS (
+        SELECT DISTINCT ON (dt.display_text, c.language_id)
+               c.id, c.language_id, c.text, c.translation, c.difficulty
+        FROM candidates c
+        CROSS JOIN LATERAL (
+          SELECT coalesce(
+            (SELECT s2->>'text'
+             FROM jsonb_array_elements(coalesce(c.translation->'sentences', '[]'::jsonb)) s2
+             WHERE s2->>'lang' = 'jpn' AND btrim(s2->>'text') <> ''
+             LIMIT 1),
+            c.text) AS display_text
+        ) dt
+        ORDER BY dt.display_text, c.language_id,
+                 (jsonb_array_length(coalesce(c.translation->'sentences', '[]'::jsonb)) > 0) DESC,
+                 c.id ASC
+      )
+      SELECT d.id, d.language_id, d.text, d.translation, d.difficulty,
              vi.text AS translation_vi
-      FROM core.example e
+      FROM dedup d
       LEFT JOIN LATERAL (
         SELECT t.text
         FROM core.example ja
@@ -73,12 +101,11 @@ export class SenseContentRepository {
           ON (x.example_id = ja.id OR x.translation_id = ja.id)
         JOIN core.example t
           ON t.id = CASE WHEN x.example_id = ja.id THEN x.translation_id ELSE x.example_id END
-        WHERE ja.external_id = 'tatoeba:' || (e.translation->'source'->>'value')
+        WHERE ja.external_id = 'tatoeba:' || (d.translation->'source'->>'value')
           AND t.language_id = 3
         LIMIT 1
       ) vi ON true
-      WHERE e.sense_id = ${senseId}
-      ORDER BY e.id ASC
+      ORDER BY d.id ASC
       LIMIT ${limit}
     `;
   }
