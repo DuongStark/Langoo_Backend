@@ -164,3 +164,58 @@ số sense có hits. Chưa có gold mapping hoặc LLM semantic review ở lư�
 
 Code/test/docs lưu local; chưa commit/push/deploy app, không apply DB. Kết quả kiểm
 tra và smoke thực tế được ghi tại [review](../reviews/db4-d2-source-minilm-retrieval-2026-10-08.md).
+
+## 7. DB4-D2 follow-up — retrieval version mới ngày 10/10
+
+Artifact mới dùng `db4-d2-hybrid-rrf-v1`; không parse artifact
+`db4-d2-minilm-v1` như output của ranker mới. D1 shape không đổi. Pipeline mới
+truy hồi top 30/lane từ exact-label/token-overlap index và MiniLM cho query tổng
+cùng từng EN gloss, union cap 100, RRF `k=60`, deterministic tie-break theo gloss
+coverage rồi semantic key, tối đa 5 candidate.
+
+`hit.score` là normalized RRF 0–1; `features` giữ raw RRF/ranks, cosine MiniLM,
+lexical overlap, coverage và pruning counts. `retrieval.rankScore` lấy trực tiếp
+normalized RRF; `calibratedScore=null`. Với artifact v1 lịch sử, rankScore vẫn
+được diễn giải bằng cosine transform ở đúng method version cũ. Không dùng score
+nào làm xác suất đúng.
+
+Chi tiết implementation/check/gate ở [review DB4-D2 RRF](../reviews/db4-d2-hybrid-rrf-2026-10-10.md)
+và [plan DB4-D2](../plans/db4-d2-source-minilm-retrieval.md).
+Chưa chạy ranker mới trên cohort, chưa gọi Muse, chưa apply DB hoặc deploy.
+
+## 8. Cohort selector — code local ngày 10/10
+
+Giữ `--cohort jlpt` cho export lịch sử N4/N5. Để lấy accepted JLPT N1–N5, dùng
+cohort mới `jlpt-n1-n5`; export ghi population count trong `inventory.json` và
+`truncated`. Đặt `--limit` ít nhất bằng population count. Selector từ chối snapshot
+partial, fingerprint sai, retrieval version cũ hoặc số sense khác inventory.
+
+```bash
+cd /opt/langoo/app
+
+npx tsx scripts/db4/retrieval-export.ts \
+  --artifact-dir uploads/db4-run \
+  --prefix export --cohort jlpt-n1-n5 --limit 20000 --chunk 500
+
+npx tsx scripts/db4/cohort-select.ts \
+  --artifact-dir uploads/db4-run \
+  --manifest export/manifest.json \
+  --known-development docs/reviews/db4-d2-known-development-lexemes-2026-10-10.json \
+  --seed db4-d4-d5-cohort-2026-10-10-v1 \
+  --prefix cohort/2026-10-10-v1
+```
+
+`cohort-select.ts` tạo `population.json`, `selected.jsonl`, `sampling.json`, từ
+full export đã có; nó không query DB. Đầu ra immutable nên dùng prefix mới cho
+cohort mới. 41 known pilot lexeme luôn ở development; các target giữ `senseKey`,
+source `senses.jsonl` path/line/row SHA256, `originalStatus`, strata, split và
+shard. Chọn tối đa 200 development + 800 holdout, tối đa 5 sense/lexeme, 10 shard
+tổng với tối đa 100 sense/shard; nếu dữ liệu không đủ, report số thật và quota
+gate chưa đạt. Split không dùng database numeric ID.
+
+Population hiện không có tần suất corpus; JLPT level chỉ là level JLPT. Không
+diễn giải nó là số lần dùng từ. Không có sampling weights. Selector kiểm hash
+manifest, sense file và inventory; bước `loadExport` tiếp tục kiểm full concept
+file trước khi retrieval. Các lệnh trên chưa chạy trên VPS; xem
+[review DB4-D2 selector](../reviews/db4-d2-cohort-selector-2026-10-10.md) và
+[review selector DB4-D2](../reviews/db4-d2-cohort-selector-2026-10-10.md).

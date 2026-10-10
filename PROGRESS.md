@@ -78,13 +78,60 @@
 | DB1    | Dọn schema & chốt nguồn sự thật    | PK staging còn thiếu; metadata curation (`concept.reviewed_by/at`, `candidate.decision_run_id` + index); COMMENT ngữ nghĩa; regenerate CSDL doc; sửa tài liệu sai số | ✅ đã triển khai ([kế hoạch](docs/plans/db1-schema-cleanup.md))                                                                                                                                                   |
 | DB2    | Hạ tầng tìm kiếm                   | `pg_trgm` + 4 GIN trigram (033); `core.bigrams` + 4 GIN bigram (035); query 3 nhánh UNION dùng index; benchmark VPS `走る` 7,7s → 0,11s                              | ✅ đã triển khai ([kế hoạch](docs/plans/db2-search-infra.md))                                                                                                                                                     |
 | DB3    | Seed dữ liệu nền                   | `radical` 214; KanjiVG → `media_asset`/`kanji_media`; deck hệ thống; gloss tiếng Việt cấp sense/concept; chốt chính sách JLPT; audit `/credits`                      | 📋                                                                                                                                                                                                                |
-| DB4    | Hoàn tất mapping sense↔concept     | Candidate generator + chấm điểm + LLM 2 lượt + audit + promote/rollback theo `mapping_run`; dọn tồn translations/relations/Tatoeba/OMW; view coverage                | 📋 [plan chi tiết](docs/plans/db4-sense-concept-mapping.md); D1 contract + D2 MiniLM adapter local; D4 pilot đã chạy, 137/138 output D1-valid, semantic gate/apply chưa đạt; D0 full/legacy audit, D5–D7 còn chờ |
+| DB4    | Hoàn tất mapping sense↔concept                          | Candidate generator + chấm điểm + LLM 2 lượt + audit + promote/rollback theo `mapping_run`; dọn tồn translations/relations/Tatoeba/OMW; view coverage                | 📋 [plan chi tiết](docs/plans/db4-sense-concept-mapping.md); D1 contract + D2 MiniLM/RRF + selector code local; export/cohort chưa freeze; D4 pilot đã chạy, 137/138 output D1-valid, semantic gate/apply chưa đạt; D0 full/legacy audit, D5–D7 còn chờ                                                                |
 | DB5    | Curation + serve + go-live DB thật | Quy trình duyệt concept/gloss; refresh `serve.sense_pair`; giao M14 (admin ghi `core`); kiểm readiness DB thật                                                       | 📋 curation/serving còn chờ; API VPS đã đọc DB thật (xác minh 06/10), chưa đồng nghĩa DB5 đạt gate                                                                                                                |
 | DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
-| DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | Export READ ONLY, raw source audit, ONNX CPU/cache, D1 candidates/bundles + identity/status sidecars | ✅ adapter đã kiểm local: smoke 100 sense → 345 candidate / 69 bundle; 31 no candidates; [review](docs/reviews/db4-d2-source-minilm-retrieval-2026-10-08.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md); đã commit/push 10/10 (15303b6); chưa deploy/apply, chưa semantic gate |
+| DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | Export READ ONLY, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF shortlist + deterministic cohort/sampling + D1 artifacts                                   | 🟡 v1 adapter đã kiểm local: 100 sense → 345 candidate / 69 bundle; đã commit/push 10/10 (15303b6). RRF + cohort selector/N1–N5 export code local, static pass; chưa export/freeze sample 200/800 hoặc chạy ONNX/Muse; [review v1](docs/reviews/db4-d2-source-minilm-retrieval-2026-10-08.md), [RRF](docs/reviews/db4-d2-hybrid-rrf-2026-10-10.md), [selector](docs/reviews/db4-d2-cohort-selector-2026-10-10.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md); chưa commit/push/deploy/apply, semantic gate chưa đạt |
 | DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
 | DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | System prompt + phase R1/R2 đúng D1, Muse runner, repair hữu hạn + partial validator | 🟡 pilot + một repair pass đã xong; D1 chấp nhận 137/138, 1 output còn thiếu candidate; [plan](docs/plans/db4-d4-semantic-match-prompt-v1.md), [report](docs/reviews/db4-d4-muse-pilot-2026-10-08.md); semantic gate chưa đạt; đã commit/push 10/10 (7c8138f); chưa apply/deploy |
 | DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
+
+### 2026-10-10 — DB4-D2 — Hybrid lexical-MiniLM retrieval bằng RRF
+
+- Theo lựa chọn RRF của chủ dự án, thêm method version
+  `db4-d2-hybrid-rrf-v1`: mỗi EN gloss và query tổng tạo lexical/MiniLM lanes;
+  top 30/lane, exact-label boost + token overlap, RRF `k=60`, pool cap 100,
+  tối đa 5 candidates. D1 shape giữ nguyên; `rankScore` lưu normalized RRF,
+  cosine/lexical/rank/coverage giữ trong `features`, không phải xác suất.
+- Cache/artifact nhận version mới; kết quả `db4-d2-minilm-v1` cũ không bị sửa.
+  Code/docs: `scripts/db4/mapping_minilm.py`, `scripts/db4/_retrieval.ts`, D2
+  plan/handoff; [review](docs/reviews/db4-d2-hybrid-rrf-2026-10-10.md).
+- Kiểm tra tĩnh: `npx tsc -p tsconfig.db4.json --noEmit`, ESLint scoped,
+  Python `py_compile`/Black và Prettier scoped pass. Global `git diff --check`
+  chỉ vấp trailing whitespace có sẵn ở FE handoff dòng 3; scoped `git diff --check`
+  trên file thuộc thay đổi này pass. Test suite/ONNX cohort/Muse/DB chưa chạy.
+- Tại thời điểm ghi entry này split còn chờ chốt; follow-up phía dưới đã chốt
+  200/800 và thêm selector code. Chưa benchmark chất lượng/thời gian RRF trên
+  corpus, chưa commit/push/deploy/apply.
+
+### 2026-10-10 — DB4-D2 — Preflight cohort JLPT N1–N5
+
+- Đếm READ ONLY qua SSH trên VPS trong transaction repeatable-read/read-only:
+  15.245 JMdict senses accepted N1–N5; các mức N1–N5: 4.334/2.705/4.611/1.613/
+  1.982. Cả 15.245 đều có ≥1 EN gloss; 1.784 có field/info/domain; exact link
+  hiện có bằng 0. POS: noun 8.790, verb 4.072, adjective 1.353, adverb 603,
+  expression 113, pronoun 84, interjection 69, conjunction 63, suffix 63, prefix 35.
+- Kết quả và điều kiện phải đếm lại ở [review cohort selector](docs/reviews/db4-d2-cohort-selector-2026-10-10.md).
+  Query chỉ đọc số đếm; không export sense/concept, sửa DB, mở job hoặc gọi Muse.
+- Git/triển khai: ghi nhận local chưa commit/push; VPS không đổi.
+
+### 2026-10-10 — DB4-D2 — Selector cohort JLPT 200/800 lexeme-disjoint
+
+- Thay đổi / lý do: thêm `jlpt-n1-n5` export riêng, population-count/truncated
+  guard, deterministic 200 development / 800 holdout selector, 5-sense-per-lexeme
+  cap, strata gồm original-link status, shard/provenance. `jlpt` lịch sử N4/N5 không đổi.
+- File / phạm vi: `scripts/db4/retrieval-export.ts`, `scripts/db4/cohort-select.ts`;
+  known pilot set 41 lexeme;
+  [review](docs/reviews/db4-d2-cohort-selector-2026-10-10.md),
+  [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md),
+  [D2 plan](docs/plans/db4-d2-source-minilm-retrieval.md).
+- Kiểm tra / kết quả: TypeScript, scoped ESLint/Prettier/diff-check, JSON parse và
+  sorted/unique 41-ID check pass. Unit tests chưa chạy. Chưa export/freeze cohort,
+  chưa gọi ONNX/Muse hoặc ghi DB.
+- Gate còn thiếu: chạy full READ ONLY export + selector trên VPS; xác nhận counts,
+  200/800, strata, split/shard leakage, unmatched pilot IDs; source audit/retrieval.
+- Git / triển khai: code/docs local chưa commit/push; không deploy/apply DB. Giữ
+  nguyên các WIP khác trong working tree.
 
 ### 2026-10-10 — DB4-D5 — Audit chất lượng proposal exact
 

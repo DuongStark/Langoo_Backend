@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""DB4-D2: audit immutable artifacts, then retrieve with pinned MiniLM on CPU.
+"""DB4-D2: audit immutable artifacts, then retrieve with pinned hybrid ranker.
 
 No PostgreSQL client, LLM call, promotion or application runtime dependency.
 """
@@ -13,11 +13,17 @@ import os
 import re
 import sqlite3
 import time
+import unicodedata
+from array import array
+from collections import defaultdict
 from pathlib import Path
 
 MODEL = "sentence-transformers/all-MiniLM-L6-v2"
 REVISION = "1110a243fdf4706b3f48f1d95db1a4f5529b4d41"
-VERSION = "db4-d2-minilm-v1"
+VERSION = "db4-d2-hybrid-rrf-v1"
+RRF_K = 60
+RETRIEVE_K = 30
+LEXICAL_TOKEN = re.compile(r"[^\W_]+", re.UNICODE)
 MODEL_CONFIG_FILES = [
     "tokenizer.json",
     "1_Pooling/config.json",
@@ -500,6 +506,70 @@ def compatible_pos(sense: dict, concept: dict) -> bool:
     return not positions or pos is None or pos == "unknown" or pos in positions
 
 
+def lexical_tokens(text: str) -> list[str]:
+    normalized = unicodedata.normalize("NFKC", text).casefold()
+    return LEXICAL_TOKEN.findall(normalized)
+
+
+class LexicalIndex:
+    """Compact inverted index using token overlap and exact-label phrase boost."""
+
+    def __init__(self, documents: list[str], labels_by_document: list[list[str]], np):
+        if len(documents) != len(labels_by_document):
+            raise ValueError("Lexical labels/document count mismatch")
+        self.np = np
+        self.count = len(documents)
+        postings_docs = defaultdict(lambda: array("I"))
+        self.exact_labels = defaultdict(list)
+        for doc_id, document in enumerate(documents):
+            terms = set(lexical_tokens(document))
+            for term in terms:
+                postings_docs[term].append(doc_id)
+            normalized_labels = {
+                " ".join(lexical_tokens(label)) for label in labels_by_document[doc_id]
+            }
+            for normalized_label in normalized_labels - {""}:
+                self.exact_labels[normalized_label].append(doc_id)
+        self.postings = dict(postings_docs)
+
+    def top(self, query: str, eligible_mask, concepts: list[dict], limit=RETRIEVE_K):
+        np = self.np
+        terms = set(lexical_tokens(query))
+        if not terms or not self.count:
+            return [], np.zeros(self.count, dtype=np.float32)
+        scores = np.zeros(self.count, dtype=np.float32)
+        for term in terms:
+            raw_ids = self.postings.get(term)
+            if raw_ids is None:
+                continue
+            ids = np.frombuffer(raw_ids, dtype=np.uint32)
+            scores[ids] += 1
+        scores[~eligible_mask] = 0
+        normalized_query = " ".join(lexical_tokens(query))
+        exact_ids = [
+            doc_id
+            for doc_id in self.exact_labels.get(normalized_query, [])
+            if eligible_mask[doc_id]
+        ]
+        if exact_ids:
+            scores[exact_ids] += len(terms) + 1
+        positive = np.flatnonzero(scores > 0)
+        if not len(positive):
+            return [], scores
+        # Stable semantic-key ordering resolves both ties and partial top-k boundaries.
+        if len(positive) > limit:
+            cutoff = float(np.partition(scores[positive], -limit)[-limit])
+            positive = np.asarray(
+                [idx for idx in positive if float(scores[idx]) >= cutoff],
+                dtype=np.int64,
+            )
+        ranked = sorted(
+            (int(idx) for idx in positive),
+            key=lambda idx: (-float(scores[idx]), concepts[idx]["semanticKey"]),
+        )[:limit]
+        return ranked, scores
+
+
 def chunk_ids(
     ids: list[int], capacity: int = 254, overlap: int = 32
 ) -> list[list[int]]:
@@ -602,6 +672,7 @@ class Encoder:
 
 
 def pick_hits(scores, branch_scores, concepts, seed_ids, sense, top_k=5, retrieve_k=20):
+    """Frozen D2 v1 selector, retained for existing regression fixtures."""
     import numpy as np
 
     if not 1 <= top_k <= 5:
@@ -613,7 +684,6 @@ def pick_hits(scores, branch_scores, concepts, seed_ids, sense, top_k=5, retriev
             eligible, key=lambda i: (-float(values[i]), concepts[i]["semanticKey"])
         )
 
-    # Use partial top-k to keep search cost bounded; stable key resolves ties at the boundary.
     def shortlist(values):
         if len(eligible) <= retrieve_k:
             return ordered(values)
@@ -638,7 +708,6 @@ def pick_hits(scores, branch_scores, concepts, seed_ids, sense, top_k=5, retriev
     }
     pool = set(global_ids) | seeds | {i for ids in per_branch for i in ids}
     ranked = sorted(pool, key=lambda i: (-float(scores[i]), concepts[i]["semanticKey"]))
-    # A separate branch may be a synonym, not a distinct sense; this is retrieval diversification.
     selected = []
     if global_ids:
         selected.append(global_ids[0])
@@ -668,6 +737,131 @@ def pick_hits(scores, branch_scores, concepts, seed_ids, sense, top_k=5, retriev
                     j
                     for j, ids in enumerate(per_branch)
                     if ids and ids[0] not in selected
+                ],
+                "scoreIsExactProbability": False,
+            },
+        }
+        for i in selected
+    ]
+
+
+def pick_hybrid_hits(
+    global_scores,
+    gloss_scores,
+    concepts,
+    seed_ids,
+    sense,
+    lexical_index,
+    global_query,
+    gloss_queries,
+    top_k=5,
+    retrieve_k=RETRIEVE_K,
+):
+    import numpy as np
+
+    if not 1 <= top_k <= 5:
+        raise ValueError("Contract permits 1..5 candidates")
+    eligible = [i for i, c in enumerate(concepts) if compatible_pos(sense, c)]
+    eligible_mask = np.zeros(len(concepts), dtype=bool)
+    eligible_mask[eligible] = True
+
+    def shortlist(values):
+        if len(eligible) <= retrieve_k:
+            candidates = eligible
+        else:
+            ids = np.asarray(eligible)
+            cutoff = float(np.partition(values[ids], -retrieve_k)[-retrieve_k])
+            candidates = [i for i in eligible if float(values[i]) >= cutoff]
+        return sorted(
+            candidates,
+            key=lambda i: (-float(values[i]), concepts[i]["semanticKey"]),
+        )[:retrieve_k]
+
+    lanes = []
+    minilm_global = shortlist(global_scores)
+    lexical_global, lexical_global_scores = lexical_index.top(
+        global_query, eligible_mask, concepts, retrieve_k
+    )
+    lanes.extend([("minilm_global", minilm_global), ("lexical_global", lexical_global)])
+    minilm_glosses, lexical_glosses = [], []
+    lexical_gloss_scores = []
+    for index, query in enumerate(gloss_queries):
+        minilm_glosses.append(shortlist(gloss_scores[index]))
+        lexical_ids, lexical_scores = lexical_index.top(
+            query, eligible_mask, concepts, retrieve_k
+        )
+        lexical_glosses.append(lexical_ids)
+        lexical_gloss_scores.append(lexical_scores)
+        lanes.extend(
+            [
+                ("minilm_gloss:" + str(index), minilm_glosses[-1]),
+                ("lexical_gloss:" + str(index), lexical_glosses[-1]),
+            ]
+        )
+
+    permitted_forms = allowed_forms(sense)
+    seeds = {
+        i
+        for i in eligible
+        if concepts[i]["id"] in seed_ids
+        and (
+            not concepts[i]["jaLabels"]
+            or bool(permitted_forms & set(concepts[i]["jaLabels"]))
+        )
+    }
+    pool = seeds | {i for _, ids in lanes for i in ids}
+    fused = defaultdict(float)
+    ranks = defaultdict(list)
+    covered_glosses = defaultdict(set)
+    for lane_name, ids in lanes:
+        for rank, concept_index in enumerate(ids, start=1):
+            fused[concept_index] += 1 / (RRF_K + rank)
+            ranks[concept_index].append({"lane": lane_name, "rank": rank})
+            if lane_name.startswith(("minilm_gloss:", "lexical_gloss:")):
+                covered_glosses[concept_index].add(int(lane_name.rsplit(":", 1)[1]))
+    ranked = sorted(
+        pool,
+        key=lambda i: (
+            -fused[i],
+            -len(covered_glosses[i]),
+            concepts[i]["semanticKey"],
+        ),
+    )
+    capped = ranked[:100]
+    selected = capped[:top_k]
+    lane_count = 2 * (1 + len(gloss_queries))
+    max_rrf = lane_count / (RRF_K + 1)
+
+    return [
+        {
+            "conceptId": concepts[i]["id"],
+            "score": round(fused[i] / max_rrf if max_rrf else 0, 6),
+            "branches": [lane for lane, ids in lanes if i in ids]
+            + (["lexical_seed"] if i in seeds else []),
+            "features": {
+                "rankMethod": "normalized_rrf_v1",
+                "rrfK": RRF_K,
+                "rrfRaw": round(fused[i], 8),
+                "rrfLaneCount": lane_count,
+                "glossCoverage": len(covered_glosses[i]),
+                "rrfRanks": ranks[i],
+                "cosine": round(float(global_scores[i]), 6),
+                "glossCosines": [round(float(row[i]), 6) for row in gloss_scores],
+                "lexicalGlobalScore": round(float(lexical_global_scores[i]), 6),
+                "lexicalGlossScores": [
+                    round(float(row[i]), 6) for row in lexical_gloss_scores
+                ],
+                "lexicalSeed": i in seeds,
+                "poolSize": len(pool),
+                "poolCap": 100,
+                "poolCapPrunedCount": max(0, len(pool) - len(capped)),
+                "prunedCount": max(0, len(pool) - len(selected)),
+                "unrepresentedBranchTop": [
+                    lane
+                    for lane, ids in lanes
+                    if lane.startswith(("minilm_gloss:", "lexical_gloss:"))
+                    and ids
+                    and ids[0] not in selected
                 ],
                 "scoreIsExactProbability": False,
             },
@@ -867,7 +1061,13 @@ def retrieve(args):
     ]
     started = time.monotonic()
     encoder = Encoder(model_dir, args.batch, args.threads, args.onnx_file)
-    concepts, documents, concept_hash = [], [], hashlib.sha256()
+    concepts, documents, lexical_documents, lexical_labels, concept_hash = (
+        [],
+        [],
+        [],
+        [],
+        hashlib.sha256(),
+    )
     for item in lines(read_ref(root, manifest["files"]["concepts"])):
         concept = item["concept"]
         definitions = [
@@ -896,6 +1096,8 @@ def retrieve(args):
         doc = "\n".join(dict.fromkeys(definitions)) + (
             "\nSynonyms: " + "; ".join(labels) if labels else ""
         )
+        lexical_documents.append("\n".join(dict.fromkeys(labels + definitions)))
+        lexical_labels.append(labels)
         concepts.append(
             {
                 "id": concept["id"],
@@ -931,6 +1133,9 @@ def retrieve(args):
     cache_dir.mkdir(parents=True, exist_ok=True)
     vectors, hit, resumed = cache_embeddings(encoder, documents, cache_dir, cache_key)
     del documents
+    lexical_index = LexicalIndex(lexical_documents, lexical_labels, np)
+    del lexical_documents
+    del lexical_labels
     prefix = args.prefix
     results_path = rooted(root, prefix + "/results.jsonl")
     results_path.parent.mkdir(parents=True, exist_ok=True)
@@ -950,12 +1155,19 @@ def retrieve(args):
                 sources[key]["audit"]["status"] != "verified"
                 for key in sense["sourceKeys"]
             )
-            texts = [
+            gloss_texts = list(
+                dict.fromkeys(
+                    row["text"]
+                    for row in sense["senseContext"]["enGlosses"]
+                    if row["language"] == "en"
+                )
+            )
+            definition_texts = [
                 row["text"]
-                for row in sense["senseContext"]["enGlosses"]
-                + sense["senseContext"]["definitions"]
+                for row in sense["senseContext"]["definitions"]
                 if row["language"] == "en"
             ]
+            texts = list(dict.fromkeys(gloss_texts + definition_texts))
             if blocked:
                 reason = "blocked_source"
                 counts["blocked"] += 1
@@ -974,14 +1186,17 @@ def retrieve(args):
                 mean = query.mean(axis=0)
                 mean /= max(float(np.linalg.norm(mean)), 1e-12)
                 # Bounded matrix multiplication: no all-senses x all-concepts matrix.
-                branch_scores = query @ vectors.T
+                gloss_scores = query[: len(gloss_texts)] @ vectors.T
                 scores = mean @ vectors.T
-                hits = pick_hits(
+                hits = pick_hybrid_hits(
                     scores,
-                    branch_scores,
+                    gloss_scores,
                     concepts,
                     set(sense["seedConceptIds"]),
                     sense,
+                    lexical_index,
+                    " ".join(texts),
+                    gloss_texts,
                     args.top_k,
                 )
                 if hits:

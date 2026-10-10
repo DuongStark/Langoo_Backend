@@ -403,11 +403,23 @@ export async function runExport(flags: Record<string, string>) {
   mkdirSync(root, { recursive: true });
   const prefix = flags.prefix ?? 'export';
   const cohort = flags.cohort ?? 'jlpt';
-  if (!['jlpt', 'wordnet', 'unlinked-ja', 'unlinked-en'].includes(cohort))
+  if (
+    !['jlpt', 'jlpt-n1-n5', 'wordnet', 'unlinked-ja', 'unlinked-en'].includes(
+      cohort,
+    )
+  )
     throw new Error('Unknown cohort');
   const limit = positiveFlag(flags.limit, 100);
   const chunk = positiveFlag(flags.chunk, 500);
   if (chunk > 2000) throw new Error('Chunk exceeds 2000');
+  const cohortWhere =
+    cohort === 'jlpt'
+      ? "src.code='jmdict' AND EXISTS(SELECT 1 FROM core.jlpt_link jl WHERE jl.lexeme_id=l.id AND jl.status='accepted' AND jl.source_level IN (4,5))"
+      : cohort === 'jlpt-n1-n5'
+        ? "src.code='jmdict' AND EXISTS(SELECT 1 FROM core.jlpt_link jl WHERE jl.lexeme_id=l.id AND jl.status='accepted' AND jl.source_level BETWEEN 1 AND 5)"
+        : cohort === 'wordnet'
+          ? "src.code IN ('oewn','omw-en','omw-ja')"
+          : `src.code=${cohort === 'unlinked-ja' ? "'jmdict'" : "'wiktextract'"} AND lang.code=${cohort === 'unlinked-ja' ? "'ja'" : "'en'"} AND NOT EXISTS(SELECT 1 FROM core.sense_concept sc WHERE sc.sense_id=s.id AND sc.relation='exact')`;
   config({ quiet: true });
   const url = process.env.DB4_DATABASE_URL;
   if (!url)
@@ -446,10 +458,25 @@ export async function runExport(flags: Record<string, string>) {
     );
     const sources = sourceRegistry(rows);
     const sourceRef = writeJson(root, `${prefix}/sources.json`, sources);
+    const cohortCount = Number(
+      (
+        await client.query<{ count: string }>(
+          `SELECT count(*)::text AS count
+      FROM core.sense s JOIN core.lexeme l ON l.id=s.lexeme_id
+      JOIN public.source src ON src.id=s.source_id
+      JOIN public.language lang ON lang.id=l.language_id
+      WHERE ${cohortWhere}`,
+        )
+      ).rows[0].count,
+    );
+    if (!Number.isSafeInteger(cohortCount) || cohortCount < 0)
+      throw new Error('Invalid cohort population count');
     const inventory = writeJson(root, `${prefix}/inventory.json`, {
       origin,
       sourceRows: rows,
       cohort,
+      cohortCount,
+      truncated: cohortCount > limit,
       limit,
       chunk,
     });
@@ -457,7 +484,7 @@ export async function runExport(flags: Record<string, string>) {
       await client.query<{ id: string }>(
         `SELECT s.id::text FROM core.sense s JOIN core.lexeme l ON l.id=s.lexeme_id
       JOIN public.source src ON src.id=s.source_id JOIN public.language lang ON lang.id=l.language_id
-      WHERE ${cohort === 'jlpt' ? "src.code='jmdict' AND EXISTS(SELECT 1 FROM core.jlpt_link jl WHERE jl.lexeme_id=l.id AND jl.status='accepted' AND jl.source_level IN (4,5))" : cohort === 'wordnet' ? "src.code IN ('oewn','omw-en','omw-ja')" : `src.code=${cohort === 'unlinked-ja' ? "'jmdict'" : "'wiktextract'"} AND lang.code=${cohort === 'unlinked-ja' ? "'ja'" : "'en'"} AND NOT EXISTS(SELECT 1 FROM core.sense_concept sc WHERE sc.sense_id=s.id AND sc.relation='exact')`}
+      WHERE ${cohortWhere}
       ORDER BY s.id LIMIT $1`,
         [limit],
       )
@@ -560,6 +587,8 @@ export async function runExport(flags: Record<string, string>) {
       JSON.stringify({
         manifest: ref,
         counts: manifest.counts,
+        cohortPopulation: cohortCount,
+        truncated: cohortCount > limit,
         readOnly: true,
       }),
     );

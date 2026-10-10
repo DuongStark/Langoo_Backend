@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "task": "db4_known_development_lexemes",
+  "sources": [
+    {
+      "id": "db4-d2-retrieval-pilot-review",
+      "path": "docs/reviews/db4-d2-source-minilm-retrieval-2026-10-08.json",
+      "sha256": "16ab8e61c03e5492ff9663fbd8688244c9e6d28f63575af9b3a0240b18bbaaa7",
+      "recordCount": 31,
+      "identityExtraction": "emptyTargets[].semanticKey, jmdict:<entry>:<sense> to jmdict:<entry>",
+      "uniqueLexemes": 13
+    },
+    {
+      "id": "db4-d4-muse-pilot-requests",
+      "path": "db4-d4-muse-20261008/requests.jsonl",
+      "sha256": "68b99bc2c8b838c6dc0280c06c36910782b9ffaefd0317fb9ca658dd8bcc24b5",
+      "recordCount": 138,
+      "identityExtraction": "R1 payload.bundle.sense.identity.externalId",
+      "selectedR1Rows": 69,
+      "uniqueLexemes": 32
+    },
+    {
+      "id": "db4-d5-repeat-requests",
+      "path": "db4-d5-repeat-20261010/requests.jsonl",
+      "sha256": "46ef0bee65818c3aeeedc3aafedd7f1c96fa911a456c58b32b78480b056dad18",
+      "recordCount": 20,
+      "identityExtraction": "R2 repeat subset of the earlier D4 pilot; no additional lexeme IDs"
+    },
+    {
+      "id": "db4-d5-v2-sample30-requests",
+      "path": "db4-d5-v2-sample30-20261010/requests.jsonl",
+      "sha256": "22a95434da4d9f32d5632df1de3227fe6f2eb86feb26dc05b7dfacc79098a2ba",
+      "recordCount": 60,
+      "identityExtraction": "R1 payload.bundle.sense.identity.externalId",
+      "selectedR1Rows": 30,
+      "uniqueLexemes": 15,
+      "note": "All 15 lexemes are already included in the D4 pilot set."
+    }
+  ],
+  "lexemeExternalIds": [
+    "jmdict:1000320",
+    "jmdict:1000940",
+    "jmdict:1001180",
+    "jmdict:1001710",
+    "jmdict:1001830",
+    "jmdict:1001870",
+    "jmdict:1001990",
+    "jmdict:1002000",
+    "jmdict:1002100",
+    "jmdict:1002120",
+    "jmdict:1002170",
+    "jmdict:1002400",
+    "jmdict:1002430",
+    "jmdict:1002500",
+    "jmdict:1003430",
+    "jmdict:1004710",
+    "jmdict:1004790",
+    "jmdict:1004880",
+    "jmdict:1005110",
+    "jmdict:1006140",
+    "jmdict:1006280",
+    "jmdict:1006780",
+    "jmdict:1007000",
+    "jmdict:1007040",
+    "jmdict:1007130",
+    "jmdict:1008460",
+    "jmdict:1008630",
+    "jmdict:1009290",
+    "jmdict:1009330",
+    "jmdict:1012550",
+    "jmdict:1015220",
+    "jmdict:1017330",
+    "jmdict:1017760",
+    "jmdict:1019280",
+    "jmdict:1028580",
+    "jmdict:1030630",
+    "jmdict:1032030",
+    "jmdict:1032390",
+    "jmdict:1036290",
+    "jmdict:1039140",
+    "jmdict:1039220"
+  ]
+}

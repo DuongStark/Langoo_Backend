@@ -40,7 +40,7 @@ import {
   verifyArtifactBytes,
 } from './_mapping-types';
 
-export const RETRIEVAL_VERSION = 'db4-d2-minilm-v1';
+export const RETRIEVAL_VERSION = 'db4-d2-hybrid-rrf-v1';
 export const MODEL_ID = 'sentence-transformers/all-MiniLM-L6-v2';
 export const MODEL_REVISION = '1110a243fdf4706b3f48f1d95db1a4f5529b4d41';
 const Synset = z
@@ -482,7 +482,17 @@ export function makeCandidate(
       branches,
       rank,
       rankScore:
-        Math.round(Math.max(0, Math.min(1, (score + 1) / 2)) * 1e6) / 1e6,
+        Math.round(
+          Math.max(
+            0,
+            Math.min(
+              1,
+              features.rankMethod === 'normalized_rrf_v1'
+                ? score
+                : (score + 1) / 2,
+            ),
+          ) * 1e6,
+        ) / 1e6,
       calibratedScore: null,
       features,
       pruningRefs: [],
