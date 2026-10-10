@@ -16,6 +16,7 @@ import {
   writeArtifact,
   writeJson,
 } from './_retrieval';
+import { promptRevisionFromVersions } from './muse-prompt-version';
 
 type Request = {
   requestId: string;
@@ -89,7 +90,11 @@ export function validateMuseReview(
   const promptBytes = readArtifact(root, manifest.prompt);
   const prompt = JSON.parse(promptBytes.toString()) as {
     hashes: Record<string, string>;
+    versions: Record<'r1' | 'r2', string>;
   };
+  if (!prompt.versions?.r1 || !prompt.versions?.r2)
+    throw new Error('Prompt versions are incomplete');
+  const { revision } = promptRevisionFromVersions(prompt.versions);
   if (!prompt.hashes.system || !prompt.hashes.r1 || !prompt.hashes.r2)
     throw new Error('Prompt hashes are incomplete');
   const requestBytes = readArtifact(root, manifest.requests);
@@ -97,6 +102,10 @@ export function validateMuseReview(
   requests.forEach((request) =>
     MappingBundleSchema.parse(request.payload.bundle),
   );
+  for (const request of requests) {
+    if (request.promptVersion !== prompt.versions[request.phase])
+      throw new Error(`Request prompt version mismatch: ${request.requestId}`);
+  }
   const responseBytes = readFileSync(artifactPath(root, responsePath));
   const responses = jsonl<Response>(responseBytes);
   if (
@@ -211,7 +220,7 @@ export function validateMuseReview(
       hashJson(pair.r1.unresolvedReason) === hashJson(pair.r2.unresolvedReason),
   ).length;
   const responseHash = hashBytes(responseBytes);
-  const prefix = `muse-d4-v1/validated/${responseHash.slice(0, 12)}`;
+  const prefix = `muse-d4-${revision}/validated/${responseHash.slice(0, 12)}`;
   const files = {
     r1: writeArtifact(root, `${prefix}/r1.jsonl`, rows.r1.join('')),
     r2: writeArtifact(root, `${prefix}/r2.jsonl`, rows.r2.join('')),

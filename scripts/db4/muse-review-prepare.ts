@@ -14,19 +14,25 @@ import {
   writeArtifact,
   writeJson,
 } from './_retrieval';
+import {
+  PromptRevision,
+  parsePromptRevision,
+  promptFilename,
+  promptVersion,
+} from './muse-prompt-version';
 
 const PROMPT_DIR = resolve('docs/prompts');
-const SYSTEM_FILE = 'db4-d4-semantic-match-v1.system.txt';
-const PHASE_FILES = {
-  r1: 'db4-d4-semantic-match-v1.r1.txt',
-  r2: 'db4-d4-semantic-match-v1.r2.txt',
-} as const;
-const VERSION = {
-  r1: 'db4-d4-semantic-match-v1-r1',
-  r2: 'db4-d4-semantic-match-v1-r2',
-} as const;
 
-export function prepareMuseReview(root: string, generationPath: string) {
+export function prepareMuseReview(
+  root: string,
+  generationPath: string,
+  promptRevision: PromptRevision = 'v1',
+) {
+  const revision = parsePromptRevision(promptRevision);
+  const versions = {
+    r1: promptVersion(revision, 'r1'),
+    r2: promptVersion(revision, 'r2'),
+  };
   const generationBytes = readFileSync(artifactPath(root, generationPath));
   const generation = JSON.parse(generationBytes.toString()) as {
     task: string;
@@ -52,10 +58,19 @@ export function prepareMuseReview(root: string, generationPath: string) {
   )
     throw new Error('Generation bundle denominator/identity mismatch');
 
-  const system = readFileSync(resolve(PROMPT_DIR, SYSTEM_FILE), 'utf8').trim();
+  const system = readFileSync(
+    resolve(PROMPT_DIR, promptFilename(revision, 'system')),
+    'utf8',
+  ).trim();
   const phases = {
-    r1: readFileSync(resolve(PROMPT_DIR, PHASE_FILES.r1), 'utf8').trim(),
-    r2: readFileSync(resolve(PROMPT_DIR, PHASE_FILES.r2), 'utf8').trim(),
+    r1: readFileSync(
+      resolve(PROMPT_DIR, promptFilename(revision, 'r1')),
+      'utf8',
+    ).trim(),
+    r2: readFileSync(
+      resolve(PROMPT_DIR, promptFilename(revision, 'r2')),
+      'utf8',
+    ).trim(),
   };
   const requests: Record<string, unknown>[] = [];
   for (const bundle of bundles) {
@@ -64,12 +79,12 @@ export function prepareMuseReview(root: string, generationPath: string) {
         bundle,
         phase,
         'db4-d4-muse-pilot-2026-10-08',
-        VERSION[phase],
+        versions[phase],
       );
       requests.push({
         requestId: `${bundle.bundleKey}:${phase}`,
         phase,
-        promptVersion: VERSION[phase],
+        promptVersion: versions[phase],
         bundleKey: bundle.bundleKey,
         senseId: bundle.sense.id,
         contextHash: bundle.contextHash,
@@ -83,13 +98,13 @@ export function prepareMuseReview(root: string, generationPath: string) {
       });
     }
   }
-  const prefix = 'muse-d4-v1';
+  const prefix = `muse-d4-${revision}`;
   const prompt = {
     schemaVersion: 1,
     task: 'db4_d4_muse_prompt_pilot',
     system,
     phases,
-    versions: VERSION,
+    versions,
     hashes: {
       system: hashBytes(system),
       r1: hashBytes(phases.r1),
@@ -146,10 +161,18 @@ export function prepareMuseReview(root: string, generationPath: string) {
 }
 
 if (require.main === module) {
-  const [artifactDir, generation] = process.argv.slice(2);
-  if (!artifactDir || !generation || process.argv.length !== 4)
+  const [artifactDir, generation, revisionArg = 'v1'] = process.argv.slice(2);
+  let revision: PromptRevision;
+  try {
+    revision = parsePromptRevision(revisionArg);
+  } catch {
     throw new Error(
-      'Usage: tsx scripts/db4/muse-review-prepare.ts ARTIFACT_ROOT GENERATION_MANIFEST',
+      'Usage: tsx scripts/db4/muse-review-prepare.ts ARTIFACT_ROOT GENERATION_MANIFEST [v1|v2|v2.1]',
     );
-  prepareMuseReview(resolve(artifactDir), generation);
+  }
+  if (!artifactDir || !generation || process.argv.length > 5)
+    throw new Error(
+      'Usage: tsx scripts/db4/muse-review-prepare.ts ARTIFACT_ROOT GENERATION_MANIFEST [v1|v2|v2.1]',
+    );
+  prepareMuseReview(resolve(artifactDir), generation, revision);
 }

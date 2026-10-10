@@ -309,6 +309,14 @@ Chuẩn hóa selector version và prompt refs ở prepare/repair/validator.
 Prompt file + render hash + source context hash định danh response; request ID
 trùng giữa hai version không đủ để reuse.
 
+**Đã triển khai offline ngày 2026-10-10:** ba file v2.1 riêng; prepare giữ v1
+default, selector nhận `v1|v2|v2.1`; repair lấy revision từ manifest và chỉ cho
+phép đúng một lần; validator kiểm version từng request và lưu dưới thư mục của
+revision. Synthetic end-to-end test cover prepare → repair → validate. Chi tiết
+và hash prompt ở [review DB4-D4 v2.1](../reviews/db4-d4-prompt-v2.1-2026-10-10.md).
+Chưa gọi Muse với prompt v2.1; prompt hiện chỉ được freeze về mặt artifact, chưa
+được xác nhận chất lượng ngữ nghĩa.
+
 ### 8.2 Chỉ sửa các điểm có bằng chứng
 
 1. Phân biệt denotation với polite/familiar/possessive usage: `your husband`
@@ -922,9 +930,9 @@ unresolved đã review.
 
 - [ ] DB4-D2: code selector/export local; còn chạy cohort/sampling/source audit theo snapshot hiện tại.
 - [ ] DB4-D2: lexical + MiniLM, domain/POS/branch coverage và generation version.
-- [ ] DB4-D4: v2.1 frozen + render/repair version binding.
+- [x] DB4-D4: v2.1 frozen + render/repair/validator version binding; offline tests pass.
+- [ ] DB4-D4: durable runner/recovery, intent ledger, raw completion, reconcile/locks.
 - [ ] DB4-D3/D4: envelope batch và conditional-R2 adapter, giữ D1/v1 replay.
-- [ ] DB4-D4: resumable runner, intent ledger, raw completion, reconcile/locks.
 - [ ] DB4-D2/D4: một expansion và một format repair/sense.
 - [ ] DB4-D5: AI audit cap + full gate/denominator report.
 - [ ] DB4-D4/D5: status/report/systemd/runbook và technical tests.

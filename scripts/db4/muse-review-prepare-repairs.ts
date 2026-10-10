@@ -14,8 +14,13 @@ import {
   writeArtifact,
   writeJson,
 } from './_retrieval';
+import {
+  PromptPhase,
+  promptRevisionFromVersions,
+  promptVersion,
+} from './muse-prompt-version';
 
-type Phase = 'r1' | 'r2';
+type Phase = PromptPhase;
 type Request = {
   requestId: string;
   phase: Phase;
@@ -79,6 +84,11 @@ export function prepareMuseReviewRepairs(
     phases: Record<Phase, string>;
     versions: Record<Phase, string>;
   };
+  if (prompt.task !== 'db4_d4_muse_prompt_pilot')
+    throw new Error('Wrong DB4-D4 prompt artifact');
+  const { revision, attempt } = promptRevisionFromVersions(prompt.versions);
+  if (attempt !== 'base')
+    throw new Error('A DB4-D4 repair request cannot be repaired again');
   const requestBytes = readArtifact(root, manifest.requests);
   const requests = jsonLines<Request>(requestBytes);
   const responseBytes = readFileSync(artifactPath(root, responsesPath));
@@ -107,6 +117,8 @@ export function prepareMuseReviewRepairs(
   const requestById = new Map(requests.map((row) => [row.requestId, row]));
   const responseById = new Map(responses.map((row) => [row.requestId, row]));
   for (const request of requests) {
+    if (request.promptVersion !== prompt.versions[request.phase])
+      throw new Error(`Request prompt version mismatch: ${request.requestId}`);
     const response = responseById.get(request.requestId);
     if (
       !response ||
@@ -131,10 +143,19 @@ export function prepareMuseReviewRepairs(
     repairIds.add(issue.requestId);
   }
   if (!repairIds.size) throw new Error('No rejected outputs to repair');
+  const repairBundleKeys = new Set<string>();
+  for (const request of requests) {
+    if (!repairIds.has(request.requestId)) continue;
+    if (repairBundleKeys.has(request.bundleKey))
+      throw new Error(
+        `More than one format repair selected for sense bundle: ${request.bundleKey}`,
+      );
+    repairBundleKeys.add(request.bundleKey);
+  }
 
   const versions: Record<Phase, string> = {
-    r1: 'db4-d4-semantic-match-v1-r1-repair1',
-    r2: 'db4-d4-semantic-match-v1-r2-repair1',
+    r1: promptVersion(revision, 'r1', 'repair1'),
+    r2: promptVersion(revision, 'r2', 'repair1'),
   };
   const phases: Record<Phase, string> = {
     r1: prompt.phases.r1 + REPAIR_REMINDER,
