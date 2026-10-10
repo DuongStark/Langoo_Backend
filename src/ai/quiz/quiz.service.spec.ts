@@ -6,6 +6,10 @@ import { AiQuizProvider } from '../providers/ai-quiz.provider';
 import { AiUsageService } from '../usage/ai-usage.service';
 import { QuizService } from './quiz.service';
 import { QuizSourceRepository } from './repositories/quiz-source.repository';
+import { QUIZ_VERSION } from './quiz-contract';
+import { kanjiItems } from '../../../test/fixtures/quiz-kanji';
+import { DomainException } from '../../common/errors/domain.exception';
+import { HttpStatus } from '@nestjs/common';
 
 const QUIZ_ID = '01900000-0000-7000-8000-000000000001';
 
@@ -136,9 +140,68 @@ const dto = {
 };
 
 describe('QuizService', () => {
+  it('canonicalizes styles in cooldown and does not reuse another context mode', async () => {
+    const setup = createSetup();
+    setup.prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({
+        generator: {
+          provider: 'stub',
+          version: QUIZ_VERSION,
+          styles: ['kanji_reading', 'kanji_orthography'],
+          contextMode: 'none',
+          questions: [],
+        },
+      }),
+    );
+    const request = {
+      ...dto,
+      question_styles: ['kanji_orthography', 'kanji_reading'] as (
+        'kanji_reading' | 'kanji_orthography'
+      )[],
+    };
+    await expect(setup.service.create(1n, request)).resolves.toMatchObject({
+      reused: true,
+    });
+    await expect(
+      setup.service.create(1n, { ...request, context_mode: 'source' }),
+    ).rejects.toMatchObject({ code: 'QUIZ_GENERATION_COOLDOWN' });
+    expect(setup.usage.reserveDailyRequest).not.toHaveBeenCalled();
+  });
+  it('context configuration failure happens before quota and model generation', async () => {
+    const setup = createSetup('0');
+    setup.sourceRepo.findSourceItems.mockResolvedValue(kanjiItems());
+    setup.tx.quiz.findMany.mockResolvedValue([]);
+    setup.provider.preflight = () => {
+      throw new DomainException(
+        'QUIZ_CONTEXT_UNAVAILABLE',
+        'missing config',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    };
+    await expect(
+      setup.service.create(1n, {
+        ...dto,
+        question_styles: ['kanji_reading'],
+        context_mode: 'source_or_generated',
+      }),
+    ).rejects.toMatchObject({ code: 'QUIZ_CONTEXT_UNAVAILABLE' });
+    expect(setup.usage.reserveDailyRequest).not.toHaveBeenCalled();
+    expect(setup.providerGenerate).not.toHaveBeenCalled();
+    expect(setup.tx.quiz.create).not.toHaveBeenCalled();
+  });
   it('cooldown cùng tham số → trả quiz cũ reused=true, không tiêu quota', async () => {
     const { service, prisma, usage, providerGenerate } = createSetup();
-    prisma.quiz.findFirst.mockResolvedValue(quizRow());
+    prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({
+        generator: {
+          provider: 'stub',
+          version: QUIZ_VERSION,
+          styles: ['meaning'],
+          contextMode: 'none',
+          questions: [],
+        },
+      }),
+    );
 
     const result = await service.create(1n, dto);
 
@@ -202,6 +265,31 @@ describe('QuizService', () => {
     expect(tx.quizQuestion.createMany).toHaveBeenCalledTimes(1);
     expect(result.status).toBe('ready');
     expect(result.reused).toBe(false);
+  });
+
+  it('M6.2 rejects a generated quiz if the profile language changes while waiting for AI', async () => {
+    const setup = createSetup('0');
+    setup.sourceRepo.findSourceItems.mockResolvedValue(sourceItems(3));
+    setup.providerGenerate.mockImplementation(() => {
+      setup.srs.getProfileContextInTransaction.mockResolvedValue({
+        id: 'profile-1',
+        primaryLanguageId: 1,
+        timezone: 'Asia/Ho_Chi_Minh',
+      });
+      return Promise.resolve(generatedQuestions(2));
+    });
+    await expect(setup.service.create(1n, dto)).rejects.toMatchObject({
+      code: 'QUIZ_SCOPE_CHANGED',
+    });
+    expect(setup.tx.quizQuestion.createMany).not.toHaveBeenCalled();
+    expect(setup.tx.quiz.update).not.toHaveBeenCalled();
+    const failed = firstArg<{
+      where: { id: string; status: string };
+      data: { status: string };
+    }>(setup.tx.quiz.updateMany);
+    expect(failed.where.id).toBeTruthy();
+    expect(failed.where.status).toBe('generating');
+    expect(failed.data.status).toBe('failed');
   });
 
   it('provider lỗi → quiz failed + 503', async () => {

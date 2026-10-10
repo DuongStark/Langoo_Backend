@@ -10,6 +10,18 @@ import {
   GeneratedQuizQuestion,
   QuizSourceItem,
 } from '../providers/ai-quiz.provider';
+import {
+  assertQuizConfig,
+  canonicalStyles,
+  ContextMode,
+  QuestionStyle,
+} from './quiz-contract';
+import {
+  assertKanjiPool,
+  buildKanjiQuestion,
+  createKanjiPool,
+  KanjiTarget,
+} from './kanji-generator';
 
 export interface QuizGeneratorInput {
   quizType: QuizType;
@@ -18,6 +30,8 @@ export interface QuizGeneratorInput {
   languageId: number;
   items: QuizSourceItem[];
   rng: Rng;
+  questionStyles?: QuestionStyle[];
+  contextMode?: ContextMode;
 }
 
 /**
@@ -32,7 +46,16 @@ export function buildQuizQuestions(
   input: QuizGeneratorInput,
 ): GeneratedQuizQuestion[] {
   const items = prepareItems(input.items);
-  assertQuizCanGenerate(items);
+  assertQuizConfig(input.quizType, input.questionStyles, input.contextMode);
+  const styles = canonicalStyles(input.questionStyles);
+  const kanjiPools = new Map<QuestionStyle, KanjiTarget[]>();
+  for (const style of styles) {
+    if (style !== 'meaning') {
+      const pool = createKanjiPool(input.items, style);
+      assertKanjiPool(pool, style);
+      kanjiPools.set(style, pool);
+    }
+  }
 
   const sequence = questionTypeSequence(input.quizType, input.questionCount);
   // A lemma with distinct meanings cannot be disambiguated by our stub prompts.
@@ -49,17 +72,35 @@ export function buildQuizQuestions(
   const unambiguous = items.filter(
     (item) => meaningsByLemma.get(normalizeText(item.lemma))?.size === 1,
   );
+  let mcOrdinal = 0;
   return sequence.map((type, index) => {
+    const style =
+      type === 'multiple_choice'
+        ? styles[mcOrdinal++ % styles.length]
+        : undefined;
+    if (style !== undefined && style !== 'meaning')
+      return buildKanjiQuestion(
+        kanjiPools.get(style)!,
+        style,
+        Math.floor((mcOrdinal - 1) / styles.length),
+        input.rng,
+        input.difficulty,
+      );
     const source = type === 'fill_blank' ? items : unambiguous;
     assertQuizCanGenerate(source);
-    return buildQuestion(
-      type,
-      index,
-      input.difficulty,
-      input.languageId,
-      source,
-      input.rng,
-    );
+    return {
+      ...buildQuestion(
+        type,
+        index,
+        input.difficulty,
+        input.languageId,
+        source,
+        input.rng,
+      ),
+      questionStyle: type === 'multiple_choice' ? ('meaning' as const) : type,
+      context: null,
+      evidence: null,
+    };
   });
 }
 

@@ -14,14 +14,24 @@ import { SrsService } from '../../srs/srs.service';
 import { QuizQuestionType } from '../../sessions/quiz-content';
 import { SessionsService } from '../../sessions/sessions.service';
 import { SessionDetailResponse } from '../../sessions/types/sessions.types';
+import { profileLanguageScopeKey } from '../../users/profile-languages';
 import { lockUser } from '../../users/user-lock';
 import {
   AI_QUIZ_PROVIDER,
   AiQuizProvider,
+  AiQuizGenerateInput,
 } from '../providers/ai-quiz.provider';
 import { AiUsageService } from '../usage/ai-usage.service';
 import { CreateQuizDto, QuizListQueryDto } from './dto/quiz.dto';
 import { buildQuizQuestions } from './quiz-generator';
+import {
+  assertQuizConfig,
+  canonicalStyles,
+  metadataSchema,
+  QUIZ_VERSION,
+  readQuestionMetadata,
+  QuizQuestionMetadata,
+} from './quiz-contract';
 import { QuizSourceRepository } from './repositories/quiz-source.repository';
 import {
   CreateQuizResponse,
@@ -38,7 +48,7 @@ const QUIZ_TTL_DAYS = 7;
 const DEFAULT_PAGE = 20;
 const MAX_PAGE = 100;
 const DETAIL_SESSIONS = 5;
-const QUIZ_PROMPT_VERSION = 'm11-v2';
+const QUIZ_PROMPT_VERSION = QUIZ_VERSION;
 
 interface QuizRow {
   id: string;
@@ -51,6 +61,7 @@ interface QuizRow {
   status: string;
   createdAt: Date;
   expiresAt: Date | null;
+  generator?: unknown;
 }
 
 interface QuizQuestionRow {
@@ -99,6 +110,7 @@ export class QuizService {
     userId: bigint,
     dto: CreateQuizDto,
   ): Promise<CreateQuizResponse> {
+    assertQuizConfig(dto.quiz_type, dto.question_styles, dto.context_mode);
     // Only prepare/claim inside the user lock. Never hold a DB transaction
     // open while awaiting an external provider (also works across VPS workers).
     const prepared = await this.prisma.$transaction(async (tx) => {
@@ -120,19 +132,46 @@ export class QuizService {
           userId,
           profileId: profile.id,
           collectionId: dto.collection_id ?? null,
+          enrichKanji: canonicalStyles(dto.question_styles).some(
+            (style) => style !== 'meaning',
+          ),
+          withExamples: (dto.context_mode ?? 'none') !== 'none',
         },
         tx,
       );
-      const generatorInput = {
+      const generatorInput: AiQuizGenerateInput = {
         quizType: dto.quiz_type,
         difficulty: dto.difficulty,
         questionCount: dto.question_count,
         languageId: profile.primaryLanguageId,
         items,
         rng: mathRng,
+        questionStyles: canonicalStyles(dto.question_styles),
+        contextMode: dto.context_mode ?? 'none',
+        usage: { tokensIn: 0, tokensOut: 0, calls: 0, local: 0, reused: 0 },
       };
       // Source validation, quota and claim either all commit or all roll back.
-      buildQuizQuestions(generatorInput);
+      // Only pass an explicit styles request to the generator when compatible.
+      if (!['multiple_choice', 'mixed'].includes(dto.quiz_type))
+        generatorInput.questionStyles = undefined;
+      generatorInput.baseQuestions = buildQuizQuestions(generatorInput);
+      if (generatorInput.contextMode !== 'none') {
+        const previous = await tx.quiz.findMany({
+          where: { userId, profileId: profile.id, status: 'ready' },
+          orderBy: { createdAt: 'desc' },
+          take: 25,
+          select: { generator: true },
+        });
+        generatorInput.contextEvidence = previous.flatMap((row) => {
+          const parsed = metadataSchema.safeParse(row.generator);
+          return parsed.success
+            ? parsed.data.questions.flatMap((q) =>
+                q.evidence ? [q.evidence] : [],
+              )
+            : [];
+        });
+      }
+      this.quizProvider.preflight?.(generatorInput);
       const period = periodDate(localDateString(new Date(), profile.timezone));
       await this.usage.reserveDailyRequest(
         tx,
@@ -154,20 +193,81 @@ export class QuizService {
           generator: {
             provider: this.quizProvider.name,
             version: QUIZ_PROMPT_VERSION,
+            styles: canonicalStyles(dto.question_styles),
+            contextMode: dto.context_mode ?? 'none',
+            questions: [],
           },
           status: 'generating',
           expiresAt: new Date(Date.now() + QUIZ_TTL_DAYS * 24 * 60 * 60 * 1000),
         },
       });
-      return { kind: 'created' as const, quizId, generatorInput };
+      return {
+        kind: 'created' as const,
+        quizId,
+        generatorInput,
+        period,
+        scopeKey: profileLanguageScopeKey(
+          profile.id,
+          profile.primaryLanguageId,
+          profile.secondaryLanguageId ?? null,
+        ),
+      };
     });
     if (prepared.kind === 'reused') return prepared.reusable;
-    const { quizId, generatorInput } = prepared;
+    const { quizId, generatorInput, period, scopeKey } = prepared;
 
     try {
       const questions = await this.quizProvider.generate(generatorInput);
+      if (questions.length !== dto.question_count)
+        throw new Error('Provider returned wrong question count');
+      const metadata = metadataSchema.parse({
+        provider: this.quizProvider.name,
+        version: QUIZ_PROMPT_VERSION,
+        styles: canonicalStyles(dto.question_styles),
+        contextMode: dto.context_mode ?? 'none',
+        usage: generatorInput.usage,
+        questions: questions.map((q, index) => ({
+          ordinal: index + 1,
+          style:
+            q.questionStyle ??
+            (q.questionType === 'multiple_choice' ? 'meaning' : q.questionType),
+          context: q.context ?? null,
+          evidence: q.evidence ?? null,
+        })),
+      });
+      for (const [index, q] of questions.entries()) {
+        const expected = generatorInput.baseQuestions![index];
+        if (
+          q.questionType !== expected.questionType ||
+          metadata.questions[index].style !== expected.questionStyle
+        )
+          throw new Error('Provider changed question style');
+        if (
+          expected.kanjiTarget &&
+          generatorInput.contextMode !== 'none' &&
+          (!q.context || !q.evidence)
+        )
+          throw new Error('Missing validated context');
+      }
       const quiz = await this.prisma.$transaction(async (tx) => {
         await lockUser(tx, userId);
+        const currentProfile = await this.srs.getProfileContextInTransaction(
+          tx,
+          userId,
+        );
+        if (
+          profileLanguageScopeKey(
+            currentProfile.id,
+            currentProfile.primaryLanguageId,
+            currentProfile.secondaryLanguageId ?? null,
+          ) !== scopeKey
+        ) {
+          throw new DomainException(
+            'QUIZ_SCOPE_CHANGED',
+            'Hồ sơ học đã thay đổi trong lúc tạo quiz; hãy tạo lại',
+            HttpStatus.CONFLICT,
+          );
+        }
         const itemIds = [
           ...new Set(
             questions.flatMap((question) =>
@@ -207,7 +307,11 @@ export class QuizService {
         });
         return tx.quiz.update({
           where: { id: quizId },
-          data: { status: 'ready', questionCount: questions.length },
+          data: {
+            status: 'ready',
+            questionCount: questions.length,
+            generator: metadata,
+          },
         });
       });
       return { ...toQuizResponse(quiz), reused: false };
@@ -233,6 +337,23 @@ export class QuizService {
         'Dịch vụ tạo câu hỏi đang bận, vui lòng thử lại sau',
         HttpStatus.SERVICE_UNAVAILABLE,
       );
+    } finally {
+      const usage = generatorInput.usage;
+      if (usage && usage.calls > 0) {
+        try {
+          await this.usage.addUsage(
+            this.prisma,
+            userId,
+            period,
+            'quiz',
+            usage.tokensIn,
+            usage.tokensOut,
+            0,
+          );
+        } catch {
+          this.logger.error(`Không thể ghi token usage cho quiz: ${quizId}`);
+        }
+      }
     }
   }
 
@@ -304,7 +425,16 @@ export class QuizService {
 
     return {
       quiz: toQuizResponse(quiz),
-      questions: questions.map(toQuestionResponse),
+      questions: questions.map((question) =>
+        toQuestionResponse(
+          question,
+          readQuestionMetadata(
+            quiz.generator,
+            question.ordinal,
+            question.questionType,
+          ),
+        ),
+      ),
       sessions: sessions.map((row) => toSessionSummary(row)!).filter(Boolean),
     };
   }
@@ -382,7 +512,14 @@ export class QuizService {
           sessionId,
           ordinal: index + 1,
           quizQuestionId: question.id,
-          prompt: buildItemPrompt(question) as Prisma.InputJsonValue,
+          prompt: buildItemPrompt(
+            question,
+            readQuestionMetadata(
+              quiz.generator,
+              question.ordinal,
+              question.questionType,
+            ),
+          ) as Prisma.InputJsonValue,
           correctAnswer: question.correctAnswer as Prisma.InputJsonValue,
         })),
       });
@@ -420,8 +557,15 @@ export class QuizService {
       last.difficulty === dto.difficulty &&
       last.questionCount === dto.question_count &&
       (last.collectionId ?? null) === (dto.collection_id ?? null);
+    const previousConfig = metadataSchema.safeParse(last.generator);
+    const sameStyleConfig =
+      previousConfig.success &&
+      JSON.stringify(previousConfig.data.styles) ===
+        JSON.stringify(canonicalStyles(dto.question_styles)) &&
+      previousConfig.data.contextMode === (dto.context_mode ?? 'none');
     if (
       sameParams &&
+      sameStyleConfig &&
       last.status === 'ready' &&
       (last.expiresAt === null || last.expiresAt.getTime() > Date.now()) &&
       (last.generator as { version?: unknown } | null)?.version ===
@@ -564,10 +708,15 @@ function promptKind(questionType: string): string {
   }
 }
 
-function buildItemPrompt(question: QuizQuestionRow): Record<string, unknown> {
+function buildItemPrompt(
+  question: QuizQuestionRow,
+  metadata: QuizQuestionMetadata,
+): Record<string, unknown> {
   const prompt: Record<string, unknown> = {
     kind: promptKind(question.questionType),
     text: question.prompt,
+    question_style: metadata.style,
+    context: metadata.context,
   };
   const options = question.options;
   if (question.questionType === 'multiple_choice' && Array.isArray(options)) {
@@ -601,13 +750,18 @@ function toQuizResponse(row: QuizRow): QuizResponse {
   };
 }
 
-function toQuestionResponse(row: QuizQuestionRow): QuizQuestionResponse {
+function toQuestionResponse(
+  row: QuizQuestionRow,
+  metadata: QuizQuestionMetadata,
+): QuizQuestionResponse {
   return {
     ordinal: row.ordinal,
     question_type: row.questionType,
     prompt: row.prompt,
     options: row.options,
     language_id: row.languageId,
+    question_style: metadata.style,
+    context: metadata.context,
   };
 }
 

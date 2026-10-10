@@ -17,7 +17,7 @@ import { AiUsageService } from './usage/ai-usage.service';
 
 /**
  * Module AI (M10 chat + M11 quiz): phiên chat/quiz, quota/usage dùng chung.
- * Provider chọn theo env (stub mặc định; chat có openai-compatible, quiz hiện stub).
+ * Chat có OpenAI-compatible; quiz dựng từ dữ liệu, model chỉ dùng cho context.
  */
 @Module({
   imports: [AuthModule, DictionaryModule, SrsModule, SessionsModule],

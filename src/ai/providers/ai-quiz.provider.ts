@@ -4,6 +4,32 @@ import {
   QuizType,
 } from '../../sessions/quiz-content';
 import { Rng } from '../../srs/scheduler/fuzz';
+import {
+  ContextMode,
+  QuestionStyle,
+  PublicQuizContext,
+  ContextEvidence,
+} from '../quiz/quiz-contract';
+
+export interface KanjiPair {
+  written: string;
+  reading: string;
+  eligible: boolean;
+}
+export interface QuizExample {
+  id: string;
+  sentence: string;
+  attribution: string;
+  sourceHash: string;
+}
+export interface QuizTokenUsage {
+  tokensIn: number;
+  tokensOut: number;
+  calls: number;
+  reused: number;
+  local: number;
+  estimated?: boolean;
+}
 
 /** Token DI cho provider sinh quiz. */
 export const AI_QUIZ_PROVIDER = 'AI_QUIZ_PROVIDER';
@@ -18,6 +44,12 @@ export interface QuizSourceItem {
   reading: string | null;
   romanization: string | null;
   meaningVi: string;
+  languageCode?: string;
+  kanjiPairs?: KanjiPair[];
+  pos?: string | null;
+  glossEn?: string[];
+  glossViMachine?: boolean;
+  examples?: QuizExample[];
 }
 
 export interface GeneratedQuizQuestion {
@@ -31,6 +63,17 @@ export interface GeneratedQuizQuestion {
   languageId: number;
   conceptId: string | null;
   itemId: string | null;
+  questionStyle?: QuestionStyle | 'matching' | 'fill_blank';
+  context?: PublicQuizContext | null;
+  evidence?: ContextEvidence | null;
+  /** Internal target identity; never returned before answering. */
+  kanjiTarget?: {
+    senseId: string;
+    written: string;
+    reading: string;
+    validWritten?: string[];
+    validReadings?: string[];
+  };
 }
 
 export interface AiQuizGenerateInput {
@@ -40,9 +83,17 @@ export interface AiQuizGenerateInput {
   languageId: number;
   items: QuizSourceItem[];
   rng: Rng;
+  questionStyles?: QuestionStyle[];
+  contextMode?: ContextMode;
+  /** Already built inside claim transaction; preserves its preflight selection. */
+  baseQuestions?: GeneratedQuizQuestion[];
+  contextEvidence?: ContextEvidence[];
+  usage?: QuizTokenUsage;
 }
 
 export interface AiQuizProvider {
   readonly name: string;
   generate(input: AiQuizGenerateInput): Promise<GeneratedQuizQuestion[]>;
+  /** Configuration validation only: never calls a model or holds a DB lock. */
+  preflight?(input: AiQuizGenerateInput): void;
 }

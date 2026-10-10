@@ -1,3 +1,5 @@
+import { PublicQuizContext } from '../quiz-contract';
+
 export interface QuizResponse {
   id: string;
   collection_id: string | null;
@@ -20,6 +22,8 @@ export interface QuizQuestionResponse {
   prompt: string;
   options: unknown;
   language_id: number | null;
+  question_style: string;
+  context: PublicQuizContext | null;
 }
 
 export interface QuizSessionSummary {

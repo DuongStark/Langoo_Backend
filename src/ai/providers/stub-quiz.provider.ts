@@ -17,14 +17,17 @@ export class StubQuizProvider implements AiQuizProvider {
 
   generate(input: AiQuizGenerateInput): Promise<GeneratedQuizQuestion[]> {
     return Promise.resolve(
-      buildQuizQuestions({
-        quizType: input.quizType,
-        difficulty: input.difficulty,
-        questionCount: input.questionCount,
-        languageId: input.languageId,
-        items: input.items,
-        rng: input.rng,
-      }),
+      input.baseQuestions ??
+        buildQuizQuestions({
+          quizType: input.quizType,
+          difficulty: input.difficulty,
+          questionCount: input.questionCount,
+          languageId: input.languageId,
+          items: input.items,
+          rng: input.rng,
+          questionStyles: input.questionStyles,
+          contextMode: input.contextMode,
+        }),
     );
   }
 }

@@ -10,7 +10,17 @@ import {
   MaxLength,
   Min,
   ValidateIf,
+  IsArray,
+  ArrayMinSize,
+  ArrayMaxSize,
+  ArrayUnique,
 } from 'class-validator';
+import {
+  CONTEXT_MODES,
+  QUESTION_STYLES,
+  ContextMode,
+  QuestionStyle,
+} from '../quiz-contract';
 import {
   QUIZ_DIFFICULTIES,
   QUIZ_TYPES,
@@ -30,6 +40,25 @@ export class CreateQuizDto {
   @ApiProperty({ enum: QUIZ_TYPES, example: 'multiple_choice' })
   @IsIn([...QUIZ_TYPES])
   quiz_type!: QuizType;
+
+  @ApiPropertyOptional({
+    enum: QUESTION_STYLES,
+    isArray: true,
+    description:
+      'Các dạng trắc nghiệm; chỉ multiple_choice/mixed. Mặc định meaning.',
+  })
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(3)
+  @ArrayUnique()
+  @IsIn([...QUESTION_STYLES], { each: true })
+  question_styles?: QuestionStyle[];
+
+  @ApiPropertyOptional({ enum: CONTEXT_MODES, default: 'none' })
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsIn([...CONTEXT_MODES])
+  context_mode?: ContextMode;
 
   @ApiProperty({ enum: QUIZ_DIFFICULTIES, example: 'medium' })
   @IsIn([...QUIZ_DIFFICULTIES])

@@ -116,6 +116,15 @@ export const envSchema = z.object({
     emptyToUndefined,
     z.coerce.number().int().min(0).optional(),
   ),
+  AI_QUIZ_MODEL: z.preprocess(emptyToUndefined, z.string().optional()),
+  AI_QUIZ_VALIDATOR_MODEL: z.preprocess(
+    emptyToUndefined,
+    z.string().optional(),
+  ),
+  AI_QUIZ_TIMEOUT_MS: z.preprocess(
+    emptyToUndefined,
+    z.coerce.number().int().min(1_000).max(300_000).optional(),
+  ),
 
   // M12 — Hardening.
   RATE_LIMIT_ENABLED: z.preprocess(booleanEnv, z.boolean().default(true)),

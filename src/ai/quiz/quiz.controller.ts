@@ -40,9 +40,11 @@ export class QuizController {
 
   @Post()
   @ApiOperation({
-    summary: 'Sinh quiz từ bộ sưu tập (stub deterministic)',
+    summary: 'Sinh quiz từ bộ sưu tập (dữ liệu + ngữ cảnh Kanji tùy chọn)',
     description:
       'Nguồn từ vựng: item có srs_state (ưu tiên review → relearning → learning → new). ' +
+      'question_styles: meaning/kanji_reading/kanji_orthography cho multiple_choice/mixed. ' +
+      'context_mode: none/source/source_or_generated. Câu dữ liệu không gọi AI. ' +
       'Quota riêng 15/ngày (AI_QUIZ_DAILY_LIMIT); cooldown 15s chống spam — bấm đúp cùng ' +
       'tham số trả lại quiz cũ (reused=true). Ví dụ curl: docs/api/quizzes.md',
   })
