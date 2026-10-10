@@ -5,10 +5,23 @@ import { DictionarySearchRepository } from './dictionary-search.repository';
 function createRepository(): {
   repository: DictionarySearchRepository;
   queryRaw: jest.Mock;
+  executeRawUnsafe: jest.Mock;
 } {
   const queryRaw = jest.fn().mockResolvedValue([]);
-  const prisma = { $queryRaw: queryRaw } as unknown as PrismaService;
-  return { repository: new DictionarySearchRepository(prisma), queryRaw };
+  const executeRawUnsafe = jest.fn().mockResolvedValue(0);
+  const transaction = jest.fn(
+    async (fn: (tx: unknown) => Promise<unknown>) =>
+      fn({ $queryRaw: queryRaw, $executeRawUnsafe: executeRawUnsafe }),
+  );
+  const prisma = {
+    $queryRaw: queryRaw,
+    $transaction: transaction,
+  } as unknown as PrismaService;
+  return {
+    repository: new DictionarySearchRepository(prisma),
+    queryRaw,
+    executeRawUnsafe,
+  };
 }
 
 function firstArg<T>(mock: jest.Mock): T {
@@ -61,13 +74,18 @@ describe('DictionarySearchRepository', () => {
     expect(query.sql).toContain('FROM visible');
   });
 
-  it('guard statement_timeout + cap hits cho query rộng', async () => {
-    const { repository, queryRaw } = createRepository();
+  it('guard statement_timeout (SET LOCAL) + custom plan + cap hits', async () => {
+    const { repository, queryRaw, executeRawUnsafe } = createRepository();
 
     await repository.search(params);
 
+    expect(executeRawUnsafe).toHaveBeenCalledWith(
+      "SET LOCAL statement_timeout = '20000'",
+    );
+    expect(executeRawUnsafe).toHaveBeenCalledWith(
+      "SET LOCAL plan_cache_mode = 'force_custom_plan'",
+    );
     const query = firstArg<Prisma.Sql>(queryRaw);
-    expect(query.sql).toContain("set_config('statement_timeout', '20000', true)");
     expect(query.sql).toContain('LIMIT 5000');
   });
 

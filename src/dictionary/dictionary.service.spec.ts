@@ -225,6 +225,19 @@ describe('DictionaryService', () => {
       expect(repos.history.create).not.toHaveBeenCalled();
     });
 
+    it('DB statement timeout → trả rỗng thay vì lỗi 500', async () => {
+      const { service, repos } = createSetup();
+      repos.search.search.mockRejectedValueOnce(
+        new Error(
+          'Raw query failed. Code: `57014`. Message: `canceling statement due to statement timeout`',
+        ),
+      );
+
+      const result = await service.search({ q: 'a', lang: 'en' });
+
+      expect(result).toEqual({ data: [], next_cursor: null });
+    });
+
     it('lang không tồn tại → LANGUAGE_NOT_FOUND, không tìm kiếm', async () => {
       const { service, repos } = createSetup();
       repos.languages.findIdByCode.mockResolvedValue(null);
@@ -849,5 +862,7 @@ describe('escapeLike / normalizeQuery', () => {
       'はしる',
     ]);
     expect(getSearchQueryVariants('run', 'en')).toEqual(['run']);
+    // "ca" → "か" (1 ký tự) không tạo biến thể để tránh quét toàn bộ reading
+    expect(getSearchQueryVariants('ca', 'ja')).toEqual(['ca']);
   });
 });

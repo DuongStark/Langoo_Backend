@@ -135,31 +135,11 @@ export class DictionarySearchRepository {
         `
       : Prisma.sql``;
 
-    const resultPartition = deduplicateSurface
-      ? Prisma.sql`lang_code, lower(surface), coalesce(lower(reading), '')`
-      : Prisma.sql`lexeme_id`;
-    const resultOrder = deduplicateSurface
-      ? Prisma.sql`exact_rank, prefix_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, lexeme_id`
-      : Prisma.sql`exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
-
-    return this.prisma.$queryRaw<SearchRow[]>(Prisma.sql`
-      WITH settings AS (
-        SELECT set_config('statement_timeout', '20000', true) AS _guard
-      ),
-      hits_raw AS (
-        SELECT
-          ds.lexeme_id,
-          ds.language_id,
-          ds.lang_code,
-          ds.surface,
-          ds.reading,
-          ds.pos,
-          ds.frequency_rank,
-          ds.homograph_no,
-          ds.surface_kind
-        FROM serve.dictionary_search ds
-        WHERE (${surfaceMatch})
-          ${langFilter}
+    // EN/VI không có reading/romanization → bỏ 2 nhánh UNION để tránh quét thừa.
+    const knowsReadings = lang === null || lang === 'ja' || lang === 'zh-Hans';
+    const knowsRomanization = lang === null || lang === 'ja';
+    const readingBranch = knowsReadings
+      ? Prisma.sql`
         UNION
         SELECT
           ds.lexeme_id,
@@ -173,7 +153,10 @@ export class DictionarySearchRepository {
           ds.surface_kind
         FROM serve.dictionary_search ds
         WHERE (${readingMatch})
-          ${langFilter}
+          ${langFilter}`
+      : Prisma.sql``;
+    const romanizationBranch = knowsRomanization
+      ? Prisma.sql`
         UNION
         SELECT
           ds.lexeme_id,
@@ -188,11 +171,36 @@ export class DictionarySearchRepository {
         FROM serve.dictionary_search ds
         JOIN core.lexeme cl2 ON cl2.id = ds.lexeme_id
         WHERE (${romanizationMatch})
+          ${langFilter}`
+      : Prisma.sql``;
+
+    const resultPartition = deduplicateSurface
+      ? Prisma.sql`lang_code, lower(surface), coalesce(lower(reading), '')`
+      : Prisma.sql`lexeme_id`;
+    const resultOrder = deduplicateSurface
+      ? Prisma.sql`exact_rank, prefix_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, lexeme_id`
+      : Prisma.sql`exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
+
+    const query = Prisma.sql`
+      WITH hits_raw AS (
+        SELECT
+          ds.lexeme_id,
+          ds.language_id,
+          ds.lang_code,
+          ds.surface,
+          ds.reading,
+          ds.pos,
+          ds.frequency_rank,
+          ds.homograph_no,
+          ds.surface_kind
+        FROM serve.dictionary_search ds
+        WHERE (${surfaceMatch})
           ${langFilter}
+${readingBranch}${romanizationBranch}
       ),
       hits AS (
         SELECT h.*
-        FROM hits_raw h, settings
+        FROM hits_raw h
         ORDER BY
           (lower(h.surface) = lower(${queries[0]})) DESC,
           (h.surface ILIKE ${patterns[0]} || '%' ESCAPE '\\') DESC,
@@ -299,6 +307,20 @@ export class DictionarySearchRepository {
         surface_kind ASC,
         surface ASC
       LIMIT ${limit}
-    `);
+    `;
+    // statement_timeout phải arm TỪ ĐẦU statement: dùng SET LOCAL trong transaction
+    // (set_config giữa statement không có tác dụng — kiểm chứng 10/10).
+    return this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '20000'`);
+        // Tránh generic plan của prepared statement: không có custom plan, bigram
+        // filter bị planner bỏ qua → seq scan ~500k dòng (sự cố 10/10).
+        await tx.$executeRawUnsafe(
+          `SET LOCAL plan_cache_mode = 'force_custom_plan'`,
+        );
+        return tx.$queryRaw<SearchRow[]>(query);
+      },
+      { timeout: 25000, maxWait: 10000 },
+    );
   }
 }

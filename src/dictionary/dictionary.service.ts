@@ -24,7 +24,11 @@ import {
   KanjiCardResponse,
   SearchHit,
 } from './types/dictionary.types';
-import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
+import {
+  DictionarySearchRepository,
+  SearchParams,
+  SearchRow,
+} from './repositories/dictionary-search.repository';
 import {
   KanjiComponentRow,
   KanjiRepository,
@@ -107,7 +111,7 @@ export class DictionaryService {
     }
 
     const queryVariants = getSearchQueryVariants(query, languageCode);
-    const rows = await this.searchRepo.search({
+    const rows = await searchRowsSafe(this.searchRepo, {
       queries: queryVariants,
       patterns: queryVariants.map(escapeLike),
       lang: languageCode,
@@ -258,7 +262,7 @@ export class DictionaryService {
     }
 
     const queryVariants = getSearchQueryVariants(query, languageCode);
-    const rows = await this.searchRepo.search({
+    const rows = await searchRowsSafe(this.searchRepo, {
       queries: queryVariants,
       patterns: queryVariants.map(escapeLike),
       lang: languageCode,
@@ -289,7 +293,8 @@ export class DictionaryService {
       enId === null
         ? cards
         : cards.filter(
-            (card) => card.languageId !== enId || (card.glossVi ?? '').trim() !== '',
+            (card) =>
+              card.languageId !== enId || (card.glossVi ?? '').trim() !== '',
           );
     const visibleCards = translated.length > 0 ? translated : cards;
 
@@ -360,9 +365,8 @@ export class DictionaryService {
     for (const [lexemeId, senseIds] of recommended) {
       // Ưu tiên sense recommended đã có gloss VI cho preview.
       const pick =
-        senseIds.find(
-          (id) => (bySense.get(id)?.glossVi ?? '').trim() !== '',
-        ) ?? senseIds[0];
+        senseIds.find((id) => (bySense.get(id)?.glossVi ?? '').trim() !== '') ??
+        senseIds[0];
       selected.set(lexemeId, pick);
     }
     return hits.map((hit) => {
@@ -463,7 +467,9 @@ export function getSearchQueryVariants(
     /^[A-Za-z][A-Za-z\s'-]*$/.test(query)
   ) {
     const kana = toHiragana(query);
-    if (kana !== query) {
+    // Biến thể kana 1 ký tự (vd "ca" → "か") quá rộng và làm vô hiệu bigram filter
+    // → quét toàn bộ reading (sự cố search 10/10). Chỉ thêm khi từ 2 ký tự.
+    if (kana !== query && kana.length >= 2) {
       variants.push(kana);
     }
   }
@@ -543,6 +549,25 @@ function toGlossItem(row: GlossRow) {
     quality: row.quality,
     rank: row.rank,
   };
+}
+
+function isStatementTimeout(error: unknown): boolean {
+  const message =
+    error instanceof Error ? `${error.name} ${error.message}` : String(error);
+  return message.includes('statement timeout') || message.includes('57014');
+}
+
+/** Query search bọc statement_timeout: trả rỗng thay vì 500 khi query quá rộng. */
+async function searchRowsSafe(
+  repo: DictionarySearchRepository,
+  params: SearchParams,
+): Promise<SearchRow[]> {
+  try {
+    return await repo.search(params);
+  } catch (error) {
+    if (isStatementTimeout(error)) return [];
+    throw error;
+  }
 }
 
 const EXAMPLE_SENTENCE_LANGS: Record<string, string> = {
