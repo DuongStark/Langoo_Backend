@@ -83,7 +83,7 @@
 | DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
 | DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; Muse chờ runner/recovery smoke; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
 | DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
-| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 Foundation 708e3b8, memory fix cbe9e56, lock fix 2cca836, Muse virtualenv unit 9677b05 đã push/cài. Smoke tạo 1 R1 intent nhưng Noise plaintext limit chặn prompt 90.681 ký tự trước WebSocket send; reconcile 0 completed, 1 unknown, 0 dispatch mới. Không retry run cũ. Chunk 48 KiB + 14/14 tests local; fresh release/run cap 1+1 còn chờ. Shadow 1.000, expansion, repair, Pilot A/B, apply/deploy đóng |
+| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 `8a2c475` đã push/cài VPS: 1 R1 được ACK, response 5.203 byte lưu sau 36 giây; D1 validator lỗi vì ACK legacy thiếu phase. Fix tương thích + emitter regression local pass 85 TS/14 Python/3 ops; chờ push/cài và validate artifact đã lưu. Không gửi lại R1; chưa R2, shadow 1.000, expansion, repair, Pilot A/B, apply/deploy vẫn đóng |
 | DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
 
 ### 2026-10-10 — DB4-D4/D5 — Mapping tự động theo batch có checkpoint
@@ -1261,3 +1261,20 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   DB hoặc deploy app.
 - Git / triển khai: 9677b05 đã push/cài unit; chunk fix/tests/docs đang local.
   Run cũ không được retry; không DB write/apply hay app deploy.
+
+### 2026-10-11 — DB4-D4/D5 — Khôi phục D1 validation cho R1 Muse smoke
+
+- Thay đổi / lý do: transport chunking đã gửi một R1 smoke và lưu response; D1
+  validator chặn vì `dispatch_acknowledged` không có `phase`. Runner mới ghi thêm
+  phase/generation/attempt; validator tương thích event legacy thiếu phase nhưng
+  vẫn từ chối phase sai. Không gửi lại request đã hoàn tất.
+- File / phạm vi: `scripts/db4/muse-batch-runner.py`, `batch-validate.ts` và tests;
+  [plan](docs/plans/db4-d4-d5-automated-batch-rollout.md),
+  [review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md).
+- Kiểm tra / kết quả: 85/85 DB4 TypeScript tests, 14/14 runner tests, 3/3 ops tests,
+  DB4 typecheck, ESLint, Prettier và Python compile pass. Artifact VPS có một response
+  5.203 byte; D1 replay sau khi cài fix đang chờ.
+- Gate còn thiếu: D1 verdict, conditional R2 nếu đủ điều kiện và final read-only
+  report. Không shadow 1.000, DB apply hoặc app deploy.
+- Git / triển khai: code/test/docs local, chưa commit/push hotfix; run `db4-smoke-20261011-8a2c475`
+  đang lưu bền vững trên VPS, `apply=false`.

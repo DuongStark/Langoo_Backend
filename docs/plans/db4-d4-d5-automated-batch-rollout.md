@@ -1,11 +1,12 @@
 # DB4-D4/D5 — Mapping tự động theo batch có checkpoint
 
-Ngày: **2026-10-10**. Trạng thái: **DB4-D2 cohort 1.000 đã freeze trên VPS,
-source-audit/RRF và DB4-D4/D5 runner nền đã chạy local; 82/82 DB4 TypeScript
-tests, 12 fake-transport tests và 2 coordinator tests pass**. Read-only preflight
-trên artifact thật xác nhận 1.000 target / 966 ready / 34 no-candidate / 1.932
-request; Muse chưa được gọi bởi runner mới, chưa cài service VPS, chưa apply DB.
-Expansion, format-repair dispatch và Pilot A/B audit coordinator còn thiếu.
+Ngày lập: **2026-10-10**; cập nhật trạng thái **2026-10-11**. DB4-D2 cohort
+1.000 đã freeze trên VPS. Release `8a2c475` pass read-only preflight và Muse
+đã nhận một R1 smoke request (response lưu 5.203 byte sau 36 giây). D1 validation
+bị chặn bởi mismatch trong event `dispatch_acknowledged` thiếu `phase`; regression
+fix đã pass local nhưng cần push/cài và validate lại response đã lưu. Chưa gửi R2,
+chưa chạy shadow 1.000, chưa apply DB hoặc deploy app. Expansion, format-repair
+dispatch và Pilot A/B audit coordinator còn thiếu.
 Phạm vi: sense JA → concept đã xác minh;
 Muse là model duy nhất cho review tự động, MiniLM chạy local cho retrieval.
 
@@ -983,7 +984,7 @@ unresolved đã review.
 - [ ] DB4-D5: AI audit cap + full gate/denominator report.
 - [x] DB4-D4/D5: initial-generation status/report/systemd/runbook và local technical tests.
 - [x] DB4-D4/D5: remote read-only preflight; lazy-load runner + request loading pass trong sandbox systemd.
-- [ ] DB4-D4/D5: transport smoke mới; service trước đó fail `EROFS` khi chmod thư mục account lock, unit fix chưa deploy.
+- [ ] DB4-D4/D5: capped transport smoke đã nhận/lưu 1 R1; D1 validation gặp lỗi phase trên acknowledgement cũ. Fix tương thích đang chờ push/cài và xác thực artifact đã lưu; R2 chưa được gửi.
 - [ ] DB4-D4/D5: shadow 1.000, không apply.
 - [ ] DB4-D5: đủ Pilot A/B; provenance/CI/recall, không giả human gold.
 - [ ] DB4-D6: journal/preflight/dry-run/reapply/rollback/concurrency.
@@ -1074,3 +1075,21 @@ unresolved đã review.
   R2; shadow 1.000, expansion, repair, Pilot A/B, apply và deploy vẫn đóng.
 - Git / triển khai: `cbe9e56` đã push; template/runbook fix đang local. VPS unit cũ
   chưa được thay, service failed trước mọi ledger event/dispatch.
+
+### 2026-10-11 — DB4-D4/D5 — Validate R1 acknowledgement của Muse smoke
+
+- Thay đổi / lý do: smoke release `8a2c475` đã gửi đúng một R1 qua Noise chunking
+  và lưu response; D1 validator sau đó lỗi vì event `dispatch_acknowledged` cũ
+  chỉ có `acknowledged=true` nhưng validator đòi mọi event phải có `phase`.
+  Runner mới sẽ ghi phase/generation/attempt; validator chấp nhận acknowledgement
+  legacy khi thiếu phase nhưng vẫn từ chối phase sai và vẫn ràng buộc job key.
+- File / phạm vi: `scripts/db4/muse-batch-runner.py`,
+  `scripts/db4/batch-validate.ts`, regression tests, plan/review và `PROGRESS.md`.
+- Kiểm tra / kết quả: 85/85 DB4 TypeScript tests, 14/14 Python runner tests,
+  3/3 ops tests, DB4 typecheck, ESLint, Prettier và `py_compile` pass. VPS đã lưu
+  một response 5.203 byte; D1 kiểm tra lại sau khi cài validator fix còn chờ.
+- Gate còn thiếu: validate artifact đã nhận, xác định R1 có đủ điều kiện cho
+  conditional R2 hay không, hoàn tất report; smoke này không gửi lại R1.
+  Shadow 1.000, expansion, repair, Pilot A/B, DB apply và app deploy vẫn đóng.
+- Git / triển khai: hotfix và docs đang local; chưa push/cài release fix. Run ID
+  `db4-smoke-20261011-8a2c475`; manifest `apply=false`, `promotionReady=false`.

@@ -2,11 +2,13 @@
 
 Ngày lập: 2026-10-10; cập nhật lần cuối: 2026-10-11
 Trạng thái: **Foundation `708e3b8`, memory fix `cbe9e56`, lock-directory fix
-`2cca836`, và Muse virtualenv unit fix `9677b05` đã push; unit `9677b05` đã cài
-trên VPS. Smoke đã tạo một intent R1 nhưng frame vượt limit Noise trước khi được
-gửi; reconcile chỉ đọc tìm 0 reply hoàn tất. Chunking 48 KiB đang được thêm trước
-run mới.** Đây là shadow runner cho initial generation, chưa phải quality gate
-hay DB/app deployment.
+`2cca836`, Muse virtualenv unit fix `9677b05` và Noise chunking `8a2c475` đã
+push; release `8a2c475` chạy trên VPS. Một R1 smoke đã được ACK và response 5.203
+byte được lưu sau 36 giây. D1 dừng do validator yêu cầu `phase` trên event
+`dispatch_acknowledged` vốn thiếu field này; fix tương thích + emitter regression
+đã pass local, chờ push/cài và kiểm tra response đã lưu. Không gửi R1 lần nữa.**
+Đây là shadow runner cho initial generation, chưa phải quality gate hay DB/app
+deployment.
 
 ## Phạm vi đã làm
 
@@ -35,25 +37,27 @@ hay DB/app deployment.
 
 ## Kiểm tra
 
-| Gate                                                                            | Kết quả                                                                                                                                                           |
-| ------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `npx tsc -p tsconfig.db4.json --noEmit`                                         | Pass                                                                                                                                                              |
-| `node --import tsx --test scripts/db4/*.test.ts`                                | 82/82 pass                                                                                                                                                        |
-| `python3 -m unittest discover -s scripts/db4 -p 'test_muse_batch_runner.py' -v` | 13/13 pass                                                                                                                                                        |
-| `python3 -m unittest discover -s scripts/ops/db4-batch -p 'test_*.py' -v`       | 2/2 pass                                                                                                                                                          |
-| Python `py_compile` for runner/tests/coordinator                                | Pass                                                                                                                                                              |
-| Scoped ESLint                                                                   | Pass                                                                                                                                                              |
-| Scoped Prettier check                                                           | Pass                                                                                                                                                              |
-| Read-only full-artifact preflight, Node heap 448 MiB                            | Pass: 1,000 selected; 966 ready; 34 no-candidate; 1,932 requests; 10 shards; 78 artifact refs verified; `apply=false`, `museCalled=false`                         |
-| Preflight resource profile                                                      | 2:20.34 elapsed; 526,776 KiB max RSS; 0 swap activity                                                                                                             |
-| `systemd-analyze verify`                                                        | Pass (exit 0) on a 0644 copy; the shared workspace mount reports source files as mode 0777 and warns only for that copy. VPS installation uses `install -m 0644`. |
-| Scoped `git diff --check`                                                       | Pass before final docs check                                                                                                                                      |
-| Runner memory follow-up                                                         | 13/13 Python tests pass; `py_compile` passes; sandbox preflight + 966 R1 request load pass, cgroup ~457 MiB                                                       |
-| Account-lock sandbox diagnosis                                                  | Old unit failed `EROFS` while chmodding `/opt/langoo/storage/muse-native`; no ledger event or dispatch; transient test passes with parent directory writable      |
-| Muse interpreter probe                                                          | Base `/usr/bin/python3` cannot import `noise`; Muse Native virtualenv imports and opens the authenticated gateway; no generation request was sent                 |
-| Noise payload limit                                                             | R1 prompt was 90,681 characters; `NoiseConnection.encrypt` rejects plaintext >65,535 bytes; the failure happened before WebSocket send                            |
-| Bounded smoke reconcile                                                         | One R1 intent; `recoveredCompletedReplies=0`, `transportUnknown=1`, `newDispatches=0`; no R2 request, DB write/apply or app deployment                            |
-| Noise frame chunking                                                            | 14/14 runner tests pass, including reconstruction of a >100 KiB service envelope from 48 KiB frames; VPS run pending a fresh pinned release                       |
+| Gate                                                                            | Kết quả                                                                                                                                                                              |
+| ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `npx tsc -p tsconfig.db4.json --noEmit`                                         | Pass                                                                                                                                                                                 |
+| `node --import tsx --test scripts/db4/*.test.ts`                                | 82/82 pass                                                                                                                                                                           |
+| `python3 -m unittest discover -s scripts/db4 -p 'test_muse_batch_runner.py' -v` | 13/13 pass                                                                                                                                                                           |
+| `python3 -m unittest discover -s scripts/ops/db4-batch -p 'test_*.py' -v`       | 2/2 pass                                                                                                                                                                             |
+| Python `py_compile` for runner/tests/coordinator                                | Pass                                                                                                                                                                                 |
+| Scoped ESLint                                                                   | Pass                                                                                                                                                                                 |
+| Scoped Prettier check                                                           | Pass                                                                                                                                                                                 |
+| Read-only full-artifact preflight, Node heap 448 MiB                            | Pass: 1,000 selected; 966 ready; 34 no-candidate; 1,932 requests; 10 shards; 78 artifact refs verified; `apply=false`, `museCalled=false`                                            |
+| Preflight resource profile                                                      | 2:20.34 elapsed; 526,776 KiB max RSS; 0 swap activity                                                                                                                                |
+| `systemd-analyze verify`                                                        | Pass (exit 0) on a 0644 copy; the shared workspace mount reports source files as mode 0777 and warns only for that copy. VPS installation uses `install -m 0644`.                    |
+| Scoped `git diff --check`                                                       | Pass before final docs check                                                                                                                                                         |
+| Runner memory follow-up                                                         | 13/13 Python tests pass; `py_compile` passes; sandbox preflight + 966 R1 request load pass, cgroup ~457 MiB                                                                          |
+| Account-lock sandbox diagnosis                                                  | Old unit failed `EROFS` while chmodding `/opt/langoo/storage/muse-native`; no ledger event or dispatch; transient test passes with parent directory writable                         |
+| Muse interpreter probe                                                          | Base `/usr/bin/python3` cannot import `noise`; Muse Native virtualenv imports and opens the authenticated gateway; no generation request was sent                                    |
+| Noise payload limit                                                             | R1 prompt was 90,681 characters; `NoiseConnection.encrypt` rejects plaintext >65,535 bytes; the failure happened before WebSocket send                                               |
+| Bounded smoke reconcile                                                         | One R1 intent; `recoveredCompletedReplies=0`, `transportUnknown=1`, `newDispatches=0`; no R2 request, DB write/apply or app deployment                                               |
+| Noise frame chunking                                                            | Pass on VPS release `8a2c475`: the 90,681-character R1 crossed the 65,535-byte Noise limit as ordered 48 KiB chunks; Muse ACKed and returned a 5,203-byte response in 36.226 seconds |
+| R1 D1 validation                                                                | Blocked by a validator bug: legacy `dispatch_acknowledged` event omitted `details.phase`; response is saved, no R2 dispatch happened                                                 |
+| Phase-binding hotfix                                                            | Local regression accepts only missing phase on legacy ACKs; new runner emits phase/generation/attempt. 85/85 DB4 TS, 14/14 runner, 3/3 ops pass                                      |
 
 The capped preflight is slower than a small unit test because it revalidates the
 full 1,000-target artifact and embedded source, candidate, prompt and request
@@ -80,10 +84,16 @@ refs. It is read-only; it did not invoke the transport or write the database.
   has one intent and one `transport_unknown`, no ACK or saved response. The
   read-only reconciliation returned 0 completed replies, 1 unknown and 0 new
   dispatches. No retry is made against this run ID.
-- The transport follow-up uses Muse's existing frame-chunk protocol (48 KiB
-  payloads) and an offline reassembly regression. After commit/push, prepare a
-  fresh release and run ID, recheck RAM/PSI/account lock, and keep R1=1/R2=1.
-  R2 remains conditional. No DB write/apply or app deployment.
+- The first transport failure on `cbe9e56` remains historical and unretried.
+  Release `8a2c475` fixed Noise chunking and successfully stored its R1 response.
+  Its D1 validator then found that old `dispatch_acknowledged` details have no
+  `phase`, unlike other phase-bound events. The code fix accepts only this
+  missing-field legacy shape; an explicit wrong phase still fails. New ACK events
+  carry phase/generation/attempt. The stored response will be validated offline;
+  no new R1 dispatch is needed for this run.
+- After D1 result, send at most one R2 only if its complete R1 validation marks
+  the sense eligible. Otherwise preserve the valid unresolved/invalid R1 result.
+  No DB write/apply or app deployment.
 - Retrieval expansion, one-time format repair, and Pilot A/B audit coordinator
   are not implemented. Therefore the 1,000-target shadow is not authorized by
   this smoke and remains closed.
@@ -91,8 +101,7 @@ refs. It is read-only; it did not invoke the transport or write the database.
 ## Git / triển khai
 
 Foundation `708e3b8`, memory-safe runner `cbe9e56`, lock-directory fix `2cca836`,
-and Muse virtualenv unit fix `9677b05` are pushed; `9677b05` is installed on VPS.
-The initial capped run has one persisted but locally rejected R1 intent; the
-read-only reconcile found no completed reply. Noise chunking and its test are in
-the worktree; a fresh pinned release and bounded smoke remain pending. Unrelated
+Muse virtualenv unit fix `9677b05`, and Noise chunking `8a2c475` are pushed; the
+VPS uses release `8a2c475` and has one saved Muse R1 response. The D1 ACK-phase
+compatibility fix passes local tests but is not pushed/deployed yet. Unrelated
 DB4/FE WIP remains unstaged.

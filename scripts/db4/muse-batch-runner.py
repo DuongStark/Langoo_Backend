@@ -574,7 +574,12 @@ def prepare_dispatch(root: Path, prefix: str, ledger: Ledger, request: dict,
 
     def acknowledge():
         if not ledger.has(job_key, 'dispatch_acknowledged'):
-            ledger.append(job_key, 'dispatch_acknowledged', {'acknowledged': True})
+            ledger.append(job_key, 'dispatch_acknowledged', {
+                'phase': request['phase'],
+                'generation': int(request['generation']),
+                'attempt': int(attempt),
+                'acknowledged': True,
+            })
 
     try:
         raw = transport.generate(session, request, message, acknowledge)

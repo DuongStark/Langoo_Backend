@@ -103,6 +103,40 @@ export const BatchValidationManifestSchema = z
       });
   });
 
+const PHASE_BOUND_EVENT_TYPES = new Set([
+  'job_planned',
+  'dispatch_intent_persisted',
+  'dispatch_acknowledged',
+  'transport_unknown',
+  'response_saved',
+  'response_validated',
+  'response_invalid',
+  'job_skipped',
+]);
+
+export function assertLedgerEventPhaseBindings(
+  ledger: Pick<BatchEvent, 'jobKey' | 'type' | 'details'>[],
+  phaseByJob: ReadonlyMap<string, 'r1' | 'r2' | null>,
+) {
+  for (const event of ledger) {
+    if (!event.jobKey) continue;
+    const phase = phaseByJob.get(event.jobKey);
+    if (phase === undefined)
+      throw new Error(
+        `Ledger event references an unknown job: ${event.jobKey}`,
+      );
+    if (phase === null) continue;
+    const eventPhase = event.details.phase;
+    if (
+      PHASE_BOUND_EVENT_TYPES.has(event.type) &&
+      eventPhase !== phase &&
+      // Older runner releases emitted this acknowledgement without phase.
+      !(event.type === 'dispatch_acknowledged' && eventPhase === undefined)
+    )
+      throw new Error(`Ledger event phase mismatch for ${event.jobKey}`);
+  }
+}
+
 function parseJsonl<T>(
   bytes: Buffer,
   schema: z.ZodType<T>,
@@ -244,6 +278,9 @@ export function validateBatchPhase(
       .filter((job) => job.phase === phase)
       .map((job) => [job.jobKey, job]),
   );
+  const phaseByJob = new Map(
+    schedule.jobs.map((job) => [job.jobKey, job.phase] as const),
+  );
   const requestKeys = new Set<string>();
   const ledger = eventRows(root, prefix, manifest.runId);
   const ledgerRef = existsSync(
@@ -256,31 +293,11 @@ export function validateBatchPhase(
         ),
       }
     : null;
-  const scheduleByJob = new Map(schedule.jobs.map((job) => [job.jobKey, job]));
   const intents = new Set<string>();
   const responses = new Map<string, BatchEvent>();
+  assertLedgerEventPhaseBindings(ledger, phaseByJob);
   for (const event of ledger) {
     if (!event.jobKey) continue;
-    const job = scheduleByJob.get(event.jobKey);
-    if (!job)
-      throw new Error(
-        `Ledger event references an unknown job: ${event.jobKey}`,
-      );
-    const eventPhase = event.details.phase;
-    if (
-      [
-        'job_planned',
-        'dispatch_intent_persisted',
-        'dispatch_acknowledged',
-        'transport_unknown',
-        'response_saved',
-        'response_validated',
-        'response_invalid',
-        'job_skipped',
-      ].includes(event.type) &&
-      eventPhase !== job.phase
-    )
-      throw new Error(`Ledger event phase mismatch for ${event.jobKey}`);
     if (event.type === 'dispatch_intent_persisted') {
       if (intents.has(event.jobKey))
         throw new Error(`Duplicate dispatch intent: ${event.jobKey}`);

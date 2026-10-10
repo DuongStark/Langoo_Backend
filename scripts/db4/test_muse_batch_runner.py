@@ -247,6 +247,13 @@ class BatchRunnerTests(unittest.TestCase):
         self.assertEqual(run['requests']['r1'], [])
         events = runner.read_ledger_readonly(self.root, run['prefix'], 'fixture-run')
         self.assertEqual(sum(event['type'] == 'response_saved' for event in events), 1)
+        ack = next(event for event in events if event['type'] == 'dispatch_acknowledged')
+        self.assertEqual(ack['details'], {
+            'phase': 'r1',
+            'generation': 1,
+            'attempt': 1,
+            'acknowledged': True,
+        })
         private = runner.job_state(self.root, run['prefix'], request['jobKey'])
         self.assertEqual(private['state'], 'response_saved')
 
