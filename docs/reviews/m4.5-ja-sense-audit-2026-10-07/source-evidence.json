@@ -1,0 +1,4594 @@
+{
+  "task": "M4.5",
+  "target": "VPS",
+  "read_only": true,
+  "records": [
+    {
+      "jlpt": [
+        {
+          "level": 3,
+          "status": "accepted",
+          "reading": "つける",
+          "expression": "付ける"
+        },
+        {
+          "level": 3,
+          "status": "accepted",
+          "reading": "つける",
+          "expression": "着ける"
+        }
+      ],
+      "lemma": "付ける",
+      "senses": [
+        {
+          "sense_id": "157376",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to attach",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to join",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to connect",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to add",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to append",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to affix",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to stick",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to glue",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to fasten",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to sew on",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to apply (ointment)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to put against",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to attach",
+            "to join",
+            "to connect",
+            "to add",
+            "to append",
+            "to affix",
+            "to stick",
+            "to glue",
+            "to fasten",
+            "to sew on",
+            "to apply (ointment)",
+            "to put against"
+          ]
+        },
+        {
+          "sense_id": "157377",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to furnish (a house with)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to furnish (a house with)"]
+        },
+        {
+          "sense_id": "157378",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to wear",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to put on",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to wear", "to put on"]
+        },
+        {
+          "sense_id": "157379",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to keep a diary",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to make an entry",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["日記をつける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to keep a diary", "to make an entry"]
+        },
+        {
+          "sense_id": "157380",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to appraise",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to set (a price)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to appraise", "to set (a price)"]
+        },
+        {
+          "sense_id": "157381",
+          "sense_no": 6,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to allot",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to budget",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to assign",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to allot", "to budget", "to assign"]
+        },
+        {
+          "sense_id": "157382",
+          "sense_no": 7,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to bring alongside",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to bring alongside"]
+        },
+        {
+          "sense_id": "157383",
+          "sense_no": 8,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to place (under guard or doctor)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to place (under guard or doctor)"]
+        },
+        {
+          "sense_id": "157384",
+          "sense_no": 9,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to follow (someone)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to shadow",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to tail",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to stalk",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to follow (someone)",
+            "to shadow",
+            "to tail",
+            "to stalk"
+          ]
+        },
+        {
+          "sense_id": "157385",
+          "sense_no": 10,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to load",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to give (courage to)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to load", "to give (courage to)"]
+        },
+        {
+          "sense_id": "157386",
+          "sense_no": 11,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to keep (an eye on)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to keep (an eye on)"]
+        },
+        {
+          "sense_id": "157387",
+          "sense_no": 12,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to establish (relations or understanding)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to establish (relations or understanding)"]
+        },
+        {
+          "sense_id": "157388",
+          "sense_no": 13,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to turn on (a light)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["点ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to turn on (a light)"]
+        },
+        {
+          "sense_id": "157389",
+          "sense_no": 14,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to produce flowers (of a plant)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to produce fruit",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to produce flowers (of a plant)", "to produce fruit"]
+        },
+        {
+          "sense_id": "157390",
+          "sense_no": 15,
+          "attributes": {
+            "info": ["usu. ツケる"],
+            "misc": ["uk"],
+            "field": ["go"],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to attach",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to play an attachment",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["ツケ", 3]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to attach", "to play an attachment"]
+        },
+        {
+          "sense_id": "157391",
+          "sense_no": 16,
+          "attributes": {
+            "info": ["after -masu stem of verb"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to do intensely",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do fiercely",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do strongly",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["怒鳴りつける"]],
+            "partOfSpeech": ["suf", "v1"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to do intensely", "to do fiercely", "to do strongly"]
+        },
+        {
+          "sense_id": "157392",
+          "sense_no": 17,
+          "attributes": {
+            "info": ["after -masu stem of verb"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be used to (doing)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be accustomed to",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["suf", "v1"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be used to (doing)", "to be accustomed to"]
+        }
+      ],
+      "reading": "つける",
+      "lexeme_id": "68759",
+      "external_id": "jmdict:1495770"
+    },
+    {
+      "jlpt": null,
+      "lemma": "入る",
+      "senses": [
+        {
+          "sense_id": "28634",
+          "sense_no": 1,
+          "attributes": {
+            "info": ["mainly used in fixed expressions and literary language"],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to enter",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to go in",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to get in",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to come in",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["入る", "はいる・1", 1]],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to enter", "to go in", "to get in", "to come in"]
+        },
+        {
+          "sense_id": "28635",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to set (of the sun or moon)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to sink",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to go down",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to set (of the sun or moon)", "to sink", "to go down"]
+        },
+        {
+          "sense_id": "28636",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to attain (nirvana, enlightenment, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to achieve",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to reach (e.g. a climax)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to attain (nirvana, enlightenment, etc.)",
+            "to achieve",
+            "to reach (e.g. a climax)"
+          ]
+        },
+        {
+          "sense_id": "28637",
+          "sense_no": 4,
+          "attributes": {
+            "info": ["after -masu stem of verb"],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to do fully",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do intently",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do sincerely",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do deeply",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to feel keenly",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["感じ入る"], ["聞き入る"]],
+            "partOfSpeech": ["suf", "v5r"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to do fully",
+            "to do intently",
+            "to do sincerely",
+            "to do deeply",
+            "to feel keenly"
+          ]
+        },
+        {
+          "sense_id": "28638",
+          "sense_no": 5,
+          "attributes": {
+            "info": ["after -masu stem of verb"],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to (reach a state) completely",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["寝入る", 1], ["絶え入る"]],
+            "partOfSpeech": ["suf", "v5r"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to (reach a state) completely"]
+        }
+      ],
+      "reading": "いる",
+      "lexeme_id": "75571",
+      "external_id": "jmdict:1465580"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "はいる",
+          "expression": "入る"
+        }
+      ],
+      "lemma": "入る",
+      "senses": [
+        {
+          "sense_id": "155429",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to enter",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to come in",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to go in",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to get in",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to arrive",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [["出る", 1]],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to enter",
+            "to come in",
+            "to go in",
+            "to get in",
+            "to arrive"
+          ]
+        },
+        {
+          "sense_id": "155430",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to join (a club, company, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to enter (a university, the army, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to enroll (in)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to go into (e.g. politics)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to get into",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to join (a club, company, etc.)",
+            "to enter (a university, the army, etc.)",
+            "to enroll (in)",
+            "to go into (e.g. politics)",
+            "to get into"
+          ]
+        },
+        {
+          "sense_id": "155431",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be contained (in)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be included (in)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be inside (e.g. a box)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to come under (a heading)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to belong (in a category)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be contained (in)",
+            "to be included (in)",
+            "to be inside (e.g. a box)",
+            "to come under (a heading)",
+            "to belong (in a category)"
+          ]
+        },
+        {
+          "sense_id": "155432",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to (be able to) fit (in a container, building, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be (able to be) held",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be (able to be) accommodated",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to (be able to) fit (in a container, building, etc.)",
+            "to be (able to be) held",
+            "to be (able to be) accommodated"
+          ]
+        },
+        {
+          "sense_id": "155433",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be introduced",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be brought in",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be installed",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be introduced",
+            "to be brought in",
+            "to be installed"
+          ]
+        },
+        {
+          "sense_id": "155434",
+          "sense_no": 6,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be received",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be obtained",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be received", "to be obtained"]
+        },
+        {
+          "sense_id": "155435",
+          "sense_no": 7,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be scored (of points)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be won (of votes)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be scored (of points)", "to be won (of votes)"]
+        },
+        {
+          "sense_id": "155436",
+          "sense_no": 8,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to turn on",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to start functioning",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to start working",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to turn on",
+            "to start functioning",
+            "to start working"
+          ]
+        },
+        {
+          "sense_id": "155437",
+          "sense_no": 9,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to enter (a month, season, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to reach (e.g. a climax)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to get to (e.g. the main topic)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to enter into (e.g. negotiations)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to start (doing)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to begin",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to enter (a month, season, etc.)",
+            "to reach (e.g. a climax)",
+            "to get to (e.g. the main topic)",
+            "to enter into (e.g. negotiations)",
+            "to start (doing)",
+            "to begin"
+          ]
+        },
+        {
+          "sense_id": "155438",
+          "sense_no": 10,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to form (of a crack, fissure, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to develop",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to form (of a crack, fissure, etc.)", "to develop"]
+        },
+        {
+          "sense_id": "155439",
+          "sense_no": 11,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be put in (of effort, spirit, feeling, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be applied (e.g. of strength)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be put in (of effort, spirit, feeling, etc.)",
+            "to be applied (e.g. of strength)"
+          ]
+        },
+        {
+          "sense_id": "155440",
+          "sense_no": 12,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be ready (of tea, coffee, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be made",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be ready (of tea, coffee, etc.)", "to be made"]
+        },
+        {
+          "sense_id": "155441",
+          "sense_no": 13,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to enter the body (of alcohol)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to become drunk",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to enter the body (of alcohol)", "to become drunk"]
+        }
+      ],
+      "reading": "はいる",
+      "lexeme_id": "75572",
+      "external_id": "jmdict:1465590"
+    },
+    {
+      "jlpt": null,
+      "lemma": "出切る",
+      "senses": [
+        {
+          "sense_id": "147211",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be out of",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to have no more at hand",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be out of", "to have no more at hand"]
+        }
+      ],
+      "reading": "できる",
+      "lexeme_id": "79714",
+      "external_id": "jmdict:1339500"
+    },
+    {
+      "jlpt": null,
+      "lemma": "出来る",
+      "senses": [
+        {
+          "sense_id": "20406",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be able to do",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be possible",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be permitted (to do)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be able to do",
+            "to be possible",
+            "to be permitted (to do)"
+          ]
+        },
+        {
+          "sense_id": "20407",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be good at",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do well",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be proficient (in)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be capable",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be good at",
+            "to do well",
+            "to be proficient (in)",
+            "to be capable"
+          ]
+        },
+        {
+          "sense_id": "20408",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to come into existence",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to form",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to appear",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to come up (of a matter)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be born",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to make (a friend)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to get (a girlfriend, free time, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to come into existence",
+            "to form",
+            "to appear",
+            "to come up (of a matter)",
+            "to be born",
+            "to make (a friend)",
+            "to get (a girlfriend, free time, etc.)"
+          ]
+        },
+        {
+          "sense_id": "20409",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be made",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be built",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be constructed",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be formed",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be established",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be set up",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be made",
+            "to be built",
+            "to be constructed",
+            "to be formed",
+            "to be established",
+            "to be set up"
+          ]
+        },
+        {
+          "sense_id": "20410",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be finished",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be completed",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be done",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be ready",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be finished",
+            "to be completed",
+            "to be done",
+            "to be ready"
+          ]
+        },
+        {
+          "sense_id": "20411",
+          "sense_no": 6,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to grow (of a crop)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be produced",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to grow (of a crop)", "to be produced"]
+        },
+        {
+          "sense_id": "20412",
+          "sense_no": 7,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be mature and well-balanced",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be of fine character",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be mature and well-balanced",
+            "to be of fine character"
+          ]
+        },
+        {
+          "sense_id": "20413",
+          "sense_no": 8,
+          "attributes": {
+            "info": ["as できている"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be by nature",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be born ...",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be by nature", "to be born ..."]
+        },
+        {
+          "sense_id": "20414",
+          "sense_no": 9,
+          "attributes": {
+            "info": ["usu. as できている"],
+            "misc": ["uk", "col"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to become (sexually) involved (with)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to become intimate (with)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to take up (with someone)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to become (sexually) involved (with)",
+            "to become intimate (with)",
+            "to take up (with someone)"
+          ]
+        },
+        {
+          "sense_id": "20415",
+          "sense_no": 10,
+          "attributes": {
+            "info": [],
+            "misc": ["uk", "col"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to get pregnant",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to get pregnant"]
+        }
+      ],
+      "reading": "できる",
+      "lexeme_id": "79879",
+      "external_id": "jmdict:1340450"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 3,
+          "status": "accepted",
+          "reading": "する",
+          "expression": "刷る"
+        }
+      ],
+      "lemma": "刷る",
+      "senses": [
+        {
+          "sense_id": "144575",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to print",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to print"]
+        },
+        {
+          "sense_id": "144576",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to color or pattern fabric using a wooden mold",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to color or pattern fabric using a wooden mold"]
+        }
+      ],
+      "reading": "する",
+      "lexeme_id": "81826",
+      "external_id": "jmdict:1298670"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "いる",
+          "expression": "居る"
+        }
+      ],
+      "lemma": "居る",
+      "senses": [
+        {
+          "sense_id": "162669",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be (of animate objects)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to exist",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["ある", 1]],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be (of animate objects)", "to exist"]
+        },
+        {
+          "sense_id": "162670",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to stay",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to stay"]
+        },
+        {
+          "sense_id": "162671",
+          "sense_no": 3,
+          "attributes": {
+            "info": [
+              "after the -te form of a verb; indicates continuing action"
+            ],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be ...-ing",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["aux-v", "v1"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be ...-ing"]
+        },
+        {
+          "sense_id": "162672",
+          "sense_no": 4,
+          "attributes": {
+            "info": [
+              "after the -te form of a verb; indicates continuing state"
+            ],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to have ...-ed",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be ...-ed",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["aux-v", "v1"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to have ...-ed", "to be ...-ed"]
+        }
+      ],
+      "reading": "いる",
+      "lexeme_id": "110473",
+      "external_id": "jmdict:1577980"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 3,
+          "status": "accepted",
+          "reading": "ある",
+          "expression": "或"
+        }
+      ],
+      "lemma": "或",
+      "senses": [
+        {
+          "sense_id": "163317",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "a certain ...",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "some ...",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["adj-pn"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["a certain ...", "some ..."]
+        }
+      ],
+      "reading": "ある",
+      "lexeme_id": "122637",
+      "external_id": "jmdict:1586840"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "かける",
+          "expression": "掛ける"
+        }
+      ],
+      "lemma": "掛ける",
+      "senses": [
+        {
+          "sense_id": "12000",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to hang up (e.g. a coat, a picture on the wall)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to let hang",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to suspend (from)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to hoist (e.g. sail)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to raise (e.g. flag)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["壁にかける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to hang up (e.g. a coat, a picture on the wall)",
+            "to let hang",
+            "to suspend (from)",
+            "to hoist (e.g. sail)",
+            "to raise (e.g. flag)"
+          ]
+        },
+        {
+          "sense_id": "12001",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to put on (e.g. a blanket)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to put on top of",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to cover",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to lay",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to spread",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to put on (e.g. a blanket)",
+            "to put on top of",
+            "to cover",
+            "to lay",
+            "to spread"
+          ]
+        },
+        {
+          "sense_id": "12002",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to put on (glasses, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to wear (a necklace, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["眼鏡を掛ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to put on (glasses, etc.)",
+            "to wear (a necklace, etc.)"
+          ]
+        },
+        {
+          "sense_id": "12003",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to make (a call)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["電話を掛ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to make (a call)"]
+        },
+        {
+          "sense_id": "12004",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to spend (time, money)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to expend",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to use",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["時間を掛ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to spend (time, money)", "to expend", "to use"]
+        },
+        {
+          "sense_id": "12005",
+          "sense_no": 6,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to pour (liquid) onto",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to sprinkle (powder or spices) onto",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to splash",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to throw (e.g. water) onto",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["塩をかける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to pour (liquid) onto",
+            "to sprinkle (powder or spices) onto",
+            "to splash",
+            "to throw (e.g. water) onto"
+          ]
+        },
+        {
+          "sense_id": "12006",
+          "sense_no": 7,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to turn on (an engine, radio, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to set (a dial, alarm clock, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to put on (a DVD, song, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to use (a device, implement, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to turn on (an engine, radio, etc.)",
+            "to set (a dial, alarm clock, etc.)",
+            "to put on (a DVD, song, etc.)",
+            "to use (a device, implement, etc.)"
+          ]
+        },
+        {
+          "sense_id": "12007",
+          "sense_no": 8,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to cause (someone inconvenience, trouble, etc.)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to burden (someone)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to impose",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["迷惑を掛ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to cause (someone inconvenience, trouble, etc.)",
+            "to burden (someone)",
+            "to impose"
+          ]
+        },
+        {
+          "sense_id": "12008",
+          "sense_no": 9,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": ["math"],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to multiply (arithmetic operation)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to multiply (arithmetic operation)"]
+        },
+        {
+          "sense_id": "12009",
+          "sense_no": 10,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to secure (e.g. lock)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["鍵を掛ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to secure (e.g. lock)"]
+        },
+        {
+          "sense_id": "12010",
+          "sense_no": 11,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to take a seat",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to sit",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to rest (something on something else)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to support (something on something else)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["腰を掛ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to take a seat",
+            "to sit",
+            "to rest (something on something else)",
+            "to support (something on something else)"
+          ]
+        },
+        {
+          "sense_id": "12011",
+          "sense_no": 12,
+          "attributes": {
+            "info": ["also as 繋ける"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to bind",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to bind"]
+        },
+        {
+          "sense_id": "12012",
+          "sense_no": 13,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to wager",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to bet",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to risk",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to stake",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to gamble",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["賭ける", "かける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to wager",
+            "to bet",
+            "to risk",
+            "to stake",
+            "to gamble"
+          ]
+        },
+        {
+          "sense_id": "12013",
+          "sense_no": 14,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to put an effect (spell, anaesthetic, etc.) on",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to put an effect (spell, anaesthetic, etc.) on"]
+        },
+        {
+          "sense_id": "12014",
+          "sense_no": 15,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to hold (a play, festival, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to hold (a play, festival, etc.)"]
+        },
+        {
+          "sense_id": "12015",
+          "sense_no": 16,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to hold an emotion for (pity, hope, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to hold an emotion for (pity, hope, etc.)"]
+        },
+        {
+          "sense_id": "12016",
+          "sense_no": 17,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to argue (in court)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to deliberate (in a meeting)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to present (e.g. idea to a conference, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["裁判に掛ける"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to argue (in court)",
+            "to deliberate (in a meeting)",
+            "to present (e.g. idea to a conference, etc.)"
+          ]
+        },
+        {
+          "sense_id": "12017",
+          "sense_no": 18,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to increase further",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to increase further"]
+        },
+        {
+          "sense_id": "12018",
+          "sense_no": 19,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to catch (in a trap, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to catch (in a trap, etc.)"]
+        },
+        {
+          "sense_id": "12019",
+          "sense_no": 20,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to set atop",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to set atop"]
+        },
+        {
+          "sense_id": "12020",
+          "sense_no": 21,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to erect (a makeshift building)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to erect (a makeshift building)"]
+        },
+        {
+          "sense_id": "12021",
+          "sense_no": 22,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to apply (insurance)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["保険を掛ける", 1]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to apply (insurance)"]
+        },
+        {
+          "sense_id": "12022",
+          "sense_no": 23,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to pun (on a word)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to use (a word) as a pivot word",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to play on words",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["掛詞"]],
+            "partOfSpeech": ["v1", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to pun (on a word)",
+            "to use (a word) as a pivot word",
+            "to play on words"
+          ]
+        },
+        {
+          "sense_id": "12023",
+          "sense_no": 24,
+          "attributes": {
+            "info": ["after -masu stem of verb"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be partway doing ...",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to begin (but not complete) ...",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be about to ...",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["話し掛ける", 2], ["治りかける"]],
+            "partOfSpeech": ["suf", "v1"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be partway doing ...",
+            "to begin (but not complete) ...",
+            "to be about to ..."
+          ]
+        },
+        {
+          "sense_id": "12024",
+          "sense_no": 25,
+          "attributes": {
+            "info": [
+              "after -masu stem of verb; indicates an action is being directed to someone"
+            ],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to address (someone)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to direct (something, to someone)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do (something, to someone)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["話し掛ける", 1]],
+            "partOfSpeech": ["suf", "v1"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to address (someone)",
+            "to direct (something, to someone)",
+            "to do (something, to someone)"
+          ]
+        }
+      ],
+      "reading": "かける",
+      "lexeme_id": "126480",
+      "external_id": "jmdict:1207610"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 3,
+          "status": "accepted",
+          "reading": "ある",
+          "expression": "在る"
+        },
+        {
+          "level": 3,
+          "status": "accepted",
+          "reading": "ある",
+          "expression": "有る"
+        },
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "ある",
+          "expression": "在る"
+        },
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "ある",
+          "expression": "有る"
+        }
+      ],
+      "lemma": "有る",
+      "senses": [
+        {
+          "sense_id": "144426",
+          "sense_no": 1,
+          "attributes": {
+            "info": ["usu. of inanimate objects"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to exist",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to live",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["居る", "いる・1", 1]],
+            "partOfSpeech": ["v5r-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be", "to exist", "to live"]
+        },
+        {
+          "sense_id": "144427",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to have",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to have"]
+        },
+        {
+          "sense_id": "144428",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be located",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be located"]
+        },
+        {
+          "sense_id": "144429",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be equipped with",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be equipped with"]
+        },
+        {
+          "sense_id": "144430",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to happen",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to come about",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to happen", "to come about"]
+        },
+        {
+          "sense_id": "144431",
+          "sense_no": 6,
+          "attributes": {
+            "info": ["after the ～て form of a transitive verb"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to exist (in a completed state)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be (something unchanged in its current state)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["aux-v", "v5r-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to exist (in a completed state)",
+            "to be (something unchanged in its current state)"
+          ]
+        }
+      ],
+      "reading": "ある",
+      "lexeme_id": "135748",
+      "external_id": "jmdict:1296400"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 1,
+          "status": "accepted",
+          "reading": "きたる",
+          "expression": "来る"
+        }
+      ],
+      "lemma": "来る",
+      "senses": [
+        {
+          "sense_id": "36687",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "next (e.g. \"next April\")",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "forthcoming",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "coming",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [["去る", 6]],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["adj-pn"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["next (e.g. \"next April\")", "forthcoming", "coming"]
+        },
+        {
+          "sense_id": "36688",
+          "sense_no": 2,
+          "attributes": {
+            "info": ["orig. meaning"],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to come",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to arrive",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be due to",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["v5r", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to come", "to arrive", "to be due to"]
+        }
+      ],
+      "reading": "きたる",
+      "lexeme_id": "137746",
+      "external_id": "jmdict:1591270"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "くる",
+          "expression": "来る"
+        }
+      ],
+      "lemma": "来る",
+      "senses": [
+        {
+          "sense_id": "33825",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to come (spatially or temporally)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to approach",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to arrive",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vk", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to come (spatially or temporally)",
+            "to approach",
+            "to arrive"
+          ]
+        },
+        {
+          "sense_id": "33826",
+          "sense_no": 2,
+          "attributes": {
+            "info": ["after the -te form of a verb"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to come back",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to do ... and come back",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["行ってくる", 2]],
+            "partOfSpeech": ["vk", "vi", "aux-v"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to come back", "to do ... and come back"]
+        },
+        {
+          "sense_id": "33827",
+          "sense_no": 3,
+          "attributes": {
+            "info": ["after the -te form of a verb"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to come to be",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to become",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to get",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to grow",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to continue",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vk", "vi", "aux-v"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to come to be",
+            "to become",
+            "to get",
+            "to grow",
+            "to continue"
+          ]
+        },
+        {
+          "sense_id": "33828",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to come from",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be caused by",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to derive from",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vk", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to come from", "to be caused by", "to derive from"]
+        },
+        {
+          "sense_id": "33829",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to come to (e.g. \"when it comes to spinach ...\")",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["と来たら"]],
+            "partOfSpeech": ["vk", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to come to (e.g. \"when it comes to spinach ...\")"]
+        }
+      ],
+      "reading": "くる",
+      "lexeme_id": "137747",
+      "external_id": "jmdict:1547720"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 3,
+          "status": "accepted",
+          "reading": "する",
+          "expression": "為る"
+        }
+      ],
+      "lemma": "為る",
+      "senses": [
+        {
+          "sense_id": "8717",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to do",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to carry out",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to perform",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to do", "to carry out", "to perform"]
+        },
+        {
+          "sense_id": "8718",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to cause to become",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to make (into)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to turn (into)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to cause to become",
+            "to make (into)",
+            "to turn (into)"
+          ]
+        },
+        {
+          "sense_id": "8719",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to serve as",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to act as",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to work as",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to serve as", "to act as", "to work as"]
+        },
+        {
+          "sense_id": "8720",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to wear (clothes, a facial expression, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to wear (clothes, a facial expression, etc.)"]
+        },
+        {
+          "sense_id": "8721",
+          "sense_no": 5,
+          "attributes": {
+            "info": ["as 〜にする,〜とする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to judge as being",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to view as being",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to think of as",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to treat as",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to use as",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to judge as being",
+            "to view as being",
+            "to think of as",
+            "to treat as",
+            "to use as"
+          ]
+        },
+        {
+          "sense_id": "8722",
+          "sense_no": 6,
+          "attributes": {
+            "info": ["as 〜にする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to decide on",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to choose",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to decide on", "to choose"]
+        },
+        {
+          "sense_id": "8723",
+          "sense_no": 7,
+          "attributes": {
+            "info": ["as 〜がする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be sensed (of a smell, noise, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be sensed (of a smell, noise, etc.)"]
+        },
+        {
+          "sense_id": "8724",
+          "sense_no": 8,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be (in a state, condition, etc.)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be (in a state, condition, etc.)"]
+        },
+        {
+          "sense_id": "8725",
+          "sense_no": 9,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be worth",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to cost",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to be worth", "to cost"]
+        },
+        {
+          "sense_id": "8726",
+          "sense_no": 10,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to pass (of time)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to elapse",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vi"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to pass (of time)", "to elapse"]
+        },
+        {
+          "sense_id": "8727",
+          "sense_no": 11,
+          "attributes": {
+            "info": ["as AをBにする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to place, or raise, person A to a post or status B",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to place, or raise, person A to a post or status B"]
+        },
+        {
+          "sense_id": "8728",
+          "sense_no": 12,
+          "attributes": {
+            "info": ["as AをBにする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to transform A to B",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to make A into B",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to exchange A for B",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to transform A to B",
+            "to make A into B",
+            "to exchange A for B"
+          ]
+        },
+        {
+          "sense_id": "8729",
+          "sense_no": 13,
+          "attributes": {
+            "info": ["as AをBにする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to make use of A for B",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to view A as B",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to handle A as if it were B",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to make use of A for B",
+            "to view A as B",
+            "to handle A as if it were B"
+          ]
+        },
+        {
+          "sense_id": "8730",
+          "sense_no": 14,
+          "attributes": {
+            "info": ["as AをBにする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to feel A about B",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["vs-i", "vt"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["to feel A about B"]
+        },
+        {
+          "sense_id": "8731",
+          "sense_no": 15,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "verbalizing suffix (applies to nouns noted in this dictionary with the part of speech \"vs\")",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["suf", "vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "verbalizing suffix (applies to nouns noted in this dictionary with the part of speech \"vs\")"
+          ]
+        },
+        {
+          "sense_id": "8732",
+          "sense_no": 16,
+          "attributes": {
+            "info": [],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "creates a humble verb (after a noun prefixed with \"o\" or \"go\")",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["お願いします"], ["御", 1]],
+            "partOfSpeech": ["aux-v", "vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "creates a humble verb (after a noun prefixed with \"o\" or \"go\")"
+          ]
+        },
+        {
+          "sense_id": "8733",
+          "sense_no": 17,
+          "attributes": {
+            "info": ["as 〜うとする,〜ようとする"],
+            "misc": ["uk"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "to be just about to",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to be just starting to",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to try to",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "to attempt to",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["とする", 1]],
+            "partOfSpeech": ["aux-v", "vs-i"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "to be just about to",
+            "to be just starting to",
+            "to try to",
+            "to attempt to"
+          ]
+        }
+      ],
+      "reading": "する",
+      "lexeme_id": "152799",
+      "external_id": "jmdict:1157170"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "ねこ",
+          "expression": "猫"
+        }
+      ],
+      "lemma": "猫",
+      "senses": [
+        {
+          "sense_id": "28775",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "cat (esp. the domestic cat, Felis catus)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "feline",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["n"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["cat (esp. the domestic cat, Felis catus)", "feline"]
+        },
+        {
+          "sense_id": "28776",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "shamisen",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["n"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["shamisen"]
+        },
+        {
+          "sense_id": "28777",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "geisha",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["n"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["geisha"]
+        },
+        {
+          "sense_id": "28778",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": ["abbr"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "wheelbarrow",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["猫車"]],
+            "partOfSpeech": ["n"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["wheelbarrow"]
+        },
+        {
+          "sense_id": "28779",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": ["abbr"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "clay bed-warmer",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [["猫火鉢"]],
+            "partOfSpeech": ["n"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": ["clay bed-warmer"]
+        },
+        {
+          "sense_id": "28780",
+          "sense_no": 6,
+          "attributes": {
+            "info": [],
+            "misc": ["uk", "sl"],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "bottom (submissive partner of a homosexual relationship)",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [["タチ"]],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["n"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "bottom (submissive partner of a homosexual relationship)"
+          ]
+        }
+      ],
+      "reading": "ねこ",
+      "lexeme_id": "156837",
+      "external_id": "jmdict:1467640"
+    },
+    {
+      "jlpt": [
+        {
+          "level": 5,
+          "status": "accepted",
+          "reading": "けっこう",
+          "expression": "結構"
+        }
+      ],
+      "lemma": "結構",
+      "senses": [
+        {
+          "sense_id": "14972",
+          "sense_no": 1,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "splendid",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "nice",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "wonderful",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "delightful",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "lovely",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "excellent",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "fine",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["adj-na"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "splendid",
+            "nice",
+            "wonderful",
+            "delightful",
+            "lovely",
+            "excellent",
+            "fine"
+          ]
+        },
+        {
+          "sense_id": "14973",
+          "sense_no": 2,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "sufficient",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "satisfactory",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "enough",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "fine",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "all right",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "OK",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["adj-na"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "sufficient",
+            "satisfactory",
+            "enough",
+            "fine",
+            "all right",
+            "OK"
+          ]
+        },
+        {
+          "sense_id": "14974",
+          "sense_no": 3,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "not needing (any more of something)",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "(already) having enough",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "fine (as in \"I'm fine\")",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "no, thank you",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["adj-na"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "not needing (any more of something)",
+            "(already) having enough",
+            "fine (as in \"I'm fine\")",
+            "no, thank you"
+          ]
+        },
+        {
+          "sense_id": "14975",
+          "sense_no": 4,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "rather",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "quite",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "fairly",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "pretty",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "surprisingly",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "quite a bit",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "fairly well",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["adv"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "rather",
+            "quite",
+            "fairly",
+            "pretty",
+            "surprisingly",
+            "quite a bit",
+            "fairly well"
+          ]
+        },
+        {
+          "sense_id": "14976",
+          "sense_no": 5,
+          "attributes": {
+            "info": [],
+            "misc": [],
+            "field": [],
+            "gloss": [
+              {
+                "lang": "eng",
+                "text": "structure",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "construction",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "framework",
+                "type": null,
+                "gender": null
+              },
+              {
+                "lang": "eng",
+                "text": "architecture",
+                "type": null,
+                "gender": null
+              }
+            ],
+            "antonym": [],
+            "dialect": [],
+            "related": [],
+            "partOfSpeech": ["n"],
+            "appliesToKana": ["*"],
+            "appliesToKanji": ["*"],
+            "languageSource": []
+          },
+          "en_glosses": [
+            "structure",
+            "construction",
+            "framework",
+            "architecture"
+          ]
+        }
+      ],
+      "reading": "けっこう",
+      "lexeme_id": "174336",
+      "external_id": "jmdict:1254760"
+    }
+  ]
+}

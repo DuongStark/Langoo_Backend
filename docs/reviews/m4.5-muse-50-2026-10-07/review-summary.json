@@ -1,0 +1,18 @@
+{
+  "task": "M4.5",
+  "generated": 50,
+  "reviewed": 50,
+  "pass": 42,
+  "minor": 7,
+  "severe": 1,
+  "comparison": {
+    "improved": 11,
+    "similar": 37,
+    "regressed": 2
+  },
+  "reviewer": "GPT agent: per-word semantic audit, not an independent human review",
+  "human_review": false,
+  "frequency_measured": false,
+  "gate_50": false,
+  "db_mutations": 0
+}

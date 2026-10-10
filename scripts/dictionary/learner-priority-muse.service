@@ -1,0 +1,27 @@
+# M4.5 — Runs entirely on VPS; checkpoint survives process/SSH restart.
+[Unit]
+Description=Langoo M4.5 Muse learner priority pilot 50
+After=network-online.target muse-bridge.service
+Wants=network-online.target muse-bridge.service
+StartLimitIntervalSec=600
+StartLimitBurst=3
+
+[Service]
+Type=exec
+User=langoo
+Group=langoo
+WorkingDirectory=/opt/langoo/storage/dictionary/learner-priority/muse-50-20261007
+ExecStart=/usr/bin/node /opt/langoo/services/m45-muse-50/learner-priority-muse-run.mjs /opt/langoo/storage/dictionary/learner-priority/muse-50-20261007
+Restart=on-failure
+RestartSec=30
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/langoo/storage/dictionary/learner-priority/muse-50-20261007
+MemoryMax=160M
+TasksMax=32
+
+[Install]
+WantedBy=multi-user.target

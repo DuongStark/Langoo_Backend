@@ -1,0 +1,20 @@
+{
+  "task": "M4.5",
+  "headwords": 100,
+  "distinctSenseIds": 7902,
+  "bindingCounts": {
+    "exact": 4179,
+    "missing": 3723
+  },
+  "tierCounts": {
+    "0": 7484,
+    "1": 19,
+    "2": 399
+  },
+  "positiveCountSenses": 1253,
+  "artifactInvariantChecks": "pass",
+  "htmlFilterChecks": "all100 / dog1 / review20 / plant1 / changed92 / fallback0",
+  "browserVisualCheck": "unavailable: no iab/chrome browser provider",
+  "semanticGate": "not graded",
+  "sourceContentHash": "047f0ce291b09dd1ed0c3708302e493d18dc4938092c156fe4771396fa1b52fc"
+}

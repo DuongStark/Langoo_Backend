@@ -1,0 +1,27 @@
+{
+  "expectedPilotContentHash": "cb634e78665428fbc4b07d959329c42f55f2295d89ad2661624ed5a3b57d5d22",
+  "reviewerType": "assistant_proposal",
+  "entries": [
+    {
+      "lemma": "bank",
+      "senseId": "283726",
+      "expectedInputHash": "4b4a07b14ee50e52676686d9f46734bec3c43bf628cd850844c75b6039d5fb9c",
+      "labelVi": "Ngân hàng, tổ chức nhận tiền gửi và cho vay.",
+      "reason": "Ưu tiên nghĩa ngân hàng cho tra cứu phục vụ học thông thường"
+    },
+    {
+      "lemma": "draw",
+      "senseId": "365158",
+      "expectedInputHash": "2185b434e730939e34418738a4a5f9b97d46182fb9c1ef3b35fad978af7d5b81",
+      "labelVi": "Vẽ, tạo nét hoặc đường trên một bề mặt.",
+      "reason": "Ưu tiên nghĩa vẽ cho tra cứu phục vụ học thông thường"
+    },
+    {
+      "lemma": "plant",
+      "senseId": "535362",
+      "expectedInputHash": "14d38fc7e4bb2ed4820c4d48fe587e6676d64ffa39ad4b9fb0b05db45814401b",
+      "labelVi": "Cây, thực vật.",
+      "reason": "Ưu tiên nghĩa cây/thực vật cho tra cứu phục vụ học thông thường"
+    }
+  ]
+}

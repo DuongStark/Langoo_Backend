@@ -1,0 +1,13 @@
+{
+  "task": "M4.5",
+  "words": 100,
+  "preservedSenseIds": 7903,
+  "unchangedRecords": 97,
+  "overrides": 3,
+  "changedWithinLexeme": 91,
+  "reviewFlagsRetained": 20,
+  "sourceEvidenceUnchanged": true,
+  "dbWrites": 0,
+  "apiAiRequests": 0,
+  "semanticGate": "not graded"
+}

@@ -1,0 +1,25 @@
+{
+  "task": "M4.5",
+  "policy": "m4.5-rule-pilot-v1",
+  "startedAt": "2026-10-07T01:32:47.023Z",
+  "target": "127.0.0.1:55433/langoo",
+  "snapshot": "20122:20122:",
+  "selection": "100 headwords chosen for a learner pilot, including common concrete words and polysemous stress cases; not a statistical random sample or top-100 frequency list",
+  "sourceSqliteSha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85",
+  "corpusProvenance": "unverified; source counts are not modern population usage percentages",
+  "apiAiRequests": 0,
+  "dbWrites": 0,
+  "headwords": 100,
+  "senses": 7903,
+  "exactWordNetBindings": 4179,
+  "countBackedRecommendations": 100,
+  "recommendationsChangedWithinSelectedLexeme": 92,
+  "recommendationsWithoutVi": 100,
+  "recommendationSources": {
+    "omw-en": 100,
+    "oewn": 0,
+    "wiktextract": 0
+  },
+  "semanticGate": "not graded; user preview / source audit required",
+  "contentHash": "047f0ce291b09dd1ed0c3708302e493d18dc4938092c156fe4771396fa1b52fc"
+}

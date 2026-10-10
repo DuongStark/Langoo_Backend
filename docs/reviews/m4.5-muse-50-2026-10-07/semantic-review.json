@@ -1,0 +1,444 @@
+{
+  "task": "M4.5",
+  "reviewed_at": "2026-10-07",
+  "reviewer": "GPT agent: per-word semantic audit, not an independent human review",
+  "rubric": "pass = useful common primary and suitable nonmisleading secondary; minor = priority/extra slot/display issue; severe = ID meaning contradicts reason. Comparison qualitative vs rule preview, not a frequency measurement.",
+  "records": [
+    {
+      "lemma": "cat",
+      "verdict": "minor",
+      "comparison": "improved",
+      "learner_vi": "mèo nhà",
+      "note": "Nghĩa đầu đúng mèo nhà, rõ hơn baseline gồm cả mèo hoang. Lệnh Unix cat không nên nằm trong 1–3 nghĩa mặc định của từ điển cho người học phổ thông.",
+      "proposed_sense_ids": [
+        "1417626"
+      ],
+      "output_hash": "1a621fa9d11a33fa6256dfdfe914c64d4dcea0d2c5a5a0caf1564c99f08ce3f8"
+    },
+    {
+      "lemma": "dog",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "chó nhà; truy đuổi; cách gọi tắt hot dog",
+      "note": "Nghĩa đầu đúng chó nhà; hai nghĩa phụ có thật. Hot dog là cách dùng rút gọn, nên ghi ngữ cảnh khi hiển thị.",
+      "output_hash": "b60fdaced450f61883a809236e692864037447ff90b0c82d159f2112ac5b7533"
+    },
+    {
+      "lemma": "book",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "sách; đặt trước",
+      "note": "Sách/tác phẩm in thành tập và động từ đặt trước là hai cách dùng cơ bản, không lặp bản đa nguồn.",
+      "output_hash": "3340eacc86053aae98ddb8045a24891294d02d9e44a1dce255d0a0f2b02b8a6e"
+    },
+    {
+      "lemma": "run",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "chạy; điều hành; chạy chương trình/quy trình",
+      "note": "Nghĩa vận động bằng chân đứng đầu; quản lý và thực thi là hai nghĩa hiện đại hữu ích. Đã xử lý đủ hai phần inventory.",
+      "output_hash": "15743b9e95e9919fc0a13c7930d19b7221bb6d42eb4e589c13f16683026e427e"
+    },
+    {
+      "lemma": "draw",
+      "verdict": "minor",
+      "comparison": "similar",
+      "learner_vi": "vẽ; kéo; thu hút",
+      "note": "Ba nghĩa có thật nhưng vẫn xếp kéo (có nhãn formal) trước vẽ. Không đáp ứng trường hợp người học đã phản hồi; nghĩa gốc/nguồn đầu không chứng minh phổ biến nhất.",
+      "proposed_sense_ids": [
+        "1418409",
+        "1418281",
+        "1418327"
+      ],
+      "output_hash": "7ea5c5563ab815b0bd7f76932c7a46c98af014e5eb76e035e943a5e181210741"
+    },
+    {
+      "lemma": "bank",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "ngân hàng; bờ sông; gửi tiền vào ngân hàng",
+      "note": "Đưa tổ chức tài chính lên trước bờ/dốc đất như yêu cầu. ID nguồn và nghĩa gửi tiền đều khớp.",
+      "output_hash": "72a19f2983973991cf23a962aa83783f4b76f949a3fb88d546fe4f15ae03b3a9"
+    },
+    {
+      "lemma": "plant",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "thực vật/cây; nhà máy; trồng",
+      "note": "Đưa sinh vật thực vật lên đầu thay nhà máy; nhà máy và trồng vẫn là nghĩa phụ thông dụng. Không tự dịch scope thành chỉ cây thân gỗ.",
+      "output_hash": "c6edd9f8912fae8810af215ccd8213944f67c22fa792ab4f75101bed19f94caf"
+    },
+    {
+      "lemma": "table",
+      "verdict": "minor",
+      "comparison": "improved",
+      "learner_vi": "cái bàn; bảng dữ liệu",
+      "note": "Hai nghĩa danh từ rất phù hợp. Động từ lập bảng là nghĩa có thật nhưng không cần chiếm slot gợi ý phổ thông; không buộc điền đủ ba nghĩa.",
+      "proposed_sense_ids": [
+        "1223857",
+        "1223872"
+      ],
+      "output_hash": "92860686a178496b806ee574ac41699b731c7c21ee3e8cc1e7ad867b8da42179"
+    },
+    {
+      "lemma": "light",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "ánh sáng; nhẹ; sáng/không tối",
+      "note": "Ba nghĩa thông dụng khác phạm vi; định nghĩa ánh sáng hơi khoa học nhưng chỉ đúng hiện tượng đời thường, không phải chọn nghĩa chuyên ngành hẹp.",
+      "output_hash": "e2da380f161c35e1ade97e07927b1216f686d1e32895b894a938c458daf4faa0"
+    },
+    {
+      "lemma": "right",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "đúng; bên phải; quyền",
+      "note": "Ưu tiên đúng/bên phải trước quyền là hợp lý cho người học tra riêng từ. Không coi ví dụ turn right là xác nhận POS adjective; source POS được giữ nguyên.",
+      "output_hash": "fa1836321262dfc6651f937c96c6879a50985c0fd49790b58395c033c1210bea"
+    },
+    {
+      "lemma": "get",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "có được; trở nên; nhận",
+      "note": "Ba nghĩa động từ thông dụng, có thể phân biệt nhận với kiếm/đạt được; không phải bản trùng đa nguồn.",
+      "output_hash": "16c8d041b19c07c2a7025dd93f1aafa5035d5429e6790fbdac36027ea270fd19"
+    },
+    {
+      "lemma": "take",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "lấy/cầm; đi bằng phương tiện; thực hiện",
+      "note": "Lấy/cầm đứng trước perform của baseline; phương tiện và thực hiện đều hữu ích. Đã xét đủ hai phần, không lấy ứng viên carry/capacity của phần cuối làm nghĩa đầu.",
+      "output_hash": "87080632c6ccfcf7a90cd623ccaea48b682296b31d193b2be8c6ba353fa4ac48"
+    },
+    {
+      "lemma": "make",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "làm/tạo ra; khiến/bắt làm; hãng sản xuất",
+      "note": "Tạo ra phù hợp hơn engage in của baseline; cấu trúc khiến/bắt và hãng sản xuất là nghĩa có thật, thông dụng.",
+      "output_hash": "1873e8d1341ac3b44903dcd37d4a4eb45a5fc238ad13e9ad52114a083951f9f2"
+    },
+    {
+      "lemma": "go",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "đi; chuyển sang trạng thái; một lần thử",
+      "note": "Nghĩa đi đứng đầu; go mad và have a go là cách dùng phổ thông, scope ID đúng.",
+      "output_hash": "c562de88c30e75fbbd600e68ad5ca342a0f09bcca1c978454b8ce4465ae84faf"
+    },
+    {
+      "lemma": "come",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "đến gần; đến nơi; xảy đến",
+      "note": "Nghĩa di chuyển về phía và đến nơi gần nhau nhưng khác scope, không chỉ là hai bản nguồn trùng; xảy đến hợp lệ.",
+      "output_hash": "f8bf0d9a3c234c9b25db353646a5975ce3ddbd4c67f2fc86db468d1dc047ce7d"
+    },
+    {
+      "lemma": "look",
+      "verdict": "minor",
+      "comparison": "regressed",
+      "learner_vi": "nhìn; có vẻ; vẻ bề ngoài",
+      "note": "Ý định chọn nghĩa nhìn đúng nhưng definition của ID đầu chỉ là ghi chú ngữ pháp As an intransitive verb, often with at. Dễ hiển thị thiếu nghĩa; nên dùng ID định nghĩa đứng độc lập.",
+      "proposed_sense_ids": [
+        "475370",
+        "2788329",
+        "2200635"
+      ],
+      "output_hash": "fbf48d136c4acd6500f0168b5cb8ec702408b2b5fd8b8a49a813bc4a6c0ae380"
+    },
+    {
+      "lemma": "see",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "nhìn thấy; hiểu; gặp/thăm",
+      "note": "Ba cách dùng phổ biến, không sai phạm vi của sense gặp/thăm.",
+      "output_hash": "b787efea8fcca3e59caf1348509ce55fdb70293bccb5b4c5fd2c6a3fcade9f56"
+    },
+    {
+      "lemma": "work",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "công việc; làm việc; hoạt động đúng",
+      "note": "Phủ cả danh từ và động từ cơ bản. Vận hành có hiệu quả đúng scope nguồn, không chỉ hoạt động bất kỳ.",
+      "output_hash": "e9a8acd9903e4399c9ae7d9ab9b01f2776047f336e0b6d58163cfa0bae284bb4"
+    },
+    {
+      "lemma": "play",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "vui chơi; chơi nhạc cụ; vở kịch",
+      "note": "Các nghĩa hiện đại hữu ích khác POS/scope; chưa bao hết game và playback nhưng hợp đồng chỉ cần tối đa ba, không tuyên bố coverage 99%.",
+      "output_hash": "198f777a1e7ce1e5fd20bb15ff351f5b46ab9a88b42cc9eec61c134ee136f767"
+    },
+    {
+      "lemma": "give",
+      "verdict": "minor",
+      "comparison": "similar",
+      "learner_vi": "cho/trao; gây ra",
+      "note": "Hai nghĩa động từ phù hợp. Danh từ độ co giãn có thật nhưng nên để mở rộng thay vì slot mặc định của give cho người học cơ bản.",
+      "proposed_sense_ids": [
+        "416016",
+        "416027"
+      ],
+      "output_hash": "296d449b7b45d816561a179c3f2539afaca7b1f0b224b64b5e7aa8c479593fdc"
+    },
+    {
+      "lemma": "find",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "tìm thấy; phát hiện qua tìm hiểu; nhận thấy/cho rằng",
+      "note": "Nghĩa tìm thứ đang tìm đứng đầu hợp lý; phát hiện qua nghiên cứu và nhận thấy có thật, không suy luận đây là tần suất đo được.",
+      "output_hash": "d578a5109436c79b2aeeac662620c370de66da49cfe5593f201d2a7e0e416377"
+    },
+    {
+      "lemma": "know",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "biết thông tin; quen biết; biết cách làm",
+      "note": "Ba nghĩa thông dụng và đúng ID, loại nghĩa cổ không mất nghĩa đời thường.",
+      "output_hash": "483e2fb89e08bc5448da878b885dbc2ae62e8c2f6f2028362ac7fd1d12f0e964"
+    },
+    {
+      "lemma": "think",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "suy nghĩ; cho rằng; phỏng đoán",
+      "note": "Các nghĩa suy ngẫm/ý kiến/phỏng đoán đều cơ bản. Thứ tự giữa hai nghĩa đầu chưa có số liệu corpus nhưng đều phù hợp.",
+      "output_hash": "3bbba6cd0c8b1a69e3e2043de4672814d295e33d490e83e1cdd88616f0831a3e"
+    },
+    {
+      "lemma": "feel",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "cảm thấy trạng thái; cảm nhận qua xúc giác; có cảm tưởng",
+      "note": "Đúng ba phạm vi nguồn; không đánh đồng cảm xúc với chỉ chạm tay.",
+      "output_hash": "3707033f61d5db0f69c1a3c7a390d0dfc0207e39afe45051f1533aa392664d15"
+    },
+    {
+      "lemma": "say",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "nói/kể; quyền có tiếng nói; giả sử",
+      "note": "Nghĩa nói đứng đầu; have a say và giả sử là cách dùng phổ thông.",
+      "output_hash": "76051b59545b5cedd8aa60a120e5b3e7bf62159932a6c2d3359e4ab46bd8b2e7"
+    },
+    {
+      "lemma": "eat",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "ăn; làm ai lo lắng",
+      "note": "Nghĩa ăn đứng đầu đúng. Nghĩa informal làm lo lắng là cách dùng thành ngữ phụ có thật, nên kèm nhãn/ngữ cảnh; không bắt buộc hiện mặc định.",
+      "output_hash": "8865ce53f88cfb0ed13546c08ea7ab743f34a51b5aaf1ebbd1540be3fe453a28"
+    },
+    {
+      "lemma": "drink",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "uống; uống rượu; đồ uống",
+      "note": "Đúng nghĩa động từ và danh từ; uống rượu là scope riêng dù thuộc nghĩa uống rộng hơn, hữu ích trong giao tiếp.",
+      "output_hash": "a857ec248333ecf8fb06c12c6fa26bbbaaaf28d213957bd74ec06b839a4ae7eb"
+    },
+    {
+      "lemma": "read",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "đọc hiểu; đọc to; tác phẩm để đọc",
+      "note": "Đọc hiểu đứng đầu; đọc thành tiếng và danh từ tác phẩm/thứ để đọc có thật. Danh từ được nguồn đánh dấu in-compounds, không nên bỏ nhãn.",
+      "output_hash": "20bb9ecba3493bef157a6653474ae458364f21daca9660aa55ed6c1e53f0275e"
+    },
+    {
+      "lemma": "write",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "viết chữ; viết tác phẩm; viết gửi cho ai",
+      "note": "Viết chữ cơ bản đứng trước sáng tác văn chương của baseline, hai nghĩa tiếp theo đúng phạm vi nguồn.",
+      "output_hash": "e89d1fc73fb175218b3f4ac3c25d556b6019353dcae0027b2662ba2465e41097"
+    },
+    {
+      "lemma": "speak",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "nói; nói được ngôn ngữ; trò chuyện",
+      "note": "Ba nghĩa cơ bản, đúng scope, không phải nghĩa lóng/cổ; ID khớp với lý do.",
+      "output_hash": "6968af2eeec4260cdea06410327d423ec0d7b4f7d0cadd71b30f1331fee9d7c3"
+    },
+    {
+      "lemma": "hear",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "nghe âm thanh; nghe được tin; nhận liên lạc",
+      "note": "Nghe âm thanh đứng đầu; nghe tin và hear from khớp hai scope nguồn khác nhau.",
+      "output_hash": "eaede6991da8b599e2b43ae12299ae815f204eb18f7ac80bc50c034a9a8f29b0"
+    },
+    {
+      "lemma": "watch",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "xem; đồng hồ đeo/mang theo; cảnh giác",
+      "note": "Ba nghĩa phổ biến, đúng POS/source scope. Timepiece của nguồn có cả portable và wearable, nhãn VI không thu hẹp thành chỉ đeo tay.",
+      "output_hash": "b1c21d217bd6ba28c8d32543fb4d550b77f2763e9a0f99b8ac9e2713835ea508"
+    },
+    {
+      "lemma": "live",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "cư trú; sống; trực tiếp khi phát sóng",
+      "note": "Đúng verb và adjective có cách đọc khác nhau; FE cần đọc theo POS, không phát cùng một audio cho tất cả.",
+      "output_hash": "880ca6067c62aacc8a12cbf5e95639f66c2593890b33fd7f3f77314221d791aa"
+    },
+    {
+      "lemma": "leave",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "rời đi; để nguyên/không lấy; nghỉ phép",
+      "note": "Nghĩa rời đi phù hợp; ID thứ hai là để nguyên/không động tới, không phải mọi nghĩa để lại vật ở đâu. Reason AI hơi rút gọn nhưng ID và scope vẫn đúng.",
+      "output_hash": "f9fa2a5fb873d571bdd32a6766eb1e5e302a7e775a1a3ccaa2f4a815253d1666"
+    },
+    {
+      "lemma": "open",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "mở ra; đang mở; mở cửa kinh doanh",
+      "note": "Các scope trạng thái vật lý và hoạt động kinh doanh phân biệt được; không phải bản trùng nguồn.",
+      "output_hash": "39897009f7d6067f6897db4d6a514c5a8d84d7871ec7d97ec81c9784c216d495"
+    },
+    {
+      "lemma": "close",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "đóng; gần; thân thiết",
+      "note": "Đóng cửa và gần/thân thiết đều thông dụng. Ưu tiên verb đóng hợp lý hơn gần của baseline; hai cách đọc cần xử lý khi hiển thị.",
+      "output_hash": "023b1fe259b60dd40a785468d0108c230ef6bff3748a94fd685921aa71a07bed"
+    },
+    {
+      "lemma": "start",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "bắt đầu; sự bắt đầu; khởi động",
+      "note": "Hai scope bắt đầu và làm chuyển động/khởi động, cùng danh từ, đều hữu ích.",
+      "output_hash": "791003052a2787d4eedf54e0e7a418a1d7023b81aaf821533b1366730f23119e"
+    },
+    {
+      "lemma": "stop",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "dừng di chuyển; làm dừng; trạm/bến",
+      "note": "Đúng nguồn, thông dụng. Chưa chọn nghĩa ngừng một hoạt động; chỉ có ba slot nên không coi danh sách này bao phủ hết cách dùng.",
+      "output_hash": "7ac5426d230b96da76638d87a5ee1e5f18826fa66a7697fef515786f88be0d0b"
+    },
+    {
+      "lemma": "use",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "sử dụng; sự sử dụng; từng có thói quen (used to)",
+      "note": "Hai nghĩa chính đúng; nghĩa thứ ba tồn tại chủ yếu ở used to, cần giữ thông tin dạng quá khứ khi dùng cho người học.",
+      "output_hash": "d0beb69df960e34024b0fb9640a4f9e06f0f86c5e2f6664f62789241bc131a67"
+    },
+    {
+      "lemma": "need",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "cần; cần/phải làm; nhu cầu",
+      "note": "Đúng nghĩa verb yêu cầu cần thiết, modal và noun; không tự nới scope absolute requirement của nguồn thành mọi sự mong muốn.",
+      "output_hash": "8d812c2a75236c2343e3e26cf7a4965e5b51fff96982eea309a20fff72162021"
+    },
+    {
+      "lemma": "want",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "muốn; cần; tìm kiếm vì lý do nào đó",
+      "note": "Muốn đứng đầu đúng; hai sense WordNet phù hợp. Wanted by police chỉ là ví dụ, không thu hẹp toàn scope của ID thành truy nã.",
+      "output_hash": "d539a6cc366622750eee38d69ac074e02949c0242155d758df6ee6ecafcac760"
+    },
+    {
+      "lemma": "love",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "tình yêu/yêu thương; yêu; rất thích",
+      "note": "Cả noun và verb tình cảm đều thông dụng; thích mạnh phân biệt được với yêu người. Không có corpus để quyết định noun hay verb phải đứng đầu tuyệt đối.",
+      "output_hash": "b890590df5519f94538f05d294bb0de68464b840960f2566405d5d6e59e0fd1e"
+    },
+    {
+      "lemma": "like",
+      "verdict": "minor",
+      "comparison": "improved",
+      "learner_vi": "thích; giống như; muốn (would like)",
+      "note": "Thích đứng đầu đúng, nhưng chọn adjective Similar bỏ qua dạng giống như/preposition và would like hữu ích hơn lượt thích. Nguồn có sense Similar to bị POS unknown: đây là lỗi metadata cần ghi riêng, không sửa POS trong ranking.",
+      "proposed_sense_ids": [
+        "1811826",
+        "2268522",
+        "1811831"
+      ],
+      "output_hash": "f398562289356eb45ab91ecb604aafc92df2133218d2c1356c8c2695dce5b0ec"
+    },
+    {
+      "lemma": "water",
+      "verdict": "minor",
+      "comparison": "similar",
+      "learner_vi": "nước; tưới nước",
+      "note": "Nước đứng đầu đúng. A serving of water thiên về biến thể đếm được của cùng vật, chưa cần thêm một slot; nên gọn lại còn nước và tưới.",
+      "proposed_sense_ids": [
+        "2486090",
+        "2877736"
+      ],
+      "output_hash": "1a35b89a9da1c27c65e20e5f6376cddca25f43ffd95f3ad072a836dc153dde7f"
+    },
+    {
+      "lemma": "fire",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "lửa/sự cháy; sa thải; bắn",
+      "note": "Đúng ba phạm vi thường gặp. Nguồn định nghĩa lửa theo phản ứng hóa học hơi dài, vấn đề diễn đạt gloss khác vấn đề ranking.",
+      "output_hash": "261ec405517b6914593e7c5849acc36f47c4b5c87e9ac26d0f4f0e74ae74565f"
+    },
+    {
+      "lemma": "head",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "đầu; người phụ trách; đi về hướng",
+      "note": "Đúng ba nghĩa phổ thông. Phần shortlist đã needs_review=true; reviewer kiểm lại ID cuối khớp scope và bỏ nghĩa cắt đầu.",
+      "output_hash": "0091d8828a414001a3153a314e6d6cc838c7fd91fd4822ba1da463100a641d21"
+    },
+    {
+      "lemma": "hand",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "bàn tay; giúp đỡ; đưa/trao",
+      "note": "Ba nghĩa cơ bản; physical assistance không bị nhầm thành chỉ vỗ tay.",
+      "output_hash": "a2979da8396ce6f3b12c47b17adc4359229a152b7ce6757711161486fb682446"
+    },
+    {
+      "lemma": "face",
+      "verdict": "severe",
+      "comparison": "regressed",
+      "learner_vi": "mặt; đối mặt; hướng về",
+      "note": "Noun mặt đúng. Hai ID 1287886/1287887 thực sự là ốp phủ mặt trước/viền bằng vật liệu, không phải đối mặt/hướng về như reason. Sai liên kết ID–ý nghĩa dù JSON hợp lệ; bắt buộc thay trước apply.",
+      "proposed_sense_ids": [
+        "2266571",
+        "1287881",
+        "1287877"
+      ],
+      "output_hash": "41492d5f20943d1342eb6e461d525cdfd0feea0d8af1d4af13191a4887d2168f"
+    },
+    {
+      "lemma": "time",
+      "verdict": "pass",
+      "comparison": "improved",
+      "learner_vi": "thời gian; lần/dịp; giờ theo đồng hồ",
+      "note": "Đưa thời gian nói chung lên trước một lần như baseline; các nghĩa tiếp đúng display/context. Core definition của hai ID là cha, không được gọi là leaf.",
+      "output_hash": "ee7f399a598c8f45d19b744a788d1e390f84caec25b10efce42fc07ce577e0a5"
+    },
+    {
+      "lemma": "day",
+      "verdict": "pass",
+      "comparison": "similar",
+      "learner_vi": "ngày 24 giờ; ban ngày; thời điểm/thời kỳ",
+      "note": "Đúng các phạm vi phổ thông, 24 giờ rõ hơn cách định nghĩa thiên văn của baseline nhưng cùng nghĩa chính.",
+      "output_hash": "68d8f7ff420001d40563bb8f9d9f2ca03b7ee33b02227b6cbb35b525016c5df2"
+    }
+  ],
+  "source_identity": "9a7dc323e5cd95c7aa7920ef356618f4b2653bf6c72fec35bbfa057a6c5567fb"
+}
