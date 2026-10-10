@@ -608,14 +608,20 @@ trong `/opt/langoo/storage/db4-batches`, account lock dùng chung với Muse nat
   bỏ giữ targets/candidates trong Python, giải phóng queue trước D1 Node validation.
   Nó pass 13/13 runner tests; preflight + nạp 966 R1 requests cũng pass trong
   sandbox systemd tương đương, cgroup quan sát khoảng 457 MiB.
-- Smoke với manifest `db4-smoke-20261011-cbe9e56` không dispatch: systemd unit cũ
+- Smoke với manifest `db4-smoke-20261011-cbe9e56` lần đầu không dispatch vì unit
   chỉ cho ghi file account lock, trong khi runner chmod thư mục cha mode 0700.
-  Reproduce được `EROFS`; thêm quyền ghi thư mục Muse vào `ReadWritePaths` khiến
-  test lấy/release cả run lock và account lock pass. Unit update đang local, chưa
-  cài lên VPS. Cookie file vẫn nằm trong `ReadOnlyPaths`.
-- Unit cũ đã qua `systemd-analyze verify` trên VPS. Smoke mới chỉ được chạy lại
-  sau khi commit/push và cài unit đã sửa, xác nhận RAM/PSI; giữ cap R1=1/R2=1.
-  Chưa có Muse dispatch, ledger event, DB write, apply hoặc app deploy.
+  Commit `2cca836` thêm thư mục Muse vào `ReadWritePaths`; template đã cài và
+  kiểm tra trên VPS, cookie file vẫn nằm trong `ReadOnlyPaths`.
+- Retry vẫn không dispatch: unit khởi chạy `/usr/bin/python3`, thiếu package
+  `noise` của Muse Native nên mọi R1 còn pending và ledger có 0 dispatch intent.
+  Python trong `/opt/langoo/services/muse-native/venv` import được gateway; probe
+  khởi tạo Gateway thành công, không gửi generation. Lúc runner đang đọc lại
+  artifact cho R2, cgroup đạt khoảng 723 MiB và PSI tăng; đã dừng service trước
+  mọi dispatch. Không có Muse generation, DB write/apply hoặc app deploy.
+- Follow-up DB4-D4/D5 đổi ExecStart sang Muse Native virtualenv. Cài/verify unit
+  đó trên VPS rồi resume đúng manifest, cap R1=1/R2=1; theo dõi RAM và PSI trong
+  từng phase. Shadow 1.000, expansion, format repair, Pilot A/B, apply và deploy
+  vẫn đóng.
 
 ## 14. DB4-D5 — Audit và gate tự động
 

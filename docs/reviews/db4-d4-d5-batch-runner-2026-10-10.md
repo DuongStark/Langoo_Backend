@@ -1,11 +1,12 @@
 # DB4-D4/D5 — Review batch runner và preflight
 
 Ngày lập: 2026-10-10; cập nhật lần cuối: 2026-10-11
-Trạng thái: **Foundation `708e3b8` và memory fix `cbe9e56` đã commit/push; VPS
-preflight và lazy-load R1 pass trong systemd sandbox. Service smoke thất bại
-trước ledger/dispatch vì unit cũ chặn chmod thư mục account lock; unit fix đang
-được kiểm tra.** Đây là shadow runner cho initial generation, chưa phải quality
-gate hay DB/app deployment.
+Trạng thái: **Foundation `708e3b8`, memory fix `cbe9e56`, và lock-directory unit
+fix `2cca836` đã commit/push; unit lock fix đã cài trên VPS. Smoke vẫn chưa gọi
+model: unit dùng system Python thiếu dependency `noise`, khiến R1 còn pending;
+R2 preflight bị dừng khi cgroup vượt MemoryHigh. Đổi interpreter sang Muse
+Native virtualenv đang được kiểm tra.** Đây là shadow runner cho initial
+generation, chưa phải quality gate hay DB/app deployment.
 
 ## Phạm vi đã làm
 
@@ -49,6 +50,7 @@ gate hay DB/app deployment.
 | Scoped `git diff --check`                                                       | Pass before final docs check                                                                                                                                      |
 | Runner memory follow-up                                                         | 13/13 Python tests pass; `py_compile` passes; sandbox preflight + 966 R1 request load pass, cgroup ~457 MiB                                                       |
 | Account-lock sandbox diagnosis                                                  | Old unit failed `EROFS` while chmodding `/opt/langoo/storage/muse-native`; no ledger event or dispatch; transient test passes with parent directory writable      |
+| Muse interpreter probe                                                          | Base `/usr/bin/python3` cannot import `noise`; Muse Native virtualenv imports and opens the authenticated gateway; no generation request was sent                 |
 
 The capped preflight is slower than a small unit test because it revalidates the
 full 1,000-target artifact and embedded source, candidate, prompt and request
@@ -66,24 +68,27 @@ refs. It is read-only; it did not invoke the transport or write the database.
   call. The memory-safe service run on `cbe9e56` then failed within one second:
   runner `ensure_private_dir` chmodded `/opt/langoo/storage/muse-native`, but the
   unit allowed writes only to `runner-account.lock`. The transient test
-  reproduced `EROFS`; allowing the parent directory in `ReadWritePaths` made
-  both run and account lock acquisition pass. No ledger event, dispatch or Muse
-  call was created. The template fix is in the worktree and not yet installed.
-- Retry the same manifest/run ID after committing/pushing and installing the
-  corrected unit; current ledger has no events, so there is nothing to resend.
-  Confirm free memory, PSI, other services and account lock first. Keep
-  per-invocation R1=1/R2=1. R2 remains conditional; actual calls can be zero,
-  one or two.
+  reproduced `EROFS`; commit `2cca836` allowed the parent in `ReadWritePaths`,
+  and the unit is now installed on VPS. The retry on `cbe9e56` then executed with
+  system Python, which lacks Muse Native's `noise` dependency. R1 validation
+  retained all 966 as pending, with 0 dispatch intents. The coordinator entered
+  a redundant R2 preflight; cgroup reached ~723 MiB and PSI rose, so the service
+  was stopped before R2 dispatch. No generation request was sent. The same
+  virtualenv used by the existing Muse Native service successfully initialized
+  `Gateway` in a separate probe.
+- Unit follow-up changes `ExecStart` to
+  `/opt/langoo/services/muse-native/venv/bin/python`; it still needs commit/push,
+  VPS install/verify, and a bounded resume of this run ID. Confirm RAM/PSI and
+  account lock first. Keep R1=1/R2=1; R2 remains conditional. No DB write/apply
+  or app deployment.
 - Retrieval expansion, one-time format repair, and Pilot A/B audit coordinator
   are not implemented. Therefore the 1,000-target shadow is not authorized by
   this smoke and remains closed.
-- The systemd template and run environment are installed on VPS; the template
-  still has the old lock path setting. The failed smoke made no Muse request,
-  DB write/apply or app deployment.
 
 ## Git / triển khai
 
-Foundation `708e3b8` and memory-safe runner `cbe9e56` are pushed. The unit
-ReadWritePaths/runbook/progress fix is being prepared for a separate scoped
-commit; unrelated local DB4/FE WIP remains unstaged. Update this section with
-that commit hash, deployment of the unit and the capped smoke result.
+Foundation `708e3b8`, memory-safe runner `cbe9e56`, and lock-directory unit fix
+`2cca836` are pushed; that unit version is installed on VPS. The Muse virtualenv
+interpreter fix is local and still needs a separate scoped commit/push/install.
+The capped run is stopped with 0 dispatch intents; unrelated DB4/FE WIP remains
+unstaged. Update this section with the resumed smoke result.

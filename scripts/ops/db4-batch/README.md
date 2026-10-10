@@ -19,7 +19,12 @@ DB4-D4/D5 rollout or a quality/promotion gate.
 Use the exact clean commit recorded in the run manifest. Do not update
 `/opt/langoo/app` to install the runner. The release directory contains the
 repository code and its pinned Node dependencies; the Muse transport remains
-the existing `/opt/langoo/services/muse-native` installation.
+the existing `/opt/langoo/services/muse-native` installation. The systemd unit
+must start Python from that installation's `venv/bin/python`: the DB4 runner
+launches its phase worker with the same interpreter, which provides the Muse
+transport packages (`curl_cffi`, `noise`, and protobuf). The base system Python
+does not include these packages and would leave every request pending before a
+dispatch intent is recorded.
 
 ```sh
 install -d -o root -g root -m 0755 /opt/langoo/services/db4-batch/releases

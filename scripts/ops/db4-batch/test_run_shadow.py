@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 
 SCRIPT = Path(__file__).with_name('run-shadow.py')
+UNIT = Path(__file__).with_name('langoo-db4-batch@.service')
 SPEC = importlib.util.spec_from_file_location('db4_run_shadow', SCRIPT)
 assert SPEC and SPEC.loader
 RUN_SHADOW = importlib.util.module_from_spec(SPEC)
@@ -56,6 +57,13 @@ class ShadowCoordinatorTests(unittest.TestCase):
         report.assert_called_once_with(self.args)
         self.assertEqual(result['state'], 'parked_transport')
         self.assertIsNone(result['r2'])
+
+    def test_systemd_uses_muse_native_venv_for_transport_dependencies(self):
+        unit = UNIT.read_text(encoding='utf-8')
+        self.assertIn(
+            'ExecStart=/opt/langoo/services/muse-native/venv/bin/python -B ',
+            unit,
+        )
 
 
 if __name__ == '__main__':

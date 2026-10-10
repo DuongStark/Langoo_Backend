@@ -12,7 +12,7 @@ Group=langoo
 WorkingDirectory=/opt/langoo/services/db4-batch
 EnvironmentFile=/etc/langoo/db4-batch/%i.env
 UMask=0077
-ExecStart=/usr/bin/python3 -B ${DB4_RELEASE_PATH}/scripts/ops/db4-batch/run-shadow.py --artifact-root=${DB4_ARTIFACT_ROOT} --manifest=${DB4_MANIFEST} --workers=${DB4_WORKERS} --timeout=${DB4_TIMEOUT} --r1-cap=${DB4_R1_CAP} --r2-cap=${DB4_R2_CAP}
+ExecStart=/opt/langoo/services/muse-native/venv/bin/python -B ${DB4_RELEASE_PATH}/scripts/ops/db4-batch/run-shadow.py --artifact-root=${DB4_ARTIFACT_ROOT} --manifest=${DB4_MANIFEST} --workers=${DB4_WORKERS} --timeout=${DB4_TIMEOUT} --r1-cap=${DB4_R1_CAP} --r2-cap=${DB4_R2_CAP}
 Restart=on-abnormal
 RestartSec=60
 RestartPreventExitStatus=130
