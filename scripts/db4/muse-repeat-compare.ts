@@ -154,11 +154,16 @@ export function compareMuseRepeat(
   )
     throw new Error('Response denominator mismatch');
   const responsesByKey = new Map(responses.map((r) => [r.requestId, r]));
-  const normalized = new Map(
-    jsonLines(readArtifact(root, validation.files.r2), MappingOutputSchema).map(
-      (o) => [o.bundleKey, o],
-    ),
+  const normalizedRows = jsonLines(
+    readArtifact(root, validation.files.r2),
+    MappingOutputSchema,
   );
+  if (
+    new Set(normalizedRows.map((o) => o.bundleKey)).size !==
+    normalizedRows.length
+  )
+    throw new Error('Duplicate normalized repeat');
+  const normalized = new Map(normalizedRows.map((o) => [o.bundleKey, o]));
   const fresh = new Map<string, z.infer<typeof MappingOutputSchema>>();
   for (const request of requests) {
     const response = responsesByKey.get(request.requestId);

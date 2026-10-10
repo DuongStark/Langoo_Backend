@@ -1105,9 +1105,7 @@
       "rawObservedReason": "Nghĩa nguồn 'exceeding; going over; going beyond' là khái niệm chung về việc vượt quá/vượt lên trên, bao hàm cả trường hợp 'tốt hơn/vượt trội hơn một tiêu chuẩn' của khái niệm. Ngược lại, khái niệm giới hạn ở sự vượt trội ('be superior or better than some standard'), không bao quát hết nghĩa nguồn (ví dụ vượt quá một giới hạn mà không hàm ý 'tốt hơn'). Vì vậy nghĩa nguồn rộng hơn khái niệm."
     }
   ],
-  "baselineR2FormattingRepairSenseIds": [
-    "104"
-  ],
+  "baselineR2FormattingRepairSenseIds": ["104"],
   "gitStatus": "uncommitted; unpushed",
   "deployment": "VPS job only; no backend deploy or database apply"
 }

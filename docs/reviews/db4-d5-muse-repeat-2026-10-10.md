@@ -17,18 +17,18 @@ semantic rules giữ nguyên nhưng prompt format không hoàn toàn cùng bytes
 
 ## Kết quả
 
-| Chỉ số | Kết quả |
-| --- | ---: |
-| Dispatch mới / reply transport completed | 20 / 20 |
-| Output hợp lệ theo adapter D1 | 17/20 |
-| Giữ candidate exact duy nhất, không unresolved | 15 |
-| Chuyển sang nonexact | 1 |
-| Mơ hồ do nhiều exact | 1 |
-| Lỗi output | 3 |
+| Chỉ số                                             |       Kết quả |
+| -------------------------------------------------- | ------------: |
+| Dispatch mới / reply transport completed           |       20 / 20 |
+| Output hợp lệ theo adapter D1                      |         17/20 |
+| Giữ candidate exact duy nhất, không unresolved     |            15 |
+| Chuyển sang nonexact                               |             1 |
+| Mơ hồ do nhiều exact                               |             1 |
+| Lỗi output                                         |             3 |
 | Candidate relations giống R2 cũ trên subset hợp lệ | 67/85 = 78,8% |
-| Exact duy nhất giữ lại trùng audit pass trước | 14/15 |
-| Exact duy nhất giữ lại trùng audit severe trước | 1/15 |
-| Mapping được apply | 0 |
+| Exact duy nhất giữ lại trùng audit pass trước      |         14/15 |
+| Exact duy nhất giữ lại trùng audit severe trước    |          1/15 |
+| Mapping được apply                                 |             0 |
 
 `14/15` là đối chiếu nhãn **AI audit đã có** trên subset ổn định; không là
 precision expert gold, không dùng để cấp confidence/calibratedScore. Không loại
@@ -36,14 +36,14 @@ precision expert gold, không dùng để cấp confidence/calibratedScore. Khô
 
 ### Các ca đáng chú ý
 
-| Sense | R1/R2 cũ | Lượt mới | Đối chiếu |
-| --- | --- | --- | --- |
-| アナウンサー, 1201 | exact | **narrower**, output hợp lệ | Muse lần này phân biệt vai trò nghề nghiệp với bất kỳ người nào phát sóng. Audit trước deferred do thiếu chứng cứ scope; không tự coi lượt mới là nhãn gold. |
-| オーバー “vượt mức”, 1962 | exact | Raw chọn **broader**, nhưng thiếu 1/5 candidate | Muse đã nêu được việc vượt mức không nhất thiết tốt hơn một chuẩn, phù hợp hướng audit severe trước. Output không hợp lệ, không nhận decision mới. |
-| どんな, 751 | exact | **exact**, output hợp lệ | Vẫn bỏ khác biệt scope của construction so với definition có one/some; lặp lại kết luận bị audit AI chấm severe. Ba lượt đồng ý không loại được lỗi chung. |
-| アパート “tòa nhà”, 1229 | exact duy nhất 62206 | **2 exact: 62206 và 63054**, `ambiguous_concepts` | Không chọn duy nhất được concept; v1 phải defer. Đây là ambiguity, không chứng minh nghĩa tòa nhà đã dịch/mapping sai. |
-| お兄さん lời gọi thân mật, 114 | exact | Raw vẫn **exact**, nhưng thiếu 1/5 candidate | Audit trước deferred; raw không được nhận là output validated. |
-| お菓子, 104 | exact | Raw **exact**, đủ 5 candidate nhưng sai thứ tự | D1 parser nhận đủ identity/set; adapter frozen yêu cầu đúng thứ tự nên loại. Đây là lỗi format/order, không tự chấm thành lỗi nghĩa. |
+| Sense                          | R1/R2 cũ             | Lượt mới                                          | Đối chiếu                                                                                                                                                    |
+| ------------------------------ | -------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| アナウンサー, 1201             | exact                | **narrower**, output hợp lệ                       | Muse lần này phân biệt vai trò nghề nghiệp với bất kỳ người nào phát sóng. Audit trước deferred do thiếu chứng cứ scope; không tự coi lượt mới là nhãn gold. |
+| オーバー “vượt mức”, 1962      | exact                | Raw chọn **broader**, nhưng thiếu 1/5 candidate   | Muse đã nêu được việc vượt mức không nhất thiết tốt hơn một chuẩn, phù hợp hướng audit severe trước. Output không hợp lệ, không nhận decision mới.           |
+| どんな, 751                    | exact                | **exact**, output hợp lệ                          | Vẫn bỏ khác biệt scope của construction so với definition có one/some; lặp lại kết luận bị audit AI chấm severe. Ba lượt đồng ý không loại được lỗi chung.   |
+| アパート “tòa nhà”, 1229       | exact duy nhất 62206 | **2 exact: 62206 và 63054**, `ambiguous_concepts` | Không chọn duy nhất được concept; v1 phải defer. Đây là ambiguity, không chứng minh nghĩa tòa nhà đã dịch/mapping sai.                                       |
+| お兄さん lời gọi thân mật, 114 | exact                | Raw vẫn **exact**, nhưng thiếu 1/5 candidate      | Audit trước deferred; raw không được nhận là output validated.                                                                                               |
+| お菓子, 104                    | exact                | Raw **exact**, đủ 5 candidate nhưng sai thứ tự    | D1 parser nhận đủ identity/set; adapter frozen yêu cầu đúng thứ tự nên loại. Đây là lỗi format/order, không tự chấm thành lỗi nghĩa.                         |
 
 Các ca còn lại giữ exact duy nhất. Chi tiết đủ 20 sense, toàn bộ candidate
 relations, reason và raw observations của ba output bị loại:
