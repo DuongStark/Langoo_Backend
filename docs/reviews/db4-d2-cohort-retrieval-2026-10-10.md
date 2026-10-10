@@ -114,4 +114,4 @@ changed by this work.
   `scripts/db4/cohort-project.test.ts`.
 - Updated: DB4-D2 plan, DB4-D2 handoff, `PROGRESS.md`.
 - Artifacts: ignored `uploads/db4-d2-jlpt-n1-n5-0208649/`; not included in Git.
-- Git: to be recorded after commit; no deploy/apply.
+- Git: implementation/docs commit `b74268d` created and pushed; no deploy/apply.
