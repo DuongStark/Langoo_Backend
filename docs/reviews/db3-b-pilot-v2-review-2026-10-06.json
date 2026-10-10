@@ -1,0 +1,1006 @@
+{
+  "schemaVersion": 1,
+  "jobKey": "4732940f690481ffcc3503a123185f263c521dc77ef5adea07fc8563efe05ba9",
+  "entries": [
+    {
+      "candidateKey": "130ccacdc8c38a70b9164850bd5092114b0b12900c1f23f9ed3295decb2aa114",
+      "inputHash": "10df2223e60d7b513e0b355d07b8ec53b6075d551e52c525c29add947d41ca60",
+      "outputHash": "39dc0168f5070642b86edb4b29dac904afb3b22b3aa4cb9dd89da56ac9dc26b7",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đúng nghĩa khen tốt đẹp/tuyệt vời của sense 1, không nhập nghĩa đủ rồi hoặc khá của sense khác."
+    },
+    {
+      "candidateKey": "4e05a0b3656db884a30f2335d7e840538347fa027bf6452a9c312b6fd5e75bad",
+      "inputHash": "becb57168e38bb6b17d9228e192cb8cbacbb1bb4b55859f69c1e97bf7c8daec6",
+      "outputHash": "e2371077a0e5c3ef84d9d17e295be200b18115b3a3a382a913b6c80972e2ff96",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Giữ nghĩa đưa vào bên trong và lắp/cài đặt; không nhập nghĩa chấp nhận ý kiến."
+    },
+    {
+      "candidateKey": "160e3a6c56c1c71182b187af739bfd47a4218bca7af09dc8afb263ca516e7a81",
+      "inputHash": "3e49579efee2db427ba69942594b4534ff0adb4b094937a4ed406dae4e6f8913",
+      "outputHash": "908300b37d3d9996c50303e6de670ebb88d0f3e167a1c8a4ce7ba8cd858016d5",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đúng mức độ khá/tương đối của trạng từ. Raw POS là adv, trong khi target chuẩn hóa là adjective; đây là vấn đề metadata đầu vào."
+    },
+    {
+      "candidateKey": "35d6f004c4c5417694c4ecdbacaebc5c532f4a1febff2854cbd282f6adbeeba9",
+      "inputHash": "f3e436aa03e735372c77653cfe0d9182c8f89d7a3ea04b6036bf28781d1873d6",
+      "outputHash": "62b7cf2afbd38704af1b70c6d2e1e7b5f0d990f84f1a79e56413f1187bf47b2c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đúng sa vào/trở nên cực đoan hoặc xấu đi, không dịch thành chạy bộ."
+    },
+    {
+      "candidateKey": "58f6196da1dce0c5a71f569238f8e6f61202acf42d8b9b7330d6ab0e10dfbc44",
+      "inputHash": "939000e88a9a88d50d836a29e788352f1ee89a5e2ea73b1e350079fdcb27a3f2",
+      "outputHash": "0ca3d3b2ed4567e3908b0dae8bbd51874d2ed94999aab629ff1c9056ac4c7837",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Giữ nghĩa được cho/nhận/cấp. Có thể bổ sung được nộp, được chi trả để rõ các cách dùng trong nhóm EN."
+    },
+    {
+      "candidateKey": "788a9d600c2a3472998d5b7000ee58dc81f7c0f96ae555dd5ac2860c51e4241d",
+      "inputHash": "0f873b69fe4cab5ac0ab2ee19f0a3a2031ef997d6e970e3cebec258483cc0398",
+      "outputHash": "6d6464176695ca48b986d552282878df82cb99eb62a9279cef3a49f474db779c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đúng được xuất bản/công bố/phát hành, không nhập nghĩa rời khỏi nhà."
+    },
+    {
+      "candidateKey": "be309d726024eb3895b95e23d1f5db5975e308163cde035337dd94780fa4b73e",
+      "inputHash": "aad3a58e309c2357956eb24531bded03d820a794f2b2946ffae85e5971f642b7",
+      "outputHash": "3d723c71c93ff5ecd00f6036b69eaf0dad7b4aa1573c7125f67c639256634ce5",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Giữ xuất hiện/lộ ra, được phát hiện và được trưng bày; bao quát đúng nhóm nghĩa của sense."
+    },
+    {
+      "candidateKey": "c62ba94a57b2a3c8fe4873ace4b597cb9272983ab1ad69c5bcb3f3a8fb2d3808",
+      "inputHash": "94a1949dc0fcbba2287569713fc7037a11e51eabf49c5df0dca5a9cc94ba5929",
+      "outputHash": "83892535ced2b6f6600accb87b3951bf445ce167eef397dd823de4ad42ae26e2",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đúng tiếp thu/chấp nhận ý kiến, lời khuyên, chính sách; không chỉ diễn giải hành động cho vào."
+    },
+    {
+      "candidateKey": "d4e4d3788e98041095eea1e10361952e9c0e78d312b5348c6512bd2c84415add",
+      "inputHash": "e2955032741e1fe4a1b8291cca83a12b981108ed02e62f4990e301fb13d8e007",
+      "outputHash": "641d3d9ebb4299c8222e35648ca4090e732f663dc7722972b592b410cd2d906c",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Giữ chuyển động vụt qua/lóe lên và lan nhanh. Có thể thêm cơn đau nhói/chạy qua để rõ shoot (pain)."
+    },
+    {
+      "candidateKey": "e6bc3e977de051203e5dd07f6a552866076145b625e7454c8758445d8a1c632b",
+      "inputHash": "2232176a5ce1b18227fe2698e28ce9badcfea98230e5538bca6a58dc65cad18e",
+      "outputHash": "497d4989b8ac8547419a682971d53ef36337f3ca47643b08ec928ee0695e2cb3",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đúng đủ/đạt yêu cầu/ổn, phân biệt với nghĩa khen tuyệt vời."
+    },
+    {
+      "candidateKey": "01440ed10a22600c5c9e2f076cfe593c34a5e173b5c1d106ce7a0bb7980988f9",
+      "inputHash": "8371c0c1f1aba7f91062f80c34386835ab274b7e314a485be46067944bc6814c",
+      "outputHash": "c67160c48695bd4bf03e5d183d168cc1a80fb0fa4338be4bc4e006e054f8ba1f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Ít diễn đạt đúng lượng hoặc tần suất thấp; không bắt buộc liệt kê mọi từ đồng nghĩa EN."
+    },
+    {
+      "candidateKey": "0651e89f3b3dc13e3e0d711be9e825477c64cc361942cc4ee4a9182d43961b97",
+      "inputHash": "18944fb764c3d49feeb21ab2824f286e0ff9eb780d8c16d3b307dbb068ae22dd",
+      "outputHash": "77d37911728e88f3c2e6badd81c93b2863550a36e6abdab4399fc30511e2b194",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Mảnh/thon nhỏ đúng độ nhỏ của đường kính/bề ngang; không còn lỗi mỏng về độ dày ở batch v1."
+    },
+    {
+      "candidateKey": "0f6ac1983fad06c30a87abd2deb73ecb4568a08791985ca2aaeef130a2f85dec",
+      "inputHash": "376e5ed799f3f19900f42c2165cbc1a1270f9f379d465abee659cebefdf68aea",
+      "outputHash": "70e953e707fa122574b432bffaf28fc35954c8da62e81322480768d6824cc7ed",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Công việc/việc làm bao quát work/job/task/occupation, không thêm nghề cụ thể."
+    },
+    {
+      "candidateKey": "1528a3b96b9dfe45d174b136a2bbed2a5514bad31ff533cc6646739fbc421148",
+      "inputHash": "750c126307db7da1459c5bb811722f1d01609a0103e1c08548584678f843cc93",
+      "outputHash": "b527d1a72dae1302c1e3a8b904202d7de7c6c8ed9c5077dc7685ded8e5ff0789",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Câu hỏi/đề bài trong bài kiểm tra đúng scope; đã bỏ vấn đề quá rộng của batch v1."
+    },
+    {
+      "candidateKey": "187402143d807ab5101b25561373e25d173e2cb13482b78ac2d05753aa791b9f",
+      "inputHash": "3a2c40bc6bb68d2f6e4763ebd93681c4314f403d0b9c9e12672fa14456ee9e17",
+      "outputHash": "3e2d3338b92defb0050ee60e7d6b5e5453a06855d8c624353c581e58b752f53c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Mới giữ nghĩa new/fresh/recent; sự ngắn gọn không làm đổi nghĩa."
+    },
+    {
+      "candidateKey": "26eb8637f39233321f004ea8667ec47f0ba517c7b7a3a3b866b9b111d1dc5426",
+      "inputHash": "5ae5c70b3c513b48e84b20c84b16bbd244c7b89c7dbe23f8cadd5c7d8a82b6e0",
+      "outputHash": "54ebcbeb3de0a8f693b5e6b6d3669e3a7a25d392b3ccf0931d5737bcc31deefc",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Nhanh/mau lẹ đúng sense tốc độ, không dịch thành sớm chỉ theo kanji."
+    },
+    {
+      "candidateKey": "28fa423ea790b62afa75b883114751f1c1f8d8bdd56bfa76fc79dc99ac27cbf2",
+      "inputHash": "98ee634797bb71135a84a8a0c9d4a9e443a1b0e5d5d8f34e32ae77fb7d4e7b3e",
+      "outputHash": "bdcfe10bcdb4478ef857164eee4dd3e69c2bd20634cc162d98f04e02820bb893",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Hướng/phương hướng đúng direction/way; không còn nhập cách thức của sense khác."
+    },
+    {
+      "candidateKey": "37ba6d4a97500e9e88a7facf910a6124741573a9a14f23dd31acfe078a535393",
+      "inputHash": "4c9b5c642e29919c24ea52c1e61b0061b9abc86708db92c03f31d08569c263b1",
+      "outputHash": "a64ea4175363cb57f66bcae24ed1d44344d8c0e30fd7123aadaf04af43705141",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Một chút/hơi giữ cả lượng nhỏ và mức độ nhẹ."
+    },
+    {
+      "candidateKey": "5066e2723c93db91735c13e8179301dfbdda7305ba4be9e6fe182ca292a0faf1",
+      "inputHash": "56cc4c8fd50f7f4042bef77c49b14c0d772c3d3beda084bc6ad7ca49f96539c6",
+      "outputHash": "348ae2c1401873af189c75007906c7adf8ad4431726217dd7c2c26a4dc52de0b",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Bố/ba/cha đúng quan hệ cha. Nhãn kính ngữ cần giữ ở metadata hiển thị."
+    },
+    {
+      "candidateKey": "50d09e7e51208419a8f6667b5be9ff3c7fa948c8869db47f61f6cbd7d51af0d2",
+      "inputHash": "dedff1cb047705e7c47670f865a5b2130c1b42e977c149f8101859ef52cc5855",
+      "outputHash": "65846c333365105ef700860e4b1a8707b8ea174790b1495dd0b9086af8cbd8af",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "An toàn/ổn/không sao giữ nghĩa không có vấn đề hay điều đáng lo."
+    },
+    {
+      "candidateKey": "8b14e657388e82fec98ce73a8345293cd4d11da43104d9bf6d20c534cec44c78",
+      "inputHash": "a84c88b38099ddf6581bf0bfa44fe02fa76c1f887a4ef471ab550dc2e4e371de",
+      "outputHash": "2b1ea216c565c2a5c7ffe1cb7398317c3c99a71fb77a4d10728e2d9235f9218f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Dở/không ngon miệng đúng mùi vị; không nhập nghĩa tình thế không ổn của sense khác."
+    },
+    {
+      "candidateKey": "9df8fe61c842b8a50bb6ae7460a7d3c2ff4d9e06d7bac19cc94f6e9802cadfe3",
+      "inputHash": "cc1d2fb05551f1de9a6ed34bc48e8b63b2aa7bcaf41b39f638da5bd1d3f921ef",
+      "outputHash": "e530b5d7bfbe88fbcf447141a8a5d16e2efa03c9f319dd4ebaa0d010025d937b",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Nhiều đúng số lượng lớn; POS normalized không bắt buộc gloss VI mang hình thức tính từ."
+    },
+    {
+      "candidateKey": "ac9009a9eee1d2d2b1eb852c4b5d11e2873f4401de8458dc56cbbcd57cc5026a",
+      "inputHash": "be83b0657b0f2755fcad1fdbb7a570e8d17ca23a4ad5efc8bc8e3b5d2503899c",
+      "outputHash": "42e9c9b98c34f0203bc2179d2d258bd94d2a73de30347ae5f9988720c387920f",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đánh bóng/chà rửa/mài nhẵn đúng nhóm tác động bề mặt. Nên thêm đánh răng cho cách dùng rất thường gặp; không coi việc thiếu ví dụ đối tượng là sai toàn bộ nghĩa."
+    },
+    {
+      "candidateKey": "ad8d0044b5019a6b503f622294788041ac4499db2577c4dfc505283998429332",
+      "inputHash": "a1b02db4520e5a5909c5e5981df89c4c8851b41473e47f72a752b29373a34f9f",
+      "outputHash": "1bcce40eaeca4d69613cee9458ed6ad396e5fb2f032009a0b88e6322e96d55dd",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Bài văn/đoạn văn/văn phong đúng nhóm writing/composition/style; văn bản hoặc văn xuôi rõ hơn văn chương khi biên tập."
+    },
+    {
+      "candidateKey": "b7a76e2bcbf9c9404be675a40fec2ba7e5f39d97b3538f88786eb4c557208cf4",
+      "inputHash": "943eb6e2a74d739a873fcb911c483796496273a97c149bdfcf456ae3871ced78",
+      "outputHash": "79eedc831b7e1a12c5d541c8a51490447a75b44911b79b1e009c704759161040",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Lối vào nhà/tiền sảnh đúng entrance/entryhall; cửa chính là chú thích phù hợp."
+    },
+    {
+      "candidateKey": "cd1dd38307a40e480600d4fc4349488953b0e0ab344669171dfc7ce1cbcfdedf",
+      "inputHash": "973ef07d7d1683acfab2dcefafb236b5180328c2261865a68148712c77243a2a",
+      "outputHash": "f5c80830dff675d0b989151e67c3c02c88a2b431af719f2e23ffc964a616cebc",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Nhưng/tuy nhiên đúng nghĩa nối tương phản. Cũng có trong EN raw cùng sense; cần audit nguồn trước khi sửa, không quy kết model tự thêm."
+    },
+    {
+      "candidateKey": "037d5fa4ac0935b5e0c23b1d37c22a57f1fd0d511df17c378020e0d98de2dc86",
+      "inputHash": "a7741521389c23fcd7f2a1a772dc7a7fcfc99614c45bb5f33da8357e32d8852a",
+      "outputHash": "9d5b366997e629d758726eb0ba33ad72fa7ddcc303ccc3b2c45ddfeef060ce5a",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Phía bên kia/đằng xa giữ vị trí over there/ahead/beyond, không nhập nghĩa đối phương."
+    },
+    {
+      "candidateKey": "5c9095fd575b87cf990196e2f4fcceb795812ba5fbd4f951b9f3af2a24e27cc2",
+      "inputHash": "e932b10130fce29e35fa62f59f0da5dd1361e4f2e86351756577695ad023511d",
+      "outputHash": "06db29866b64649bf4eec4c5114b9ae80030819a26d92e36755746b1877cdd00",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Cứ tự nhiên/xin mời với chú thích cho phép/mời mọc đúng cách dùng go ahead/help yourself."
+    },
+    {
+      "candidateKey": "6b8aebecf674759211f33db917cafa951911cbc6636010bc67caa25437a68f5e",
+      "inputHash": "1ea36366e62099213aad457b515bbcd60d88ac59f1d5af6d8857b96d8c9dbde8",
+      "outputHash": "d39a2122185885a43e5e82bd33fdef81a7c6aef68502cd1e8e2d31a7e89e456e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Lấy được/nhận được/giành được/kiếm được giữ nghĩa thu nhận, không nhập lấy bỏ đi."
+    },
+    {
+      "candidateKey": "70b65903c5e435d818657b51559b5a149ee4ae9c9713f09dc4fabfb3dba842c7",
+      "inputHash": "a3f8ce10764b381c9eeb5e09385eaa483b6cec53f7dd9682309d74973e20afef",
+      "outputHash": "9fa739a09f28de1a0981d9ce9a6c9a0c12aeadf4f55332a31131fba79b4e648e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Khó tính/kén chọn/cằn nhằn đúng nghĩa thái độ picky/fastidious/nagging."
+    },
+    {
+      "candidateKey": "b0a8647beddc8a0433d7f4a4998745e873280d8bfacd2c104edb14592f300f58",
+      "inputHash": "85eeea76248d7a1d7314c0aae2fa22b64b7ee8a5d0652fcdfac0035c15d7e26c",
+      "outputHash": "64e67cb5501ab54399e02d279ed9e195521953a9146ed42d894b7d2c21e4f54e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Cách thức/thủ thuật/kỹ thuật đúng nghĩa trừu tượng, không nhập bộ phận bàn tay."
+    },
+    {
+      "candidateKey": "c4d03a5f6f288fb5a66108357cdc04290d480b6371aa164ad017954951d89363",
+      "inputHash": "7e354c6a0a3f76ab8e021b97fdb3878d98e29aa2e7aaaa989fcf820545810f2a",
+      "outputHash": "a0d16ed86dc933fd8b0a2efa90f6e3dafd711479e62c2875c5aa9f427eb9ce6d",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Người khác/cái khác/phần còn lại giữ đúng các thành phần của nhóm another/other/rest."
+    },
+    {
+      "candidateKey": "e18d8ef803e9f09e0dd0df38ac625a5f9b5523310ff151618aa5053177872605",
+      "inputHash": "3b1adc2df938d79dcfef3c27b3751d227b54185a953663aa3f6c9c71b8101890",
+      "outputHash": "4b20354008ae36043668501a03f2d99ac329dc3e544d5e05b8bcd4117359c892",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Khó chịu/khó ưa/đáng ghét đúng tính chất unpleasant/undesirable, không nhập nghĩa không chịu làm."
+    },
+    {
+      "candidateKey": "0f2ac8fb95cc0b58f26e135ecb4cc96c33908251bb64d50c66ca353fe416a2b0",
+      "inputHash": "86bd7561018556a234b7ad9537f205286a1aba2fbed99f4ee8d9da24e91b3829",
+      "outputHash": "ec9801df2fd9b6d31419a8204c84971c76564053b0fdf2d91df70bb21cff45b9",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đánh/đập bao quát hành động hit/strike; không bắt buộc liệt kê mọi biến thể lực hoặc đối tượng."
+    },
+    {
+      "candidateKey": "110ea6ea0450505f57e682a542282f6e9b1b59c623d1b058d2804c830d34a0dc",
+      "inputHash": "0a66db808a2c1ee52a2dd0f0c7f99b4d7a6e49e3e60742a28ff818d3f29f10e7",
+      "outputHash": "70506663e8462be8818ac9d4a111291b7bb89345a859326f11c58428f73b8663",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Quyết định/lựa chọn/ấn định giữ decide/choose/fix/appoint, không thêm nghĩa kết thúc."
+    },
+    {
+      "candidateKey": "1ce27f15cada0aa88fa5a4620fce97b7efaaa69deea60460c438fb0c7e47e80e",
+      "inputHash": "475eebbbae198c2888f665ee73a81b2f7e3c026e7b493011301f50b9d3060a26",
+      "outputHash": "90405e7198568998497336aba9b369bff38e3ebe591ddf460955c4589a4ebbdf",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Điều tra/tìm hiểu/tra cứu/kiểm tra giữ đúng nhóm examine/investigate/search."
+    },
+    {
+      "candidateKey": "3380c1e93129569e4f6af419c32a636ca3133878101adf3222654af75a7ee10f",
+      "inputHash": "26d65139919514cacee6f430bd2d112dea8b791e28dab7cbe56f9cc66a08b88e",
+      "outputHash": "07b5c4690bfa0ce2504faab84eb4f86fac832ecf37bc2028af34e3ba76ef29bc",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Kỳ lạ/khác thường/đáng ngờ giữ odd/weird/suspicious; không dịch thành thay đổi."
+    },
+    {
+      "candidateKey": "44c63ed9c0834820da8a37c02d0b9d105cfe9b54ce9289cc6e27f2c020acecd1",
+      "inputHash": "811e016749451ec9c7c4506407e2f8783d69cdd7878675e28a6f8cd75265ee88",
+      "outputHash": "526a385ca0f25e1ef69db6dc14e47f1b571e25feb98c4e0f401760100e2db655",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Truyền đạt/truyền lại/kể lại giữ nhóm convey/transmit/tell, không nhập nghĩa đi tới."
+    },
+    {
+      "candidateKey": "6d0598c76301a140e1622fa9f934bd76a26e650af22b713ca4712b968a2bed4b",
+      "inputHash": "3d54607a7d4bd6c2ee61a04fab4f934d6a9eaf1da0d8a77e02b009ba8a60d530",
+      "outputHash": "a166bbb8e2e4cbc520ef429e5790ebdb1a415e218c4904b0bfa4777c0e723b46",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Khá/tương đối/rất giữ mức độ fairly/quite/very; không dịch thành phủ định khó mà khi không có phủ định."
+    },
+    {
+      "candidateKey": "76abaddc9b92f1cc38d73374c0d154a1c63ba0d70a1573441d2c183955917280",
+      "inputHash": "5d51c4604296d6bc64489ce6f4a9bd64b801d6e22ae4def5398c24517d1e407e",
+      "outputHash": "395d0c647f88ee2c72b0307ebc3381d360b12ee06ac6636b703e9ccb2f9b5450",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Rung lắc/đung đưa/chao đảo đúng chuyển động dao động."
+    },
+    {
+      "candidateKey": "829b24aef109a66b459e5f3e67c33d5b03ac00a4ee75b9ef3f0fce892fd17e37",
+      "inputHash": "da6209ab3ce2133f081d12800323a8d2ac974fa839ec4668a7a00edc44459f82",
+      "outputHash": "82f380fb4678b53d4ce9939118504966054eb92a14ffef8e91636cda7d5fcecc",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Sửa chữa/sửa lại/chỉnh ngay ngắn giữ repair/correct/straighten, không nhập chữa bệnh."
+    },
+    {
+      "candidateKey": "bb89eec88f6c47cf19212ddcac8515645cec62678dd34d70a1c6df641ccbbf5d",
+      "inputHash": "85ab1b2784fa9912e9ea11fc6873b9c53cc2d0c413e054480b6a992134ad0ff1",
+      "outputHash": "3be131956d7cddb21936019e1049d44a40cc659a2b694a3be1dcdc6b5ca8be0f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Được/ổn và chú thích cho phép phù hợp good/OK/may/can; không coi đây là hành động cho phép của động từ."
+    },
+    {
+      "candidateKey": "c52e8777f77b05ecc2468bd4e53ac3e7af743ad41d8f3e02917927b2feea9f25",
+      "inputHash": "45275d66a3f6937255a127f6fa8fcf8b4a5dc3b799f9f1433997c227ac760929",
+      "outputHash": "c28646dbd32b0f20f901304b4b3f96f0a1654c59edfdf99bac02e8b454a8e8c9",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đi qua/đi ngang/đi dọc tuyến đường đúng đi qua nơi hoặc theo tuyến; không nhập nghĩa thi đỗ."
+    },
+    {
+      "candidateKey": "d0467285c72647b2727c0c7d62a02eb4a3a1b4ec859ed18363b94142e2e6e4fe",
+      "inputHash": "61fc380b77bab95f5b7edc755cd653a178bb914e86743288cdc1d88226859e80",
+      "outputHash": "92f24790ffb3229fc987a5ec8f5703ef0a2f9ff1bac7c19f585705ef6d37eb24",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Khá/rất/đáng kể với mức ngạc nhiên giữ cường độ considerably/surprisingly."
+    },
+    {
+      "candidateKey": "e4298e5c7ef2ef8446d47dd95098e15aee018c5e8af734f409c8ecede4878fd2",
+      "inputHash": "fa6c689de2426020a53c01310a6a9ffe4a40469107ff9c80297d1766551d7f63",
+      "outputHash": "af08b51363d53ec400c0d33860efe63bf456254d08d5706f9a3cbc51ad30c54b",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Niềm vui thích/thú vui đúng enjoyment/pleasure/diversion."
+    },
+    {
+      "candidateKey": "e6301cf58959ebb0289b3c7b4982ddf120d40fdcbd9000ed0ace490d838ff7bb",
+      "inputHash": "1f232b0e5525ac4093db30e2a6726e0e22dbb831a541e9dd3de4d104026b45d0",
+      "outputHash": "3de6b976e7d5f10c4a8fcef7c87be8e71e7cbfc757070d1e8cd81b8bbd9c1916",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Hầu như/gần như giữ almost/nearly/mostly, không hiểu basically thành cơ bản về bản chất."
+    },
+    {
+      "candidateKey": "14a9e863b41eacd7ed528dffbd1dbff00cc75726cf89281f52e20bac60de8a0f",
+      "inputHash": "0da2f7227658be453c85ff95cd9b7bd31f7c7200e522544ecd142af7a5e769b3",
+      "outputHash": "df9037ee6be7e34330e526129e2ac185497d995af311b3be716f04161d45f19a",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Gây ra/tạo ra giữ cause/create/generate, phân biệt với đánh thức hoặc thành lập ở sense khác."
+    },
+    {
+      "candidateKey": "1a5b65d509bae78b583f8a2864ac170d4a22f55d16888a274a74b46f55cdb4c2",
+      "inputHash": "0d6534e04b99c2160f548de4801d90106c3761b2168443f7d8ed074afcee9b88",
+      "outputHash": "de0ffcf61bf1e601167333203bf9b2dd98086646cfde8fd158105b00761ee18e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đáng tin cậy/chính xác đúng reliable/accurate; không nhập trạng từ hình như."
+    },
+    {
+      "candidateKey": "2391b7ea396d49641210c818818ec2fbe74d7c49ff4f40d2494c74c166e55ac6",
+      "inputHash": "5a101e4798a2188aaae0e26c09a2fcf3bac7444a768f5f262047a772bac30715",
+      "outputHash": "d0c63d6225da67b1dc96e312e775b97a2b45610c8b155a2ccf900bb75ddb9cd2",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Qua loa/cẩu thả/thiếu trách nhiệm đúng sense tiêu cực, không lẫn sense phù hợp."
+    },
+    {
+      "candidateKey": "2909a39d60c5c875f0dec5671eb493eec6b5ad603749177902d0fc94b5db9533",
+      "inputHash": "98f705e65596af6fac85897a62538e75ec150449ebc6dbc4258cd6254f78a62e",
+      "outputHash": "7608ab3f7f5ea42ddc5a6fa7565f6c04f1a0b8c2dca84d2ead36c96838cf2288",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Điểm/mặt/khía cạnh đúng aspect/respect/detail, không nhập dấu chấm hoặc điểm số."
+    },
+    {
+      "candidateKey": "490c57c8b982e90690bf843b01611880b147eddb677713d4330224fef90eb0a6",
+      "inputHash": "36340885a0233c44b1b7e33cfa45c7473ff6d90ebdd47d1ee1629b79e6b7255e",
+      "outputHash": "09d3a69ed29247a277eff58a9f9ffa4d4f648b853c11a143d72cd9351218aaa5",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Cố định/ghim chặt đúng fasten/fix in place; không nhập dừng hoạt động."
+    },
+    {
+      "candidateKey": "9ad60abb5754712be6d51f80308aa927851529919055e2b1f42960932d2fe337",
+      "inputHash": "1d26db0885766588f18df768e65ab8aa91b994eedd99750e450ad986992ae062",
+      "outputHash": "3302b815f37973a9b8ed0b5ec6cb5a6d856a1ba5f55803602c0399b958b760f2",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Giảm sút/suy giảm và các phạm vi chất lượng/tốc độ/doanh số đúng decline/deteriorate."
+    },
+    {
+      "candidateKey": "b866aefa2c3ccdb44d4f440ad82d031516ea8d48e2487a289525ea394ea26d91",
+      "inputHash": "b4619df4e482760a4eb1d13095a75eadeda5e0ed376528e0eb733010e37caa02",
+      "outputHash": "b5dc0097206768ef8e67c8dbb6a1f28c74dd502d7151f60fd5a9654f3cebef2f",
+      "verdict": "fail",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Chiếm lấy/hạ/ép khuất phục đúng một phần; thiếu nhánh trúng thầu hoặc thắng đấu giá và ép khai nhận đã có trong EN cùng sense. Cần giữ các nhánh này thay vì chỉ rút về chinh phục."
+    },
+    {
+      "candidateKey": "bd752358706aa79e5dc5c457e342ac399fdaaa86e11f85d47bc59ead150b4317",
+      "inputHash": "dc400474582f2055c487ff62bd4f384d70788883d10786f76dce53617a470abe",
+      "outputHash": "cf5b1d7f67b14d8c87ff90bd7fdbd90ee22f3d60834a7869bc5f3aaa12513386",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Thành lập/sáng lập/mở tổ chức đúng nhóm establish/found; raw có liên hệ 興す và ví dụ mở doanh nghiệp."
+    },
+    {
+      "candidateKey": "c9da03e4052f229b5b8e9e18da8ff4587745100155a38f89748f5e68e9fa6b8b",
+      "inputHash": "4bedbeff600a9b7245dcdb715ff83ee2769417f69f8d9913b999504d19209f3d",
+      "outputHash": "bd93ad8eee5532594bc1eb45522c0f157b505f5224c86450dee742e71f2cf437",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Kỳ lạ/bất thường/kỳ quặc đúng odd/wrong/unusual; không nhập sense buồn cười."
+    },
+    {
+      "candidateKey": "d6fc6e8438f3820bbab2d90903593b665db13bf30f8a290414933e6b872851c4",
+      "inputHash": "338ca272f93b248a65eac98a043793715d72eb56fc4dc5fff8d5983d852ee064",
+      "outputHash": "824b57c398038dd4870174edc7a40a4cd36f7d14cbdb864460f1297219f8f7c0",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Hạ thấp/làm giảm, nói xấu/coi nhẹ/làm sa sút giữ các nhánh của nhóm nguồn; không nhập nghĩa làm rơi vật."
+    },
+    {
+      "candidateKey": "e0c35f4c449349a6bb9ac0d6d84f05c8f102e5e9dc0580b8b91fdf224d1c5b5d",
+      "inputHash": "e360f5fcf99e771b511deb331d889df24225940626a1e7055705deb9d6e6f26b",
+      "outputHash": "dda5519475b3f2ab023ac93b13c98163dcfd29e72ec16767777c07188ef3a29b",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Khách/khách hàng/khán giả/du khách/hành khách giữ đủ các vai trò mà nhóm nguồn liệt kê."
+    },
+    {
+      "candidateKey": "e6a0d20f110d21e837c414a65532ee9b78240aff95b8f8014692ef3f1c9929e4",
+      "inputHash": "17a5d6b3446c558d82e39ca9c9692dad6e663664695d027677add31997825ba3",
+      "outputHash": "a771accb0c298191a15239db82971785b08f3e2bb77514840a89650cba772c9b",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Giữ tẩy/loại bỏ, mất, tiêu tiền, lược bỏ và lén cho trốn; các nhánh đều có trong EN cùng sense."
+    },
+    {
+      "candidateKey": "0e4fef04c7a8639bc29c04f8e711989c72a6874c8116f45cec9d2e73f124745c",
+      "inputHash": "d67d274a9f6f27c99a1bdd21e6cd4de8b5714f1d491d65326cd8f8c3450755e5",
+      "outputHash": "80e57ff19d19365b1437886eecc90428d6f9b2d46a741d6ec2f31a803efaa843",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Gắn/đính kèm/dán giữ attach/affix/stick. Nên thêm bôi thuốc/áp vào cho đối tượng đặc thù; không đánh fail chỉ vì thiếu ví dụ đối tượng của thao tác áp/gắn."
+    },
+    {
+      "candidateKey": "1ec774a5d56358c2d7f7e13dc65564539bbde5e76f50e19bd47d1d981a284e6d",
+      "inputHash": "3315f6ba4e1e5630357d96e65638c91b951bf0197762dfaad4c1ef9f87ecbde3",
+      "outputHash": "8478d9e51a78c5158fcb1d5786cd99e8ee70f6cc4303dc5abac3ddf6a05c8d7a",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đánh/đập/gõ/vỗ giữ strike/tap/pat/clap, không nhập chỉ trích của sense khác."
+    },
+    {
+      "candidateKey": "336b251d7f2e7b4516796212f9230a85910058b636187fe0b32404cc8679b972",
+      "inputHash": "dd75774ace9524b677ec15e19d30673e7a686f3941c892ab1466c36baee5fcba",
+      "outputHash": "0d9b154cf1d4c86010f6f7481060962fde7ab2c7265380b1a4fce2736ae1c5e3",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Bạn bè/đồng đội/đồng nghiệp cùng nhóm đúng companion/comrade/associate; không thêm quan hệ gia đình."
+    },
+    {
+      "candidateKey": "46c34827405b58f0000a51ce8fcd198e2bb6ce76e46ecaeca13ebff4b9cd3ee5",
+      "inputHash": "0c997771d5e68ff696f82aa1099888c2cb065e1587a1cca15ffbb125f53f3896",
+      "outputHash": "13447acf46454b4d434af2602038bbe93db31075545e7abf885875e166f53394",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Trượt/xê dịch/lệch/không khớp giữ lệch vị trí lẫn mất đồng bộ hoặc lệch trọng tâm."
+    },
+    {
+      "candidateKey": "81bf697f729f193d11e9d6428d92df8a566afc5a667c29f87ed5bee46762ba6f",
+      "inputHash": "34aac49a6e4c27aee907d4036d4c99fa1f57a92d4ac953c8895ec6f00387b160",
+      "outputHash": "6b5fc55ecd2061105fc51e82f1fc1745c4087687545e78b8b94ec04d16bd070d",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Tuyệt vời/đáng yêu/duyên dáng đúng lời khen lovely/charming/splendid."
+    },
+    {
+      "candidateKey": "93eaf5c565530be3c06cfd6df83270cadc1432e2b6df07a484c7dfd4bfae396c",
+      "inputHash": "1526a7ba055f2fd02d4d035c3ae061977bf01155608b925aa8590256c3fe4646",
+      "outputHash": "39aafabf354672b496890cddba14f80eb4bc0121ca51b0a215d2b90af8236192",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Trung tâm/trọng tâm bao quát center/core/focus/pivot; không nhập toàn bộ nghĩa cơ quan lãnh đạo."
+    },
+    {
+      "candidateKey": "b019a0b3c99826a891b0ad2e5ab9f1ac4c12ce84f4fc40e5f86a52d86238ead3",
+      "inputHash": "56006dc249c80b8d60a0b0a7c4af0663ba8490e5bb50ba4311bb3cf4eb262557",
+      "outputHash": "7f93abdc93252b25921d8096556f10f74ca90067482aa587fce43500a4954841",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Một bên/bên kia và chú thích một trong hai bên đúng cặp one/other; không nhập mặt khác của sense nối câu."
+    },
+    {
+      "candidateKey": "c465c44371fccbc9a6afd321b23628b84f31c49dd54a3de959c3986652e95c09",
+      "inputHash": "9bc1aa1710986efb7786a5a80d983b8f2f5ce54a3a66e620ebc4c4c8185392ba",
+      "outputHash": "797f895aafd49c29f0244c33a253563e223ca5dc9e5b5303b5688536fad4e194",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Nộp đơn/đăng ký/đề nghị/yêu cầu giữ nhóm apply/propose/request; có thể thêm đặt chỗ/đăng ký mua để giúp học các kết hợp thường gặp."
+    },
+    {
+      "candidateKey": "ccd29344f994cb6a61673bcd3f1c926156f3e1eae79293fc9184f052de6e36c7",
+      "inputHash": "b199f381bb1f60f7ce3b3dea752f1b53f50b1aa3d27bd50b0e782abdf08c55bc",
+      "outputHash": "fc57041e54b230c95e90b357823abebdc36eb8043b3566f516da2801d8429fed",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Sự công bố/công khai/phát biểu/trình bày giữ announcement/release/presenting/expression."
+    },
+    {
+      "candidateKey": "dda4092722a02bbe131a9535dd67bc84efc81d4d2bee50ba4a10cb4bc531754d",
+      "inputHash": "e5afc0e182c8d23ace57fdcc5a21a46b337d68a79720cf1555b83c75c7106dd9",
+      "outputHash": "85568600836f7ba95077e32eb73851cd9b80ad63f74d03affdd3ec9fcd36a208",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Rất nhiều/vô cùng/thỏa thích giữ mức độ cao và to one's heart's content."
+    },
+    {
+      "candidateKey": "00d19daea1ef000f20ebaa3a256731e719f5ec6f1843dcdf7b2e590fe83aa3fe",
+      "inputHash": "3bae31c728ab3f972c1c7ca9f0b08f6fbbbff91858d695d475c3b1f6d16bd184",
+      "outputHash": "29b27c691fac26338badd79f00555b7a8d4d90cf2fb25fb07ba3f0ccc8718763",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đàng hoàng/hẳn hoi/đúng đắn giữ properly/orderly/exactly; đúng giờ có thể thêm làm chú thích ứng dụng, không nhất thiết là nhánh nghĩa độc lập."
+    },
+    {
+      "candidateKey": "51a648af95e1b3b22c18fc7a6bd426df920d30c0fd42eb863c5e192cfd02df4a",
+      "inputHash": "47f729908d606cc39eb2752f1feed4ce9845ec3f72bec54dbd99d343d8645e5b",
+      "outputHash": "482423dfb9e5f81e59cc7a78e2d71b913e5f3e2cd352fc770e5a4d5c33b00330",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Kích thích/thúc đẩy/động lực/khích lệ đúng stimulus/impetus/encouragement, không thêm xúc giác vật lý."
+    },
+    {
+      "candidateKey": "5725cdc17f0c61619542f3a4b70ee8c55fab9abd4772324c4a6d3bb7f0b56825",
+      "inputHash": "34b131cf23e9a89a9e0a647b2899fc7c7a9bf63e8e454a8ee445abfdca6c759e",
+      "outputHash": "b3f00dffcbc7368ebe00ca9e1479965d79d3465ea937d0b6c0c6bbf3c03662dd",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đạt được/giành được/thu được đúng acquire/attain; không nhập hậu tố khả năng có thể."
+    },
+    {
+      "candidateKey": "5e7bf8843d0b6dce35f19ce329fd99defd265731377bfc33501393dd2d35f6ec",
+      "inputHash": "b379fed2f9a2d5b0bc1dce5c7a8ffd84065bfc28bd64993518d718cb5016ba8d",
+      "outputHash": "49f719bf86072fdf98be21e7df89a547833b84d07aad6bcb75b9cc647b7f4ced",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Nhạy bén/sắc sảo với trực giác/giác quan/trí óc đúng keen/astute/perceptive."
+    },
+    {
+      "candidateKey": "6057bb2d5b48c2ccec04abde98d9c1a5892f7022dd8599c1e1774ae66649fd12",
+      "inputHash": "9c9d78507c792881d8a545fd0e9e0604ecfb469905aa6a05f2a7a4a688d3d280",
+      "outputHash": "c4c10f70bfbf9969f1eecfe9d5c801c7db264ab37aec05df3d0cb701c5f545b9",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Dao động/bối rối/mất bình tĩnh đúng unrest/discomposure/feeling shaken; không dịch thành dao động cơ học của sense 1."
+    },
+    {
+      "candidateKey": "7e5147bad299fb48ba6c2ea5ea54580107eba6ed6972279d68cf963d101e56f9",
+      "inputHash": "b5427ab441b7e9828fae39001b3cb8ef9ef699a20475b68c8aab1d1e29e33af6",
+      "outputHash": "362273fabf44f9895e7456c3c79b000ef60b9315d4419623702270ce2cf0d259",
+      "verdict": "fail",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Người giám sát/quản lý/huấn luyện viên đúng một phần nhưng bỏ nghĩa đạo diễn của director, một chức danh thường gặp của chính sense này."
+    },
+    {
+      "candidateKey": "cf7159150b019b5d220cb2d60e9d26a011026cfead2100b3a84a19e414ff5d8b",
+      "inputHash": "ccc8338bb4e1884b60a97055f243ef696baa5ec087ff8d497489f18b9ebf7fcd",
+      "outputHash": "9dbe145d419732a40ea1e23a07e738eb72583435f5c5406fae4c5764e690245a",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Sắc nhói/gay gắt/sâu cay/chói gắt giữ đau nhói, sắc thái phát ngôn và âm thanh; từ sắc nhói có thể biên tập thành đau nhói, sắc gắt cho tự nhiên."
+    },
+    {
+      "candidateKey": "d76bc44102a8b21dd4eca8646f5f7ab5bd6688b1df3c41cceb1f2c38769fa1fa",
+      "inputHash": "52053e3046375bd79a26ff7bde1b46fb1efa511e3d14e2180fa216fdb212467f",
+      "outputHash": "69fb426dfd67985b8092fa2a0ed2373cfb247c64e532277e2d331d6ca67eadd4",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Tóm lại đúng chức năng tổng kết. Có thể thêm xét cho cùng/rốt cuộc để rõ ultimately/in the end trong cùng nhóm."
+    },
+    {
+      "candidateKey": "f655775f260fce6a57af71e168e98731d74f01b6995d623c15edf4df866c76cf",
+      "inputHash": "8ed77f96bc17c50b44151c2f436158d11a00623b43a30a7890311210ac07071f",
+      "outputHash": "279bde506a7c87d9dc1b13c1fe0f2520cf11167dc597c9e6de8641f312274ff0",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Cho/lọt/truyền qua ánh sáng, âm thanh, điện, nước, không khí đúng truyền dẫn hoặc cho xuyên qua."
+    },
+    {
+      "candidateKey": "f8d2f89fafc94e1d342a01b7dd39cd6310ee360335f33d5dce85615ee4e5df16",
+      "inputHash": "b23284012466179970102c0112e07d7c1513e2a7cf7515d2f6b374f1db4566bb",
+      "outputHash": "f6736698d36bc3e2de4a83c14dbd42a89d96616eaaa2d949064a1c2fb15a59a5",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Do dự/phân vân/lưỡng lự không quyết định được đúng waver/hesitate/at a loss; không nhập bị lạc đường."
+    },
+    {
+      "candidateKey": "1b5b1fff630f78fbfa1122a907fbf997efc77783277770efe4e5fbe4ca003985",
+      "inputHash": "64a516f7b6e29f5197096851a002e21f6b6815bff09745a3bfb000410103bd8f",
+      "outputHash": "6b49cc096f1e364ce69696392188b62e108a54a834b36acd216346a7045f5657",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Vĩ đại/xuất sắc/đáng ngưỡng mộ đúng lời khen great/admirable; không nhập địa vị cao."
+    },
+    {
+      "candidateKey": "56fe986a8b2f780e522be1bea114f8282435d63db0991a5be495347ad424f767",
+      "inputHash": "b2dfd3c6ea8309ad518ac385f53fc0cf697756cb83df5e1e7b80e60a875172df",
+      "outputHash": "12a81f0423f48be9da690ec15869cafde7bb26973795bbc5d9658d9cbe9d97fa",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Ngớ ngẩn/nực cười/lố bịch đúng absurd/ridiculous, giữ sắc thái chê."
+    },
+    {
+      "candidateKey": "cbd70edaac4c618587a539642977fc517d2e0912497a6bb224299a498815cd2e",
+      "inputHash": "d4592d8c74c66cb1f01486f50b7d1458ff58fd042e737591f1a7877f215c28e0",
+      "outputHash": "c1d517abebd2863355bf3da669f41640f4e75bf20b09f25a378b677bb03064a6",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Cải tạo/sửa đổi/cải tổ/tái cơ cấu giữ cả vật thể và cơ cấu tổ chức."
+    },
+    {
+      "candidateKey": "ee89e0598f32ecb6223fbfada198db9fed7a6402ea7346db10055aaa94d84e1a",
+      "inputHash": "0f1fc8a75272c431cc94e1de376357f2f93779945b82e0eb420f5df57da7e84a",
+      "outputHash": "9c38d7e0e998468ec5a9b918c4a3b1aa7e7fafce3f4dd6268fe0b4900feb9855",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Bầy/đàn/đám đông đúng nhóm flock/herd/crowd; không bắt buộc dịch riêng mọi danh từ tập hợp."
+    },
+    {
+      "candidateKey": "f19544dbd7ff5f967312077281656e45c3814ee5dc66f918894606d049854cf8",
+      "inputHash": "88cb7f18e2046852ef9f0bbd60f5e9d017a8efc97a3e9c7c125e53a274389a22",
+      "outputHash": "85f4320d13ffc8e705367874e9a261159f37ada2096977d029d9bd187e5193d5",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Bóc/lột/tước bỏ giữ peel/strip/deprive/detach; không nhập động từ bỏ việc."
+    },
+    {
+      "candidateKey": "fa1c2a6dc0523ea500a19229c5aba455184e57dc850a1394678979126872d1c6",
+      "inputHash": "bee2c8764a82577792213c6d64d2579ed99a1cdc6c6f75ded5e043a9c42a3e9e",
+      "outputHash": "7d1f75bdabb761d62c92e98013fc3a67a4769d960114de9143fa9b5c91cf0fb8",
+      "verdict": "fail",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Tự ý/tùy tiện mà không xin phép đúng tác nhân con người nhưng giới hạn toàn gloss vào hành vi xin phép, bỏ nhánh tự nó/tự động của by itself/automatically trong cùng sense."
+    },
+    {
+      "candidateKey": "053465a839bce57782c09ff1d690623d51ef6051c0f03124823cfcb4db873bac",
+      "inputHash": "76b1f9aaf47b988a465ed8e4338fe223aca46dbafa45321090bb86ea6ef94b56",
+      "outputHash": "1b78df3d3a54d07f2590b7202df4cd6acc610b97b1230f8c8a29d8d1a664b1f3",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Khủng khiếp/nghiêm trọng/ghê gớm đúng mức độ awful/severe/tremendous, không lấy nghĩa đáng kính của sense 1."
+    },
+    {
+      "candidateKey": "1250dd73e6d34d447770c9ee12e6ac2cfa6054d4b5a26b62512a86e07f51e527",
+      "inputHash": "dce8507159b727df2ee8ea73488c75fcd69afe94f2874c1570d9989b18c365de",
+      "outputHash": "3db36550e29696ac452496bfbb89ce7e0ab5618e92d1254c1a6e9dad9f43fb82",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Nguy hiểm/bấp bênh/đáng lo ngại và tình thế không chắc chắn đúng precarious/in jeopardy/uncertain."
+    },
+    {
+      "candidateKey": "8ed894c7fe64f9a8183b07f7d630b67660bd9ef4f218a2ac175f411de4fc76c8",
+      "inputHash": "d0a2d23f56b5c8443098e6f159642442d1719c33b779311a91632b965f1b9384",
+      "outputHash": "8aa7d4af774d60b861c66af64c7c5fb154f72a76b614a0f11970d1518c8f5943",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Được chấp nhận/có hiệu lực/áp dụng được đúng valid/hold true/work, không nhập lưu hành của sense 1."
+    },
+    {
+      "candidateKey": "92f3b76c785291d206d6dbe469ef78759946ebfdcce2756dbd41070cc016583d",
+      "inputHash": "f25e84a8eda76d097421ac14c8da6d5d5796083e86109ba00f6254e5032bed55",
+      "outputHash": "6fc6e3ee935fc1d1640341f21d0f9cb3f21a03aa625ea96499efe702e145d71b",
+      "verdict": "fail",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Tiếp đón/phục vụ khách đúng một phần nhưng bỏ nghĩa đối xử/ứng xử với người khác. EN có act towards/deal with; ví dụ raw yêu cầu đối xử chu đáo hơn, không giới hạn người đó là khách."
+    },
+    {
+      "candidateKey": "9f23c83421c5507d58b2dcca429d05ce46f5ad85f2cd48c64ab612d1c3d9297c",
+      "inputHash": "434266bba14a055b5f7954759e6c9157730f3c5301b076b0cdd7b588822eaa93",
+      "outputHash": "ce8d1a103cc6c7d15c725390a0d015ff8850b1b144c2ea2dbb7b3e739f4ee3f1",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Dời thời gian lên sớm/lùi lại giữ cả bring forward/postpone/stagger, không chỉ dịch là trì hoãn."
+    },
+    {
+      "candidateKey": "d72e6f379793a3be94f0562e870f3d8d393653c1e6edfa967567884608997941",
+      "inputHash": "73d9945bc8035f0bfa4ae775ed8d943a78ecac8fa46fd150931b29ed0f05dcd9",
+      "outputHash": "26bc8043466f7493914e3bcae601678594dac499a2dde7c6b4d505e202b4f3a7",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Chui/luồn/rúc/vùi mình vào giữ chuyển động vào dưới hoặc trong, không nhập lặn dưới nước."
+    },
+    {
+      "candidateKey": "461ec56402a3f757b53ef524773529858974a2449698180c5c505dd1c70c60e8",
+      "inputHash": "abc1fba5dda0506269b6ff61bb2a6aad7b6fd6a7fe41ee3468d64f7b3e532539",
+      "outputHash": "aef505fcbb132f5fdcfb042d486713c703d0a2cccd14c2f7c588a545c214fe88",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Đúng nguyên như vốn có/chân thật không che giấu tô vẽ đúng as it is/unvarnished/honest."
+    },
+    {
+      "candidateKey": "9da15e68ea388d8157579acfc3449ba990380395e7569f5c6b809b3b97eca78e",
+      "inputHash": "9c63ab9f3111c752b827c3e900ad77dcdddd7f42eb60551366224cc727ba52a1",
+      "outputHash": "9d92008ecdd5481dfad176671c6aa42b7d5860e8d02af07d9f09d41f5b49cd9e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Tràn tới/ập đến/xông tới giữ surge/rush/descend/overwhelm; không bắt buộc liệt kê mọi chủ thể đám đông/sóng/ký ức."
+    },
+    {
+      "candidateKey": "b0784d90d1bfcc1ac4183d41ad938f9e53eba90031d2792db3690eb17bde0e25",
+      "inputHash": "6b8659893e424dcf7121d60d0b57e56bcd095dea217567d58c2bd2b2e2c358aa",
+      "outputHash": "50beafaa97167ef5f122db27a728ea8f4402365d59039ad56d5ab528c107c8da",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Chính đáng/hợp pháp giữ justifiable/legitimate/lawful; không nhập nghĩa chính xác theo kỹ thuật."
+    },
+    {
+      "candidateKey": "dfbc5fe728698d3da37564a7a9aa61b0f06909e67c3715a485092bbb75dd6e0e",
+      "inputHash": "43ffb5df6588c2820753d0bb6ece629b69db62c34b16b9365ec8e88f4ff6ecbe",
+      "outputHash": "25e5ae0d7e59b497de44e344ffa9e3942882a0bdc165b76a2209d49fdcabbc71",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Trung tâm/đầu não/trụ cột/nhân vật chủ chốt giữ cả vật/đơn vị trung tâm và người đóng vai trò cốt lõi."
+    },
+    {
+      "candidateKey": "e0a04ff1cfd068b4040b19e6810a5a1cb07398f84918bb004bfd194a376f9749",
+      "inputHash": "9af5922a9e99fc0c3684b7f745ed4c2faaae6b8a9c06b5d11f21f822463895cb",
+      "outputHash": "828f7c6d499cdf30d959a519434f45f885ad6640b1a7016c6cd59ad9e6911837",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Ôn hòa/thân thiện/hòa thuận đúng bầu không khí amicable/harmonious/peaceful."
+    },
+    {
+      "candidateKey": "03a3d8461809f42658ca1cc7a7f3b4a49224cf7db5e8be3330a2b2e79f769b31",
+      "inputHash": "a359d821e5dbdfd60bb0dc2f1508db92f6cd76eeb1ee5910107dd7cc61985271",
+      "outputHash": "c4ace59a44b630649aaca369c31d36da337ced660d9b26bce40be6e7716124bb",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Hèn hạ/đê tiện/bỉ ổi đúng đánh giá phẩm chất base/vile/despicable; không nhập địa vị thấp hay ham ăn của sense khác."
+    },
+    {
+      "candidateKey": "75d0aeb7a65951033a43872334f0689cdc637afcc50ef87cceb41a49474b73f2",
+      "inputHash": "6cc93c768caef9c744707c4767bc0a6ebe9b5d768dabcb338882668f2ed38f79",
+      "outputHash": "6153ef4e815b38beb2cddb1bee76fdac6afd44b244ccd5e664d621f375b5cb8b",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Suôn sẻ/dễ dàng không gặp trở ngại đúng smoothly/readily/no resistance."
+    },
+    {
+      "candidateKey": "e94459a0ebe8a345512f4bb9d8697c425f7882531f17fc5a7ab0b0173c28266f",
+      "inputHash": "63770e6c66dbfe96bdc07e9fb6d8dccd4ae051b74f39bb615c85e7e89c69f15b",
+      "outputHash": "196e1e45c2e727cf7b575d07fcdb45ec95703ee48651edcb34d13454bd66ae80",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Về/đối với/xét về đúng giới hạn phạm vi regarding/in terms of, không nhập địa điểm của sense khác."
+    },
+    {
+      "candidateKey": "ee6f24a0c67088327f9279ac6a8c2508f76329b594cac47d39ace85e39c9c476",
+      "inputHash": "986cd05add70d4e309e0b7204d3acbcce3e939695911d0d86ae00da96419b52c",
+      "outputHash": "f51a73fa5fa38b6e9cc78a6d8fa139bd710727ccc5c1bb6b079439191c3fa180",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Khéo léo/tài tình/xuất sắc/tuyệt vời đúng đánh giá thực hiện brilliant/adroit, không nhập màu sắc rực rỡ."
+    },
+    {
+      "candidateKey": "f2ebf30326580486ac380e3afaa8102a30e287baeada761cc36c1bb6b9d47398",
+      "inputHash": "2b3d95eb936afeda977cc563d42190132a7bfb79c697164ef662d6349719318a",
+      "outputHash": "c4f6239199d212440a79434da48939f9d106e8a35dd46820cd155e47a52fe1b8",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T01:42:53+00:00",
+      "reason": "Nhân viên phục vụ giữ nhóm waiter/server/bellboy/page mà không giới hạn chỉ phục vụ bàn."
+    }
+  ]
+}

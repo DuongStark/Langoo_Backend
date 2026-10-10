@@ -1,0 +1,1006 @@
+{
+  "schemaVersion": 1,
+  "jobKey": "74b8b769b94f1be0d4ac042580521153d6ee61e7e97b287c78b2a74235347494",
+  "entries": [
+    {
+      "candidateKey": "0056e6971f8231f42c7fb74d71a7fff8325f91a4687575ff5d6052fcf7088f2d",
+      "inputHash": "257c6541363b47e441769d4d69785a3116a4b69ee0f52c02114641bc9f16f308",
+      "outputHash": "d629ff3a7198515fc7d2bae02f8d68640d641a2a692eb3a582dbe6abebeeb22f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ đúng nghĩa nơi ở xa cả người nói và người nghe; chú thích được xác nhận trong info JMdict."
+    },
+    {
+      "candidateKey": "00b79eea6531b732b8a2bf67147539dedce2946ee76c5cf7302f361da927b8e5",
+      "inputHash": "a4e65d988bd30de5ca4e1149cdc1e5feb7586947a051ba0a4b47705718f15ece",
+      "outputHash": "77afbfdb8d76d4dc2b1263ab4ada21861f8d218043f59ca255b4d53344cb2706",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng trạng từ tần suất đôi khi/thỉnh thoảng, không đổi thành thường xuyên."
+    },
+    {
+      "candidateKey": "00d2da62f20297f17d17c9f5c7183148d690c1b8aa1d0cc61ce33405a94e5361",
+      "inputHash": "8bb82b52b49ba57c761d959d9cd6b3c0c6128dbaf17df43389ad59ce581db14e",
+      "outputHash": "236df6b29d309c03fc7c95785490b5bb9703578d6c27b67e0e963a053a438d3c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng nghĩa cùng nhau làm việc; JMdict ghi thường dùng như trạng từ với に, nên gloss VI này hợp lệ dù POS chuẩn hóa là noun."
+    },
+    {
+      "candidateKey": "0128b7f1578180840fcfb540398d2ab318a3bd5020ade3c163cb3bf9fdeb12dd",
+      "inputHash": "7f079fc0c9f94378e61c90c9d3e0a3f5357fe0f8fe1b87bbe9c51b48e18f0aef",
+      "outputHash": "236587d2b06eb4ddf5d4d7850c3b17e429d159ddc89dba8c2c1c6f08a892f559",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng nghĩa đưa/chở qua, không lẫn sense trao đồ cho ai; (sông) phù hợp ví dụ trong EN."
+    },
+    {
+      "candidateKey": "0263a95f2b187b6bd5ad1de30251bd5e35bb79f28fdc895a6b1818cd3485ece4",
+      "inputHash": "3ef262f3af8fa8e3608af397007683c5944031b22f420e3bc2801835ff77cbb8",
+      "outputHash": "81da88d4bc85769148176452a3c3e481cf7cea7bce062d347d66de8db56ad5e4",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng nóng khi chạm vào, không nhập nóng thời tiết của 暑い."
+    },
+    {
+      "candidateKey": "02690bebe53742ec014587bdb2813584e3a6846b78ace463f1ea3f87c3d3e96d",
+      "inputHash": "27499f33d656bb4cc44abcc0f73193c29d11717ddf9efe3b55bea3c19c89a01f",
+      "outputHash": "fb5a585231aa3fde9d0bd2fa4596a80509aa5183506dbcce0de41d07f1844201",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng nghĩa bắt đầu của tự động từ; không tự thêm nghĩa khởi động thứ gì."
+    },
+    {
+      "candidateKey": "026dc6c5e3b910c51cf33e56421712702238f5bc60ff693654681de2a26b2f42",
+      "inputHash": "e3ac22256683589aa4185faf8c2c2288a3bfcebce3a0d12588ac25c717289484",
+      "outputHash": "3a90189e891cc1a2684c9fb2e80cd6dc86ac41123d0864d44ccc4b45b61e7bca",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng danh từ bên ngoài/exterior, không lẫn ngoài ra hay nước ngoài."
+    },
+    {
+      "candidateKey": "035bf6a1c54b2ee9d434e39a3bde6141e1b187f2bf3d379b110d551a066c1a87",
+      "inputHash": "f6f7b4cb90f3590fdc06f944b71e67fac4bf4ae88a80bd9dc6de21c945ab7aa8",
+      "outputHash": "7c28f9dffa24290faba3de3d0c967d262b73eecbb7658a3218624d374ada8083",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Xấu/kém/không tốt bao quát đúng nhóm bad/poor/undesirable của sense này."
+    },
+    {
+      "candidateKey": "04f35766c551749ac1df8bfe0661547936ce4c2c1c664b0e1d63ada78cd64d7e",
+      "inputHash": "f0b7c186fb733ac0fa03f9d866dac7cfb17627b9c76efc5855e67aeb62a7be06",
+      "outputHash": "0cebbf34827d449a43e704c3c18e9628c13b751a71221232e4443592915ac787",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng bộ phận đầu, không lấy nghĩa người đứng đầu của sense khác."
+    },
+    {
+      "candidateKey": "053c28ca5ee3d5141d2e23304cb9335592e5e12788fe1ea57d0a5262fbb3a744",
+      "inputHash": "1be67057684e0f0ac7e3f19d8ee53016e4151804f37e55158e7bdf7fe32ced0e",
+      "outputHash": "38dd95f3b8b83b6efd24d44caafd9576f14aa4f09a453aa84f1e88cb940406fa",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giống nhau/như nhau diễn đạt đúng cùng/đồng nhất/tương đương."
+    },
+    {
+      "candidateKey": "01440ed10a22600c5c9e2f076cfe593c34a5e173b5c1d106ce7a0bb7980988f9",
+      "inputHash": "8371c0c1f1aba7f91062f80c34386835ab274b7e314a485be46067944bc6814c",
+      "outputHash": "41374e2693b92329801be422c00f2364074f14b4d6e9239bbec343f9140feb2c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Ít/khan hiếm/không đủ giữ nhóm nghĩa số lượng thấp; không bắt buộc liệt kê mọi đồng nghĩa EN."
+    },
+    {
+      "candidateKey": "033c76c4a836502f43955180bc5431053e385f16bd306d3b73e325a127db2e25",
+      "inputHash": "177cbf3042ed8439965b63d0b8bdb14d88332b87614e271890d6e3711bb77dc5",
+      "outputHash": "50eefa577644c106f5241a8acebac1c70ab14e86da8fa78af921c8902a99fa65",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ cả bát ăn cơm và chén uống trà, không thu hẹp thành một dụng cụ."
+    },
+    {
+      "candidateKey": "03b99c0d9b34985b541365d8a3df80442a770d4cfa3edca7c923c1c2f61846d7",
+      "inputHash": "828c6e86ebb2d27e7ccd259d9446848d04b3d313468eb37463509e84356148a4",
+      "outputHash": "18c3dab8c5b991009cc6acacb0a12af7ccb4b8332123ffaa6badc8b5c9a2ff86",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ nghĩa chiều tối/chạng vạng và thời gian có trong EN; khoảng 3–6 giờ là tham chiếu từ nguồn, không quy tắc tuyệt đối."
+    },
+    {
+      "candidateKey": "0410a56656ad276230e2386f88a9ff18b2587cba51f0b113e15385362dcefc1c",
+      "inputHash": "35ff04aa2dabec761a5ddc6c1392e0b5751cee0c6b8a3f31dd26c2d8dc692baa",
+      "outputHash": "03bc17b4dad54ee55e67f12a27c9e14506e6cf149ea38bf08819c6a6e7753ebe",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng màu vàng và hổ phách của danh từ; phân biệt 黄色い là tính từ."
+    },
+    {
+      "candidateKey": "06112635063f95d9436e8139c143a940b4adb5592898ef6f34fb6258689a5d23",
+      "inputHash": "993019d62fcd90396ff552d64e1142dc79fe9b1551cdb88d7d47e4888db0032d",
+      "outputHash": "e2b8e1a55449d24f2a460dda2192576ef35048fb620b268692feebd4b7a044f0",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng quần áo kiểu phương Tây, không mở rộng thành mọi quần áo."
+    },
+    {
+      "candidateKey": "0624fa4c6808a9d1c4627de031b0298d85ed00019f3a81c2a5d2be98ecc6d867",
+      "inputHash": "f460520d8a6e317f6b0c6dc7ecefcf48ae224a259cab114cd3c335753fca9b3c",
+      "outputHash": "d8f9c35e5d3e2a121ada58adb9f21e159914d464798a00e34d57e0ee9435fb6e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng thịt gà, không dịch thành con gà còn sống."
+    },
+    {
+      "candidateKey": "064fb41a7499cee36ac6e55e5ff0fef4bd65511426ab6c8b00b6dd783101961b",
+      "inputHash": "db9c519cd3cae16de2d846f6209fe8601594796fa91749b4d50fa8cbc096ee55",
+      "outputHash": "5e40a9213fd93d37515b7e5db103d1447d6edfa3028370dfed104099e5476f94",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng danh từ tin tức, không thêm bản tin hay thời sự như nghĩa bắt buộc."
+    },
+    {
+      "candidateKey": "0651e89f3b3dc13e3e0d711be9e825477c64cc361942cc4ee4a9182d43961b97",
+      "inputHash": "18944fb764c3d49feeb21ab2824f286e0ff9eb780d8c16d3b307dbb068ae22dd",
+      "outputHash": "e2099261f7c0f1f065047f503be185db9481584c0d2412ffc1aad404d495e2a2",
+      "verdict": "fail",
+      "severity": "severe",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Thêm mỏng làm lẫn thin về độ dày của 薄い với 細い về độ mảnh/đường kính/bề ngang; mảnh/thon đúng nhưng gloss không được liệt kê một nghĩa sai cạnh nghĩa đúng."
+    },
+    {
+      "candidateKey": "08d08b8ce1186ed2e535f8041c3d7be72b93567d5367dd1772bfe2ab8008456d",
+      "inputHash": "79595e8de08f97b0d77c5269aa53cafe33993cc65359cbe447c06715c8bb63ea",
+      "outputHash": "17659fff4ff18221cf22ff233bc3bb82f37cf7aba23bbc556025edd4446daf6d",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng vở ghi/sổ tay, không nhầm note là ghi chú đơn lẻ."
+    },
+    {
+      "candidateKey": "08f37071195e86da8e66d31853d166998762e09e79a06134d7b11361a157445a",
+      "inputHash": "4fb1b6d12de39d8feb71d0985355bc897a79126519232d6c4234290471168a82",
+      "outputHash": "37af47f92349741550d1ca6d0a08e78c573ff97638fc25ac31449f5b7e89665b",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng trời quang/tạnh mưa/nắng lên; không lấy nghĩa giải tỏa cảm xúc của sense khác."
+    },
+    {
+      "candidateKey": "08f760cde1118ab6678b66e426b614f2b7ffc13f4e917a0816a42bd189899b4a",
+      "inputHash": "4c7b29ecec95bd7833a421ae936d1f55ee9bcce6077dd7a5248850bf00db570b",
+      "outputHash": "2bc8d294d3f3cc4e450026178b6755dd516072035dc2971a8c71bda064e67957",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Xóa/tẩy xóa bao quát thao tác erase/delete; không lẫn tắt điện/lửa ở sense khác."
+    },
+    {
+      "candidateKey": "08f7cb1b7e5848342fa4921d893bca8f088896e373a0aafea1d9346f24d8146a",
+      "inputHash": "6508e6f1445ef54eb3705c52a3b0d5d0f7bd09dac979214f3c622812f7bb5ac9",
+      "outputHash": "403a63813108c65c245122352851be87ea6b0dc0b800a811435bbbc54bcb9f4c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng trứng và trứng cá, giữ phạm vi spawn/roe."
+    },
+    {
+      "candidateKey": "08fdf2cbac1950172a2a091a2d92d32fafecf2f5f918f83d36373898fa6dcc5d",
+      "inputHash": "15851ff5a445eeabffcd7bd18f92306b28354f6c1ecdf16534cbeb04374f671a",
+      "outputHash": "53d42fdba6a83cfc2462e2eee4fe19bcf556b0470480458c70548e60c0df5e47",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng chữ Hán/kanji trong tiếng Nhật, không đánh đồng với mọi chữ viết Nhật."
+    },
+    {
+      "candidateKey": "093d1ce856849be5c6fbd4655d5d4f9c8437291fd7c6526b413dd55f4f89795a",
+      "inputHash": "7502fea27ef7bcd6c28e9a535dd6be96349f6e375cb8e2935077470c2fad7852",
+      "outputHash": "3a1de47374f13f9c4ce8b4077b62a530b34e30adabc3df73e1582cc689c6b6f2",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng vắng mặt/nghỉ ngày; nghỉ một ngày bám day off, có thể biên tập thành nghỉ học/nghỉ làm cho dễ dùng hơn."
+    },
+    {
+      "candidateKey": "094682fdfa6b57388ef91ee52039fc8b248bc42bb004deaec1e70f46a8455f75",
+      "inputHash": "4fa842753503af6b47cb7dcad09e06983ad257cdb6ab123e65fd6995f2b6ee31",
+      "outputHash": "979ff58a63a30b5cc4dcb779ebff59b7680f06f8b6a4593215b4e430456bdd20",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng cần/cần thiết của 要る, không lẫn いる tồn tại."
+    },
+    {
+      "candidateKey": "0953bd0c10e6b0dce4653316f68eaebeef581842147ea442226a57db21508eff",
+      "inputHash": "bca511e68f9c096ea63e5695cd95a12f5f44c40dafac091d328aa34f29947858",
+      "outputHash": "34a9cd8ee9519c15f74f52f62b21d24cfb4e30f8b62ae114540ac5922ffe2fde",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng khoảng thời gian một tháng theo ひとつき; không dịch nhầm tháng Một."
+    },
+    {
+      "candidateKey": "09bfc807ea6d2d795e95cc8ea370c012572dd9566b72ac870f0c89a9c3abae30",
+      "inputHash": "e83956d24a20d687f8aec25de40be85f0b51b6e4a1bb5e8c495bd85935bc4d9c",
+      "outputHash": "c478b252ea4720c3580c2ffe29957be30837e1c2af3347b7d1803f84173c6db1",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng mọi người cho sense 1 everyone/everybody; JMdict tách everything/all về vật sang sense 2, nên không bổ sung mọi thứ vào mẫu này."
+    },
+    {
+      "candidateKey": "0a5ac96bde4709cf202935220a3e511759a6cd9a7c8845060318c813a4e07016",
+      "inputHash": "7df88f6170bd1571a53c87326f4b8a48bad19676626fb2ada2bc81c0dfdd585f",
+      "outputHash": "a69a354533359fe656c331db43491aec92ae831d6ea731ac54f70c79610ba4a6",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng quần dài của trousers/pants, không lẫn pants là quần lót."
+    },
+    {
+      "candidateKey": "0ac1345a84b432f6167612da5b2d0e79d2538fa758d3eb48e0cacfdbf8ae9138",
+      "inputHash": "18cea18c049f35d5a48db3c03d694dd0f8414b36e89edd3082c62ad9a5c5297c",
+      "outputHash": "1f496239183fdeb3e1a595e6bfb7bd5ee088c5e9e9fc55d7cac2b36b7a7a3cc1",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng rơi xuống của mưa/tuyết/tro, không đổi thành té/ngã của người."
+    },
+    {
+      "candidateKey": "0ad4e49a0392468e2d9c5d520a047bf8c4ca4d060ff15258d7536d92410a6964",
+      "inputHash": "be7e1fba40c898b18a648aebcce845f261828b60230512a7970665a759943246",
+      "outputHash": "faee9ad03839976c6fbcb43ca7fe8a5d3ba8e0cd814373fe9382198e37fed1d8",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ đúng chính xác/vừa đúng/đúng lúc/may mắn có trong EN; không tự thêm thái độ đánh giá."
+    },
+    {
+      "candidateKey": "0ad4f021f088f80c13e228cdcce9a5e2fb9217da23f4e6bb3cdac39ab2e03927",
+      "inputHash": "3a550421ed732887b5ed3ec69e54f3ffbb67effdad2612d3e31d3dcbc53d14e1",
+      "outputHash": "ff7e9f2689c93abbf60ce8abe136422046b035513f0e090381fdbbc3643573b9",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng mỏng về độ dày đồ vật; đối chiếu với lỗi ở 細い."
+    },
+    {
+      "candidateKey": "0b4c3f2ce9986f7e8b732df5b2ff7ddd244497ea82bccf8dc42a6e6118a1e480",
+      "inputHash": "b0d08887a77cfda92620d5efb68f289d9d35148479d51561eba015cbf5345419",
+      "outputHash": "05f4318986396963b3aaa757029f0a7646cb2d02079128682c4eabb032f43bb5",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng phía bên phải, không lẫn right là đúng đắn."
+    },
+    {
+      "candidateKey": "0b50e40a9e2842ab49fe09df451b0e87090e66409ac8691ba410b340b9645f3a",
+      "inputHash": "dbfac668ad2520de14b01370bc663870b0738026d447dd0ef8ec8817cf356c6e",
+      "outputHash": "ed8170ee5996b7dc308509306de5aeba4809d74c683036966cd445fba27556eb",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng rẻ/giá thấp, không gán chất lượng kém."
+    },
+    {
+      "candidateKey": "0b5a45eea6ed95e80b70142ac1815bf65420db29f1e75e3f1b69030f0c8d50a3",
+      "inputHash": "425692008cd6259371bd5b95a05fb751fd0b39f9fd8980a68bc56350330c1414",
+      "outputHash": "5b0d4724367b5e2f8434e93b6ded4afbe6d79ae7ef0cc44227dfa8d3d1658697",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng black tea là trà đen, không lẫn trà đỏ theo màu nước."
+    },
+    {
+      "candidateKey": "0b9baad1f9d596056610605bc15f53981727c1ec4fc3c2976ff079dfc4db854c",
+      "inputHash": "3e6b0f5662cd5c0e59b4c72952d8e3952bcce33659f4a0a2218835bb44b2a26b",
+      "outputHash": "c20c6a4471dbf97eb8524a2c26f5271121277ebedccf8a5aa74a4d0ed7a83be0",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng số ba; có thể thêm chú thích ba cái/vật cho cách đếm みっつ nhưng gloss hiện tại không sai."
+    },
+    {
+      "candidateKey": "0c0dd839560d260370a8c97f72446d471c917f587ba9de2767c7d44c4e91d048",
+      "inputHash": "e8bfdf047412b842d2a7569930c3be950817a5fa355ba3681e30c85b03bfb2c9",
+      "outputHash": "dd1d2c6c3d7b92fc2a696f08959f39c5b5d3c430382eea3008b8f09e6ac9fe5c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng danh từ rau củ, không lấy nghĩa chay."
+    },
+    {
+      "candidateKey": "0cf0915a2b6240313861b314cdfca2a5e0b2dbc803273dbc6d260339a2b1132d",
+      "inputHash": "8fedbd3bef930a6083f6a429f6473fc82eeeea38628c2b1dec51b36dbdaddb38",
+      "outputHash": "871da088dcf770f366d9d784d7d15b04397fcf900af7e85fc3c2583bf8bcbb70",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng quan hệ aunt cô/dì/bác gái. Raw JMdict có cả 伯母さん/叔母さん và ghi tuổi tương đối; chú thích này nên có trong context/display, không phải lỗi dịch aunt."
+    },
+    {
+      "candidateKey": "0d362ba4e66039bcc441f416cb4518881658750fe8f7abd9764af5d353b32531",
+      "inputHash": "da290e9270f3230f3e5b31f9962bf29cde4c60304bb086f64d7257969eff70f2",
+      "outputHash": "99f7c9fd1080e71399aa21a4366e55984a6a8c33adc617755317be71f566719f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng đến/tới/tiến gần cả không gian và thời gian, không nhầm đi."
+    },
+    {
+      "candidateKey": "0d6959bc2177dbd157c14bf1a8a30fd87d29e06483546cc8c6eb4f29ebf54dda",
+      "inputHash": "6d998dd36fcf2ca15bb6e6f0514157e3d910d4e0445aba2cb1e727757e267c70",
+      "outputHash": "5b127c12a6098520bd1337d134b7ffbd39b52fc0d07c942d9f1d243c10d8d550",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng lối/cửa vào, không nhầm phương pháp tiếp cận mang nghĩa trừu tượng."
+    },
+    {
+      "candidateKey": "0da9e0a3d20555ad05b71e3bf3a6cdaf3ca7a5f2acda06af9cd9e8eb2de6febc",
+      "inputHash": "6c596505f162cf205a894c39e1fa98a14ca99beac098ed5de5d5eea96963f298",
+      "outputHash": "d72b33f323866fba86326a31c2d15ec9854e56d8203f02e2582483b2030feb20",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng hôm kia; không nhầm ngày kia."
+    },
+    {
+      "candidateKey": "0dd6474d7c26ccdfc7a0b856e677a541d6eb75dcfab899470e5f09b80484e1b0",
+      "inputHash": "a51e3574c75357c10e2f55ba8e35d9f2c4e694aa517e50c38c539723ec8702b3",
+      "outputHash": "779c470673c232dace81e6bbb0804b6af3efa9ab7edba5b8f6bb580079706abe",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ bàn chân, chân thú và tay/xúc tu động vật biển đúng nguồn; không nhập toàn bộ nghĩa leg của sense 2."
+    },
+    {
+      "candidateKey": "0e511202620d77016d1efb95e39300bd3d189ff4501677594daf5f68a0864887",
+      "inputHash": "89d1e67b61dbb9c610a6e79682d7e07b7bf2e1350847d2a66833ecc1513bcbd3",
+      "outputHash": "90016c74978b8cfab10b5bcfc5047d992b9c92464631e7cb441e74fbfa4d60a6",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng ông nội/ngoại trong quan hệ gia đình; không thêm người đàn ông già của sense khác."
+    },
+    {
+      "candidateKey": "0f6083eeb412bf2e98b5818fee10e55191e497d30493e592ad4b72ec6b16fc04",
+      "inputHash": "de3998416c0d885b3368d4a29275ad9dee130a28781c7b38373be4c1386279bc",
+      "outputHash": "cae57b4928dbe76c67dc99f0666ed167a5afd101fb39befcec3831244c0728e8",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng như thế nào/bằng cách nào/thì sao; nên bổ sung cách nói lịch sự từ raw/context khi biên tập, không phải thêm nghĩa mới."
+    },
+    {
+      "candidateKey": "0f6ac1983fad06c30a87abd2deb73ecb4568a08791985ca2aaeef130a2f85dec",
+      "inputHash": "376e5ed799f3f19900f42c2165cbc1a1270f9f379d465abee659cebefdf68aea",
+      "outputHash": "70e953e707fa122574b432bffaf28fc35954c8da62e81322480768d6824cc7ed",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Công việc/việc làm bao quát work/job/task/occupation, không thêm nghề cụ thể."
+    },
+    {
+      "candidateKey": "1107d2f4e8097c4c28bf3ef8c75029baba98a34189074a9bdbb83948c95aa615",
+      "inputHash": "644ead3435b4078b506c5719b53e45381ec2f9c884e76db43e9e19429b41250f",
+      "outputHash": "331f94f6eb176559028e0bf78e61aeedda6f1aa628d6fe49222bb541e5a8ce5f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng to/lớn về kích thước, không lấy great theo nghĩa xuất sắc."
+    },
+    {
+      "candidateKey": "128c70f6a8cf031e4989ecff778a691bf7de4389cbe5399be67fc29766ebaf5a",
+      "inputHash": "36ebdf3d2e6f3462e29616ea548fcc0a55b1867c698dc9f0adc1d24bbace59b9",
+      "outputHash": "e0c1745d94e0550030800bf4e361593b8caf010436764766cbf3061a31ab88ab",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng thiết bị thang máy, không lẫn lift là nâng vật."
+    },
+    {
+      "candidateKey": "12b0f42aa9fbe9a4d9e44dd84503f58a6145e8b406031caefacd052f83a64649",
+      "inputHash": "b3ce5f4cf059bfe4a244e0982b754681d0bfaabaf07048a75da17b68c918c6ac",
+      "outputHash": "34b2e5ef622a893804ba46025602bcf2b45b72c5037619c882034d698ccb2e53",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng làm việc/lao động; không nhập có hiệu lực hay hoạt động của máy ở sense khác."
+    },
+    {
+      "candidateKey": "130ccacdc8c38a70b9164850bd5092114b0b12900c1f23f9ed3295decb2aa114",
+      "inputHash": "10df2223e60d7b513e0b355d07b8ec53b6075d551e52c525c29add947d41ca60",
+      "outputHash": "c6d1b5636586b95a4ecf43a8991b03918f2fb85f982edb9e1119d8a77664df87",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng tuyệt vời/tốt đẹp/xuất sắc của sense 1; không lẫn đủ rồi/không cần ở sense khác."
+    },
+    {
+      "candidateKey": "133bc3b4ec47a22cf9048bd25223cf74257edad518f904e0385c3165b757a8aa",
+      "inputHash": "76ec1f5353ffdcfad19ea6a254e6b631f476bbde86ab31c5828aa981603c885b",
+      "outputHash": "abc5d6242cbf542985c9857662d8f58f50aa294ed70a85df2e06261f53a97823",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng áo khoác ngoài, giữ coat/jacket/outerwear."
+    },
+    {
+      "candidateKey": "1452766c612f6477c37986a747f06d449587899eaf49b5c8dfeb2328ada94ac5",
+      "inputHash": "b93f2aed9fdaf688e88648747b5f93034d98fece7045d45241a22a0d3dfe2018",
+      "outputHash": "62df267f56f932b6af7b8806a4080e3b1cad12d8db5fa478a91f30120dacf1c8",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Vòi hoa sen là nghĩa thiết bị đúng, được từ điển JA xác nhận; ví dụ nguồn dùng シャワーを浴びる, nên bổ sung cách dùng tắm vòi hoa sen sẽ rõ hơn nhưng không đánh fail thiết bị đúng."
+    },
+    {
+      "candidateKey": "14b2fce4ec183c6f1e79df2ebbd5b44649edc2db6b1e30ec9b60187a179be054",
+      "inputHash": "6dd11665f48773b117d868fc07cdf52acab794693bb6201777ace8afaca47cad",
+      "outputHash": "93627c7769281fd07eb16705479fed2089445dc7be3718c309213ecf97fd0468",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng cơ quan bưu điện, không lẫn thư tín."
+    },
+    {
+      "candidateKey": "1519e1cd7d9b75fb03c8b17ae7e4b5912071daa7a971e1ceca8376c8d002b289",
+      "inputHash": "5ac9d69f955cbbafee306b819688542783f0dfd70cb6ae133cbcf0ac94384953",
+      "outputHash": "f4a7080a03a466597c1fc962235acd7ba631659c84101d619c97963fb4b606ca",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng chị gái/older sister; raw có hon cho お姉さん, cần giữ nhãn lịch sự trong dữ liệu hiển thị."
+    },
+    {
+      "candidateKey": "1528a3b96b9dfe45d174b136a2bbed2a5514bad31ff533cc6646739fbc421148",
+      "inputHash": "750c126307db7da1459c5bb811722f1d01609a0103e1c08548584678f843cc93",
+      "outputHash": "981580dde9baf3518a66eb0067ff7a0f6ee9bddbcc4b3141de579cd5a1e79d6e",
+      "verdict": "fail",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Câu hỏi là đúng; vấn đề có thể dùng cho problem trong một số ngữ cảnh, nhưng gloss đứng riêng quá rộng và không làm rõ bài toán/bài tập cần giải của sense 1. Chấm minor vì cần thu hẹp phạm vi, không kết luận toàn bộ từ vấn đề là sai trong mọi ngữ cảnh."
+    },
+    {
+      "candidateKey": "15791e1873ed6bf88777547694fe83c8b98ea1c150a73813e60abae676a8345c",
+      "inputHash": "48931d8022b584c0517500784d4cc6bf051819e6af204cb6773dafefb919f3d7",
+      "outputHash": "a739fec28e2bd1f72d9e68ff79ced8fffc741181b9eb5a5a28a1100ec0f14db2",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng rạp chiếu phim, không dịch thành bộ phim."
+    },
+    {
+      "candidateKey": "16c2887f43e22c589a92e88da9a93a733f5a83eeeaa4927d0cb2c074814b7848",
+      "inputHash": "b63206c3bc0625fd4608bea2723d1c0d2bc65af99cebcf6c9dd8ac3a62546814",
+      "outputHash": "9347cceadd84bdb4e723e31d8567cf77fb440f899e21d18bb989ecdc8ca39750",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng bản thân/tự mình/chính mình, giữ đại từ phản thân theo người được nói tới."
+    },
+    {
+      "candidateKey": "17274db3f20ce76804892c6e0fbb981bd835ab25ede202589713542e37adf166",
+      "inputHash": "4b3cadb0182a4672261e381cc722b943bcfae8fa6263edd148344d2666acf298",
+      "outputHash": "c4f76fe36921b0b32bf46303eafcdf1174a478b8e1e6a8686c72c6a1c9669485",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng động tác đẩy/xô, không nhập nhấn nút hay áp đặt của sense khác."
+    },
+    {
+      "candidateKey": "172b19e61ec9f115d76591a2f37135680378321938e87ba67fd57ab6e2897e9a",
+      "inputHash": "4f100d5d0cfa62cbc1a7525540eb003335e2e9344de6a14838c8fa3fdf73d7b5",
+      "outputHash": "f8cde89c6b33a2f18e9f0abed9291abd61639f684602db5386c21d0684df89e0",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng vàng là thuộc tính màu, phân biệt danh từ 黄色."
+    },
+    {
+      "candidateKey": "18007e8bccc1c7f20a3824497a6de0a874920a05bc23918597fe683080444803",
+      "inputHash": "e611313301f38c53574ffb84b0b18787db369f8480608c270e82a688f1e425cb",
+      "outputHash": "aeee33a6ddddfd3ce9162bec9ff7dd2e22703fca3ac545cd13a5d946014bd34e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng liền kề/kề bên của adjacent; không lẫn người hàng xóm."
+    },
+    {
+      "candidateKey": "187402143d807ab5101b25561373e25d173e2cb13482b78ac2d05753aa791b9f",
+      "inputHash": "3a2c40bc6bb68d2f6e4763ebd93681c4314f403d0b9c9e12672fa14456ee9e17",
+      "outputHash": "b5e0b08680db9d5087d03a8c4db04526ac7ac3b8eb463bc1e10caba06a1cd6a3",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ mới/mới mẻ/gần đây/hiện đại trong EN, không tự chuyển thành độc đáo."
+    },
+    {
+      "candidateKey": "18a1ad4f00f262db1b9c78d6c11ea3087ef97c816a7a49a05fcf158475caa762",
+      "inputHash": "0e5eed20dab511d64fca4f5fcbbc52d5db6dc479970d4ababdef58a98ec9a9c6",
+      "outputHash": "23880520b0882b6bd5ed428d4550f5a46b4af8ee7d6b0266c1293033c673533e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng bài kiểm tra/bài thi đánh giá năng lực/kiến thức, không nhập thử nghiệm thiết bị."
+    },
+    {
+      "candidateKey": "1962a527ca0baac7cbcbd5a49e807afcbb25ef56653f1b5aa2b4e606be480bbe",
+      "inputHash": "2e552c3d83e7719d0eaf9379ac6e627e7b3b248a9007c6fe085c0f93c0e4fe94",
+      "outputHash": "322df2af7fa619d6007b02674ec7080efe774e57946f6e96af8f707b535a4b9e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng mỗi đêm, không thu hẹp thành chỉ một đêm."
+    },
+    {
+      "candidateKey": "198fb652fd9c160ade62487bfd1af67186028f320fe361b6f1df736e25fa0d38",
+      "inputHash": "0d901c4254881e610f368ce2130b30e37b4dfd81ca38d247c09adab3b2b57373",
+      "outputHash": "b2e3280b5a338fefa4df7e51c171598ddbbb0ea0f467d5ed7ffbb3f1c1a7ec0c",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng đại từ nghi vấn cái gì; không lẫn số lượng bao nhiêu."
+    },
+    {
+      "candidateKey": "1ab81c65d59d2455e734f0940dabcb69e99ffed43a9c7b562763ca1a4c663494",
+      "inputHash": "fa45068f09c05f1ab4d5308539dca97d011025ecf5b42bc58fa46122d51732f1",
+      "outputHash": "d8090061640ce11cbb6d8d8b1346ea92deda2b2149d1a754b40798046e94addf",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng cảnh sát/police officer; raw có fam, nên giữ sắc thái thân mật ở context/display."
+    },
+    {
+      "candidateKey": "1abb8c20f69fba4b996312f4d10ba66d49b116bff4891ddccc0c862e6828f192",
+      "inputHash": "f3a48890dcd1816c93b7c51f6b915348f4c4f6b275914249f9dff90de12c3b4d",
+      "outputHash": "cdca25f3e0763b44c8f8349b236dc4e3ec9805ebc28306e45bddaeb4bb94767a",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng nơi/chỗ khác cho sense 1; không nhập cái khác/người khác."
+    },
+    {
+      "candidateKey": "1acbee6a07ca9c8e4209cf1f51789269dec2cdee53f207b3cdcb4c7b7c7c4108",
+      "inputHash": "bbdaf8d47500768c8a26585fe8a0a366b82476ff557728f3482a4d80a5caa1c3",
+      "outputHash": "b8f8dd70387748adbdcd6587c5e639d5df8892ae145a7117ced1a9c5e1014927",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng bé trai/con trai/baby boy, không gán nghĩa con của riêng ai khi không có ngữ cảnh."
+    },
+    {
+      "candidateKey": "1af1716d993d5bc2a1269e46056bdf10c92ccc3a74f0de82023d542cb5cebb5c",
+      "inputHash": "bde0ec70d78971c566ee21be8ef824590ea6476768f80f84bc9f971c559371a4",
+      "outputHash": "538f570117bb48a9cf7f28e737b4c388879e80aca9b4412ffcbfb53d6a3ee943",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng cửa hàng/cửa tiệm/quán ăn theo store/shop/restaurant."
+    },
+    {
+      "candidateKey": "1b10b9afe4eecbb8d96b5731a7207b1d16311299639ec649df2afe5779052160",
+      "inputHash": "54691471313174926e57dd04111bb545275cd35fd9a81233464b0e297332146a",
+      "outputHash": "7e3538339aaf3d5e9770bc714ae238f0b65c2d415f669308d456a95251aa6aa5",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Kẹo cứng bám (hard) candy; có thể biên tập thành kẹo (thường là kẹo cứng) để bao quát toffee hơn, không nhập mạch nha/amber ở các sense sau."
+    },
+    {
+      "candidateKey": "1b4a46e80e06e7f1e23e5208372bb8f6159a447caf5a5a8ccb2d35ef56f0fbc0",
+      "inputHash": "83ca1c7479cd50f7ba68757f287eacc641630e613d5055b9eb198b7937c5e31d",
+      "outputHash": "0e5d5e1e831df46ec8646f4f645edc15112080831537bde3bcf998724c1239e6",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng treo/giương/kéo lên của áo/tranh/buồm/cờ; không nhập gọi điện/đeo kính của sense khác."
+    },
+    {
+      "candidateKey": "1c041f15f0f4f2f5d5742c1429906eb28b60f3ca159adeb862e928a99ceff1ef",
+      "inputHash": "36ffbe67ba68119c472d4fe1d299cf9dc27e3029e6f4cda2391107bc94c4986f",
+      "outputHash": "9024dd73bff38f423a2133e113735d6eec68232030b7ba7d536a2b66d60ea667",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng nhóm ngồi/ngồi xuống. Quỳ trên sàn có trong EN nhưng nên diễn đạt ngồi quỳ trên sàn để không gợi tư thế quỳ đứng; ghi đề xuất biên tập, không coi là hallucination."
+    },
+    {
+      "candidateKey": "1d4e8a7d5ab0c303342a26ef0fe91e79748cb08797734799d6c5b58885be547e",
+      "inputHash": "bed19edcaa0c040b294da9286ffcdd788053fc1e6b2149a374fb846e16e41e55",
+      "outputHash": "6c9699f933c7cddfc19d9c15fd83ecc695519280c9bd17ea7e4f64a1f0cfd5a7",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng mẹ/mother; raw có hum cho 母 khi nói về mẹ mình, nên giữ ghi chú dùng từ ở context/display."
+    },
+    {
+      "candidateKey": "1d5f93f7cf810a4bcf811b2d933217a4b814c30544d86f5286e47fd708f528c0",
+      "inputHash": "46138c3e2f09a6f051938bbea7468dc84becf1c6fade7dd5b6f516fb7cc05549",
+      "outputHash": "6090629019c7ca9c5cab6731f11cfa55f1284d245b8583f19ed1fd63f5e6b2b0",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng một người không xác định ai đó, không lẫn bất kỳ ai."
+    },
+    {
+      "candidateKey": "1e1acab1e852f08825bfca824dd1765ef95653d6a3ba62bb62f6105c2d312dea",
+      "inputHash": "4938749a067aef57b87a8e73557247ee78f016bc0b895c3d65c6a62db248cce5",
+      "outputHash": "daf1c6bbe0d085bbec4fda4d1798a473ff96263a1ea83f2eec52720511643982",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng vui vẻ/thú vị/dễ chịu của enjoyable/fun/pleasant, không nhập vui mừng vì một sự kiện riêng."
+    },
+    {
+      "candidateKey": "1f0e719064847300dc0d9f33e0f6c27773a876b1eae3e443a7aa6052d920b135",
+      "inputHash": "1fd0b3e692e342fc826772d6de3935af2d60993301f44d3bb2b9b9d3adba718f",
+      "outputHash": "3a727ee0af5c64ba7ca75b5ad667126c9858d454543e527886747a09523a0d11",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng dài về khoảng cách/chiều dài, không thêm lâu theo thời gian vốn là sense khác."
+    },
+    {
+      "candidateKey": "1f39f01e82ff3d97fc0d68ef3e3107f72d6290e37b987d1ecb447054bbb6d672",
+      "inputHash": "0bcf6b0660951dcc06e4461871189e3731cb558a6a0e00514d1b05c679dad024",
+      "outputHash": "4ac88dbe5373fd32d6698d63713154c42a21a58db9c0f2b34075ff5a043b427e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng tiền tố kilo- là nghìn; không tự dịch thành kilogram vốn là nghĩa khác."
+    },
+    {
+      "candidateKey": "1fe4f8e2e74d59feded5a81e37d5a452ae4ec0aeccbf0fb31e87cb1e658be253",
+      "inputHash": "b11b9a9c8da0925aa352b37a472bcccfe6420b9e6986096939b863f6a50574d7",
+      "outputHash": "ba2eacbe9df0082f5a6e6926cfc8244c9b0e97ba65649c8ca0b501eac92f87f8",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ nước đặc biệt mát/lạnh, không nhập nước nóng お湯."
+    },
+    {
+      "candidateKey": "20d260a7500ea38bd5be6b77108b4bcec19754cef144fd05014c0206ec811891",
+      "inputHash": "0454a5e17531d5765926994b04cc5e2c34cbdebd835a8aeaa003b48f03d86ea8",
+      "outputHash": "0b8564f2e6bd71360c33ee481a23ec546068509cda72988ea3a4cbb90f71886f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng kết thúc/xong/hết, giữ nghĩa tự kết thúc thay vì hoàn thành một tân ngữ."
+    },
+    {
+      "candidateKey": "211acc35a2cde6ff9afe00109578cd9f3adc6fcfcae1b58e87adad725e94929b",
+      "inputHash": "f59557258148349b6de5a0a2acfe4f2c819e9d612f76768776d6d99589a537ae",
+      "outputHash": "ab9896b3d23c36e85c810e966e79c6852a90da90b0c2fbe94fa93bb84e34549b",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng phía/bên trên của vị trí, không lấy hơn/cấp trên của sense khác."
+    },
+    {
+      "candidateKey": "21b56256582df203a945185b2a73b8b12ed349792bfcd5971d9f8c009281be7a",
+      "inputHash": "42ff9f6c915e49dd00b2805b1f05d35b196d7c376677036e878734985ae83cf7",
+      "outputHash": "1b7b53fd04e7468c64b9bab8f1c4b392f15e74c12d5b5e4e2e8c5d54129f439a",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng sáng nay, không lẫn sáng sớm nói chung."
+    },
+    {
+      "candidateKey": "21da69f18fdf409c1aeb50b7fee1cf93830db4cbc5dafde2b9ea29bef9cfa504",
+      "inputHash": "7cb2db98352fd81031f550be0fd182cd61c84ee749ce2d009deee8a0674eac43",
+      "outputHash": "a55b9dffdeace954047f22886e8a7ceb4ef779c80c036d1bfd1437381201f0cf",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng ngày mùng 2 theo sense 1; không thêm hai ngày ở sense khác."
+    },
+    {
+      "candidateKey": "2234cfa257ab98c014cfb4ffc9e5f5df1bfdf25237d48af8158038c6471702f6",
+      "inputHash": "878d09efc4a382280eae3318bf707d15bc6779a3fec79ea5320d875e17108ec2",
+      "outputHash": "7a8f56f4036935a4aaaab6ec4594aeb70f69f4e54357119711cf1d09d2a06135",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng cầm trong tay/mang theo; không nhập sở hữu/duy trì của các sense sau."
+    },
+    {
+      "candidateKey": "22e33861f7aee4ffa6e49e68a68530d6f35e6e91588be05edda7f78f0e081417",
+      "inputHash": "db8102589904c04ec479d7bf7546e1cfe0c11ab7effe325106bf3a4971e9d801",
+      "outputHash": "a88adefcad343b46c2afdc595ab33d265e2b2cf859387f02cd97a6ceaf9dce0e",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng cà phê, không thêm đồ uống pha cụ thể."
+    },
+    {
+      "candidateKey": "22f16ed5dac03006454b7eaff9003ffb5bf57660855b8f229e745adb8436db9e",
+      "inputHash": "c30fb78ea450145b75d4419c74eb9de6d70862ba945669932c44a7eb71a846f3",
+      "outputHash": "2563d6a378dff247fa4c6a61d21d91d584a03f199f167000dc8a3c671431e085",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng ngày mùng 4 theo sense 1; không thêm bốn ngày ở sense khác."
+    },
+    {
+      "candidateKey": "234727512332bf08e4db84e39e9fd2ce0df0b05216495ad33c43ce758d885860",
+      "inputHash": "f089a1f030a42cf8726acd76e032a383bb14eb7d7848429facd6315043809a08",
+      "outputHash": "c4a85abc4824f50a7420c58d961b38e7157b2276b1c140474dd62ed5a39a443b",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Phim là từ VI hợp lệ cho film, gồm phim chụp ảnh; ví dụ JMdict là đem phim đi tráng. Nên ghi phim chụp ảnh/cuộn phim để người học không ưu tiên hiểu bộ phim điện ảnh, nhưng output gốc không khẳng định nghĩa sai."
+    },
+    {
+      "candidateKey": "2356fdcb8adf6a9d73774490f731df58802e84b9fba0651dee2ef28fe5c52d77",
+      "inputHash": "e2822489be8d86b6fd976082b54fab7b29eb176626208aebee7417e9a590a557",
+      "outputHash": "e16c2dc99fae1f1474d363ae415d0f9da9f00d34532ca4cfbf4ae1308d8db83f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng màu nâu/nâu nhạt; tawny được bao quát bằng nhóm màu nâu, có thể thêm vàng nâu nếu cần."
+    },
+    {
+      "candidateKey": "23770a4ceec7b10e54676e7418eee9158689cb0e9e66c503ed32eb0a8731d878",
+      "inputHash": "0d3b26acd7ff8207caecab6c2319dee8c41c41e9a100691e59d9b3b1603b0391",
+      "outputHash": "c060dbaaf9de3dab26e3e180f9266ef3744a99258f9ce289395b5e56a6787cb5",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng hẹp/chật hẹp, không lẫn nhỏ về kích thước nói chung."
+    },
+    {
+      "candidateKey": "2386b8cc1f4eb2f4ce5e2295333091d0dfd88ec393f5b9473d3175290e82766f",
+      "inputHash": "d197467eee4e423efadc8e405f74b02aed51d5818ebed1865f15273f0fc089d7",
+      "outputHash": "5f5cbf7a2d954de9846b97b9dd08b463eb2b262c33631ac3a3ff461734670153",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng vé/ticket, không thêm phạt giao thông của từ ticket EN ở sense khác."
+    },
+    {
+      "candidateKey": "23ad27d420c4ed6f7e7e6a1da79efb836b75695a8b3c1b8d6d58ca835cc630fe",
+      "inputHash": "bb8430b5a5be5d365af479feab80e10f4bfe46316934d320998b40bf7ace4ae1",
+      "outputHash": "2acb4a8dc84b58ab7874c764af41edb5b415304a21a8850a9ca14cef057ade54",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng thời gian/lúc rảnh, không nhập nghỉ việc hay chán nản."
+    },
+    {
+      "candidateKey": "248ff9f15cc38ad9576da7df4a961cbf7af1cee779c5ef1c1e2822375ee28245",
+      "inputHash": "ed355873d3d18b1e22eecfb7d36b6d4fae05aa8fff20b27c69b37539223c017a",
+      "outputHash": "0ee5e96c36623e5868fc071998f62ac2f8e08418cb52e39d0a841f9f334a93b3",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng sáu/số 6; không lẫn 陸 nghĩa đất liền dù có trong forms là chữ số tài chính."
+    },
+    {
+      "candidateKey": "25ed84c75115aedf1a6f0508e086d59f11921c58e8ce01ad154aefcf89e2167a",
+      "inputHash": "2604f706b884b3744fac25d5f53dbd5359682fdfa353db46907afdc7d22beb6c",
+      "outputHash": "94af5982f14e243e8fbb2d2cab5a39ba05a0415eae74c7c15d8de0d799524fdf",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Nguy hiểm bao quát dangerous/risky/hazardous/perilous, không nhập suýt/sắp xảy ra của sense khác."
+    },
+    {
+      "candidateKey": "269e140f56ee1f1f95a1a5b4681d9057f296a590ad2f68c9edb8af5e405cb373",
+      "inputHash": "11d3dd443bab736f89197d5664a01be67e42291b95c6af5c22cf363c5a1550b4",
+      "outputHash": "319ddc1ff20e3faf33a2f18f7c259ffd3009a097046b88337fd18a6bfb146db8",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng thuốc/dược phẩm hợp pháp, giữ phân biệt drugs là thuốc trong sense này."
+    },
+    {
+      "candidateKey": "26eb8637f39233321f004ea8667ec47f0ba517c7b7a3a3b866b9b111d1dc5426",
+      "inputHash": "5ae5c70b3c513b48e84b20c84b16bbd244c7b89c7dbe23f8cadd5c7d8a82b6e0",
+      "outputHash": "1d8093fd7ecd57416524f06be9425114db709e8162926a9d63329dec701f671b",
+      "verdict": "pass",
+      "severity": "minor",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng nhanh/mau lẹ của sense 1; raw ghi esp. 速い, nhưng cũng cho ví dụ 早い với tốc độ phát triển. Không sửa thành sớm chỉ dựa vào lemma 早い."
+    },
+    {
+      "candidateKey": "271c3fad50bf2f5c20e2c965fc5aef02d525f35c9e2c25bca1ad31e934c32787",
+      "inputHash": "b670d7254c1893eb251bd76791eaef9b82539432975ad553778558b336f8e062",
+      "outputHash": "43bb3a3c451a7dacee367cabf7d902eca776ba6ee7e6e3a32cf6592013e002c9",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng tiền tố nửa-/bán-, không áp nghĩa giờ rưỡi của sense khác."
+    },
+    {
+      "candidateKey": "28036781ec1d7853eb5af08117a1eaf89cfa7d180921a4b66703791435d739b3",
+      "inputHash": "ffbe5c4dcf148482aeada690d0bf47b95f50c587b4b3342f13f845e7c1bd8052",
+      "outputHash": "4edc28a8607b9585166b4f0dea5ec501d6da689d116c939fab1bfd0934718f6f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng bộ phận miệng, không nhập cửa/lối mở của sense khác."
+    },
+    {
+      "candidateKey": "28fa423ea790b62afa75b883114751f1c1f8d8bdd56bfa76fc79dc99ac27cbf2",
+      "inputHash": "98ee634797bb71135a84a8a0c9d4a9e443a1b0e5d5d8f34e32ae77fb7d4e7b3e",
+      "outputHash": "6df766f282cbed82df7199ac8f19e663530a260e62af1a9728f0fdcd7fdc6955",
+      "verdict": "fail",
+      "severity": "severe",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Sense 1 direction/way là hướng/phía; cách thức thuộc sense 3 method/manner/way of. Output đã nhập nghĩa khác của cùng chữ 方, dù phương hướng ở phần đầu đúng."
+    },
+    {
+      "candidateKey": "2907081d834f9206f826cd3ddf051a31952498fed048ffec1b7fe38ed847d5e4",
+      "inputHash": "8faca6c9b5bdcbf546ccc8d0eaa3b01cbdaa6fbf03cd4f6f69006d8ec5c3a32b",
+      "outputHash": "8a8570940a590f6373c663b8e51625ac71ba8a2cd598cb81676b1b6c71c15966",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng ngôn ngữ/phương ngữ của sense 1; không thêm từ ngữ/lời nói của các sense sau."
+    },
+    {
+      "candidateKey": "292f5b99d347bab1fcbaab0e501b36c3e7b643284f3e205eac7d184dbf1a3edf",
+      "inputHash": "a53e7aa73bd5c23719ec32b48e72eb80f284b25ac2184b87ac30b0dfcf19582c",
+      "outputHash": "fe9ace0f1feffad30144c49aec5735fec496f7c5026171f3e1f05cdffb15184f",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Hộp/thùng/rương bao quát box/case/chest/crate, không nhầm package là gói phần mềm."
+    },
+    {
+      "candidateKey": "2932f6454e88c1b613094eb219d11900c9e01ae980ff84bba8c2fb9ddd7b80ff",
+      "inputHash": "e660682f6a858a16bec4b9f38d1bdbb3a89a99a6eb06ca1389ef981bec1bbbad",
+      "outputHash": "8aa4b0d319f68db8206a9a9845d3eafa07f210d986e4575734c1a3d34e1c15eb",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng lớp học; ví dụ nguyên bản JMdict cũng là lớp học nên không ép thêm phân hạng chỉ vì EN class đa nghĩa."
+    },
+    {
+      "candidateKey": "2969f14316d5848443ed471bd475471c248351ab781a230a3e5bc0d23654302b",
+      "inputHash": "53be057dda31f7f058901cb0fcda0bc7041a56e15fde8afe42ba49fed2cb0578",
+      "outputHash": "e2590a4084d38b8cca6e738f3669db5b2dc4649579c0ce86eaf912b4a3abe961",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng góc/cạnh theo かど, không nhập sừng theo つの."
+    },
+    {
+      "candidateKey": "297277ec9d119321bb9e0104cb7cf5954eccd4aa5a53a17d99b26e8ff5efad2f",
+      "inputHash": "805f26cc679aae558df2a110d2cdd5d95a2982ed680d4ac914b43346ae41ceaf",
+      "outputHash": "e35d04daf2f352524ed09eb10d94f4f26299608252fb8c2f0c14f0ebfceea205",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Đúng hôm qua, không lẫn ngày trước nói chung."
+    },
+    {
+      "candidateKey": "297ffd8c16bae2d78cd1240f1dba43a05972ad095bff92a0a75b33f9e0e5c894",
+      "inputHash": "ec9a96fb8018e81e54f16f437c4dd42c7f0dc597f70657a254414a9ecce835b1",
+      "outputHash": "018ec27f6aebe7c9cc18f31cbf3ac593f0678b13e72bb23ee41f96c5cd02cae5",
+      "verdict": "pass",
+      "severity": "none",
+      "reviewer": "GPT/Codex — AI semantic review, owner-authorized 2026-10-06",
+      "reviewedAt": "2026-10-06T00:54:25.859474Z",
+      "reason": "Giữ thuốc lá/điếu thuốc lá/xì gà, không thu hẹp toàn bộ thành một loại."
+    }
+  ]
+}
