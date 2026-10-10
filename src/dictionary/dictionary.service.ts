@@ -545,14 +545,64 @@ function toGlossItem(row: GlossRow) {
   };
 }
 
+const EXAMPLE_SENTENCE_LANGS: Record<string, string> = {
+  jpn: 'ja',
+  eng: 'en',
+  vie: 'vi',
+};
+
 function toExampleItem(row: ExampleRow) {
+  // Format JMdict/Tatoeba: `text` chỉ là từ đích, câu thật nằm trong translation.sentences.
+  const jpnSentence = exampleSentence(row, 'jpn');
   return {
     id: row.id.toString(),
     language_id: row.language_id,
-    text: row.text,
-    translation: toStringRecord(row.translation),
+    text: jpnSentence ?? row.text,
+    translation: buildExampleTranslation(row),
     difficulty: row.difficulty,
   };
+}
+
+function exampleSentence(row: ExampleRow, lang: string): string | null {
+  const sentences = (row.translation as { sentences?: unknown } | null)
+    ?.sentences;
+  if (!Array.isArray(sentences)) return null;
+  for (const sentence of sentences) {
+    const item = sentence as { lang?: unknown; text?: unknown };
+    if (
+      item.lang === lang &&
+      typeof item.text === 'string' &&
+      item.text.trim()
+    ) {
+      return item.text;
+    }
+  }
+  return null;
+}
+
+function buildExampleTranslation(row: ExampleRow): Record<string, string> {
+  const result = toStringRecord(row.translation);
+  const sentences = (row.translation as { sentences?: unknown } | null)
+    ?.sentences;
+  if (Array.isArray(sentences)) {
+    for (const sentence of sentences) {
+      const item = sentence as { lang?: unknown; text?: unknown };
+      if (typeof item.lang !== 'string' || typeof item.text !== 'string')
+        continue;
+      const key = EXAMPLE_SENTENCE_LANGS[item.lang] ?? item.lang;
+      if (key === 'ja' || !item.text.trim() || result[key] !== undefined)
+        continue;
+      result[key] = item.text;
+    }
+  }
+  if (
+    typeof row.translation_vi === 'string' &&
+    row.translation_vi.trim() &&
+    result.vi === undefined
+  ) {
+    result.vi = row.translation_vi;
+  }
+  return result;
 }
 
 function toPronunciationItem(row: PronunciationRow) {

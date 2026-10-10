@@ -17,6 +17,7 @@ export interface ExampleRow {
   language_id: number;
   text: string;
   translation: unknown;
+  translation_vi: string | null;
   difficulty: number | null;
 }
 
@@ -62,10 +63,22 @@ export class SenseContentRepository {
 
   async getExamples(senseId: bigint, limit: number): Promise<ExampleRow[]> {
     return this.prisma.$queryRaw<ExampleRow[]>`
-      SELECT id, language_id, text, translation, difficulty
-      FROM core.example
-      WHERE sense_id = ${senseId}
-      ORDER BY id ASC
+      SELECT e.id, e.language_id, e.text, e.translation, e.difficulty,
+             vi.text AS translation_vi
+      FROM core.example e
+      LEFT JOIN LATERAL (
+        SELECT t.text
+        FROM core.example ja
+        JOIN core.example_translation x
+          ON (x.example_id = ja.id OR x.translation_id = ja.id)
+        JOIN core.example t
+          ON t.id = CASE WHEN x.example_id = ja.id THEN x.translation_id ELSE x.example_id END
+        WHERE ja.external_id = 'tatoeba:' || (e.translation->'source'->>'value')
+          AND t.language_id = 3
+        LIMIT 1
+      ) vi ON true
+      WHERE e.sense_id = ${senseId}
+      ORDER BY e.id ASC
       LIMIT ${limit}
     `;
   }
