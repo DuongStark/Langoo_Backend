@@ -1,0 +1,1113 @@
+{
+  "task": "DB4-D5",
+  "comparisonArtifact": {
+    "path": "muse-d5-repeat-20261010/comparison.json",
+    "sha256": "570fe839c73f8e783cc7cef4264bf31a7c080f96f13985337204782d802f8104"
+  },
+  "comparison": {
+    "schemaVersion": 1,
+    "task": "DB4-D5",
+    "experiment": "same-prompt-r2-repeat-v1",
+    "inputs": {
+      "repeat": {
+        "path": "muse-d5-repeat-20261010/manifest.json",
+        "sha256": "18ebced41388060b855030dc5e1269df06da2d0557f4a3bee14f4040d0c9cf6e"
+      },
+      "validation": {
+        "path": "muse-d4-v1/validated/8b5d9f042b7d/summary.json",
+        "sha256": "aa4de3b87a9eb1de088151581a91cdf9504f5323a465680a50269fb2b4c9626d"
+      },
+      "auditSha256": "da5eceba91133dec87eeb12919d1b200cbc5e551e591f8a41fa5f34898e69e19"
+    },
+    "counts": {
+      "proposals": 20,
+      "validRepeats": 17,
+      "invalidOrIncomplete": 3,
+      "retainedExactSelection": 15,
+      "changedOrUnresolvedValid": 2,
+      "comparedCandidates": 85,
+      "sameCandidateRelation": 67,
+      "auditSevereStillExact": 1,
+      "auditDeferredStillExact": 0,
+      "auditPassedStillExact": 14
+    },
+    "independentJudges": false,
+    "semanticQualityValidated": false,
+    "promotionReady": false,
+    "apply": false,
+    "tokenUsage": null,
+    "tokenUsageReason": "Native Muse transport exposes no token usage telemetry.",
+    "rows": [
+      {
+        "senseId": "1229",
+        "senseKey": "jmdict:1017760:1",
+        "lemma": "アパート",
+        "reading": "アパート",
+        "candidateKey": "a067cc98d7839cebca4648dbcf56cc130191704598ef36c782ee8d1b2e7559ad",
+        "conceptId": "62206",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": false,
+        "afterUnresolvedReason": {
+          "code": "ambiguous_concepts",
+          "detail": "Hai khái niệm 63054 (\"block\": \"housing in a large building that is divided into separate units\") và 62206 (\"apartment building\": \"a building that is divided into apartments\") đều thỏa quan hệ exact một cách độc lập: cả hai cùng chỉ tòa nhà ở lớn được chia thành nhiều đơn vị ở riêng, khớp toàn bộ ba nhánh gloss nguồn và không thêm/bớt điều kiện vật chất nào. Các định nghĩa được cung cấp không cho căn cứ để phân biệt chúng, nên giữ cả hai verdict exact và ghi nhận mơ hồ khái niệm."
+        },
+        "afterReason": "Định nghĩa \"a building that is divided into apartments\" trùng khớp với toàn bộ nghĩa nguồn (\"apartment building/block/house\"); các nhãn \"apartment building\", \"apartment house\", \"アパートメントハウス\" cũng khớp trực tiếp. Cả hai chiều bao hàm đều thỏa, không có nghĩa thừa hay điều kiện vật chất nào bị loại trừ hoặc thêm vào.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Đúng sense 1: apartment building/block/house đều chỉ tòa nhà chia thành các căn hộ; definition concept 62206 khớp. Không nhầm căn hộ riêng 62205; các alternative penthouse/maisonette/housing không exact. abbr chỉ dạng từ.",
+        "candidateComparison": [
+          {
+            "candidateKey": "9844f028ae86ca5964730d872991ab7c2e54457b2e63e8b06921b4c2ff6fb8c1",
+            "conceptId": "63054",
+            "beforeRelation": "broader",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "30ee4bf2ae4b5ac698bc5aa4a19908fcee9c2b78b09d6794690cd290a0b36019",
+            "conceptId": "68735",
+            "beforeRelation": "none",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "ca292c5e05b6e29790e2fe7778ef01ac59e2119ba9280e330536a6bf3eff7f77",
+            "conceptId": "70038",
+            "beforeRelation": "none",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "1894da6f665edf2f58150775fa10347e79d7cbf5f36174e89a01639c32c046c5",
+            "conceptId": "62205",
+            "beforeRelation": "none",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "a067cc98d7839cebca4648dbcf56cc130191704598ef36c782ee8d1b2e7559ad",
+            "conceptId": "62206",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          }
+        ]
+      },
+      {
+        "senseId": "138",
+        "senseKey": "jmdict:1002170:2",
+        "lemma": "お嬢さん",
+        "reading": "おじょうさん",
+        "candidateKey": "669a76d01b542f7e0629f299288a20a689e817319a97a524b7202714a1393584",
+        "conceptId": "106781",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Hai định nghĩa 'a young female'/'a young woman' cùng nhãn 'young lady' tương đương hai chiều với 'young lady' của nguồn; không có điều kiện vật chất nào bị loại trừ hay thêm vào, và từ tố kính ngữ お thuộc về hình thức từ vựng chứ không đổi phạm vi ngữ nghĩa.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 2 young lady khớp definition a young woman của 106781 và nhãn young lady/お嬢さん. Không lấy sense con gái của ai từ lemma. Alternative youthful female person 106465 không có tín hiệu hơn concept đã chọn; các alternative talented/admirer/voluptuous thêm nghĩa.",
+        "candidateComparison": [
+          {
+            "candidateKey": "f061da64e3c8bde0ea28beae3652342599343f2357e02718755dce90efbbd8d0",
+            "conceptId": "108419",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "ff427794c00ac4848e3d9c38a7f0bb3762b45a9cb50f22d3cfeb8c5a0b1f5987",
+            "conceptId": "104424",
+            "beforeRelation": "none",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "4a98ec04b53907ec83230e7b5095de81c081bcf010c491cfba329ed63bc76d75",
+            "conceptId": "106465",
+            "beforeRelation": "narrower",
+            "afterRelation": "narrower"
+          },
+          {
+            "candidateKey": "0e411a160af9e397225f1933aa0f8f4d87b110d4ed33cad267d7fc019820bdb7",
+            "conceptId": "106788",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "669a76d01b542f7e0629f299288a20a689e817319a97a524b7202714a1393584",
+            "conceptId": "106781",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          }
+        ]
+      },
+      {
+        "senseId": "1961",
+        "senseKey": "jmdict:1032390:1",
+        "lemma": "オーバー",
+        "reading": "オーバー",
+        "candidateKey": "868b5e9c15977b90818637e30ddc5185fb03bf5f462691b3dbad9bed6d9925ef",
+        "conceptId": "67021",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Cả hai đều chỉ cùng một vật: áo khoác ngoài nặng mặc phủ lên quần áo, điển hình vào mùa đông. Định nghĩa của concept là diễn đạt tương đương của overcoat, không có điều kiện vật chất nào bị loại trừ hay thêm vào.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 1 overcoat, abbr của オーバーコート, khớp áo khoác ngoài dày của 67021. Không nhập các sense vượt mức/cường điệu vào sense áo. Alternatives frock-coat/specific loose coat hẹp hơn, coating/fabric khác đối tượng.",
+        "candidateComparison": [
+          {
+            "candidateKey": "721a567e60b6d5183c4f0ffd0b1860c8cd32bee3ba8d1893cf8a385db3ec6756",
+            "conceptId": "69694",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "9c1206b4f6fccb7838e89c10aac427fac2a0fb9d698f94b1dedc4b7fcbd4bf3d",
+            "conceptId": "73045",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "a7bb39ebaef377006b2387561ca2ff0c798f24f623bbe4069dbab1528f8c5249",
+            "conceptId": "73035",
+            "beforeRelation": "related",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "868b5e9c15977b90818637e30ddc5185fb03bf5f462691b3dbad9bed6d9925ef",
+            "conceptId": "67021",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "56605089e94ea31dfe2ff82a66bb2c51a392b2896e32a04ac3076f50889444a7",
+            "conceptId": "64433",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          }
+        ]
+      },
+      {
+        "senseId": "2315",
+        "senseKey": "jmdict:1039220:2",
+        "lemma": "カレンダー",
+        "reading": "カレンダー",
+        "candidateKey": "b0a27319667e535b6dbde4c42331ac4843e73ea20aa3bed64cf763578dca54c9",
+        "conceptId": "63641",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Cả hai cùng chỉ một loại máy: nguồn ghi 'calender (machine for flattening things)', khái niệm định nghĩa 'a machine that smooths or glazes paper or cloth by pressing it between plates or passing it through rollers'. Cụm 'flattening things' là cách diễn đạt khái quát của 'smooths or glazes paper or cloth'; nhãn 'calender' trùng khớp và không có điều kiện vật chất nào bị loại trừ hay thêm vào.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 2 ghi calender (machine for flattening things), không phải calendar. 63641 là máy ép/lăn làm phẳng, làm láng giấy/vải; đúng thiết bị calender. Solar/lunar/day table đều là lịch; ironing machine không đồng nghĩa exact.",
+        "candidateComparison": [
+          {
+            "candidateKey": "5ac98cc271eabad8c35edab75b4f0cab88171619eb3bd97664f9a014caefdb01",
+            "conceptId": "18866",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "b0a27319667e535b6dbde4c42331ac4843e73ea20aa3bed64cf763578dca54c9",
+            "conceptId": "63641",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "cf9e5ba06bab613999501df1cb6953862f9c900071d34651c15c73c32042e16e",
+            "conceptId": "96081",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "90dbe8b45d1e23c7cef275ffb40af13fcf3ae2e70ef2a964397122b4f549fcbf",
+            "conceptId": "120370",
+            "beforeRelation": "related",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "719cfb77f6992002330c029f65822c5f404f2cace4615b8b54108952741588e3",
+            "conceptId": "18868",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          }
+        ]
+      },
+      {
+        "senseId": "160",
+        "senseKey": "jmdict:1002430:3",
+        "lemma": "お茶",
+        "reading": "おちゃ",
+        "candidateKey": "f4b0f28776954f24ae512fc047dda9a59f5ee056085396ac41c19c6ffebaa226",
+        "conceptId": "51866",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Cả hai đều chỉ cùng một nghĩa: nghi lễ trà đạo. Nguồn ghi \"tea ceremony\" (liên quan 茶の湯); khái niệm định nghĩa \"an ancient ritual for preparing and serving and drinking tea\" với các nhãn \"tea ceremony\", \"chanoyu\", \"茶の湯\". Không có điều kiện vật chất nào mâu thuẫn; hai kiểm tra phạm vi hai chiều đều đạt.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 3 tea ceremony có related 茶の湯. 51866 định nghĩa nghi thức pha/phục vụ/uống trà, nhãn chanoyu/茶の湯; đủ context phân biệt tea party/reception, garden và cup.",
+        "candidateComparison": [
+          {
+            "candidateKey": "68d26fd8479b66f7229cd53d3ab3b5e50dde918f8c88097c5b6d694f8fa6bc79",
+            "conceptId": "96010",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "9a829beb88b39059d1760851aa1f0c2cb90606b0ea67ffb6baf7e6737e13c60e",
+            "conceptId": "73264",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "fbe42b3d8e8daf423fb26dc081be202420b859a876aaccf577d7de3dca753404",
+            "conceptId": "73265",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "f4b0f28776954f24ae512fc047dda9a59f5ee056085396ac41c19c6ffebaa226",
+            "conceptId": "51866",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "8231e1e8becb3a83598ef25581706d9631cc1d3e7a7d8ad0d95ca5a8463b9a69",
+            "conceptId": "90848",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          }
+        ]
+      },
+      {
+        "senseId": "1201",
+        "senseKey": "jmdict:1017330:1",
+        "lemma": "アナウンサー",
+        "reading": "アナウンサー",
+        "candidateKey": "e99b201badf187f767e03babd5d2587b1308f503b06c8f679b78230024df94ae",
+        "conceptId": "105111",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "narrower",
+        "retainedExactSelection": false,
+        "afterUnresolvedReason": null,
+        "afterReason": "Mọi nhánh nghĩa nguồn (announcer, presenter, broadcaster, reporter theo nghĩa người dẫn phát thanh) đều nằm trong khái niệm \"someone who broadcasts on radio or television\". Tuy nhiên khái niệm còn bao gồm bất kỳ ai phát sóng (ví dụ khách mời phát biểu một lần trên truyền hình) mà không phải là アナウンサー theo vai trò nghề nghiệp, nên nghĩa nguồn hẹp hơn (narrower).",
+        "validRepeat": true,
+        "auditVerdict": "deferred",
+        "auditSeverity": "none",
+        "auditReason": "Chưa đủ chứng cứ exact toàn sense: gloss announcer/presenter/broadcaster/reporter cùng nằm trong một sense nhưng 105111 chỉ định nghĩa người phát sóng radio/TV. Thiếu definition/examples nguồn để xác định reporter có bị giới hạn phát sóng và scope nghề nghiệp so với broadcaster. Không coi bốn gloss tự động là bốn nghĩa rời; không kết luận sai chắc chắn. Radio/TV announcer alternatives cũng chỉ riêng phương tiện.",
+        "candidateComparison": [
+          {
+            "candidateKey": "2cd5075f4482eb68117f6ac77a6b082c8cc4cdc1d23185d8bd3fa711c64fb71f",
+            "conceptId": "109238",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "0bcd25b321e18ea703afb093c26b8a560a0bebce876ce2f98e4bdfa2764f8041",
+            "conceptId": "111024",
+            "beforeRelation": "related",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "e99b201badf187f767e03babd5d2587b1308f503b06c8f679b78230024df94ae",
+            "conceptId": "105111",
+            "beforeRelation": "exact",
+            "afterRelation": "narrower"
+          },
+          {
+            "candidateKey": "2cbf8c7c86fa350c8c13fc62db88f0201842cf70b5f544c918972ca24871ed3a",
+            "conceptId": "109008",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "b70a11d3b82aa29c603a4a18fcb1fed68d0282e4e7ec71611a19092a0f0ed1f5",
+            "conceptId": "110785",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          }
+        ]
+      },
+      {
+        "senseId": "1743",
+        "senseKey": "jmdict:1028580:1",
+        "lemma": "エスカレーター",
+        "reading": "エスカレーター",
+        "candidateKey": "d553d26c4256bb6989db064cf3d396e25a81eda18139d8e7e386209a9e13a862",
+        "conceptId": "65956",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Nguồn エスカレーター là danh từ với gloss duy nhất 'escalator'. Khái niệm định nghĩa 'a stairway whose steps move continuously on a circulating belt' (cầu thang cuốn có bậc chuyển động liên tục trên băng chuyền), trùng khớp hai chiều với nghĩa nguồn. Các nhãn escalator, moving staircase, moving stairway và エスカレーター cũng khớp.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Escalator nghĩa thiết bị thang có bậc chuyển động liên tục, đúng definition 65956 và nhãn JA. Không phải người trèo thang, escalator clause, hành vi leo hoặc cầu thang máy bay.",
+        "candidateComparison": [
+          {
+            "candidateKey": "d553d26c4256bb6989db064cf3d396e25a81eda18139d8e7e386209a9e13a862",
+            "conceptId": "65956",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "94a44f5af477c209394248a7e153e936856b31d960c0963a00c3b27310901b5a",
+            "conceptId": "47801",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "aefeacb89d4ee4332456118e4fc23ca855388bdea79ecb0ec37240d72ee25dcc",
+            "conceptId": "106319",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "f4f9fa5fe759f0d74bf3e4335e8eabcc084b9105865ba2260e3b1a83b92c9fda",
+            "conceptId": "84426",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "2f80f5de5ae755ce85cb56cf0f20f6969bf986460be265b41c3986d9773db044",
+            "conceptId": "74709",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          }
+        ]
+      },
+      {
+        "senseId": "1230",
+        "senseKey": "jmdict:1017760:2",
+        "lemma": "アパート",
+        "reading": "アパート",
+        "candidateKey": "4892b00321d03d707f6309ef62ae3fe467538c8f67a2b3f99d766cb77798a1d6",
+        "conceptId": "62205",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Cả hai đều chỉ căn hộ/flat: một suite phòng thường trên một tầng của khu nhà. Gloss 'apartment' khớp định nghĩa 'a suite of rooms usually on one floor of an apartment house'; metadata abbr của アパートメント và lemma ja アパート/アパートメント củng cố sự tương đương hai chiều.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 2 apartment khớp suite of rooms của 62205 và nhãn アパート/アパートメント. Tòa nhà 62206 thuộc sense 1; penthouse/studio/walk-up thêm ràng buộc không có trong source.",
+        "candidateComparison": [
+          {
+            "candidateKey": "0ea838f3293670f457cf806a7ca518a14eef4241f5dd4d7770c27161e1a16fc1",
+            "conceptId": "62206",
+            "beforeRelation": "related",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "4892b00321d03d707f6309ef62ae3fe467538c8f67a2b3f99d766cb77798a1d6",
+            "conceptId": "62205",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "6e822a4564c8c67341dc0098af847d29218989324d3d561f7f38c2c3228da63f",
+            "conceptId": "72904",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "7fe664499a25c799dd6e8d43f537e8282fe7c0bf42f96b7013deeaed6cd727d0",
+            "conceptId": "70038",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "ef882d846b914229e5502a78bdc801c7810dfab6cf60822a91fe44a8d72aa590",
+            "conceptId": "74249",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          }
+        ]
+      },
+      {
+        "senseId": "1933",
+        "senseKey": "jmdict:1032030:1",
+        "lemma": "オートバイ",
+        "reading": "オートバイ",
+        "candidateKey": "7953acefcdd1fe5fa9c5549dbec84eb8a154a832380ee24c2f474060383b412e",
+        "conceptId": "69214",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Nguồn オートバイ chỉ xe hai bánh có động cơ (motorcycle/motorbike), không có giới hạn ngữ nghĩa thêm. Khái niệm định nghĩa \"a motor vehicle with two wheels and a strong frame\" và có nhãn motorcycle, オートバイ, バイク; hai chiều bao hàm đều đúng.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Motorcycle/motorbike cùng xe mô tô hai bánh, đúng 69214 và nhãn オートバイ. LanguageSource wasei auto-bi(cycle) là nguồn gốc từ, không biến thành bicycle. Rider/riding là khác loại; scooter là loại cụ thể hơn.",
+        "candidateComparison": [
+          {
+            "candidateKey": "7953acefcdd1fe5fa9c5549dbec84eb8a154a832380ee24c2f474060383b412e",
+            "conceptId": "69214",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "dbca668de68b229192b292da994bf69fab169c9c854f11055c62654b702db47a",
+            "conceptId": "108187",
+            "beforeRelation": "related",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "5250e177d2039e793ad8b196e67a2d7a4016943e156ef378f3d4a99f7a89cf82",
+            "conceptId": "48533",
+            "beforeRelation": "related",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "d309acfc0832bc39f42059adca9c0a0343f0449ca6490dded0921d385f1f5519",
+            "conceptId": "48531",
+            "beforeRelation": "related",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "ded50e86334af731ca8b248483cd651c602a9a27cb060658b819ae3124c5a351",
+            "conceptId": "69074",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          }
+        ]
+      },
+      {
+        "senseId": "1962",
+        "senseKey": "jmdict:1032390:2",
+        "lemma": "オーバー",
+        "reading": "オーバー",
+        "candidateKey": "a067ded07d648dd883a489c6f3ef560e9f6316a0764d2cf80ec35e6da9e2874a",
+        "conceptId": "45454",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": null,
+        "retainedExactSelection": false,
+        "afterUnresolvedReason": null,
+        "afterReason": null,
+        "validRepeat": false,
+        "auditVerdict": "fail",
+        "auditSeverity": "severe",
+        "auditReason": "Source exceeding/going over/going beyond không giới hạn hơn về phẩm chất hoặc tốt hơn một chuẩn. Definition 45454 be superior or better than some standard chỉ phạm vi vượt trội, không chứng minh bao phủ vượt quá giới hạn số lượng/mức cho phép. Hai lượt đã nâng cặp gần nghĩa thành exact dù thiếu bao phủ toàn scope; giữ nonexact, không promote exact. n/vs/vt/vi không tự tạo xung đột POS với verb.",
+        "candidateComparison": [
+          {
+            "candidateKey": "2de19e2840015978bc011f9eb89479f042f468a064ed4c03ce3bc817a688ed6b",
+            "conceptId": "46736",
+            "beforeRelation": "none",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "e0d5ba3f1ac27ecf9d449238ad05ca5268a6a7642f95bff5265fc431babc9f15",
+            "conceptId": "82391",
+            "beforeRelation": "none",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "a067ded07d648dd883a489c6f3ef560e9f6316a0764d2cf80ec35e6da9e2874a",
+            "conceptId": "45454",
+            "beforeRelation": "exact",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "553e07aee43d63c8facdc82a375cadee6edcf9e74c0ef2e61022ac8dc2eff5af",
+            "conceptId": "77022",
+            "beforeRelation": "broader",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "dd96c2a82bad5c2c80bae54d078a7492c55f141010f62b9801cd9dfe309d4f9d",
+            "conceptId": "47881",
+            "beforeRelation": "broader",
+            "afterRelation": null
+          }
+        ]
+      },
+      {
+        "senseId": "268",
+        "senseKey": "jmdict:1003430:2",
+        "lemma": "屹度",
+        "reading": "きっと",
+        "candidateKey": "b38ef73a32663d7d7e13b3405596867bc44699b7db97f2003a6fbb4a18158ed3",
+        "conceptId": "28553",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Nguồn là phó từ (on-mim, uk) chỉ cách thức nghiêm khắc, nghiêm nghị qua hai gloss đồng nghĩa 'sternly' và 'severely'. Định nghĩa khái niệm 'with sternness; in a severe manner' bao phủ toàn bộ cả hai nhánh, không thêm nghĩa nào khác, cùng là phó từ chỉ cách thức; nhãn sternly/severely và từ đồng nghĩa tiếng Nhật きっと trùng khớp. Tương đương hai chiều.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 2 sternly/severely với info esp. キッと khớp adverb with sternness; in a severe manner của 28553. Không dùng sense chắc chắn của きっと. Alternatives extremely/strongly/heavy-footed/sharply không cùng sắc thái nghiêm khắc.",
+        "candidateComparison": [
+          {
+            "candidateKey": "b38ef73a32663d7d7e13b3405596867bc44699b7db97f2003a6fbb4a18158ed3",
+            "conceptId": "28553",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "2ca4b29af110e076c7190cc74d49a71ac5d3f899cf7dd2c846347be3b28e4c0e",
+            "conceptId": "29933",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "2083ea33e1d72a8cb9b8e13aaed91ed538ad35b1bf6571aacee876c017743484",
+            "conceptId": "30656",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "5bab67adc2ae50594a1301a30532be73c0539bd407331b3e4a927b4fd6347461",
+            "conceptId": "26909",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "ad0d900239b02759e27b9132035ab5a34076957c381f0f2755e9933c52157b5b",
+            "conceptId": "26814",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          }
+        ]
+      },
+      {
+        "senseId": "751",
+        "senseKey": "jmdict:1009330:2",
+        "lemma": "どんな",
+        "reading": "どんな",
+        "candidateKey": "a3f005ca1b2cfe9b1eeac0f78c9c98f7f40e17ce59eeb28093b2d1ab25afe21a",
+        "conceptId": "20501",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Nguồn どんな sense 2 là lượng từ tự do chọn dùng trong cấu trúc どんな...でも/も: 'no matter what (kind of)', 'whatever', 'any', 'all'. Khái niệm 'one or some or every or all without specification' (any/whatever/whatsoever) bao phủ toàn bộ các nhánh này và ngược lại, không loại trừ hay thêm điều kiện vật chất nào.",
+        "validRepeat": true,
+        "auditVerdict": "fail",
+        "auditSeverity": "severe",
+        "auditReason": "Source sense 2 bị ràng buộc as どんな...でも, どんな...も: no matter what (kind of)/whatever/any/all. 20501 gom one or some or every or all without specification và elective existential; nhánh one/some không đủ tương đương phạm vi bất kể loại nào trong construction này. R1/R2 dựa vào trùng nhãn any/whatever nhưng chưa giải qualifier và nhánh tồn tại. Không chuyển sang alternative all chỉ để chọn một concept; cặp hiện tại nonexact, exact bị chặn.",
+        "candidateComparison": [
+          {
+            "candidateKey": "a3f005ca1b2cfe9b1eeac0f78c9c98f7f40e17ce59eeb28093b2d1ab25afe21a",
+            "conceptId": "20501",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "c8b23c0f7c2c6f9f270ca23ca2392ab0eb580d939c3c2427320bc6fa4ac98dbd",
+            "conceptId": "70018",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "e71cfa4e5342a41f9e9c09ca45d84cf1fad9ee5fff81b1b0b9b2988426a4f1b1",
+            "conceptId": "48862",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "a9c01db6cd7a254aa9538542641a28f50bcd72b0631a0aee837209355a8ef03b",
+            "conceptId": "20513",
+            "beforeRelation": "related",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "2adf238fde84ea6c787221c5a1507f1d2db42e539e0ad865fe74b38c37e011fe",
+            "conceptId": "39317",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          }
+        ]
+      },
+      {
+        "senseId": "124",
+        "senseKey": "jmdict:1001990:1",
+        "lemma": "お姉さん",
+        "reading": "おねえさん",
+        "candidateKey": "fa13dc0b92ce5cf68563089bdfa0ad0a5ca9751b9d45f6a08b32e96a0263f17a",
+        "conceptId": "104955",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Cả hai cùng chỉ định chị gái lớn tuổi hơn: nguồn 'older sister'/'elder sister', khái niệm 'an older sister' ('big sister'); phạm vi hai chiều trùng khớp. Thuộc tính honorific (hon) là đặc tính ngữ dụng của dạng từ お姉さん, không thu hẹp ngoại diên chỉ định nên tương thích.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Older/elder sister khớp definition an older sister của 104955. hon và usu. お姉さん là hình thức kính ngữ/cách viết, không đổi quan hệ chị lớn. Younger/general sister/niece đều khác scope.",
+        "candidateComparison": [
+          {
+            "candidateKey": "e85875d9a3e51676c09ae68eccfb506483ec241be550751706c61f8771ac9f7d",
+            "conceptId": "109905",
+            "beforeRelation": "narrower",
+            "afterRelation": "narrower"
+          },
+          {
+            "candidateKey": "abe4f0f0e3efb28fc83637027e9a65061d89c4715ef9a4fa0aeec740d9c060d9",
+            "conceptId": "106464",
+            "beforeRelation": "narrower",
+            "afterRelation": "narrower"
+          },
+          {
+            "candidateKey": "fa13dc0b92ce5cf68563089bdfa0ad0a5ca9751b9d45f6a08b32e96a0263f17a",
+            "conceptId": "104955",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "8410758be90f4eabaf4bf623e3bc3fa5e38dcdf1913d6391a8b43eab27699286",
+            "conceptId": "107726",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "83ed5de9c3282e36fcc7b170760d071c21f5528d0ee64348f16c4aecc14f976c",
+            "conceptId": "108346",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          }
+        ]
+      },
+      {
+        "senseId": "1965",
+        "senseKey": "jmdict:1032390:5",
+        "lemma": "オーバー",
+        "reading": "オーバー",
+        "candidateKey": "071a04d46e3cc7295f420e754ae15ec739a9cda5c548954b4743631edcff6f41",
+        "conceptId": "51189",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Nguồn là \"overexposure\" với field \"photo\"; khái niệm được định nghĩa là \"the act of exposing film to too much light or for too long a time\". Hai định nghĩa cùng chỉ hành động phơi sáng quá mức trong nhiếp ảnh, tương đương hai chiều.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Field photo xác định overexposure là phơi sáng phim quá mức/quá lâu, khớp 51189. Không nhập nghĩa bị tác động quá mức ở 46820 hoặc overestimate/excess. Không suy từ lemma オーバー sang các sense khác.",
+        "candidateComparison": [
+          {
+            "candidateKey": "d3bfc519dab749cc9fa6c9a2a53c21d44001c9d8cca3c01ea579c5e1b97c731d",
+            "conceptId": "77544",
+            "beforeRelation": "none",
+            "afterRelation": "related"
+          },
+          {
+            "candidateKey": "6ee14acbde1e1596b75049ebb992497fdb76f6ad59600d9a33178a2d5af7accf",
+            "conceptId": "81423",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "9bf71c6077022d32b2e20c150e8ae916f496cadfe5f1e971312449536e16251c",
+            "conceptId": "46821",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "f53b1531661d2e70ffaf1276d492403bd5636b17f883d1768e2205e0831dd611",
+            "conceptId": "46820",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "071a04d46e3cc7295f420e754ae15ec739a9cda5c548954b4743631edcff6f41",
+            "conceptId": "51189",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          }
+        ]
+      },
+      {
+        "senseId": "2128",
+        "senseKey": "jmdict:1036290:1",
+        "lemma": "カーテン",
+        "reading": "カーテン",
+        "candidateKey": "126c957ae8db3c7d8f1f4ee13f70da06813b9e186de977becb577f7bdb470aaa",
+        "conceptId": "65033",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Hai bên đều chỉ tấm vải treo dùng như rèm che (đặc biệt ở cửa sổ): nguồn カーテン danh từ và khái niệm curtain định nghĩa 'hanging cloth used as a blind'. Phạm vi hai chiều tương đương, không có điều kiện vật chất mâu thuẫn.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Curtain/curtains khớp hanging cloth used as a blind của 65033; especially for a window là ví dụ điển hình, không ràng buộc chỉ cửa sổ. Nhãn JA gồm 幕/緞帳 hỗ trợ phạm vi rèm. Các loại cafe/net/portiere hẹp hơn; curtain ring khác vật.",
+        "candidateComparison": [
+          {
+            "candidateKey": "65df854f70aeafafcf28c86370b9b218236eb7ae77475a6101dffffdca487404",
+            "conceptId": "120208",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "67ea45186befc998698e8f6435dc9aa3249f4e757f2fdbb4f993b6b4006214c9",
+            "conceptId": "120209",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "a31baa0a8016a3da5e13caade49f80b80016f802c694857afd56f77261a283a1",
+            "conceptId": "65034",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "617a95e49ebe6d610d915c88816e4669641aa65fa05dd1056d5305eace50616f",
+            "conceptId": "70519",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "126c957ae8db3c7d8f1f4ee13f70da06813b9e186de977becb577f7bdb470aaa",
+            "conceptId": "65033",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          }
+        ]
+      },
+      {
+        "senseId": "1851",
+        "senseKey": "jmdict:1030630:1",
+        "lemma": "エレベーター",
+        "reading": "エレベーター",
+        "candidateKey": "1d2500bba34d0e021890e1de67be266c5abbb9a314115ebab16fdc5b82f801ea",
+        "conceptId": "65870",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Cả hai đều chỉ thiết bị nâng gồm sàn hoặc cabin di chuyển theo trục thẳng đứng để đưa người lên xuống giữa các tầng trong tòa nhà; hai gloss 'elevator' và 'lift' được bao phủ đầy đủ, nhãn tiếng Nhật エレベーター/昇降機 cũng khớp, và không có điều kiện vật chất nào mâu thuẫn.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Elevator/lift khớp thiết bị nâng hạ platform/cage trong shaft giữa tầng tòa nhà, concept 65870 có nhãn エレベーター. Không có source qualifier mở sang ski-lift/grain elevator. Alternatives là người vận hành hoặc shaft, không phải thiết bị. Không coi lift ở các nghĩa EN khác là nhánh của sense này.",
+        "candidateComparison": [
+          {
+            "candidateKey": "490c4048527adeef8f52f1024b278da5c4c78bf28e58b0ec3986b228f4e930c3",
+            "conceptId": "65872",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "0fa8cc9b81bb997aa8c2f06d3e96a2e2970d9fafddbd1d50bed9f8d0402edc8b",
+            "conceptId": "106237",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "64cf0034bfc5f241eb2282c22a4f844ca5e7321f0049845b398461f8470a2e0c",
+            "conceptId": "106236",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "cf028f2506fbc29b9118d6d01fcceb54bb949941804babd65d554d9681342074",
+            "conceptId": "106238",
+            "beforeRelation": "related",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "1d2500bba34d0e021890e1de67be266c5abbb9a314115ebab16fdc5b82f801ea",
+            "conceptId": "65870",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          }
+        ]
+      },
+      {
+        "senseId": "113",
+        "senseKey": "jmdict:1001830:1",
+        "lemma": "お兄さん",
+        "reading": "おにいさん",
+        "candidateKey": "8eecad11aa5535c448418c4867dcaf8bc8922804bea5234985e7296677ef4e14",
+        "conceptId": "104951",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Hai gloss \"older brother\"/\"elder brother\" là cách diễn đạt đồng nghĩa của cùng một nghĩa \"anh trai lớn tuổi hơn\", trùng khớp hai chiều với định nghĩa khái niệm \"an older brother\".",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 1 older/elder brother khớp an older brother 104951. hon giữ ở sense context, không đổi quan hệ anh lớn. Younger/general brother/uncle/elder không exact. Không nhập nghĩa gọi thanh niên của sense 2.",
+        "candidateComparison": [
+          {
+            "candidateKey": "938cd0b862a5bb9922caeb88a7af863bb37881a0e0e3c22f966f341e122d8288",
+            "conceptId": "110801",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "05c3501876eb2b55262495526ec65fab6901aeae849dfbf9f54e8541d457bcb2",
+            "conceptId": "107722",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "8eecad11aa5535c448418c4867dcaf8bc8922804bea5234985e7296677ef4e14",
+            "conceptId": "104951",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "73929ded3f7cc2ba14b77bcc47feed8d394f301981a2e32fe7065fd492be8c94",
+            "conceptId": "106222",
+            "beforeRelation": "narrower",
+            "afterRelation": "narrower"
+          },
+          {
+            "candidateKey": "5fdb88fcd2e79864b34618ad4abb4fde3e196267c38f9a1e56cc308d81132051",
+            "conceptId": "105115",
+            "beforeRelation": "narrower",
+            "afterRelation": "narrower"
+          }
+        ]
+      },
+      {
+        "senseId": "104",
+        "senseKey": "jmdict:1001710:1",
+        "lemma": "お菓子",
+        "reading": "おかし",
+        "candidateKey": "17fc3af8658d988bfe133041fa3bb5b95f473566035d79ddc21f0b3a61575f22",
+        "conceptId": "91793",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": null,
+        "retainedExactSelection": false,
+        "afterUnresolvedReason": null,
+        "afterReason": null,
+        "validRepeat": false,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Confections/sweets/candy/cake là các cách diễn đạt/loại trong phạm vi đồ ngọt của お菓子; 91793 candy and other sweets considered collectively, nhãn 菓子, bao phủ bánh ngọt chứ không chỉ candy. Candy riêng/chocolate/cake chocolate hẹp hơn; shop khác đối tượng. Source không ghi snack mặn, không thêm nhánh này.",
+        "candidateComparison": [
+          {
+            "candidateKey": "50ddb308355b201d527ebf49a76aad0d02ce289f6a13c10c9e4b10ca11d704f8",
+            "conceptId": "92057",
+            "beforeRelation": "broader",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "17fc3af8658d988bfe133041fa3bb5b95f473566035d79ddc21f0b3a61575f22",
+            "conceptId": "91793",
+            "beforeRelation": "exact",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "40fcf6f9e2c2c16b586697a1c1bd14c5cdacd60cbc1edcd016838e883074e076",
+            "conceptId": "91832",
+            "beforeRelation": "broader",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "a4dd8ae0557b8317b2bdf19e7d5a3865cd7a39bcc5ab94e697a20df2b842afd6",
+            "conceptId": "64627",
+            "beforeRelation": "related",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "6babe1516e9caf9ab52a1a622f6625b183a4cb088bbd7cba29cb580d72b12453",
+            "conceptId": "91797",
+            "beforeRelation": "broader",
+            "afterRelation": null
+          }
+        ]
+      },
+      {
+        "senseId": "114",
+        "senseKey": "jmdict:1001830:2",
+        "lemma": "お兄さん",
+        "reading": "おにいさん",
+        "candidateKey": "4cd976d338ea05e5d930a0668ec2b5f6f0b14eb29f87b85fdfb45b51cc20fef1",
+        "conceptId": "111243",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": null,
+        "retainedExactSelection": false,
+        "afterUnresolvedReason": null,
+        "afterReason": null,
+        "validRepeat": false,
+        "auditVerdict": "deferred",
+        "auditSeverity": "none",
+        "auditReason": "Sense 2 young man/buddy/fella/laddie có info oft. vocative và misc fam. 111243 giới hạn teenager or young adult male. Thiếu examples/definition để xác minh phạm vi lời gọi thân mật luôn giữ giới hạn tuổi này; không tự coi buddy là nghĩa người bạn rời, cũng không chứng minh young man đủ toàn scope. Alternative a single individual quá rộng, không thay bằng nó; chờ context hoặc defer.",
+        "candidateComparison": [
+          {
+            "candidateKey": "08d5647db70182284a5b769cf8dafc3ade33981abc9d9857c6ea217552cc64da",
+            "conceptId": "10110",
+            "beforeRelation": "none",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "e268fe96ccae43f0bfdcffffa1038c568f92edf266e9ffcba5634bdf8d920388",
+            "conceptId": "106411",
+            "beforeRelation": "none",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "4cd976d338ea05e5d930a0668ec2b5f6f0b14eb29f87b85fdfb45b51cc20fef1",
+            "conceptId": "111243",
+            "beforeRelation": "exact",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "e87e05f910eeb1140f04dd412f7a25f0f0d9a62ae011250bdd1d04c5c5896da4",
+            "conceptId": "72359",
+            "beforeRelation": "none",
+            "afterRelation": null
+          },
+          {
+            "candidateKey": "9d8107da27f99b7875b161dd12b89776e656c83e745561fb68f01b2958fdb270",
+            "conceptId": "107892",
+            "beforeRelation": "none",
+            "afterRelation": null
+          }
+        ]
+      },
+      {
+        "senseId": "23",
+        "senseKey": "jmdict:1000320:2",
+        "lemma": "彼処",
+        "reading": "あそこ",
+        "candidateKey": "5db7b88130435f04391d9f4ba39822f1a022b1c75489192b416e5eaa164f0ed2",
+        "conceptId": "79778",
+        "beforeR1": "exact",
+        "beforeR2": "exact",
+        "afterRelation": "exact",
+        "retainedExactSelection": true,
+        "afterUnresolvedReason": null,
+        "afterReason": "Nghĩa nguồn (genitals / private parts / nether regions, đánh dấu uyển ngữ, thông tục) và khái niệm 'external sex organ' cùng biểu thị cơ quan sinh dục ngoài. Cả ba nhánh gloss là cách diễn đạt đồng nghĩa của cùng một nghĩa; các nhãn 'genitalia', 'genitals', 'private parts' của khái niệm củng cố sự tương đương hai chiều. Đánh dấu uyển ngữ chỉ khác biệt sắc thái sử dụng, không thay đổi phạm vi biểu thị.",
+        "validRepeat": true,
+        "auditVerdict": "pass",
+        "auditSeverity": "none",
+        "auditReason": "Sense 2 genitals/private parts/nether regions là uyển ngữ chỉ bộ phận sinh dục ngoài, khớp 79778 và nhãn private parts/彼処. col/uk/euph không thay referent. Restriction áp kana あそこ/あすこ/アソコ được giữ ở sense, không phát tán mapping ra mọi reading. Female-only alternatives hẹp hơn; northern region khác nghĩa.",
+        "candidateComparison": [
+          {
+            "candidateKey": "a5a51a28dc30944f89fe63fce0d4051cde28d951df11f05c956bcb4324acec92",
+            "conceptId": "97646",
+            "beforeRelation": "none",
+            "afterRelation": "none"
+          },
+          {
+            "candidateKey": "5db7b88130435f04391d9f4ba39822f1a022b1c75489192b416e5eaa164f0ed2",
+            "conceptId": "79778",
+            "beforeRelation": "exact",
+            "afterRelation": "exact"
+          },
+          {
+            "candidateKey": "01ea40a3edc2c15e54d42a6711b0d015d8cbb116a927390d0e3262405533ca82",
+            "conceptId": "78126",
+            "beforeRelation": "narrower",
+            "afterRelation": "narrower"
+          },
+          {
+            "candidateKey": "7118a7c6e0bf33f52dff9371b329cfc800b4d70377839f55275e78631ce1512f",
+            "conceptId": "79819",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          },
+          {
+            "candidateKey": "bb815e6d79e2ceda7e72853fe760d5b2e3064c90c244c56c51a07822b56971fc",
+            "conceptId": "79779",
+            "beforeRelation": "broader",
+            "afterRelation": "broader"
+          }
+        ]
+      }
+    ]
+  },
+  "reconciliation": {
+    "task": "DB4-D5",
+    "requests": 20,
+    "completedTransport": 20,
+    "recoveredCompletedReplies": 2,
+    "newDispatches": 0,
+    "elapsed_s": 441.63,
+    "responsesSha256": "8b5d9f042b7df4468c3eac776692d2ef2169b2c59399b71133928c8f5f865e01",
+    "apply": false,
+    "semanticQualityValidated": false
+  },
+  "progressBeforeStop": {
+    "task": "DB4-D4",
+    "workers": 8,
+    "total_requests": 20,
+    "settled": 18,
+    "states": {
+      "complete": 18
+    },
+    "elapsed_s": 92.76,
+    "updated_at": 1791620256.3307827,
+    "apply": false
+  },
+  "invalidOutputs": [
+    {
+      "senseId": "104",
+      "lemma": "お菓子",
+      "problem": "candidate_order_mismatch",
+      "contractUsable": false,
+      "reviewCount": 5,
+      "expectedReviewCount": 5,
+      "missingCandidateKeys": [],
+      "rawObservedSelectedRelation": "exact",
+      "rawObservedReason": "Cả hai đều chỉ đồ ngọt/bánh kẹo xét chung (\"candy and other sweets considered collectively\"), bao phủ toàn bộ nghĩa nguồn gồm confections, sweets, candy và cake; nhãn 菓子 cũng củng cố sự tương đương. Kiểm tra hai chiều đều đạt."
+    },
+    {
+      "senseId": "114",
+      "lemma": "お兄さん",
+      "problem": "missing_candidate",
+      "contractUsable": false,
+      "reviewCount": 4,
+      "expectedReviewCount": 5,
+      "missingCandidateKeys": [
+        "9d8107da27f99b7875b161dd12b89776e656c83e745561fb68f01b2958fdb270"
+      ],
+      "rawObservedSelectedRelation": "exact",
+      "rawObservedReason": "Cả hai cùng biểu thị nam thanh niên: bốn gloss nguồn (young man, buddy, fella, laddie) là các cách diễn đạt đồng nghĩa cho cùng một cách dùng xưng hô thân mật (oft. vocative, fam), và khái niệm được định nghĩa là a teenager or a young adult male. Hai kiểm tra phạm vi hai chiều đều đạt; ghi chú thân mật/xưng hô là sắc thái dụng pháp, không tạo điều kiện vật chất mâu thuẫn."
+    },
+    {
+      "senseId": "1962",
+      "lemma": "オーバー",
+      "problem": "missing_candidate",
+      "contractUsable": false,
+      "reviewCount": 4,
+      "expectedReviewCount": 5,
+      "missingCandidateKeys": [
+        "dd96c2a82bad5c2c80bae54d078a7492c55f141010f62b9801cd9dfe309d4f9d"
+      ],
+      "rawObservedSelectedRelation": "broader",
+      "rawObservedReason": "Nghĩa nguồn 'exceeding; going over; going beyond' là khái niệm chung về việc vượt quá/vượt lên trên, bao hàm cả trường hợp 'tốt hơn/vượt trội hơn một tiêu chuẩn' của khái niệm. Ngược lại, khái niệm giới hạn ở sự vượt trội ('be superior or better than some standard'), không bao quát hết nghĩa nguồn (ví dụ vượt quá một giới hạn mà không hàm ý 'tốt hơn'). Vì vậy nghĩa nguồn rộng hơn khái niệm."
+    }
+  ],
+  "baselineR2FormattingRepairSenseIds": [
+    "104"
+  ],
+  "gitStatus": "uncommitted; unpushed",
+  "deployment": "VPS job only; no backend deploy or database apply"
+}
