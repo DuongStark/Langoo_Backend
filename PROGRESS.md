@@ -83,7 +83,7 @@
 | DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
 | DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; Muse chờ runner/recovery smoke; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
 | DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
-| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | System prompt + phase R1/R2 đúng D1, Muse runner, repair hữu hạn + partial validator | 🟡 pilot + một repair pass đã xong; D1 chấp nhận 137/138, 1 output còn thiếu candidate; [plan](docs/plans/db4-d4-semantic-match-prompt-v1.md), [report](docs/reviews/db4-d4-muse-pilot-2026-10-08.md); semantic gate chưa đạt; đã commit/push 10/10 (7c8138f); chưa apply/deploy |
+| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 contract, immutable job/event schemas và D3 wrapper; [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [foundation review](docs/reviews/db4-d4-d5-batch-foundation-2026-10-10.md) | 🟡 TS/lint/format + 77/77 DB4 tests pass (8 new conditional R2 tests); durable artifact store, runner/recovery, smoke và semantic gate còn thiếu; chưa gọi Muse từ runner, chưa apply/deploy |
 | DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
 
 ### 2026-10-10 — DB4-D2 — Hybrid lexical-MiniLM retrieval bằng RRF
@@ -1117,3 +1117,11 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   locks/budget/breaker và smoke; Muse shadow, D5 quality, DB4-D6/D7.
 - Git / triển khai: code/docs commit `b74268d` đã push; artifacts lớn ở
   `uploads/` ignored; không deploy/apply.
+
+### 2026-10-10 — DB4-D3/D4 — Contract batch và conditional R2 foundation
+
+- Thay đổi / lý do: thêm orchestration contract v1, giới hạn run/call, target/schedule, deterministic job key, append-only event hash chain và pure evaluator cho R2 có điều kiện. Giữ nguyên D1/D3 v1; skipped R2 không tạo decision hai lượt giả.
+- File / phạm vi: `scripts/db4/_batch-types.ts`, `scripts/db4/muse-batch-decide.ts`, `scripts/db4/muse-batch-decide.test.ts`; [plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [review](docs/reviews/db4-d4-d5-batch-foundation-2026-10-10.md).
+- Kiểm tra / kết quả: `npx tsc -p tsconfig.db4.json --noEmit`; ESLint scoped; Prettier; `node --import tsx --test scripts/db4/muse-batch-decide.test.ts` — 8/8 pass; full DB4 suite 77/77 pass.
+- Gate còn thiếu: atomic run artifacts, conditional waves, durable runner/recovery, cross-generation binding, D5 audit, VPS smoke và shadow. Chưa gọi Muse, chưa ghi DB/deploy.
+- Git / triển khai: code/test/docs đang được commit riêng; không deploy/apply.
