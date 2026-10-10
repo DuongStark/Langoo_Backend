@@ -18,6 +18,21 @@ const Slug = z
   .regex(/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/);
 const Level = z.number().int().min(1).max(5).nullable();
 const PositiveCount = z.number().int().positive();
+const CohortStrataSchema = z
+  .object({
+    level: Level,
+    posFamily: z.enum([
+      'noun',
+      'verb',
+      'adjective_adverb',
+      'expression',
+      'other',
+    ]),
+    glossCount: z.enum(['zero', 'one', 'multiple']),
+    fieldInfo: z.enum(['present', 'absent']),
+    originalStatus: z.enum(['unlinked', 'existing_nonexact', 'existing_exact']),
+  })
+  .strict();
 
 export const BatchManifestSchema = z
   .object({
@@ -55,8 +70,37 @@ export const BatchManifestSchema = z
       .strict(),
     sources: z
       .object({
+        cohortExport: ArtifactRefSchema,
         export: ArtifactRefSchema,
         audit: ArtifactRefSchema,
+      })
+      .strict(),
+    retrieval: z
+      .object({
+        generationManifest: ArtifactRefSchema,
+        searchManifest: ArtifactRefSchema,
+        candidates: ArtifactRefSchema,
+        bundles: ArtifactRefSchema,
+        statuses: ArtifactRefSchema,
+        readyCount: Count,
+        noCandidateCount: Count,
+      })
+      .strict(),
+    prompt: z
+      .object({
+        revision: z.enum(['v1', 'v2', 'v2.1']),
+        system: ArtifactRefSchema,
+        r1: ArtifactRefSchema,
+        r2: ArtifactRefSchema,
+      })
+      .strict(),
+    artifacts: z
+      .object({
+        preparationIntent: ArtifactRefSchema,
+        targets: ArtifactRefSchema,
+        schedule: ArtifactRefSchema,
+        initialTargetResults: ArtifactRefSchema,
+        preparationReport: ArtifactRefSchema,
       })
       .strict(),
     versions: z
@@ -93,6 +137,12 @@ export const BatchManifestSchema = z
           .object({
             shardId: Slug,
             targets: ArtifactRefSchema,
+            candidates: ArtifactRefSchema,
+            requests: z
+              .object({ r1: ArtifactRefSchema, r2: ArtifactRefSchema })
+              .strict(),
+            readyCount: Count,
+            noCandidateCount: Count,
             count: z.number().int().min(1).max(100),
           })
           .strict(),
@@ -118,6 +168,15 @@ export const BatchManifestSchema = z
     )
       ctx.addIssue({ code: 'custom', message: 'Batch denominator mismatch' });
     if (
+      manifest.retrieval.readyCount + manifest.retrieval.noCandidateCount !==
+      manifest.cohort.counts.selected
+    )
+      ctx.addIssue({
+        code: 'custom',
+        path: ['retrieval'],
+        message: 'Retrieval status denominator mismatch',
+      });
+    if (
       manifest.caps.shardTargets > manifest.caps.generationTargets ||
       manifest.caps.mappingDispatches < manifest.cohort.counts.selected
     )
@@ -138,6 +197,7 @@ export const BatchTargetSchema = z
     hasFieldInfo: z.boolean(),
     hasExistingExact: z.boolean(),
     originalStatus: z.enum(['unlinked', 'existing_nonexact', 'existing_exact']),
+    strata: CohortStrataSchema,
     sourceRef: z
       .object({
         file: ArtifactRefSchema,
@@ -158,6 +218,23 @@ export const BatchTargetSchema = z
         code: 'custom',
         path: ['originalStatus'],
         message: 'Existing exact status does not match link flag',
+      });
+    if (
+      target.strata.level !== target.level ||
+      target.strata.originalStatus !== target.originalStatus ||
+      target.strata.fieldInfo !==
+        (target.hasFieldInfo ? 'present' : 'absent') ||
+      target.strata.glossCount !==
+        (target.enGlossCount === 0
+          ? 'zero'
+          : target.enGlossCount > 1
+            ? 'multiple'
+            : 'one')
+    )
+      ctx.addIssue({
+        code: 'custom',
+        path: ['strata'],
+        message: 'Target strata do not match the source summary',
       });
   });
 export type BatchTarget = z.infer<typeof BatchTargetSchema>;
@@ -258,6 +335,8 @@ export const BatchEventSchema = z
       'response_invalid',
       'job_skipped',
       'breaker_opened',
+      'breaker_recovered',
+      'breaker_cleared',
       'run_paused',
       'run_finalized',
     ]),

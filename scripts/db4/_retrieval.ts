@@ -1,14 +1,16 @@
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import {
   createReadStream,
   closeSync,
   existsSync,
   fsyncSync,
+  linkSync,
   lstatSync,
   mkdirSync,
   openSync,
   readFileSync,
   realpathSync,
+  unlinkSync,
   writeFileSync,
 } from 'node:fs';
 import { dirname, resolve, sep } from 'node:path';
@@ -185,6 +187,58 @@ export function writeJson(
 ): ArtifactRef {
   canonicalJson(value);
   return writeArtifact(root, path, JSON.stringify(value, null, 2) + '\n');
+}
+/** Persist an immutable file with a same-directory fsynced temporary and atomic link. */
+export function writeAtomicArtifact(
+  root: string,
+  path: string,
+  content: string | Uint8Array,
+): ArtifactRef {
+  mkdirSync(root, { recursive: true });
+  const bytes = Buffer.from(content);
+  const ref = { path, sha256: hashBytes(bytes) };
+  const target = artifactPath(root, path);
+  mkdirSync(dirname(target), { recursive: true });
+  artifactPath(root, path);
+  if (existsSync(target)) {
+    verifyArtifactBytes(ref, readFileSync(target));
+    return ref;
+  }
+
+  const temporary = resolve(
+    dirname(target),
+    `.tmp-${process.pid}-${randomUUID()}`,
+  );
+  const fd = openSync(temporary, 'wx', 0o600);
+  try {
+    writeFileSync(fd, bytes);
+    fsyncSync(fd);
+  } finally {
+    closeSync(fd);
+  }
+  try {
+    linkSync(temporary, target);
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== 'EEXIST') throw error;
+    verifyArtifactBytes(ref, readFileSync(target));
+  } finally {
+    unlinkSync(temporary);
+  }
+  const directoryFd = openSync(dirname(target), 'r');
+  try {
+    fsyncSync(directoryFd);
+  } finally {
+    closeSync(directoryFd);
+  }
+  return ref;
+}
+export function writeAtomicJson(
+  root: string,
+  path: string,
+  value: unknown,
+): ArtifactRef {
+  canonicalJson(value);
+  return writeAtomicArtifact(root, path, JSON.stringify(value, null, 2) + '\n');
 }
 export function jsonLines<T>(bytes: Buffer, schema: z.ZodType<T>): T[] {
   return bytes

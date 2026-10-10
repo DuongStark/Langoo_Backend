@@ -1,9 +1,11 @@
 # DB4-D4/D5 — Mapping tự động theo batch có checkpoint
 
 Ngày: **2026-10-10**. Trạng thái: **DB4-D2 cohort 1.000 đã freeze trên VPS,
-project/source-audit/RRF đã chạy local; DB4-D3/D4 contract + conditional R2 qua
-77/77 DB4 TypeScript tests (8 mới)**. Durable runner/recovery, Muse batch job và
-apply DB chưa có.
+source-audit/RRF và DB4-D4/D5 runner nền đã chạy local; 82/82 DB4 TypeScript
+tests, 12 fake-transport tests và 2 coordinator tests pass**. Read-only preflight
+trên artifact thật xác nhận 1.000 target / 966 ready / 34 no-candidate / 1.932
+request; Muse chưa được gọi bởi runner mới, chưa cài service VPS, chưa apply DB.
+Expansion, format-repair dispatch và Pilot A/B audit coordinator còn thiếu.
 Phạm vi: sense JA → concept đã xác minh;
 Muse là model duy nhất cho review tự động, MiniLM chạy local cho retrieval.
 
@@ -582,23 +584,25 @@ completed_raw → validated → semantic_result
 
 ### 13.4 systemd
 
-Đề xuất unit `langoo-db4-batch@<run-id>.service`, dùng user/permission tương
-thích gateway hiện hành; WorkingDirectory trỏ release tool đã pin.
+Đã thêm unit template
+[`langoo-db4-batch@.service`](../../scripts/ops/db4-batch/langoo-db4-batch@.service)
+và [runbook VPS](../../scripts/ops/db4-batch/README.md). Service dùng immutable
+release path trong env file, không sửa/build `/opt/langoo/app`; artifact ghi
+trong `/opt/langoo/storage/db4-batches`, account lock dùng chung với Muse native.
 
-- Persistent artifacts ở `/opt/langoo/storage`, không `/tmp`.
-- `Restart=on-failure` có giới hạn; chỉ bật sau resume/crash tests pass.
-- `StartLimitBurst` và exit code phân biệt integrity/auth để không restart storm.
-- Graceful stop: ngừng dispatch, drain có hạn, lưu checkpoint; completion sau
-  khi stop có thể được read-only reconcile ở lần resume.
-- Memory/CPU limit chốt theo preflight RAM còn trống và index benchmark; không
-  lấy 122 MiB transport đã quan sát làm peak toàn retrieval+audit pipeline.
-- Enable unit nếu muốn qua reboot; gateway phải healthy trước dispatch tiếp.
-- Đồng bộ NTP/time dùng duration monotonic; duration report không lấy wall clock
-  thay throughput khi VPS clock đổi.
-
-Không sửa/build `/opt/langoo/app` để cài offline tool; dùng release script riêng
-hoặc checkout commit đã pin. Trước cài runner phải xác nhận runtime/source của
-phiên khác và account lock; không ghi đè job DB3/DB4 đang hoạt động.
+- `run-shadow.py` chạy R1 → kiểm tra validation manifest → conditional R2 →
+  report; caps riêng từng phase cho phép smoke một request R1 + tối đa một R2.
+- Runner lưu intent trước generation, không tự gửi lại unknown; stop yêu cầu
+  checkpoint. `Restart=on-abnormal`, tối đa ba lần/giờ; lỗi auth/integrity không
+  tự lặp. Resume thủ công dùng đúng manifest/release.
+- Unit hiện đặt `MemoryHigh=700M`, `MemoryMax=800M`, `CPUQuota=100%`, `Nice=10`.
+  Quan sát VPS 10/10: RAM 1,9 GiB, available khoảng 681 MiB, swap dùng 860 MiB.
+  Preflight full artifact local sau streaming/hash optimization với Node heap
+  448 MiB mất 2:20.34, peak RSS 526.776 KiB (~514 MiB), không phát sinh swap;
+  VPS preflight phải theo dõi memory pressure riêng trước smoke, vì workload đó
+  chạy cùng dịch vụ hiện có.
+- Unit syntax đã qua `systemd-analyze verify`; file cài lên VPS phải qua `install
+-m 0644`. Chưa cài unit, tạo env file, hoặc start service.
 
 ## 14. DB4-D5 — Audit và gate tự động
 
@@ -623,9 +627,14 @@ nghĩa phải xử lý mọi sense thành link accepted.
 - Contract/adapter/replay/integrity tests pass.
 - Chọn mẫu/split/denominator chính xác.
 - Resume, unknown dispatch, cap, breaker và lock được kiểm bằng transport fake.
-- Export/source audit/runner smoke read-only đạt; không ghi core/app.
+- Export/source audit và integrity preflight trên full artifact thật đạt ở local;
+  VPS preflight và transport smoke vẫn là gate trước dispatch.
 
-Đạt gate này được chạy **shadow 1.000** để thu artifact, dù chưa đủ Pilot B.
+Đạt gate local cho phép cài release riêng, chạy VPS preflight và một transport
+smoke riêng giới hạn tối đa 1 R1 + 1 conditional R2. Đây **chưa** phải gate để
+chạy shadow 1.000: đợt đó còn cần expansion, format-repair dispatch và Pilot
+A/B audit coordinator được triển khai/test theo Stage C. Không tự chạy partial
+1.000 khi các khả năng đó thiếu trong manifest/runner.
 
 ### 14.3 Pilot A — audit 100 target
 
@@ -715,27 +724,29 @@ không mặc nhiên giải quyết gate này; core import có thể chưa visibl
 Kế hoạch này không hứa mapping mới xuất hiện ngay sau batch Muse. Trạng thái
 `proposed`, `audited`, `imported`, `served` được report tách biệt.
 
-## 16. Công việc triển khai và file dự kiến
+## 16. Công việc triển khai và file
 
-Các tên mới dưới đây là **dự kiến**, chưa phải CLI/file đã có. Giữ task code
-trong code comment, test, plan/report và commit tương ứng.
+Các file batch foundation bên dưới đã được triển khai local cho frozen initial
+R1/R2 flow. Điều này chưa hoàn tất expansion, format repair, Pilot A/B, shadow
+1.000 hoặc apply.
 
-| Thứ tự | Mã        | File/phạm vi                                                 | Đầu ra và điều kiện xong                                                         |
-| ------ | --------- | ------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| 1      | DB4-D2    | `retrieval-export.ts`, `cohort-select.ts`                    | Code local: selector/export cohort + count/proof; còn chạy export và freeze thật |
-| 2      | DB4-D2    | `mapping_minilm.py`, `_retrieval.ts`                         | Hybrid RRF pool/rank version; ≤5 candidates; raw context đủ                      |
-| 3      | DB4-D4    | Prompt v2.1 mới; `muse-review-prepare.ts`                    | Version selection/render/hash; prompt cũ replay nguyên                           |
-| 4      | DB4-D3/D4 | Mới `_batch-types.ts`, `batch-prepare.ts`                    | Orchestration schema/caps/waves/100% target ledger                               |
-| 5      | DB4-D4    | Mới `muse-batch-runner.py`, shared transport helper          | Resume/intent/lock/poll completion/breaker/cap                                   |
-| 6      | DB4-D3    | Mới `muse-batch-decide.ts`; reuse `_decisions.ts`            | Conditional R2 và generation binding, không đổi D1 policy                        |
-| 7      | DB4-D2/D4 | Expansion planner trong batch prepare                        | Một expansion, bundle hash mới, không cross-generation consensus                 |
-| 8      | DB4-D4    | Repair planner/validator versioned                           | Một repair/sense, raw+normalized refs, semantic-change guard                     |
-| 9      | DB4-D5    | Audit prompt/prepare/adapter; `mapping-audit.ts` tương thích | AI audit output bound, cap/denominator và gate manifests                         |
-| 10     | DB4-D4/D5 | Mới `batch-status.ts`, `batch-report.ts`; ops unit/README    | Tiến độ, final status, unresolved/report, runbook VPS                            |
-| 11     | DB4-D4/D5 | Tests + `tsconfig.db4.json` nếu cần                          | Technical gates trước shadow                                                     |
-| 12     | DB4-D4/D5 | Shadow 1.000 + report                                        | Artifact đủ, quality gate status thật; chưa auto-apply                           |
-| 13     | DB4-D6    | Mutation/journal/preflight/rollback theo master plan         | Apply tool chỉ nhận batch gate đầy đủ                                            |
-| 14     | DB4-D7    | Serving migration/repositories/test                          | Exact-only, stale-safe, refresh/dedupe pass                                      |
+| Thứ tự | Mã        | File/phạm vi                                                | Trạng thái / đầu ra                                                            |
+| ------ | --------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| 1      | DB4-D2    | `retrieval-export.ts`, `cohort-select.ts`                   | Cohort/source audit đã chạy; re-export nếu snapshot drift                      |
+| 2      | DB4-D2    | `mapping_minilm.py`, `_retrieval.ts`                        | Hybrid RRF, ≤5 candidates; recall/semantic quality chưa đo                     |
+| 3      | DB4-D4    | Prompt v2.1, prepare/repair/validate                        | Version pinning và offline regression đã có                                    |
+| 4      | DB4-D3/D4 | `_batch-types.ts`, `batch-prepare.ts`, preflight/validate   | Manifest, schedule, denominator, integrity/read-only gates                     |
+| 5      | DB4-D4    | `muse-batch-runner.py`, ops coordinator                     | Durable intent/lock/recovery/fake transport/caps; real transport smoke còn chờ |
+| 6      | DB4-D3    | `muse-batch-decide.ts`; reuse `_decisions.ts`               | Conditional R2 + generation binding; D1 policy giữ nguyên                      |
+| 7      | DB4-D2/D4 | Expansion planner                                           | Chưa triển khai                                                                |
+| 8      | DB4-D4    | Format-repair planner/dispatch                              | Chưa triển khai                                                                |
+| 9      | DB4-D5    | Pilot A/B audit coordinator                                 | Chưa triển khai; report hiện ghi `not_run`                                     |
+| 10     | DB4-D4/D5 | `batch-report.ts`, `scripts/ops/db4-batch/`                 | Initial-generation report, systemd template và runbook đã có                   |
+| 11     | DB4-D4/D5 | TypeScript/Python tests, lint, format, service verification | Local technical suite và read-only real-artifact preflight                     |
+| 12     | DB4-D4/D5 | Separate transport smoke                                    | Tối đa 1 R1 + 1 R2; chưa chạy                                                  |
+| 13     | DB4-D4/D5 | Shadow 1.000 + report                                       | Chưa chạy; chờ smoke và các gate mở rộng/repair/audit                          |
+| 14     | DB4-D6    | Mutation/journal/preflight/rollback                         | Chưa triển khai; chỉ nhận batch gate đầy đủ                                    |
+| 15     | DB4-D7    | Serving migration/repositories/test                         | Chưa triển khai; exact-only, stale-safe refresh/index/API còn chờ              |
 
 Nếu tách transport helper, giữ runner pilot cũ dùng behavior cũ hoặc version
 adapter rõ ràng; không làm CLI cũ mặc nhiên resume/resend khác policy.
@@ -758,14 +769,18 @@ Handoff consumer phải ghi adapter/schema version và cách đọc legacy/new a
 
 ### Chặng B — Runner và phục hồi
 
-1. Persistent intent/events/checkpoint và locks.
-2. Conditional waves R1/R2; expansion/repair cap.
-3. Complete-invalid behavior; reconcile read-only; breaker và systemd.
-4. Fake transport crash/restart/unknown tests và report/status.
-5. Cài tool release riêng trên VPS; smoke ít target từ development với cap riêng.
+1. Persistent intent/events/checkpoint và locks — local implementation/test có.
+2. Conditional waves R1/R2 và per-phase dispatch cap — initial flow có; expansion/
+   repair vẫn thiếu.
+3. Complete-invalid behavior, read-only reconcile, breaker và systemd — local
+   implementation/fake tests có; unit chưa cài trên VPS.
+4. Report/status và fake-transport tests — local implementation/test có.
+5. Cài release riêng trên VPS, chạy read-only preflight tại VPS, rồi smoke riêng
+   tối đa một R1 + một R2 sau khi remote resource/gateway/account lock được kiểm.
 
-**Exit:** có thể restart an toàn, biết mọi target ở đâu, không duplicate dispatch.
-Smoke là run riêng; không phát sinh tự động nếu chỉ đang chuẩn bị offline.
+**Exit:** local fake-transport/recovery gate đã pass. Real Muse transport smoke,
+remote release/preflight và reboot-level verification chưa xong; shadow 1.000
+chưa được mở. Smoke là run riêng với caps, không phải promotion test.
 
 ### Chặng C — Shadow 1.000
 
@@ -884,18 +899,27 @@ Tốc độ ưu tiên: reuse cache/index, R2 có chọn lọc, không polling in
 đã complete, không khởi tạo browser mới, giảm call bị lặp sau crash. Không bỏ
 source context hoặc tăng worker vượt giới hạn đã kiểm để lấy con số nhanh hơn.
 
-## 21. Runbook dự kiến sau khi code xong
+## 21. Runbook
 
-CLI mới cần có interface tương đương bên dưới. **Các lệnh này chưa tồn tại đầy
-đủ, không chạy nguyên văn trước khi triển khai và cập nhật handoff.**
+Runbook đã được triển khai tại
+[`scripts/ops/db4-batch/README.md`](../../scripts/ops/db4-batch/README.md).
+Tạo manifest smoke mới từ release đã commit; dùng cohort/export/generation đã
+freeze nhưng run ID mới để request ledger và cap không trộn với lần preflight.
 
 ```text
-batch-prepare --cohort <selected-artifact> --snapshot <verified-snapshot>
-              --run-id <id> --shard-target 100 --prompt v2.1 --mode shadow
+node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
+  --artifact-dir /opt/langoo/storage/db4-batches/<cohort-id> \
+  --run-id db4-smoke-<commit-short> \
+  --sampling cohort/2026-10-10-v1/sampling.json \
+  --generation generation/cohort-2026-10-10-v1/manifest.json \
+  --export cohort-export/2026-10-10-v1/manifest.json \
+  --output-prefix batch-runs/db4-smoke-<commit-short> --prompt-revision v2.1
 
-batch-preflight --root /opt/langoo/storage/db4-batches/<id>
+node --max-old-space-size=448 --import tsx scripts/db4/batch-preflight.ts \
+  --artifact-dir /opt/langoo/storage/db4-batches/<cohort-id> \
+  --manifest batch-runs/<id>/run-manifest.json
 
-systemctl start langoo-db4-batch@<id>.service
+systemctl start langoo-db4-batch@<id>.service  # smoke: R1 cap=1, R2 cap=1
 
 batch-status --root /opt/langoo/storage/db4-batches/<id>
 
@@ -928,19 +952,19 @@ unresolved đã review.
 
 ## 23. Checklist giao việc
 
-- [ ] DB4-D2: code selector/export local; còn chạy cohort/sampling/source audit theo snapshot hiện tại.
-- [ ] DB4-D2: lexical + MiniLM, domain/POS/branch coverage và generation version.
+- [x] DB4-D2: cohort 1.000, source audit và hybrid RRF artifact đã freeze; drift cần re-export.
 - [x] DB4-D4: v2.1 frozen + render/repair/validator version binding; offline tests pass.
-- [ ] DB4-D4: durable runner/recovery, intent ledger, raw completion, reconcile/locks.
-- [ ] DB4-D3/D4: envelope batch và conditional-R2 adapter, giữ D1/v1 replay.
-- [ ] DB4-D2/D4: một expansion và một format repair/sense.
+- [x] DB4-D4: durable runner/recovery, intent ledger, raw completion, reconcile/locks qua fake transport tests.
+- [x] DB4-D3/D4: envelope batch và conditional-R2 adapter, giữ D1/v1 replay.
+- [ ] DB4-D2/D4: một retrieval expansion và một format repair/sense.
 - [ ] DB4-D5: AI audit cap + full gate/denominator report.
-- [ ] DB4-D4/D5: status/report/systemd/runbook và technical tests.
-- [ ] DB4-D4/D5: smoke riêng rồi shadow 1.000, không apply.
+- [x] DB4-D4/D5: initial-generation status/report/systemd/runbook và local technical tests.
+- [ ] DB4-D4/D5: remote read-only preflight và smoke giới hạn 1 R1 + 1 R2.
+- [ ] DB4-D4/D5: shadow 1.000, không apply.
 - [ ] DB4-D5: đủ Pilot A/B; provenance/CI/recall, không giả human gold.
 - [ ] DB4-D6: journal/preflight/dry-run/reapply/rollback/concurrency.
 - [ ] DB4-D7: exact-only/curation/confidence/stale-safe refresh/API tests.
-- [ ] Commit/push/deploy đúng phạm vi khi được yêu cầu; không gom WIP phiên khác.
+- [ ] Commit/push đúng phạm vi DB4-D4/D5; không gom WIP phiên khác.
 
 ## 24. Nhật ký tài liệu
 
@@ -972,3 +996,24 @@ unresolved đã review.
 - Gate còn thiếu: toàn bộ checklist §23; plan không phải implementation nghiệm thu.
 - Git / triển khai: tài liệu local **chưa commit/push**; không deploy/apply VPS
   trong lượt này. Các pilot VPS cũ giữ nguyên artifacts và trạng thái trước đó.
+
+### 2026-10-10 — DB4-D4/D5 — Durable batch runner, preflight và report
+
+- Thay đổi / lý do: bổ sung runner Muse Native có intent bền vững, không tự gửi
+  lại request outcome unknown, conditional R2 và cap theo lần chạy; preflight
+  kiểm integrity/denominator chỉ đọc; final report giữ đủ target statuses và
+  để Pilot A/B, promotion/apply ở trạng thái đóng.
+- File / phạm vi: `scripts/db4/batch-preflight.ts`, `batch-validate.ts`,
+  `batch-report.ts`, `muse-batch-runner.py`, `batch-prepare.ts` và tests;
+  systemd/runbook ở `scripts/ops/db4-batch/`; báo cáo
+  [review DB4-D4/D5 batch runner](../reviews/db4-d4-d5-batch-runner-2026-10-10.md).
+- Kiểm tra / kết quả: read-only preflight full artifact — 1.000 selected, 966 ready,
+  34 no-candidate, 1.932 requests, 10 shards, 78 artifact refs verified;
+  exit 0, `apply=false`, `museCalled=false`; heap-capped run elapsed 2:20.34,
+  max RSS 526.776 KiB (~514 MiB), 0 swap. Full tests and final scoped checks are recorded
+  in the review.
+- Gate còn thiếu: VPS preflight và transport smoke tối đa 1 R1 + 1 R2;
+  expansion, format repair, Pilot A/B coordinator, shadow 1.000, semantic gate,
+  D6/D7, DB apply và app deploy.
+- Git / triển khai: trạng thái commit/push được ghi lại sau khi hoàn tất kiểm tra;
+  VPS service chưa cài/chạy, app chưa deploy, DB chưa sửa.

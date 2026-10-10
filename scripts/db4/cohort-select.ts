@@ -183,7 +183,7 @@ function hashBucket(seed: string, key: string, modulo: number): number {
   );
 }
 
-function posFamily(values: string[]): z.infer<typeof PosFamily> {
+export function posFamily(values: string[]): z.infer<typeof PosFamily> {
   const normalized = values.map((value) => value.toLowerCase().trim());
   const has = (expression: RegExp) =>
     normalized.some((value) => expression.test(value));
