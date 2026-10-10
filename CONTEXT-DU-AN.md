@@ -10,6 +10,12 @@
 
 ## 0. Bộ tài liệu tự chứa
 
+**Quy tắc agent hiện hành (06/10/2026):** đọc [AGENTS.md](AGENTS.md) và
+[PROGRESS.md](PROGRESS.md) khi làm trong repo này. Mỗi việc có mã + tên rõ ràng
+(`M10.1`, `DB4-D1`…); mọi thay đổi code phải lưu cùng ghi nhận thay đổi, kết quả
+kiểm tra và trạng thái Git/triển khai trong tài liệu repo. Đây là bổ sung quy trình
+cho bộ tài liệu thiết kế dưới đây.
+
 Khi bắt đầu ở folder/context mới (trắng), chỉ cần mang **3 file**:
 
 | File | Nội dung | Vai trò |

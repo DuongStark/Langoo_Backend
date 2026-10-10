@@ -18,6 +18,7 @@ và mobile dùng được, theo đúng thiết kế đã chốt. Bạn **không*
 
 Đọc theo thứ tự, đọc hết chứ không skim:
 
+0. `AGENTS.md` — quy tắc agent hiện hành về mã hạng mục, lưu thay đổi và nghiệm thu.
 1. `CONTEXT-DU-AN.md` — ngữ cảnh toàn dự án (bắt buộc, là nguồn sự thật về thiết kế).
 2. `CSDL-THAM-CHIEU.md` — tra cứu cột/kiểu/FK/index khi code (không cần đọc tuần tự).
 3. `db/migrations/*.sql` — nguồn sự thật về schema; đọc khi nghi ngờ bất cứ điều gì.
@@ -55,6 +56,18 @@ Conventional Commits (`feat(auth): ...`, `fix(srs): ...`, `docs: ...`).
 không tách lẻ từng file, không dồn cả milestone vào một commit. Thực tế mỗi milestone
 thường 2–4 commit, ví dụ: `feat(auth): ...` (code + unit/e2e), `docs: ...` (API doc + PROGRESS).
 **Tuyệt đối không commit** `.env`, connection string, token, API key.
+
+### 1.5 Mã hạng mục và lưu thay đổi (chốt 06/10/2026)
+
+Theo [AGENTS.md](AGENTS.md): mọi công việc có **mã + tên cụ thể**, dùng thống nhất
+trong plan/report/handoff/PROGRESS và báo cáo cuối. Backend dùng `M10`, `M10.1`…;
+DB ghi đầy đủ `DB4-D1`, không gọi trống `D1`; việc quy trình riêng dùng `DOCS1`…
+
+**Mọi thay đổi code phải lưu vào repo và cập nhật tài liệu**, kể cả sửa nhỏ,
+refactor, test, script hoặc config: ghi thay đổi/lý do, phạm vi file, kết quả kiểm tra,
+gate còn thiếu và trạng thái Git/triển khai. Có thể cập nhật report/module doc hiện có;
+không chỉ báo trong chat. Code xong local, đã commit, đã push và đã deploy là các trạng
+thái riêng. Khi được yêu cầu commit, mô tả commit kèm mã hạng mục.
 
 ## 2. Stack đã chốt (muốn đổi phải hỏi trước)
 
