@@ -47,6 +47,7 @@ import { UsersModule } from './users/users.module';
               : undefined,
           redact: {
             paths: [
+              'req.body',
               'req.headers.authorization',
               'req.headers.cookie',
               'res.headers["set-cookie"]',

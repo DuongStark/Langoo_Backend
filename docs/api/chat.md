@@ -169,6 +169,38 @@ như endpoint thường (`409 CHAT_SESSION_BUSY`, `429 AI_QUOTA_EXCEEDED`, `503 
 
 `period` theo **timezone của user** (`app.user_settings.timezone`).
 
+## M10.3 — Gửi ảnh tạm thời
+
+Cả `POST /v1/chat/sessions/:id/messages` và `/messages/stream` nhận thêm:
+
+```json
+{
+  "content": "Đọc và giải thích đoạn tiếng Nhật trong ảnh.",
+  "images": ["data:image/png;base64,<BASE64>"]
+}
+```
+
+- `content` vẫn bắt buộc 1–2.000 ký tự. `images` có thể bỏ qua; nếu gửi thì 1–3
+  data URLs PNG/JPEG/WebP, tối đa **2 MiB decoded mỗi ảnh**; JSON tối đa **9 MiB**.
+  Không nhận URL ngoài/SVG/GIF, null, mảng rỗng hoặc base64 không canonical.
+- FE đọc file bằng FileReader (`readAsDataURL`), gửi cùng JSON và Bearer token;
+  stream giữ SSE contract hiện có. Body lớn chỉ được bật ở hai route gửi chat.
+- BE kiểm dung lượng và chữ ký định dạng trong RAM, không decode/render ảnh;
+  provider có thể từ chối ảnh hỏng dù chữ ký đúng. Không tạo file, không lưu ảnh,
+  data URL hay URL vào DB; lịch sử/response chỉ câu hỏi và câu trả lời.
+- Ảnh chỉ có trong lượt hiện tại. Lượt hỏi sau phải gửi lại ảnh nếu cần AI xem;
+  FE không hứa khôi phục ảnh sau tải lại trang. Không có API lấy ảnh lịch sử.
+- Provider `openai` cần model hỗ trợ vision (Qwen đang cấu hình hỗ trợ). Stub
+  trả `400 CHAT_IMAGES_UNAVAILABLE`; ảnh sai trả `400 CHAT_IMAGES_INVALID`
+  (DTO sai có thể `VALIDATION_FAILED`); body quá lớn trả `413 CHAT_BODY_TOO_LARGE`.
+  Validate ảnh/provider trước reserve quota, giữ auth/lease/quota hiện có.
+- Log không ghi request body hay chi tiết HTTP error upstream có thể echo ảnh.
+  RAM được giải phóng theo lifecycle request/GC; không cam kết xóa RAM vật lý.
+  Không lưu ở Langoo không thay thế chính sách dữ liệu của provider.
+- Stream ảnh yêu cầu usage cuối từ provider; khi thiếu usage, token ảnh ước lượng
+  2.048/ảnh theo Qwen/Groq, không tính độ dài base64 là token văn bản. Provider
+  usage thật được ưu tiên. Chưa có bảng giá tính costUsd cho model.
+
 ## Cấu hình provider
 
 ```env
@@ -178,7 +210,7 @@ AI_PROVIDER=stub
 # Trả lời thật qua OpenAI-compatible (OpenAI / Groq / gateway như OpenCode Zen):
 AI_PROVIDER=openai
 AI_API_KEY=<key>
-AI_CHAT_MODEL=<model-id>
+AI_CHAT_MODEL=qwen/qwen3.8-27b
 AI_BASE_URL=https://api.groq.com/openai/v1   # bỏ trống = https://api.openai.com/v1
 AI_DAILY_REQUEST_LIMIT=50
 # M10.1 (tuỳ chọn): timeout provider + giới hạn token + mức suy luận
@@ -190,18 +222,24 @@ AI_CHAT_TIMEOUT_MS=60000
 - `AI_PROVIDER=openai` mà thiếu `AI_API_KEY`/`AI_CHAT_MODEL` → **app không khởi động** (fail-fast).
 - `AI_PROVIDER=gemini` chưa được triển khai (dùng gateway OpenAI-compatible nếu cần Gemini qua Zen).
 
-## Groq — khuyến nghị cho chat (05/10)
+## Groq — Qwen cho chat (M10.2, 07/10)
 
 ```env
 AI_PROVIDER=openai
 AI_API_KEY=<Groq key (gsk_...)>
 AI_BASE_URL=https://api.groq.com/openai/v1
-AI_CHAT_MODEL=openai/gpt-oss-120b
+AI_CHAT_MODEL=qwen/qwen3.8-27b
+# Để trống nếu chưa kiểm tham số reasoning với model mới:
+AI_CHAT_REASONING_EFFORT=
 ```
 
-Đo thực tế 05/10: **~0,6–2,2s/câu**, trả lời tiếng Việt ổn định, streaming tốt.
+Catalog xác thực trên VPS 07/10 có `qwen/qwen3.8-27b`; cấu hình chat/quiz dùng
+model này theo yêu cầu chủ dự án. Model thuộc preview theo [Groq models](https://console.groq.com/docs/models).
+
+Số liệu cũ cho GPT-OSS (không phải Qwen), đo 05/10: **~0,6–2,2s/câu**.
 Free tier: 30 req/phút · 1.000 req/ngày · 8K token/phút (model `openai/gpt-oss-120b`).
-Model thay thế cùng family: `openai/gpt-oss-20b`. Tránh `qwen3.8-27b` (đôi lúc lẫn tiếng Trung).
+Ghi nhận cũ: Qwen có lúc lẫn tiếng Trung; cần kiểm chất lượng JA/VI khi dùng thật.
+Đổi model qua env, không đổi protocol/API hay cần FE cài lại.
 
 ## OpenCode Zen — lưu ý thực tế (kiểm chứng 05/10)
 

@@ -1,3 +1,4 @@
+import { configureChatImageBodyParser } from './ai/chat/chat-images-body-parser';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
@@ -11,6 +12,7 @@ async function bootstrap(): Promise<void> {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true,
   });
+  configureChatImageBodyParser(app);
   configureHttpProxy(app);
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('v1');

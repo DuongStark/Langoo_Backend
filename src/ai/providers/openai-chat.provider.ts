@@ -79,7 +79,13 @@ export class OpenAiChatProvider implements AiChatProvider {
       const response = await fetch(`${this.baseUrl}/chat/completions`, {
         method: 'POST',
         headers: this.headers(),
-        body: JSON.stringify({ ...this.body(request), stream: true }),
+        body: JSON.stringify({
+          ...this.body(request),
+          stream: true,
+          ...(request.messages.some((m) => m.images?.length)
+            ? { stream_options: { include_usage: true } }
+            : {}),
+        }),
         signal,
       });
 
@@ -133,7 +139,7 @@ export class OpenAiChatProvider implements AiChatProvider {
         tokensIn:
           typeof usage?.prompt_tokens === 'number' && usage.prompt_tokens >= 0
             ? usage.prompt_tokens
-            : estimateTokens(request.messages.map((m) => m.content).join('\n')),
+            : estimateRequestTokens(request),
         tokensOut:
           typeof usage?.completion_tokens === 'number' &&
           usage.completion_tokens >= 0
@@ -185,7 +191,20 @@ export class OpenAiChatProvider implements AiChatProvider {
   private body(request: AiChatRequest): Record<string, unknown> {
     const body: Record<string, unknown> = {
       model: request.model,
-      messages: request.messages,
+      messages: request.messages.map(({ images, ...message }) =>
+        images?.length
+          ? {
+              ...message,
+              content: [
+                { type: 'text', text: message.content },
+                ...images.map((url) => ({
+                  type: 'image_url',
+                  image_url: { url },
+                })),
+              ],
+            }
+          : message,
+      ),
     };
     if (request.maxTokens !== undefined) {
       body.max_tokens = request.maxTokens;
@@ -212,20 +231,27 @@ export class OpenAiChatProvider implements AiChatProvider {
       tokensIn:
         typeof promptTokens === 'number' && promptTokens >= 0
           ? promptTokens
-          : estimateTokens(request.messages.map((m) => m.content).join('\n')),
+          : estimateRequestTokens(request),
       tokensOut:
         typeof completionTokens === 'number' && completionTokens >= 0
           ? completionTokens
           : estimateTokens(content),
       costUsd: 0,
+      ...(typeof promptTokens !== 'number' ||
+      typeof completionTokens !== 'number' ||
+      promptTokens < 0 ||
+      completionTokens < 0
+        ? { usageEstimated: true }
+        : {}),
     };
   }
 }
 
 async function httpError(response: Response): Promise<AiProviderError> {
-  const detail = (await response.text()).slice(0, 200);
+  // Upstream error bodies may echo private text/images. Never retain/log them.
+  await response.body?.cancel();
   return new AiProviderError(
-    `provider HTTP ${response.status}: ${detail}`,
+    `provider HTTP ${response.status}`,
     response.status,
   );
 }
@@ -259,4 +285,16 @@ function withTimeout(
       external?.removeEventListener('abort', onAbort);
     },
   };
+}
+
+/** Qwen/Groq fallback only; real provider usage takes precedence. No base64 counting. */
+function estimateRequestTokens(request: AiChatRequest): number {
+  const textTokens = estimateTokens(
+    request.messages.map((m) => m.content).join('\n'),
+  );
+  const imageCount = request.messages.reduce(
+    (sum, m) => sum + (m.images?.length ?? 0),
+    0,
+  );
+  return textTokens + imageCount * 2048;
 }

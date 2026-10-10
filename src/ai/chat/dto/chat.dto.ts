@@ -1,6 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  IsArray,
+  ArrayMaxSize,
+  ArrayMinSize,
   IsIn,
   IsInt,
   IsString,
@@ -70,6 +73,19 @@ export class SendChatMessageDto {
   @Matches(/^\d+$/, { message: 'ref_sense_id phải là số nguyên dương' })
   @MaxLength(19)
   ref_sense_id?: string;
+
+  @ApiPropertyOptional({
+    type: [String],
+    maxItems: 3,
+    description:
+      'Ảnh tạm thời: data:image/png|jpeg|webp;base64,...; mỗi ảnh tối đa 2 MiB. Không lưu ảnh.',
+  })
+  @ValidateIf((_object, value: unknown) => value !== undefined)
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(3)
+  @IsString({ each: true })
+  images?: string[];
 }
 
 export class ChatListQueryDto {

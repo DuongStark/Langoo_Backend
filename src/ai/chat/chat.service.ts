@@ -1,3 +1,4 @@
+import { validateChatImages } from './chat-images';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v7 as uuidv7 } from 'uuid';
@@ -412,12 +413,13 @@ export class ChatService {
     dto: SendChatMessageDto,
     requestId: string,
   ): Promise<SendChatMessageResponse> {
-    const { content, senseContext } = await this.normalizeInput(dto);
+    const { content, senseContext, images } = await this.normalizeInput(dto);
     const prepared = await this.prepareTurn(
       userId,
       session,
       content,
       senseContext,
+      images,
     );
 
     let reply: AiChatResult;
@@ -440,12 +442,13 @@ export class ChatService {
     emit: (event: ChatStreamEvent) => void,
     signal?: AbortSignal,
   ): Promise<void> {
-    const { content, senseContext } = await this.normalizeInput(dto);
+    const { content, senseContext, images } = await this.normalizeInput(dto);
     const prepared = await this.prepareTurn(
       userId,
       session,
       content,
       senseContext,
+      images,
     );
     emit({ type: 'start', model: prepared.model });
 
@@ -513,9 +516,19 @@ export class ChatService {
     }
   }
 
-  private async normalizeInput(
-    dto: SendChatMessageDto,
-  ): Promise<{ content: string; senseContext: AiSenseContext | null }> {
+  private async normalizeInput(dto: SendChatMessageDto): Promise<{
+    content: string;
+    senseContext: AiSenseContext | null;
+    images?: string[];
+  }> {
+    const images = validateChatImages(dto.images);
+    if (images?.length && this.provider.name !== 'openai') {
+      throw new DomainException(
+        'CHAT_IMAGES_UNAVAILABLE',
+        'Provider hiện tại chưa hỗ trợ ảnh',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const content = dto.content.trim();
     if (content.length === 0) {
       throw new DomainException(
@@ -528,7 +541,7 @@ export class ChatService {
       dto.ref_sense_id === undefined
         ? null
         : await this.buildSenseContext(dto.ref_sense_id);
-    return { content, senseContext };
+    return { content, senseContext, images };
   }
 
   /** Reserve quota + dựng messages trước khi gọi provider (dùng chung 2 endpoint). */
@@ -537,6 +550,7 @@ export class ChatService {
     session: ChatSessionRow,
     content: string,
     senseContext: AiSenseContext | null,
+    images?: string[],
   ): Promise<PreparedTurn> {
     const timezone = await this.resolveTimezone(userId);
     const period = periodDate(localDateString(new Date(), timezone));
@@ -558,6 +572,11 @@ export class ChatService {
       history: [...history, { role: 'user', content }],
       senseContext,
     });
+
+    if (images?.length) {
+      // Only the current user turn receives images; persisted history stays text.
+      messages[messages.length - 1].images = images;
+    }
 
     // The response model is metadata, not necessarily a valid gateway alias.
     // Use current deployment config so existing demo sessions work after a switch.

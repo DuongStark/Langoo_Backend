@@ -91,7 +91,10 @@ function createSetup(configValues: Record<string, string | number> = {}) {
     getDailyRequestCount: jest.fn(),
   };
   const providerChat = jest.fn();
-  const provider: AiChatProvider = { name: 'stub', chat: providerChat };
+  const provider: AiChatProvider = {
+    name: configValues.AI_PROVIDER === 'openai' ? 'openai' : 'stub',
+    chat: providerChat,
+  };
 
   const service = new ChatService(
     prisma as unknown as PrismaService,
@@ -494,5 +497,64 @@ describe('ChatService', () => {
       expect(withString.limit).toBe(7);
       expect(withJunk.limit).toBe(50);
     });
+  });
+});
+
+describe('M10.3 request-only images', () => {
+  const image =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jL1sAAAAASUVORK5CYII=';
+  it.each([false, true])(
+    'forwards image, persists only text, next turn excludes it (stream=%s)',
+    async (stream) => {
+      const { service, prisma, tx, providerChat } = createSetup({
+        AI_PROVIDER: 'openai',
+      });
+      prisma.chatSession.findFirst.mockResolvedValue(sessionRow());
+      prisma.chatMessage.findMany.mockResolvedValue([]);
+      providerChat.mockResolvedValue({
+        content: 'answer',
+        model: 'qwen',
+        tokensIn: 10,
+        tokensOut: 2,
+        costUsd: 0,
+      });
+      tx.chatMessage.create.mockImplementation(
+        (args: { data: Record<string, unknown> }) =>
+          Promise.resolve(messageRow(args.data)),
+      );
+      const dto = { content: 'Đọc chữ trong ảnh', images: [image] };
+      if (stream)
+        await service.sendMessageStream(1n, SESSION_ID, dto, jest.fn());
+      else await service.sendMessage(1n, SESSION_ID, dto);
+      const req = firstArg<AiChatRequest>(providerChat);
+      expect(req.messages[req.messages.length - 1]).toMatchObject({
+        content: dto.content,
+        images: [image],
+      });
+      expect(JSON.stringify(tx.chatMessage.create.mock.calls)).not.toContain(
+        image,
+      );
+      expect(
+        firstArg<{ data: { content: string; contentJson: unknown } }>(
+          tx.chatMessage.create,
+        ).data,
+      ).toMatchObject({ content: dto.content, contentJson: {} });
+      prisma.chatMessage.findMany.mockResolvedValue([
+        { role: 'user', content: dto.content },
+      ]);
+      await service.sendMessage(1n, SESSION_ID, { content: 'Hỏi tiếp' });
+      const next = (providerChat.mock.calls[1] as [AiChatRequest])[0];
+      expect(next.messages.every((m) => !m.images)).toBe(true);
+    },
+  );
+  it('rejects image on stub before reserving quota or persisting', async () => {
+    const { service, prisma, usage, providerChat } = createSetup();
+    prisma.chatSession.findFirst.mockResolvedValue(sessionRow());
+    await expect(
+      service.sendMessage(1n, SESSION_ID, { content: 'hi', images: [image] }),
+    ).rejects.toMatchObject({ code: 'CHAT_IMAGES_UNAVAILABLE' });
+    expect(usage.reserveDailyRequest).not.toHaveBeenCalled();
+    expect(providerChat).not.toHaveBeenCalled();
+    expect(prisma.$transaction).not.toHaveBeenCalled();
   });
 });

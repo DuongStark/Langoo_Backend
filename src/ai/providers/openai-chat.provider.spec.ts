@@ -265,3 +265,82 @@ describe('OpenAiChatProvider', () => {
     expect(providerError.retryable).toBe(true);
   });
 });
+
+describe('M10.3 multimodal transport', () => {
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+  it.each([false, true])(
+    'sends only OpenAI content parts; errors cannot echo images (stream=%s)',
+    async (stream) => {
+      const image = 'data:image/png;base64,PRIVATE';
+      const fetchMock = mockFetch(async () =>
+        Promise.resolve(
+          new Response(JSON.stringify({ error: { message: image } }), {
+            status: 400,
+          }),
+        ),
+      );
+      const provider = new OpenAiChatProvider({
+        baseUrl: 'https://example.test',
+        apiKey: 'fixture',
+      });
+      const req = {
+        model: 'qwen',
+        messages: [{ role: 'user' as const, content: 'read', images: [image] }],
+        timeoutMs: 1000,
+      };
+      const promise = stream
+        ? provider.chatStream(req, jest.fn())
+        : provider.chat(req);
+      await expect(promise).rejects.toMatchObject({
+        message: 'provider HTTP 400',
+        status: 400,
+      });
+      const body = JSON.parse(
+        (fetchMock.mock.calls[0] as [string, RequestInit])[1].body as string,
+      ) as { messages: unknown[] };
+      expect(body.messages).toEqual([
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'read' },
+            { type: 'image_url', image_url: { url: image } },
+          ],
+        },
+      ]);
+    },
+  );
+});
+
+describe('M10.3 image token fallback', () => {
+  afterEach(() => {
+    global.fetch = originalFetch;
+  });
+  it('accounts for images when upstream omits usage without counting base64 as text', async () => {
+    mockFetch(async () =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({ choices: [{ message: { content: 'ok' } }] }),
+          { status: 200 },
+        ),
+      ),
+    );
+    const provider = new OpenAiChatProvider({
+      baseUrl: 'https://example.test',
+      apiKey: 'fixture',
+    });
+    const result = await provider.chat({
+      model: 'qwen/qwen3.8-27b',
+      messages: [
+        {
+          role: 'user',
+          content: 'read',
+          images: ['data:image/png;base64,PRIVATE'],
+        },
+      ],
+      timeoutMs: 1000,
+    });
+    expect(result.tokensIn).toBe(2049);
+  });
+});

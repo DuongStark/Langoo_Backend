@@ -6,6 +6,8 @@ export type AiChatRole = 'system' | 'user' | 'assistant';
 export interface AiChatMessage {
   role: AiChatRole;
   content: string;
+  /** Request-only data URLs; never persisted in history. */
+  images?: string[];
 }
 
 /** Ngữ cảnh nghĩa (từ điển) đính kèm khi client gửi `ref_sense_id`. */
@@ -40,6 +42,8 @@ export interface AiChatResult {
   model: string;
   tokensIn: number;
   tokensOut: number;
+  /** Present when token counts were estimated because provider omitted usage. */
+  usageEstimated?: boolean;
   /** 0 khi chưa có bảng giá token (backlog M13). */
   costUsd: number;
 }
