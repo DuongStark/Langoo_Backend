@@ -1,0 +1,863 @@
+{
+  "task": "DB4-D2 — Mapping nguồn đã xác minh và chọn candidate bằng MiniLM",
+  "date": "2026-10-08",
+  "environment": "VPS READ ONLY export; audit/ONNX/generation local Python 3.12 / Node 25.9.0; no app deployment",
+  "pilot": {
+    "cohort": "JMdict accepted JLPT N5/N4 ordered by sense ID; not random or semantic gold",
+    "senses": 100,
+    "uniqueLexemes": 41,
+    "concepts": 120875
+  },
+  "sourceAudit": {
+    "scope": "exact export only",
+    "sources": [
+      {
+        "code": "jmdict",
+        "version": "3.6.2",
+        "status": "verified",
+        "reasons": []
+      },
+      {
+        "code": "oewn",
+        "version": "2024",
+        "status": "verified",
+        "reasons": []
+      },
+      {
+        "code": "omw-en",
+        "version": "1.4",
+        "status": "verified",
+        "reasons": []
+      },
+      {
+        "code": "omw-ja",
+        "version": "1.4",
+        "status": "verified",
+        "reasons": []
+      },
+      {
+        "code": "wiktextract",
+        "version": null,
+        "status": "blocked",
+        "reasons": [
+          "Raw source check missing/failed; see raw-checks.json",
+          "Missing reviewed license evidence"
+        ]
+      }
+    ],
+    "rawChecks": {
+      "jmdict": {
+        "checked": 637,
+        "failures": []
+      },
+      "oewn": {
+        "checked": 453744,
+        "failures": []
+      },
+      "omw-en": {
+        "checked": 328465,
+        "failures": []
+      },
+      "omw-ja": {
+        "checked": 215254,
+        "failures": []
+      },
+      "wiktextract": {
+        "checked": 0,
+        "failures": []
+      }
+    }
+  },
+  "coldRetrieval": {
+    "senses": 100,
+    "withHits": 69,
+    "blocked": 0,
+    "sourceIdentity": 0,
+    "missingContext": 0,
+    "conceptPool": 120875,
+    "elapsedSeconds": 1323.738,
+    "peakRssMiB": 673.97,
+    "conceptCacheHit": false,
+    "resumedConcepts": 0,
+    "encodedChunks": 121109,
+    "threads": 2,
+    "batch": 32,
+    "onnxFile": "onnx/model_quint8_avx2.onnx",
+    "semanticQualityValidated": false
+  },
+  "warmRetrieval": {
+    "senses": 100,
+    "withHits": 69,
+    "blocked": 0,
+    "sourceIdentity": 0,
+    "missingContext": 0,
+    "conceptPool": 120875,
+    "elapsedSeconds": 51.315,
+    "peakRssMiB": 396.92,
+    "conceptCacheHit": true,
+    "resumedConcepts": 120875,
+    "encodedChunks": 234,
+    "threads": 2,
+    "batch": 32,
+    "onnxFile": "onnx/model_quint8_avx2.onnx",
+    "semanticQualityValidated": false,
+    "modelUsed": true
+  },
+  "coldWarmResultsIdentical": true,
+  "generation": {
+    "schemaVersion": 1,
+    "task": "db4_retrieval_generation",
+    "version": "db4-d2-minilm-v1",
+    "createdAt": "2026-10-08T15:06:33.460Z",
+    "snapshot": {
+      "schemaVersion": 1,
+      "mode": "production",
+      "sourceSnapshots": [
+        {
+          "sourceKey": "jmdict",
+          "sha256": "8cdbb0cc9625f775cd093e37931974b568221747bf6f2cbaff7b0671b5631ca5"
+        },
+        {
+          "sourceKey": "oewn",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "sourceKey": "omw-en",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "sourceKey": "omw-ja",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "sourceKey": "wiktextract",
+          "sha256": "de6533a7bc7143167f0b27b4d2b568930436cd20bb5c1ce3cf542c1ec7bbbfec"
+        }
+      ],
+      "identityHash": "180df47c4f405e4856071a883ff0aa112511fc7d113e63286dab1c094dc352db",
+      "senseInputHash": "5a980ef1bc694495ed268b407b7f31adc52b961afeeb2527e9f4c58e5dae660a",
+      "conceptInputHash": "38c77a0b39f11a2c8647493742a7a12706f348e727cfe9b885a2a8b45b57e223",
+      "rawAttributesHash": "5a980ef1bc694495ed268b407b7f31adc52b961afeeb2527e9f4c58e5dae660a",
+      "sourcePolicyVersion": "db4-d2-source-audit-v1:f6f1bbda4ddf3bb00c66d0b60e8d91107fb79af553b4c881d83a876dc091708e",
+      "normalizerVersion": "public.tag-pos-v1",
+      "retrievalVersion": "db4-d2-minilm-v1"
+    },
+    "semanticInputFingerprint": "cbbaa3ef87d676bbbf63d8c25141c8548bac4599262289295232fcc815643182",
+    "inputs": {
+      "export": {
+        "path": "pilot-v3/manifest.json",
+        "sha256": "3a3c54733586a3badb93c225f4b5d65969c0871ce75521bc32d4ae05ac91d0db"
+      },
+      "audit": {
+        "path": "audit-v3/sources-audited.json",
+        "sha256": "f6f1bbda4ddf3bb00c66d0b60e8d91107fb79af553b4c881d83a876dc091708e"
+      },
+      "search": {
+        "path": "search-warm/manifest.json",
+        "sha256": "49bc2e9f869cf6671b2f3939c84d76aa6985b6b44c6cb2880df93585c5390ce5"
+      }
+    },
+    "files": {
+      "candidates": {
+        "path": "generation/candidates.jsonl",
+        "sha256": "60e85f8731bc9e665f75564664c6bf633ce1b96f08a3ec520fc73defea1c667f"
+      },
+      "bundles": {
+        "path": "generation/bundles.jsonl",
+        "sha256": "df1ac27c7485fcb19abdfc67aa80c4b5a7fb7ba04ced54c40a68a16bb8b49be0"
+      },
+      "sourceIdentity": {
+        "path": "generation/source-identity.jsonl",
+        "sha256": "bb88b17304e75d873ff63a2a5ee8421c08999028b87fe5b72f16444aadfc0de3"
+      },
+      "status": {
+        "path": "generation/status.jsonl",
+        "sha256": "c7f6d2903dbc670c3c484928a6a30c1cae446e253b1e96c98f8d577b0df86775"
+      }
+    },
+    "counts": {
+      "senses": 100,
+      "candidates": 345,
+      "bundles": 69,
+      "statuses": {
+        "no_candidates": 31,
+        "ready": 69
+      }
+    },
+    "apply": false,
+    "semanticQualityValidated": false
+  },
+  "rawArtifactRoot": "uploads/db4-d2-pilot (ignored local artifact storage)",
+  "fileHashes": {
+    "pilot-v3/manifest.json": "3a3c54733586a3badb93c225f4b5d65969c0871ce75521bc32d4ae05ac91d0db",
+    "audit-v3/sources-audited.json": "f6f1bbda4ddf3bb00c66d0b60e8d91107fb79af553b4c881d83a876dc091708e",
+    "search-q8/manifest.json": "6640734f6ae427c9753473ca26914b74511a85bbd01dc83a854cdf79ffd14297",
+    "search-warm/manifest.json": "49bc2e9f869cf6671b2f3939c84d76aa6985b6b44c6cb2880df93585c5390ce5",
+    "generation/manifest.json": "cd7e825eac1b1d47d780135aee852be45dfce1e9a7b7ec4097981e7750588365"
+  },
+  "emptyByPos": {
+    "pronoun": 8,
+    "expression": 2,
+    "interjection": 10,
+    "conjunction": 5,
+    "particle": 4,
+    "prefix": 2
+  },
+  "emptyTargets": [
+    {
+      "senseId": "22",
+      "lemma": "彼処",
+      "semanticKey": "jmdict:1000320:1",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": [
+        "there",
+        "over there",
+        "that place",
+        "yonder",
+        "you-know-where"
+      ],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "156",
+      "lemma": "お宅",
+      "semanticKey": "jmdict:1002400:4",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": ["you"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "373",
+      "lemma": "此れから",
+      "semanticKey": "jmdict:1004790:1",
+      "normalizedPos": ["expression"],
+      "enGlosses": ["from now on", "after this", "in the future", "in future"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "374",
+      "lemma": "此れから",
+      "semanticKey": "jmdict:1004790:2",
+      "normalizedPos": ["expression"],
+      "enGlosses": ["from here", "from this point"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "400",
+      "lemma": "さあ",
+      "semanticKey": "jmdict:1005110:1",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["come (on)", "come now", "come along", "here"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "401",
+      "lemma": "さあ",
+      "semanticKey": "jmdict:1005110:2",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["all right", "right", "okay", "now", "here goes"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "402",
+      "lemma": "さあ",
+      "semanticKey": "jmdict:1005110:3",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["well", "hmm", "uh", "let's see", "I'm not sure"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "403",
+      "lemma": "さあ",
+      "semanticKey": "jmdict:1005110:4",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["here", "now", "there (we go)", "ah", "oh"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "404",
+      "lemma": "さあ",
+      "semanticKey": "jmdict:1005110:5",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["about that, ...", "actually, ..."],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "490",
+      "lemma": "すると",
+      "semanticKey": "jmdict:1006280:1",
+      "normalizedPos": ["conjunction"],
+      "enGlosses": ["(and) then", "and", "thereupon", "whereupon"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "491",
+      "lemma": "すると",
+      "semanticKey": "jmdict:1006280:2",
+      "normalizedPos": ["conjunction"],
+      "enGlosses": ["in that case", "then", "so"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "529",
+      "lemma": "其方",
+      "semanticKey": "jmdict:1006780:1",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": ["that way", "that direction"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "530",
+      "lemma": "其方",
+      "semanticKey": "jmdict:1006780:2",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": ["there"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "531",
+      "lemma": "其方",
+      "semanticKey": "jmdict:1006780:3",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": ["that (one)"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "532",
+      "lemma": "其方",
+      "semanticKey": "jmdict:1006780:4",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": ["you", "your family", "your company"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "533",
+      "lemma": "其方",
+      "semanticKey": "jmdict:1006780:5",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": ["that person"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "548",
+      "lemma": "其れで",
+      "semanticKey": "jmdict:1007000:1",
+      "normalizedPos": ["conjunction"],
+      "enGlosses": ["so", "therefore", "and", "(and) then"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "551",
+      "lemma": "其れに",
+      "semanticKey": "jmdict:1007040:1",
+      "normalizedPos": ["conjunction"],
+      "enGlosses": ["besides", "in addition", "also", "moreover"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "555",
+      "lemma": "そんな",
+      "semanticKey": "jmdict:1007130:2",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["no way!", "never!"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "667",
+      "lemma": "でも",
+      "semanticKey": "jmdict:1008460:1",
+      "normalizedPos": ["conjunction"],
+      "enGlosses": [
+        "but",
+        "however",
+        "though",
+        "nevertheless",
+        "still",
+        "yet",
+        "even so",
+        "also",
+        "as well"
+      ],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "668",
+      "lemma": "でも",
+      "semanticKey": "jmdict:1008460:2",
+      "normalizedPos": ["particle"],
+      "enGlosses": ["even"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "669",
+      "lemma": "でも",
+      "semanticKey": "jmdict:1008460:3",
+      "normalizedPos": ["particle"],
+      "enGlosses": ["however", "no matter how", "even if", "even though"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "670",
+      "lemma": "でも",
+      "semanticKey": "jmdict:1008460:4",
+      "normalizedPos": ["particle"],
+      "enGlosses": ["... or something"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "671",
+      "lemma": "でも",
+      "semanticKey": "jmdict:1008460:5",
+      "normalizedPos": ["particle"],
+      "enGlosses": ["either ... or ...", "neither ... nor ..."],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "672",
+      "lemma": "でも",
+      "semanticKey": "jmdict:1008460:6",
+      "normalizedPos": ["prefix"],
+      "enGlosses": ["pseudo-", "quack", "in-name-only"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "673",
+      "lemma": "でも",
+      "semanticKey": "jmdict:1008460:7",
+      "normalizedPos": ["prefix"],
+      "enGlosses": ["for lack of anything better to do"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "748",
+      "lemma": "何れ",
+      "semanticKey": "jmdict:1009290:1",
+      "normalizedPos": ["pronoun"],
+      "enGlosses": ["which (of three or more)"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "749",
+      "lemma": "何れ",
+      "semanticKey": "jmdict:1009290:2",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["well", "now", "c'mon"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "965",
+      "lemma": "もしもし",
+      "semanticKey": "jmdict:1012550:1",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["hello (e.g. on phone)"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "966",
+      "lemma": "もしもし",
+      "semanticKey": "jmdict:1012550:2",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["excuse me! (when calling out to someone)"],
+      "reason": "no_candidates_after_pos_filter"
+    },
+    {
+      "senseId": "1966",
+      "lemma": "オーバー",
+      "semanticKey": "jmdict:1032390:6",
+      "normalizedPos": ["interjection"],
+      "enGlosses": ["over (in radio communication)"],
+      "reason": "no_candidates_after_pos_filter"
+    }
+  ],
+  "sampleCandidates": [
+    {
+      "senseId": "23",
+      "lemma": "彼処",
+      "sourceSenseKey": "jmdict:1000320:2",
+      "enGlosses": ["genitals", "private parts", "nether regions"],
+      "topCandidates": [
+        {
+          "conceptId": "79778",
+          "ili": "i65904",
+          "definitions": ["external sex organ"],
+          "enLabels": [
+            "crotch",
+            "genitalia",
+            "genital organ",
+            "genitals",
+            "private parts",
+            "privates"
+          ],
+          "rawCosine": 0.500236
+        },
+        {
+          "conceptId": "79819",
+          "ili": "i65941",
+          "definitions": ["external parts of the female genitalia"],
+          "enLabels": ["vulva"],
+          "rawCosine": 0.487823
+        },
+        {
+          "conceptId": "79779",
+          "ili": "i65905",
+          "definitions": [
+            "human external genital organs collectively especially of a female"
+          ],
+          "enLabels": ["pudendum"],
+          "rawCosine": 0.452213
+        }
+      ]
+    },
+    {
+      "senseId": "24",
+      "lemma": "彼処",
+      "sourceSenseKey": "jmdict:1000320:3",
+      "enGlosses": ["that far", "that much", "that point"],
+      "topCandidates": [
+        {
+          "conceptId": "77352",
+          "ili": "i63720",
+          "definitions": [
+            "distance estimated in terms of the audibility of a cry"
+          ],
+          "enLabels": ["far cry"],
+          "rawCosine": 0.289984
+        },
+        {
+          "conceptId": "10342",
+          "ili": "i109304",
+          "definitions": ["a great amount or extent"],
+          "enLabels": ["much"],
+          "rawCosine": 0.278851
+        },
+        {
+          "conceptId": "77350",
+          "ili": "i63719",
+          "definitions": ["the property of being remote"],
+          "enLabels": ["farawayness", "farness", "remoteness"],
+          "rawCosine": 0.269111
+        }
+      ]
+    },
+    {
+      "senseId": "58",
+      "lemma": "居らっしゃる",
+      "sourceSenseKey": "jmdict:1000940:1",
+      "enGlosses": ["to come", "to go", "to be (somewhere)"],
+      "topCandidates": [
+        {
+          "conceptId": "45786",
+          "ili": "i35310",
+          "definitions": ["be subject to or the object of"],
+          "enLabels": ["come in for"],
+          "rawCosine": 0.491904
+        },
+        {
+          "conceptId": "32606",
+          "ili": "i23449",
+          "definitions": ["be found or available"],
+          "enLabels": ["come"],
+          "rawCosine": 0.464407
+        },
+        {
+          "conceptId": "41850",
+          "ili": "i31769",
+          "definitions": ["be received"],
+          "enLabels": ["come", "come in"],
+          "rawCosine": 0.437019
+        }
+      ]
+    },
+    {
+      "senseId": "59",
+      "lemma": "居らっしゃる",
+      "sourceSenseKey": "jmdict:1000940:2",
+      "enGlosses": ["to be (doing)"],
+      "topCandidates": [
+        {
+          "conceptId": "45169",
+          "ili": "i34756",
+          "definitions": ["be identical to; be someone or something"],
+          "enLabels": ["be"],
+          "rawCosine": 0.536905
+        },
+        {
+          "conceptId": "43304",
+          "ili": "i33077",
+          "definitions": ["spend or use time"],
+          "enLabels": ["be"],
+          "rawCosine": 0.526372
+        },
+        {
+          "conceptId": "31512",
+          "ili": "i22464",
+          "definitions": ["be or act in accordance with"],
+          "enLabels": ["go by"],
+          "rawCosine": 0.490708
+        }
+      ]
+    },
+    {
+      "senseId": "70",
+      "lemma": "お出でになる",
+      "sourceSenseKey": "jmdict:1001180:1",
+      "enGlosses": ["to be"],
+      "topCandidates": [
+        {
+          "conceptId": "45169",
+          "ili": "i34756",
+          "definitions": ["be identical to; be someone or something"],
+          "enLabels": ["be"],
+          "rawCosine": 0.531681
+        },
+        {
+          "conceptId": "45480",
+          "ili": "i35035",
+          "definitions": ["be or be capable of being changed or made into"],
+          "enLabels": ["make"],
+          "rawCosine": 0.441048
+        },
+        {
+          "conceptId": "45122",
+          "ili": "i34713",
+          "definitions": [
+            "have the quality of being; (copula, used with an adjective or a predicate noun)"
+          ],
+          "enLabels": ["be"],
+          "rawCosine": 0.391663
+        }
+      ]
+    },
+    {
+      "senseId": "71",
+      "lemma": "お出でになる",
+      "sourceSenseKey": "jmdict:1001180:2",
+      "enGlosses": ["to come"],
+      "topCandidates": [
+        {
+          "conceptId": "41850",
+          "ili": "i31769",
+          "definitions": ["be received"],
+          "enLabels": ["come", "come in"],
+          "rawCosine": 0.561976
+        },
+        {
+          "conceptId": "32601",
+          "ili": "i23444",
+          "definitions": ["come to pass; arrive, as in due course"],
+          "enLabels": ["come"],
+          "rawCosine": 0.546907
+        },
+        {
+          "conceptId": "32606",
+          "ili": "i23449",
+          "definitions": ["be found or available"],
+          "enLabels": ["come"],
+          "rawCosine": 0.530206
+        }
+      ]
+    },
+    {
+      "senseId": "72",
+      "lemma": "お出でになる",
+      "sourceSenseKey": "jmdict:1001180:3",
+      "enGlosses": ["to go"],
+      "topCandidates": [
+        {
+          "conceptId": "41960",
+          "ili": "i31868",
+          "definitions": ["go or travel along with"],
+          "enLabels": ["accompany"],
+          "rawCosine": 0.48669
+        },
+        {
+          "conceptId": "40888",
+          "ili": "i30902",
+          "definitions": ["go to or towards"],
+          "enLabels": ["seek"],
+          "rawCosine": 0.474758
+        },
+        {
+          "conceptId": "37201",
+          "ili": "i27585",
+          "definitions": ["be spent"],
+          "enLabels": ["go"],
+          "rawCosine": 0.464001
+        }
+      ]
+    },
+    {
+      "senseId": "104",
+      "lemma": "お菓子",
+      "sourceSenseKey": "jmdict:1001710:1",
+      "enGlosses": ["confections", "sweets", "candy", "cake"],
+      "topCandidates": [
+        {
+          "conceptId": "91793",
+          "ili": "i76718",
+          "definitions": ["candy and other sweets considered collectively"],
+          "enLabels": ["confectionery"],
+          "rawCosine": 0.666285
+        },
+        {
+          "conceptId": "91797",
+          "ili": "i76721",
+          "definitions": [
+            "a rich sweet made of flavored sugar and often combined with fruit or nuts"
+          ],
+          "enLabels": ["candy", "confect"],
+          "rawCosine": 0.650688
+        },
+        {
+          "conceptId": "91832",
+          "ili": "i76753",
+          "definitions": ["candy made with chocolate"],
+          "enLabels": ["chocolate candy"],
+          "rawCosine": 0.591786
+        }
+      ]
+    },
+    {
+      "senseId": "113",
+      "lemma": "お兄さん",
+      "sourceSenseKey": "jmdict:1001830:1",
+      "enGlosses": ["older brother", "elder brother"],
+      "topCandidates": [
+        {
+          "conceptId": "104951",
+          "ili": "i88560",
+          "definitions": ["an older brother"],
+          "enLabels": ["big brother"],
+          "rawCosine": 0.659575
+        },
+        {
+          "conceptId": "107722",
+          "ili": "i91053",
+          "definitions": ["a younger brother"],
+          "enLabels": ["little brother"],
+          "rawCosine": 0.596781
+        },
+        {
+          "conceptId": "105115",
+          "ili": "i88708",
+          "definitions": ["a male with the same parents as someone else"],
+          "enLabels": ["blood brother", "brother"],
+          "rawCosine": 0.553853
+        }
+      ]
+    },
+    {
+      "senseId": "114",
+      "lemma": "お兄さん",
+      "sourceSenseKey": "jmdict:1001830:2",
+      "enGlosses": ["young man", "buddy", "fella", "laddie"],
+      "topCandidates": [
+        {
+          "conceptId": "107892",
+          "ili": "i91206",
+          "definitions": ["a single individual"],
+          "enLabels": ["man jack"],
+          "rawCosine": 0.388436
+        },
+        {
+          "conceptId": "111243",
+          "ili": "i94222",
+          "definitions": ["a teenager or a young adult male"],
+          "enLabels": ["young buck", "young man"],
+          "rawCosine": 0.352892
+        },
+        {
+          "conceptId": "10110",
+          "ili": "i109096",
+          "definitions": ["one of a pair"],
+          "enLabels": ["fellow", "mate"],
+          "rawCosine": 0.32336
+        }
+      ]
+    },
+    {
+      "senseId": "117",
+      "lemma": "お見舞い",
+      "sourceSenseKey": "jmdict:1001870:1",
+      "enGlosses": [
+        "visit (to someone affected by illness or misfortune)",
+        "call",
+        "inquiry (about someone's health)",
+        "expression of sympathy"
+      ],
+      "topCandidates": [
+        {
+          "conceptId": "91202",
+          "ili": "i76186",
+          "definitions": ["a feeling of sympathy for someone or something"],
+          "enLabels": ["concern"],
+          "rawCosine": 0.580319
+        },
+        {
+          "conceptId": "12882",
+          "ili": "i111590",
+          "definitions": [
+            "a condition of suffering or distress due to ill health"
+          ],
+          "enLabels": ["affliction"],
+          "rawCosine": 0.519066
+        },
+        {
+          "conceptId": "96741",
+          "ili": "i81170",
+          "definitions": [
+            "a meeting arranged by the visitor to see someone (such as a doctor or lawyer) for treatment or advice"
+          ],
+          "enLabels": ["visit"],
+          "rawCosine": 0.475738
+        }
+      ]
+    },
+    {
+      "senseId": "118",
+      "lemma": "お見舞い",
+      "sourceSenseKey": "jmdict:1001870:2",
+      "enGlosses": [
+        "letter of inquiry",
+        "letter of sympathy",
+        "get-well letter",
+        "gift (in token of one's sympathy)"
+      ],
+      "topCandidates": [
+        {
+          "conceptId": "85792",
+          "ili": "i71316",
+          "definitions": ["a card expressing sympathy"],
+          "enLabels": ["sympathy card"],
+          "rawCosine": 0.569025
+        },
+        {
+          "conceptId": "85766",
+          "ili": "i71293",
+          "definitions": ["a letter dealing with personal affairs"],
+          "enLabels": ["personal letter"],
+          "rawCosine": 0.50756
+        },
+        {
+          "conceptId": "85783",
+          "ili": "i71308",
+          "definitions": ["a card expressing get-well wishes"],
+          "enLabels": ["get-well card"],
+          "rawCosine": 0.497641
+        }
+      ]
+    }
+  ],
+  "checks": {
+    "typeScript": true,
+    "scopedEslint": true,
+    "nodeTestsPassed": 41,
+    "pythonTestsPassed": 15,
+    "blackCheck": true,
+    "pyCompile": true
+  },
+  "semanticQualityValidated": false,
+  "llmCalls": 0,
+  "databaseWrites": 0,
+  "git": "uncommitted; not pushed; not deployed"
+}
