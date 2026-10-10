@@ -180,8 +180,8 @@ normalized RRF; `calibratedScore=null`. Với artifact v1 lịch sử, rankScore
 nào làm xác suất đúng.
 
 Chi tiết implementation/check/gate ở [review DB4-D2 RRF](../reviews/db4-d2-hybrid-rrf-2026-10-10.md)
-và [plan DB4-D2](../plans/db4-d2-source-minilm-retrieval.md).
-Chưa chạy ranker mới trên cohort, chưa gọi Muse, chưa apply DB hoặc deploy.
+và [plan DB4-D2](../plans/db4-d2-source-minilm-retrieval.md). Kết quả ranker
+trên cohort được cập nhật ở §9.
 
 ## 8. Cohort selector — code local ngày 10/10
 
@@ -227,3 +227,57 @@ tiến trình, không sửa `.env`. Guard READ ONLY được xác nhận trướ
 transaction được rollback. App code không deploy do working tree VPS có WIP khác.
 Xem [review DB4-D2 selector](../reviews/db4-d2-cohort-selector-2026-10-10.md) và
 [review DB4-D2 RRF](../reviews/db4-d2-hybrid-rrf-2026-10-10.md).
+
+## 9. DB4-D2 — Project selected cohort, audit và retrieval
+
+Selector lưu row references về full export; `retrieval-generate.ts` hiện nhận một
+export đầy đủ thay vì danh sách selector. `cohort-project.ts` tạo export riêng
+cho đúng các sense đã chọn, giữ nguyên raw JSONL rows theo source order, xác minh
+line/row hash, giữ cùng lexeme trong một split/shard và tái tính
+inventory/manifest. Ví dụ:
+
+```bash
+npx tsx scripts/db4/cohort-project.ts \
+  --artifact-dir uploads/db4-run \
+  --manifest export/manifest.json \
+  --sampling cohort/2026-10-10-v1/sampling.json \
+  --prefix cohort-export/2026-10-10-v1
+
+uploads/db4-retrieval-venv/bin/python scripts/db4/mapping_minilm.py audit \
+  --artifact-dir uploads/db4-run \
+  --export cohort-export/2026-10-10-v1/manifest.json \
+  --wn-db /path/to/original/wn.db --jmdict /path/to/original/jmdict.json \
+  --licenses licenses/policy.json --prefix audit/cohort-2026-10-10-v1
+
+uploads/db4-retrieval-venv/bin/python scripts/db4/mapping_minilm.py retrieve \
+  --artifact-dir uploads/db4-run \
+  --export cohort-export/2026-10-10-v1/manifest.json \
+  --audit audit/cohort-2026-10-10-v1/sources-audited.json \
+  --onnx-file onnx/model_quint8_avx2.onnx --threads 2 --batch 32 --top-k 5 \
+  --prefix search/cohort-2026-10-10-v1
+
+npx tsx scripts/db4/retrieval-generate.ts \
+  --artifact-dir uploads/db4-run \
+  --export cohort-export/2026-10-10-v1/manifest.json \
+  --audit audit/cohort-2026-10-10-v1/sources-audited.json \
+  --search search/cohort-2026-10-10-v1/manifest.json \
+  --prefix generation/cohort-2026-10-10-v1
+```
+
+Ngày 10/10 chạy với cohort 1.000: audit raw kiểm 6.745 JMdict rows, 453.744 OEWN,
+328.465 OMW EN và 215.254 OMW JA, không có mismatch; Wiktextract 0 kiểm và vẫn
+blocked. RRF trả hits cho 966/1.000 sense; 34 no-candidate sau POS filter. Tạo
+4.830 candidates/966 bundles. MiniLM warm/cache-hit runtime 334,841 giây, peak
+469,09 MiB, threads 2, batch 32; không phải semantic accuracy benchmark.
+Artifacts/hash và chi tiết nguồn ở [review DB4-D2 cohort retrieval](../reviews/db4-d2-cohort-retrieval-2026-10-10.md).
+
+Một lần thử ban đầu đã bắt đầu retrieval nhầm trên full 15.245 population do CLI
+chưa hỗ trợ filter selected rows; dừng ở 145 kết quả. Partial output được cách ly
+trong `search/attempt-full-population-interrupted/` và **không** dùng làm input
+cho generation/decision. Không tái dùng prefix đó.
+
+Trạng thái: cohort artifacts local/ignored, không commit; code projector đang được
+đưa vào Git riêng. Chưa gọi Muse, chưa chạy batch runner, không apply DB, không
+deploy app. Trước shadow dispatch cần hoàn tất conditional-wave runner, durable
+intent/recovery, lock/cap/breaker và technical smoke theo
+[plan DB4-D4/D5 batch](../plans/db4-d4-d5-automated-batch-rollout.md).

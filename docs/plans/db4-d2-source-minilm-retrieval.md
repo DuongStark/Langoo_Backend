@@ -71,8 +71,9 @@ không được đọc như output của ranker mới.
   cũ. Exact source seeds tiếp tục là retrieval hint và không được nâng thành
   evidence/decision.
 
-Code mới chỉ được kiểm static trước khi định cohort chạy; chưa chạy ONNX, gửi Muse,
-tạo artifact thực, sửa DB hoặc deploy. Xem [review DB4-D2 RRF](../reviews/db4-d2-hybrid-rrf-2026-10-10.md).
+Tại thời điểm review RRF ban đầu, code mới chỉ qua kiểm static; chưa chạy ONNX
+trên cohort. Kết quả chạy tiếp theo ngày 10/10 được ghi dưới đây và trong
+[review DB4-D2 cohort retrieval](../reviews/db4-d2-cohort-retrieval-2026-10-10.md).
 
 ## 2026-10-10 — DB4-D2 — Cohort selector deterministic
 
@@ -99,5 +100,33 @@ hay gọi Muse; CLI và gate được mô tả trong handoff và
 
 Code đã qua TypeScript/ESLint/Prettier static checks và được commit/push trong
 `0208649`. Cohort artifact đã được export/selector trên VPS; kết quả/hash ở
-[review selector](../reviews/db4-d2-cohort-selector-2026-10-10.md). Chưa chạy test
-suite, benchmark ONNX, gọi Muse, deploy app hoặc apply DB.
+[review selector](../reviews/db4-d2-cohort-selector-2026-10-10.md). Tại thời điểm
+đó chưa chạy test suite, benchmark ONNX, gọi Muse, deploy app hoặc apply DB.
+
+## 2026-10-10 — DB4-D2 — Retrieval trên cohort 1.000 sense
+
+Thêm `cohort-project.ts` để chiếu chính xác các dòng đã chọn từ full export thành
+export 1.000 sense dùng riêng cho audit/retrieval. Projector kiểm selected file,
+sampling/population hashes, target key, source row hash, identity, giữ mọi
+lexeme cùng split/shard, quota và shard counts trước khi ghi artifact mới; không
+query hoặc sửa DB.
+
+Trên cohort đã freeze, source audit theo snapshot xác nhận JMdict/OEWN/OMW EN/JA;
+Wiktextract tiếp tục `blocked` do thiếu adapter identity/audit. Hybrid
+lexical-MiniLM RRF chạy trên 1.000 sense: 966 có shortlist, 34 `no_candidates`
+sau POS filter, 4.830 candidate trong 966 bundle (tối đa 5 mỗi bundle). Dùng lại
+120.875 concept embeddings sau khi xác minh hash model, tokenizer, corpus và cache;
+thời gian 334,841 giây, peak RSS 469,09 MiB, 2 ONNX threads, cache hit. Kết quả là
+retrieval availability, không đo recall/precision hay độ đúng ngữ nghĩa.
+
+Artifacts nằm dưới `uploads/db4-d2-jlpt-n1-n5-0208649/` (ignored, không commit):
+cohort export manifest `9f59fd436e3c938e82810b5d024c4f15112ffd532e4398f1b6cca6a180efe776`,
+source audit `b548a7024a2fe17a4ab4d01e0a7656a6ad34c67407cd0c0c6d148672d2c8bad3`,
+retrieval manifest `dbfebae79339e6393c478ac3ceff2091e147da10899350d7dfec756a6926b1c`,
+generation manifest `7a9da647d7cd38cc311c7f12711243f47fd35837f59f86823b29b2cc297a760e`.
+Chi tiết input hashes, raw audit counts, runtime và giới hạn ở
+[review cohort retrieval](../reviews/db4-d2-cohort-retrieval-2026-10-10.md).
+
+Không gọi Muse, không apply DB, không deploy app. D4/D5 batch runner/resume và
+technical smoke vẫn là gate trước shadow dispatch; semantic gate và DB4-D6/D7
+còn thiếu.
