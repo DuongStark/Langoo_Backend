@@ -1,0 +1,1111 @@
+{
+  "schemaVersion": 1,
+  "task": "DB4-D5",
+  "auditMethod": "Separate Codex context review, source-first; Muse reasons read afterward for diagnosis. AI labels, not expert gold.",
+  "artifactRoot": "uploads/db4-d2-pilot",
+  "d3Manifest": {
+    "path": "muse-d3-v1/208f8206aa7dc1f3810f29df36bebb91f2f4b0f48b5a5a81b7109f04d9c3c90e/manifest.json",
+    "sha256": "dea13711617ae20f8be2e94052408075347c2d0bbbee3308880c2c4f375b7a61"
+  },
+  "d5Manifest": {
+    "path": "muse-d5-v1/7b12c86d214ae5258c7c0bb8c1eaea9cac9a877c0b8512970d81891f85ffbeac/manifest.json",
+    "sha256": "9ce61f2191c2dac3722b735f97802c7eb3fde51e7071bcc6cfc9c0d053fcfb40"
+  },
+  "auditFile": {
+    "path": "docs/reviews/db4-d5-exact-audit-2026-10-10.jsonl",
+    "sha256": "da5eceba91133dec87eeb12919d1b200cbc5e551e591f8a41fa5f34898e69e19"
+  },
+  "result": {
+    "schemaVersion": 1,
+    "task": "db4_d5_exact_proposal_audit",
+    "policyVersion": "db4-d5-exact-proposal-audit-v1",
+    "scope": "exact_proposals_only",
+    "counts": {
+      "retrievalTargets": 100,
+      "exactProposals": 20,
+      "audited": 20,
+      "pass": 16,
+      "fail": 2,
+      "deferred": 2,
+      "severe": 2,
+      "unauditedTargets": 80
+    },
+    "observedAiAuditPassRate": 0.8,
+    "observedLabelWilson95": {
+      "lower": 0.5839825677481064,
+      "upper": 0.919342337420202
+    },
+    "expertGoldAvailable": false,
+    "fullTargetGateEvaluated": false,
+    "fullPilotGatePassed": false,
+    "promotionReady": false,
+    "apply": false,
+    "needsHumanApprovalPerMapping": false,
+    "remainingGates": [
+      "DB4-D5_full_target_audit",
+      "insufficient_positive_sample",
+      "DB4-D5_hard_negative_holdout_recall_budget",
+      "severe_error",
+      "unresolved_positive_audit",
+      "DB4-D6_preflight_journal",
+      "DB4-D7_serving"
+    ]
+  },
+  "contexts": [
+    {
+      "senseId": "1229",
+      "semanticKey": "jmdict:1017760:1",
+      "lemma": "アパート",
+      "reading": "アパート",
+      "candidateKey": "a067cc98d7839cebca4648dbcf56cc130191704598ef36c782ee8d1b2e7559ad",
+      "inputHash": "ff518b8982aceb56663fea4262a6803d4fa0985011e201ca587c0c16801a9adb",
+      "conceptId": "62206",
+      "enGlosses": ["apartment building", "apartment block", "apartment house"],
+      "rawAttributes": {
+        "info": [],
+        "misc": ["abbr"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "apartment building",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "apartment block",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "apartment house",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["アパートメントハウス"]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["a building that is divided into apartments"],
+      "conceptLabels": [
+        "apartment building",
+        "apartment house",
+        "アパートメントハウス"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Đúng sense 1: apartment building/block/house đều chỉ tòa nhà chia thành các căn hộ; definition concept 62206 khớp. Không nhầm căn hộ riêng 62205; các alternative penthouse/maisonette/housing không exact. abbr chỉ dạng từ."
+    },
+    {
+      "senseId": "138",
+      "semanticKey": "jmdict:1002170:2",
+      "lemma": "お嬢さん",
+      "reading": "おじょうさん",
+      "candidateKey": "669a76d01b542f7e0629f299288a20a689e817319a97a524b7202714a1393584",
+      "inputHash": "1a8bbd6739cbc4f3fb3b5a6abb1738aaad423911d99e84f684ed389eeb091ed5",
+      "conceptId": "106781",
+      "enGlosses": ["young lady"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "young lady",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["a young female", "a young woman"],
+      "conceptLabels": [
+        "fille",
+        "girl",
+        "miss",
+        "missy",
+        "young lady",
+        "young woman",
+        "うしろ帯",
+        "おなご",
+        "お女中",
+        "お姉さん",
+        "お姉様",
+        "お嬢さん",
+        "ねえさん",
+        "ガール",
+        "マドマゼル",
+        "マドモアゼル",
+        "マドモワゼル",
+        "ミッシー",
+        "ヤングレディ",
+        "ヤングレディー",
+        "乙女",
+        "乙女子",
+        "女の子",
+        "女子",
+        "姉",
+        "姉さん",
+        "姉様",
+        "姐さん",
+        "娘",
+        "娘子",
+        "嬢",
+        "嬢さん",
+        "小女郎",
+        "少女",
+        "少女子",
+        "後ろ帯",
+        "後帯",
+        "御姉さん",
+        "御姉様",
+        "御嬢さん",
+        "早乙女",
+        "早少女",
+        "生女房",
+        "若い女",
+        "若女"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 2 young lady khớp definition a young woman của 106781 và nhãn young lady/お嬢さん. Không lấy sense con gái của ai từ lemma. Alternative youthful female person 106465 không có tín hiệu hơn concept đã chọn; các alternative talented/admirer/voluptuous thêm nghĩa."
+    },
+    {
+      "senseId": "1961",
+      "semanticKey": "jmdict:1032390:1",
+      "lemma": "オーバー",
+      "reading": "オーバー",
+      "candidateKey": "868b5e9c15977b90818637e30ddc5185fb03bf5f462691b3dbad9bed6d9925ef",
+      "inputHash": "54172dfec70e3b1f30ff344f5e566079cf13616a1fa4d1b96ed392dc3d072433",
+      "conceptId": "67021",
+      "enGlosses": ["overcoat"],
+      "rawAttributes": {
+        "info": [],
+        "misc": ["abbr"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "overcoat",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["オーバーコート"]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["a heavy coat worn over clothes in winter"],
+      "conceptLabels": [
+        "greatcoat",
+        "overcoat",
+        "topcoat",
+        "オーバ",
+        "オーバコート",
+        "オーバー",
+        "オーバーコート",
+        "コート",
+        "上着",
+        "厚地の外套",
+        "外套",
+        "捩り",
+        "被布",
+        "被風",
+        "角袖"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 1 overcoat, abbr của オーバーコート, khớp áo khoác ngoài dày của 67021. Không nhập các sense vượt mức/cường điệu vào sense áo. Alternatives frock-coat/specific loose coat hẹp hơn, coating/fabric khác đối tượng."
+    },
+    {
+      "senseId": "2315",
+      "semanticKey": "jmdict:1039220:2",
+      "lemma": "カレンダー",
+      "reading": "カレンダー",
+      "candidateKey": "b0a27319667e535b6dbde4c42331ac4843e73ea20aa3bed64cf763578dca54c9",
+      "inputHash": "17c42f443c8a569e9e1d6cbd8c10cdff56d101b04f943e55e13182e223be72ad",
+      "conceptId": "63641",
+      "enGlosses": ["calender (machine for flattening things)"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "calender (machine for flattening things)",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "a machine that smooths or glazes paper or cloth by pressing it between plates or passing it through rollers"
+      ],
+      "conceptLabels": ["calender"],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 2 ghi calender (machine for flattening things), không phải calendar. 63641 là máy ép/lăn làm phẳng, làm láng giấy/vải; đúng thiết bị calender. Solar/lunar/day table đều là lịch; ironing machine không đồng nghĩa exact."
+    },
+    {
+      "senseId": "160",
+      "semanticKey": "jmdict:1002430:3",
+      "lemma": "お茶",
+      "reading": "おちゃ",
+      "candidateKey": "f4b0f28776954f24ae512fc047dda9a59f5ee056085396ac41c19c6ffebaa226",
+      "inputHash": "b775956922b7a9d7a0c55b8e4da72ed9e7b2183e9aa27788b790a66d731faa82",
+      "conceptId": "51866",
+      "enGlosses": ["tea ceremony"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "tea ceremony",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["茶の湯"]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "an ancient ritual for preparing and serving and drinking tea"
+      ],
+      "conceptLabels": ["chanoyu", "tea ceremony", "茶の湯"],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 3 tea ceremony có related 茶の湯. 51866 định nghĩa nghi thức pha/phục vụ/uống trà, nhãn chanoyu/茶の湯; đủ context phân biệt tea party/reception, garden và cup."
+    },
+    {
+      "senseId": "1201",
+      "semanticKey": "jmdict:1017330:1",
+      "lemma": "アナウンサー",
+      "reading": "アナウンサー",
+      "candidateKey": "e99b201badf187f767e03babd5d2587b1308f503b06c8f679b78230024df94ae",
+      "inputHash": "fdb127429261e592add60bc3e3e2823ff5f27e92faf988dc4d104a0a056119ca",
+      "conceptId": "105111",
+      "enGlosses": ["announcer", "presenter", "broadcaster", "reporter"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "announcer",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "presenter",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "broadcaster",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "reporter",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["someone who broadcasts on radio or television"],
+      "conceptLabels": ["broadcaster", "ブロードキャスター"],
+      "verdict": "deferred",
+      "severity": "none",
+      "reason": "Chưa đủ chứng cứ exact toàn sense: gloss announcer/presenter/broadcaster/reporter cùng nằm trong một sense nhưng 105111 chỉ định nghĩa người phát sóng radio/TV. Thiếu definition/examples nguồn để xác định reporter có bị giới hạn phát sóng và scope nghề nghiệp so với broadcaster. Không coi bốn gloss tự động là bốn nghĩa rời; không kết luận sai chắc chắn. Radio/TV announcer alternatives cũng chỉ riêng phương tiện."
+    },
+    {
+      "senseId": "1743",
+      "semanticKey": "jmdict:1028580:1",
+      "lemma": "エスカレーター",
+      "reading": "エスカレーター",
+      "candidateKey": "d553d26c4256bb6989db064cf3d396e25a81eda18139d8e7e386209a9e13a862",
+      "inputHash": "3aa795c2867f5275fc40804151660cdf501748bbf0f9ff573653f34069f78753",
+      "conceptId": "65956",
+      "enGlosses": ["escalator"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "escalator",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "a stairway whose steps move continuously on a circulating belt"
+      ],
+      "conceptLabels": [
+        "escalator",
+        "moving staircase",
+        "moving stairway",
+        "エスカレータ",
+        "エスカレーター"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Escalator nghĩa thiết bị thang có bậc chuyển động liên tục, đúng definition 65956 và nhãn JA. Không phải người trèo thang, escalator clause, hành vi leo hoặc cầu thang máy bay."
+    },
+    {
+      "senseId": "1230",
+      "semanticKey": "jmdict:1017760:2",
+      "lemma": "アパート",
+      "reading": "アパート",
+      "candidateKey": "4892b00321d03d707f6309ef62ae3fe467538c8f67a2b3f99d766cb77798a1d6",
+      "inputHash": "188f260dc2d4a411acadf08f854d89da3687d57fc6861616c47c31d48f1a7427",
+      "conceptId": "62205",
+      "enGlosses": ["apartment"],
+      "rawAttributes": {
+        "info": [],
+        "misc": ["abbr"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "apartment",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["アパートメント"]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "a suite of rooms usually on one floor of an apartment house"
+      ],
+      "conceptLabels": [
+        "apartment",
+        "flat",
+        "アパルトマン",
+        "アパート",
+        "アパートメント",
+        "マンション"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 2 apartment khớp suite of rooms của 62205 và nhãn アパート/アパートメント. Tòa nhà 62206 thuộc sense 1; penthouse/studio/walk-up thêm ràng buộc không có trong source."
+    },
+    {
+      "senseId": "1933",
+      "semanticKey": "jmdict:1032030:1",
+      "lemma": "オートバイ",
+      "reading": "オートバイ",
+      "candidateKey": "7953acefcdd1fe5fa9c5549dbec84eb8a154a832380ee24c2f474060383b412e",
+      "inputHash": "2fb990be3b3eb25c5e0b2cdb21c0db1e7ec2d4a044b5556ce2659fa4dc23a647",
+      "conceptId": "69214",
+      "enGlosses": ["motorcycle", "motorbike"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "motorcycle",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "motorbike",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": [
+          {
+            "full": true,
+            "lang": "eng",
+            "text": "auto-bi(cycle)",
+            "wasei": true
+          }
+        ]
+      },
+      "conceptDefinitions": [
+        "a motor vehicle with two wheels and a strong frame"
+      ],
+      "conceptLabels": [
+        "bike",
+        "motorcycle",
+        "オートバイ",
+        "バイク",
+        "モーターサイクル",
+        "モーターバイク",
+        "二輪",
+        "単車",
+        "自動二輪車",
+        "自動自転車"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Motorcycle/motorbike cùng xe mô tô hai bánh, đúng 69214 và nhãn オートバイ. LanguageSource wasei auto-bi(cycle) là nguồn gốc từ, không biến thành bicycle. Rider/riding là khác loại; scooter là loại cụ thể hơn."
+    },
+    {
+      "senseId": "1962",
+      "semanticKey": "jmdict:1032390:2",
+      "lemma": "オーバー",
+      "reading": "オーバー",
+      "candidateKey": "a067ded07d648dd883a489c6f3ef560e9f6316a0764d2cf80ec35e6da9e2874a",
+      "inputHash": "d07d023b759a3c55042647fa1fdc4c6ab3f32582064c4701a515422ab695b30d",
+      "conceptId": "45454",
+      "enGlosses": ["exceeding", "going over", "going beyond"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "exceeding",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "going over",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "going beyond",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n", "vs", "vt", "vi"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["be superior or better than some standard"],
+      "conceptLabels": [
+        "exceed",
+        "go past",
+        "overstep",
+        "pass",
+        "top",
+        "transcend",
+        "上まわる",
+        "上回る",
+        "優る",
+        "優れる",
+        "克する",
+        "凌ぐ",
+        "剋する",
+        "勝る",
+        "勝れる",
+        "超える",
+        "超す",
+        "超絶+する",
+        "超越+する",
+        "越える",
+        "越す",
+        "駕する"
+      ],
+      "verdict": "fail",
+      "severity": "severe",
+      "reason": "Source exceeding/going over/going beyond không giới hạn hơn về phẩm chất hoặc tốt hơn một chuẩn. Definition 45454 be superior or better than some standard chỉ phạm vi vượt trội, không chứng minh bao phủ vượt quá giới hạn số lượng/mức cho phép. Hai lượt đã nâng cặp gần nghĩa thành exact dù thiếu bao phủ toàn scope; giữ nonexact, không promote exact. n/vs/vt/vi không tự tạo xung đột POS với verb."
+    },
+    {
+      "senseId": "268",
+      "semanticKey": "jmdict:1003430:2",
+      "lemma": "屹度",
+      "reading": "きっと",
+      "candidateKey": "b38ef73a32663d7d7e13b3405596867bc44699b7db97f2003a6fbb4a18158ed3",
+      "inputHash": "d0ede6bc822f07d5f6e6170d8c3ea99db311a19a8a0016210eb6ac17e23232e0",
+      "conceptId": "28553",
+      "enGlosses": ["sternly", "severely"],
+      "rawAttributes": {
+        "info": ["esp. キッと"],
+        "misc": ["uk", "on-mim"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "sternly",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "severely",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["adv"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["with sternness; in a severe manner"],
+      "conceptLabels": [
+        "severely",
+        "sternly",
+        "きっと",
+        "きびしく",
+        "びしっと",
+        "びしびし",
+        "ぴしぴし",
+        "儼として",
+        "厳として",
+        "厳に",
+        "激しく",
+        "緊々",
+        "苛酷"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 2 sternly/severely với info esp. キッと khớp adverb with sternness; in a severe manner của 28553. Không dùng sense chắc chắn của きっと. Alternatives extremely/strongly/heavy-footed/sharply không cùng sắc thái nghiêm khắc."
+    },
+    {
+      "senseId": "751",
+      "semanticKey": "jmdict:1009330:2",
+      "lemma": "どんな",
+      "reading": "どんな",
+      "candidateKey": "a3f005ca1b2cfe9b1eeac0f78c9c98f7f40e17ce59eeb28093b2d1ab25afe21a",
+      "inputHash": "e6e247e3eb20a0e89e71ac88a5930548cd21472eec16e9d633ded453df577530",
+      "conceptId": "20501",
+      "enGlosses": ["no matter what (kind of)", "whatever", "any", "all"],
+      "rawAttributes": {
+        "info": ["as どんな...でも, どんな...も, etc."],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "no matter what (kind of)",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "whatever",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "any",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "all",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["adj-pn"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "one or some or every or all without specification",
+        "one or some or every or all without specification; entity, elective existential pronoun; quantifier, elective existential"
+      ],
+      "conceptLabels": ["any", "whatever", "whatsoever"],
+      "verdict": "fail",
+      "severity": "severe",
+      "reason": "Source sense 2 bị ràng buộc as どんな...でも, どんな...も: no matter what (kind of)/whatever/any/all. 20501 gom one or some or every or all without specification và elective existential; nhánh one/some không đủ tương đương phạm vi bất kể loại nào trong construction này. R1/R2 dựa vào trùng nhãn any/whatever nhưng chưa giải qualifier và nhánh tồn tại. Không chuyển sang alternative all chỉ để chọn một concept; cặp hiện tại nonexact, exact bị chặn."
+    },
+    {
+      "senseId": "124",
+      "semanticKey": "jmdict:1001990:1",
+      "lemma": "お姉さん",
+      "reading": "おねえさん",
+      "candidateKey": "fa13dc0b92ce5cf68563089bdfa0ad0a5ca9751b9d45f6a08b32e96a0263f17a",
+      "inputHash": "a01e4d4f2930935bdb81a8d71f76f44751861d89e7836f6a7243a94e5869ff13",
+      "conceptId": "104955",
+      "enGlosses": ["older sister", "elder sister"],
+      "rawAttributes": {
+        "info": ["usu. お姉さん"],
+        "misc": ["hon"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "older sister",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "elder sister",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["姉さん", 1]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["an older sister"],
+      "conceptLabels": ["big sister"],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Older/elder sister khớp definition an older sister của 104955. hon và usu. お姉さん là hình thức kính ngữ/cách viết, không đổi quan hệ chị lớn. Younger/general sister/niece đều khác scope."
+    },
+    {
+      "senseId": "1965",
+      "semanticKey": "jmdict:1032390:5",
+      "lemma": "オーバー",
+      "reading": "オーバー",
+      "candidateKey": "071a04d46e3cc7295f420e754ae15ec739a9cda5c548954b4743631edcff6f41",
+      "inputHash": "a13557e53fc8b59d2c987c6558aefb78e13e421b7546afd376f3a1cf043f1ed2",
+      "conceptId": "51189",
+      "enGlosses": ["overexposure"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": ["photo"],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "overexposure",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [["アンダー", 2]],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "the act of exposing film to too much light or for too long a time"
+      ],
+      "conceptLabels": ["overexposure"],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Field photo xác định overexposure là phơi sáng phim quá mức/quá lâu, khớp 51189. Không nhập nghĩa bị tác động quá mức ở 46820 hoặc overestimate/excess. Không suy từ lemma オーバー sang các sense khác."
+    },
+    {
+      "senseId": "2128",
+      "semanticKey": "jmdict:1036290:1",
+      "lemma": "カーテン",
+      "reading": "カーテン",
+      "candidateKey": "126c957ae8db3c7d8f1f4ee13f70da06813b9e186de977becb577f7bdb470aaa",
+      "inputHash": "c0a1f0d087f3c6effab2cd6e1043ef0ed3c41f10d79ad6e0b38c4bd1fab03037",
+      "conceptId": "65033",
+      "enGlosses": ["curtain", "curtains"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "curtain",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "curtains",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "hanging cloth used as a blind (especially for a window)"
+      ],
+      "conceptLabels": [
+        "curtain",
+        "drape",
+        "drapery",
+        "mantle",
+        "pall",
+        "カーテン",
+        "垂れ絹",
+        "帳",
+        "帷",
+        "帷帳",
+        "帷幕",
+        "幄",
+        "幕",
+        "引き幕",
+        "引き物",
+        "引物",
+        "窓かけ",
+        "窓掛",
+        "窓掛け",
+        "緞帳",
+        "覆い",
+        "覆い布"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Curtain/curtains khớp hanging cloth used as a blind của 65033; especially for a window là ví dụ điển hình, không ràng buộc chỉ cửa sổ. Nhãn JA gồm 幕/緞帳 hỗ trợ phạm vi rèm. Các loại cafe/net/portiere hẹp hơn; curtain ring khác vật."
+    },
+    {
+      "senseId": "1851",
+      "semanticKey": "jmdict:1030630:1",
+      "lemma": "エレベーター",
+      "reading": "エレベーター",
+      "candidateKey": "1d2500bba34d0e021890e1de67be266c5abbb9a314115ebab16fdc5b82f801ea",
+      "inputHash": "b9993854d5baf87342b718319a31df339555d6d5296549d4b2537ec2a643bebf",
+      "conceptId": "65870",
+      "enGlosses": ["elevator", "lift"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "elevator",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "lift",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": [
+        "lifting device consisting of a platform or cage that is raised and lowered mechanically in a vertical shaft in order to move people from one floor to another in a building"
+      ],
+      "conceptLabels": [
+        "elevator",
+        "lift",
+        "エレベータ",
+        "エレベーター",
+        "エレヴェータ",
+        "エレヴェーター",
+        "リフト",
+        "昇降機"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Elevator/lift khớp thiết bị nâng hạ platform/cage trong shaft giữa tầng tòa nhà, concept 65870 có nhãn エレベーター. Không có source qualifier mở sang ski-lift/grain elevator. Alternatives là người vận hành hoặc shaft, không phải thiết bị. Không coi lift ở các nghĩa EN khác là nhánh của sense này."
+    },
+    {
+      "senseId": "113",
+      "semanticKey": "jmdict:1001830:1",
+      "lemma": "お兄さん",
+      "reading": "おにいさん",
+      "candidateKey": "8eecad11aa5535c448418c4867dcaf8bc8922804bea5234985e7296677ef4e14",
+      "inputHash": "5adf5dc7dd043d894e5581628563a7257aaa22baa274c3df92fb3eebb270b669",
+      "conceptId": "104951",
+      "enGlosses": ["older brother", "elder brother"],
+      "rawAttributes": {
+        "info": [],
+        "misc": ["hon"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "older brother",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "elder brother",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["兄さん", 1]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["an older brother"],
+      "conceptLabels": ["big brother"],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 1 older/elder brother khớp an older brother 104951. hon giữ ở sense context, không đổi quan hệ anh lớn. Younger/general brother/uncle/elder không exact. Không nhập nghĩa gọi thanh niên của sense 2."
+    },
+    {
+      "senseId": "104",
+      "semanticKey": "jmdict:1001710:1",
+      "lemma": "お菓子",
+      "reading": "おかし",
+      "candidateKey": "17fc3af8658d988bfe133041fa3bb5b95f473566035d79ddc21f0b3a61575f22",
+      "inputHash": "47c83527d4b785fcd67833625bbba0cb775fdb487f6a9ff38f3296a30dc4c33c",
+      "conceptId": "91793",
+      "enGlosses": ["confections", "sweets", "candy", "cake"],
+      "rawAttributes": {
+        "info": [],
+        "misc": [],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "confections",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "sweets",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "candy",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "cake",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["菓子"]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["candy and other sweets considered collectively"],
+      "conceptLabels": ["confectionery", "菓子"],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Confections/sweets/candy/cake là các cách diễn đạt/loại trong phạm vi đồ ngọt của お菓子; 91793 candy and other sweets considered collectively, nhãn 菓子, bao phủ bánh ngọt chứ không chỉ candy. Candy riêng/chocolate/cake chocolate hẹp hơn; shop khác đối tượng. Source không ghi snack mặn, không thêm nhánh này."
+    },
+    {
+      "senseId": "114",
+      "semanticKey": "jmdict:1001830:2",
+      "lemma": "お兄さん",
+      "reading": "おにいさん",
+      "candidateKey": "4cd976d338ea05e5d930a0668ec2b5f6f0b14eb29f87b85fdfb45b51cc20fef1",
+      "inputHash": "91649623da602bfab6745fdc92b13f84c8c90f9c0c23c7d5d10dd4f37257d2c4",
+      "conceptId": "111243",
+      "enGlosses": ["young man", "buddy", "fella", "laddie"],
+      "rawAttributes": {
+        "info": ["oft. vocative"],
+        "misc": ["fam"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "young man",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "buddy",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "fella",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "laddie",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [["兄さん", 3]],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["*"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["a teenager or a young adult male"],
+      "conceptLabels": [
+        "young buck",
+        "young man",
+        "ヤング・バック",
+        "ヤング・マン",
+        "丁壮",
+        "兄ちゃん",
+        "壮丁",
+        "若い衆",
+        "若年者",
+        "若男",
+        "若者",
+        "若衆",
+        "青年"
+      ],
+      "verdict": "deferred",
+      "severity": "none",
+      "reason": "Sense 2 young man/buddy/fella/laddie có info oft. vocative và misc fam. 111243 giới hạn teenager or young adult male. Thiếu examples/definition để xác minh phạm vi lời gọi thân mật luôn giữ giới hạn tuổi này; không tự coi buddy là nghĩa người bạn rời, cũng không chứng minh young man đủ toàn scope. Alternative a single individual quá rộng, không thay bằng nó; chờ context hoặc defer."
+    },
+    {
+      "senseId": "23",
+      "semanticKey": "jmdict:1000320:2",
+      "lemma": "彼処",
+      "reading": "あそこ",
+      "candidateKey": "5db7b88130435f04391d9f4ba39822f1a022b1c75489192b416e5eaa164f0ed2",
+      "inputHash": "71ea7597ac6f5550222ebd086bf451c9e09f8a00c13258acb27039da9dcf35b0",
+      "conceptId": "79778",
+      "enGlosses": ["genitals", "private parts", "nether regions"],
+      "rawAttributes": {
+        "info": [],
+        "misc": ["col", "uk", "euph"],
+        "field": [],
+        "gloss": [
+          {
+            "lang": "eng",
+            "text": "genitals",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "private parts",
+            "type": null,
+            "gender": null
+          },
+          {
+            "lang": "eng",
+            "text": "nether regions",
+            "type": null,
+            "gender": null
+          }
+        ],
+        "antonym": [],
+        "dialect": [],
+        "related": [],
+        "partOfSpeech": ["n"],
+        "appliesToKana": ["あそこ", "あすこ", "アソコ"],
+        "appliesToKanji": ["*"],
+        "languageSource": []
+      },
+      "conceptDefinitions": ["external sex organ"],
+      "conceptLabels": [
+        "crotch",
+        "genital organ",
+        "genitalia",
+        "genitals",
+        "private parts",
+        "privates",
+        "あれ",
+        "彼処",
+        "生殖器",
+        "股",
+        "陰部"
+      ],
+      "verdict": "pass",
+      "severity": "none",
+      "reason": "Sense 2 genitals/private parts/nether regions là uyển ngữ chỉ bộ phận sinh dục ngoài, khớp 79778 và nhãn private parts/彼処. col/uk/euph không thay referent. Restriction áp kana あそこ/あすこ/アソコ được giữ ở sense, không phát tán mapping ra mọi reading. Female-only alternatives hẹp hơn; northern region khác nghĩa."
+    }
+  ]
+}
