@@ -1,0 +1,92 @@
+{
+  "task": "M10.4",
+  "date": "2026-10-07T04:36:53.452Z",
+  "cases": [
+    {
+      "name": "text",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 12418,
+      "firstDeltaMs": null,
+      "isolatedThread": true,
+      "threadHash": "1c5a69b3a79b49c8fb541485d2f1042681a272c4a6105ba1b3bf330750373af7",
+      "reply": "MUSE_OK"
+    },
+    {
+      "name": "japanese-vietnamese",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 13594,
+      "firstDeltaMs": null,
+      "isolatedThread": true,
+      "threadHash": "48f4641cbdb06e4576b31af7cf14b6c6e4edfaa6c48044ee69925dd9f9923050",
+      "reply": "食べる（たべる）có nghĩa là \"ăn\"."
+    },
+    {
+      "name": "sense-json-bank",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 9799,
+      "firstDeltaMs": null,
+      "isolatedThread": true,
+      "threadHash": "3a42b094d256dbfc66eddc15d5c8bd96c8878a511d8b3062b68b16b8ca027eb0",
+      "reply": "{\"sense_id\":\"bank-finance\"}"
+    },
+    {
+      "name": "caller-history",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 17397,
+      "firstDeltaMs": null,
+      "isolatedThread": true,
+      "threadHash": "807b9eb6697ad9524794ecf49351d13537eba9209d006bc4eaa70f5bd9899bb6",
+      "reply": "FENNEC"
+    },
+    {
+      "name": "vision-normal",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 15523,
+      "firstDeltaMs": null,
+      "isolatedThread": true,
+      "threadHash": "db60710f262c6a55ed8cc8bbb2d755d11690fc1a6107cc6cb31e4f760f5ce8d9",
+      "reply": "CAT"
+    },
+    {
+      "name": "vision-stream",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 12899,
+      "firstDeltaMs": 10730,
+      "isolatedThread": true,
+      "threadHash": "95d977254c72b5f9324345c785c7b95724f6708121024713aca71053a497292e",
+      "reply": "CAT"
+    },
+    {
+      "name": "isolation-seed",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 27841,
+      "firstDeltaMs": null,
+      "isolatedThread": true,
+      "threadHash": "d497936b4f6a3444af3789f9d45728433cb7bf806993ca73f1baec139e54567f",
+      "reply": "ISOLATION_1ee884fc34794db19b57d522ffc6740c"
+    },
+    {
+      "name": "isolation-next",
+      "status": 200,
+      "pass": true,
+      "elapsedMs": 21071,
+      "firstDeltaMs": null,
+      "isolatedThread": true,
+      "threadHash": "34cf4e1adc235a4cbba935d645ed655bce52fe4608591458bd8d219208ee74d3",
+      "reply": "KHONG_CO"
+    }
+  ],
+  "liveRequests": 8,
+  "nativeTokenUsageAvailable": false,
+  "loggedIn": true,
+  "composerReady": true,
+  "uniqueThreads": 8,
+  "allPassed": true
+}

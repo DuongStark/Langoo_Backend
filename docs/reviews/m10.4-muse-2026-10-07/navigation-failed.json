@@ -1,0 +1,45 @@
+{
+  "task": "M10.4",
+  "date": "2026-10-07T04:34:10.987Z",
+  "cases": [
+    {
+      "name": "text",
+      "status": 502,
+      "pass": false,
+      "elapsedMs": 10208,
+      "error": "HTTP 502"
+    },
+    {
+      "name": "japanese-vietnamese",
+      "status": 502,
+      "pass": false,
+      "elapsedMs": 10041,
+      "error": "HTTP 502"
+    },
+    {
+      "name": "sense-json-bank",
+      "status": 502,
+      "pass": false,
+      "elapsedMs": 10080,
+      "error": "HTTP 502"
+    },
+    {
+      "name": "caller-history",
+      "status": 502,
+      "pass": false,
+      "elapsedMs": 10051,
+      "error": "HTTP 502"
+    },
+    {
+      "name": "vision-normal",
+      "status": 502,
+      "pass": false,
+      "elapsedMs": 10031,
+      "error": "HTTP 502"
+    }
+  ],
+  "liveRequests": 5,
+  "nativeTokenUsageAvailable": false,
+  "loggedIn": true,
+  "composerReady": true
+}

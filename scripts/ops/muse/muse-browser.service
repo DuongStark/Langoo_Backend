@@ -1,0 +1,16 @@
+[Unit]
+Description=M10.4 Muse dedicated Chrome
+Requires=muse-display.service
+After=muse-display.service network-online.target
+
+[Service]
+User=langoo
+Group=langoo
+Environment=DISPLAY=:91
+ExecStart=/usr/bin/google-chrome --user-data-dir=/opt/langoo/storage/muse/profile --remote-debugging-address=127.0.0.1 --remote-debugging-port=9222 --no-first-run --no-default-browser-check --disable-dev-shm-usage --window-size=1280,900 https://muse.ai/
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

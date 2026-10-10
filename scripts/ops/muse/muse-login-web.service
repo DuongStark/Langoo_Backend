@@ -1,0 +1,12 @@
+[Unit]
+Description=M10.4 temporary Muse login noVNC (SSH tunnel only)
+Requires=muse-login-vnc.service
+After=muse-login-vnc.service
+
+[Service]
+User=langoo
+Group=langoo
+ExecStart=/usr/bin/websockify --web=/usr/share/novnc 127.0.0.1:6087 127.0.0.1:5907
+Restart=on-failure
+RestartSec=3
+UMask=0077

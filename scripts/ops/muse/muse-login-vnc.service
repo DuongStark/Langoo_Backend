@@ -1,0 +1,12 @@
+[Unit]
+Description=M10.4 temporary Muse login VNC (loopback only)
+Requires=muse-display.service
+After=muse-display.service
+
+[Service]
+User=langoo
+Group=langoo
+ExecStart=/usr/bin/x11vnc -display :91 -localhost -rfbport 5907 -rfbauth /opt/langoo/storage/muse/login/vnc.pass -forever -shared -noxdamage
+Restart=on-failure
+RestartSec=3
+UMask=0077

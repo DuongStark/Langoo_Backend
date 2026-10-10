@@ -1,0 +1,12 @@
+[Unit]
+Description=M10.4 Muse private virtual display
+
+[Service]
+User=langoo
+Group=langoo
+ExecStart=/usr/bin/Xvfb :91 -screen 0 1280x900x24 -nolisten tcp
+Restart=on-failure
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

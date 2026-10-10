@@ -1,0 +1,21 @@
+[Unit]
+Description=M10.4 authenticated internal Muse pilot bridge
+Requires=muse-browser.service
+After=muse-browser.service network-online.target
+
+[Service]
+User=langoo
+Group=langoo
+WorkingDirectory=/opt/langoo/services/muse-bridge
+Environment=MUSE_UPSTREAM_DIR=/opt/langoo/services/muse-bridge/upstream
+Environment=MUSE_API_KEY_FILE=/opt/langoo/storage/muse/api.key
+Environment=MUSE_PROFILE_DIR=/opt/langoo/storage/muse/profile
+Environment=MUSE_CDP=http://127.0.0.1:9222
+Environment=MUSE_SHIM_MODELS=muse-browser
+ExecStart=/usr/bin/node /opt/langoo/services/muse-bridge/muse-host.mjs
+Restart=on-failure
+RestartSec=5
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
