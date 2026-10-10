@@ -9,6 +9,7 @@ export interface CollectionResponse {
   cloned_from_collection_id: string | null;
   is_public: boolean;
   item_count: number;
+  visible_item_count: number;
   created_at: string;
   updated_at: string;
   archived_at: string | null;
@@ -53,6 +54,7 @@ export interface ItemResponse {
   collection_id: string;
   concept_id: string | null;
   anchor_sense_id: string;
+  display_sense_id: string | null;
   meaning_vi: string;
   meaning_source: string;
   note: string | null;

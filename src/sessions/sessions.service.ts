@@ -6,6 +6,7 @@ import { Prisma } from '../generated/prisma/client';
 import { GamificationService } from '../gamification/gamification.service';
 import { LEARN_AHEAD_MINUTES } from '../srs/scheduler/anki.constants';
 import { mathRng } from '../srs/scheduler/fuzz';
+import { selectPracticeRepresentatives } from '../srs/scheduler/queue';
 import { DueRepository, DueRow } from '../srs/repositories/due.repository';
 import { ReviewEngine } from '../srs/review-engine.service';
 import { SrsService } from '../srs/srs.service';
@@ -91,16 +92,18 @@ export class SessionsService {
             limit,
             collectionId: dto.collection_id,
           })
-        : await this.dueRepo.findPracticeCandidates({
-            userId,
-            profileId: profile.id,
-            primaryLanguageId: profile.primaryLanguageId,
-            secondaryLanguageId: profile.secondaryLanguageId,
-            now: new Date(),
-            learnAheadMinutes: 0,
-            limit,
-            collectionId: dto.collection_id,
-          });
+        : selectPracticeRepresentatives(
+            await this.dueRepo.findPracticeCandidates({
+              userId,
+              profileId: profile.id,
+              primaryLanguageId: profile.primaryLanguageId,
+              secondaryLanguageId: profile.secondaryLanguageId,
+              now: new Date(),
+              learnAheadMinutes: 0,
+              limit,
+              collectionId: dto.collection_id,
+            }),
+          ).slice(0, limit);
 
     if (rows.length === 0) {
       throw new DomainException(

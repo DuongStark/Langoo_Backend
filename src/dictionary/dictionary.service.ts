@@ -1,15 +1,21 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
+import { StudyLanguageScopeService } from '../users/study-language-scope.service';
 import { toHiragana } from 'wanakana';
 import { DomainException } from '../common/errors/domain.exception';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
 import { SearchQueryDto } from './dto/search-query.dto';
+import { SuggestionQueryDto } from './dto/suggestion-query.dto';
 import {
   decodeDictionarySearchCursor,
   encodeDictionarySearchCursor,
 } from './dictionary-search-cursor';
 import {
+  KanjiPart,
   LexemeSensesResult,
+  ReverseLookupEnHit,
+  ReverseLookupJaHit,
+  ReverseLookupResult,
   SearchResult,
   SenseCardResponse,
   SenseDetailResponse,
@@ -21,6 +27,7 @@ import {
 import { JapanesePriorityRepository } from './repositories/japanese-priority.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository, KanjiRow } from './repositories/kanji.repository';
+import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import {
@@ -38,6 +45,7 @@ import { SenseCard } from './types/sense-card';
 
 const EXAMPLES_LIMIT = 5;
 const DEFAULT_SEARCH_LIMIT = 20;
+const SUGGESTION_LIMIT = 5;
 
 /**
  * Đọc từ điển: search, sense detail, cặp song ngữ, kanji.
@@ -55,6 +63,8 @@ export class DictionaryService {
     private readonly languages: LanguageRepository,
     @Inject(STORAGE_SERVICE) private readonly storage: StorageService,
     private readonly japanesePriority: JapanesePriorityRepository,
+    private readonly reverseRepo: ReverseLookupRepository,
+    private readonly studyScope: StudyLanguageScopeService,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -68,12 +78,18 @@ export class DictionaryService {
     }
 
     const limit = dto.limit ?? DEFAULT_SEARCH_LIMIT;
+    const scope = await this.studyScope.resolve(userId);
     const languageCode = dto.lang ?? null;
     const cursor =
       dto.cursor === undefined
         ? null
         : decodeDictionarySearchCursor(dto.cursor);
-    if (cursor && (cursor.query !== query || cursor.lang !== languageCode)) {
+    if (
+      cursor &&
+      (cursor.query !== query ||
+        cursor.lang !== languageCode ||
+        cursor.scopeKey !== scope?.key)
+    ) {
       throw new DomainException(
         'VALIDATION_FAILED',
         'Cursor không thuộc truy vấn hiện tại',
@@ -98,6 +114,7 @@ export class DictionaryService {
       queries: queryVariants,
       patterns: queryVariants.map(escapeLike),
       lang: languageCode,
+      ...(scope ? { allowedLanguageIds: scope.languageIds } : {}),
       limit: limit + 1,
       cursor,
     });
@@ -124,6 +141,7 @@ export class DictionaryService {
               version: 5,
               query,
               lang: languageCode,
+              ...(scope ? { scopeKey: scope.key } : {}),
               exactRank: lastRow.exact_rank,
               prefixRank: lastRow.prefix_rank,
               jaSourceRank: lastRow.ja_source_rank,
@@ -139,9 +157,153 @@ export class DictionaryService {
     };
   }
 
+  /**
+   * Tra ngược Việt→Anh/Nhật: VI assertion → source lexeme tiếng Anh → JA assertions.
+   * `to`: 'en', 'ja' hoặc 'en,ja' (mặc định en,ja). Không match → matched=false.
+   */
+  async reverseLookup(
+    q: string,
+    to?: string,
+    userId?: bigint,
+  ): Promise<ReverseLookupResult> {
+    const query = q.trim().replace(/\s+/g, ' ');
+    if (query.length === 0)
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    if (query.length > 64)
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa tối đa 64 ký tự',
+        HttpStatus.BAD_REQUEST,
+      );
+    const scope = await this.studyScope.resolve(userId);
+    const targets = new Set((to ?? 'en,ja').split(','));
+    if (scope) {
+      for (const target of targets) {
+        const id = await this.languages.findIdByCode(target);
+        if (id === null || !scope.languageIds.includes(id))
+          targets.delete(target);
+      }
+    }
+    if (targets.size === 0) return { query, matched: false, en: [], ja: [] };
+    const lowered = query.toLowerCase();
+    const sources = await this.reverseRepo.findViSources(query, lowered);
+    const en: ReverseLookupEnHit[] = [];
+    const sourceIds: bigint[] = [];
+    const seenLexeme = new Set<string>();
+    for (const row of sources) {
+      const key = String(row.source_lexeme_id);
+      if (seenLexeme.has(key)) continue;
+      seenLexeme.add(key);
+      sourceIds.push(row.source_lexeme_id);
+      en.push({
+        lexemeId: key,
+        lemma: row.en_lemma,
+        pos: row.en_pos,
+        frequencyRank: row.frequency_rank,
+        senseHint: row.sense_hint,
+      });
+      if (en.length >= 10) break;
+    }
+    let ja: ReverseLookupJaHit[] = [];
+    if (targets.has('ja') && en.length > 0) {
+      const hintByLexeme = new Map(
+        en.map((hit) => [
+          String(hit.lexemeId),
+          hit.senseHint ? hit.senseHint.toLowerCase() : null,
+        ]),
+      );
+      const lemmaByLexeme = new Map(
+        en.map((hit) => [String(hit.lexemeId), hit.lemma]),
+      );
+      const rows = await this.reverseRepo.findJaTargets(sourceIds);
+      const seenJa = new Set<string>();
+      ja = rows
+        .map((row) => {
+          const hint = hintByLexeme.get(String(row.source_lexeme_id)) ?? null;
+          return {
+            text: row.target_text,
+            senseHint: row.sense_hint,
+            viaLexemeId: String(row.source_lexeme_id),
+            viaLemma: targets.has('en')
+              ? (lemmaByLexeme.get(String(row.source_lexeme_id)) ?? '')
+              : '',
+            exactSense:
+              row.sense_hint !== null &&
+              hint !== null &&
+              row.sense_hint.toLowerCase() === hint,
+          };
+        })
+        .filter((hit) => {
+          if (seenJa.has(hit.text)) return false;
+          seenJa.add(hit.text);
+          return true;
+        })
+        .sort((a, b) => Number(b.exactSense) - Number(a.exactSense))
+        .slice(0, 12);
+    }
+    return {
+      query,
+      matched: (targets.has('en') && en.length > 0) || ja.length > 0,
+      en: targets.has('en') ? en : [],
+      ja,
+    };
+  }
+
+  /**
+   * Autocomplete: at most five distinct displayed forms. Does not record search
+   * history because clients call it for each keystroke.
+   */
+  async suggest(
+    dto: SuggestionQueryDto,
+    userId?: bigint,
+  ): Promise<SearchResult> {
+    const query = dto.q.trim();
+    if (query.length === 0) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const scope = await this.studyScope.resolve(userId);
+    const languageCode = dto.lang ?? null;
+    if (dto.lang !== undefined) {
+      const languageId = await this.languages.findIdByCode(dto.lang);
+      if (languageId === null) {
+        throw new DomainException(
+          'LANGUAGE_NOT_FOUND',
+          `Ngôn ngữ không tồn tại: ${dto.lang}`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    }
+
+    const queryVariants = getSearchQueryVariants(query, languageCode);
+    const rows = await this.searchRepo.search({
+      queries: queryVariants,
+      patterns: queryVariants.map(escapeLike),
+      lang: languageCode,
+      ...(scope ? { allowedLanguageIds: scope.languageIds } : {}),
+      limit: SUGGESTION_LIMIT,
+      cursor: null,
+      deduplicateSurface: true,
+    });
+
+    return {
+      data: await this.addJapanesePreviews(rows.map(toSearchHit)),
+      next_cursor: null,
+    };
+  }
+
   async getLexemeSenses(
     lexemeId: bigint,
     view: 'grouped' | 'flat' = 'grouped',
+    userId?: bigint,
   ): Promise<LexemeSensesResult> {
     if (!(await this.senseCardRepo.hasLexeme(lexemeId))) {
       throw new DomainException(
@@ -151,7 +313,17 @@ export class DictionaryService {
       );
     }
 
-    const cards = await this.senseCardRepo.getByLexemeId(lexemeId);
+    const scope = await this.studyScope.resolve(userId);
+    const cards = (await this.senseCardRepo.getByLexemeId(lexemeId)).filter(
+      (card) => !scope || scope.languageIds.includes(card.languageId),
+    );
+    if (scope && cards.length === 0) {
+      throw new DomainException(
+        'LEXEME_NOT_FOUND',
+        'Không tìm thấy từ trong hồ sơ học',
+        HttpStatus.NOT_FOUND,
+      );
+    }
 
     if (view === 'flat') {
       return { data: cards.map(toSenseCardResponse), next_cursor: null };
@@ -217,9 +389,13 @@ export class DictionaryService {
     });
   }
 
-  async getSenseDetail(senseId: bigint): Promise<SenseDetailResponse> {
+  async getSenseDetail(
+    senseId: bigint,
+    userId?: bigint,
+  ): Promise<SenseDetailResponse> {
     const card = await this.senseCardRepo.getBySenseId(senseId);
-    if (!card) {
+    const scope = await this.studyScope.resolve(userId);
+    if (!card || (scope && !scope.languageIds.includes(card.languageId))) {
       throw senseNotFound();
     }
 
@@ -239,16 +415,28 @@ export class DictionaryService {
     };
   }
 
-  async getSenseLinks(senseId: bigint): Promise<SenseLinksResult> {
+  async getSenseLinks(
+    senseId: bigint,
+    userId?: bigint,
+  ): Promise<SenseLinksResult> {
     const card = await this.senseCardRepo.getBySenseId(senseId);
-    if (!card) {
+    const scope = await this.studyScope.resolve(userId);
+    if (!card || (scope && !scope.languageIds.includes(card.languageId))) {
       throw senseNotFound();
     }
     const links = await this.pairRepo.findLinks(senseId);
-    return { data: links.map(toSenseLinkItem), next_cursor: null };
+    return {
+      data: links
+        .filter(
+          (link) => !scope || scope.languageIds.includes(link.language_id),
+        )
+        .map(toSenseLinkItem),
+      next_cursor: null,
+    };
   }
 
-  async getKanji(literal: string): Promise<KanjiCardResponse> {
+  async getKanji(literal: string, userId?: bigint): Promise<KanjiCardResponse> {
+    await this.assertJapaneseScope(userId);
     const row = await this.kanjiRepo.getByLiteral(literal);
     if (!row) {
       throw new DomainException(
@@ -263,7 +451,9 @@ export class DictionaryService {
   /** Ảnh SVG thứ tự nét (KanjiVG) — đọc file từ storage, metadata từ core. */
   async getKanjiStroke(
     literal: string,
+    userId?: bigint,
   ): Promise<{ buffer: Buffer; mime: string; sha256: string }> {
+    await this.assertJapaneseScope(userId);
     const asset = await this.kanjiRepo.getStrokeAsset(literal);
     if (!asset) {
       throw new DomainException(
@@ -281,6 +471,18 @@ export class DictionaryService {
       );
     }
     return { buffer, mime: asset.mime, sha256: asset.sha256 };
+  }
+  private async assertJapaneseScope(userId?: bigint): Promise<void> {
+    const scope = await this.studyScope.resolve(userId);
+    if (!scope) return;
+    const ja = await this.languages.findIdByCode('ja');
+    if (ja === null || !scope.languageIds.includes(ja)) {
+      throw new DomainException(
+        'KANJI_NOT_FOUND',
+        'Không tìm thấy chữ Hán trong hồ sơ học',
+        HttpStatus.NOT_FOUND,
+      );
+    }
   }
 }
 
@@ -458,7 +660,28 @@ function toKanjiResponse(row: KanjiRow): KanjiCardResponse {
     query_codes: row.query_codes,
     used_in_forms: Number(row.used_in_forms),
     media_kinds: row.media_kinds,
+    parts: normalizeKanjiParts(row.parts),
   };
+}
+
+/** jsonb parts từ core.kanji_radical → mảng typed, bỏ dữ liệu dị dạng. */
+function normalizeKanjiParts(value: unknown): KanjiPart[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(
+      (item): item is Record<string, unknown> =>
+        item !== null && typeof item === 'object',
+    )
+    .map((item) => ({
+      char: typeof item.char === 'string' ? item.char : '',
+      position: typeof item.position === 'number' ? item.position : null,
+      is_radical: item.is_radical === true,
+      radical_number:
+        typeof item.radical_number === 'number' ? item.radical_number : null,
+      name_vi: typeof item.name_vi === 'string' ? item.name_vi : null,
+      meaning_vi: typeof item.meaning_vi === 'string' ? item.meaning_vi : null,
+    }))
+    .filter((part) => part.char !== '');
 }
 
 function toStringRecord(value: unknown): Record<string, string> {

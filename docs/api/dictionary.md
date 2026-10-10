@@ -6,8 +6,32 @@ và `app.gloss_report`.
 
 > DB2 đã có trigram/bigram indexes; repository dùng 3 nhánh matching mặt chữ/reading/romaji
 > với ILIKE kiểm chứng. Ký tự wildcard `% _ \` được escape.
-> **M4.2 / DB4-D0.2 (06/10): code xong local, chưa deploy VPS.** Contract dưới đây
+> **M4.2 / DB4-D0.2 đã deploy VPS; M4.5 mở rộng JA bên dưới.** Contract dưới đây
 > cần migration **038_dictionary_source_projection.sql** trước khi deploy code mới.
+
+## M6.2 — Phạm vi hồ sơ (code local, chưa deploy)
+
+Các endpoint search/suggestions/reverse, lexeme senses, sense detail/links và
+kanji nhận **Bearer tùy chọn**. Khi có token và hồ sơ active (fallback mặc định),
+chỉ trả entry thuộc primary/secondary language của hồ sơ; support language
+không được tính là ngôn ngữ từ vựng cần học. Không có token/chưa có hồ sơ:
+giữ catalog công khai để tra cứu/onboarding.
+
+- Search/suggestions áp scope vào cả ba nhánh SQL **trước** ranking/LIMIT.
+  `lang` chỉ thu hẹp; yêu cầu language khác hồ sơ không trả entry bị ẩn.
+- Cursor search v5 thêm scope key opaque; đổi ngôn ngữ/profile dùng lại cursor
+  cũ trả `400 VALIDATION_FAILED`, tải lại trang đầu.
+- Truy cập trực tiếp sense/lexeme của ngôn ngữ bị ẩn trả `404 SENSE_NOT_FOUND` /
+  `LEXEME_NOT_FOUND`. Sense links chỉ chứa ngôn ngữ đang học.
+- Reverse lookup giao `to` với ngôn ngữ hồ sơ; JA-only không trả EN hits và
+  `viaLemma` rỗng. EN vẫn có thể dùng nội bộ làm cầu nối assertion.
+  `matched` phản ánh kết quả hiển thị, không chỉ việc tìm được cầu nối EN.
+- EN-only truy cập Kanji có token trả `404 KANJI_NOT_FOUND`.
+- Scope lọc **entry/từ cần học**, không xóa EN gloss đang dùng giải nghĩa sense JA,
+  nguồn/attribution hay nội dung ghi chú tự nhập. FE dùng gloss VI nếu có.
+- FE gửi token cả ở autocomplete/reverse/detail, key cache gồm hồ sơ + tập
+  language; reset kết quả và cursor sau khi đổi scope. Assets SVG dùng fetch
+  có Bearer nếu muốn áp scope, rồi tạo blob URL; URL công khai vẫn phục vụ khách.
 
 ## GET /v1/dictionary/search?q=&lang=&limit=
 
@@ -47,6 +71,14 @@ curl -s "http://localhost:3000/v1/dictionary/search?q=run" -H "Authorization: Be
 - Giữ **một matching face mỗi lexeme_id trước cursor/LIMIT+1**. EN khác ID/nguồn/POS/reading vẫn giữ riêng. Policy JA đang live ẩn hit nguồn phụ không có reading khi đã có JMdict cùng mặt chữ/ngôn ngữ; giữ các entry có reading, không gộp hay xóa ID.
 - Cursor hiện dùng **v5**; cursor v1–v4 cũ trả `400 VALIDATION_FAILED`, client bắt đầu lại trang đầu. Không giải mã/sửa cursor ở FE.
 - Khi tìm tiếng Nhật, romaji được chuyển sang kana để tìm thêm. Ví dụ `q=hashiru&lang=ja` tìm được `走る` cả khi `core.lexeme.romanization` chưa có dữ liệu.
+
+## GET /v1/dictionary/suggestions?q=&lang=
+
+Autocomplete đang live: response `{ data, next_cursor: null }`, tối đa 5 hit,
+không ghi search history. Gộp face hiển thị trùng theo language/surface/reading để
+nguồn trùng không chiếm các ô gợi ý. Ranking dùng cùng policy search, gồm BCCWJ cho
+JA. Không gọi AI; có thể ít hơn 5 nếu không đủ kết quả. Các ID khác vẫn được giữ
+trong DB và endpoint detail.
 
 ## GET /v1/lexemes/:id/senses
 
@@ -170,7 +202,6 @@ Response `201`:
 ```
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **dictionary**, **senses**, **kanji**).
-
 
 ## M4.3 — Nhóm nghĩa Wiktextract và bảo toàn sense (2026-10-06)
 

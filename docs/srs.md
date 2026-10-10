@@ -98,6 +98,11 @@ thẻ learning không bị bury; ngược lại, đang học 1 thẻ learning c�
 - **Không** thêm API unbury, **không** trả số thẻ bị bury trong response người dùng
   (chỉ số tổng hợp có thể hiện ở admin M13 nếu cần).
 - Thẻ hết hạn bury tự quay lại queue ở request kế tiếp sau mốc ngày.
+- Queue chọn tối đa một sibling new/review cho mỗi `collection_item` trước khi
+  áp daily cap; nếu item có learning đang đủ điều kiện, queue bỏ sibling
+  new/review sẽ bị bury khi trả lời learning. Các learning/relearning cards và
+  mọi `srs_state` vẫn độc lập, không xóa hay gộp lịch. Cùng selector được dùng
+  cho session review và selector sibling được dùng trong practice snapshot.
 
 ## 5. API M6 (dự kiến)
 

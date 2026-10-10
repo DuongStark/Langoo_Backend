@@ -8,6 +8,7 @@ interface TxMock {
   collectionItem: { createMany: jest.Mock };
   collectionItemFace: { createMany: jest.Mock };
   srsState: { createMany: jest.Mock };
+  studyProfile: { findFirst: jest.Mock };
   $queryRaw: jest.Mock;
 }
 
@@ -46,6 +47,7 @@ function createSetup(): {
       create: jest.Mock;
       update: jest.Mock;
     };
+    collectionItem: { count: jest.Mock };
     userSettings: { findUnique: jest.Mock };
     studyProfile: { findFirst: jest.Mock };
     $transaction: jest.Mock;
@@ -62,6 +64,13 @@ function createSetup(): {
     collectionItem: { createMany: jest.fn() },
     collectionItemFace: { createMany: jest.fn() },
     srsState: { createMany: jest.fn() },
+    studyProfile: {
+      findFirst: jest.fn().mockResolvedValue({
+        id: '01a0dc8a-718f-7acd-a588-2cf077898399',
+        primaryLanguageId: 2,
+        secondaryLanguageId: 1,
+      }),
+    },
     $queryRaw: jest.fn(),
   };
   const prisma = {
@@ -71,6 +80,7 @@ function createSetup(): {
       create: jest.fn(),
       update: jest.fn(),
     },
+    collectionItem: { count: jest.fn().mockResolvedValue(0) },
     userSettings: { findUnique: jest.fn() },
     studyProfile: { findFirst: jest.fn() },
     $transaction: jest.fn((...args: unknown[]) => {
@@ -141,6 +151,27 @@ describe('CollectionsService', () => {
   });
 
   describe('get / archive', () => {
+    it('reports visible count separately from retained total after removing a language', async () => {
+      const { service, prisma } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(
+        collectionRow({ itemCount: 2 }),
+      );
+      prisma.studyProfile.findFirst.mockResolvedValue({
+        primaryLanguageId: 2,
+        secondaryLanguageId: null,
+      });
+      prisma.collectionItem.count.mockResolvedValue(1);
+      const result = await service.get(1n, collectionRow().id);
+      expect(result).toMatchObject({ item_count: 2, visible_item_count: 1 });
+      expect(prisma.collectionItem.count).toHaveBeenCalledWith({
+        where: {
+          collectionId: collectionRow().id,
+          faces: { some: { languageId: { in: [2] } } },
+        },
+      });
+      expect(prisma.collection.update).not.toHaveBeenCalled();
+    });
+
     it('không thuộc user → 404 COLLECTION_NOT_FOUND', async () => {
       const { service, prisma } = createSetup();
       prisma.collection.findFirst.mockResolvedValue(null);

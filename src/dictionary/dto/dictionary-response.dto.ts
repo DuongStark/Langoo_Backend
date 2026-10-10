@@ -301,6 +301,29 @@ export class KanjiRadicalDto {
   meaning_vi!: string | null;
 }
 
+export class KanjiPartDto {
+  @ApiProperty({ example: '子' })
+  char!: string;
+
+  @ApiProperty({ nullable: true, example: 1 })
+  position!: number | null;
+
+  @ApiProperty({
+    example: true,
+    description: 'Thành phần này là một bộ thủ Kangxi (kể cả biến thể)',
+  })
+  is_radical!: boolean;
+
+  @ApiProperty({ nullable: true, example: 39 })
+  radical_number!: number | null;
+
+  @ApiProperty({ nullable: true, example: 'Tử' })
+  name_vi!: string | null;
+
+  @ApiProperty({ nullable: true, example: 'Con, đứa trẻ' })
+  meaning_vi!: string | null;
+}
+
 export class KanjiCardDto {
   @ApiProperty({ example: '走' })
   literal!: string;
@@ -343,6 +366,12 @@ export class KanjiCardDto {
 
   @ApiProperty({ nullable: true, type: [String] })
   media_kinds!: string[] | null;
+
+  @ApiProperty({
+    type: [KanjiPartDto],
+    description: 'Thành phần cấu tạo (KRADFILE) kèm tên/nghĩa VI nếu là bộ thủ',
+  })
+  parts!: KanjiPartDto[];
 }
 
 export class SearchHistoryItemDto {
@@ -400,4 +429,56 @@ export class GlossReportResponseDto {
 
   @ApiProperty({ example: '2026-09-27T00:00:00.000Z' })
   created_at!: string;
+}
+
+export class ReverseLookupEnHitDto {
+  @ApiProperty({ example: '1775198' })
+  lexeme_id!: string;
+
+  @ApiProperty({ example: 'sand' })
+  lemma!: string;
+
+  @ApiProperty({ nullable: true, example: 'noun' })
+  pos!: string | null;
+
+  @ApiProperty({ nullable: true, example: 3409 })
+  frequency_rank!: number | null;
+
+  @ApiProperty({ nullable: true, example: 'finely ground rock' })
+  sense_hint!: string | null;
+}
+
+export class ReverseLookupJaHitDto {
+  @ApiProperty({ example: '砂' })
+  text!: string;
+
+  @ApiProperty({ nullable: true, example: 'finely ground rock' })
+  sense_hint!: string | null;
+
+  @ApiProperty({ example: '1775198' })
+  via_lexeme_id!: string;
+
+  @ApiProperty({ example: 'sand' })
+  via_lemma!: string;
+
+  @ApiProperty({
+    example: true,
+    description:
+      'sense_hint của tiếng Nhật khớp sense_hint của nghĩa tiếng Việt',
+  })
+  exact_sense!: boolean;
+}
+
+export class ReverseLookupResultDto {
+  @ApiProperty({ example: 'cát' })
+  query!: string;
+
+  @ApiProperty({ example: true })
+  matched!: boolean;
+
+  @ApiProperty({ type: [ReverseLookupEnHitDto] })
+  en!: ReverseLookupEnHitDto[];
+
+  @ApiProperty({ type: [ReverseLookupJaHitDto] })
+  ja!: ReverseLookupJaHitDto[];
 }

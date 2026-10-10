@@ -21,6 +21,13 @@ const cursor = {
 };
 
 describe('dictionary search cursor', () => {
+  it('preserves the profile language scope key', () => {
+    const scoped = { ...cursor, scopeKey: 'profile-1:1,2' };
+    expect(
+      decodeDictionarySearchCursor(encodeDictionarySearchCursor(scoped)),
+    ).toEqual(scoped);
+  });
+
   it.each([1, 2, 3, 4])(
     'rejects a valid legacy v%s cursor after ranking changes',
     (version) => {

@@ -32,13 +32,15 @@ export interface SearchRow {
  * trên MỘT cột nên planner dùng được index: GIN trigram (pattern ≥3 ký tự) và GIN bigram
  * `core.bigrams` (pattern 1–2 ký tự); biểu thức OR trộn nhiều cột/bảng như trước không
  * thể dùng index. `ILIKE` luôn giữ làm điều kiện kiểm chứng vì bigram chỉ là điều kiện
- * CẦN (mất thứ tự/khoảng cách). Sau matching, giữ một face tốt nhất mỗi lexeme
- * trước cursor/LIMIT; không loại nguồn hoặc homograph theo surface giống nhau.
+ * CẦN (mất thứ tự/khoảng cách). Search giữ face tốt nhất mỗi lexeme trước
+ * cursor/LIMIT; suggestions có thể gộp theo ngôn ngữ + surface + reading để nguồn
+ * trùng không chiếm nhiều mục autocomplete.
  */
 export interface SearchParams {
   queries: string[];
   patterns: string[];
   lang: string | null;
+  allowedLanguageIds?: number[];
   limit: number;
   cursor: DictionarySearchCursor | null;
   /** Collapse source-level duplicates that display the same language/surface/reading. */
@@ -58,8 +60,10 @@ export class DictionarySearchRepository {
       cursor,
       deduplicateSurface = false,
     } = params;
-    const langFilter =
-      lang === null ? Prisma.sql`` : Prisma.sql`AND ds.lang_code = ${lang}`;
+    const langFilter = Prisma.sql`
+      ${lang === null ? Prisma.sql`` : Prisma.sql`AND ds.lang_code = ${lang}`}
+      ${params.allowedLanguageIds === undefined ? Prisma.sql`` : params.allowedLanguageIds.length === 0 ? Prisma.sql`AND FALSE` : Prisma.sql`AND ds.language_id IN (${Prisma.join(params.allowedLanguageIds)})`}
+    `;
 
     const surfaceMatch = Prisma.join(
       patterns.map(

@@ -5,6 +5,8 @@ export type DueBucket = 0 | 1 | 2;
 
 export interface DueCandidate {
   srsId: bigint;
+  /** collection_item nhóm các face song ngữ và hai chiều SRS của một từ. */
+  itemId?: string;
   dueAt: Date;
   bucket: DueBucket;
   dueAtKey?: string;
@@ -34,7 +36,8 @@ export interface DueQueueResult {
  * learning/relearning → review → new; áp daily cap cho review/new
  * (intraday learning không giới hạn — semantics Anki); cắt theo cursor + limit.
  * New dùng `sortKey` gồm collection, position, item, due_at và id để khớp
- * thứ tự SQL khi hai sibling cùng item có due_at khác nhau.
+ * thứ tự SQL. Learning được giữ độc lập; trong mỗi item chọn tối đa một
+ * sibling new/review, vì review một learning sẽ bury những sibling này.
  */
 export function selectDueQueue(
   candidates: DueCandidate[],
@@ -45,8 +48,23 @@ export function selectDueQueue(
   const counts: DueCounts = { learning: 0, review: 0, new: 0 };
   const eligible: DueCandidate[] = [];
   let reviewQuotaUsed = 0;
+  const learningItems = new Set<string>();
+  const selectedSiblingItems = new Set<string>();
 
   for (const row of candidates) {
+    const itemId = row.itemId;
+    if (itemId !== undefined && row.bucket !== 0 && learningItems.has(itemId)) {
+      // Một learning card sẽ bury sibling new/review khi được trả lời.
+      continue;
+    }
+    if (
+      itemId !== undefined &&
+      row.bucket !== 0 &&
+      selectedSiblingItems.has(itemId)
+    ) {
+      continue;
+    }
+
     const consumesReviewQuota =
       row.bucket === 1 ||
       (row.bucket === 0 && (row.learningIsInterday ?? false));
@@ -61,10 +79,13 @@ export function selectDueQueue(
     }
     if (row.bucket === 0) {
       counts.learning += 1;
+      if (itemId !== undefined) learningItems.add(itemId);
     } else if (row.bucket === 1) {
       counts.review += 1;
+      if (itemId !== undefined) selectedSiblingItems.add(itemId);
     } else {
       counts.new += 1;
+      if (itemId !== undefined) selectedSiblingItems.add(itemId);
     }
     eligible.push(row);
   }
@@ -94,6 +115,26 @@ export function selectDueQueue(
         : null,
     counts,
   };
+}
+
+/** Practice không áp quota nhưng phải tránh snapshot chứa sibling sẽ bị bury. */
+export function selectPracticeRepresentatives<
+  T extends { item_id: string; state: string },
+>(rows: T[]): T[] {
+  const learningItems = new Set(
+    rows
+      .filter((row) => row.state === 'learning' || row.state === 'relearning')
+      .map((row) => row.item_id),
+  );
+  const selectedSiblingItems = new Set<string>();
+
+  return rows.filter((row) => {
+    if (row.state === 'learning' || row.state === 'relearning') return true;
+    if (learningItems.has(row.item_id)) return false;
+    if (selectedSiblingItems.has(row.item_id)) return false;
+    selectedSiblingItems.add(row.item_id);
+    return true;
+  });
 }
 
 function isAfterCursor(row: DueCandidate, cursor: DueCursorValue): boolean {

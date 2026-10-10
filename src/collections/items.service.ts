@@ -6,6 +6,10 @@ import { decodeCursor, encodeCursor } from '../common/pagination/cursor';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import {
+  assertLanguagesInProfile,
+  profileLanguageIds,
+} from '../users/profile-languages';
 import { lockUser } from '../users/user-lock';
 import { CreateItemDto } from './dto/create-item.dto';
 import { ListItemsQueryDto } from './dto/list-items-query.dto';
@@ -67,7 +71,11 @@ export class ItemsService {
     collectionId: string,
     query: ListItemsQueryDto,
   ): Promise<ItemListResult> {
-    await this.findOwnedCollection(userId, collectionId);
+    const collection = await this.findOwnedCollection(userId, collectionId);
+    const allowed = await this.collectionLanguages(
+      userId,
+      collection.profileId,
+    );
     if (query.language_id !== undefined) {
       const existing = await this.languages.findExistingIds([
         query.language_id,
@@ -82,12 +90,16 @@ export class ItemsService {
     }
 
     const limit = query.limit ?? DEFAULT_ITEMS_LIMIT;
-    const where: Prisma.CollectionItemWhereInput = { collectionId };
+    const visibleLanguages =
+      query.language_id === undefined
+        ? allowed
+        : allowed.filter((id) => id === query.language_id);
+    const where: Prisma.CollectionItemWhereInput = {
+      collectionId,
+      faces: { some: { languageId: { in: visibleLanguages } } },
+    };
     if (query.status !== undefined) {
       where.status = query.status;
-    }
-    if (query.language_id !== undefined) {
-      where.faces = { some: { languageId: query.language_id } };
     }
     if (query.cursor !== undefined) {
       const cursor = decodeCursor(query.cursor);
@@ -101,7 +113,10 @@ export class ItemsService {
       where,
       orderBy: [{ position: 'asc' }, { id: 'asc' }],
       take: limit + 1,
-      include: { faces: true, itemTags: true },
+      include: {
+        faces: { where: { languageId: { in: visibleLanguages } } },
+        itemTags: true,
+      },
     });
 
     const hasMore = rows.length > limit;
@@ -208,6 +223,30 @@ export class ItemsService {
 
     try {
       await this.prisma.$transaction(async (tx) => {
+        await lockUser(tx, userId);
+        const profile = await tx.studyProfile.findFirst({
+          where: { id: collection.profileId, userId },
+          select: {
+            id: true,
+            primaryLanguageId: true,
+            secondaryLanguageId: true,
+          },
+        });
+        if (!profile) {
+          throw new DomainException(
+            'PROFILE_NOT_FOUND',
+            'Không tìm thấy hồ sơ học của bộ sưu tập',
+            HttpStatus.CONFLICT,
+          );
+        }
+        assertLanguagesInProfile(
+          profileLanguageIds(
+            profile.primaryLanguageId,
+            profile.secondaryLanguageId,
+          ),
+          [anchor.language_id, ...(secondary ? [secondary.language_id] : [])],
+        );
+
         const maxPosition = await tx.collectionItem.aggregate({
           where: { collectionId },
           _max: { position: true },
@@ -291,7 +330,7 @@ export class ItemsService {
       throw error;
     }
 
-    return this.getItemOrThrow(collectionId, itemId);
+    return this.getItemOrThrow(userId, collectionId, itemId);
   }
 
   async update(
@@ -334,7 +373,7 @@ export class ItemsService {
       }
     });
 
-    return this.getItemOrThrow(collectionId, itemId);
+    return this.getItemOrThrow(userId, collectionId, itemId);
   }
 
   async remove(
@@ -414,9 +453,15 @@ export class ItemsService {
   }
 
   private async getItemOrThrow(
+    userId: bigint,
     collectionId: string,
     itemId: string,
   ): Promise<ItemResponse> {
+    const collection = await this.findOwnedCollection(userId, collectionId);
+    const allowed = await this.collectionLanguages(
+      userId,
+      collection.profileId,
+    );
     const row = await this.prisma.collectionItem.findFirst({
       where: { id: itemId, collectionId },
       include: { faces: true, itemTags: true },
@@ -424,7 +469,30 @@ export class ItemsService {
     if (!row) {
       throw itemNotFound();
     }
-    return toItemResponse(row);
+    return toItemResponse({
+      ...row,
+      faces: row.faces.filter((face) => allowed.includes(face.languageId)),
+    });
+  }
+
+  private async collectionLanguages(
+    userId: bigint,
+    profileId: string,
+  ): Promise<number[]> {
+    const profile = await this.prisma.studyProfile.findFirst({
+      where: { id: profileId, userId },
+      select: { primaryLanguageId: true, secondaryLanguageId: true },
+    });
+    if (!profile)
+      throw new DomainException(
+        'PROFILE_NOT_FOUND',
+        'Không tìm thấy hồ sơ học',
+        HttpStatus.NOT_FOUND,
+      );
+    return profileLanguageIds(
+      profile.primaryLanguageId,
+      profile.secondaryLanguageId,
+    );
   }
 }
 
@@ -480,6 +548,11 @@ function toItemResponse(row: ItemRow): ItemResponse {
     collection_id: row.collectionId,
     concept_id: row.conceptId?.toString() ?? null,
     anchor_sense_id: row.anchorSenseId.toString(),
+    display_sense_id:
+      (
+        row.faces.find((face) => face.senseId === row.anchorSenseId) ??
+        row.faces[0]
+      )?.senseId.toString() ?? null,
     meaning_vi: row.meaningVi,
     meaning_source: row.meaningSource,
     note: row.note,

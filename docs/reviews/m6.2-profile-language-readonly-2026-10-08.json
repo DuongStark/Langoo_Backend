@@ -1,0 +1,82 @@
+{
+  "milestone": "M6.2",
+  "name": "Phạm vi ngôn ngữ hồ sơ và hàng đợi SRS",
+  "date": "2026-10-08",
+  "environment": "VPS DB; SQL from local build, runtime not deployed",
+  "read_only": true,
+  "transaction": "BEGIN READ ONLY / ROLLBACK",
+  "results": [
+    {
+      "label": "dictionary-1-search",
+      "rows": 21,
+      "language_ids": [1],
+      "elapsed_ms": 125
+    },
+    {
+      "label": "dictionary-1-suggestions",
+      "rows": 5,
+      "language_ids": [1],
+      "elapsed_ms": 103
+    },
+    {
+      "label": "dictionary-2-search",
+      "rows": 21,
+      "language_ids": [2],
+      "elapsed_ms": 57
+    },
+    {
+      "label": "dictionary-2-suggestions",
+      "rows": 5,
+      "language_ids": [2],
+      "elapsed_ms": 56
+    },
+    {
+      "label": "dictionary-1-2-search",
+      "rows": 21,
+      "language_ids": [1],
+      "elapsed_ms": 515
+    },
+    {
+      "label": "dictionary-1-2-suggestions",
+      "rows": 5,
+      "language_ids": [1],
+      "elapsed_ms": 436
+    },
+    {
+      "label": "collections-visible-count",
+      "rows": 1,
+      "language_ids": [],
+      "elapsed_ms": 4
+    },
+    {
+      "label": "quiz-visible-face",
+      "rows": 12,
+      "language_ids": [2],
+      "elapsed_ms": 17
+    },
+    {
+      "label": "due-language-1",
+      "rows": 0,
+      "language_ids": [],
+      "elapsed_ms": 7
+    },
+    {
+      "label": "due-language-2",
+      "rows": 24,
+      "language_ids": [2],
+      "elapsed_ms": 12
+    }
+  ],
+  "limitations": [
+    "No HTTP write E2E; local test DB connection refused",
+    "One observed sample/timing; not SLA",
+    "Bilingual scope permits both; ranked first page for run happened to contain EN only"
+  ],
+  "quiz_query_diagnostic": {
+    "anchor_baseline_explain_ms": 2.691,
+    "initial_scoped_join_explain_ms": 19995.417,
+    "initial_projected_senses": 164455,
+    "bounded_lookup_read_ms": 17,
+    "fix": "Parameterized LATERAL sense_card lookup with OFFSET 0"
+  }
+}

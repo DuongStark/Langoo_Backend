@@ -61,6 +61,14 @@ curl -s -X DELETE http://localhost:3000/v1/profiles/<id> -H "Authorization: Bear
   - Không xoá hồ sơ **đang mặc định** khi còn hồ sơ khác → `409 PROFILE_IS_DEFAULT` (đặt hồ sơ khác làm mặc định trước).
   - Không xoá hồ sơ **duy nhất** → `409 PROFILE_LAST_CANNOT_DELETE` (tránh xoá cascade collection/SRS).
 - `PATCH` với `"is_default": false` trên hồ sơ đang mặc định → `409 PROFILE_IS_DEFAULT`.
+- M6.2: cho phép đổi JA+EN → JA-only/EN-only dù collection đã có từ của cả hai.
+  Item/face/SRS ngoài phạm vi được ẩn khỏi collection và queue, không bị xóa hoặc
+  đổi lịch. Bật lại ngôn ngữ sẽ hiển thị lại dữ liệu cũ. Không có lỗi
+  `PROFILE_LANGUAGE_IN_USE` cho thao tác này.
+- Add/clone vẫn kiểm tra ngôn ngữ mới theo hồ sơ hiện tại. Sửa profile và add dùng
+  cùng user lock để tránh kiểm tra trên cấu hình cũ.
+- FE sau PATCH primary/secondary hoặc đổi active_profile_id phải reset cache,
+  cursor, thẻ/session đang học và tải lại collection/dictionary/queue/stats.
 
 ## GET /v1/me/settings
 
@@ -97,3 +105,9 @@ curl -s -X PATCH http://localhost:3000/v1/me/settings \
   được giữ lại nếu có.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **profiles**, **settings**).
+
+M6.2: khi thay đổi tập ngôn ngữ, quiz `ready` của hồ sơ được đánh dấu `expired`
+để không reuse snapshot theo scope cũ. Câu hỏi/lịch sử vẫn được giữ; tạo quiz mới
+vẫn tuân cooldown/quota. Nếu đổi hồ sơ/ngôn ngữ trong lúc AI đang tạo câu hỏi,
+BE trả `409 QUIZ_SCOPE_CHANGED` và đánh dấu job failed; FE báo cần tạo lại,
+không render kết quả cũ.

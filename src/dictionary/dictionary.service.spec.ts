@@ -1,3 +1,6 @@
+import { encodeDictionarySearchCursor } from './dictionary-search-cursor';
+import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
+import { StudyLanguageScopeService } from '../users/study-language-scope.service';
 import { JapanesePriorityRepository } from './repositories/japanese-priority.repository';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
@@ -45,6 +48,8 @@ function createSetup(): {
   service: DictionaryService;
   repos: {
     search: { search: jest.Mock };
+    scope: { resolve: jest.Mock };
+    reverse: { findViSources: jest.Mock; findJaTargets: jest.Mock };
     priority: { getByLexemes: jest.Mock };
     senseCard: {
       getBySenseId: jest.Mock;
@@ -67,6 +72,8 @@ function createSetup(): {
 } {
   const repos = {
     search: { search: jest.fn() },
+    scope: { resolve: jest.fn().mockResolvedValue(null) },
+    reverse: { findViSources: jest.fn(), findJaTargets: jest.fn() },
     priority: { getByLexemes: jest.fn().mockResolvedValue([]) },
     senseCard: {
       getBySenseId: jest.fn(),
@@ -96,11 +103,150 @@ function createSetup(): {
     repos.languages as unknown as LanguageRepository,
     repos.storage,
     repos.priority as unknown as JapanesePriorityRepository,
+    repos.reverse as unknown as ReverseLookupRepository,
+    repos.scope as unknown as StudyLanguageScopeService,
   );
   return { service, repos };
 }
 
 describe('DictionaryService', () => {
+  it('rejects a cursor from the previous language set even if profile ID and query are unchanged', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue({
+      languageIds: [2],
+      key: 'profile-1:2',
+    });
+    const cursor = encodeDictionarySearchCursor({
+      version: 5,
+      query: 'run',
+      lang: null,
+      scopeKey: 'profile-1:1,2',
+      exactRank: 0,
+      prefixRank: 0,
+      jaSourceRank: 0,
+      viTranslationRank: 0,
+      frequencyNullRank: 0,
+      frequencyRank: 100,
+      surfaceLength: 3,
+      lexemeId: '1',
+      surfaceKind: 'lemma',
+      surface: 'run',
+    });
+    await expect(
+      service.search({ q: 'run', cursor }, 1n),
+    ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    expect(repos.search.search).not.toHaveBeenCalled();
+  });
+
+  it('JA-only reverse lookup hides its EN intermediary and reports only visible matches', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue({ languageIds: [2] });
+    repos.languages.findIdByCode.mockImplementation((code: string) =>
+      Promise.resolve(code === 'ja' ? 2 : 1),
+    );
+    repos.reverse.findViSources.mockResolvedValue([
+      {
+        source_lexeme_id: 1n,
+        en_lemma: 'cat',
+        en_pos: 'noun',
+        frequency_rank: 50,
+        sense_hint: null,
+      },
+    ]);
+    repos.reverse.findJaTargets.mockResolvedValue([
+      { source_lexeme_id: 1n, target_text: '猫', sense_hint: null },
+    ]);
+    const result = await service.reverseLookup('mèo', undefined, 1n);
+    expect(result).toMatchObject({
+      matched: true,
+      en: [],
+      ja: [{ text: '猫', viaLemma: '' }],
+    });
+    repos.reverse.findJaTargets.mockResolvedValue([]);
+    expect((await service.reverseLookup('mèo', undefined, 1n)).matched).toBe(
+      false,
+    );
+  });
+
+  it('an EN-only profile cannot open Japanese kanji details', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue({ languageIds: [1] });
+    repos.languages.findIdByCode.mockResolvedValue(2);
+    await expect(service.getKanji('猫', 1n)).rejects.toMatchObject({
+      code: 'KANJI_NOT_FOUND',
+    });
+    expect(repos.kanji.getByLiteral).not.toHaveBeenCalled();
+  });
+
+  it('both search and suggestions pass profile languages to the repository before pagination', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue({
+      profileId: 'profile-1',
+      languageIds: [2],
+      key: 'profile-1:2',
+    });
+    repos.search.search.mockResolvedValue([]);
+    await service.search({ q: 'run' }, 1n);
+    await service.suggest({ q: 'run' }, 1n);
+    expect(repos.scope.resolve).toHaveBeenNthCalledWith(1, 1n);
+    expect(repos.scope.resolve).toHaveBeenNthCalledWith(2, 1n);
+    expect(repos.search.search).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ allowedLanguageIds: [2], limit: 21 }),
+    );
+    expect(repos.search.search).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ allowedLanguageIds: [2], limit: 5 }),
+    );
+  });
+
+  it('cannot open EN sense/lexeme directly in a JA-only profile', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue({ languageIds: [2] });
+    repos.senseCard.hasLexeme.mockResolvedValue(true);
+    repos.senseCard.getBySenseId.mockResolvedValue({
+      ...senseCard,
+      languageId: 1,
+    });
+    repos.senseCard.getByLexemeId.mockResolvedValue([
+      { ...senseCard, languageId: 1 },
+    ]);
+    await expect(service.getSenseDetail(1n, 1n)).rejects.toMatchObject({
+      code: 'SENSE_NOT_FOUND',
+    });
+    await expect(service.getSenseLinks(1n, 1n)).rejects.toMatchObject({
+      code: 'SENSE_NOT_FOUND',
+    });
+    await expect(service.getLexemeSenses(1n, 'flat', 1n)).rejects.toMatchObject(
+      { code: 'LEXEME_NOT_FOUND' },
+    );
+    expect(repos.content.getGlosses).not.toHaveBeenCalled();
+    expect(repos.pairs.findLinks).not.toHaveBeenCalled();
+  });
+
+  it('JA detail links omit EN suggestions while preserving supported JA entries', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue({ languageIds: [2] });
+    repos.senseCard.getBySenseId.mockResolvedValue(senseCard);
+    const common = {
+      sense_id: 2n,
+      lemma: 'run',
+      reading: null,
+      romanization: null,
+      confidence: 1,
+      concept_id: 1n,
+    };
+    repos.pairs.findLinks.mockResolvedValue([
+      { ...common, language_id: 1 },
+      { ...common, language_id: 2, lemma: '走る' },
+    ]);
+    expect(
+      (await service.getSenseLinks(1n, 1n)).data.map(
+        (link) => link.language_id,
+      ),
+    ).toEqual([2]);
+  });
+
   describe('search', () => {
     const hitRow = {
       lexeme_id: 2n,
@@ -635,5 +781,54 @@ describe('M4.5 Japanese learner presentation', () => {
     expect(flat.data.map((card) => card.sense_id)).toEqual(['10', '20', '30']);
     expect(repos.priority.getByLexemes).toHaveBeenCalledTimes(1);
   });
+});
 
+describe('DictionaryService suggestions', () => {
+  it('loads Japanese previews once and leaves English hits without one', async () => {
+    const { service, repos } = createSetup();
+    repos.languages.findIdByCode.mockResolvedValue(2);
+    repos.search.search.mockResolvedValue([
+      {
+        lexeme_id: 1n,
+        language_id: 2,
+        lang_code: 'ja',
+        surface: '走る',
+        reading: 'はしる',
+        pos: 'verb',
+        frequency_rank: 10,
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+      },
+      {
+        lexeme_id: 2n,
+        language_id: 1,
+        lang_code: 'en',
+        surface: 'run',
+        reading: null,
+        pos: 'verb',
+        frequency_rank: 110,
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: false,
+      },
+    ]);
+    repos.priority.getByLexemes.mockResolvedValue([
+      {
+        lexeme_id: 1n,
+        sense_id: 1n,
+        display_order: 1,
+        recommended: true,
+        basis: 'curated_learner',
+      },
+    ]);
+    repos.senseCard.getBySenseIds.mockResolvedValue([senseCard]);
+
+    const result = await service.suggest({ q: 'hashiru', lang: 'ja' });
+
+    expect(result.data).toHaveLength(2);
+    expect(result.data[0].preview?.sense_id).toBe('1');
+    expect(result.data[1].preview).toBeUndefined();
+    expect(repos.senseCard.getBySenseIds).toHaveBeenCalledTimes(1);
+  });
 });

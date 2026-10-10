@@ -4,6 +4,10 @@ import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
 import { Prisma } from '../generated/prisma/client';
+import {
+  assertLanguagesInProfile,
+  profileLanguageIds,
+} from '../users/profile-languages';
 import { lockUser } from '../users/user-lock';
 import { CloneFromDeckDto } from './dto/clone-from-deck.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
@@ -31,6 +35,7 @@ interface CollectionRow {
   clonedFromCollectionId: string | null;
   isPublic: boolean;
   itemCount: number;
+  visibleItemCount?: number;
   createdAt: Date;
   updatedAt: Date;
   archivedAt: Date | null;
@@ -48,6 +53,7 @@ interface CollectionDbRow {
   cloned_from_collection_id: string | null;
   is_public: boolean;
   item_count: number;
+  visible_item_count: number;
   created_at: Date;
   updated_at: Date;
   archived_at: Date | null;
@@ -103,11 +109,17 @@ export class CollectionsService {
         c.cloned_from_collection_id,
         c.is_public,
         c.item_count,
+        (SELECT count(*)::int FROM app.collection_item i
+          WHERE i.collection_id=c.id AND EXISTS (
+            SELECT 1 FROM app.collection_item_face f
+            WHERE f.item_id=i.id AND f.language_id IN (p.primary_language_id, p.secondary_language_id)
+          )) AS visible_item_count,
         c.created_at,
         c.updated_at,
         c.archived_at,
         to_char(c.updated_at AT TIME ZONE 'UTC', 'YYYY-MM-DD"T"HH24:MI:SS.US"Z"') AS updated_at_cursor
       FROM app.collection c
+      JOIN app.study_profile p ON p.id=c.profile_id AND p.user_id=c.owner_id
       WHERE c.owner_id = ${userId}
         AND c.archived_at IS NULL
         ${profilePredicate}
@@ -150,7 +162,7 @@ export class CollectionsService {
 
   async get(userId: bigint, collectionId: string): Promise<CollectionResponse> {
     const row = await this.findOwned(userId, collectionId);
-    return toCollectionResponse(row);
+    return this.withVisibleCount(userId, row);
   }
 
   async update(
@@ -168,7 +180,7 @@ export class CollectionsService {
           : {}),
       },
     });
-    return toCollectionResponse(row);
+    return this.withVisibleCount(userId, row);
   }
 
   /** Xoá mềm: archive để giữ lịch sử ôn tập. */
@@ -260,6 +272,30 @@ export class CollectionsService {
 
     const collection = await this.prisma.$transaction(
       async (tx) => {
+        await lockUser(tx, userId);
+        const profile = await tx.studyProfile.findFirst({
+          where: { id: profileId, userId },
+          select: {
+            id: true,
+            primaryLanguageId: true,
+            secondaryLanguageId: true,
+          },
+        });
+        if (!profile) {
+          throw new DomainException(
+            'PROFILE_NOT_FOUND',
+            'Không tìm thấy hồ sơ học của bộ sưu tập',
+            HttpStatus.CONFLICT,
+          );
+        }
+        assertLanguagesInProfile(
+          profileLanguageIds(
+            profile.primaryLanguageId,
+            profile.secondaryLanguageId,
+          ),
+          rows.map((row) => row.face.languageId),
+        );
+
         const created = await tx.collection.create({
           data: {
             id: collectionId,
@@ -307,6 +343,38 @@ export class CollectionsService {
     );
 
     return toCollectionResponse(collection);
+  }
+
+  private async withVisibleCount(
+    userId: bigint,
+    row: CollectionRow,
+  ): Promise<CollectionResponse> {
+    const profile = await this.prisma.studyProfile.findFirst({
+      where: { id: row.profileId, userId },
+      select: { primaryLanguageId: true, secondaryLanguageId: true },
+    });
+    if (!profile)
+      throw new DomainException(
+        'PROFILE_NOT_FOUND',
+        'Không tìm thấy hồ sơ học',
+        HttpStatus.NOT_FOUND,
+      );
+    const visibleItemCount = await this.prisma.collectionItem.count({
+      where: {
+        collectionId: row.id,
+        faces: {
+          some: {
+            languageId: {
+              in: profileLanguageIds(
+                profile.primaryLanguageId,
+                profile.secondaryLanguageId,
+              ),
+            },
+          },
+        },
+      },
+    });
+    return toCollectionResponse({ ...row, visibleItemCount });
   }
 
   private async findOwned(
@@ -385,6 +453,7 @@ function toCollectionResponse(row: CollectionRow): CollectionResponse {
     cloned_from_collection_id: row.clonedFromCollectionId,
     is_public: row.isPublic,
     item_count: row.itemCount,
+    visible_item_count: row.visibleItemCount ?? row.itemCount,
     created_at: row.createdAt.toISOString(),
     updated_at: row.updatedAt.toISOString(),
     archived_at: row.archivedAt?.toISOString() ?? null,
@@ -403,6 +472,7 @@ function fromDbRow(row: CollectionDbRow): CollectionRow {
     clonedFromCollectionId: row.cloned_from_collection_id,
     isPublic: row.is_public,
     itemCount: row.item_count,
+    visibleItemCount: row.visible_item_count,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     archivedAt: row.archived_at,

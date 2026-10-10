@@ -1,4 +1,8 @@
-import { DueCandidate, selectDueQueue } from './queue';
+import {
+  DueCandidate,
+  selectDueQueue,
+  selectPracticeRepresentatives,
+} from './queue';
 
 const T0 = new Date('2026-09-27T09:00:00.000Z');
 const T1 = new Date('2026-09-27T09:05:00.000Z');
@@ -135,5 +139,81 @@ describe('selectDueQueue', () => {
       nextCursor: null,
       counts: { learning: 0, review: 0, new: 0 },
     });
+  });
+});
+
+describe('M6.2 sibling selection', () => {
+  it('siblings do not consume quota or pagination slots; the last new item is reachable', () => {
+    const rows: DueCandidate[] = [
+      { srsId: 1n, itemId: 'a', dueAt: T0, bucket: 2 },
+      { srsId: 2n, itemId: 'a', dueAt: T0, bucket: 2 },
+      { srsId: 3n, itemId: 'b', dueAt: T0, bucket: 2 },
+      { srsId: 4n, itemId: 'b', dueAt: T0, bucket: 2 },
+      { srsId: 5n, itemId: 'c', dueAt: T0, bucket: 2 },
+    ];
+    const first = selectDueQueue(
+      rows,
+      { newRemaining: 3, reviewRemaining: 0 },
+      null,
+      2,
+    );
+    expect(first.rows.map((row) => row.srsId)).toEqual([1n, 3n]);
+    expect(first.counts.new).toBe(3);
+    const second = selectDueQueue(
+      rows,
+      { newRemaining: 3, reviewRemaining: 0 },
+      first.nextCursor,
+      2,
+    );
+    expect(second.rows.map((row) => row.srsId)).toEqual([5n]);
+    expect(second.nextCursor).toBeNull();
+  });
+
+  it('keeps independent learning schedules, suppressing only new/review siblings', () => {
+    const rows: DueCandidate[] = [
+      { srsId: 1n, itemId: 'a', dueAt: T0, bucket: 0 },
+      { srsId: 2n, itemId: 'a', dueAt: T1, bucket: 0 },
+      { srsId: 3n, itemId: 'a', dueAt: T2, bucket: 1 },
+      { srsId: 4n, itemId: 'a', dueAt: T3, bucket: 2 },
+      { srsId: 5n, itemId: 'b', dueAt: T3, bucket: 2 },
+    ];
+    expect(
+      selectDueQueue(
+        rows,
+        { newRemaining: 1, reviewRemaining: 1 },
+        null,
+        20,
+      ).rows.map((row) => row.srsId),
+    ).toEqual([1n, 2n, 5n]);
+  });
+
+  it('a review blocked by quota does not suppress its eligible new sibling', () => {
+    const rows: DueCandidate[] = [
+      { srsId: 1n, itemId: 'a', dueAt: T0, bucket: 1 },
+      { srsId: 2n, itemId: 'a', dueAt: T1, bucket: 2 },
+    ];
+    expect(
+      selectDueQueue(
+        rows,
+        { newRemaining: 1, reviewRemaining: 0 },
+        null,
+        20,
+      ).rows.map((row) => row.srsId),
+    ).toEqual([2n]);
+  });
+
+  it('practice preserves learning steps and removes buryable siblings', () => {
+    const rows = [
+      { item_id: 'a', state: 'new' },
+      { item_id: 'a', state: 'learning' },
+      { item_id: 'a', state: 'relearning' },
+      { item_id: 'b', state: 'new' },
+      { item_id: 'b', state: 'new' },
+    ];
+    expect(selectPracticeRepresentatives(rows)).toEqual([
+      rows[1],
+      rows[2],
+      rows[3],
+    ]);
   });
 });

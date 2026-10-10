@@ -752,6 +752,7 @@ export class SrsService {
 function toCandidate(row: DueRow): DueCandidate {
   return {
     srsId: row.srs_id,
+    itemId: row.item_id,
     dueAt: row.due_at,
     dueAtKey: row.due_at_key,
     bucket: bucketOf(row.state),

@@ -19,6 +19,7 @@ export interface KanjiRow {
   query_codes: unknown;
   used_in_forms: bigint;
   media_kinds: string[] | null;
+  parts: unknown;
 }
 
 export interface KanjiStrokeRow {
@@ -52,7 +53,24 @@ export class KanjiRepository {
         kc.nanori,
         kc.query_codes,
         kc.used_in_forms,
-        kc.media_kinds
+        kc.media_kinds,
+        coalesce((
+          SELECT jsonb_agg(
+            jsonb_build_object(
+              'char', kr.part,
+              'position', kr.position,
+              'is_radical', (r.number IS NOT NULL),
+              'radical_number', r.number,
+              'name_vi', r.name_vi,
+              'meaning_vi', r.meaning_vi
+            )
+            ORDER BY kr.position NULLS LAST, kr.part
+          )
+          FROM core.kanji_radical kr
+          LEFT JOIN public.radical r
+            ON r."character" = kr.part OR kr.part = ANY (r.variants)
+          WHERE kr.kanji_literal = kc.literal
+        ), '[]'::jsonb) AS parts
       FROM serve.kanji_card kc
       WHERE kc.literal = ${literal}
     `;

@@ -6,6 +6,7 @@ import { LanguageRepository } from '../db/repositories/language.repository';
 import { CreateProfileDto } from './dto/create-profile.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { DeletedProfileResponse, ProfileResponse } from './types/users.types';
+import { profileLanguageScopeKey } from './profile-languages';
 import { lockUser } from './user-lock';
 
 interface ProfileRow {
@@ -158,6 +159,20 @@ export class ProfileService {
           ...(makeDefault ? { isDefault: true } : {}),
         },
       });
+      if (
+        profileLanguageScopeKey(
+          profileId,
+          existing.primaryLanguageId,
+          existing.secondaryLanguageId,
+        ) !== profileLanguageScopeKey(profileId, primary, secondary)
+      ) {
+        // Do not reuse a ready quiz whose snapshot belongs to the previous scope.
+        // Vocabulary, SRS and history remain intact; generate a new quiz instead.
+        await tx.quiz.updateMany({
+          where: { userId, profileId, status: 'ready' },
+          data: { status: 'expired' },
+        });
+      }
       if (makeDefault) {
         await tx.userSettings.upsert({
           where: { userId },

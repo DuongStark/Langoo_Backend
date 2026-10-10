@@ -1,3 +1,4 @@
+import { UsersModule } from '../users/users.module';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { DictionaryService } from './dictionary.service';
@@ -14,6 +15,7 @@ import { FeedbackService } from './feedback.service';
 import { JapanesePriorityRepository } from './repositories/japanese-priority.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository } from './repositories/kanji.repository';
+import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import { SenseContentRepository } from './repositories/sense-content.repository';
@@ -24,7 +26,7 @@ import { SensePairRepository } from './repositories/sense-pair.repository';
  * Chỉ đọc core/serve; ghi app.search_history + app.gloss_report.
  */
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, UsersModule],
   controllers: [
     SearchController,
     LexemeController,
@@ -43,6 +45,7 @@ import { SensePairRepository } from './repositories/sense-pair.repository';
     SenseContentRepository,
     SensePairRepository,
     KanjiRepository,
+    ReverseLookupRepository,
     SearchHistoryRepository,
   ],
   exports: [DictionaryService, SenseCardRepository],

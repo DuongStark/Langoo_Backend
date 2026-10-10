@@ -8,7 +8,10 @@ Tất cả endpoint cần **Bearer token**; số liệu "ngày" tính theo `user
 Hàng đợi hôm nay: thứ tự **intraday learning → interday learning → review → new**; có
 **learn-ahead 20 phút** chỉ khi toàn bộ queue thường trong phạm vi đã cạn; tôn trọng **daily
 limit** (`srs_new_per_day` / `srs_review_per_day` trong `/me/settings`); lọc theo hồ sơ đang
-hoạt động; **thẻ anh em (sibling) đang bị "bury" trong ngày sẽ tự ẩn**.
+hoạt động; **thẻ anh em (sibling) đang bị "bury" trong ngày sẽ tự ẩn**. Trong cùng
+`collection_item`, queue chọn tối đa một thẻ new/review đại diện. Nếu item có learning
+đến hạn, các sibling new/review của item không vào queue vì trả lời learning sẽ bury chúng.
+Learning cards giữ lịch độc lập. Không xóa hay gộp SRS state.
 
 ```bash
 curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <token>"
@@ -52,8 +55,8 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
   `is_machine_generated`; cờ chỉ phản ánh nguồn dữ liệu, không hàm ý đã kiểm duyệt.
 - Phân trang: `?limit` (mặc định 50, tối đa 100) + cursor version 1 bind với profile,
   collection, ngày địa phương, phase và microsecond UTC. Đổi context hoặc qua ngày trả 400.
-- `counts` là tổng sau filter và cap, trước `limit`/cursor; intraday learning không tiêu review
-  quota, còn interday learning tiêu quota review.
+- `counts` là tổng sau filter, bỏ sibling sẽ bị bury và áp cap, trước `limit`/cursor;
+  intraday learning không tiêu review quota, còn interday learning tiêu quota review.
 - Lỗi: `409 PROFILE_REQUIRED` (chưa có hồ sơ học) · `400 VALIDATION_FAILED` (cursor/limit sai).
 
 ## POST /v1/srs/reviews

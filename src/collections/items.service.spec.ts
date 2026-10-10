@@ -16,6 +16,7 @@ interface TxMock {
   srsState: { createMany: jest.Mock };
   collectionItemTag: { deleteMany: jest.Mock; createMany: jest.Mock };
   collection: { update: jest.Mock };
+  studyProfile: { findFirst: jest.Mock };
   $queryRaw: jest.Mock;
 }
 
@@ -60,6 +61,7 @@ function createSetup(): {
     collection: { findFirst: jest.Mock };
     collectionItem: { findFirst: jest.Mock; findMany: jest.Mock };
     tag: { findMany: jest.Mock };
+    studyProfile: { findFirst: jest.Mock };
     $transaction: jest.Mock;
   };
   tx: TxMock;
@@ -82,12 +84,20 @@ function createSetup(): {
     srsState: { createMany: jest.fn() },
     collectionItemTag: { deleteMany: jest.fn(), createMany: jest.fn() },
     collection: { update: jest.fn() },
+    studyProfile: {
+      findFirst: jest.fn().mockResolvedValue({
+        id: 'profile-1',
+        primaryLanguageId: 2,
+        secondaryLanguageId: 1,
+      }),
+    },
     $queryRaw: jest.fn(),
   };
   const prisma = {
     collection: { findFirst: jest.fn() },
     collectionItem: { findFirst: jest.fn(), findMany: jest.fn() },
     tag: { findMany: jest.fn() },
+    studyProfile: tx.studyProfile,
     $transaction: jest.fn((fn: (client: TxMock) => Promise<unknown>) => fn(tx)),
   };
   const senseLookup = {
@@ -109,6 +119,24 @@ function createSetup(): {
 
 describe('ItemsService', () => {
   describe('add', () => {
+    it('EN add to JA-only rejects before item/face/SRS writes', async () => {
+      const { service, prisma, tx, senseLookup } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      tx.studyProfile.findFirst.mockResolvedValue({
+        primaryLanguageId: 2,
+        secondaryLanguageId: null,
+      });
+      senseLookup.findManyByIds.mockResolvedValue([
+        { sense_id: 2n, language_id: 1, lemma: 'run', concept_id: null },
+      ]);
+      await expect(
+        service.add(1n, COLLECTION_ID, { sense_id: '2', meaning_vi: 'chạy' }),
+      ).rejects.toMatchObject({ code: 'COLLECTION_LANGUAGE_NOT_IN_PROFILE' });
+      expect(tx.collectionItem.create).not.toHaveBeenCalled();
+      expect(tx.collectionItemFace.create).not.toHaveBeenCalled();
+      expect(tx.srsState.createMany).not.toHaveBeenCalled();
+    });
+
     it('2 sense khác ngôn ngữ → 1 item + 2 face + 4 srs_state + item_count +1', async () => {
       const { service, prisma, tx, senseLookup } = createSetup();
       prisma.collection.findFirst.mockResolvedValue(collectionRow());
@@ -282,6 +310,65 @@ describe('ItemsService', () => {
   });
 
   describe('list', () => {
+    it('JA-only projects the secondary JA face when the preserved anchor is EN', async () => {
+      const { service, prisma, tx } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      tx.studyProfile.findFirst.mockResolvedValue({
+        primaryLanguageId: 2,
+        secondaryLanguageId: null,
+      });
+      prisma.collectionItem.findMany.mockResolvedValue([
+        itemRow({
+          anchorSenseId: 2n,
+          faces: [
+            { id: 'face-ja', senseId: 1n, languageId: 2, role: 'secondary' },
+          ],
+        }),
+      ]);
+      const result = await service.list(1n, COLLECTION_ID, { limit: 1 });
+      expect(prisma.collectionItem.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            collectionId: COLLECTION_ID,
+            faces: { some: { languageId: { in: [2] } } },
+          },
+          include: {
+            faces: { where: { languageId: { in: [2] } } },
+            itemTags: true,
+          },
+          take: 2,
+        }),
+      );
+      expect(result.data[0]).toMatchObject({
+        anchor_sense_id: '2',
+        display_sense_id: '1',
+        faces: [{ language_id: 2 }],
+      });
+      expect(prisma.$transaction).not.toHaveBeenCalled();
+    });
+
+    it('an explicit excluded language cannot override the profile scope', async () => {
+      const { service, prisma, tx, languages } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      tx.studyProfile.findFirst.mockResolvedValue({
+        primaryLanguageId: 2,
+        secondaryLanguageId: null,
+      });
+      languages.findExistingIds.mockResolvedValue(new Set([1, 2]));
+      prisma.collectionItem.findMany.mockResolvedValue([]);
+      expect(
+        (await service.list(1n, COLLECTION_ID, { language_id: 1 })).data,
+      ).toEqual([]);
+      expect(prisma.collectionItem.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: {
+            collectionId: COLLECTION_ID,
+            faces: { some: { languageId: { in: [] } } },
+          },
+        }),
+      );
+    });
+
     it('dùng cursor keyset (position, id) + limit+1 để biết còn trang sau', async () => {
       const { service, prisma } = createSetup();
       prisma.collection.findFirst.mockResolvedValue(collectionRow());

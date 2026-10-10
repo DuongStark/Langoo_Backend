@@ -29,8 +29,13 @@ suspend và bury trong transaction khi trả lời.
 ## POST /v1/sessions
 
 `kind`: `review` = thẻ đến hạn (tôn trọng daily limit + learn-ahead như `/srs/due`);
-`practice` = **ôn trước** mọi thẻ trong bộ (kể cả chưa đến hạn, không áp daily limit),
+`practice` = **ôn trước** từ trong bộ (kể cả chưa đến hạn, không áp daily limit),
 `limit` 1–50 (mặc định 20). Cả hai vẫn cập nhật lịch SRS.
+
+Để một lượt không chứa sibling sẽ bị bury ngay khi trả lời sibling đầu, mỗi
+`collection_item` đóng góp tối đa một thẻ new/review vào snapshot; learning cards
+giữ nguyên. Trong `practice`, bộ candidate đọc tối đa bốn lịch mỗi item trước khi
+lọc, nên vẫn có thể trả đủ `limit` item khác nhau. Các lịch SRS không bị xóa/gộp.
 
 Phiên chốt **một** `profile_id` ngay khi tạo: thẻ, câu nhiễu và bản ghi session dùng cùng
 hồ sơ đó. Đổi `active_profile_id` xen giữa (trước đây `collectDueRows` đọc lại active profile)

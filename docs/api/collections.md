@@ -29,7 +29,10 @@ curl -s -X DELETE localhost:3000/v1/collections/<id> -H "Authorization: Bearer <
 
 Client gửi **`sense_id`**, server tự suy ra ngôn ngữ từ `core.sense → lexeme`
 (không nhận `language_id` từ client). `secondary_sense_id` phải **khác ngôn ngữ**
-với mặt chính. Mỗi face sinh **2 `srs_state`** (`recognize` + `recall`) trong cùng transaction.
+với mặt chính và cả hai language phải nằm trong primary/secondary language của
+profile gắn với bộ. BE đọc lại profile dưới user lock trước khi ghi; đổi ngôn ngữ
+profile được phép thay đổi: face ngoài phạm vi được ẩn và giữ lịch ôn. Mỗi face sinh
+**2 `srs_state`** (`recognize` + `recall`) trong cùng transaction.
 
 ```bash
 curl -s -X POST localhost:3000/v1/collections/<id>/items \
@@ -41,6 +44,7 @@ curl -s -X POST localhost:3000/v1/collections/<id>/items \
 {
   "id": "01a0...",
   "anchor_sense_id": "1",
+  "display_sense_id": "1",
   "meaning_vi": "chạy",
   "meaning_source": "user",
   "status": "learning",
@@ -55,7 +59,13 @@ curl -s -X POST localhost:3000/v1/collections/<id>/items \
 
 Lỗi: `409 ITEM_ALREADY_EXISTS` (từ đã có) · `400 COLLECTION_FACE_LANGUAGE_DUPLICATE` ·
 `400 COLLECTION_SENSE_PAIR_INVALID` (hai sense không phải cặp đã duyệt) ·
-`400 COLLECTION_CONCEPT_INVALID` · `404 SENSE_NOT_FOUND` / `404 TAG_NOT_FOUND`.
+`400 COLLECTION_CONCEPT_INVALID` · `409 COLLECTION_LANGUAGE_NOT_IN_PROFILE`
+(details có `allowed_language_ids` và `unsupported_language_ids`) ·
+`404 SENSE_NOT_FOUND` / `404 TAG_NOT_FOUND`.
+
+Đổi hồ sơ JA+EN → JA-only hoặc EN-only được phép. Item/face ngoài ngôn ngữ mới
+được ẩn, không xóa; bật lại ngôn ngữ sẽ thấy từ và lịch ôn cũ. Hai item EN đang nằm
+trong hồ sơ JA được giữ theo cùng quy tắc, không cần chuyển/xóa tự động.
 
 Khi gửi hai face, server chỉ chấp nhận cặp có trong `serve.sense_pair` và cả hai
 mapping có `concept.status = curated`, confidence tối thiểu `0.7`. Concept gửi
@@ -73,7 +83,18 @@ curl -s "localhost:3000/v1/collections/<id>/items?limit=20&cursor=<next_cursor>"
   -H "Authorization: Bearer <token>"
 ```
 
-- `language_id` lọc item **có face** ngôn ngữ đó (mặt phụ cũng tính).
+- Luôn lọc trước phân trang theo primary/secondary của **hồ sơ gắn với collection**.
+  Chỉ trả item có ít nhất một face hợp lệ; `faces[]` cũng chỉ chứa face được phép.
+- `language_id` thu hẹp phạm vi trên (mặt phụ cũng tính), không mở rộng phạm vi hồ sơ.
+  Chọn language tồn tại nhưng ngoài hồ sơ trả danh sách rỗng.
+- `display_sense_id` là face hiện được phép hiển thị, ưu tiên anchor nếu còn được
+  phép. Dùng field này để lấy lemma/detail; `anchor_sense_id` giữ identity gốc.
+  Khi PATCH một item đã bị ẩn, response có `faces: []`, `display_sense_id: null`.
+- Collection response thêm `visible_item_count`: số item có face được phép;
+  `item_count` vẫn là tổng lưu trong DB, gồm từ đang ẩn. Một item song ngữ chỉ tính một.
+- API list collections giữ khả năng xem các hồ sơ của chủ sở hữu; màn hình học
+  phải gửi `profile_id` của hồ sơ active để không trộn các bộ của hồ sơ khác.
+- Đổi language/profile phải tải lại trang đầu, không nối cache/cursor cũ.
 - Cursor keyset `(position, id)` base64url; `next_cursor=null` khi hết.
 
 ## Sửa / xoá từ

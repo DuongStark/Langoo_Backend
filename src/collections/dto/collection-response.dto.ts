@@ -34,6 +34,13 @@ export class CollectionResponseDto {
   @ApiProperty({ example: 12 })
   item_count!: number;
 
+  @ApiProperty({
+    example: 10,
+    description:
+      'Items with at least one face in the collection profile languages',
+  })
+  visible_item_count!: number;
+
   @ApiProperty({ example: '2026-09-27T00:00:00.000Z' })
   created_at!: string;
 
@@ -116,6 +123,13 @@ export class ItemResponseDto {
 
   @ApiProperty({ example: '1' })
   anchor_sense_id!: string;
+
+  @ApiProperty({
+    nullable: true,
+    example: '1',
+    description: 'Visible face to display; anchor identity is preserved',
+  })
+  display_sense_id!: string | null;
 
   @ApiProperty({ example: 'chạy' })
   meaning_vi!: string;

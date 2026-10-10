@@ -13,6 +13,7 @@ interface TxMock {
     delete: jest.Mock;
   };
   userSettings: { upsert: jest.Mock };
+  quiz: { updateMany: jest.Mock };
   $queryRaw: jest.Mock;
 }
 
@@ -60,7 +61,8 @@ function createSetup(): {
       delete: jest.fn(),
     },
     userSettings: { upsert: jest.fn() },
-    $queryRaw: jest.fn(),
+    quiz: { updateMany: jest.fn() },
+    $queryRaw: jest.fn().mockResolvedValue([]),
   };
   const prisma = {
     studyProfile: {
@@ -227,6 +229,30 @@ describe('ProfileService', () => {
   });
 
   describe('update', () => {
+    it('bilingual → JA-only is allowed without deleting stored items or schedules', async () => {
+      const { service, tx, languages } = createSetup();
+      tx.studyProfile.findFirst.mockResolvedValue(profileRow());
+      tx.studyProfile.update.mockResolvedValue(
+        profileRow({ secondaryLanguageId: null }),
+      );
+      languages.findExistingIds.mockResolvedValue(new Set([1, 2, 3]));
+      const result = await service.update(1n, 'profile-1', {
+        secondary_language_id: null,
+      });
+      expect(result.secondary_language_id).toBeNull();
+      expect(tx.quiz.updateMany).toHaveBeenCalledWith({
+        where: { userId: 1n, profileId: 'profile-1', status: 'ready' },
+        data: { status: 'expired' },
+      });
+      expect(tx.studyProfile.update).toHaveBeenCalledWith({
+        where: { id: 'profile-1' },
+        data: { secondaryLanguageId: null },
+      });
+      expect(tx.studyProfile.delete).not.toHaveBeenCalled();
+      // Only the existing user lock; no veto based on stored languages.
+      expect(tx.$queryRaw).toHaveBeenCalledTimes(1);
+    });
+
     it('set default → hạ default cũ + cập nhật active_profile_id', async () => {
       const { service, prisma, tx, languages } = createSetup();
       prisma.studyProfile.findFirst.mockResolvedValue(

@@ -8,6 +8,7 @@ export interface DictionarySearchCursor {
   version: 5;
   query: string;
   lang: string | null;
+  scopeKey?: string;
   exactRank: 0 | 1;
   prefixRank: 0 | 1;
   jaSourceRank: 0 | 1;
@@ -28,6 +29,7 @@ export function encodeDictionarySearchCursor(
       v: cursor.version,
       q: cursor.query,
       l: cursor.lang,
+      h: cursor.scopeKey,
       e: cursor.exactRank,
       p: cursor.prefixRank,
       j: cursor.jaSourceRank,
@@ -57,6 +59,8 @@ export function decodeDictionarySearchCursor(
 
     if (
       parsed.v !== 5 ||
+      (parsed.h !== undefined &&
+        (typeof parsed.h !== 'string' || parsed.h.length > 100)) ||
       typeof parsed.q !== 'string' ||
       parsed.q.length === 0 ||
       parsed.q.length > 100 ||
@@ -87,6 +91,7 @@ export function decodeDictionarySearchCursor(
       version: 5,
       query: parsed.q,
       lang: parsed.l,
+      ...(parsed.h === undefined ? {} : { scopeKey: parsed.h }),
       exactRank: parsed.e,
       prefixRank: parsed.p,
       jaSourceRank: parsed.j,
