@@ -4,9 +4,10 @@ Ngày lập: **2026-10-10**; cập nhật trạng thái **2026-10-11**. DB4-D2 c
 1.000 đã freeze trên VPS. Release `8a2c475` nhận đúng một R1 smoke request và lưu
 response 5.203 byte sau 36,138 giây. Hotfix `b955bfa` đã push; replay D1 trên
 response đã lưu kết luận `invalid_output`: Muse chỉ trả 4/5 verdict bắt buộc.
-Không đủ điều kiện R2 và không gửi lại R1. Final batch report chưa hoàn tất: lần
-chạy bị dừng khi memory PSI vượt ngưỡng; 564 evaluation artifacts còn lại là
-phần dở, chưa có summary/target-results/report manifest. Chưa chạy shadow 1.000,
+Không đủ điều kiện R2 và không gửi lại R1. Final batch report chưa hoàn tất sau
+ba lần chạy read-only có giới hạn: lần mới nhất dừng sau 5:22 khi memory PSI
+tăng; 564 evaluation artifacts còn lại là phần dở, chưa có summary/target-results/
+report manifest. Chưa chạy shadow 1.000,
 chưa apply DB hoặc deploy app. Expansion, format-repair dispatch và Pilot A/B
 audit coordinator còn thiếu.
 Phạm vi: sense JA → concept đã xác minh;
@@ -1106,13 +1107,17 @@ unresolved đã review.
   và `PROGRESS.md`; không thay DB, app hoặc run manifest.
 - Kiểm tra / kết quả: validation manifest `r1-5a43e5931423d276`, SHA256
   `f03f319c3bf0332d2e561fe8e2c4f6056462bf96adecb8b6fb17900ec09a9e9e`;
-  1 `invalid_output`, 965 `pending`. R2 có 966 `pending`. Report tổng bị dừng
-  khi memory PSI `full avg10` đạt 1,36%; có 564 evaluation artifacts một phần,
-  chưa có target-results, summary hay report manifest. Sau khi dừng, tiến trình
-  inactive và RAM khả dụng hồi lên khoảng 646 MiB.
+  1 `invalid_output`, 965 `pending`. R2 có 966 `pending`. Ba lần report
+  read-only đều chưa hoàn tất. Lần mới nhất chạy 5:22 với `MemoryMax=600M`,
+  swap tắt, CPU quota 50%; dừng khi PSI `full avg10` đạt 1,58% và RAM khả dụng
+  khoảng 440 MiB. Còn 564 evaluation artifacts, chưa có target-results, summary
+  hay report manifest. Sau SIGINT, RAM khả dụng hồi lên khoảng 652 MiB. Scope
+  systemd báo inactive trong khi node còn chạy; PID được xác minh theo lệnh report
+  và dừng bằng SIGINT.
 - Gate còn thiếu: report đầy đủ; format repair chưa được triển khai; D1 output
   hợp lệ, Pilot A/B, shadow 1.000 và D6/D7. Không apply DB/deploy app.
-- Git / triển khai: code hotfix `b955bfa` đã commit/push; plan/review/PROGRESS
-  được lưu trong follow-up docs commit. VPS có release sidecar dùng replay
+- Git / triển khai: code hotfix `b955bfa` đã commit/push; lần cập nhật docs trước
+  ở `a265b46`, report retry mới nhất được ghi trong follow-up docs commit. VPS
+  có release sidecar dùng replay
   validation offline; systemd smoke còn pin `8a2c475`. Đúng một R1 đã dispatch;
   không R2, không DB write/app deploy.

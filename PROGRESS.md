@@ -1273,9 +1273,12 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   `f03f319c3bf0332d2e561fe8e2c4f6056462bf96adecb8b6fb17900ec09a9e9e`;
   Muse trả 4/5 verdict, nên D1 ghi `invalid_output: 1`, `pending: 965`.
   R2 còn 966 pending và không dispatch. Một R1 duy nhất được ACK/lưu; không retry.
-  Final report bị dừng khi memory PSI `full avg10` đạt 1,36%; còn 564/966
-  evaluation artifact nhưng chưa có target-results/summary/report manifest.
+  Ba lần report read-only chưa hoàn tất. Lần mới nhất chạy 5:22 với cap 600 MiB,
+  swap tắt và CPU 50%, dừng khi PSI `full avg10` đạt 1,58% / RAM còn ~440 MiB.
+  Còn 564/966 evaluation artifact, chưa có summary; sau SIGINT RAM hồi ~652 MiB.
+  Scope báo inactive khi Node còn sống; đã xác minh command và dừng đúng PID.
 - Gate còn thiếu: report đầy đủ, format repair, output D1 hợp lệ, Pilot A/B,
   shadow 1.000 và D6/D7. Không apply DB hoặc deploy app.
-- Git / triển khai: code hotfix `b955bfa` đã commit/push; plan/review/PROGRESS được lưu trong follow-up docs commit. VPS sidecar chỉ dùng replay D1;
-  systemd vẫn pin `8a2c475`. Không R2, không DB write/app deploy.
+- Git / triển khai: code hotfix `b955bfa` và docs snapshot `a265b46` đã push;
+  lần report mới nhất được ghi trong follow-up docs commit. VPS sidecar chỉ dùng
+  replay D1; systemd vẫn pin `8a2c475`. Không R2, không DB write/app deploy.
