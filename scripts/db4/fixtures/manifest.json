@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "mode": "fixture",
+  "hashKind": "raw-file-sha256",
+  "entries": [
+    {
+      "path": "cat-exact.json",
+      "sha256": "74467cea80e45e90d983d7a5bde1fb64ff053538acd26ea4d67b0b03e1efbda8"
+    },
+    {
+      "path": "animal-broader.json",
+      "sha256": "23c5e935600fe99626b9992ead4c4220b80221763f050c732a7c15e1fac67c46"
+    },
+    {
+      "path": "cat-narrower.json",
+      "sha256": "b232ce81d44a5a6586b7c3d6cb3be38c1cf9700b2bfc113a8f5890d6234dcf00"
+    },
+    {
+      "path": "doctor-related.json",
+      "sha256": "5c75f82d4d5368bbc78ffb50e92a5654da159dbc1218c6ea7aa7895bb7294c28"
+    },
+    {
+      "path": "bank-none.json",
+      "sha256": "4952dc6a368d306a610196787f0854050ca96996054578a6ff8c6e14fe408be0"
+    },
+    {
+      "path": "thin-uncertain.json",
+      "sha256": "a3d4c211b398c884cea3df28af028ecfb0f962cda5e2c556957ad02d661f2a40"
+    },
+    {
+      "path": "director-compound.json",
+      "sha256": "7a8688c9430d8c756118c4db3c02da86702a75a694ff3bd55097276a30376617"
+    },
+    {
+      "path": "way-compound.json",
+      "sha256": "51e44e7d49818715e9801c1bf22fe2d423760455c1b8f79d51212d98f5b57600"
+    },
+    {
+      "path": "automatic-volition.json",
+      "sha256": "6f2c58f74656b5d754b8ab18efcc621e75454ba63031994cc3f454616157a79a"
+    },
+    {
+      "path": "treat-person.json",
+      "sha256": "e1ccad365c3ad0b56b76af88b6497b5b251e3433bc62201544562bc1e379202b"
+    },
+    {
+      "path": "job.json",
+      "sha256": "7da42152df1bc5b83c7267532e2e7d1e11bad259823ec894ebad746a258b0901"
+    },
+    {
+      "path": "snapshot.json",
+      "sha256": "882d4c5d5e685387638cd8ba8a63e92d4d0f96b40af1a85e8d4b6c694b99826b"
+    },
+    {
+      "path": "pilot.json",
+      "sha256": "d1daf4475eb8ef62fd0d73535ee7ed849515f37a7960645c7d3f143ff92e941d"
+    },
+    {
+      "path": "source-audit.json",
+      "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+    },
+    {
+      "path": "stub-rate.json",
+      "sha256": "983dda13d2ffdf287ae44e06e2ba81f7c2b91cb3a6035c85c056502a318be591"
+    }
+  ]
+}

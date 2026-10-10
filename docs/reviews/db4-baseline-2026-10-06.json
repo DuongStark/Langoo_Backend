@@ -1,0 +1,377 @@
+{
+  "schemaVersion": 1,
+  "task": "db4-preplan-readonly-baseline",
+  "observedAt": "2026-10-06T02:14:53.452Z",
+  "connection": {
+    "host": "127.0.0.1",
+    "port": 55433,
+    "database": "langoo"
+  },
+  "method": "BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY; queries; COMMIT",
+  "results": {
+    "concepts": {
+      "sql": "SELECT status,count(*)::text AS count,count(*) FILTER(WHERE nullif(btrim(gloss_en),'') IS NOT NULL)::text AS with_gloss_en FROM core.concept GROUP BY status ORDER BY status",
+      "rows": [
+        {
+          "status": "draft",
+          "count": "120875",
+          "with_gloss_en": "120875"
+        }
+      ]
+    },
+    "priority": {
+      "sql": "WITH p AS(SELECT DISTINCT lexeme_id FROM core.jlpt_link WHERE status='accepted' AND lexeme_id IS NOT NULL) SELECT count(DISTINCT s.lexeme_id)::text AS lexemes,count(*)::text AS senses,count(*) FILTER(WHERE s.is_primary)::text AS primary,count(*) FILTER(WHERE EXISTS(SELECT 1 FROM core.sense_concept sc WHERE sc.sense_id=s.id))::text AS linked FROM p JOIN core.sense s ON s.lexeme_id=p.lexeme_id",
+      "rows": [
+        {
+          "lexemes": "7285",
+          "senses": "15245",
+          "primary": "7285",
+          "linked": "0"
+        }
+      ]
+    },
+    "candidates": {
+      "sql": "SELECT method,decision,count(*)::text AS count,count(DISTINCT run_id)::text AS runs FROM core.sense_concept_candidate GROUP BY method,decision ORDER BY method,decision",
+      "rows": [
+        {
+          "method": "jmdict_form_pos_wordnet_ja",
+          "decision": "pending",
+          "count": "45219",
+          "runs": "1"
+        },
+        {
+          "method": "wikt_exact_lemma_pos_wordnet",
+          "decision": "pending",
+          "count": "640538",
+          "runs": "1"
+        }
+      ]
+    },
+    "priorityCandidates": {
+      "sql": "WITH p AS(SELECT DISTINCT s.id FROM core.jlpt_link j JOIN core.sense s ON s.lexeme_id=j.lexeme_id WHERE j.status='accepted') SELECT count(*)::text AS candidates,count(DISTINCT c.sense_id)::text AS covered_senses FROM core.sense_concept_candidate c JOIN p ON p.id=c.sense_id",
+      "rows": [
+        {
+          "candidates": "45219",
+          "covered_senses": "13079"
+        }
+      ]
+    },
+    "links": {
+      "sql": "SELECT relation,verified,count(*)::text AS count FROM core.sense_concept GROUP BY relation,verified ORDER BY relation,verified",
+      "rows": [
+        {
+          "relation": "exact",
+          "verified": true,
+          "count": "577525"
+        }
+      ]
+    },
+    "reviews": {
+      "sql": "SELECT reviewer_kind,count(*)::text AS count,count(*) FILTER(WHERE artifact_hash IS NOT NULL)::text AS with_artifact_hash FROM core.sense_concept_candidate_review GROUP BY reviewer_kind ORDER BY reviewer_kind",
+      "rows": [
+        {
+          "reviewer_kind": "llm",
+          "count": "3200",
+          "with_artifact_hash": "3200"
+        }
+      ]
+    },
+    "reviewHistory": {
+      "sql": "SELECT r.reviewer,r.question_type,r.prompt_version,r.relation,m.task,m.algorithm,m.model,m.status,count(*)::text AS count FROM core.sense_concept_candidate_review r JOIN core.mapping_run m ON m.id=r.mapping_run_id GROUP BY r.reviewer,r.question_type,r.prompt_version,r.relation,m.task,m.algorithm,m.model,m.status ORDER BY count(*) DESC,r.prompt_version,r.relation NULLS FIRST",
+      "rows": [
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul",
+          "prompt_version": "jev-jlpt-noul-v4",
+          "relation": null,
+          "task": "semantic_llm_jlpt_noul_validation",
+          "algorithm": "jev_noul_batch_v4",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "1000"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul",
+          "prompt_version": "jev-jlpt-noul-v4-independent",
+          "relation": null,
+          "task": "semantic_llm_jlpt_noul_validation",
+          "algorithm": "jev_noul_batch_v4_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "1000"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul+choice",
+          "prompt_version": "jev-jlpt-stratified-v3-independent",
+          "relation": "none",
+          "task": "semantic_llm_jlpt_review",
+          "algorithm": "jev_noul_choice_batch_v3_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "644"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul",
+          "prompt_version": "jev-validation-v2-independent",
+          "relation": null,
+          "task": "semantic_llm_validation",
+          "algorithm": "jev_noul_batch_v2_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "200"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul+choice",
+          "prompt_version": "jev-jlpt-stratified-v3-independent",
+          "relation": "related",
+          "task": "semantic_llm_jlpt_review",
+          "algorithm": "jev_noul_choice_batch_v3_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "175"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul+choice",
+          "prompt_version": "jev-jlpt-stratified-v3-independent",
+          "relation": "uncertain",
+          "task": "semantic_llm_jlpt_review",
+          "algorithm": "jev_noul_choice_batch_v3_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "113"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul+choice",
+          "prompt_version": "jev-jlpt-stratified-v3-independent",
+          "relation": "narrower",
+          "task": "semantic_llm_jlpt_review",
+          "algorithm": "jev_noul_choice_batch_v3_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "26"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul+choice",
+          "prompt_version": "jev-jlpt-stratified-v3-independent",
+          "relation": "broader",
+          "task": "semantic_llm_jlpt_review",
+          "algorithm": "jev_noul_choice_batch_v3_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "22"
+        },
+        {
+          "reviewer": "jev-1.13-free",
+          "question_type": "noul+choice",
+          "prompt_version": "jev-jlpt-stratified-v3-independent",
+          "relation": "exact",
+          "task": "semantic_llm_jlpt_review",
+          "algorithm": "jev_noul_choice_batch_v3_independent",
+          "model": "jev-1.13-free",
+          "status": "completed",
+          "count": "20"
+        }
+      ]
+    },
+    "synsets": {
+      "sql": "SELECT lexicon,count(*)::text AS count FROM core.wordnet_synset GROUP BY lexicon ORDER BY lexicon",
+      "rows": [
+        {
+          "lexicon": "oewn:2024",
+          "count": "120630"
+        },
+        {
+          "lexicon": "omw-en:1.4",
+          "count": "117659"
+        },
+        {
+          "lexicon": "omw-ja:1.4",
+          "count": "57184"
+        }
+      ]
+    },
+    "otherCandidates": {
+      "sql": "SELECT 'translation' AS family,decision,count(*)::text AS count FROM core.translation_target_candidate GROUP BY decision UNION ALL SELECT 'relation',decision,count(*)::text FROM core.sense_relation_candidate GROUP BY decision ORDER BY family,decision",
+      "rows": [
+        {
+          "family": "relation",
+          "decision": "pending",
+          "count": "3275"
+        },
+        {
+          "family": "translation",
+          "decision": "pending",
+          "count": "82355"
+        }
+      ]
+    },
+    "stagingCounts": {
+      "sql": "SELECT 'jmdict_entry' AS name,count(*)::text AS count FROM staging.jmdict_entry UNION ALL SELECT 'wn_synset',count(*)::text FROM staging.wn_synset UNION ALL SELECT 'tatoeba_sentence',count(*)::text FROM staging.tatoeba_sentence UNION ALL SELECT 'tatoeba_link',count(*)::text FROM staging.tatoeba_link ORDER BY name",
+      "rows": [
+        {
+          "name": "jmdict_entry",
+          "count": "218794"
+        },
+        {
+          "name": "tatoeba_link",
+          "count": "872814"
+        },
+        {
+          "name": "tatoeba_sentence",
+          "count": "2319079"
+        },
+        {
+          "name": "wn_synset",
+          "count": "295473"
+        }
+      ]
+    },
+    "serve": {
+      "sql": "SELECT count(*)::text AS rows FROM serve.sense_pair",
+      "rows": [
+        {
+          "rows": "0"
+        }
+      ]
+    },
+    "sourceSummary": {
+      "sql": "SELECT id,code,version,license,sha256 FROM public.source ORDER BY id",
+      "rows": [
+        {
+          "id": 1,
+          "code": "jmdict",
+          "version": "3.6.2",
+          "license": "CC BY-SA 4.0",
+          "sha256": "8cdbb0cc9625f775cd093e37931974b568221747bf6f2cbaff7b0671b5631ca5"
+        },
+        {
+          "id": 2,
+          "code": "kanjidic2",
+          "version": "3.6.2",
+          "license": "CC BY-SA 4.0",
+          "sha256": "8f2c7700cd97a79221a0f225a324fa885622be88f321a4c1bb37b4b333d8ee97"
+        },
+        {
+          "id": 3,
+          "code": "kradfile",
+          "version": "3.6.2",
+          "license": "CC BY-SA 4.0",
+          "sha256": "90369021899d89159ee6e079bccd7d83915daa3191f0c6ed7efc2473e088c086"
+        },
+        {
+          "id": 4,
+          "code": "cili",
+          "version": "1.0",
+          "license": "CC BY 4.0",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "id": 5,
+          "code": "oewn",
+          "version": "2024",
+          "license": "CC BY 4.0",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "id": 6,
+          "code": "omw-ja",
+          "version": "1.4",
+          "license": "ghi nguồn",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "id": 7,
+          "code": "omw-en",
+          "version": "1.4",
+          "license": "ghi nguồn",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "id": 8,
+          "code": "wiktextract",
+          "version": null,
+          "license": "CC BY-SA 4.0",
+          "sha256": "de6533a7bc7143167f0b27b4d2b568930436cd20bb5c1ce3cf542c1ec7bbbfec"
+        },
+        {
+          "id": 9,
+          "code": "omw-wikt-vi",
+          "version": null,
+          "license": "CC BY-SA",
+          "sha256": "2f74ee9d80a96aeb44f7639a9cf39d66af69e376f0c7cb8bfa9a7efd87ddbce7"
+        },
+        {
+          "id": 10,
+          "code": "tatoeba",
+          "version": null,
+          "license": "CC BY 2.0 FR",
+          "sha256": "b4d467dc5108b861bb207927456dd036d5dcb2b549b79360674d5688addae8a5"
+        },
+        {
+          "id": 11,
+          "code": "kanji-data",
+          "version": null,
+          "license": "CẦN XÁC MINH",
+          "sha256": "561b72ea9df703c58fae0c68585812e172aaa7611d2fcee6719d55fd2dfd4fa4"
+        },
+        {
+          "id": 12,
+          "code": "jlpt-list",
+          "version": null,
+          "license": "CẦN XÁC MINH",
+          "sha256": "8863a96442adeadfa3510edb84bd60b158ed6b3839172b93cab2ceb026e5ef8a"
+        },
+        {
+          "id": 13,
+          "code": "ili-map-pwn30",
+          "version": null,
+          "license": "CC BY 4.0",
+          "sha256": "13b6741395a8bdf20e5a19686ffa49167653696d4f523db17a79dce3211a6627"
+        },
+        {
+          "id": 14,
+          "code": "llm-vi",
+          "version": null,
+          "license": "nội bộ",
+          "sha256": null
+        },
+        {
+          "id": 15,
+          "code": "wordfreq",
+          "version": null,
+          "license": "CC BY-SA 4.0",
+          "sha256": null
+        },
+        {
+          "id": 16,
+          "code": "wordnet-stack",
+          "version": "wn 1.1.1",
+          "license": "nhiều (xem từng wordnet)",
+          "sha256": "76a86feb1b4945c7572008407a7d2e0049194a19151628f14fba90f2eb995b85"
+        },
+        {
+          "id": 17,
+          "code": "kangxi-radicals",
+          "version": "raw snapshots 3cce4083fc1f8db0a73b42b440a6c01ba3789c7dc999892487cc1382e3d353d5",
+          "license": "Unicode License v3 (CJKRadicals/Unihan) + CC BY-SA (Wikipedia)",
+          "sha256": "3cce4083fc1f8db0a73b42b440a6c01ba3789c7dc999892487cc1382e3d353d5"
+        },
+        {
+          "id": 18,
+          "code": "kanjivg",
+          "version": "kanjivg-20260714",
+          "license": "CC BY-SA 3.0",
+          "sha256": "d217180db812b8045026d5f8130b1c9f261d15d2433484de643fe40a4df409d7"
+        }
+      ]
+    }
+  },
+  "serverVersion": "16.2"
+}

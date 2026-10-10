@@ -1,0 +1,486 @@
+{
+  "caseKey": "treat-person",
+  "expectedRelation": "none",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "109",
+      "lexemeId": "209",
+      "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "treat-person",
+        "senseKey": "treat-person#1"
+      },
+      "language": "ja",
+      "lemma": "扱う",
+      "reading": null,
+      "forms": [
+        "扱う"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:treat-person:0",
+          "evidenceKey": "e:g:treat-person:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "to treat someone"
+        },
+        {
+          "key": "g:treat-person:1",
+          "evidenceKey": "e:g:treat-person:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "to handle something"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:treat-person",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "309",
+      "semanticKey": "concept:6b16f464592c39c2b9d11449b1edc7941061d2fdf158c1dbe988ddd1bbaba916",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-9-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:treat-person",
+          "evidenceKey": "e:d:treat-person",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "To cure an illness medically."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:treat-person",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:6b16f464592c39c2b9d11449b1edc7941061d2fdf158c1dbe988ddd1bbaba916"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "a6b2dcbb53cb3bbc02c66391bc6b6eaa618a8445267a979db4fe05a3acd57f9c",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:treat-person:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "89fbb125c1e80e9766b554f61f7c9ebe4b46f60a16118af8c7438e934e50cc6e",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:treat-person:1",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "b6367847a4e53e611e07faaafa4f7cad69cb25382e5a95a14c9a0c141947f6df",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741001",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:treat-person",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "e57b8fc8a92116acdd94de5931ca9266a2cf3a6dfa9430f5abddf097217308f3",
+    "inputHash": "721edbe418cd07cd2023b6525419cb59a05d0f01e558494fe81db14d26d9e083",
+    "candidateKey": "606ffff264defea61f4063c7ec068d071b2248646a6e7cb0150075e982de536b"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "109",
+      "lexemeId": "209",
+      "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "treat-person",
+        "senseKey": "treat-person#1"
+      },
+      "language": "ja",
+      "lemma": "扱う",
+      "reading": null,
+      "forms": [
+        "扱う"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:treat-person:0",
+          "evidenceKey": "e:g:treat-person:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "to treat someone"
+        },
+        {
+          "key": "g:treat-person:1",
+          "evidenceKey": "e:g:treat-person:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "to handle something"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:treat-person",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:treat-person:0",
+      "g:treat-person:1"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "606ffff264defea61f4063c7ec068d071b2248646a6e7cb0150075e982de536b",
+        "inputHash": "721edbe418cd07cd2023b6525419cb59a05d0f01e558494fe81db14d26d9e083",
+        "concept": {
+          "id": "309",
+          "semanticKey": "concept:6b16f464592c39c2b9d11449b1edc7941061d2fdf158c1dbe988ddd1bbaba916",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-9-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:treat-person",
+              "evidenceKey": "e:d:treat-person",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "To cure an illness medically."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:treat-person",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:6b16f464592c39c2b9d11449b1edc7941061d2fdf158c1dbe988ddd1bbaba916"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "a6b2dcbb53cb3bbc02c66391bc6b6eaa618a8445267a979db4fe05a3acd57f9c",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:treat-person:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "89fbb125c1e80e9766b554f61f7c9ebe4b46f60a16118af8c7438e934e50cc6e",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:treat-person:1",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "b6367847a4e53e611e07faaafa4f7cad69cb25382e5a95a14c9a0c141947f6df",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741001",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:treat-person",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:ff20d39538eaa0068388c8b60b8830c9e39e782db682f4d2fec92e1c7445f435"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "e1b1665d8ec69bc3328e8834f47a2515b4afb654088356787b5d3c19787db412",
+    "contextHash": "09aaa45130532e91a785c4ef37e39119b29578a3ee18cc80e71fbfc1f92810a9"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "e1b1665d8ec69bc3328e8834f47a2515b4afb654088356787b5d3c19787db412",
+    "senseId": "109",
+    "contextHash": "09aaa45130532e91a785c4ef37e39119b29578a3ee18cc80e71fbfc1f92810a9",
+    "reviews": [
+      {
+        "candidateKey": "606ffff264defea61f4063c7ec068d071b2248646a6e7cb0150075e982de536b",
+        "conceptId": "309",
+        "relation": "none",
+        "coveredBranches": [],
+        "missingBranches": [
+          "g:treat-person:0",
+          "g:treat-person:1"
+        ],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: treat-person. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": true,
+    "unresolvedReason": null
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "e1b1665d8ec69bc3328e8834f47a2515b4afb654088356787b5d3c19787db412",
+    "senseId": "109",
+    "contextHash": "09aaa45130532e91a785c4ef37e39119b29578a3ee18cc80e71fbfc1f92810a9",
+    "reviews": [
+      {
+        "candidateKey": "606ffff264defea61f4063c7ec068d071b2248646a6e7cb0150075e982de536b",
+        "conceptId": "309",
+        "relation": "none",
+        "coveredBranches": [],
+        "missingBranches": [
+          "g:treat-person:0",
+          "g:treat-person:1"
+        ],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: treat-person. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": true,
+    "unresolvedReason": null
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "606ffff264defea61f4063c7ec068d071b2248646a6e7cb0150075e982de536b",
+    "inputHash": "721edbe418cd07cd2023b6525419cb59a05d0f01e558494fe81db14d26d9e083",
+    "outputHashR1": "69904e50412ddacc5ca8306b51c40319d48d67ac74368894bd161e1b28b4eab6",
+    "outputHashR2": "69904e50412ddacc5ca8306b51c40319d48d67ac74368894bd161e1b28b4eab6",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "reject_pair",
+    "relation": "none",
+    "reasons": []
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "606ffff264defea61f4063c7ec068d071b2248646a6e7cb0150075e982de536b",
+    "inputHash": "721edbe418cd07cd2023b6525419cb59a05d0f01e558494fe81db14d26d9e083",
+    "outputHashR1": "69904e50412ddacc5ca8306b51c40319d48d67ac74368894bd161e1b28b4eab6",
+    "outputHashR2": "69904e50412ddacc5ca8306b51c40319d48d67ac74368894bd161e1b28b4eab6",
+    "decisionHash": "58f2accacc0de0bcc6369867c180a3396b5e3a679d075fcbecee8da2ab51883f",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

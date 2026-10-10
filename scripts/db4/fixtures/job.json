@@ -1,0 +1,102 @@
+{
+  "schemaVersion": 1,
+  "task": "sense_concept_review",
+  "mode": "fixture",
+  "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+  "snapshot": {
+    "path": "fixtures/snapshot.json",
+    "sha256": "882d4c5d5e685387638cd8ba8a63e92d4d0f96b40af1a85e8d4b6c694b99826b"
+  },
+  "pilotManifest": {
+    "path": "fixtures/pilot.json",
+    "sha256": "d1daf4475eb8ef62fd0d73535ee7ed849515f37a7960645c7d3f143ff92e941d"
+  },
+  "providers": {
+    "r1": {
+      "provider": "stub",
+      "model": "fixture-stub-v1",
+      "endpoint": null,
+      "protocol": "stub",
+      "promptVersion": "mapping-sense-concept-r1-v1",
+      "responseSchemaVersion": 1,
+      "reasoningConfig": {
+        "effort": null,
+        "maxTokens": 0
+      },
+      "sessionId": "fixture-session-r1",
+      "rate": {
+        "inputMicrousdPerMillion": 0,
+        "outputMicrousdPerMillion": 0,
+        "reasoningMicrousdPerMillion": 0,
+        "verifiedAt": "2026-10-06T00:00:00Z",
+        "evidence": {
+          "path": "fixtures/stub-rate.json",
+          "sha256": "983dda13d2ffdf287ae44e06e2ba81f7c2b91cb3a6035c85c056502a318be591"
+        }
+      }
+    },
+    "r2": {
+      "provider": "stub",
+      "model": "fixture-stub-v1",
+      "endpoint": null,
+      "protocol": "stub",
+      "promptVersion": "mapping-sense-concept-r2-v1",
+      "responseSchemaVersion": 1,
+      "reasoningConfig": {
+        "effort": null,
+        "maxTokens": 0
+      },
+      "sessionId": "fixture-session-r2",
+      "rate": {
+        "inputMicrousdPerMillion": 0,
+        "outputMicrousdPerMillion": 0,
+        "reasoningMicrousdPerMillion": 0,
+        "verifiedAt": "2026-10-06T00:00:00Z",
+        "evidence": {
+          "path": "fixtures/stub-rate.json",
+          "sha256": "983dda13d2ffdf287ae44e06e2ba81f7c2b91cb3a6035c85c056502a318be591"
+        }
+      }
+    }
+  },
+  "policyVersions": {
+    "source": "fixture-source-v1",
+    "retrieval": "fixture-retrieval-v1",
+    "decision": "fixture-decision-v1",
+    "audit": "fixture-audit-v1"
+  },
+  "seed": "fixture-seed-v1",
+  "caps": {
+    "maxRequests": 220,
+    "maxTokens": 1000000,
+    "maxCostMicrousd": 100000,
+    "maxOutputTokens": 4096,
+    "maxContextBytes": 100000,
+    "maxRetries": 2,
+    "concurrency": 1
+  },
+  "jobKey": "39228e23747fe84c7bb1308129e7a92e9be933dbe98a0944b55ede7178c29bed",
+  "entries": [
+    {
+      "targetKey": "3c77fde7d0a0ef8ca57bb0d95dbf713a391cba3fe6f0fa10908ee118cfb8e612",
+      "senseKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f",
+      "bundleKey": "05a4f84aed805050e1c74f6e1543531b4f065771fbca48c6491b9a369a67c6e4",
+      "contextHash": "cbc41672f9ccec44726c99f2305217c68a36f3f391b93d5a3cac6e5aea5ca86a",
+      "bundle": {
+        "path": "fixtures/cat-exact.json",
+        "sha256": "74467cea80e45e90d983d7a5bde1fb64ff053538acd26ea4d67b0b03e1efbda8"
+      },
+      "renderedR1": "570658b0c74994111107bb18606e20136eea82e1f489cd04e794c7ffcd775c26",
+      "renderedR2": "d48e5b6e6392ac21465a301e70005dd8479a6a57c16973fae676fa7a957c26fa",
+      "state": "queued",
+      "decision": null,
+      "audit": null,
+      "gate": null,
+      "journal": null,
+      "reason": null
+    }
+  ],
+  "attempts": [],
+  "children": [],
+  "status": "prepared"
+}

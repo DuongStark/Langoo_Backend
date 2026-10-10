@@ -1,0 +1,486 @@
+{
+  "caseKey": "director-compound",
+  "expectedRelation": "broader",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "106",
+      "lexemeId": "206",
+      "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "director-compound",
+        "senseKey": "director-compound#1"
+      },
+      "language": "ja",
+      "lemma": "監督",
+      "reading": null,
+      "forms": [
+        "監督"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:director-compound:0",
+          "evidenceKey": "e:g:director-compound:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "supervisor"
+        },
+        {
+          "key": "g:director-compound:1",
+          "evidenceKey": "e:g:director-compound:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "film director"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:director-compound",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "306",
+      "semanticKey": "concept:7b5c4c5dc48aff3bc5486926fcdca25d64cba7939d3934d508a465d34fc652ef",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-6-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:director-compound",
+          "evidenceKey": "e:d:director-compound",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "A person who directs films."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:director-compound",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:7b5c4c5dc48aff3bc5486926fcdca25d64cba7939d3934d508a465d34fc652ef"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "09f7ef7ca765d6a6593e54039a9215a5a5a18808d47003e6923a7c985cd377a0",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:director-compound:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "f8fa6464e561010ccc1982a671234718145f1b2e798a4bd01121361e291db67d",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:director-compound:1",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "896eb4facc1ae1ee9599aa31331de92b3e524540b56186d11b2261c287ce6ee0",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741001",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:director-compound",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "8ec3b2043922cc0b416cb7dda04b395c580c6b291b86ee60bd981361e5b00712",
+    "inputHash": "0511f7fe79a1cc52ecdf175831e0e2fa5392e7552217dd4a5d865eb258fa5a2f",
+    "candidateKey": "0d867f067a45ad30ccade4c1403cbca89196d83a2b0d13276c544d42ba22554a"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "106",
+      "lexemeId": "206",
+      "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "director-compound",
+        "senseKey": "director-compound#1"
+      },
+      "language": "ja",
+      "lemma": "監督",
+      "reading": null,
+      "forms": [
+        "監督"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:director-compound:0",
+          "evidenceKey": "e:g:director-compound:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "supervisor"
+        },
+        {
+          "key": "g:director-compound:1",
+          "evidenceKey": "e:g:director-compound:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "film director"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:director-compound",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:director-compound:0",
+      "g:director-compound:1"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "0d867f067a45ad30ccade4c1403cbca89196d83a2b0d13276c544d42ba22554a",
+        "inputHash": "0511f7fe79a1cc52ecdf175831e0e2fa5392e7552217dd4a5d865eb258fa5a2f",
+        "concept": {
+          "id": "306",
+          "semanticKey": "concept:7b5c4c5dc48aff3bc5486926fcdca25d64cba7939d3934d508a465d34fc652ef",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-6-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:director-compound",
+              "evidenceKey": "e:d:director-compound",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "A person who directs films."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:director-compound",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:7b5c4c5dc48aff3bc5486926fcdca25d64cba7939d3934d508a465d34fc652ef"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "09f7ef7ca765d6a6593e54039a9215a5a5a18808d47003e6923a7c985cd377a0",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:director-compound:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "f8fa6464e561010ccc1982a671234718145f1b2e798a4bd01121361e291db67d",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:director-compound:1",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "896eb4facc1ae1ee9599aa31331de92b3e524540b56186d11b2261c287ce6ee0",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741001",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:director-compound",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:8ce60e5bc22bce5f3f775004c8c4cee5101772097ff7c7807e71b043309f33e4"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "badc2f3b94b408cd40242e9de5046188f44f3999f8d67b12dda1e523f034db09",
+    "contextHash": "2b52951c5b146bd9c386af4d0e26051a6879173e56342d83ac6ccf9eb4d5bf0a"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "badc2f3b94b408cd40242e9de5046188f44f3999f8d67b12dda1e523f034db09",
+    "senseId": "106",
+    "contextHash": "2b52951c5b146bd9c386af4d0e26051a6879173e56342d83ac6ccf9eb4d5bf0a",
+    "reviews": [
+      {
+        "candidateKey": "0d867f067a45ad30ccade4c1403cbca89196d83a2b0d13276c544d42ba22554a",
+        "conceptId": "306",
+        "relation": "broader",
+        "coveredBranches": [
+          "g:director-compound:0",
+          "g:director-compound:1"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: director-compound. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "badc2f3b94b408cd40242e9de5046188f44f3999f8d67b12dda1e523f034db09",
+    "senseId": "106",
+    "contextHash": "2b52951c5b146bd9c386af4d0e26051a6879173e56342d83ac6ccf9eb4d5bf0a",
+    "reviews": [
+      {
+        "candidateKey": "0d867f067a45ad30ccade4c1403cbca89196d83a2b0d13276c544d42ba22554a",
+        "conceptId": "306",
+        "relation": "broader",
+        "coveredBranches": [
+          "g:director-compound:0",
+          "g:director-compound:1"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: director-compound. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "0d867f067a45ad30ccade4c1403cbca89196d83a2b0d13276c544d42ba22554a",
+    "inputHash": "0511f7fe79a1cc52ecdf175831e0e2fa5392e7552217dd4a5d865eb258fa5a2f",
+    "outputHashR1": "54d63c42f545e20f051e28438bb2a1d295a67e4cdc37db371b5715a7ce5ea692",
+    "outputHashR2": "54d63c42f545e20f051e28438bb2a1d295a67e4cdc37db371b5715a7ce5ea692",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "accept_nonexact",
+    "relation": "broader",
+    "reasons": []
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "0d867f067a45ad30ccade4c1403cbca89196d83a2b0d13276c544d42ba22554a",
+    "inputHash": "0511f7fe79a1cc52ecdf175831e0e2fa5392e7552217dd4a5d865eb258fa5a2f",
+    "outputHashR1": "54d63c42f545e20f051e28438bb2a1d295a67e4cdc37db371b5715a7ce5ea692",
+    "outputHashR2": "54d63c42f545e20f051e28438bb2a1d295a67e4cdc37db371b5715a7ce5ea692",
+    "decisionHash": "4f1aa3292e9ce3970054a90e7390083d1f46340cf1a3340ea9f095ca10f82244",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

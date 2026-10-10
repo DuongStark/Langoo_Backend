@@ -1,0 +1,486 @@
+{
+  "caseKey": "cat-exact",
+  "expectedRelation": "exact",
+  "candidate": {
+    "schemaVersion": 1,
+    "candidateType": "sense_concept",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "sense": {
+      "id": "100",
+      "lexemeId": "200",
+      "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "cat-exact",
+        "senseKey": "cat-exact#1"
+      },
+      "language": "ja",
+      "lemma": "猫",
+      "reading": null,
+      "forms": [
+        "猫"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:cat-exact:0",
+          "evidenceKey": "e:g:cat-exact:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "cat"
+        },
+        {
+          "key": "g:cat-exact:1",
+          "evidenceKey": "e:g:cat-exact:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "domestic cat"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:cat-exact",
+      "neighbors": [],
+      "examples": []
+    },
+    "concept": {
+      "id": "300",
+      "semanticKey": "concept:c4395969c51b460a096b924f772bab9e199698e03cb3e40473f20853be950852",
+      "ili": null,
+      "synsetKeys": [
+        {
+          "lexicon": "fixture-wn",
+          "synsetId": "fixture-0-n",
+          "sourceKey": "fixture-dictionary"
+        }
+      ],
+      "pos": "noun"
+    },
+    "conceptContext": {
+      "definitions": [
+        {
+          "key": "d:cat-exact",
+          "evidenceKey": "e:d:cat-exact",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "definition",
+          "text": "A domesticated feline animal."
+        }
+      ],
+      "labels": [],
+      "neighbors": [],
+      "examples": []
+    },
+    "evidence": [
+      {
+        "key": "e:d:cat-exact",
+        "kind": "text_row",
+        "owner": {
+          "type": "concept",
+          "semanticKey": "concept:c4395969c51b460a096b924f772bab9e199698e03cb3e40473f20853be950852"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "172203f8990e207d492d79bd616cf9030e018976e2afb9ae214f7a7c00728aa1",
+        "dependencyGroup": "fixture:wordnet",
+        "sourcePath": "synset_definition/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:cat-exact:0",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "1bdba9a5bd9435fdaff816ff6c4e7e266aa2bd1a0c27b4d25a37a09093ee2056",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741000",
+        "method": "fixture"
+      },
+      {
+        "key": "e:g:cat-exact:1",
+        "kind": "text_row",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "74b37c6afce6647ac0e7d59e100b9081d63acf8c5a4c49d1232dd03d80bb2fd1",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense_gloss/9007199254741001",
+        "method": "fixture"
+      },
+      {
+        "key": "e:metadata:cat-exact",
+        "kind": "sense_metadata",
+        "owner": {
+          "type": "sense",
+          "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f"
+        },
+        "sourceKey": "fixture-dictionary",
+        "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "batchId": null,
+        "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+        "dependencyGroup": "fixture:JA-EN",
+        "sourcePath": "sense/attributes",
+        "method": "fixture"
+      }
+    ],
+    "sources": [
+      {
+        "key": "fixture-dictionary",
+        "sourceId": null,
+        "code": "synthetic-fixture",
+        "version": "1",
+        "snapshot": "fixture-v1",
+        "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+        "license": "Synthetic test data",
+        "attribution": "Langoo D1 contract fixtures",
+        "url": "https://example.invalid/db4-fixture",
+        "batchIds": [],
+        "audit": {
+          "status": "verified",
+          "evidence": [
+            {
+              "path": "fixtures/source-audit.json",
+              "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+            }
+          ],
+          "reasons": []
+        }
+      }
+    ],
+    "hypothesisRelation": "exact",
+    "retrieval": {
+      "generatorVersion": "fixture-retrieval-v1",
+      "branches": [
+        "en-gloss"
+      ],
+      "rank": 1,
+      "rankScore": 0.8,
+      "calibratedScore": null,
+      "features": {
+        "tokenOverlap": 1
+      },
+      "pruningRefs": []
+    },
+    "classification": "ready",
+    "reasons": [],
+    "predecessor": null,
+    "pairKey": "9fd27bdcbdaf728af47811ac596f8078cff2bc02424a554a7753bb16ecfb5e20",
+    "inputHash": "74c6acda4feae39388f89c9dc4f575495ea56542992e34c86a9e9639f16c73f9",
+    "candidateKey": "42be8d6c1b12b50c96e103c281a239c13d48ca54febb1ee13e165b33da7467c3"
+  },
+  "bundle": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "mode": "fixture",
+    "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+    "builderVersion": "fixture-bundle-v1",
+    "sense": {
+      "id": "100",
+      "lexemeId": "200",
+      "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f",
+      "identity": {
+        "sourceKey": "fixture-dictionary",
+        "externalId": "cat-exact",
+        "senseKey": "cat-exact#1"
+      },
+      "language": "ja",
+      "lemma": "猫",
+      "reading": null,
+      "forms": [
+        "猫"
+      ],
+      "senseNo": 1,
+      "isPrimary": true,
+      "jlptLevel": 5
+    },
+    "senseContext": {
+      "enGlosses": [
+        {
+          "key": "g:cat-exact:0",
+          "evidenceKey": "e:g:cat-exact:0",
+          "id": "9007199254741000",
+          "rank": 0,
+          "language": "en",
+          "kind": "gloss",
+          "text": "cat"
+        },
+        {
+          "key": "g:cat-exact:1",
+          "evidenceKey": "e:g:cat-exact:1",
+          "id": "9007199254741001",
+          "rank": 1,
+          "language": "en",
+          "kind": "gloss",
+          "text": "domestic cat"
+        }
+      ],
+      "definitions": [],
+      "metadata": {
+        "rawAttributes": {
+          "pos": "noun",
+          "fixture": true
+        },
+        "rawPos": [
+          "noun"
+        ],
+        "normalizedPos": [
+          "noun"
+        ],
+        "normalizationVersion": "fixture-pos-v1",
+        "appliesToKanji": [],
+        "appliesToKana": [],
+        "info": [],
+        "misc": [],
+        "field": [],
+        "dialect": [],
+        "register": [],
+        "languageSources": []
+      },
+      "metadataEvidenceKey": "e:metadata:cat-exact",
+      "neighbors": [],
+      "examples": []
+    },
+    "sourceBranches": [
+      "g:cat-exact:0",
+      "g:cat-exact:1"
+    ],
+    "candidates": [
+      {
+        "candidateKey": "42be8d6c1b12b50c96e103c281a239c13d48ca54febb1ee13e165b33da7467c3",
+        "inputHash": "74c6acda4feae39388f89c9dc4f575495ea56542992e34c86a9e9639f16c73f9",
+        "concept": {
+          "id": "300",
+          "semanticKey": "concept:c4395969c51b460a096b924f772bab9e199698e03cb3e40473f20853be950852",
+          "ili": null,
+          "synsetKeys": [
+            {
+              "lexicon": "fixture-wn",
+              "synsetId": "fixture-0-n",
+              "sourceKey": "fixture-dictionary"
+            }
+          ],
+          "pos": "noun"
+        },
+        "conceptContext": {
+          "definitions": [
+            {
+              "key": "d:cat-exact",
+              "evidenceKey": "e:d:cat-exact",
+              "id": "9007199254741000",
+              "rank": 0,
+              "language": "en",
+              "kind": "definition",
+              "text": "A domesticated feline animal."
+            }
+          ],
+          "labels": [],
+          "neighbors": [],
+          "examples": []
+        },
+        "evidence": [
+          {
+            "key": "e:d:cat-exact",
+            "kind": "text_row",
+            "owner": {
+              "type": "concept",
+              "semanticKey": "concept:c4395969c51b460a096b924f772bab9e199698e03cb3e40473f20853be950852"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "172203f8990e207d492d79bd616cf9030e018976e2afb9ae214f7a7c00728aa1",
+            "dependencyGroup": "fixture:wordnet",
+            "sourcePath": "synset_definition/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:cat-exact:0",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "1bdba9a5bd9435fdaff816ff6c4e7e266aa2bd1a0c27b4d25a37a09093ee2056",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741000",
+            "method": "fixture"
+          },
+          {
+            "key": "e:g:cat-exact:1",
+            "kind": "text_row",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "74b37c6afce6647ac0e7d59e100b9081d63acf8c5a4c49d1232dd03d80bb2fd1",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense_gloss/9007199254741001",
+            "method": "fixture"
+          },
+          {
+            "key": "e:metadata:cat-exact",
+            "kind": "sense_metadata",
+            "owner": {
+              "type": "sense",
+              "semanticKey": "sense:daff5095c91f65ddba7040fd71719ad28d379c1157dc17c44fe8060e717eae9f"
+            },
+            "sourceKey": "fixture-dictionary",
+            "sourceHash": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "batchId": null,
+            "payloadHash": "e762284e6ebf50f990d81c1bc503583567d8af7fada6db17a03e7ae1b71fb1ca",
+            "dependencyGroup": "fixture:JA-EN",
+            "sourcePath": "sense/attributes",
+            "method": "fixture"
+          }
+        ],
+        "sources": [
+          {
+            "key": "fixture-dictionary",
+            "sourceId": null,
+            "code": "synthetic-fixture",
+            "version": "1",
+            "snapshot": "fixture-v1",
+            "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e",
+            "license": "Synthetic test data",
+            "attribution": "Langoo D1 contract fixtures",
+            "url": "https://example.invalid/db4-fixture",
+            "batchIds": [],
+            "audit": {
+              "status": "verified",
+              "evidence": [
+                {
+                  "path": "fixtures/source-audit.json",
+                  "sha256": "56bd6262335c0a2a55eef4e8be3426f4b9884bf11874a5b5ae3c07f4e4022f0d"
+                }
+              ],
+              "reasons": []
+            }
+          }
+        ]
+      }
+    ],
+    "bundleKey": "05a4f84aed805050e1c74f6e1543531b4f065771fbca48c6491b9a369a67c6e4",
+    "contextHash": "cbc41672f9ccec44726c99f2305217c68a36f3f391b93d5a3cac6e5aea5ca86a"
+  },
+  "outputR1": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "05a4f84aed805050e1c74f6e1543531b4f065771fbca48c6491b9a369a67c6e4",
+    "senseId": "100",
+    "contextHash": "cbc41672f9ccec44726c99f2305217c68a36f3f391b93d5a3cac6e5aea5ca86a",
+    "reviews": [
+      {
+        "candidateKey": "42be8d6c1b12b50c96e103c281a239c13d48ca54febb1ee13e165b33da7467c3",
+        "conceptId": "300",
+        "relation": "exact",
+        "coveredBranches": [
+          "g:cat-exact:0",
+          "g:cat-exact:1"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: cat-exact. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "outputR2": {
+    "schemaVersion": 1,
+    "task": "sense_concept_review",
+    "bundleKey": "05a4f84aed805050e1c74f6e1543531b4f065771fbca48c6491b9a369a67c6e4",
+    "senseId": "100",
+    "contextHash": "cbc41672f9ccec44726c99f2305217c68a36f3f391b93d5a3cac6e5aea5ca86a",
+    "reviews": [
+      {
+        "candidateKey": "42be8d6c1b12b50c96e103c281a239c13d48ca54febb1ee13e165b33da7467c3",
+        "conceptId": "300",
+        "relation": "exact",
+        "coveredBranches": [
+          "g:cat-exact:0",
+          "g:cat-exact:1"
+        ],
+        "missingBranches": [],
+        "conflicts": [],
+        "reason": "Synthetic scope fixture: cat-exact. Relation direction is source sense to target concept.",
+        "confidence": null
+      }
+    ],
+    "noSuitableCandidate": false,
+    "unresolvedReason": null
+  },
+  "decision": {
+    "schemaVersion": 1,
+    "candidateKey": "42be8d6c1b12b50c96e103c281a239c13d48ca54febb1ee13e165b33da7467c3",
+    "inputHash": "74c6acda4feae39388f89c9dc4f575495ea56542992e34c86a9e9639f16c73f9",
+    "outputHashR1": "a4d007839df8f1962dfaf415e8889f6947e401c3825de42ae59bf5a6094fa8a5",
+    "outputHashR2": "a4d007839df8f1962dfaf415e8889f6947e401c3825de42ae59bf5a6094fa8a5",
+    "policyVersion": "fixture-decision-v1",
+    "proposal": "accept_exact",
+    "relation": "exact",
+    "reasons": []
+  },
+  "audit": {
+    "schemaVersion": 1,
+    "candidateKey": "42be8d6c1b12b50c96e103c281a239c13d48ca54febb1ee13e165b33da7467c3",
+    "inputHash": "74c6acda4feae39388f89c9dc4f575495ea56542992e34c86a9e9639f16c73f9",
+    "outputHashR1": "a4d007839df8f1962dfaf415e8889f6947e401c3825de42ae59bf5a6094fa8a5",
+    "outputHashR2": "a4d007839df8f1962dfaf415e8889f6947e401c3825de42ae59bf5a6094fa8a5",
+    "decisionHash": "17b8dfe29bc1705908a7977ce367f22c4ca02086b2df1c3c762e697531e17d9c",
+    "reviewerKind": "rule",
+    "reviewerId": "synthetic-fixture-builder",
+    "reviewerSession": "fixture-v1",
+    "reviewedAt": "2026-10-06T00:00:00Z",
+    "verdict": "pass",
+    "severity": "none",
+    "reason": "Contract test only; not a semantic production audit.",
+    "suggestedDecision": null
+  }
+}

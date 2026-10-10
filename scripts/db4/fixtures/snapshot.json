@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "mode": "fixture",
+  "sourceSnapshots": [
+    {
+      "sourceKey": "fixture-dictionary",
+      "sha256": "b9e9adcde464f9a12a4e5e342564ee9df5e1b764ddd44eec2d2afcefae79ec7e"
+    }
+  ],
+  "identityHash": "d772f9620f07148769e12a2dea2f22e9bfa11f679d04af7af3892e7f195278aa",
+  "senseInputHash": "0e8af8caa982d8e8532549af846768950fbef13244b189a66b0efd25af6d5897",
+  "conceptInputHash": "a3d04fa01cc951d485fab8ffcca653ba3ae5d2ef7aee6eb553adf1db4c06745c",
+  "rawAttributesHash": "3f20eb1805c472b2734340e0a4409ffac00ee782fb2d90cc26d132857a9cdc32",
+  "sourcePolicyVersion": "fixture-source-v1",
+  "normalizerVersion": "fixture-pos-v1",
+  "retrievalVersion": "fixture-retrieval-v1"
+}

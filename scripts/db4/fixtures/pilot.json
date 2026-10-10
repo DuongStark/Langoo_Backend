@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "mode": "fixture",
+  "pilot": "A",
+  "semanticInputFingerprint": "faf0aa66c06f1ef0fb11117e6ad68f43336b8da2924db659dacc68b35eb0273a",
+  "policyVersion": "fixture-audit-v1",
+  "seed": "fixture-seed-v1",
+  "targetKeys": [
+    "3c77fde7d0a0ef8ca57bb0d95dbf713a391cba3fe6f0fa10908ee118cfb8e612"
+  ],
+  "positiveTargetKeys": [
+    "3c77fde7d0a0ef8ca57bb0d95dbf713a391cba3fe6f0fa10908ee118cfb8e612"
+  ],
+  "hardNegativeTargetKeys": [],
+  "strata": [
+    {
+      "targetKey": "3c77fde7d0a0ef8ca57bb0d95dbf713a391cba3fe6f0fa10908ee118cfb8e612",
+      "jlptLevel": 5,
+      "isPrimary": true,
+      "lexemeKey": "fixture:lexeme:cat"
+    }
+  ],
+  "exclusions": []
+}
