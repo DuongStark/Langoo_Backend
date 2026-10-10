@@ -29,7 +29,7 @@ PrivateTmp=true
 ProtectSystem=strict
 ProtectHome=true
 ReadOnlyPaths=/opt/langoo/services/muse-native /opt/langoo/storage/muse-native/cookies.json
-ReadWritePaths=/opt/langoo/storage/db4-batches /opt/langoo/storage/muse-native/runner-account.lock
+ReadWritePaths=/opt/langoo/storage/db4-batches /opt/langoo/storage/muse-native
 
 [Install]
 WantedBy=multi-user.target

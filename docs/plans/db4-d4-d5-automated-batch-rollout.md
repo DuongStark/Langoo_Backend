@@ -604,11 +604,18 @@ trong `/opt/langoo/storage/db4-batches`, account lock dùng chung với Muse nat
   chạy release `708e3b8` ngày 11/10 dừng trước ledger/dispatch khi cgroup lên
   khoảng 646 MiB và RAM khả dụng còn 136 MiB. Phân tích cho thấy runner giữ cả
   targets, candidates và hai phase request trong khi chạy Node preflight.
-- DB4-D4/D5 tiếp tục bằng lazy loading từng phase sau preflight, bỏ giữ targets/
-  candidates trong Python và nhả queue payload trước D1 Node validation. Chỉ thử
-  lại service sau khi commit mới, kiểm tra RAM/PSI và giữ cap R1=1/R2=1.
-- Unit syntax đã qua `systemd-analyze verify` trên VPS. Lần chạy cũ đã dừng;
-  chưa có Muse dispatch, ledger, DB write, apply hoặc app deploy.
+- Memory fix `cbe9e56` đã push: chỉ nạp payload của phase đang chạy sau preflight,
+  bỏ giữ targets/candidates trong Python, giải phóng queue trước D1 Node validation.
+  Nó pass 13/13 runner tests; preflight + nạp 966 R1 requests cũng pass trong
+  sandbox systemd tương đương, cgroup quan sát khoảng 457 MiB.
+- Smoke với manifest `db4-smoke-20261011-cbe9e56` không dispatch: systemd unit cũ
+  chỉ cho ghi file account lock, trong khi runner chmod thư mục cha mode 0700.
+  Reproduce được `EROFS`; thêm quyền ghi thư mục Muse vào `ReadWritePaths` khiến
+  test lấy/release cả run lock và account lock pass. Unit update đang local, chưa
+  cài lên VPS. Cookie file vẫn nằm trong `ReadOnlyPaths`.
+- Unit cũ đã qua `systemd-analyze verify` trên VPS. Smoke mới chỉ được chạy lại
+  sau khi commit/push và cài unit đã sửa, xác nhận RAM/PSI; giữ cap R1=1/R2=1.
+  Chưa có Muse dispatch, ledger event, DB write, apply hoặc app deploy.
 
 ## 14. DB4-D5 — Audit và gate tự động
 
@@ -913,7 +920,10 @@ Tạo manifest smoke mới từ release đã commit; dùng cohort/export/generat
 freeze nhưng run ID mới để request ledger và cap không trộn với lần preflight.
 
 ```text
-node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
+install -d -o langoo -g langoo -m 0700 \
+  /opt/langoo/storage/db4-batches/<cohort-id>/batch-runs/db4-smoke-<commit-short>
+
+runuser -u langoo -- node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
   --artifact-dir /opt/langoo/storage/db4-batches/<cohort-id> \
   --run-id db4-smoke-<commit-short> \
   --sampling cohort/2026-10-10-v1/sampling.json \
@@ -921,7 +931,7 @@ node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
   --export export/manifest.json \
   --output-prefix batch-runs/db4-smoke-<commit-short> --prompt-revision v2.1
 
-node --max-old-space-size=448 --import tsx scripts/db4/batch-preflight.ts \
+runuser -u langoo -- node --max-old-space-size=448 --import tsx scripts/db4/batch-preflight.ts \
   --artifact-dir /opt/langoo/storage/db4-batches/<cohort-id> \
   --manifest batch-runs/<id>/run-manifest.json
 
@@ -965,8 +975,8 @@ unresolved đã review.
 - [ ] DB4-D2/D4: một retrieval expansion và một format repair/sense.
 - [ ] DB4-D5: AI audit cap + full gate/denominator report.
 - [x] DB4-D4/D5: initial-generation status/report/systemd/runbook và local technical tests.
-- [x] DB4-D4/D5: remote read-only preflight; smoke cũ dừng trước dispatch do memory peak, runner đang được giảm footprint.
-- [ ] DB4-D4/D5: transport smoke mới, giới hạn 1 R1 + 1 conditional R2.
+- [x] DB4-D4/D5: remote read-only preflight; lazy-load runner + request loading pass trong sandbox systemd.
+- [ ] DB4-D4/D5: transport smoke mới; service trước đó fail `EROFS` khi chmod thư mục account lock, unit fix chưa deploy.
 - [ ] DB4-D4/D5: shadow 1.000, không apply.
 - [ ] DB4-D5: đủ Pilot A/B; provenance/CI/recall, không giả human gold.
 - [ ] DB4-D6: journal/preflight/dry-run/reapply/rollback/concurrency.
@@ -1033,11 +1043,27 @@ unresolved đã review.
   giờ đối chiếu schedule compact, không cần giữ R1 payload.
 - File / phạm vi: `muse-batch-runner.py`, test runner, runbook, review và plan.
 - Kiểm tra / kết quả: Python runner 13/13 tests và `py_compile` pass; remote
-  preflight đã pass. Smoke cũ trên VPS được dừng trước khi tạo ledger hoặc
-  dispatch vì RAM khả dụng xuống 136 MiB; cần smoke mới sau commit.
-- Gate còn thiếu: commit/push fix này; xác minh memory footprint trên VPS rồi
-  chạy smoke mới tối đa 1 R1 + 1 conditional R2. Shadow 1.000, expansion,
-  format repair, Pilot A/B, apply và deploy vẫn đóng.
-- Git / triển khai: commit `708e3b8` đã push; follow-up fix đang local. VPS có
-  systemd template/env và release cũ; instance cũ dừng/failed, chưa có Muse call,
-  DB write hay app deploy.
+  manifest mới pass: 1.000 selected, 966 ready, 34 no-candidate, 1.932 requests,
+  78 refs. Smoke đầu dừng ở memory 136 MiB trước ledger/dispatch; memory-safe
+  service sau đó fail ngay ở account-lock directory `EROFS`, cũng trước dispatch.
+- Gate còn thiếu: sửa/commit/push systemd `ReadWritePaths`, cài template mới,
+  verify sandbox rồi chạy lại smoke tối đa 1 R1 + 1 conditional R2. Shadow 1.000,
+  expansion, format repair, Pilot A/B, apply và deploy vẫn đóng.
+- Git / triển khai: memory fix `cbe9e56` đã push. Unit lock-dir fix đang local;
+  VPS có release/env/manifest `cbe9e56`, service instance failed nhưng không có
+  ledger event/Muse call/DB write/app deploy.
+
+### 2026-10-11 — DB4-D4/D5 — Cho runner ghi thư mục account lock trong sandbox
+
+- Thay đổi / lý do: transient test cùng sandbox systemd tái hiện `EROFS`: runner
+  chmod thư mục `/opt/langoo/storage/muse-native` để xác nhận mode riêng tư,
+  trong khi unit chỉ cho ghi file lock. Thêm thư mục cha vào `ReadWritePaths`;
+  cookie file vẫn được mount read-only.
+- File / phạm vi: systemd template, runbook, plan/review và `PROGRESS.md`.
+- Kiểm tra / kết quả: transient systemd lock test pass với quyền mới; runtime pin,
+  full read-only preflight (78 refs) và nạp phase R1 pass trong sandbox. Cần chạy
+  `systemd-analyze verify`, cài unit và retry transport smoke sau commit/push.
+- Gate còn thiếu: áp template mới lên VPS, service smoke cap 1 R1 + 1 conditional
+  R2; shadow 1.000, expansion, repair, Pilot A/B, apply và deploy vẫn đóng.
+- Git / triển khai: `cbe9e56` đã push; template/runbook fix đang local. VPS unit cũ
+  chưa được thay, service failed trước mọi ledger event/dispatch.

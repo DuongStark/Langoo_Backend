@@ -55,8 +55,9 @@ created before this release was committed.
 ```sh
 RUN_ID=db4-smoke-20261010-<commit-short>
 ARTIFACT_ROOT=/opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649
+install -d -o langoo -g langoo -m 0700 "$ARTIFACT_ROOT/batch-runs/$RUN_ID"
 cd /opt/langoo/services/db4-batch/releases/<commit>
-node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
+runuser -u langoo -- node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
   --artifact-dir "$ARTIFACT_ROOT" \
   --run-id "$RUN_ID" \
   --sampling cohort/2026-10-10-v1/sampling.json \
@@ -77,7 +78,7 @@ paths and bounded execution settings only; it must not contain credentials:
 DB4_RELEASE_PATH=/opt/langoo/services/db4-batch/releases/<commit>
 DB4_ARTIFACT_ROOT=/opt/langoo/storage/db4-batches/<cohort-id>
 DB4_MANIFEST=batch-runs/<run-id>/run-manifest.json
-DB4_WORKERS=8
+DB4_WORKERS=1
 DB4_TIMEOUT=240
 DB4_R1_CAP=1
 DB4_R2_CAP=1
@@ -95,9 +96,15 @@ candidate shards in Python, and releases the phase payload before D1 validation.
 Before retrying a stopped service, check VPS available memory and PSI. The first
 release reached about 646 MiB cgroup memory while holding both phases and unused
 target/candidate data; that run was stopped before its ledger or Muse dispatch.
+The memory-safe release passed preflight in the service sandbox. Its first service
+start then exposed `EROFS` while hardening the Muse lock directory; the unit now
+allows writes to that directory while retaining the cookie-file read-only mount.
 
 The account lock at `/opt/langoo/storage/muse-native/runner-account.lock` must
 be owned and writable by `langoo`, matching the existing Muse runner. The
+unit allows writes to `/opt/langoo/storage/muse-native` because the runner secures
+that directory as mode `0700` while acquiring the shared lock; the cookie file
+remains explicitly read-only. Keep this directory owner/mode private. The
 artifact root must be owned by `langoo`; artifacts stay under
 `/opt/langoo/storage/db4-batches`.
 
@@ -106,7 +113,7 @@ source hashes and request bindings without making provider calls or DB writes:
 
 ```sh
 cd /opt/langoo/services/db4-batch/releases/<commit>
-node --max-old-space-size=448 --import tsx scripts/db4/batch-preflight.ts \
+runuser -u langoo -- node --max-old-space-size=448 --import tsx scripts/db4/batch-preflight.ts \
   --artifact-dir /opt/langoo/storage/db4-batches/<cohort-id> \
   --manifest batch-runs/<run-id>/run-manifest.json
 ```
