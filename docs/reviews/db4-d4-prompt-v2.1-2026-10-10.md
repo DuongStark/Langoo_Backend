@@ -62,6 +62,5 @@ SHA-256 theo bytes file:
 - Chưa có durable batch runner/recovery smoke, vì vậy **không dispatch Muse**.
 - Chưa chạy D5 quality gate/Pilot A/B; chưa có D6 journal/apply/rollback hoặc D7
   serving gate. Không sửa DB hay deploy ứng dụng.
-- Git / triển khai: file hiện đang local; ghi commit/push cụ thể sau khi đóng gói
-  đúng phạm vi DB4-D4/D5. Thay đổi của FE handoff và D5 repeat ngoài phạm vi vẫn
-  để nguyên.
+- Git / triển khai: commit `379ba5f` đã push lên `origin/main`; không deploy
+  hoặc apply DB. Thay đổi của FE handoff và D5 repeat ngoài phạm vi vẫn để nguyên.

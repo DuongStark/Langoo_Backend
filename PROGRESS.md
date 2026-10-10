@@ -83,8 +83,57 @@
 | DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
 | DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; Muse chờ runner/recovery smoke; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
 | DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
-| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 contract, immutable job/event schemas và D3 wrapper; [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [foundation review](docs/reviews/db4-d4-d5-batch-foundation-2026-10-10.md) | 🟡 Commit/push `406c8b2`; TS/lint/format + 77/77 DB4 tests pass (8 new conditional R2 tests); durable artifact store, runner/recovery, smoke và semantic gate còn thiếu; chưa gọi Muse từ runner, chưa apply/deploy |
+| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense       | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [foundation review](docs/reviews/db4-d4-d5-batch-foundation-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 Foundation `406c8b2` + v2.1 `379ba5f` đã push; 80/80 DB4 tests + TS/lint/format pass; durable runner/recovery smoke và semantic gate còn thiếu; chưa gọi Muse, apply hoặc deploy                                                                                                                                                                                                                                               |
 | DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
+
+### 2026-10-10 — DB4-D4/D5 — Mapping tự động theo batch có checkpoint
+
+- Theo yêu cầu lên plan triển khai siêu chi tiết, lưu
+  [plan batch rollout](docs/plans/db4-d4-d5-automated-batch-rollout.md): đợt đầu
+  1.000 sense / 10 shard mục tiêu 100 sense, 8 worker toàn account; lexical +
+  MiniLM, prompt v2.1 dự kiến, conditional R2, một expansion và một format
+  repair/sense, caps mapping/audit riêng, checkpoint/resume/systemd VPS.
+- Chỉ sửa tài liệu: plan mới và liên kết master DB4/D4 v2/D5/PROGRESS. D1 giữ
+  nguyên; conditional R2 cần orchestration adapter mới vì D3 v1 yêu cầu hai
+  phase/bundle và tối đa 500 targets/generation, 64 MiB/file.
+- Không cần chủ dự án duyệt từng row; AI audit ghi reviewerKind=llm. Pilot A/B,
+  confidence/curation, D6 journal/rollback và D7 exact-only/stale-safe serving
+  vẫn là gate riêng; không ép unresolved thành match hoặc fabricate confidence.
+- Kiểm tra tài liệu: Prettier plan mới pass; 37 link file nội bộ của bốn plan
+  tồn tại; scoped diff-check/whitespace file mới sạch. Global `git diff --check`
+  còn trailing whitespace có sẵn ở FE handoff dòng 3 của phiên khác, giữ nguyên.
+  Không chạy code tests, gọi Muse, mở job hoặc sửa DB trong lượt này.
+- Git / triển khai: plan và conditional-R2 foundation `406c8b2` đã push;
+  rollout chưa deploy/apply VPS; durable runner, Muse shadow và D6/D7 còn chờ.
+
+### 2026-10-10 — DB4-D3/D4 — Contract batch và conditional R2 foundation
+
+- Bắt đầu triển khai theo batch plan: thêm `_batch-types.ts` cho manifest/schedule/
+  job key/event hash chain/target status; `muse-batch-decide.ts` chỉ gọi pure D3
+  sau R1 duy nhất exact không unresolved và R2 hợp lệ. R2 skip không tạo consensus.
+- Kiểm tra: `npx tsc -p tsconfig.db4.json --noEmit`, ESLint scoped, Prettier và
+  toàn bộ DB4 TypeScript suite 77/77 pass (8 tests mới cho conditional R2/event
+  chain); code chưa gọi provider/DB.
+- [Review foundation và gate còn thiếu](docs/reviews/db4-d4-d5-batch-foundation-2026-10-10.md).
+  DB4-D2 cohort/source audit/RRF đã chạy; atomic persistence, runner/waves/
+  recovery, full crash matrix, audit coordinator và DB4-D6/D7 vẫn còn thiếu.
+- Git / triển khai: code/test/plan/review commit `406c8b2` đã push; không deploy/apply.
+
+### 2026-10-10 — DB4-D4 — Prompt semantic match v2.1 và version-safe repair
+
+- Theo bằng chứng D5 sample30, thêm rule hẹp cho possessive/reference, không suy
+  abbreviation/composition và chỉ dùng witness được source/concept hỗ trợ; giữ
+  bytes v1/v2. Thêm selector v2.1, version parser, repair một lần/bundle theo
+  revision và validator output theo đúng thư mục revision.
+- File/phạm vi: prompt v2.1 (3 file), `muse-prompt-version.ts`, prepare/repair/
+  validate DB4, regression tests; cập nhật batch plan và [review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md).
+- Kiểm tra: `npx tsc -p tsconfig.db4.json --noEmit`, ESLint/Prettier scoped pass;
+  `node --import tsx --test scripts/db4/*.test.ts` — 80/80 pass. Synthetic
+  prepare → one repair → validate qua cả folder `v2.1`; không gọi Muse.
+- Gate còn thiếu: durable runner/recovery + technical smoke trước mọi dispatch;
+  semantic quality chưa đo; DB4-D5/D6/D7 chưa đạt. Không apply DB/deploy.
+- Git / triển khai: commit `379ba5f` đã push lên `origin/main`; không deploy/apply.
+  FE handoff và D5 repeat WIP ngoài phạm vi này vẫn local, unstaged.
 
 ### 2026-10-10 — DB4-D2 — Hybrid lexical-MiniLM retrieval bằng RRF
 
