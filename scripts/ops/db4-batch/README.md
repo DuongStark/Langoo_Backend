@@ -61,7 +61,7 @@ node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
   --run-id "$RUN_ID" \
   --sampling cohort/2026-10-10-v1/sampling.json \
   --generation generation/cohort-2026-10-10-v1/manifest.json \
-  --export cohort-export/2026-10-10-v1/manifest.json \
+  --export export/manifest.json \
   --output-prefix "batch-runs/$RUN_ID" \
   --prompt-revision v2.1
 ```
@@ -88,6 +88,13 @@ one new dispatch. R2 is sent only if the one R1 result meets the frozen
 conditional-R2 rule. Unused requests remain pending. Do not increase these caps
 to run the 1,000-target shadow until expansion, format repair and Pilot A/B
 audit coordination are implemented and pass their gates.
+
+The runner performs the read-only TypeScript preflight before loading request
+payloads. It then loads only the active phase, does not materialize target or
+candidate shards in Python, and releases the phase payload before D1 validation.
+Before retrying a stopped service, check VPS available memory and PSI. The first
+release reached about 646 MiB cgroup memory while holding both phases and unused
+target/candidate data; that run was stopped before its ledger or Muse dispatch.
 
 The account lock at `/opt/langoo/storage/muse-native/runner-account.lock` must
 be owned and writable by `langoo`, matching the existing Muse runner. The

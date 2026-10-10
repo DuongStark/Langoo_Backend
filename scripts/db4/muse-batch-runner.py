@@ -139,6 +139,17 @@ def ref_bytes(root: Path, ref: dict, cap: int = 64 * 1024 * 1024) -> bytes:
     return content
 
 
+def validate_ref_metadata(root: Path, ref: dict, cap: int = 64 * 1024 * 1024):
+    if not isinstance(ref, dict) or set(ref) != {'path', 'sha256'}:
+        raise RunnerError('Invalid artifact reference')
+    if not isinstance(ref['sha256'], str) or not re.fullmatch(r'[0-9a-f]{64}', ref['sha256']):
+        raise RunnerError('Invalid artifact digest')
+    path = safe_path(root, ref['path'])
+    if path.stat().st_size > cap:
+        raise RunnerError('Artifact exceeds fixed read cap')
+    return path
+
+
 def read_jsonl(content: bytes, label: str):
     if not content:
         return []
@@ -371,44 +382,69 @@ def load_run(root: Path, manifest_path: str):
     if len(schedule_rows) > 5000:
         raise RunnerError('Schedule exceeds dispatch cap')
     shards = []
-    targets = []
-    candidates = []
-    requests = {'r1': [], 'r2': []}
+    shard_target_count = 0
+    shard_ready_count = 0
     for shard in manifest['shards']:
-        shard_targets = read_jsonl(ref_bytes(root, shard['targets'], cap), 'Shard targets')
-        shard_candidates = read_jsonl(ref_bytes(root, shard['candidates'], cap), 'Shard candidates')
-        shard_requests = {
-            phase: read_jsonl(ref_bytes(root, shard['requests'][phase], cap), f'{phase} requests')
-            for phase in ('r1', 'r2')
-        }
-        if len(shard_targets) != shard['count']:
-            raise RunnerError('Shard target count differs from manifest')
-        if len(shard_requests['r1']) != shard['readyCount'] or len(shard_requests['r2']) != shard['readyCount']:
-            raise RunnerError('Shard request count differs from manifest')
-        if any(len(ref_bytes(root, shard[field], cap)) > cap for field in ('targets', 'candidates')):
-            raise RunnerError('Shard artifact exceeds cap')
-        targets.extend(shard_targets)
-        candidates.extend(shard_candidates)
+        validate_ref_metadata(root, shard['targets'], cap)
+        validate_ref_metadata(root, shard['candidates'], cap)
         for phase in ('r1', 'r2'):
-            requests[phase].extend(shard_requests[phase])
+            validate_ref_metadata(root, shard['requests'][phase], cap)
+        if int(shard['readyCount']) > int(shard['count']):
+            raise RunnerError('Shard ready count exceeds target count')
+        shard_target_count += int(shard['count'])
+        shard_ready_count += int(shard['readyCount'])
         shards.append(shard)
-    if len(targets) != manifest['cohort']['counts']['selected']:
+    selected_count = int(manifest['cohort']['counts']['selected'])
+    ready_count = int(manifest['retrieval']['readyCount'])
+    if shard_target_count != selected_count:
         raise RunnerError('Run target denominator is incomplete')
-    if len({row['targetKey'] for row in targets}) != len(targets):
-        raise RunnerError('Duplicate batch target')
-    if len(requests['r1']) != manifest['retrieval']['readyCount'] or len(requests['r2']) != len(requests['r1']):
-        raise RunnerError('Run request denominator mismatch')
-    if len(schedule_rows) != len(requests['r1']) + len(requests['r2']):
+    if shard_ready_count != ready_count:
+        raise RunnerError('Run ready denominator is incomplete')
+    if len(schedule_rows) != ready_count * 2:
         raise RunnerError('Schedule/request denominator mismatch')
-    if manifest['retrieval']['readyCount'] + manifest['retrieval']['noCandidateCount'] != len(targets):
+    if manifest['retrieval']['readyCount'] + manifest['retrieval']['noCandidateCount'] != selected_count:
         raise RunnerError('Retrieval denominator mismatch')
+    if sum(job.get('phase') == 'r1' for job in schedule_rows) != ready_count:
+        raise RunnerError('R1 schedule denominator mismatch')
+    if sum(job.get('phase') == 'r2' for job in schedule_rows) != ready_count:
+        raise RunnerError('R2 schedule denominator mismatch')
     jobs_by_key = {job['jobKey']: job for job in schedule_rows}
     if len(jobs_by_key) != len(schedule_rows):
         raise RunnerError('Duplicate scheduled job key')
-    for phase in ('r1', 'r2'):
+    return {
+        'manifest': manifest,
+        'manifest_bytes': manifest_bytes,
+        'manifest_sha256': sha256(manifest_bytes),
+        'manifest_path': manifest_path,
+        'prefix': prefix,
+        'prompt': prompt,
+        'prompt_hashes': prompt_hashes,
+        'schedule': schedule_rows,
+        'jobs_by_key': jobs_by_key,
+        'requests': {'r1': [], 'r2': []},
+        'shards': shards,
+    }
+
+
+def load_phase_requests(root: Path, run: dict, phases: list[str]):
+    manifest = run['manifest']
+    cap = int(manifest['caps']['artifactBytes'])
+    for phase in phases:
+        if phase not in ('r1', 'r2'):
+            raise RunnerError('Invalid request phase')
+        requests = run['requests'][phase]
+        if requests:
+            raise RunnerError('Request phase was already loaded')
+        for shard in run['shards']:
+            shard_requests = read_jsonl(
+                ref_bytes(root, shard['requests'][phase], cap), f'{phase} requests'
+            )
+            if len(shard_requests) != int(shard['readyCount']):
+                raise RunnerError('Shard request count differs from manifest')
+            requests.extend(shard_requests)
         expected_version = f"db4-d4-semantic-match-{manifest['prompt']['revision']}-{phase}"
-        for request in requests[phase]:
-            job = jobs_by_key.get(request['jobKey'])
+        for request in requests:
+            job = run['jobs_by_key'].get(request['jobKey'])
             if not job or any(job.get(field) != request.get(request_field) for field, request_field in (
                 ('targetKey', 'targetKey'), ('senseKey', 'senseKey'), ('phase', 'phase'),
                 ('generation', 'generation'), ('bundleKey', 'bundleKey'),
@@ -420,28 +456,17 @@ def load_run(root: Path, manifest_path: str):
             computed_prompt = hash_json({
                 'revision': manifest['prompt']['revision'],
                 'version': expected_version,
-                'systemSha256': prompt_hashes['system'],
-                'phaseSha256': prompt_hashes[phase],
+                'systemSha256': run['prompt_hashes']['system'],
+                'phaseSha256': run['prompt_hashes'][phase],
             })
             if request['promptHash'] != computed_prompt:
                 raise RunnerError('Request prompt hash mismatch')
             if hash_json(request['payload']) != request['renderedContextHash']:
                 raise RunnerError('Request rendered payload hash mismatch')
-    return {
-        'manifest': manifest,
-        'manifest_bytes': manifest_bytes,
-        'manifest_sha256': sha256(manifest_bytes),
-        'manifest_path': manifest_path,
-        'prefix': prefix,
-        'prompt': prompt,
-        'prompt_hashes': prompt_hashes,
-        'schedule': schedule_rows,
-        'jobs_by_key': jobs_by_key,
-        'targets': targets,
-        'candidates': candidates,
-        'requests': requests,
-        'shards': shards,
-    }
+        expected_count = int(manifest['retrieval']['readyCount'])
+        if len(requests) != expected_count or len({row['jobKey'] for row in requests}) != expected_count:
+            raise RunnerError('Run request denominator mismatch')
+    return run['requests']
 
 
 class Transport:
@@ -628,9 +653,14 @@ def validate_r2_gate(root: Path, validation_manifest_path: str, run: dict, ledge
         'sha256': sha256(manifest_path.read_bytes()),
     }
     results = read_jsonl(ref_bytes(root, validation_manifest['results']), 'R1 validation results')
-    expected = {request['jobKey']: request for request in run['requests']['r1']}
+    expected = {
+        job['jobKey']: job for job in run['schedule']
+        if job.get('phase') == 'r1'
+    }
     expected_count = len(expected)
-    if len(results) != expected_count or len({row['jobKey'] for row in results}) != expected_count:
+    if (expected_count != int(run['manifest']['retrieval']['readyCount'])
+            or len(results) != expected_count
+            or len({row['jobKey'] for row in results}) != expected_count):
         raise RunnerError('R1 validation denominator mismatch')
     prior_head = validation_manifest.get('sourceLedgerHead')
     source_ledger = validation_manifest.get('sourceLedger')
@@ -885,6 +915,22 @@ def run_queue(root: Path, run: dict, phase: str, workers: int, timeout: int, int
             except Exception:
                 pass
 
+    scheduled_total = len(run['requests'][phase])
+    parked_total = len(parked)
+    dispatch_cap_reached = (
+        max_new_dispatches is not None
+        and bool(pending)
+        and ledger.dispatch_count() - initial_intents >= max_new_dispatches
+    )
+    # D1 validation runs in a Node subprocess. Drop the large request payloads
+    # and queue references first so the validator does not share their peak RSS.
+    run['requests'][phase] = []
+    queue.clear()
+    candidates.clear()
+    pending.clear()
+    skipped.clear()
+    parked.clear()
+
     validation = None
     if validate_after:
         validation = validate_with_typescript(root, run, phase, REPO_ROOT, ledger)
@@ -892,16 +938,12 @@ def run_queue(root: Path, run: dict, phase: str, workers: int, timeout: int, int
         'runId': run['manifest']['runId'],
         'phase': phase,
         'workers': workers,
-        'scheduled': len(run['requests'][phase]),
+        'scheduled': scheduled_total,
         'skippedByR1Gate': skipped_count,
-        'parkedByR1Unknown': len(parked),
+        'parkedByR1Unknown': parked_total,
         'dispatchedThisInvocation': ledger.dispatch_count() - initial_intents,
         'invocationDispatchCap': max_new_dispatches,
-        'invocationDispatchCapReached': (
-            max_new_dispatches is not None
-            and bool(pending)
-            and ledger.dispatch_count() - initial_intents >= max_new_dispatches
-        ),
+        'invocationDispatchCapReached': dispatch_cap_reached,
         'eventCount': len(ledger.events),
         'dispatchIntents': ledger.dispatch_count(),
         'states': tally_states(ledger, run['schedule']),
@@ -1307,6 +1349,7 @@ def run_locked(root: Path, run: dict, args):
             validation_path = compare_r1_validation_to_fresh(
                 root, validation_path, fresh_r1, run
             )
+        load_phase_requests(root, run, [args.phase])
         return run_queue(
             root,
             run,
@@ -1374,7 +1417,27 @@ def cli():
             locks.append(acquire_lock(ACCOUNT_LOCK))
             verify_runtime_pin(run, args.repo_root)
             verify_batch_inputs_with_typescript(root, run, args.repo_root)
-            result = reconcile_run(root, run, lambda: NativeMuseTransport(args.timeout, args.interval), args.phase)
+            if args.phase:
+                load_phase_requests(root, run, [args.phase])
+                result = reconcile_run(
+                    root, run, lambda: NativeMuseTransport(args.timeout, args.interval), args.phase
+                )
+            else:
+                phase_results = []
+                for phase in ('r1', 'r2'):
+                    load_phase_requests(root, run, [phase])
+                    phase_results.append(reconcile_run(
+                        root, run, lambda: NativeMuseTransport(args.timeout, args.interval), phase
+                    ))
+                    run['requests'][phase] = []
+                result = {
+                    'runId': run['manifest']['runId'],
+                    'recoveredCompletedReplies': sum(item['recoveredCompletedReplies'] for item in phase_results),
+                    'transportUnknown': sum(item['transportUnknown'] for item in phase_results),
+                    'newDispatches': 0,
+                    'eventCount': phase_results[-1]['eventCount'],
+                    'phases': phase_results,
+                }
             print(json.dumps(result))
             return 0
         finally:

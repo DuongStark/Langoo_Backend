@@ -1,9 +1,10 @@
 # DB4-D4/D5 — Review batch runner và preflight
 
 Ngày: 2026-10-10
-Trạng thái: **Local implementation and technical tests pass; remote preflight and
-transport smoke are pending.** This is the initial-generation shadow runner,
-not a quality gate or a DB/app deployment.
+Trạng thái: **Foundation `708e3b8` đã commit/push; local và VPS read-only
+preflight pass. Smoke đầu tiên được dừng trước ledger/dispatch do memory peak;
+runner memory fix đang được kiểm tra.** Đây là shadow runner cho initial
+generation, chưa phải quality gate hay DB/app deployment.
 
 ## Phạm vi đã làm
 
@@ -25,6 +26,10 @@ not a quality gate or a DB/app deployment.
   release directory and persistent artifact storage.
 - `batch-prepare.ts` and the batch/retrieval contracts include the fields needed
   to bind selected targets, strata, sources, generation, prompt and run pin.
+- Follow-up DB4-D4/D5 reduces peak memory: request JSONL loads only after the
+  Node preflight and only for the active phase; unused target/candidate rows are
+  metadata-checked without materialization; R1 payloads are released before D1
+  validation; R2 validation binds through the compact schedule.
 
 ## Kiểm tra
 
@@ -41,6 +46,7 @@ not a quality gate or a DB/app deployment.
 | Preflight resource profile                                                      | 2:20.34 elapsed; 526,776 KiB max RSS; 0 swap activity                                                                                                             |
 | `systemd-analyze verify`                                                        | Pass (exit 0) on a 0644 copy; the shared workspace mount reports source files as mode 0777 and warns only for that copy. VPS installation uses `install -m 0644`. |
 | Scoped `git diff --check`                                                       | Pass before final docs check                                                                                                                                      |
+| Runner memory follow-up                                                         | 13/13 Python tests pass; `py_compile` passes; remote smoke with the old runner was stopped before ledger/dispatch due to cgroup memory peak                       |
 
 The capped preflight is slower than a small unit test because it revalidates the
 full 1,000-target artifact and embedded source, candidate, prompt and request
@@ -48,24 +54,28 @@ refs. It is read-only; it did not invoke the transport or write the database.
 
 ## Chưa đạt / giới hạn
 
-- The real artifact preflight has only been measured locally. VPS memory was last
-  observed at 1.9 GiB RAM, ~681 MiB available and 860 MiB swap in use. Recheck
-  `free -h`, active services and the Muse account lock before running the
-  448 MiB-heap preflight there; stop if available memory has fallen materially.
-- The first remote transport smoke must use a new run ID and clean committed
-  source pin, with per-invocation R1=1/R2=1. R2 is conditional, so actual calls
-  can be zero, one or two. Existing local preflight manifest is not a dispatch
-  manifest for the release.
+- VPS read-only preflight passed against the frozen full artifact in 5:55.69,
+  max RSS 279,220 KiB. Before the first transport call, the old Python runner
+  reached about 646 MiB cgroup memory while holding targets, candidates and both
+  request phases during its Node preflight. It was stopped at 00:14:55 +07 with
+  about 136 MiB system memory available. The instance failed after stop, but
+  inspection confirmed there was no ledger, dispatch intent, account lock or
+  Muse call. Service is inactive; its previous release and environment file
+  remain installed.
+- Retry with a new run ID and the memory-safe committed source pin, after
+  checking `free -h`, PSI, active services and the Muse account lock. Keep
+  per-invocation R1=1/R2=1. R2 is conditional, so actual calls can be zero, one
+  or two. The previous preflight manifest is not a dispatch manifest for a new
+  release.
 - Retrieval expansion, one-time format repair, and Pilot A/B audit coordinator
   are not implemented. Therefore the 1,000-target shadow is not authorized by
   this smoke and remains closed.
-- No service has been installed/started on VPS; no Muse request was issued by
-  this runner; no DB write/apply or application deployment occurred.
+- The systemd template and old-release smoke environment are installed on VPS;
+  the stopped instance made no Muse request, DB write/apply or app deployment.
 
 ## Git / triển khai
 
-At review creation the code, tests, plan and report are local and not committed.
-The planned commit stages only the DB4-D4/D5 foundation and its required batch
-contract/atomic artifact dependencies; unrelated local DB4/FE changes remain
-unstaged. Update this section with commit/push hash and the capped VPS smoke
-result after those actions complete.
+Foundation commit `708e3b8` is pushed. The memory-safe follow-up, updated runbook
+and progress entry are being prepared for a separate scoped commit. Unrelated
+local DB4/FE WIP remains unstaged. Update this section with its commit/push hash
+and a new capped VPS smoke result after those actions complete.

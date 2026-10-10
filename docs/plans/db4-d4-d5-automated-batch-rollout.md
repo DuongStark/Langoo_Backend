@@ -599,10 +599,16 @@ trong `/opt/langoo/storage/db4-batches`, account lock dùng chung với Muse nat
   Quan sát VPS 10/10: RAM 1,9 GiB, available khoảng 681 MiB, swap dùng 860 MiB.
   Preflight full artifact local sau streaming/hash optimization với Node heap
   448 MiB mất 2:20.34, peak RSS 526.776 KiB (~514 MiB), không phát sinh swap;
-  VPS preflight phải theo dõi memory pressure riêng trước smoke, vì workload đó
-  chạy cùng dịch vụ hiện có.
-- Unit syntax đã qua `systemd-analyze verify`; file cài lên VPS phải qua `install
--m 0644`. Chưa cài unit, tạo env file, hoặc start service.
+  VPS preflight cùng artifact đã pass trước đó trong 5:55.69, max RSS 279.220
+  KiB. Service template đã được cài/verify; env file smoke riêng đã tạo. Lượt
+  chạy release `708e3b8` ngày 11/10 dừng trước ledger/dispatch khi cgroup lên
+  khoảng 646 MiB và RAM khả dụng còn 136 MiB. Phân tích cho thấy runner giữ cả
+  targets, candidates và hai phase request trong khi chạy Node preflight.
+- DB4-D4/D5 tiếp tục bằng lazy loading từng phase sau preflight, bỏ giữ targets/
+  candidates trong Python và nhả queue payload trước D1 Node validation. Chỉ thử
+  lại service sau khi commit mới, kiểm tra RAM/PSI và giữ cap R1=1/R2=1.
+- Unit syntax đã qua `systemd-analyze verify` trên VPS. Lần chạy cũ đã dừng;
+  chưa có Muse dispatch, ledger, DB write, apply hoặc app deploy.
 
 ## 14. DB4-D5 — Audit và gate tự động
 
@@ -912,7 +918,7 @@ node --max-old-space-size=448 --import tsx scripts/db4/batch-prepare.ts \
   --run-id db4-smoke-<commit-short> \
   --sampling cohort/2026-10-10-v1/sampling.json \
   --generation generation/cohort-2026-10-10-v1/manifest.json \
-  --export cohort-export/2026-10-10-v1/manifest.json \
+  --export export/manifest.json \
   --output-prefix batch-runs/db4-smoke-<commit-short> --prompt-revision v2.1
 
 node --max-old-space-size=448 --import tsx scripts/db4/batch-preflight.ts \
@@ -959,12 +965,13 @@ unresolved đã review.
 - [ ] DB4-D2/D4: một retrieval expansion và một format repair/sense.
 - [ ] DB4-D5: AI audit cap + full gate/denominator report.
 - [x] DB4-D4/D5: initial-generation status/report/systemd/runbook và local technical tests.
-- [ ] DB4-D4/D5: remote read-only preflight và smoke giới hạn 1 R1 + 1 R2.
+- [x] DB4-D4/D5: remote read-only preflight; smoke cũ dừng trước dispatch do memory peak, runner đang được giảm footprint.
+- [ ] DB4-D4/D5: transport smoke mới, giới hạn 1 R1 + 1 conditional R2.
 - [ ] DB4-D4/D5: shadow 1.000, không apply.
 - [ ] DB4-D5: đủ Pilot A/B; provenance/CI/recall, không giả human gold.
 - [ ] DB4-D6: journal/preflight/dry-run/reapply/rollback/concurrency.
 - [ ] DB4-D7: exact-only/curation/confidence/stale-safe refresh/API tests.
-- [ ] Commit/push đúng phạm vi DB4-D4/D5; không gom WIP phiên khác.
+- [x] Commit/push foundation DB4-D4/D5 đúng phạm vi; follow-up memory fix sẽ commit riêng.
 
 ## 24. Nhật ký tài liệu
 
@@ -1017,3 +1024,20 @@ unresolved đã review.
   D6/D7, DB apply và app deploy.
 - Git / triển khai: trạng thái commit/push được ghi lại sau khi hoàn tất kiểm tra;
   VPS service chưa cài/chạy, app chưa deploy, DB chưa sửa.
+
+### 2026-10-11 — DB4-D4/D5 — Nạp request theo phase để giảm RAM VPS
+
+- Thay đổi / lý do: runner trước smoke giữ target/candidate JSONL và payload R1+R2
+  đồng thời với Node preflight. Tách metadata/preflight khỏi nạp request; chạy
+  chỉ nạp phase cần thiết và giải phóng payload trước Node D1 validator. R2 identity
+  giờ đối chiếu schedule compact, không cần giữ R1 payload.
+- File / phạm vi: `muse-batch-runner.py`, test runner, runbook, review và plan.
+- Kiểm tra / kết quả: Python runner 13/13 tests và `py_compile` pass; remote
+  preflight đã pass. Smoke cũ trên VPS được dừng trước khi tạo ledger hoặc
+  dispatch vì RAM khả dụng xuống 136 MiB; cần smoke mới sau commit.
+- Gate còn thiếu: commit/push fix này; xác minh memory footprint trên VPS rồi
+  chạy smoke mới tối đa 1 R1 + 1 conditional R2. Shadow 1.000, expansion,
+  format repair, Pilot A/B, apply và deploy vẫn đóng.
+- Git / triển khai: commit `708e3b8` đã push; follow-up fix đang local. VPS có
+  systemd template/env và release cũ; instance cũ dừng/failed, chưa có Muse call,
+  DB write hay app deploy.

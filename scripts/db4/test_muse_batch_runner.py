@@ -158,6 +158,7 @@ class BatchRunnerTests(unittest.TestCase):
         self.assertEqual(result['dispatchIntents'], 1)
         self.assertTrue(transport.saw_intent_before_generate)
         self.assertEqual(transport.generate_calls, 1)
+        self.assertEqual(run['requests']['r1'], [])
         events = runner.read_ledger_readonly(self.root, run['prefix'], 'fixture-run')
         self.assertEqual(sum(event['type'] == 'response_saved' for event in events), 1)
         private = runner.job_state(self.root, run['prefix'], request['jobKey'])
@@ -169,6 +170,7 @@ class BatchRunnerTests(unittest.TestCase):
         first = FakeTransport(self.root, 'unknown_after_ack')
         self.run_r1(run, lambda: first)
         self.assertEqual(first.generate_calls, 1)
+        run = make_run([request])
         second = FakeTransport(self.root)
         result = self.run_r1(run, lambda: second)
         self.assertEqual(second.prepare_calls, 0)
@@ -184,6 +186,7 @@ class BatchRunnerTests(unittest.TestCase):
         events = runner.read_ledger_readonly(self.root, run['prefix'], 'fixture-run')
         self.assertEqual(sum(event['type'] == 'dispatch_intent_persisted' for event in events), 1)
         self.assertEqual(sum(event['type'] == 'dispatch_acknowledged' for event in events), 0)
+        run = make_run([request])
         second = FakeTransport(self.root)
         self.run_r1(run, lambda: second)
         self.assertEqual(second.generate_calls, 0)
@@ -194,6 +197,7 @@ class BatchRunnerTests(unittest.TestCase):
         failed = FakeTransport(self.root, 'prepare_error')
         first = self.run_r1(run, lambda: failed)
         self.assertEqual(first['dispatchIntents'], 0)
+        run = make_run([request])
         resumed = FakeTransport(self.root)
         second = self.run_r1(run, lambda: resumed)
         self.assertEqual(second['dispatchIntents'], 1)
@@ -308,6 +312,8 @@ class BatchRunnerTests(unittest.TestCase):
         r1 = make_request(0, 'r1')
         r2 = make_request(0, 'r2', r1['jobKey'])
         run = make_run([r1, r2])
+        run['requests']['r1'] = []
+        run['manifest']['retrieval'] = {'readyCount': 1}
         run['manifest_path'] = 'runs/fixture-run/run-manifest.json'
         schedule_bytes = (json.dumps(run['schedule'], separators=(',', ':')) + '\n').encode()
         schedule_ref = {
@@ -383,6 +389,62 @@ class BatchRunnerTests(unittest.TestCase):
         self.assertEqual(rows[0]['r2Eligible'], True)
         ledger.append(r2['jobKey'], 'job_planned', {'phase': 'r2'})
         runner.validate_r2_gate(self.root, validation_path, run, ledger)
+
+    def test_phase_request_loader_does_not_read_the_other_phase(self):
+        request = make_request(0, 'r1')
+        prompt = {'system': 'system prompt', 'r1': 'review prompt', 'r2': 'challenge prompt'}
+        revision = 'v2.1'
+        request['promptHash'] = runner.hash_json({
+            'revision': revision,
+            'version': request['promptVersion'],
+            'systemSha256': runner.sha256(prompt['system'].encode()),
+            'phaseSha256': runner.sha256(prompt['r1'].encode()),
+        })
+        request['renderedContextHash'] = runner.hash_json(request['payload'])
+        base = make_run([request])
+        job = base['schedule'][0]
+        job.update({
+            'bundleKey': request['bundleKey'],
+            'promptHash': request['promptHash'],
+            'renderedHash': request['renderedContextHash'],
+            'dependsOn': request['dependencyJobKey'],
+        })
+        r1_path = self.root / 'runs/fixture-run/r1.jsonl'
+        r1_path.parent.mkdir(parents=True)
+        r1_bytes = runner.json_bytes(request)
+        r1_path.write_bytes(r1_bytes)
+        run = {
+            **base,
+            'manifest': {
+                'prompt': {'revision': revision},
+                'retrieval': {'readyCount': 1},
+                'caps': {'artifactBytes': 64 * 1024 * 1024},
+            },
+            'prompt_hashes': {
+                'system': runner.sha256(prompt['system'].encode()),
+                'r1': runner.sha256(prompt['r1'].encode()),
+                'r2': runner.sha256(prompt['r2'].encode()),
+            },
+            'requests': {'r1': [], 'r2': []},
+            'shards': [{
+                'readyCount': 1,
+                'requests': {
+                    'r1': {
+                        'path': 'runs/fixture-run/r1.jsonl',
+                        'sha256': runner.sha256(r1_bytes),
+                    },
+                    'r2': {
+                        'path': 'runs/fixture-run/missing-r2.jsonl',
+                        'sha256': '0' * 64,
+                    },
+                },
+            }],
+        }
+
+        loaded = runner.load_phase_requests(self.root, run, ['r1'])
+
+        self.assertEqual([row['jobKey'] for row in loaded['r1']], [request['jobKey']])
+        self.assertEqual(loaded['r2'], [])
 
     def test_lock_refuses_a_second_runner_and_status_read_is_read_only(self):
         lock_path = self.root / 'locks/account.lock'

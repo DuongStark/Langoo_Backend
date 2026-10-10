@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-10 (DB4-D2 commit/push `0208649`; VPS cohort 15.245→1.000 (200/800) frozen; source audit + ONNX/RRF 966/1.000 shortlist, semantic quality chưa đo; DB4-D4/D5 runner local tests + full-artifact preflight pass; remote transport smoke còn chờ; commit/push `b74268d`; DB4-D3/D4 conditional R2 77/77 tests, commit/push `406c8b2`; no deploy/apply; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
+> Cập nhật lần cuối: 2026-10-11 (DB4-D2 commit/push `0208649`; VPS cohort 15.245→1.000 (200/800) frozen; source audit + ONNX/RRF 966/1.000 shortlist, semantic quality chưa đo; DB4-D4/D5 runner local tests + full-artifact preflight pass; VPS preflight pass; first smoke stopped before ledger/dispatch due memory; memory-safe runner follow-up pending; commit/push `b74268d`; DB4-D3/D4 conditional R2 77/77 tests, commit/push `406c8b2`; no deploy/apply; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
 > mọi thay đổi code phải lưu tài liệu, kiểm tra và trạng thái Git/triển khai.
@@ -83,7 +83,7 @@
 | DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
 | DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; Muse chờ runner/recovery smoke; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
 | DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
-| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 Local foundation: 82/82 DB4 TS tests, 12 runner tests, 2 coordinator tests; TypeScript/lint/format pass; read-only artifact preflight 1.000 selected / 966 ready / 34 no-candidate / 1.932 requests. VPS smoke, expansion/format repair, Pilot A/B, semantic gate, apply và deploy còn thiếu |
+| DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 Foundation 708e3b8 pushed; 82/82 DB4 TS tests, 13/13 runner tests, 2/2 coordinator tests, TypeScript and Prettier pass. VPS read-only preflight pass; first smoke stopped before ledger/dispatch at ~646 MiB cgroup. Memory-safe fix pending commit and new cap-1+1 smoke; expansion, repair, Pilot A/B, semantic gate, apply and deploy remain closed |
 | DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
 
 ### 2026-10-10 — DB4-D4/D5 — Mapping tự động theo batch có checkpoint
@@ -1194,3 +1194,20 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   deploy.
 - Git / triển khai: phần việc được stage riêng để commit/push; chưa cài/chạy
   service VPS, chưa deploy app hoặc sửa DB.
+
+### 2026-10-11 — DB4-D4/D5 — Nạp request theo phase để giảm RAM VPS
+
+- Thay đổi / lý do: sau khi smoke với release 708e3b8 đạt khoảng 646 MiB cgroup,
+  phát hiện runner giữ target/candidate và cả R1/R2 payload trong lúc Node preflight.
+  Nạp payload sau preflight theo phase, R2 đối chiếu identity qua schedule compact,
+  giải phóng queue trước Node D1 validation.
+- File / phạm vi: Python batch runner + tests; runbook VPS, plan rollout và
+  [review runner](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md).
+- Kiểm tra / kết quả: 13/13 runner tests, 2/2 coordinator tests, 82/82 DB4 TS tests,
+  tsc, Python compile, Prettier plan/review/runbook và scoped git diff check pass. VPS preflight
+  cũ pass; smoke đầu tiên đã stop trước ledger/dispatch, không gọi Muse.
+- Gate còn thiếu: commit/push follow-up này rồi chạy smoke mới với cap 1 R1 + 1 R2;
+  shadow 1.000, expansion, format repair, Pilot A/B, apply và deploy vẫn đóng.
+- Git / triển khai: foundation 708e3b8 đã push; memory fix đang được commit. VPS có
+  unit/env và release cũ; service cũ dừng/failed. Không có Muse call, DB write/apply
+  hay app deploy.
