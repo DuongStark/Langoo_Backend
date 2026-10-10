@@ -1,8 +1,9 @@
 # DB4-D4/D5 — Mapping tự động theo batch có checkpoint
 
 Ngày: **2026-10-10**. Trạng thái: **DB4-D2 cohort 1.000 đã freeze trên VPS,
-project/source-audit/RRF đã chạy local; DB4-D3/D4 contract + conditional R2 có
-8/8 unit tests pass**. Durable runner/recovery, Muse batch job và apply DB chưa có.
+project/source-audit/RRF đã chạy local; DB4-D3/D4 contract + conditional R2 qua
+77/77 DB4 TypeScript tests (8 mới)**. Durable runner/recovery, Muse batch job và
+apply DB chưa có.
 Phạm vi: sense JA → concept đã xác minh;
 Muse là model duy nhất cho review tự động, MiniLM chạy local cho retrieval.
 
@@ -949,7 +950,8 @@ unresolved đã review.
 - Gate còn thiếu: sampling selector, lexical/MiniLM fusion, artifact persistence,
   initial/conditional waves, durable runner/recovery, audit coordinator và full
   crash/transport test matrix. DB4-D2 selector/source audit/RRF cohort đã chạy.
-- Git / triển khai: foundation code/test/docs local chưa commit/push; không deploy.
+- Git / triển khai: foundation code/test/plan/review commit `406c8b2` đã push;
+  không deploy/apply.
 
 ### 2026-10-10 — DB4-D4/D5 — Mapping tự động theo batch có checkpoint
 

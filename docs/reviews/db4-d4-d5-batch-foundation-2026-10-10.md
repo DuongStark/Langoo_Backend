@@ -65,5 +65,6 @@ DB4-D2 đã freeze cohort 1.000, chạy source audit và hybrid RRF retrieval; x
 [review selector](db4-d2-cohort-selector-2026-10-10.md) và
 [review retrieval cohort](db4-d2-cohort-retrieval-2026-10-10.md).
 
-Git local có thay đổi chưa commit/push; không deploy, không apply DB. Durable
-runner/recovery, audit coordinator và technical smoke vẫn là gate trước Muse.
+Git code/test/plan/review commit `406c8b2` đã push; không deploy, không apply DB.
+Durable runner/recovery, audit coordinator và technical smoke vẫn là gate trước
+Muse.
