@@ -56,9 +56,19 @@ describe('DictionarySearchRepository', () => {
     const query = firstArg<Prisma.Sql>(queryRaw);
     expect(query.sql).toContain('CASE WHEN cl.source_id = 1 THEN 0');
     expect(query.sql).toContain("cr.policy = 'en-m10.5-v1'");
-    expect(query.sql).toContain('j.source_rank = 0');
-    expect(query.sql).toContain('j.pos IS NOT DISTINCT FROM r.pos');
+    expect(query.sql).toContain('FROM canonical c');
+    expect(query.sql).toContain('c.pos IS NOT DISTINCT FROM r.pos');
     expect(query.sql).toContain('FROM visible');
+  });
+
+  it('guard statement_timeout + cap hits cho query rộng', async () => {
+    const { repository, queryRaw } = createRepository();
+
+    await repository.search(params);
+
+    const query = firstArg<Prisma.Sql>(queryRaw);
+    expect(query.sql).toContain("set_config('statement_timeout', '20000', true)");
+    expect(query.sql).toContain('LIMIT 5000');
   });
 
   it('EN tạm thời VI-only: chỉ hiện lexeme EN có ít nhất 1 gloss VI', async () => {

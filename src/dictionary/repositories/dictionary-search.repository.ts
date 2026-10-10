@@ -143,7 +143,10 @@ export class DictionarySearchRepository {
       : Prisma.sql`exact_rank, prefix_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
 
     return this.prisma.$queryRaw<SearchRow[]>(Prisma.sql`
-      WITH hits AS (
+      WITH settings AS (
+        SELECT set_config('statement_timeout', '20000', true) AS _guard
+      ),
+      hits_raw AS (
         SELECT
           ds.lexeme_id,
           ds.language_id,
@@ -187,6 +190,17 @@ export class DictionarySearchRepository {
         WHERE (${romanizationMatch})
           ${langFilter}
       ),
+      hits AS (
+        SELECT h.*
+        FROM hits_raw h, settings
+        ORDER BY
+          (lower(h.surface) = lower(${queries[0]})) DESC,
+          (h.surface ILIKE ${patterns[0]} || '%' ESCAPE '\\') DESC,
+          length(h.surface) ASC,
+          h.frequency_rank ASC NULLS LAST,
+          h.lexeme_id ASC
+        LIMIT 5000
+      ),
       ranked AS (
         SELECT
           h.lexeme_id,
@@ -229,8 +243,12 @@ export class DictionarySearchRepository {
       -- Ẩn bản sao: JA ẩn non-JMdict (omw-ja, wiktextract...) khi đã có entry JMdict
       -- cùng ngôn ngữ + mặt chữ; EN ẩn entry không curation khi có entry curated
       -- (M10.5) cùng mặt chữ + POS. EN tạm thời VI-only: chỉ hiện từ EN đã có
-      -- ít nhất 1 sense gloss VI. Giữ nguyên entry có reading hoặc không có
-      -- bản "chuẩn" nào. Không đổi ORDER BY/cursor để không vỡ phân trang.
+      -- ít nhất 1 sense gloss VI. canonical: tính 1 lần, tránh NOT EXISTS O(N²).
+      canonical AS MATERIALIZED (
+        SELECT DISTINCT lang_code, lower(surface) AS surface_key, pos
+        FROM ranked
+        WHERE source_rank = 0
+      ),
       visible AS (
         SELECT r.*
         FROM ranked r
@@ -238,11 +256,10 @@ export class DictionarySearchRepository {
           AND (r.source_rank = 0
             OR r.reading IS NOT NULL
             OR NOT EXISTS (
-                SELECT 1 FROM ranked j
-                WHERE j.lang_code = r.lang_code
-                  AND lower(j.surface) = lower(r.surface)
-                  AND j.source_rank = 0
-                  AND (r.lang_code <> 'en' OR j.pos IS NOT DISTINCT FROM r.pos)
+                SELECT 1 FROM canonical c
+                WHERE c.lang_code = r.lang_code
+                  AND c.surface_key = lower(r.surface)
+                  AND (r.lang_code <> 'en' OR c.pos IS NOT DISTINCT FROM r.pos)
               ))
       ),
       per_result AS (
