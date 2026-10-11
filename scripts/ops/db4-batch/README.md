@@ -225,3 +225,11 @@ wave exists. Omitting it intentionally fails on unknown repair ledger jobs.
 
 Expansion and Pilot A/B audit remain incomplete; full 1,000-target shadow and
 DB4-D6/D7 apply/serving remain closed.
+
+To recover an existing invalid R1 automatically after an offline report finishes,
+use `run-shadow.py --recover-r1 --repair-cap 1 --r2-cap 1 --wait-for-report
+<relative-report-manifest>`. The coordinator waits up to 30 minutes for the prior
+complete report, checks its run binding, summary/results hashes, denominator and
+closed gates, then prepares one repair and uses the repair-only queue. It never
+starts another original R1. A missing/invalid prior report stops the flow before
+any dispatch. The wait and subsequent job run under systemd on VPS.

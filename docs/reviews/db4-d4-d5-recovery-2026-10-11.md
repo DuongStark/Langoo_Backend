@@ -38,7 +38,7 @@ bản sửa này. Offline report trên VPS đang chạy; chưa dispatch repair/R
 - `python3 -m unittest discover -s scripts/db4 -p test_muse_batch_runner.py`:
   **17/17 pass**; direct invocation cũng 17/17.
 - `python3 -m unittest discover -s scripts/ops/db4-batch -p 'test_*.py'`:
-  **4/4 pass**.
+  **6/6 pass** (bao gồm recover-only và prior-report gate).
 - `npx tsc -p tsconfig.db4.json --noEmit`: pass.
 - ESLint và Prettier trên toàn bộ TS thay đổi: pass; Python `py_compile`: pass.
 - Scoped `git diff --check`: pass trong worktree cô lập. Không chạy reset DB,
@@ -74,3 +74,13 @@ bản sửa này. Offline report trên VPS đang chạy; chưa dispatch repair/R
   là sửa format. Raw/provenance được giữ để audit sau.
 - Tăng timeout offline report từ 10 lên 30 phút vì RAM đã thấp và tiến độ có
   từng shard; không tăng dispatch budget hoặc worker count.
+
+## 2026-10-11 — Commit và phục hồi nền
+
+- Code foundation recovery đã commit/push `8db060c`; DB4/FE WIP khác giữ nguyên.
+- Bổ sung coordinator `--recover-r1 --wait-for-report`: đợi report đầy đủ có hash,
+  run binding/denominator và gate đóng, rồi tạo repair cho R1 bị invalid đang có.
+  Không dispatch thêm original R1. Timeout đợi 30 phút; lỗi report dừng trước Muse.
+- Kiểm tra bổ sung: ops Python 6/6, `py_compile` pass; sửa này chuẩn bị commit/push.
+- Release runner mới được cài riêng trên VPS; cần kiểm pin/working tree trước
+  dispatch. Tình trạng job thật được ghi ở mục tiếp theo khi đã launch.

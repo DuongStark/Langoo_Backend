@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import hashlib
+import time
 import os
 import signal
 import subprocess
@@ -147,7 +149,59 @@ def fresh_r1_validation(args) -> str:
     return result['manifest']['path']
 
 
+def checked_artifact(root: Path, ref: dict) -> bytes:
+    relative = ref.get('path')
+    if not isinstance(relative, str) or Path(relative).is_absolute():
+        raise OrchestrationError('Prior report artifact path is invalid')
+    path = root / relative
+    resolved = path.resolve(strict=True)
+    if path.is_symlink() or root not in resolved.parents or resolved.stat().st_size > 64 * 1024 * 1024:
+        raise OrchestrationError('Prior report artifact path/size is invalid')
+    content = resolved.read_bytes()
+    if hashlib.sha256(content).hexdigest() != ref.get('sha256'):
+        raise OrchestrationError('Prior report artifact hash mismatch')
+    return content
+
+
+def wait_prior_report(args):
+    report_path = getattr(args, 'wait_for_report', None)
+    if not report_path:
+        return
+    root = args.artifact_root
+    candidate = root / report_path
+    if Path(report_path).is_absolute() or root not in candidate.resolve().parents:
+        raise OrchestrationError('Prior report must be inside this artifact root')
+    print(json.dumps({'task': 'db4_shadow_progress', 'stage': 'wait_prior_report'}), flush=True)
+    deadline = time.monotonic() + 1800
+    while not candidate.exists():
+        if STOP or time.monotonic() >= deadline:
+            raise OrchestrationError('Prior report wait paused/timed out; no dispatch')
+        time.sleep(5)
+    if candidate.is_symlink() or candidate.stat().st_size > 16 * 1024 * 1024:
+        raise OrchestrationError('Prior report manifest path/size is invalid')
+    report = json.loads(candidate.read_bytes())
+    manifest_bytes = (root / args.manifest).read_bytes()
+    manifest = json.loads(manifest_bytes)
+    if (report.get('task') != 'db4_batch_report_manifest' or report.get('runId') != manifest['runId']
+            or report.get('runManifest') != {'path': args.manifest, 'sha256': hashlib.sha256(manifest_bytes).hexdigest()}
+            or report.get('selected') != manifest['cohort']['counts']['selected']
+            or report.get('apply') is not False):
+        raise OrchestrationError('Prior report run/denominator binding mismatch')
+    summary = json.loads(checked_artifact(root, report['summary']))
+    results = checked_artifact(root, report['targetResults'])
+    if (summary.get('selected') != report['selected'] or not results.endswith(b'\n')
+            or len(results.splitlines()) != report['selected']
+            or summary.get('gates', {}).get('apply') is not False
+            or summary.get('gates', {}).get('promotionReady') is not False):
+        raise OrchestrationError('Prior report is incomplete or has open gates')
+
+
 def run_shadow(args) -> dict:
+    wait_prior_report(args)
+    if getattr(args, 'recover_r1', False) and not getattr(args, 'repair_manifest', None):
+        planned = prepare_repair(args)
+        if not planned.get('planned', 0):
+            return {'state': 'no_repair_available', 'r1': None, 'r2': None, 'report': publish_report(args), 'apply': False}
     if getattr(args, 'repair_manifest', None):
         if getattr(args, 'repair_phase', 'r1') == 'r2':
             validation_path = fresh_r1_validation(args)
@@ -197,6 +251,8 @@ def cli() -> int:
     parser.add_argument('--repair-phase', choices=('r1', 'r2'), default='r1')
     parser.add_argument('--repair-cap', type=int, default=1)
     parser.add_argument('--auto-repair', action='store_true')
+    parser.add_argument('--recover-r1', action='store_true')
+    parser.add_argument('--wait-for-report')
     args = parser.parse_args()
     args.artifact_root = args.artifact_root.resolve(strict=True)
     if not 1 <= args.workers <= 8 or not 30 <= args.timeout <= 240:

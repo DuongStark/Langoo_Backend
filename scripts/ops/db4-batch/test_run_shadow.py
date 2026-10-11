@@ -1,4 +1,7 @@
 import importlib.util
+import tempfile
+import json
+import hashlib
 import unittest
 from pathlib import Path
 from types import SimpleNamespace
@@ -71,6 +74,47 @@ class ShadowCoordinatorTests(unittest.TestCase):
             result = RUN_SHADOW.run_shadow(self.args)
         self.assertEqual(calls, [('r1', None, 1, True), ('r2', 'effective-r1.json', 1, False)])
         self.assertFalse(result['apply'])
+
+    def test_recover_r1_plans_repair_without_dispatching_another_original_r1(self):
+        self.args.recover_r1 = True
+        self.args.repair_cap = 1
+        self.args.repair_manifest = None
+        calls = []
+        def prepare(args):
+            args.repair_manifest = 'wave.json'
+            return {'planned': 1, 'manifest': {'path': 'wave.json'}}
+        def phase(_args, phase, validation=None, dispatch_cap=None, repair_only=False):
+            calls.append((phase, repair_only))
+            return {'breakerOpen': False, 'validationManifest': {'path': 'effective-r1.json'}}
+        with patch.object(RUN_SHADOW, 'prepare_repair', side_effect=prepare), patch.object(
+            RUN_SHADOW, 'runner_phase', side_effect=phase,
+        ), patch.object(RUN_SHADOW, 'publish_report', return_value={}):
+            RUN_SHADOW.run_shadow(self.args)
+        self.assertEqual(calls, [('r1', True), ('r2', False)])
+
+    def test_prior_report_requires_bound_complete_unchanged_artifacts(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            def write(path, value):
+                content = value if isinstance(value, bytes) else json.dumps(value).encode()
+                (root / path).write_bytes(content)
+                return {'path': path, 'sha256': hashlib.sha256(content).hexdigest()}
+            manifest_ref = write('run.json', {'runId': 'fixture', 'cohort': {'counts': {'selected': 2}}})
+            rows_ref = write('results.jsonl', b'{"target":1}\n{"target":2}\n')
+            summary_ref = write('summary.json', {'selected': 2, 'gates': {'apply': False, 'promotionReady': False}})
+            report = {'task': 'db4_batch_report_manifest', 'runId': 'fixture', 'runManifest': manifest_ref,
+                      'selected': 2, 'apply': False, 'targetResults': rows_ref, 'summary': summary_ref}
+            write('report.json', report)
+            args = SimpleNamespace(artifact_root=root, manifest='run.json', wait_for_report='report.json')
+            RUN_SHADOW.wait_prior_report(args)
+            (root / 'results.jsonl').write_bytes(b'{"target":3}\n{"target":2}\n')
+            with self.assertRaisesRegex(RUN_SHADOW.OrchestrationError, 'hash mismatch'):
+                RUN_SHADOW.wait_prior_report(args)
+            write('results.jsonl', b'{"target":1}\n{"target":2}\n')
+            report['summary'] = write('summary.json', {'selected': 2, 'gates': {'apply': False, 'promotionReady': True}})
+            write('report.json', report)
+            with self.assertRaisesRegex(RUN_SHADOW.OrchestrationError, 'open gates'):
+                RUN_SHADOW.wait_prior_report(args)
 
     def test_systemd_uses_muse_native_venv_for_transport_dependencies(self):
         unit = UNIT.read_text(encoding='utf-8')
