@@ -1300,3 +1300,19 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   Runner release `82c4fa1` đã cài riêng trên VPS; job systemd
   `langoo-db4-recover-20261011-82c4fa1.service` active, đang chờ prior report
   hoàn tất rồi recovery R1 cap 1 / conditional R2 cap 1. Không deploy API/ghi DB.
+
+
+### 2026-10-11 — DB4-D4/D5 — Chạy toàn bộ initial generation trên VPS
+
+- Theo yêu cầu “cho chạy hết đi”: chạy 966 ready targets của cohort 1.000,
+  original R1 + conditional R2, 8 workers; 34 no-candidate giữ denominator.
+  Expansion/Pilot A/B chưa chạy, không gọi đây là đạt quality gate hoặc full Stage C.
+- Orchestrator `continue-shadow.py` chờ recovery hiện tại, kiểm final report/hash/
+  denominator/gate và repair pin; giữ mapping release `82c4fa1` bất biến. Bind
+  journal result đúng InvocationID/current boot, không retry completed/unknown,
+  không clear breaker và kiểm STOP trước phase. Không thay app/ghi DB.
+- Kiểm tra: ops tests 16/16 và py_compile pass; review 2 Important đã sửa bằng
+  regression RED→GREEN. Phần code mới chuẩn bị commit/push/cài sidecar riêng.
+- [Report](docs/reviews/db4-d4-d5-full-initial-2026-10-11.md),
+  [plan](docs/plans/db4-d4-d5-automated-batch-rollout.md),
+  [runbook](scripts/ops/db4-batch/README.md). Giữ gate promotion/apply/serving đóng.

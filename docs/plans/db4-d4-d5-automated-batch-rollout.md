@@ -1121,3 +1121,26 @@ unresolved đã review.
   có release sidecar dùng replay
   validation offline; systemd smoke còn pin `8a2c475`. Đúng một R1 đã dispatch;
   không R2, không DB write/app deploy.
+
+## 2026-10-11 — DB4-D4/D5 — Chạy toàn bộ initial generation theo yêu cầu mới
+
+Chủ dự án yêu cầu “cho chạy hết đi” sau smoke recovery. Phạm vi thực thi cập nhật:
+chạy tất cả **966 ready targets** của cohort 1.000 hiện tại, R1 và conditional R2,
+8 workers, dưới systemd trên VPS; 34 no-candidate giữ nguyên trong denominator.
+Đây là thu thập proposal cho initial generation. Expansion và Pilot A/B chưa có,
+nên run không được gọi là hoàn tất toàn bộ Stage C hoặc đạt gate chất lượng.
+
+- `continue-shadow.py` là orchestrator riêng, chờ service recovery kết thúc
+  thành công và final result `reported`. Nếu parked/failed/missing/hash drift thì
+  dừng trước dispatch; không clear breaker hoặc retry unknown.
+- Đọc report/summary hash-bound để lấy latest repair wave; giữ release mapping
+  `82c4fa1` đúng pin của wave, không đổi source giữa run. Report được kiểm lại
+  run/denominator/gate đóng. Native runner vẫn kiểm preflight, D1 và wave lineage.
+- Mở toàn bộ original R1 pending với cap bằng readyCount, rồi conditional R2 cap
+  bằng readyCount; không dùng repair-only để chạy original queue. Không tự tạo
+  thêm repair hoặc expansion. Completed/unknown jobs không được gửi lại.
+- Systemd giới hạn RAM 650 MiB, swap 0, CPU một core và runtime tối đa 24 giờ.
+  Timeout/breaker/integrity failure là điểm dừng có checkpoint, không mở gate.
+- Promotion/apply/serving luôn false; audit và expansion ghi `not_run`. Sau report
+  mới đánh giá bước tiếp theo. Việc cho chạy toàn bộ initial generation không
+  cho phép import DB hoặc suy ra precision/recall đã đạt.

@@ -233,3 +233,45 @@ complete report, checks its run binding, summary/results hashes, denominator and
 closed gates, then prepares one repair and uses the repair-only queue. It never
 starts another original R1. A missing/invalid prior report stops the flow before
 any dispatch. The wait and subsequent job run under systemd on VPS.
+
+## 2026-10-11 — DB4-D4/D5 all-ready initial-generation continuation
+
+Explicitly authorized scope: collect initial-generation proposals for every ready
+sense, retaining no-candidate targets in the report. This is not completion of the
+expansion/Pilot A/B rollout. Those gates, promotion, apply and serving stay closed.
+
+`continue-shadow.py` is a separate orchestrator. Keep the mapping release exactly
+at the Git pin used by the recovery wave. It waits for the predecessor service to
+exit successfully, reads its structured `reported` result from the journal, checks
+final report/summary hashes, run binding and closed gates, then reads the bound
+latest repair wave. It does not select waves by mtime or alter the original run.
+
+```sh
+/opt/langoo/services/muse-native/venv/bin/python -B continue-shadow.py \
+  --artifact-root "$ARTIFACT_ROOT" --manifest "$RUN_MANIFEST" \
+  --runner-release /opt/langoo/services/db4-batch/releases/82c4fa1 \
+  --revision 82c4fa18c19510f44b0a5ba86ff2561f5b7aebdc \
+  --wait-service langoo-db4-recover-20261011-82c4fa1.service \
+  --predecessor-invocation <captured-systemd-invocation-id> \
+  --workers 8 --timeout 240
+```
+
+Run as `langoo` under systemd with RAM/CPU/runtime limits, native venv and persistent
+artifact root. Read access to this user's service journal is required. The separate
+orchestrator needs no `.git`; the mapping release must be clean and pinned. Native
+runner account/run locks, preflight, no-resend, budget and conditional-R2 checks
+remain active. No new repair is planned; invalid semantic/format results remain
+unresolved. Phase cap equals readyCount (at most 1,000) and conditional R2 is bounded
+by the same count. A predecessor parked/failed/missing or an invalid/tampered report
+stops before any new dispatch.
+
+The unit persists during SSH/client disconnects, not across a VPS reboot. To resume,
+keep the same orchestrator and mapping release, run manifest and latest wave; inspect
+breaker/unknown state first. Do not clear a breaker just to force progress.
+
+Capture the predecessor's `InvocationID` with `systemctl show -p InvocationID
+--value <unit>` while it is running. Successful transient units may be collected;
+continuation uses the final structured result from that exact invocation in the
+current boot, then verifies all bound report artifacts. A missing unit without that
+completion result is blocked. A retained `active/exited` service is also handled.
+SIGTERM/INT is checked again after report verification and before each phase.
