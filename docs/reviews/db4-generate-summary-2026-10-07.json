@@ -1,0 +1,49 @@
+{
+  "caps": {
+    "branchTopK": 40,
+    "rerank": 12,
+    "shortlist": 5,
+    "union": 40
+  },
+  "counts": {
+    "branchG1": 8275,
+    "branchG3": 37957,
+    "branchG4": 50605,
+    "candidates": 75660,
+    "conceptsUsed": 35121,
+    "legacyHintsSkipped": 261,
+    "senses": 15245,
+    "skippedNoDefinition": 0,
+    "unresolved": 46
+  },
+  "export": {
+    "path": "exports/cb5ef09ed496b543158ad216e262df71d285a3c7a7a9fdd61cc16ba76201b1ca/manifest.json",
+    "sha256": "38803c26fefece0bcd8b58e228ff9851790861951dc7a986c3abd9f28a0fed7a"
+  },
+  "files": [
+    {
+      "path": "candidates/cb5ef09ed496b543-db4-gen-v1/pairs.jsonl",
+      "sha256": "f55c2f6b54fb09f28efa2dd5e3638d46afce96b3c0b3dd75412bf6b3aabf6313"
+    },
+    {
+      "path": "candidates/cb5ef09ed496b543-db4-gen-v1/unresolved.jsonl",
+      "sha256": "1b16545b2bf8a17190dd38fb414532278b19a028d727f1a2727c795a67d7b62c"
+    }
+  ],
+  "generatorVersion": "db4-gen-v1",
+  "handoffVersion": 1,
+  "index": {
+    "path": "exports/cb5ef09ed496b543158ad216e262df71d285a3c7a7a9fdd61cc16ba76201b1ca/index/manifest.json",
+    "sha256": "cc60bb6ba18ea10d8936e8b0b41340d68817e41577fcc194e0884011d6e6184e"
+  },
+  "kind": "db4-candidates",
+  "legacy": {
+    "rows": 45219,
+    "sha256": "43482e43ead1a3cc19ce71713d1369f1ea0c17e0105c5d48d2f041b55bc0220b"
+  },
+  "mode": "production",
+  "normalizerVersion": "db4-normalize-v1",
+  "rankVersion": "db4-rank-v1",
+  "retrievalVersion": "db4-retrieval-v1",
+  "tokenizerVersion": "db4-en-token-v1"
+}

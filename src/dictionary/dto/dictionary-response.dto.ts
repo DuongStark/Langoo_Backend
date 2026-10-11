@@ -324,6 +324,65 @@ export class KanjiPartDto {
   meaning_vi!: string | null;
 }
 
+export class KanjiComponentDto {
+  @ApiProperty({
+    example: '⺨',
+    description: 'Thành phần (KanjiVG kvg:element)',
+  })
+  char!: string;
+
+  @ApiProperty({
+    nullable: true,
+    example: '犬',
+    description: 'Dạng gốc của biến thể',
+  })
+  original!: string | null;
+
+  @ApiProperty({ example: false })
+  is_variant!: boolean;
+
+  @ApiProperty({ nullable: true, example: 'left' })
+  position!: string | null;
+
+  @ApiProperty({ example: true, description: 'Là bộ thủ của chữ' })
+  is_radical!: boolean;
+
+  @ApiProperty({ example: false, description: 'Là thành phần biểu âm' })
+  is_phonetic!: boolean;
+
+  @ApiProperty({
+    nullable: true,
+    example: 1,
+    description: 'Phần 1/2 khi bị tách',
+  })
+  part!: number | null;
+
+  @ApiProperty({
+    type: [Number],
+    example: [1, 2, 3],
+    description: 'Số nét thuộc thành phần (KanjiVG stroke id)',
+  })
+  strokes!: number[];
+
+  @ApiProperty({ example: 3 })
+  stroke_count!: number;
+
+  @ApiProperty({ nullable: true, example: 94 })
+  radical_number!: number | null;
+
+  @ApiProperty({ nullable: true, example: 'Khuyển' })
+  name_vi!: string | null;
+
+  @ApiProperty({ nullable: true, example: 'Con chó' })
+  meaning_vi!: string | null;
+
+  @ApiProperty({
+    type: () => [KanjiComponentDto],
+    description: 'Thành phần con (cây đệ quy)',
+  })
+  children!: KanjiComponentDto[];
+}
+
 export class KanjiCardDto {
   @ApiProperty({ example: '走' })
   literal!: string;
@@ -369,9 +428,18 @@ export class KanjiCardDto {
 
   @ApiProperty({
     type: [KanjiPartDto],
-    description: 'Thành phần cấu tạo (KRADFILE) kèm tên/nghĩa VI nếu là bộ thủ',
+    description:
+      'Thành phần cấu tạo (KRADFILE — fallback) kèm tên/nghĩa VI nếu là bộ thủ',
   })
   parts!: KanjiPartDto[];
+
+  @ApiProperty({
+    type: KanjiComponentDto,
+    nullable: true,
+    description:
+      'Cây thành phần chuẩn KanjiVG (ưu tiên hiển thị; null nếu chữ chưa có)',
+  })
+  components!: KanjiComponentDto | null;
 }
 
 export class SearchHistoryItemDto {

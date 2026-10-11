@@ -5,6 +5,7 @@ import { JapanesePriorityRepository } from './repositories/japanese-priority.rep
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
 import { KanjiRepository } from './repositories/kanji.repository';
+import { EnglishPriorityRepository } from './repositories/english-priority.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import { SenseContentRepository } from './repositories/sense-content.repository';
@@ -64,10 +65,15 @@ function createSetup(): {
       getForms: jest.Mock;
     };
     pairs: { findLinks: jest.Mock };
-    kanji: { getByLiteral: jest.Mock; getStrokeAsset: jest.Mock };
+    kanji: {
+      getByLiteral: jest.Mock;
+      getStrokeAsset: jest.Mock;
+      getComponents: jest.Mock;
+    };
     history: { create: jest.Mock; listRecent: jest.Mock };
     languages: { findIdByCode: jest.Mock; findExistingIds: jest.Mock };
     storage: { get: jest.Mock; put: jest.Mock; delete: jest.Mock };
+    englishPriority: { getByLexemes: jest.Mock };
   };
 } {
   const repos = {
@@ -88,10 +94,15 @@ function createSetup(): {
       getForms: jest.fn(),
     },
     pairs: { findLinks: jest.fn() },
-    kanji: { getByLiteral: jest.fn(), getStrokeAsset: jest.fn() },
+    kanji: {
+      getByLiteral: jest.fn(),
+      getStrokeAsset: jest.fn(),
+      getComponents: jest.fn(),
+    },
     history: { create: jest.fn(), listRecent: jest.fn() },
     languages: { findIdByCode: jest.fn(), findExistingIds: jest.fn() },
     storage: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
+    englishPriority: { getByLexemes: jest.fn().mockResolvedValue([]) },
   };
   const service = new DictionaryService(
     repos.search as unknown as DictionarySearchRepository,
@@ -105,6 +116,7 @@ function createSetup(): {
     repos.priority as unknown as JapanesePriorityRepository,
     repos.reverse as unknown as ReverseLookupRepository,
     repos.scope as unknown as StudyLanguageScopeService,
+    repos.englishPriority as unknown as EnglishPriorityRepository,
   );
   return { service, repos };
 }
@@ -317,6 +329,41 @@ describe('DictionaryService', () => {
       expect(searchArgs.limit).toBe(6);
     });
 
+    it('suggestions giới hạn 5 mặt chữ duy nhất và không ghi history', async () => {
+      const { service, repos } = createSetup();
+      repos.search.search.mockResolvedValue([hitRow]);
+      repos.languages.findIdByCode.mockResolvedValue(1);
+
+      const result = await service.suggest({ q: '  book  ', lang: 'en' });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.next_cursor).toBeNull();
+      expect(repos.languages.findIdByCode).toHaveBeenCalledWith('en');
+      expect(repos.search.search).toHaveBeenCalledWith(
+        expect.objectContaining({
+          queries: ['book'],
+          patterns: ['book'],
+          lang: 'en',
+          limit: 5,
+          cursor: null,
+          deduplicateSurface: true,
+        }),
+      );
+      expect(repos.history.create).not.toHaveBeenCalled();
+    });
+
+    it('suggestions từ chối ngôn ngữ không tồn tại', async () => {
+      const { service, repos } = createSetup();
+      repos.languages.findIdByCode.mockResolvedValue(null);
+
+      await expect(
+        service.suggest({ q: 'book', lang: 'xx' }),
+      ).rejects.toMatchObject({
+        code: 'LANGUAGE_NOT_FOUND',
+      });
+      expect(repos.search.search).not.toHaveBeenCalled();
+    });
+
     it('q chỉ có khoảng trắng → VALIDATION_FAILED và không chạm repository', async () => {
       const { service, repos } = createSetup();
 
@@ -325,6 +372,19 @@ describe('DictionaryService', () => {
       });
       expect(repos.search.search).not.toHaveBeenCalled();
       expect(repos.history.create).not.toHaveBeenCalled();
+    });
+
+    it('DB statement timeout → trả rỗng thay vì lỗi 500', async () => {
+      const { service, repos } = createSetup();
+      repos.search.search.mockRejectedValueOnce(
+        new Error(
+          'Raw query failed. Code: `57014`. Message: `canceling statement due to statement timeout`',
+        ),
+      );
+
+      const result = await service.search({ q: 'a', lang: 'en' });
+
+      expect(result).toEqual({ data: [], next_cursor: null });
     });
 
     it('lang không tồn tại → LANGUAGE_NOT_FOUND, không tìm kiếm', async () => {
@@ -663,7 +723,21 @@ describe('DictionaryService', () => {
         query_codes: null,
         used_in_forms: 12n,
         media_kinds: null,
+        parts: [
+          {
+            char: '走',
+            position: 1,
+            is_radical: true,
+            radical_number: 156,
+            name_vi: 'Tẩu',
+            meaning_vi: 'Chạy',
+          },
+          { char: 'x', position: null, is_radical: false },
+          { char: 123, position: 2, is_radical: false },
+        ],
       });
+
+      repos.kanji.getComponents.mockResolvedValue([]);
 
       const result = await service.getKanji('走');
 
@@ -672,8 +746,138 @@ describe('DictionaryService', () => {
         stroke_count: 7,
         used_in_forms: 12,
         radical: null,
+        components: null,
       });
       expect(result.readings).toEqual({ on: ['ソウ'] });
+      expect(result.parts).toEqual([
+        {
+          char: '走',
+          position: 1,
+          is_radical: true,
+          radical_number: 156,
+          name_vi: 'Tẩu',
+          meaning_vi: 'Chạy',
+        },
+        {
+          char: 'x',
+          position: null,
+          is_radical: false,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+      ]);
+    });
+
+    it('dựng cây components từ rows KanjiVG (preorder → nested)', async () => {
+      const { service, repos } = createSetup();
+      repos.kanji.getByLiteral.mockResolvedValue({
+        literal: '猫',
+        codepoint_ucs: 29483,
+        grade: null,
+        stroke_count: 11,
+        frequency_rank: null,
+        jlpt_old: null,
+        jlpt_new: null,
+        radical_classical: 94,
+        radical_char: '犬',
+        radical_name_vi: 'Khuyển',
+        radical_meaning_vi: 'Con chó',
+        readings: {},
+        meanings: {},
+        nanori: null,
+        query_codes: null,
+        used_in_forms: 0n,
+        media_kinds: ['stroke_svg'],
+        parts: [],
+      });
+      repos.kanji.getComponents.mockResolvedValue([
+        {
+          ord: 0,
+          parent_ord: null,
+          depth: 0,
+          component: '猫',
+          original: null,
+          is_variant: false,
+          is_radical: false,
+          is_phonetic: false,
+          position: null,
+          part: null,
+          strokes: [],
+          stroke_count: 0,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+        {
+          ord: 1,
+          parent_ord: 0,
+          depth: 1,
+          component: '⺨',
+          original: '犬',
+          is_variant: true,
+          is_radical: true,
+          is_phonetic: false,
+          position: 'left',
+          part: null,
+          strokes: [1, 2, 3],
+          stroke_count: 3,
+          radical_number: 94,
+          name_vi: 'Khuyển',
+          meaning_vi: 'Con chó',
+        },
+        {
+          ord: 2,
+          parent_ord: 0,
+          depth: 1,
+          component: '苗',
+          original: null,
+          is_variant: false,
+          is_radical: false,
+          is_phonetic: true,
+          position: 'right',
+          part: null,
+          strokes: [],
+          stroke_count: 0,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+        {
+          ord: 3,
+          parent_ord: 2,
+          depth: 2,
+          component: '艹',
+          original: '艸',
+          is_variant: true,
+          is_radical: false,
+          is_phonetic: false,
+          position: 'top',
+          part: null,
+          strokes: [4, 5, 6],
+          stroke_count: 3,
+          radical_number: null,
+          name_vi: null,
+          meaning_vi: null,
+        },
+      ]);
+
+      const result = await service.getKanji('猫');
+
+      expect(result.components?.char).toBe('猫');
+      expect(result.components?.children).toHaveLength(2);
+      expect(result.components?.children[0]).toMatchObject({
+        char: '⺨',
+        original: '犬',
+        position: 'left',
+        is_radical: true,
+        strokes: [1, 2, 3],
+      });
+      expect(result.components?.children[1].children[0]).toMatchObject({
+        char: '艹',
+        original: '艸',
+        position: 'top',
+      });
     });
   });
 
@@ -715,8 +919,82 @@ describe('DictionaryService', () => {
       });
     });
   });
-});
 
+  describe('reverseLookup', () => {
+    it('VI → EN + JA: exact_sense lên trước, dedupe, gọi repo đúng tham số', async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([
+        {
+          source_lexeme_id: 1775198n,
+          target_text: 'cát',
+          sense_hint: 'finely ground rock',
+          source_ordinal: 1,
+          en_lemma: 'sand',
+          en_pos: 'noun',
+          frequency_rank: 3409,
+        },
+      ]);
+      repos.reverse.findJaTargets.mockResolvedValue([
+        {
+          source_lexeme_id: 1775198n,
+          target_text: '砂浜',
+          sense_hint: 'beach or other expanse of sand',
+          source_ordinal: 1,
+        },
+        {
+          source_lexeme_id: 1775198n,
+          target_text: '砂',
+          sense_hint: 'finely ground rock',
+          source_ordinal: 2,
+        },
+      ]);
+      const result = await service.reverseLookup('  cát  ', undefined);
+      expect(result.matched).toBe(true);
+      expect(result.en).toHaveLength(1);
+      expect(result.en[0]).toMatchObject({
+        lemma: 'sand',
+        frequencyRank: 3409,
+      });
+      expect(result.ja.map((hit) => hit.text)).toEqual(['砂', '砂浜']);
+      expect(result.ja[0].exactSense).toBe(true);
+      expect(result.ja[0].viaLemma).toBe('sand');
+      expect(repos.reverse.findViSources).toHaveBeenCalledWith('cát', 'cát');
+    });
+
+    it("to='en' không truy vấn JA", async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([
+        {
+          source_lexeme_id: 1n,
+          target_text: 'nước',
+          sense_hint: null,
+          source_ordinal: 1,
+          en_lemma: 'water',
+          en_pos: 'noun',
+          frequency_rank: 100,
+        },
+      ]);
+      const result = await service.reverseLookup('nước', 'en');
+      expect(result.en[0].lemma).toBe('water');
+      expect(result.ja).toEqual([]);
+      expect(repos.reverse.findJaTargets).not.toHaveBeenCalled();
+    });
+
+    it('không match → matched=false, mảng rỗng', async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([]);
+      const result = await service.reverseLookup('zzz', undefined);
+      expect(result).toEqual({ query: 'zzz', matched: false, en: [], ja: [] });
+    });
+
+    it('từ khóa rỗng → VALIDATION_FAILED', async () => {
+      const { service } = createSetup();
+      await expect(
+        service.reverseLookup('   ', undefined),
+      ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+  });
+});
 describe('escapeLike / normalizeQuery', () => {
   it('escape đúng %, _, \\', () => {
     expect(escapeLike('100%_run\\')).toBe('100\\%\\_run\\\\');
@@ -733,6 +1011,8 @@ describe('escapeLike / normalizeQuery', () => {
       'はしる',
     ]);
     expect(getSearchQueryVariants('run', 'en')).toEqual(['run']);
+    // "ca" → "か" (1 ký tự) không tạo biến thể để tránh quét toàn bộ reading
+    expect(getSearchQueryVariants('ca', 'ja')).toEqual(['ca']);
   });
 });
 

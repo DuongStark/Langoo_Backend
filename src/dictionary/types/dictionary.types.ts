@@ -127,6 +127,22 @@ export interface KanjiPart {
   meaning_vi: string | null;
 }
 
+export interface KanjiComponent {
+  char: string;
+  original: string | null;
+  is_variant: boolean;
+  position: string | null;
+  is_radical: boolean;
+  is_phonetic: boolean;
+  part: number | null;
+  strokes: number[];
+  stroke_count: number;
+  radical_number: number | null;
+  name_vi: string | null;
+  meaning_vi: string | null;
+  children: KanjiComponent[];
+}
+
 export interface KanjiCardResponse {
   literal: string;
   codepoint_ucs: number;
@@ -143,6 +159,7 @@ export interface KanjiCardResponse {
   used_in_forms: number;
   media_kinds: string[] | null;
   parts: KanjiPart[];
+  components: KanjiComponent | null;
 }
 
 export interface SearchHistoryItem {

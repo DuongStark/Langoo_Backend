@@ -17,6 +17,7 @@ export interface ExampleRow {
   language_id: number;
   text: string;
   translation: unknown;
+  translation_vi: string | null;
   difficulty: number | null;
 }
 
@@ -61,11 +62,61 @@ export class SenseContentRepository {
   }
 
   async getExamples(senseId: bigint, limit: number): Promise<ExampleRow[]> {
+    // Lọc ví dụ "rác": quote đứt đoạn/elision ([...], "...") — mọi ngôn ngữ;
+    // riêng EN thêm unicode ellipsis "…" vì gần như toàn bộ là quote bị cắt
+    // (wiktextract). JA/VI dùng "…" hợp lệ trong hội thoại nên không lọc.
     return this.prisma.$queryRaw<ExampleRow[]>`
-      SELECT id, language_id, text, translation, difficulty
-      FROM core.example
-      WHERE sense_id = ${senseId}
-      ORDER BY id ASC
+      WITH candidates AS (
+        SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
+        FROM core.example e
+        WHERE e.sense_id = ${senseId}
+          AND NOT (
+            e.text LIKE '%[%' OR e.text LIKE '%...%'
+            OR (e.language_id = 1 AND e.text LIKE '%…%')
+          )
+        UNION
+        SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
+        FROM core.example_sense es
+        JOIN core.example e ON e.id = es.example_id
+        WHERE es.sense_id = ${senseId}
+          AND es.relation = 'illustrates'
+          AND e.sense_id IS DISTINCT FROM ${senseId}
+          AND NOT (
+            e.text LIKE '%[%' OR e.text LIKE '%...%'
+            OR (e.language_id = 1 AND e.text LIKE '%…%')
+          )
+      ),
+      dedup AS (
+        SELECT DISTINCT ON (dt.display_text, c.language_id)
+               c.id, c.language_id, c.text, c.translation, c.difficulty
+        FROM candidates c
+        CROSS JOIN LATERAL (
+          SELECT coalesce(
+            (SELECT s2->>'text'
+             FROM jsonb_array_elements(coalesce(c.translation->'sentences', '[]'::jsonb)) s2
+             WHERE s2->>'lang' = 'jpn' AND btrim(s2->>'text') <> ''
+             LIMIT 1),
+            c.text) AS display_text
+        ) dt
+        ORDER BY dt.display_text, c.language_id,
+                 (jsonb_array_length(coalesce(c.translation->'sentences', '[]'::jsonb)) > 0) DESC,
+                 c.id ASC
+      )
+      SELECT d.id, d.language_id, d.text, d.translation, d.difficulty,
+             vi.text AS translation_vi
+      FROM dedup d
+      LEFT JOIN LATERAL (
+        SELECT t.text
+        FROM core.example ja
+        JOIN core.example_translation x
+          ON (x.example_id = ja.id OR x.translation_id = ja.id)
+        JOIN core.example t
+          ON t.id = CASE WHEN x.example_id = ja.id THEN x.translation_id ELSE x.example_id END
+        WHERE ja.external_id = 'tatoeba:' || (d.translation->'source'->>'value')
+          AND t.language_id = 3
+        LIMIT 1
+      ) vi ON true
+      ORDER BY d.id ASC
       LIMIT ${limit}
     `;
   }

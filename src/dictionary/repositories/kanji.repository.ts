@@ -22,6 +22,24 @@ export interface KanjiRow {
   parts: unknown;
 }
 
+export interface KanjiComponentRow {
+  ord: number;
+  parent_ord: number | null;
+  depth: number;
+  component: string;
+  original: string | null;
+  is_variant: boolean;
+  is_radical: boolean;
+  is_phonetic: boolean;
+  position: string | null;
+  part: number | null;
+  strokes: number[];
+  stroke_count: number;
+  radical_number: number | null;
+  name_vi: string | null;
+  meaning_vi: string | null;
+}
+
 export interface KanjiStrokeRow {
   objectKey: string;
   mime: string;
@@ -75,6 +93,33 @@ export class KanjiRepository {
       WHERE kc.literal = ${literal}
     `;
     return rows[0] ?? null;
+  }
+
+  /** Cây thành phần KanjiVG (kvg:element) cho một chữ Hán, kèm tên/nghĩa bộ thủ. */
+  async getComponents(literal: string): Promise<KanjiComponentRow[]> {
+    return this.prisma.$queryRaw<KanjiComponentRow[]>`
+      SELECT
+        c.ord,
+        c.parent_ord,
+        c.depth,
+        c.component,
+        c.original,
+        c.is_variant,
+        c.is_radical,
+        c.is_phonetic,
+        c."position",
+        c.part,
+        c.strokes,
+        c.stroke_count,
+        r.number AS radical_number,
+        r.name_vi,
+        r.meaning_vi
+      FROM core.kanji_component c
+      LEFT JOIN public.radical r
+        ON r."character" = c.component OR c.component = ANY (r.variants)
+      WHERE c.kanji_literal = ${literal}
+      ORDER BY c.ord ASC
+    `;
   }
 
   /** Asset SVG thứ tự nét (KanjiVG) cho một chữ Hán — metadata, chưa đọc file. */

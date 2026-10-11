@@ -152,21 +152,11 @@ export class DictionarySearchRepository {
       ? Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, lexeme_id`
       : Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
 
-    return this.prisma.$queryRaw<SearchRow[]>(Prisma.sql`
-      WITH hits AS (
-        SELECT
-          ds.lexeme_id,
-          ds.language_id,
-          ds.lang_code,
-          ds.surface,
-          ds.reading,
-          ds.pos,
-          ds.frequency_rank,
-          ds.homograph_no,
-          ds.surface_kind
-        FROM serve.dictionary_search ds
-        WHERE (${surfaceMatch})
-          ${langFilter}
+    // EN/VI không có reading/romanization → bỏ 2 nhánh UNION để tránh quét thừa.
+    const knowsReadings = lang === null || lang === 'ja' || lang === 'zh-Hans';
+    const knowsRomanization = lang === null || lang === 'ja';
+    const readingBranch = knowsReadings
+      ? Prisma.sql`
         UNION
         SELECT
           ds.lexeme_id,
@@ -180,7 +170,10 @@ export class DictionarySearchRepository {
           ds.surface_kind
         FROM serve.dictionary_search ds
         WHERE (${readingMatch})
-          ${langFilter}
+          ${langFilter}`
+      : Prisma.sql``;
+    const romanizationBranch = knowsRomanization
+      ? Prisma.sql`
         UNION
         SELECT
           ds.lexeme_id,
@@ -195,7 +188,36 @@ export class DictionarySearchRepository {
         FROM serve.dictionary_search ds
         JOIN core.lexeme cl2 ON cl2.id = ds.lexeme_id
         WHERE (${romanizationMatch})
+          ${langFilter}`
+      : Prisma.sql``;
+
+    const query = Prisma.sql`
+      WITH hits_raw AS (
+        SELECT
+          ds.lexeme_id,
+          ds.language_id,
+          ds.lang_code,
+          ds.surface,
+          ds.reading,
+          ds.pos,
+          ds.frequency_rank,
+          ds.homograph_no,
+          ds.surface_kind
+        FROM serve.dictionary_search ds
+        WHERE (${surfaceMatch})
           ${langFilter}
+${readingBranch}${romanizationBranch}
+      ),
+      hits AS (
+        SELECT h.*
+        FROM hits_raw h
+        ORDER BY
+          (lower(h.surface) = lower(${queries[0]})) DESC,
+          (h.surface ILIKE ${patterns[0]} || '%' ESCAPE '\\') DESC,
+          length(h.surface) ASC,
+          h.frequency_rank ASC NULLS LAST,
+          h.lexeme_id ASC
+        LIMIT 5000
       ),
       lexeme_priority AS MATERIALIZED (
         SELECT cl.id AS lexeme_id,cl.lemma,cl.romanization,
@@ -211,7 +233,15 @@ export class DictionarySearchRepository {
                 ) form WHERE form->>'common'='true'
               ) THEN 2147483645 ELSE 2147483646 END
             ELSE 2147483647 END) AS frequency_sort,
-          CASE WHEN src.code='jmdict' THEN 0 ELSE 1 END AS source_rank,
+          CASE WHEN src.code='jmdict' THEN 0
+               WHEN hit_ids.lang_code='en' AND EXISTS (
+                 SELECT 1 FROM core.sense cs
+                 JOIN core.sense_learner_priority cp ON cp.sense_id=cs.id
+                 JOIN core.dictionary_priority_run cr ON cr.id=cp.run_id
+                   AND cr.active AND cr.policy='en-m10.5-v1'
+                 WHERE cs.lexeme_id=cl.id
+               ) THEN 0
+               ELSE 1 END AS source_rank,
           CASE WHEN hit_ids.lang_code='ja' AND src.code='jmdict' THEN 0
                WHEN hit_ids.lang_code='ja' THEN 1 ELSE 0 END AS ja_source_rank,
           CASE WHEN hit_ids.lang_code='ja' AND EXISTS (
@@ -220,7 +250,14 @@ export class DictionarySearchRepository {
               JOIN core.sense_gloss vi_g ON vi_g.sense_id=vi_s.id
               JOIN public.language vi_l ON vi_l.id=vi_g.language_id AND vi_l.code='vi'
               WHERE vi_s.lexeme_id=cl.id AND NULLIF(btrim(vi_g.text),'') IS NOT NULL
-            ) THEN 0 ELSE 1 END AS vi_translation_rank
+            ) THEN 0 ELSE 1 END AS vi_translation_rank,
+          CASE WHEN EXISTS (
+              SELECT 1
+              FROM core.sense vi_s
+              JOIN core.sense_gloss vi_g ON vi_g.sense_id=vi_s.id
+              JOIN public.language vi_l ON vi_l.id=vi_g.language_id AND vi_l.code='vi'
+              WHERE vi_s.lexeme_id=cl.id AND NULLIF(btrim(vi_g.text),'') IS NOT NULL
+            ) THEN 0 ELSE 1 END AS vi_rank
         FROM (SELECT DISTINCT lexeme_id,lang_code FROM hits) hit_ids
         JOIN core.lexeme cl ON cl.id=hit_ids.lexeme_id
         LEFT JOIN public.source src ON src.id=cl.source_id
@@ -238,21 +275,29 @@ export class DictionarySearchRepository {
           CASE WHEN ${surfaceExactCondition} THEN 0 ELSE 1 END AS surface_exact_rank,
           CASE WHEN h.surface=cl.lemma THEN 0 ELSE 1 END AS canonical_face_rank,
           cl.frequency_null_rank,cl.frequency_sort,length(h.surface) AS surface_length,
-          cl.source_rank,cl.ja_source_rank,cl.vi_translation_rank
+          cl.source_rank,cl.ja_source_rank,cl.vi_translation_rank,cl.vi_rank
         FROM hits h JOIN lexeme_priority cl ON cl.lexeme_id=h.lexeme_id
       ),
-      -- Preserve the live source-duplicate visibility policy below.
+      -- Ẩn bản sao theo cùng (lang, surface, pos) như bản canonical; canonical tính
+      -- 1 lần bằng MATERIALIZED để tránh NOT EXISTS O(N²) (sự cố search 10/10).
+      -- EN tạm thời VI-only: chỉ hiện từ EN đã có ít nhất 1 sense gloss VI.
+      canonical AS MATERIALIZED (
+        SELECT DISTINCT lang_code, lower(surface) AS surface_key, pos
+        FROM ranked
+        WHERE source_rank = 0
+      ),
       visible AS (
         SELECT r.*
         FROM ranked r
-        WHERE r.source_rank = 0
-           OR r.reading IS NOT NULL
-           OR NOT EXISTS (
-                SELECT 1 FROM ranked j
-                WHERE j.lang_code = r.lang_code
-                  AND lower(j.surface) = lower(r.surface)
-                  AND j.source_rank = 0
-              )
+        WHERE (r.lang_code <> 'en' OR r.vi_rank = 0)
+          AND (r.source_rank = 0
+            OR r.reading IS NOT NULL
+            OR NOT EXISTS (
+                SELECT 1 FROM canonical c
+                WHERE c.lang_code = r.lang_code
+                  AND c.surface_key = lower(r.surface)
+                  AND (r.lang_code <> 'en' OR c.pos IS NOT DISTINCT FROM r.pos)
+              ))
       ),
       per_result AS (
         SELECT visible.*,
@@ -296,6 +341,20 @@ export class DictionarySearchRepository {
         surface_kind ASC,
         surface ASC
       LIMIT ${limit}
-    `);
+    `;
+
+    // statement_timeout phải arm TỪ ĐẦU statement: dùng SET LOCAL trong transaction
+    // (set_config giữa statement không có tác dụng — kiểm chứng 10/10).
+    return this.prisma.$transaction(
+      async (tx) => {
+        await tx.$executeRawUnsafe(`SET LOCAL statement_timeout = '20000'`);
+        // Query trên view lớn: ép custom plan để tránh plan generic quét full.
+        await tx.$executeRawUnsafe(
+          `SET LOCAL plan_cache_mode = 'force_custom_plan'`,
+        );
+        return tx.$queryRaw<SearchRow[]>(query);
+      },
+      { timeout: 25000, maxWait: 10000 },
+    );
   }
 }

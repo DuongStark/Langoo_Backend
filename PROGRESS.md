@@ -38,6 +38,23 @@
 - Kiểm tra: `npm run build` (Node 22) pass, `git diff --check` sạch trước commit.
 - Git/triển khai: đã push `main`; không deploy/apply DB.
 
+### 2026-10-11 — MERGE — Gộp nhánh `parallel/deepseek-db4` vào `main`
+
+- Merge 44 commit của nhánh deepseek (M10.5 v2/v3 + recovery, DB3-B JA bulk,
+  examples JA/EN, search guard, ví dụ Tatoeba/AI, gloss EN theo sense, ẩn ví dụ rác).
+- Hòa giải 15 conflict với các luồng M4.5/M6.2/M4.3/DB4 trên main:
+  - Reverse lookup theo **main**: camelCase (`viaLexemeId`, `senseHint`, `exactSense`)
+    + scope hồ sơ (`StudyLanguageScopeService`).
+  - Search theo main (cursor v5, `allowedLanguageIds`) + delta deepseek:
+    `hits_raw` cap 5000, `SET LOCAL statement_timeout/plan_cache_mode` trong
+    `$transaction`, bỏ nhánh UNION reading/romanization cho EN/VI, canonical
+    MATERIALIZED (chống O(N²)), EN VI-only (`vi_rank`).
+  - Giữ của deepseek: kanji components (KanjiVG), `addEnglishPreviews`, examples
+    fix (`buildExampleTranslation`, câu JA đầy đủ), sense EN VI 100%, lọc ví dụ rác.
+  - Scripts DB4 lấy theo main (DB4-D4/D5 tiến xa hơn).
+- Kiểm tra: `npm run build`, `tsc`, jest `src/dictionary` pass sau merge.
+- Git/triển khai: commit merge local; chưa đổi runtime VPS trong bước này.
+
 ## Checklist milestone
 
 | #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                      |

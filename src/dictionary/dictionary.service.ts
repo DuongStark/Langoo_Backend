@@ -11,6 +11,7 @@ import {
   encodeDictionarySearchCursor,
 } from './dictionary-search-cursor';
 import {
+  KanjiComponent,
   KanjiPart,
   LexemeSensesResult,
   ReverseLookupEnHit,
@@ -25,9 +26,18 @@ import {
   SearchHit,
 } from './types/dictionary.types';
 import { JapanesePriorityRepository } from './repositories/japanese-priority.repository';
-import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
-import { KanjiRepository, KanjiRow } from './repositories/kanji.repository';
+import {
+  DictionarySearchRepository,
+  SearchParams,
+  SearchRow,
+} from './repositories/dictionary-search.repository';
+import {
+  KanjiComponentRow,
+  KanjiRepository,
+  KanjiRow,
+} from './repositories/kanji.repository';
 import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
+import { EnglishPriorityRepository } from './repositories/english-priority.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import {
@@ -65,6 +75,7 @@ export class DictionaryService {
     private readonly japanesePriority: JapanesePriorityRepository,
     private readonly reverseRepo: ReverseLookupRepository,
     private readonly studyScope: StudyLanguageScopeService,
+    private readonly englishPriority: EnglishPriorityRepository,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -110,7 +121,7 @@ export class DictionaryService {
     }
 
     const queryVariants = getSearchQueryVariants(query, languageCode);
-    const rows = await this.searchRepo.search({
+    const rows = await searchRowsSafe(this.searchRepo, {
       queries: queryVariants,
       patterns: queryVariants.map(escapeLike),
       lang: languageCode,
@@ -120,7 +131,9 @@ export class DictionaryService {
     });
     const hasNext = rows.length > limit;
     const pageRows = hasNext ? rows.slice(0, limit) : rows;
-    const data = await this.addJapanesePreviews(pageRows.map(toSearchHit));
+    const data = await this.addEnglishPreviews(
+      await this.addJapanesePreviews(pageRows.map(toSearchHit)),
+    );
 
     if (userId !== undefined && cursor === null) {
       await this.historyRepo.create({
@@ -284,7 +297,7 @@ export class DictionaryService {
     }
 
     const queryVariants = getSearchQueryVariants(query, languageCode);
-    const rows = await this.searchRepo.search({
+    const rows = await searchRowsSafe(this.searchRepo, {
       queries: queryVariants,
       patterns: queryVariants.map(escapeLike),
       lang: languageCode,
@@ -324,14 +337,27 @@ export class DictionaryService {
         HttpStatus.NOT_FOUND,
       );
     }
+    // EN tạm thời: chỉ trả sense đã có gloss VI (fallback giữ nguyên nếu không có sense nào).
+    const enId = await this.languages.findIdByCode('en');
+    const translated =
+      enId === null
+        ? cards
+        : cards.filter(
+            (card) =>
+              card.languageId !== enId || (card.glossVi ?? '').trim() !== '',
+          );
+    const visibleCards = translated.length > 0 ? translated : cards;
 
     if (view === 'flat') {
-      return { data: cards.map(toSenseCardResponse), next_cursor: null };
+      return { data: visibleCards.map(toSenseCardResponse), next_cursor: null };
     }
 
-    const preferences = await this.japanesePriority.getByLexemes([lexemeId]);
+    const preferences = [
+      ...(await this.japanesePriority.getByLexemes([lexemeId])),
+      ...(await this.englishPriority.getByLexemes([lexemeId])),
+    ];
     const bySense = new Map(preferences.map((row) => [row.sense_id, row]));
-    cards.sort(
+    visibleCards.sort(
       (a, b) =>
         (bySense.get(a.senseId)?.display_order ?? a.senseNo) -
         (bySense.get(b.senseId)?.display_order ?? b.senseNo),
@@ -341,7 +367,7 @@ export class DictionaryService {
     // The first actual sense remains selectable; its definition is never replaced.
     const data: SenseCardResponse[] = [];
     let currentHeading: string | null = null;
-    for (const card of cards) {
+    for (const card of visibleCards) {
       const heading =
         card.glossEnIsHierarchy === true
           ? (card.glossEnContext?.[0] ?? null)
@@ -356,14 +382,51 @@ export class DictionaryService {
         currentHeading = heading;
       }
     }
+    const visibleIds = new Set(visibleCards.map((card) => card.senseId));
     return {
       data,
       next_cursor: null,
       recommended_sense_ids: preferences
-        .filter((row) => row.recommended)
+        .filter((row) => row.recommended && visibleIds.has(row.sense_id))
         .map((row) => row.sense_id.toString()),
       priority_basis: preferences[0]?.basis ?? null,
     };
+  }
+
+  private async addEnglishPreviews(hits: SearchHit[]): Promise<SearchHit[]> {
+    const ids = hits
+      .filter((hit) => hit.lang_code === 'en')
+      .map((hit) => BigInt(hit.lexeme_id));
+    const preferences = await this.englishPriority.getByLexemes(ids);
+    const recommended = new Map<bigint, bigint[]>();
+    for (const row of preferences) {
+      if (!row.recommended) continue;
+      const list = recommended.get(row.lexeme_id);
+      if (list) list.push(row.sense_id);
+      else recommended.set(row.lexeme_id, [row.sense_id]);
+    }
+    const candidateIds = new Set<bigint>();
+    for (const list of recommended.values())
+      for (const id of list) candidateIds.add(id);
+    // One content query for the page, rather than a detail request for every hit.
+    const cards =
+      candidateIds.size > 0
+        ? await this.senseCardRepo.getBySenseIds([...candidateIds])
+        : [];
+    const bySense = new Map(cards.map((card) => [card.senseId, card]));
+    const selected = new Map<bigint, bigint>();
+    for (const [lexemeId, senseIds] of recommended) {
+      // Ưu tiên sense recommended đã có gloss VI cho preview.
+      const pick =
+        senseIds.find((id) => (bySense.get(id)?.glossVi ?? '').trim() !== '') ??
+        senseIds[0];
+      selected.set(lexemeId, pick);
+    }
+    return hits.map((hit) => {
+      const id = selected.get(BigInt(hit.lexeme_id));
+      const card = id === undefined ? undefined : bySense.get(id);
+      return card ? { ...hit, preview: toSenseCardResponse(card) } : hit;
+    });
   }
 
   private async addJapanesePreviews(hits: SearchHit[]): Promise<SearchHit[]> {
@@ -445,7 +508,11 @@ export class DictionaryService {
         HttpStatus.NOT_FOUND,
       );
     }
-    return toKanjiResponse(row);
+    const componentRows = await this.kanjiRepo.getComponents(literal);
+    return {
+      ...toKanjiResponse(row),
+      components: buildKanjiComponentTree(componentRows),
+    };
   }
 
   /** Ảnh SVG thứ tự nét (KanjiVG) — đọc file từ storage, metadata từ core. */
@@ -506,7 +573,9 @@ export function getSearchQueryVariants(
     /^[A-Za-z][A-Za-z\s'-]*$/.test(query)
   ) {
     const kana = toHiragana(query);
-    if (kana !== query) {
+    // Biến thể kana 1 ký tự (vd "ca" → "か") quá rộng và làm vô hiệu bigram filter
+    // → quét toàn bộ reading (sự cố search 10/10). Chỉ thêm khi từ 2 ký tự.
+    if (kana !== query && kana.length >= 2) {
       variants.push(kana);
     }
   }
@@ -590,14 +659,83 @@ function toGlossItem(row: GlossRow) {
   };
 }
 
+function isStatementTimeout(error: unknown): boolean {
+  const message =
+    error instanceof Error ? `${error.name} ${error.message}` : String(error);
+  return message.includes('statement timeout') || message.includes('57014');
+}
+
+/** Query search bọc statement_timeout: trả rỗng thay vì 500 khi query quá rộng. */
+async function searchRowsSafe(
+  repo: DictionarySearchRepository,
+  params: SearchParams,
+): Promise<SearchRow[]> {
+  try {
+    return await repo.search(params);
+  } catch (error) {
+    if (isStatementTimeout(error)) return [];
+    throw error;
+  }
+}
+
+const EXAMPLE_SENTENCE_LANGS: Record<string, string> = {
+  jpn: 'ja',
+  eng: 'en',
+  vie: 'vi',
+};
+
 function toExampleItem(row: ExampleRow) {
+  // Format JMdict/Tatoeba: `text` chỉ là từ đích, câu thật nằm trong translation.sentences.
+  const jpnSentence = exampleSentence(row, 'jpn');
   return {
     id: row.id.toString(),
     language_id: row.language_id,
-    text: row.text,
-    translation: toStringRecord(row.translation),
+    text: jpnSentence ?? row.text,
+    translation: buildExampleTranslation(row),
     difficulty: row.difficulty,
   };
+}
+
+function exampleSentence(row: ExampleRow, lang: string): string | null {
+  const sentences = (row.translation as { sentences?: unknown } | null)
+    ?.sentences;
+  if (!Array.isArray(sentences)) return null;
+  for (const sentence of sentences) {
+    const item = sentence as { lang?: unknown; text?: unknown };
+    if (
+      item.lang === lang &&
+      typeof item.text === 'string' &&
+      item.text.trim()
+    ) {
+      return item.text;
+    }
+  }
+  return null;
+}
+
+function buildExampleTranslation(row: ExampleRow): Record<string, string> {
+  const result = toStringRecord(row.translation);
+  const sentences = (row.translation as { sentences?: unknown } | null)
+    ?.sentences;
+  if (Array.isArray(sentences)) {
+    for (const sentence of sentences) {
+      const item = sentence as { lang?: unknown; text?: unknown };
+      if (typeof item.lang !== 'string' || typeof item.text !== 'string')
+        continue;
+      const key = EXAMPLE_SENTENCE_LANGS[item.lang] ?? item.lang;
+      if (key === 'ja' || !item.text.trim() || result[key] !== undefined)
+        continue;
+      result[key] = item.text;
+    }
+  }
+  if (
+    typeof row.translation_vi === 'string' &&
+    row.translation_vi.trim() &&
+    result.vi === undefined
+  ) {
+    result.vi = row.translation_vi;
+  }
+  return result;
 }
 
 function toPronunciationItem(row: PronunciationRow) {
@@ -631,7 +769,7 @@ function toSenseLinkItem(row: SenseLinkRow): SenseLinkItem {
   };
 }
 
-function toKanjiResponse(row: KanjiRow): KanjiCardResponse {
+function toKanjiResponse(row: KanjiRow): Omit<KanjiCardResponse, 'components'> {
   const hasRadical =
     row.radical_classical !== null ||
     row.radical_char !== null ||
@@ -662,6 +800,36 @@ function toKanjiResponse(row: KanjiRow): KanjiCardResponse {
     media_kinds: row.media_kinds,
     parts: normalizeKanjiParts(row.parts),
   };
+}
+
+/** Cây thành phần KanjiVG (preorder ord/parent_ord) → cấu trúc lồng nhau. */
+export function buildKanjiComponentTree(
+  rows: readonly KanjiComponentRow[],
+): KanjiComponent | null {
+  if (rows.length === 0) return null;
+  const nodes = new Map<number, KanjiComponent>();
+  let root: KanjiComponent | null = null;
+  for (const row of [...rows].sort((a, b) => a.ord - b.ord)) {
+    const node: KanjiComponent = {
+      char: row.component,
+      original: row.original,
+      is_variant: row.is_variant,
+      position: row.position,
+      is_radical: row.is_radical,
+      is_phonetic: row.is_phonetic,
+      part: row.part,
+      strokes: row.strokes,
+      stroke_count: row.stroke_count,
+      radical_number: row.radical_number,
+      name_vi: row.name_vi,
+      meaning_vi: row.meaning_vi,
+      children: [],
+    };
+    if (row.parent_ord === null) root = node;
+    else nodes.get(row.parent_ord)?.children.push(node);
+    nodes.set(row.ord, node);
+  }
+  return root;
 }
 
 /** jsonb parts từ core.kanji_radical → mảng typed, bỏ dữ liệu dị dạng. */

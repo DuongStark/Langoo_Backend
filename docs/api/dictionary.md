@@ -163,9 +163,40 @@ Khi chưa curate, `data` rỗng — đúng thiết kế.
 curl -s http://localhost:3000/v1/kanji/走
 ```
 
-Trả số nét, cấp (grade/JLPT cũ-mới), bộ thủ (`radical` — `name_vi/meaning_vi` sẽ có sau khi seed
-`public.radical`), `readings/meanings/nanori/query_codes` (jsonb), `used_in_forms`, `media_kinds`.
-Lỗi: `404 KANJI_NOT_FOUND`.
+Trả số nét, cấp (grade/JLPT cũ-mới), bộ thủ (`radical` — tên/nghĩa VI từ `public.radical`),
+`readings/meanings/nanori/query_codes` (jsonb), `used_in_forms`, `media_kinds`, và **`parts`** —
+thành phần cấu tạo (nguồn `core.kanji_radical`, kradfile-style) kèm tên/nghĩa VI nếu thành phần
+là bộ thủ (khớp cả biến thể, vd `亻→人`, `犭→犬`):
+
+```json
+"parts": [
+  {"char": "子", "position": 1, "is_radical": true,  "radical_number": 39, "name_vi": "Tử",  "meaning_vi": "Con, đứa trẻ"},
+  {"char": "尚", "position": 2, "is_radical": false, "radical_number": null, "name_vi": null, "meaning_vi": null},
+  {"char": "冖", "position": 3, "is_radical": true,  "radical_number": 14, "name_vi": "Mịch", "meaning_vi": "Trùm khăn lên"}
+]
+```
+
+- Phủ: kanji lớp 1–6 **100%**, jōyō ~99,8%, tổng 12.156 chữ.
+- `components` — **cây thành phần chuẩn KanjiVG** (CC BY-SA 3.0, Ulrich Apel), đệ quy, có
+  `original` (dạng gốc biến thể), `position`, `is_radical`, `is_phonetic` (biểu âm), `part`,
+  `strokes` (số nét thuộc thành phần — dùng để highlight trên ảnh KanjiVG):
+
+```json
+"components": {
+  "char": "猫", "children": [
+    {"char": "⺨", "original": "犬", "position": "left", "is_radical": true, "strokes": [1,2,3]},
+    {"char": "苗", "position": "right", "is_phonetic": true, "children": [
+      {"char": "艹", "original": "艸", "position": "top", "strokes": [4,5,6]},
+      {"char": "田", "position": "bottom", "strokes": [7,8,9,10,11]}
+    ]}
+  ]
+}
+```
+
+- Ưu tiên hiển thị `components` khi có (kyōiku/jōyō 100%, tổng 6.416 chữ); nếu `null` thì
+  dùng `parts` (KRADFILE) — một số chữ phức tạp ở nguồn KRADFILE có thành phần "residual"
+  (vd `猫 → 田+犯+艾`) nên chỉ là fallback.
+- Lỗi: `404 KANJI_NOT_FOUND`.
 
 ## GET /v1/me/search-history (Bearer)
 
