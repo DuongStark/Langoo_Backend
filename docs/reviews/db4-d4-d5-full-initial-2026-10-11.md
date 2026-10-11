@@ -92,3 +92,22 @@ Ngày: 2026-10-11. Yêu cầu: “cho chạy hết đi”.
   nhiều intent). `systemd-analyze verify` sẽ kiểm lại hai unit trước cài.
 - Trạng thái lúc ghi: cấu hình đã lưu local, chuẩn bị commit/push/cài; chưa có
   kết quả canary. Gate expansion/Pilot A/B/promotion/apply/serving vẫn đóng.
+
+### 2026-10-11 — DB4-D4/D5 — Đã cài và launch canary transport
+
+- Config/tests commit local `bc852a6`. Push ban đầu bị non-fast-forward vì main
+  vừa nhận merge của phiên DB khác. Đã cherry-pick vào worktree tích hợp sạch
+  thành `2c881f5`; không stash/reset hoặc gom WIP root của phiên khác.
+- Hai unit đã cài root:root 0644 và `systemd-analyze verify` trên VPS exit 0,
+  không warning. Unit Type=oneshot, TimeoutStartSec=2h, OnSuccess đúng resume4.
+- Fresh review không có Important/Critical; prerequisites dừng coordinator cũ
+  và xác nhận không còn mapping worker đã được thực hiện trước canary.
+- Kiểm process tree chứng minh coordinator cũ chỉ còn `batch-report.ts`; dừng
+  đúng `langoo-db4-full-initial-20261011-145ec65.service`. Nó ghi failed vì bị
+  chủ động dừng report, không phải mất reply; partial checkpoints/raw giữ nguyên.
+- Đã start canary: MainPID 472545, ActiveState=activating/SubState=start, child
+  đang native preflight. Đây là chạy oneshot nền, chưa có reply canary mới.
+  Resume4 hiện inactive, chờ post gate + OnSuccess. Không enable boot startup.
+- Có thể theo dõi hai unit `langoo-db4-transport-canary-20261011.service` và
+  `langoo-db4-full-resume4-20261011.service`; không start lại canary nếu chưa
+  inspect breaker/ledger vì clear-breaker là thao tác operator riêng từng incident.
