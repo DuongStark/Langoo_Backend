@@ -53,7 +53,7 @@
     fix (`buildExampleTranslation`, câu JA đầy đủ), sense EN VI 100%, lọc ví dụ rác.
   - Scripts DB4 lấy theo main (DB4-D4/D5 tiến xa hơn).
 - Kiểm tra: `npm run build`, `tsc`, jest `src/dictionary` pass sau merge.
-- Git/triển khai: commit merge local; chưa đổi runtime VPS trong bước này.
+- Git/triển khai: đã push `main` `66b7d59..5d6fc86`; chưa đổi runtime VPS trong bước này.
 
 ## Checklist milestone
 
