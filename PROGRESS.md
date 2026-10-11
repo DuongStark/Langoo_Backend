@@ -1346,6 +1346,9 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   R1/conditional R2 với 4 workers. Giữ release `82c4fa1`, orchestrator `145ec65`,
   source/repair pin, no-resend và DB/apply gates. Chưa có kết quả canary.
 - Ops tests 18/18 pass; post gate timing RED→GREEN và 5 ledger boundary fixtures.
-  Chuẩn bị commit/push/cài cấu hình; không thay runner semantic/DB/app runtime.
+  Config commit local `bc852a6`, tích hợp latest main tại worktree thành `2c881f5`.
+  Unit đã cài/verify VPS; canary đang activating/native preflight, resume4 chờ
+  OnSuccess. Coordinator cũ chỉ có report đã dừng; raw/checkpoints được giữ.
+  Không thay runner semantic/DB/app runtime, chưa có kết quả canary mới.
 - [Report](docs/reviews/db4-d4-d5-full-initial-2026-10-11.md),
   [runbook](scripts/ops/db4-batch/README.md).
