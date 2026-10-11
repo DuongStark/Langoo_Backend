@@ -1,7 +1,7 @@
 # DB4-D4/D5 — Report có checkpoint và repair định dạng có giới hạn
 
-Ngày: 2026-10-11. Trạng thái lúc lập: code đã kiểm tra local; chưa commit/push
-bản sửa này. Offline report trên VPS đang chạy; chưa dispatch repair/R2 thật.
+Ngày: 2026-10-11. Trạng thái cập nhật: code đã commit/push và cài runner riêng
+trên VPS. Job phục hồi đang chạy nền, chờ report cũ; chưa có kết quả repair/R2 thật.
 
 ## Đầu ra và lý do
 
@@ -84,3 +84,29 @@ bản sửa này. Offline report trên VPS đang chạy; chưa dispatch repair/R
 - Kiểm tra bổ sung: ops Python 6/6, `py_compile` pass; sửa này chuẩn bị commit/push.
 - Release runner mới được cài riêng trên VPS; cần kiểm pin/working tree trước
   dispatch. Tình trạng job thật được ghi ở mục tiếp theo khi đã launch.
+
+## 2026-10-11 — DB4-D4/D5 — Runner recovery đã cài và job nền đã khởi động
+
+- Git: foundation `8db060c`, coordinator recovery `82c4fa1` đã push lên `main`.
+  Remote HEAD đã xác nhận `82c4fa18c19510f44b0a5ba86ff2561f5b7aebdc`.
+- Release riêng: `/opt/langoo/services/db4-batch/releases/82c4fa1`. Đã kiểm tra
+  Git HEAD và working tree sạch dưới user `langoo`; code root-owned/read-only,
+  chỉ cấu hình Git safe.directory cho đúng release này. Không thay app runtime.
+- Job: `langoo-db4-recover-20261011-82c4fa1.service`, systemd transient service,
+  user `langoo`, RAM tối đa 600 MiB, không swap, CPU 100%, runtime tối đa 2 giờ.
+  Chạy nền tiếp khi máy cá nhân đóng; unit transient không tự khởi động sau reboot.
+- Tham số: `--recover-r1 --repair-cap 1 --r1-cap 1 --r2-cap 1 --workers 1
+--timeout 240 --wait-for-report <prior-report-manifest>`. Không bật auto-repair.
+- Prior report identity:
+  `3a2d7de0ad6209f6acbe1c3249862fc0a86e0adaea57ee2bc1b474b02482733e`.
+  Job xác minh report/hash/denominator/gate trước tạo wave, không dispatch original
+  R1 thêm. Chỉ sửa một output invalid đã lưu; R2 tối đa một nếu effective R1 đủ gate.
+- Xác minh thật: unit active/running, journal `wait_prior_report`. Report offline
+  cũ đã qua preflight/validation và vào `report_shard:dev-02` lúc kiểm tra.
+  Đây là trạng thái đang chạy, chưa phải report cuối hay Muse reply mới.
+- Kiểm tra trước triển khai: ops tests 6/6 pass; CLI `--help` chạy được dưới user
+  dịch vụ. Các gate expansion/Pilot A/B/shadow 1.000/apply/serving vẫn còn thiếu.
+- Theo dõi: `systemctl status langoo-db4-recover-20261011-82c4fa1.service` và
+  `journalctl -u langoo-db4-recover-20261011-82c4fa1.service -n 30 --no-pager`.
+  Khi coordinator đang ở child preflight, artifact/ledger là nguồn trạng thái;
+  stdout của child được coordinator thu lại, không stream realtime ra journal.

@@ -1290,11 +1290,13 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - Wave repair immutable, tối đa một lần/target qua parent chain cùng source pin;
   preserve parsed semantic fields, D1/order validation và raw provenance; native
   intent/no-resend/R2 gate, lazy phase payload và coordinator repair resume.
-- Kiểm tra local: 90/90 TS, 17/17 runner Python, 4/4 ops Python, typecheck,
+- Kiểm tra local: 90/90 TS, 17/17 runner Python, 6/6 ops Python, typecheck,
   scoped lint/format/diff-check pass. Fresh review findings đã sửa.
 - VPS offline report đang chạy có cap RAM; lượt 10 phút trước bị timeout, không OOM.
   Chưa có kết quả repair/R2 thật, chưa full shadow/apply/serving; expansion/Pilot A/B
   còn thiếu. [Report và trạng thái](docs/reviews/db4-d4-d5-recovery-2026-10-11.md),
   [runbook](scripts/ops/db4-batch/README.md).
-- Git: chuẩn bị commit/push bản sửa; không gom DB4/FE WIP của phiên khác.
-  VPS chỉ sidecar/artifact offline; không deploy API hoặc ghi mapping DB.
+- Git: `8db060c` và `82c4fa1` đã commit/push; không gom DB4/FE WIP của phiên khác.
+  Runner release `82c4fa1` đã cài riêng trên VPS; job systemd
+  `langoo-db4-recover-20261011-82c4fa1.service` active, đang chờ prior report
+  hoàn tất rồi recovery R1 cap 1 / conditional R2 cap 1. Không deploy API/ghi DB.
