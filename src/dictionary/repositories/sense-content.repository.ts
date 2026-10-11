@@ -62,11 +62,18 @@ export class SenseContentRepository {
   }
 
   async getExamples(senseId: bigint, limit: number): Promise<ExampleRow[]> {
+    // Lọc ví dụ "rác": quote đứt đoạn/elision ([...], "...") — mọi ngôn ngữ;
+    // riêng EN thêm unicode ellipsis "…" vì gần như toàn bộ là quote bị cắt
+    // (wiktextract). JA/VI dùng "…" hợp lệ trong hội thoại nên không lọc.
     return this.prisma.$queryRaw<ExampleRow[]>`
       WITH candidates AS (
         SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
         FROM core.example e
         WHERE e.sense_id = ${senseId}
+          AND NOT (
+            e.text LIKE '%[%' OR e.text LIKE '%...%'
+            OR (e.language_id = 1 AND e.text LIKE '%…%')
+          )
         UNION
         SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
         FROM core.example_sense es
@@ -74,6 +81,10 @@ export class SenseContentRepository {
         WHERE es.sense_id = ${senseId}
           AND es.relation = 'illustrates'
           AND e.sense_id IS DISTINCT FROM ${senseId}
+          AND NOT (
+            e.text LIKE '%[%' OR e.text LIKE '%...%'
+            OR (e.language_id = 1 AND e.text LIKE '%…%')
+          )
       ),
       dedup AS (
         SELECT DISTINCT ON (dt.display_text, c.language_id)
