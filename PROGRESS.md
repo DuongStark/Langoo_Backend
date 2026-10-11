@@ -1312,7 +1312,9 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   journal result đúng InvocationID/current boot, không retry completed/unknown,
   không clear breaker và kiểm STOP trước phase. Không thay app/ghi DB.
 - Kiểm tra: ops tests 16/16 và py_compile pass; review 2 Important đã sửa bằng
-  regression RED→GREEN. Phần code mới chuẩn bị commit/push/cài sidecar riêng.
+  regression RED→GREEN. Code `145ec65` đã commit/push; orchestrator đã cài riêng.
+  Unit `langoo-db4-full-initial-20261011-145ec65.service` active/running, đang chờ
+  recovery kết thúc; full R1/R2 sẽ tự nối tiếp với 8 workers, chưa có kết quả cuối.
 - [Report](docs/reviews/db4-d4-d5-full-initial-2026-10-11.md),
   [plan](docs/plans/db4-d4-d5-automated-batch-rollout.md),
   [runbook](scripts/ops/db4-batch/README.md). Giữ gate promotion/apply/serving đóng.
