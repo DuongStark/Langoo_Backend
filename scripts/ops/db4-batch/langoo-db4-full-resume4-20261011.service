@@ -1,0 +1,27 @@
+[Unit]
+Description=DB4-D4/D5 resume all ready initial targets with four workers (2026-10-11)
+Wants=network-online.target
+After=network-online.target langoo-db4-transport-canary-20261011.service
+
+[Service]
+Type=simple
+User=langoo
+Group=langoo
+WorkingDirectory=/opt/langoo/services/db4-batch/releases/82c4fa1
+UMask=0077
+# The pinned native runner rechecks the breaker before any dispatch.
+# If the canary left it open, this service fails closed without sending jobs.
+ExecStart=/opt/langoo/services/muse-native/venv/bin/python -B /opt/langoo/services/db4-batch/orchestrators/145ec65/continue-shadow.py --artifact-root /opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649 --manifest batch-runs/db4-smoke-20261011-8a2c475/run-manifest.json --runner-release /opt/langoo/services/db4-batch/releases/82c4fa1 --revision 82c4fa18c19510f44b0a5ba86ff2561f5b7aebdc --wait-service langoo-db4-recover-20261011-82c4fa1.service --predecessor-invocation 4ee41f4e26154978916a78be808436da --workers 4 --timeout 240
+Restart=no
+RuntimeMaxSec=24h
+TimeoutStopSec=30
+KillMode=control-group
+MemoryHigh=550M
+MemoryMax=650M
+MemorySwapMax=0
+CPUQuota=100%
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649 /opt/langoo/storage/muse-native
+ReadOnlyPaths=/opt/langoo/storage/muse-native/cookies.json

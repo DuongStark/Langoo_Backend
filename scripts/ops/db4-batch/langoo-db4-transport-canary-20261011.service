@@ -1,0 +1,32 @@
+[Unit]
+Description=DB4-D4/D5 bounded R1 transport recovery canary (2026-10-11)
+Wants=network-online.target
+After=network-online.target
+OnSuccess=langoo-db4-full-resume4-20261011.service
+
+[Service]
+Type=oneshot
+User=langoo
+Group=langoo
+WorkingDirectory=/opt/langoo/services/db4-batch/releases/82c4fa1
+UMask=0077
+# Operator health probe succeeded after the transient transport failures.
+# Native run clears the breaker once and sends at most one new pending job.
+# Unknown/completed jobs remain protected by the original durable ledger.
+ExecStart=/opt/langoo/services/muse-native/venv/bin/python -B /opt/langoo/services/db4-batch/releases/82c4fa1/scripts/db4/muse-batch-runner.py run --artifact-root /opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649 --manifest batch-runs/db4-smoke-20261011-8a2c475/run-manifest.json --repair-manifest batch-runs/db4-smoke-20261011-8a2c475/repairs/800468d52ac09d97a491219f2508c72182b2501343b96a42e04ea1e589bf7577/manifest.json --repo-root /opt/langoo/services/db4-batch/releases/82c4fa1 --phase r1 --workers 1 --timeout 240 --max-dispatches 1 --clear-breaker
+# Native CLI exit 0 alone does not prove transport success. Require exactly one
+# new intent after the clear event and a saved reply for that same job, no breaker.
+ExecStartPost=/usr/bin/python3 -c "import json,sys; from pathlib import Path; e=[json.loads(s) for s in Path('/opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649/batch-runs/db4-smoke-20261011-8a2c475/ledger/events.jsonl').read_text().splitlines()]; k=max(i for i,r in enumerate(e) if r['type']=='breaker_cleared'); a=e[k+1:]; d=[r for r in a if r['type']=='dispatch_intent_persisted']; sys.exit(0 if len(d)==1 and any(r['type']=='response_saved' and r['jobKey']==d[0]['jobKey'] for r in a) and not any(r['type']=='breaker_opened' for r in a) else 1)"
+Restart=no
+TimeoutStartSec=2h
+TimeoutStopSec=30
+KillMode=control-group
+MemoryHigh=550M
+MemoryMax=650M
+MemorySwapMax=0
+CPUQuota=100%
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/langoo/storage/db4-batches/db4-d2-jlpt-n1-n5-20261010-0208649 /opt/langoo/storage/muse-native
+ReadOnlyPaths=/opt/langoo/storage/muse-native/cookies.json
