@@ -1,5 +1,5 @@
 // DB4-D4/D5: validate completed native replies against D1 without dispatching.
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import {
@@ -10,8 +10,6 @@ import {
   verifyBatchEventChain,
 } from './_batch-types';
 import {
-  MappingBundle,
-  MappingBundleSchema,
   MappingOutput,
   Sha256Schema,
   Text,
@@ -28,31 +26,20 @@ import {
   writeAtomicJson,
 } from './_retrieval';
 
+import { scanBatchJsonl } from './_batch-jsonl';
+import {
+  Request,
+  RequestSchema,
+  cleanReply,
+  renderedIntegrityBundle,
+} from './_batch-requests';
+import {
+  LoadedRepairWaves,
+  loadRepairWaves,
+  validateFormatRepair,
+} from './_batch-repair';
+
 const Phase = z.enum(['r1', 'r2']);
-const RequestSchema = z
-  .object({
-    jobKey: Sha256Schema,
-    targetKey: Sha256Schema,
-    senseKey: Text,
-    phase: Phase,
-    generation: z.number().int().min(1).max(2),
-    bundleKey: Sha256Schema,
-    promptVersion: Text,
-    promptHash: Sha256Schema,
-    renderedContextHash: Sha256Schema,
-    dependencyJobKey: Sha256Schema.nullable(),
-    payload: z
-      .object({
-        schemaVersion: z.literal(1),
-        phase: Phase,
-        seed: Text,
-        promptVersion: Text,
-        bundle: MappingBundleSchema,
-      })
-      .strict(),
-  })
-  .strict();
-type Request = z.infer<typeof RequestSchema>;
 export const ValidationResultSchema = z
   .object({
     schemaVersion: z.literal(1),
@@ -74,6 +61,21 @@ export const ValidationResultSchema = z
     output: z.unknown().nullable(),
     r2Eligible: z.boolean().nullable(),
     errorType: Text.nullable(),
+    formatRepair: z
+      .object({
+        wave: ArtifactRefSchema,
+        jobKey: Sha256Schema,
+        originalRawResponse: ArtifactRefSchema,
+        rawResponse: ArtifactRefSchema.nullable(),
+        state: z.enum([
+          'pending',
+          'transport_unknown',
+          'validated',
+          'invalid_output',
+        ]),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 export const BatchValidationManifestSchema = z
@@ -89,6 +91,7 @@ export const BatchValidationManifestSchema = z
     results: ArtifactRefSchema,
     counts: z.record(z.number().int().nonnegative()),
     allRequestsRetained: z.literal(true),
+    formatRepairWave: ArtifactRefSchema.optional(),
   })
   .strict()
   .superRefine((manifest, ctx) => {
@@ -148,28 +151,6 @@ function parseJsonl<T>(
   const lines = text.slice(0, -1).split('\n');
   if (lines.some((line) => !line)) throw new Error(`${label} has a blank row`);
   return lines.map((line) => schema.parse(JSON.parse(line) as unknown));
-}
-
-function cleanReply(raw: string): unknown {
-  const trimmed = raw.trim();
-  const clean = trimmed.startsWith('```')
-    ? trimmed.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/, '')
-    : trimmed;
-  return JSON.parse(clean) as unknown;
-}
-
-function renderedIntegrityBundle(bundleValue: unknown): MappingBundle {
-  const rendered = MappingBundleSchema.parse(bundleValue);
-  return parseMappingBundleIntegrity({
-    ...rendered,
-    candidates: [...rendered.candidates].sort((a, b) =>
-      a.candidateKey < b.candidateKey
-        ? -1
-        : a.candidateKey > b.candidateKey
-          ? 1
-          : 0,
-    ),
-  });
 }
 
 function eventRows(root: string, prefix: string, runId: string): BatchEvent[] {
@@ -242,10 +223,11 @@ function requireRequestScheduleBinding(
     throw new Error(`Rendered payload hash mismatch for ${request.jobKey}`);
 }
 
-export function validateBatchPhase(
+export async function validateBatchPhase(
   root: string,
   manifestPath: string,
   phase: 'r1' | 'r2',
+  repairManifestPath?: string,
 ) {
   const manifestBytes = readFileSync(artifactPath(root, manifestPath));
   const manifestRef = {
@@ -273,13 +255,23 @@ export function validateBatchPhase(
     createdAt: manifest.createdAt,
     jobs: scheduleRows,
   });
+  const repairs: LoadedRepairWaves | null = repairManifestPath
+    ? await loadRepairWaves(
+        root,
+        repairManifestPath,
+        manifestRef,
+        schedule.jobs,
+      )
+    : null;
   const expectedRequests = new Map(
     schedule.jobs
       .filter((job) => job.phase === phase)
       .map((job) => [job.jobKey, job]),
   );
   const phaseByJob = new Map(
-    schedule.jobs.map((job) => [job.jobKey, job.phase] as const),
+    [...schedule.jobs, ...(repairs?.jobs ?? [])].map(
+      (job) => [job.jobKey, job.phase] as const,
+    ),
   );
   const requestKeys = new Set<string>();
   const ledger = eventRows(root, prefix, manifest.runId);
@@ -403,27 +395,110 @@ export function validateBatchPhase(
     }
   };
   for (const shard of manifest.shards) {
-    const requestPath = artifactPath(root, shard.requests[phase].path);
-    if (statSync(requestPath).size > 64 * 1024 * 1024)
-      throw new Error(`Requests ${shard.shardId}/${phase} exceed 64 MiB`);
-    const requests = parseJsonl(
-      readArtifact(root, shard.requests[phase]),
+    const count = await scanBatchJsonl(
+      root,
+      shard.requests[phase],
       RequestSchema,
       `Requests ${shard.shardId}/${phase}`,
+      (request) => {
+        rows.push(validateRequest(request));
+      },
     );
-    if (requests.length !== shard.readyCount)
+    if (count !== shard.readyCount)
       throw new Error(
         `Request denominator mismatch for ${shard.shardId}/${phase}`,
       );
-    for (const request of requests) rows.push(validateRequest(request));
   }
   if (requestKeys.size !== expectedRequests.size)
     throw new Error(`Schedule/request denominator mismatch for ${phase}`);
+  if (repairs) {
+    const byOriginal = new Map(
+      repairs.requests
+        .filter((request) => request.phase === phase)
+        .map((request) => [request.repair.originalJobKey, request]),
+    );
+    for (const [index, originalRow] of rows.entries()) {
+      const request = byOriginal.get(originalRow.jobKey);
+      if (!request) continue;
+      if (
+        originalRow.state !== 'invalid_output' ||
+        hashJson(originalRow.rawResponse) !==
+          hashJson(request.repair.originalRawResponse)
+      )
+        throw new Error(
+          'Repair original no longer matches rejected phase output',
+        );
+      const event = responses.get(request.jobKey);
+      const rawRef = event
+        ? ArtifactRefSchema.parse({
+            path: event.details.responsePath,
+            sha256: event.details.responseSha256,
+          })
+        : null;
+      const provenance = {
+        wave: repairs.ref,
+        jobKey: request.jobKey,
+        originalRawResponse: request.repair.originalRawResponse,
+        rawResponse: rawRef,
+        state: rawRef
+          ? ('invalid_output' as const)
+          : intents.has(request.jobKey)
+            ? ('transport_unknown' as const)
+            : ('pending' as const),
+      };
+      if (!rawRef) {
+        rows[index] = ValidationResultSchema.parse({
+          ...originalRow,
+          state: intents.has(request.jobKey)
+            ? 'transport_unknown'
+            : 'invalid_output',
+          formatRepair: provenance,
+        });
+        continue;
+      }
+      const raw = readArtifact(root, rawRef).toString('utf8');
+      try {
+        const output = validateFormatRepair(
+          request.repair.originalRawText,
+          cleanReply(raw),
+          renderedIntegrityBundle(request.payload.bundle),
+          request.payload.bundle.candidates.map(
+            (candidate) => candidate.candidateKey,
+          ),
+        );
+        rows[index] = ValidationResultSchema.parse({
+          ...originalRow,
+          state: 'validated',
+          rawResponse: rawRef,
+          output,
+          outputHash: hashJson(output),
+          r2Eligible:
+            output.reviews.filter((row) => row.relation === 'exact').length ===
+              1 && output.unresolvedReason === null,
+          errorType: null,
+          formatRepair: { ...provenance, state: 'validated' },
+        });
+      } catch (error) {
+        rows[index] = ValidationResultSchema.parse({
+          ...originalRow,
+          formatRepair: provenance,
+          errorType:
+            error instanceof Error &&
+            error.message === 'semantic_change_during_repair'
+              ? 'semantic_change_during_repair'
+              : error instanceof Error
+                ? error.name
+                : 'InvalidOutput',
+        });
+      }
+    }
+  }
+
   const rowsText = rows.map((row) => JSON.stringify(row) + '\n').join('');
   if (Buffer.byteLength(rowsText) > 64 * 1024 * 1024)
     throw new Error('Validation result exceeds 64 MiB');
   const head = ledger.at(-1)?.eventSha256 ?? 'empty';
-  const outputPrefix = `${prefix}/validation/${phase}-${head.slice(0, 16)}`;
+  const outputPrefix = `${prefix}/validation/${phase}-${head.slice(0, 16)}${repairs ? '-repair-' + repairs.ref.sha256.slice(0, 16) : ''}`;
   const resultsRef = writeAtomicArtifact(
     root,
     `${outputPrefix}/results.jsonl`,
@@ -446,6 +521,7 @@ export function validateBatchPhase(
     results: resultsRef,
     counts,
     allRequestsRetained: rows.length === expectedRequests.size,
+    ...(repairs ? { formatRepairWave: repairs.ref } : {}),
   });
   const validationManifestRef = writeAtomicJson(
     root,
@@ -461,7 +537,12 @@ export function validateBatchPhase(
 
 if (require.main === module) {
   const flags: Record<string, string> = {};
-  const allowed = new Set(['artifact-dir', 'manifest', 'phase']);
+  const allowed = new Set([
+    'artifact-dir',
+    'manifest',
+    'phase',
+    'repair-manifest',
+  ]);
   for (let index = 2; index < process.argv.length; index += 2) {
     const key = process.argv[index];
     const value = process.argv[index + 1];
@@ -482,5 +563,18 @@ if (require.main === module) {
     throw new Error(
       'Usage: tsx scripts/db4/batch-validate.ts --artifact-dir ROOT --manifest PATH --phase r1|r2',
     );
-  console.log(JSON.stringify(validateBatchPhase(root, manifest, phase)));
+  void validateBatchPhase(root, manifest, phase, flags['repair-manifest'])
+    .then((result) => console.log(JSON.stringify(result)))
+    .catch((error: unknown) => {
+      console.error(
+        JSON.stringify({
+          errorType: error instanceof Error ? error.name : 'ValidationError',
+          message:
+            error instanceof Error
+              ? error.message.slice(0, 1000)
+              : 'Validation failed',
+        }),
+      );
+      process.exitCode = 1;
+    });
 }

@@ -1282,3 +1282,19 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - Git / triển khai: code hotfix `b955bfa` và docs snapshot `a265b46` đã push;
   lần report mới nhất được ghi trong follow-up docs commit. VPS sidecar chỉ dùng
   replay D1; systemd vẫn pin `8a2c475`. Không R2, không DB write/app deploy.
+
+### 2026-10-11 — DB4-D4/D5 — Report có checkpoint và repair định dạng có giới hạn
+
+- Streaming request JSONL; preflight giữ identity compact; report checkpoint theo
+  shard có hash/lineage checks và progress. Không bỏ pending/invalid khỏi denominator.
+- Wave repair immutable, tối đa một lần/target qua parent chain cùng source pin;
+  preserve parsed semantic fields, D1/order validation và raw provenance; native
+  intent/no-resend/R2 gate, lazy phase payload và coordinator repair resume.
+- Kiểm tra local: 90/90 TS, 17/17 runner Python, 4/4 ops Python, typecheck,
+  scoped lint/format/diff-check pass. Fresh review findings đã sửa.
+- VPS offline report đang chạy có cap RAM; lượt 10 phút trước bị timeout, không OOM.
+  Chưa có kết quả repair/R2 thật, chưa full shadow/apply/serving; expansion/Pilot A/B
+  còn thiếu. [Report và trạng thái](docs/reviews/db4-d4-d5-recovery-2026-10-11.md),
+  [runbook](scripts/ops/db4-batch/README.md).
+- Git: chuẩn bị commit/push bản sửa; không gom DB4/FE WIP của phiên khác.
+  VPS chỉ sidecar/artifact offline; không deploy API hoặc ghi mapping DB.

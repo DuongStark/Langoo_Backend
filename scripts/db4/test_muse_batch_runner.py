@@ -552,5 +552,79 @@ class BatchRunnerTests(unittest.TestCase):
         self.assertFalse((self.root / 'runs/fixture-run/ledger').exists())
 
 
+class FormatRepairTransportTests(unittest.TestCase):
+    def test_repair_prompt_preserves_raw_and_cannot_resend_old_or_repair_intent(self):
+        request = make_request(10)
+        request['repair'] = {
+            'policyVersion': 'db4-format-only-repair-v1',
+            'originalJobKey': 'f' * 64,
+            'originalRawText': '{"reviews":[]}',
+            'parserError': 'Incomplete shortlist verdicts',
+        }
+        message = runner.prompt_message({'system': 's', 'r1': 'r', 'r2': 'r2'}, request)
+        self.assertIn('FORMAT-ONLY REPAIR', message)
+        self.assertIn('Incomplete shortlist verdicts', message)
+        self.assertIn('Do not change', message)
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            run = make_run([request])
+            ledger = runner.Ledger(root, run['prefix'], run['manifest']['runId'])
+            runner.append_phase_events(ledger, run['manifest']['runId'], run['schedule'])
+            transport = FakeTransport(root)
+            transport.prompts = run['prompt']
+            first = runner.prepare_dispatch(root, run['prefix'], ledger, request, transport, 10, 2)
+            second = runner.prepare_dispatch(root, run['prefix'], ledger, request, transport, 10, 2)
+            self.assertEqual(first['state'], 'response_saved')
+            self.assertFalse(second['sent'])
+            self.assertEqual(transport.generate_calls, 1)
+            self.assertEqual(ledger.dispatch_count(), 1)
+
+class RepairWaveRecoveryTests(unittest.TestCase):
+    def test_metadata_load_defers_payloads_and_rejects_mixed_parent_pins(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            first, second = make_request(20), make_request(21)
+            run = make_run([first, second])
+            run['manifest']['caps']['artifactBytes'] = 64 * 1024 * 1024
+            run.update(manifest_path='runs/fixture-run/run-manifest.json', manifest_sha256='c' * 64)
+            def wave(index, original, revision, parent=None):
+                job = dict(run['jobs_by_key'][original['jobKey']])
+                job.update(jobKey=f'{index + 900:064x}', kind='format_repair', attempt=2, dependsOn=original['jobKey'])
+                request = dict(original, jobKey=job['jobKey'])
+                prefix = f"runs/fixture-run/repairs/wave-{index}"
+                request_bytes = runner.json_bytes(request)
+                request_path = root / prefix / 'requests.jsonl'
+                request_path.parent.mkdir(parents=True)
+                request_path.write_bytes(request_bytes)
+                value = {'task': 'db4_batch_format_repair_wave', 'policyVersion': 'db4-format-only-repair-v1',
+                         'runId': 'fixture-run', 'apply': False,
+                         'runManifest': {'path': run['manifest_path'], 'sha256': run['manifest_sha256']},
+                         'parent': parent, 'git': {'revision': revision, 'dirtySourceSha256': None},
+                         'jobs': [job], 'count': 1,
+                         'requests': {'path': prefix + '/requests.jsonl', 'sha256': runner.sha256(request_bytes)}}
+                path = root / prefix / 'manifest.json'
+                path.write_bytes(runner.json_bytes(value))
+                return {'path': prefix + '/manifest.json', 'sha256': runner.sha256(path.read_bytes())}
+            first_wave = wave(1, first, 'a' * 40)
+            runner.load_repair_wave(root, run, first_wave['path'])
+            self.assertNotIn('repair_requests', run)
+            run['requests'] = {'r1': [], 'r2': []}
+            runner.load_phase_requests(root, dict(run, repair_only=True), ['r1'])
+            self.assertEqual(len(run['requests']['r1']), 1)
+            second_wave = wave(2, second, 'b' * 40, first_wave)
+            fresh = make_run([first, second])
+            fresh.update(manifest_path=run['manifest_path'], manifest_sha256=run['manifest_sha256'])
+            with self.assertRaisesRegex(runner.RunnerError, 'pin'):
+                runner.load_repair_wave(root, fresh, second_wave['path'])
+
+    def test_r2_repair_gate_uses_original_r2_r1_dependency(self):
+        repair = make_request(30, phase='r2', dependency='original-r2')
+        rows = [{'jobKey': 'original-r1', 'state': 'validated', 'r2Eligible': True}]
+        ready, skipped, parked = runner.eligible_r2_jobs([repair], rows, {repair['jobKey']: 'original-r1'})
+        self.assertEqual([row['jobKey'] for row in ready], [repair['jobKey']])
+        self.assertEqual(skipped, [])
+        self.assertEqual(parked, [])
+
+
 if __name__ == '__main__':
     unittest.main()

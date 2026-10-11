@@ -168,3 +168,60 @@ R1/R2 transport counts, and records Pilot A/B as `not_run`. `apply` and
 `promotionReady` stay false. Do not use `proposed_exact` rows as DB write input;
 DB4-D6/D7 remain separate work with their own audit, journal, rollback and
 serving gates.
+
+## 2026-10-11 — DB4-D4/D5 bounded format repair and report recovery
+
+JSONL request scans now retain one payload at a time. Preflight retains compact
+request identities; D1 validation remains complete for both phase denominators.
+Report stderr emits `db4_report_progress` stages. A completed shard has an
+immutable `reports/final/<identity>/shards/<shard>.json` checkpoint. Resume
+verifies its manifest/validation/shard bindings, target rows and every evaluation
+artifact hash before reuse. A changed ledger gives a new report identity; partial
+shards never count as a published final report. Use a 256 MiB Node old-space cap
+for offline replay; measure the cgroup separately from Node RSS.
+
+The new repair path is opt-in and does not open the expansion or Pilot A/B gates.
+A wave is immutable, outside the original frozen schedule, and may point to a
+parent wave. All waves in a chain must share one clean Git pin. Every target can
+have at most one repair job in the entire chain. Repair output passes full D1,
+original candidate order and preservation of every parsed original semantic field
+(including reason/confidence); changes yield `semantic_change_during_repair` and
+remain unresolved. The original raw reply is preserved. Missing JSON fields or a
+missing verdict can be filled; an existing semantic claim cannot be rewritten.
+
+Prepare from a clean committed release (no transport/DB calls):
+
+```sh
+node --max-old-space-size=256 --import tsx scripts/db4/batch-repair.ts prepare \
+  --artifact-dir "$ARTIFACT_ROOT" --manifest "$RUN_MANIFEST" --max-repairs 1
+```
+
+Use the returned immutable manifest path with the **same release pin**. This
+recovers the saved invalid R1 without dispatching additional original R1 targets:
+
+```sh
+/opt/langoo/services/muse-native/venv/bin/python -B \
+  scripts/ops/db4-batch/run-shadow.py \
+  --artifact-root "$ARTIFACT_ROOT" --manifest "$RUN_MANIFEST" \
+  --repair-manifest "$REPAIR_MANIFEST" --repair-cap 1 \
+  --workers 1 --timeout 240 --r1-cap 1 --r2-cap 1
+```
+
+Launch under a transient systemd service with the persistent artifact root,
+`User=langoo`, account/run locks and resource limits. Keep `/opt/langoo/app`
+untouched. A repaired R1 enables original R2 only after a fresh, complete D1
+validation. If repair is unknown or invalid, R2 is not sent. Resume never resends
+an intent-persisted original or repair job. The phase counts include repair
+intents, so a successful repair smoke can show two R1 intents (original + repair)
+and at most one R2 intent.
+
+For a normal pinned run, `run-shadow.py --auto-repair --repair-cap N` plans one
+bounded repair wave after each mapping phase. It is not enabled by the installed
+systemd template yet. For an already planned R2-only repair, add
+`--repair-phase r2`; the coordinator obtains fresh R1 validation and gates the
+repair on the original R2 job's R1 dependency. Use `--repair-manifest` on validator,
+report, native runner status/reconcile and further prepare calls once a repair
+wave exists. Omitting it intentionally fails on unknown repair ledger jobs.
+
+Expansion and Pilot A/B audit remain incomplete; full 1,000-target shadow and
+DB4-D6/D7 apply/serving remain closed.

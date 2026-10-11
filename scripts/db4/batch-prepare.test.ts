@@ -524,7 +524,11 @@ void test('batch preparation preserves no-candidate denominator and plans condit
       'batch-runs/fixture-run/ledger/events.jsonl',
       jsonl(events),
     );
-    const validated = validateBatchPhase(root, result.manifest.path, 'r1');
+    const validated = await validateBatchPhase(
+      root,
+      result.manifest.path,
+      'r1',
+    );
     assert.equal(validated.counts.validated, 1);
     assert.equal(validated.counts.r2_eligible, 1);
 
@@ -543,8 +547,31 @@ void test('batch preparation preserves no-candidate denominator and plans condit
     assert.equal(summary.byStatus.no_candidates, 1);
     assert.equal(summary.gates.promotionReady, false);
     assert.equal(summary.gates.apply, false);
+    const reportPrefix = report.manifest.path.slice(
+      0,
+      report.manifest.path.lastIndexOf('/'),
+    );
+    const checkpointPath = join(
+      root,
+      reportPrefix,
+      'shards',
+      `${readyShard.shardId}.json`,
+    );
+    assert.equal(
+      JSON.parse(readFileSync(checkpointPath, 'utf8')).rows[0].status,
+      'r2_pending',
+    );
     const sameReport = await buildBatchReport(root, result.manifest.path);
     assert.equal(sameReport.manifest.sha256, report.manifest.sha256);
+    const checkpointText = readFileSync(checkpointPath, 'utf8');
+    const corruptCheckpoint = JSON.parse(checkpointText);
+    corruptCheckpoint.rows[0].status = 'proposed_exact';
+    writeFileSync(checkpointPath, JSON.stringify(corruptCheckpoint));
+    await assert.rejects(
+      () => buildBatchReport(root, result.manifest.path),
+      /checkpoint/i,
+    );
+    writeFileSync(checkpointPath, checkpointText);
 
     const repeated = await prepareAutomatedBatch(root, options);
     assert.equal(repeated.manifest.sha256, result.manifest.sha256);
@@ -579,6 +606,180 @@ void test('immutable atomic artifact reuses identical bytes and refuses replacem
       /Artifact hash mismatch/,
     );
     assert.deepEqual(ArtifactRefSchema.parse(first), first);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+void test('batch format repair binds rejected raw, enables R2 only after D1 and cannot repair a target twice', async () => {
+  const root = mkdtempSync(join(tmpdir(), 'db4-batch-repair-'));
+  try {
+    const { prepareBatchRepairs, verifyBatchRepairs } =
+      await import('./batch-repair');
+    const { RepairWaveSchema } = await import('./_batch-repair');
+    const inputs = prepareFixture(root);
+    const prepared = await prepareAutomatedBatch(root, {
+      runId: 'repair-fixture',
+      samplingPath: inputs.samplingPath,
+      generationPath: inputs.generationPath,
+      exportPath: inputs.exportPath,
+      outputPrefix: 'batch-runs/repair-fixture',
+      promptRevision: 'v2.1',
+      promptDirectory: resolve('docs/prompts'),
+      gitRevision: 'abcdef0123456789',
+      dirtySourceSha256: null,
+      now: () => '2026-10-10T12:00:00.000Z',
+    });
+    const manifest = BatchManifestSchema.parse(
+      JSON.parse(readFileSync(join(root, prepared.manifest.path), 'utf8')),
+    );
+    const shard = manifest.shards.find((row) => row.readyCount === 1)!;
+    const original = JSON.parse(
+      readFileSync(join(root, shard.requests.r1.path), 'utf8').trim(),
+    );
+    const valid = {
+      schemaVersion: 1,
+      task: 'sense_concept_review',
+      bundleKey: original.bundleKey,
+      senseId: original.payload.bundle.sense.id,
+      contextHash: original.payload.bundle.contextHash,
+      reviews: original.payload.bundle.candidates.map(
+        (row: { candidateKey: string; concept: { id: string } }) => ({
+          candidateKey: row.candidateKey,
+          conceptId: row.concept.id,
+          relation: 'exact',
+          coveredBranches: original.payload.bundle.sourceBranches,
+          missingBranches: [],
+          conflicts: [],
+          reason: 'Fixture whole-sense coverage.',
+          confidence: null,
+        }),
+      ),
+      noSuitableCandidate: false,
+      unresolvedReason: null,
+    };
+    const broken = structuredClone(valid);
+    delete broken.reviews[0].confidence;
+    const ledger: ReturnType<typeof createBatchEvent>[] = [];
+    const prefix = 'batch-runs/repair-fixture';
+    const append = (
+      jobKey: string | null,
+      type: Parameters<typeof createBatchEvent>[0]['type'],
+      details: Parameters<typeof createBatchEvent>[0]['details'],
+    ) => {
+      ledger.push(
+        createBatchEvent({
+          runId: manifest.runId,
+          sequence: ledger.length,
+          previousEventSha256: ledger.at(-1)?.eventSha256 ?? null,
+          at: '2026-10-10T12:00:01.000Z',
+          jobKey,
+          type,
+          details,
+        }),
+      );
+      writeFileSync(join(root, `${prefix}/ledger/events.jsonl`), jsonl(ledger));
+    };
+    // writeArtifact creates the ledger directory before the append helper writes.
+    writeArtifact(root, `${prefix}/ledger/events.jsonl`, '');
+    const save = (jobKey: string, reply: unknown) => {
+      const ref = writeAtomicArtifact(
+        root,
+        `${prefix}/responses/raw/${jobKey}.txt`,
+        JSON.stringify(reply),
+      );
+      append(jobKey, 'job_planned', { phase: 'r1' });
+      append(jobKey, 'dispatch_intent_persisted', { phase: 'r1' });
+      append(jobKey, 'response_saved', {
+        phase: 'r1',
+        responsePath: ref.path,
+        responseSha256: ref.sha256,
+      });
+    };
+    append(null, 'run_started', { mode: 'shadow', apply: false });
+    save(original.jobKey, broken);
+    const initial = await validateBatchPhase(
+      root,
+      prepared.manifest.path,
+      'r1',
+    );
+    assert.equal(initial.counts.invalid_output, 1);
+    const planned = await prepareBatchRepairs(root, prepared.manifest.path, {
+      revision: 'abcdef0123456789',
+      maxRepairs: 1,
+    });
+    assert.equal(planned.planned, 1);
+    assert.ok(planned.manifest);
+    const wave = RepairWaveSchema.parse(
+      JSON.parse(readFileSync(join(root, planned.manifest.path), 'utf8')),
+    );
+    const repair = JSON.parse(
+      readFileSync(join(root, wave.requests.path), 'utf8').trim(),
+    );
+    assert.notEqual(repair.jobKey, original.jobKey);
+    assert.equal(repair.repair.originalJobKey, original.jobKey);
+    const pending = await validateBatchPhase(
+      root,
+      prepared.manifest.path,
+      'r1',
+      planned.manifest.path,
+    );
+    assert.equal(pending.counts.invalid_output, 1);
+    save(repair.jobKey, valid);
+    const repaired = await validateBatchPhase(
+      root,
+      prepared.manifest.path,
+      'r1',
+      planned.manifest.path,
+    );
+    assert.equal(repaired.counts.validated, 1);
+    assert.equal(repaired.counts.r2_eligible, 1);
+    const effective = JSON.parse(
+      readFileSync(join(root, repaired.results.path), 'utf8').trim(),
+    );
+    assert.equal(effective.jobKey, original.jobKey);
+    assert.equal(effective.formatRepair.jobKey, repair.jobKey);
+    assert.equal(effective.formatRepair.state, 'validated');
+    assert.equal(
+      effective.rawResponse.path,
+      `${prefix}/responses/raw/${repair.jobKey}.txt`,
+    );
+    const report = await buildBatchReport(
+      root,
+      prepared.manifest.path,
+      planned.manifest.path,
+    );
+    const summary = JSON.parse(
+      readFileSync(join(root, report.summary.path), 'utf8'),
+    );
+    assert.equal(summary.byStatus.r2_pending, 1);
+    assert.equal(summary.dispatchesByPhase.r1, 2);
+    assert.equal(summary.gates.apply, false);
+    const next = await prepareBatchRepairs(root, prepared.manifest.path, {
+      revision: 'abcdef0123456789',
+      parent: planned.manifest.path,
+    });
+    assert.equal(next.planned, 0);
+    assert.equal(next.manifest, null);
+    const incompatibleRef = writeJson(
+      root,
+      `${prefix}/repairs/incompatible/manifest.json`,
+      {
+        ...wave,
+        parent: planned.manifest,
+        git: { revision: 'b'.repeat(40), dirtySourceSha256: null },
+      },
+    );
+    await assert.rejects(
+      () =>
+        verifyBatchRepairs(root, prepared.manifest.path, incompatibleRef.path),
+      /source pin/,
+    );
+
+    await assert.rejects(
+      () => validateBatchPhase(root, prepared.manifest.path, 'r1'),
+      /unknown job/,
+    );
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

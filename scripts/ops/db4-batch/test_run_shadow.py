@@ -58,6 +58,20 @@ class ShadowCoordinatorTests(unittest.TestCase):
         self.assertEqual(result['state'], 'parked_transport')
         self.assertIsNone(result['r2'])
 
+    def test_repair_resume_dispatches_only_repair_then_gates_original_r2(self):
+        self.args.repair_manifest = 'batch-runs/run/repairs/wave/manifest.json'
+        self.args.repair_cap = 1
+        calls = []
+        def phase(_args, phase, validation=None, dispatch_cap=None, repair_only=False):
+            calls.append((phase, validation, dispatch_cap, repair_only))
+            return {'breakerOpen': False, 'validationManifest': {'path': 'effective-r1.json'}}
+        with patch.object(RUN_SHADOW, 'runner_phase', side_effect=phase), patch.object(
+            RUN_SHADOW, 'publish_report', return_value={'manifest': {'path': 'report.json'}},
+        ):
+            result = RUN_SHADOW.run_shadow(self.args)
+        self.assertEqual(calls, [('r1', None, 1, True), ('r2', 'effective-r1.json', 1, False)])
+        self.assertFalse(result['apply'])
+
     def test_systemd_uses_muse_native_venv_for_transport_dependencies(self):
         unit = UNIT.read_text(encoding='utf-8')
         self.assertIn(

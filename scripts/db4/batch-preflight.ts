@@ -44,6 +44,7 @@ import {
 } from './batch-prepare';
 import { posFamily } from './cohort-select';
 import { promptVersion } from './muse-prompt-version';
+import { scanBatchJsonl } from './_batch-jsonl';
 
 const MAX_INPUT_BYTES = 4 * 1024 * 1024 * 1024;
 const MAX_JSON_BYTES = 16 * 1024 * 1024;
@@ -246,6 +247,7 @@ function normalizeBundleCandidateOrder(value: unknown): MappingBundle {
 export async function preflightBatchInputs(
   rootValue: string,
   manifestPath: string,
+  progress?: (stage: string) => void,
 ) {
   const root = resolve(rootValue);
   const manifestFile = artifactPath(root, manifestPath);
@@ -379,6 +381,7 @@ export async function preflightBatchInputs(
   );
   if (selected.length !== manifest.cohort.counts.selected)
     throw new Error('Selected cohort denominator mismatch');
+  progress?.('cohort_source');
   const sourceSenses = await verifySourceSenseRows(
     root,
     cohortExport.files.senses,
@@ -681,6 +684,7 @@ export async function preflightBatchInputs(
     createdAt: manifest.createdAt,
     jobs: scheduleRows,
   });
+  progress?.('candidate_integrity');
   const candidateHashes = new Map<string, string>();
   const candidateKeysBySense = new Map<string, Set<string>>();
   await scanJsonlChecked(
@@ -708,6 +712,7 @@ export async function preflightBatchInputs(
   if (candidateHashes.size !== generation.counts.candidates)
     throw new Error('D2 full-candidate denominator mismatch');
 
+  progress?.('bundle_integrity');
   const sourceBundlesBySense = new Map<
     string,
     { bundleKey: string; bundleHash: string; candidateKeys: string[] }
@@ -762,6 +767,7 @@ export async function preflightBatchInputs(
   let noCandidateCount = 0;
   const statusCounts = { ready: 0, no_candidates: 0 };
   for (const shard of manifest.shards) {
+    progress?.(`shard:${shard.shardId}`);
     const shardTargets = readJsonlRefChecked(
       shard.targets,
       BatchTargetSchema,
@@ -795,22 +801,91 @@ export async function preflightBatchInputs(
       shardCandidateKeys.add(candidate.candidateKey);
     }
     const shardRequests = {
-      r1: readJsonlRefChecked(
-        shard.requests.r1,
-        RequestSchema,
-        `R1 requests ${shard.shardId}`,
-      ),
-      r2: readJsonlRefChecked(
-        shard.requests.r2,
-        RequestSchema,
-        `R2 requests ${shard.shardId}`,
-      ),
+      r1: new Map<
+        string,
+        Pick<
+          Request,
+          | 'jobKey'
+          | 'targetKey'
+          | 'senseKey'
+          | 'bundleKey'
+          | 'phase'
+          | 'dependencyJobKey'
+        >
+      >(),
+      r2: new Map<
+        string,
+        Pick<
+          Request,
+          | 'jobKey'
+          | 'targetKey'
+          | 'senseKey'
+          | 'bundleKey'
+          | 'phase'
+          | 'dependencyJobKey'
+        >
+      >(),
     };
-    if (
-      shardRequests.r1.length !== shard.readyCount ||
-      shardRequests.r2.length !== shard.readyCount ||
-      shard.readyCount + shard.noCandidateCount !== shard.count
-    )
+    for (const phase of ['r1', 'r2'] as const) {
+      const count = await scanBatchJsonl(
+        root,
+        shard.requests[phase],
+        RequestSchema,
+        `${phase.toUpperCase()} requests ${shard.shardId}`,
+        (request) => {
+          const bundle = sourceBundlesBySense.get(
+            request.payload.bundle.sense.semanticKey,
+          );
+          const target = shardTargets.find(
+            (row) => row.targetKey === request.targetKey,
+          );
+          if (
+            !bundle ||
+            !target ||
+            target.senseKey !== request.senseKey ||
+            request.phase !== phase ||
+            request.bundleKey !== bundle.bundleKey ||
+            requestJobKeys.has(request.jobKey) ||
+            shardRequests[phase].has(request.targetKey)
+          )
+            throw new Error(
+              `Duplicate or mismatched request: ${request.jobKey}`,
+            );
+          requireScheduleBinding(
+            manifest,
+            scheduleByJob,
+            request,
+            promptHashes,
+            bundle.bundleHash,
+          );
+          requestJobKeys.add(request.jobKey);
+          const compact = {
+            jobKey: request.jobKey,
+            targetKey: request.targetKey,
+            senseKey: request.senseKey,
+            bundleKey: request.bundleKey,
+            phase: request.phase,
+            dependencyJobKey: request.dependencyJobKey,
+          };
+          shardRequests[phase].set(request.targetKey, compact);
+          const group = requestsByTarget.get(request.targetKey) ?? {};
+          if (group[phase])
+            throw new Error(
+              `Duplicate ${phase} request for ${request.targetKey}`,
+            );
+          group[phase] = {
+            jobKey: request.jobKey,
+            bundleKey: request.bundleKey,
+            dependencyJobKey: request.dependencyJobKey,
+          };
+          requestsByTarget.set(request.targetKey, group);
+        },
+      );
+      markVerified(shard.requests[phase]);
+      if (count !== shard.readyCount)
+        throw new Error(`Shard phase denominator mismatch: ${shard.shardId}`);
+    }
+    if (shard.readyCount + shard.noCandidateCount !== shard.count)
       throw new Error(`Shard phase denominator mismatch: ${shard.shardId}`);
     let shardReady = 0;
     let shardNoCandidate = 0;
@@ -829,12 +904,8 @@ export async function preflightBatchInputs(
         searchResult.senseId !== target.senseId
       )
         throw new Error(`D2 status/search missing target ${target.senseKey}`);
-      const r1 = shardRequests.r1.find(
-        (request) => request.targetKey === target.targetKey,
-      );
-      const r2 = shardRequests.r2.find(
-        (request) => request.targetKey === target.targetKey,
-      );
+      const r1 = shardRequests.r1.get(target.targetKey);
+      const r2 = shardRequests.r2.get(target.targetKey);
       if (status.status === 'no_candidates') {
         shardNoCandidate++;
         if (
@@ -892,36 +963,6 @@ export async function preflightBatchInputs(
         throw new Error(
           `D2 bundle does not match full candidates: ${target.senseKey}`,
         );
-      for (const request of [r1, r2]) {
-        requireScheduleBinding(
-          manifest,
-          scheduleByJob,
-          request,
-          promptHashes,
-          bundle.bundleHash,
-        );
-        if (
-          requestJobKeys.has(request.jobKey) ||
-          request.targetKey !== target.targetKey ||
-          request.senseKey !== target.senseKey ||
-          request.bundleKey !== bundle.bundleKey
-        )
-          throw new Error(
-            `Request does not preserve the D2 bundle: ${request.jobKey}`,
-          );
-        requestJobKeys.add(request.jobKey);
-        const group = requestsByTarget.get(target.targetKey) ?? {};
-        if (group[request.phase])
-          throw new Error(
-            `Duplicate ${request.phase} request for ${target.targetKey}`,
-          );
-        group[request.phase] = {
-          jobKey: request.jobKey,
-          bundleKey: request.bundleKey,
-          dependencyJobKey: request.dependencyJobKey,
-        };
-        requestsByTarget.set(target.targetKey, group);
-      }
     }
     if (targetKeys.size !== shardTargets.length)
       throw new Error(`Duplicate target within shard ${shard.shardId}`);
@@ -1073,6 +1114,7 @@ export async function preflightBatchInputs(
       'Preparation intent/report is inconsistent with the frozen run',
     );
 
+  progress?.('remaining_artifact_hashes');
   for (const ref of refHashes.entries()) {
     const [path, expectedSha] = ref;
     if (!verifiedPaths.has(path))

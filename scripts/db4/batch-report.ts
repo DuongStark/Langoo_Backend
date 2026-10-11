@@ -34,6 +34,7 @@ import {
 } from './batch-validate';
 import { evaluateBatchTarget, PhaseState } from './muse-batch-decide';
 import { preflightBatchInputs } from './batch-preflight';
+import { scanBatchJsonl } from './_batch-jsonl';
 
 const MAX_JSONL_BYTES = 64 * 1024 * 1024;
 const ReportRequestSchema = z
@@ -186,17 +187,33 @@ function parseLedger(root: string, path: string, runId: string) {
 export async function buildBatchReport(
   rootValue: string,
   manifestPath: string,
+  repairManifestPath?: string,
 ) {
   const root = resolve(rootValue);
-  const preflight = await preflightBatchInputs(root, manifestPath);
+  const progress = (stage: string) =>
+    console.error(JSON.stringify({ task: 'db4_report_progress', stage }));
+  progress('preflight');
+  const preflight = await preflightBatchInputs(root, manifestPath, progress);
   const manifestBytes = readFileSync(artifactPath(root, manifestPath));
   const manifestRef = { path: manifestPath, sha256: hashBytes(manifestBytes) };
   const manifest = BatchManifestSchema.parse(
     JSON.parse(manifestBytes.toString('utf8')) as unknown,
   );
   const prefix = manifestPath.slice(0, manifestPath.lastIndexOf('/'));
-  const r1ValidationWritten = validateBatchPhase(root, manifestPath, 'r1');
-  const r2ValidationWritten = validateBatchPhase(root, manifestPath, 'r2');
+  progress('validate_r1');
+  const r1ValidationWritten = await validateBatchPhase(
+    root,
+    manifestPath,
+    'r1',
+    repairManifestPath,
+  );
+  progress('validate_r2');
+  const r2ValidationWritten = await validateBatchPhase(
+    root,
+    manifestPath,
+    'r2',
+    repairManifestPath,
+  );
   const r1Validation = readValidationRows(root, r1ValidationWritten.manifest, {
     runId: manifest.runId,
     phase: 'r1',
@@ -226,6 +243,19 @@ export async function buildBatchReport(
     `${prefix}/ledger/events.jsonl`,
     manifest.runId,
   );
+  if (
+    canonicalJson(r1Validation.manifest.sourceLedger) !==
+      canonicalJson(r2Validation.manifest.sourceLedger) ||
+    r1Validation.manifest.sourceLedgerHead !==
+      r2Validation.manifest.sourceLedgerHead ||
+    r1Validation.manifest.sourceLedgerHead !==
+      (events.at(-1)?.eventSha256 ?? null) ||
+    canonicalJson(r1Validation.manifest.formatRepairWave ?? null) !==
+      canonicalJson(r2Validation.manifest.formatRepairWave ?? null)
+  )
+    throw new Error(
+      'Ledger/repair lineage changed during report; retry from checkpoints',
+    );
   const dispatchesByPhase = { r1: 0, r2: 0 };
   const savedByPhase = { r1: 0, r2: 0 };
   const unknownByPhase = { r1: 0, r2: 0 };
@@ -255,6 +285,9 @@ export async function buildBatchReport(
     manifest: manifestRef,
     r1Validation: r1Validation.ref,
     r2Validation: r2Validation.ref,
+    ...(r1Validation.manifest.formatRepairWave
+      ? { formatRepairWave: r1Validation.manifest.formatRepairWave }
+      : {}),
   });
   const reportPrefix = `${prefix}/reports/final/${reportIdentity}`;
   const resultRows: z.infer<typeof BatchTargetResultSchema>[] = [];
@@ -283,12 +316,93 @@ export async function buildBatchReport(
   for (const row of r2Validation.rows) phaseCounts.r2[row.state]++;
 
   for (const shard of manifest.shards) {
+    progress(`report_shard:${shard.shardId}`);
     const targets = readJsonl(
       root,
       shard.targets,
       BatchTargetSchema,
       `Targets ${shard.shardId}`,
     );
+    const checkpointPath = `${reportPrefix}/shards/${shard.shardId}.json`;
+    const binding = {
+      reportIdentity,
+      runManifest: manifestRef,
+      validations: { r1: r1Validation.ref, r2: r2Validation.ref },
+      shard,
+    };
+    const accumulate = (
+      row: z.infer<typeof BatchTargetResultSchema>,
+      split: 'development' | 'holdout',
+    ) => {
+      resultRows.push(row);
+      splitCounts[split].selected++;
+      statusCounts[row.status] = (statusCounts[row.status] ?? 0) + 1;
+      if (row.status === 'proposed_exact') splitCounts[split].proposedExact++;
+    };
+    if (existsSync(artifactPath(root, checkpointPath))) {
+      const checkpointBytes = readFileSync(artifactPath(root, checkpointPath));
+      if (checkpointBytes.length > MAX_JSONL_BYTES)
+        throw new Error('Shard checkpoint exceeds byte cap');
+      const checkpoint = z
+        .object({
+          binding: z.unknown(),
+          rows: z.array(BatchTargetResultSchema),
+        })
+        .strict()
+        .parse(JSON.parse(checkpointBytes.toString('utf8')) as unknown);
+      if (
+        canonicalJson(checkpoint.binding) !== canonicalJson(binding) ||
+        checkpoint.rows.length !== targets.length
+      )
+        throw new Error('Shard checkpoint binding/denominator mismatch');
+      for (const [index, row] of checkpoint.rows.entries()) {
+        const target = targets[index];
+        const initial = initialByTarget.get(target.targetKey);
+        if (
+          row.runId !== manifest.runId ||
+          row.targetKey !== target.targetKey ||
+          row.senseKey !== target.senseKey ||
+          !initial
+        )
+          throw new Error('Shard checkpoint target identity mismatch');
+        if (initial.status === 'no_candidates') {
+          if (canonicalJson(row) !== canonicalJson(initial))
+            throw new Error('Shard checkpoint changed no-candidate target');
+        } else {
+          if (!row.d1Decision)
+            throw new Error('Shard checkpoint lacks evaluation proof');
+          const artifact = JSON.parse(
+            readArtifact(root, row.d1Decision).toString('utf8'),
+          ) as {
+            cohortTargetKey: string;
+            senseKey: string;
+            validationManifests: unknown;
+            evaluation: { target: unknown };
+          };
+          const evaluated = BatchTargetResultSchema.parse(
+            artifact.evaluation.target,
+          );
+          const restored = BatchTargetResultSchema.parse({
+            ...evaluated,
+            targetKey: target.targetKey,
+            senseKey: target.senseKey,
+            d1Decision: row.d1Decision,
+            auditResult: null,
+          });
+          if (
+            artifact.cohortTargetKey !== target.targetKey ||
+            artifact.senseKey !== target.senseKey ||
+            canonicalJson(artifact.validationManifests) !==
+              canonicalJson(binding.validations) ||
+            canonicalJson(restored) !== canonicalJson(row)
+          )
+            throw new Error('Shard checkpoint evaluation mismatch');
+        }
+        accumulate(row, target.split);
+      }
+      continue;
+    }
+    const shardResultRows: z.infer<typeof BatchTargetResultSchema>[] = [];
     const candidates = readJsonl(
       root,
       shard.candidates,
@@ -301,118 +415,132 @@ export async function buildBatchReport(
       rows.push(candidate);
       bySense.set(candidate.sense.semanticKey, rows);
     }
-    const r1Requests = readJsonl(
-      root,
-      shard.requests.r1,
-      ReportRequestSchema,
-      `R1 requests ${shard.shardId}`,
+    const targetByKey = new Map(
+      targets.map((target) => [target.targetKey, target]),
     );
-    const r2Requests = readJsonl(
+    const r2ByTarget = new Map<
+      string,
+      { jobKey: string; targetKey: string; senseKey: string }
+    >();
+    const r2Count = await scanBatchJsonl(
       root,
       shard.requests.r2,
       ReportRequestSchema,
       `R2 requests ${shard.shardId}`,
+      (request) => {
+        if (r2ByTarget.has(request.targetKey))
+          throw new Error('Duplicate R2 target');
+        r2ByTarget.set(request.targetKey, {
+          jobKey: request.jobKey,
+          targetKey: request.targetKey,
+          senseKey: request.senseKey,
+        });
+      },
     );
-    const r1ByTarget = new Map(
-      r1Requests.map((request) => [request.targetKey, request]),
+    const resultByTarget = new Map<
+      string,
+      z.infer<typeof BatchTargetResultSchema>
+    >();
+    const r1Count = await scanBatchJsonl(
+      root,
+      shard.requests.r1,
+      ReportRequestSchema,
+      `R1 requests ${shard.shardId}`,
+      (r1Request) => {
+        const target = targetByKey.get(r1Request.targetKey);
+        if (!target || resultByTarget.has(target.targetKey))
+          throw new Error('Duplicate or foreign R1 target');
+        const r2Request = r2ByTarget.get(target.targetKey);
+        if (!r2Request)
+          throw new Error(`Ready target lacks R2 request: ${target.senseKey}`);
+        const r1Row = r1Validation.byJob.get(r1Request.jobKey);
+        const r2Row = r2Validation.byJob.get(r2Request.jobKey);
+        if (
+          !r1Row ||
+          !r2Row ||
+          r1Row.targetKey !== target.targetKey ||
+          r2Row.targetKey !== target.targetKey ||
+          r1Row.senseKey !== target.senseKey ||
+          r2Row.senseKey !== target.senseKey
+        )
+          throw new Error(
+            `Phase validation missing or mismatched: ${target.senseKey}`,
+          );
+        const bundle = normalizedBundle(r1Request.payload.bundle);
+        const candidateRows = bySense.get(bundle.sense.semanticKey) ?? [];
+        const r1 = phaseState(r1Row, 'r1');
+        let r2 = phaseState(r2Row, 'r2');
+        if (r1.state !== 'ready') {
+          r2 = { state: 'skipped', reason: 'R1 has no validated output.' };
+        } else {
+          const parsedR1 = parseMappingOutput(r1.output, bundle);
+          const exact = parsedR1.reviews.filter(
+            (review) => review.relation === 'exact',
+          ).length;
+          if (exact !== 1 || parsedR1.unresolvedReason !== null)
+            r2 = {
+              state: 'skipped',
+              reason: 'R1 did not meet the unique exact R2 condition.',
+            };
+        }
+        const evaluation = evaluateBatchTarget({
+          runId: manifest.runId,
+          generation: 1,
+          bundleValue: bundle,
+          candidateValues: candidateRows,
+          r1,
+          r2,
+        });
+        if (evaluation.target.senseKey !== bundle.sense.semanticKey)
+          throw new Error(`D3 evaluation sense mismatch: ${target.senseKey}`);
+        const evaluationArtifact = writeAtomicJson(
+          root,
+          `${reportPrefix}/evaluations/${target.targetKey}.json`,
+          {
+            schemaVersion: 1,
+            task: 'db4_batch_target_evaluation_artifact',
+            cohortTargetKey: target.targetKey,
+            mappingTargetKey: evaluation.target.targetKey,
+            senseKey: target.senseKey,
+            validationManifests: { r1: r1Validation.ref, r2: r2Validation.ref },
+            evaluation,
+          },
+        );
+        resultByTarget.set(
+          target.targetKey,
+          BatchTargetResultSchema.parse({
+            ...evaluation.target,
+            targetKey: target.targetKey,
+            senseKey: target.senseKey,
+            d1Decision: evaluationArtifact,
+            auditResult: null,
+          }),
+        );
+      },
     );
-    const r2ByTarget = new Map(
-      r2Requests.map((request) => [request.targetKey, request]),
-    );
-    if (
-      r1ByTarget.size !== shard.readyCount ||
-      r2ByTarget.size !== shard.readyCount
-    )
+    if (r1Count !== shard.readyCount || r2Count !== shard.readyCount)
       throw new Error(`Request denominator mismatch for ${shard.shardId}`);
 
     for (const target of targets) {
-      splitCounts[target.split].selected++;
       const initial = initialByTarget.get(target.targetKey);
       if (!initial || initial.senseKey !== target.senseKey)
         throw new Error(`Initial result missing target ${target.senseKey}`);
       if (initial.status === 'no_candidates') {
-        resultRows.push(initial);
-        statusCounts[initial.status] = (statusCounts[initial.status] ?? 0) + 1;
+        accumulate(initial, target.split);
+        shardResultRows.push(initial);
         continue;
       }
-      const r1Request = r1ByTarget.get(target.targetKey);
-      const r2Request = r2ByTarget.get(target.targetKey);
-      if (!r1Request || !r2Request)
-        throw new Error(
-          `Ready target lacks phase requests: ${target.senseKey}`,
-        );
-      const r1Row = r1Validation.byJob.get(r1Request.jobKey);
-      const r2Row = r2Validation.byJob.get(r2Request.jobKey);
-      if (
-        !r1Row ||
-        !r2Row ||
-        r1Row.targetKey !== target.targetKey ||
-        r2Row.targetKey !== target.targetKey ||
-        r1Row.senseKey !== target.senseKey ||
-        r2Row.senseKey !== target.senseKey
-      )
-        throw new Error(
-          `Phase validation missing or mismatched: ${target.senseKey}`,
-        );
-
-      const bundle = normalizedBundle(r1Request.payload.bundle);
-      const candidateRows = bySense.get(bundle.sense.semanticKey) ?? [];
-      const r1 = phaseState(r1Row, 'r1');
-      let r2 = phaseState(r2Row, 'r2');
-      if (r1.state !== 'ready') {
-        r2 = { state: 'skipped', reason: 'R1 has no validated output.' };
-      } else {
-        const parsedR1 = parseMappingOutput(r1.output, bundle);
-        const exact = parsedR1.reviews.filter(
-          (review) => review.relation === 'exact',
-        ).length;
-        if (exact !== 1 || parsedR1.unresolvedReason !== null)
-          r2 = {
-            state: 'skipped',
-            reason: 'R1 did not meet the unique exact R2 condition.',
-          };
-      }
-      const evaluation = evaluateBatchTarget({
-        runId: manifest.runId,
-        generation: 1,
-        bundleValue: bundle,
-        candidateValues: candidateRows,
-        r1,
-        r2,
-      });
-      if (evaluation.target.senseKey !== bundle.sense.semanticKey)
-        throw new Error(`D3 evaluation sense mismatch: ${target.senseKey}`);
-      const evaluationArtifact = writeAtomicJson(
-        root,
-        `${reportPrefix}/evaluations/${target.targetKey}.json`,
-        {
-          schemaVersion: 1,
-          task: 'db4_batch_target_evaluation_artifact',
-          cohortTargetKey: target.targetKey,
-          mappingTargetKey: evaluation.target.targetKey,
-          senseKey: target.senseKey,
-          validationManifests: {
-            r1: r1Validation.ref,
-            r2: r2Validation.ref,
-          },
-          evaluation,
-        },
-      );
-      const result = BatchTargetResultSchema.parse({
-        ...evaluation.target,
-        targetKey: target.targetKey,
-        senseKey: target.senseKey,
-        d1Decision: evaluationArtifact,
-        auditResult: null,
-      });
-      resultRows.push(result);
-      statusCounts[result.status] = (statusCounts[result.status] ?? 0) + 1;
-      if (result.status === 'proposed_exact')
-        splitCounts[target.split].proposedExact++;
+      const result = resultByTarget.get(target.targetKey);
+      if (!result)
+        throw new Error(`Missing evaluated target: ${target.senseKey}`);
+      accumulate(result, target.split);
+      shardResultRows.push(result);
     }
+    writeAtomicJson(root, checkpointPath, { binding, rows: shardResultRows });
   }
   if (resultRows.length !== manifest.cohort.counts.selected)
     throw new Error('Final target status denominator mismatch');
+  progress('publish');
   const resultsRef = writeAtomicArtifact(
     root,
     `${reportPrefix}/target-results.jsonl`,
@@ -453,6 +581,9 @@ export async function buildBatchReport(
     savedRepliesByPhase: savedByPhase,
     transportUnknownByPhase: unknownByPhase,
     preflight,
+    ...(r1Validation.manifest.formatRepairWave
+      ? { formatRepairWave: r1Validation.manifest.formatRepairWave }
+      : {}),
     gates: {
       pilotA: 'not_run',
       pilotB: 'not_run',
@@ -528,7 +659,7 @@ if (require.main === module) {
     const value = process.argv[index + 1];
     if (
       !key?.startsWith('--') ||
-      !['artifact-dir', 'manifest'].includes(key.slice(2)) ||
+      !['artifact-dir', 'manifest', 'repair-manifest'].includes(key.slice(2)) ||
       !value ||
       value.startsWith('--') ||
       flags[key.slice(2)]
@@ -544,6 +675,7 @@ if (require.main === module) {
   void buildBatchReport(
     resolve(flags['artifact-dir'] ?? 'uploads/db4'),
     manifest,
+    flags['repair-manifest'],
   )
     .then((result) => console.log(JSON.stringify(result)))
     .catch((error: unknown) => {
