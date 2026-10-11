@@ -1335,3 +1335,17 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - [Report](docs/reviews/db4-d4-d5-full-initial-2026-10-11.md),
   [plan](docs/plans/db4-d4-d5-automated-batch-rollout.md),
   [runbook](scripts/ops/db4-batch/README.md). Giữ gate promotion/apply/serving đóng.
+
+
+### 2026-10-11 — DB4-D4/D5 — Transport canary và phục hồi batch với 4 luồng
+
+- 121 R1 mới đã gửi: 118/966 distinct senses có reply, 108 D1 valid, 10 invalid,
+  4 unknown, 844 pending; 57 eligible R2, chưa dispatch R2. Breaker mở do transport
+  failures liên tiếp. Native health probe đã thành công; chưa chứng minh generation.
+- Hai unit ops riêng: canary max 1 với ledger post gate; OnSuccess nối pending
+  R1/conditional R2 với 4 workers. Giữ release `82c4fa1`, orchestrator `145ec65`,
+  source/repair pin, no-resend và DB/apply gates. Chưa có kết quả canary.
+- Ops tests 18/18 pass; post gate timing RED→GREEN và 5 ledger boundary fixtures.
+  Chuẩn bị commit/push/cài cấu hình; không thay runner semantic/DB/app runtime.
+- [Report](docs/reviews/db4-d4-d5-full-initial-2026-10-11.md),
+  [runbook](scripts/ops/db4-batch/README.md).

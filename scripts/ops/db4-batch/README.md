@@ -275,3 +275,17 @@ continuation uses the final structured result from that exact invocation in the
 current boot, then verifies all bound report artifacts. A missing unit without that
 completion result is blocked. A retained `active/exited` service is also handled.
 SIGTERM/INT is checked again after report verification and before each phase.
+
+## 2026-10-11 — DB4-D4/D5 transport canary and four-worker resume
+
+The dated units are incident-specific configuration for the frozen 2026-10-11 run,
+not generic auto-retry templates. Install both after inspecting breaker reason,
+performing an external health check, and stopping the old report-only service.
+The canary clears the breaker once, sends at most one pending original R1 at one
+worker, and checks the ledger in ExecStartPost after its oneshot command finishes.
+Exactly one new intent must have a saved reply for the same job and no new breaker.
+Native exit 0 alone does not open the resume path. A failed post gate does not start
+OnSuccess. The resume unit runs four workers with the same immutable source/repair
+pin and native no-resend/conditional-R2 gates. Unknown intents stay parked for
+read-only history reconciliation; do not resend them. Never enable these dated
+units for automatic reboot startup or blindly start the canary twice.

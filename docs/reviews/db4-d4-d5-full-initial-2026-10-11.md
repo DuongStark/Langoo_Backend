@@ -62,3 +62,33 @@ Ngày: 2026-10-11. Yêu cầu: “cho chạy hết đi”.
   Khi đang chờ hoặc child preflight, journal không phản ánh số Muse calls mới;
   cần đọc ledger/status để thống kê. Job chạy tiếp khi SSH/máy cá nhân đóng,
   transient unit không tự sống lại sau VPS reboot.
+
+## 2026-10-11 — DB4-D4/D5 — Phục hồi transport sau 121 lượt R1 mới
+
+- Batch 8 workers đã gửi 121 R1 mới. Effective validation: 108 validated,
+  10 invalid_output, 4 transport_unknown, 844 pending trong 966 ready targets.
+  118 distinct senses có reply (119 raw replies gồm original + repair của một
+  sense); 57 sense đủ R2 gate, R2 chưa dispatch. D1 pass không là semantic audit.
+- Breaker mở vì `consecutive_transport_failures`; bốn lượt unknown ghi
+  `GatewayError`, status -1, phase generate. Không đủ evidence quy lỗi cho rate
+  limit hoặc khẳng định 8 workers là nguyên nhân. Job đang report sau khi park.
+- Native `vm.health` probe riêng đã thành công trong 4.360 ms; artifact lưu ở
+  diagnostics của run, không overwrite M10.5 probe gốc hoặc in cookie/exception URL.
+  Đây là evidence kết nối phục hồi, chưa chứng minh generation đã ổn định.
+- Cấu hình riêng `langoo-db4-transport-canary-20261011.service`: giữ pin `82c4fa1`,
+  clear breaker một lần sau health probe, workers 1 và max-dispatches 1. Không
+  resend unknown/completed. Gate ExecStartPost kiểm chính ledger: đúng một intent
+  sau breaker clear, reply saved của đúng job, không mở breaker mới. Exit 0 của
+  native CLI không đủ. Type oneshot để post gate chạy sau generation/validation.
+- OnSuccess chỉ nối `langoo-db4-full-resume4-20261011.service` nếu gate đó đạt;
+  orchestrator `145ec65` giữ immutable release/repair pin, chạy pending R1 với
+  4 workers → conditional R2 → final report. Native vẫn kiểm breaker/preflight.
+  Giảm concurrency là lựa chọn phục hồi tải kết nối, chưa là benchmark tối ưu.
+- Canary time cap 2 giờ; full runtime 24 giờ; RAM max 650 MiB, swap 0, CPU 100%,
+  no auto-restart, cookie read-only. Không enable tự chạy sau reboot vì prior
+  completion được bind vào InvocationID/current boot của smoke recovery.
+- Kiểm tra: ops unittest 18/18; gồm timing post gate RED→GREEN và actual post
+  command trên 5 ledger fixtures (saved đúng job, saved khác job, unknown, breaker,
+  nhiều intent). `systemd-analyze verify` sẽ kiểm lại hai unit trước cài.
+- Trạng thái lúc ghi: cấu hình đã lưu local, chuẩn bị commit/push/cài; chưa có
+  kết quả canary. Gate expansion/Pilot A/B/promotion/apply/serving vẫn đóng.
