@@ -85,6 +85,17 @@
   spot-check người trước promotion.
 - So sánh: pipeline cũ 38h → 291 R1, 0 proposal; batch này ~30 phút → 430 proposal.
 
+### 2026-10-12 — AI-CHAT — Hỏi đáp AI chuyển sang Space Bunny (thử nghiệm)
+
+- Đổi env VPS: AI_BASE_URL=spacebunnymodel.com/api/v1, model `space-bunny-alpha`
+  (chat + quiz dùng chung); AI_CHAT_MAX_TOKENS=4000 cho reasoning model.
+- Smoke: chat non-stream + stream SSE hoạt động (reply tiếng Việt, lưu model
+  minimax/minimax-m3, tokens OK); search không hồi quy. Quiz bị chặn bởi dữ liệu
+  test user (không phải model).
+- Backup `.env.bak-20261012-ai-spacebunny`; chi tiết + rollback:
+  `docs/reviews/ai-chat-space-bunny-2026-10-12.md`. Lưu ý privacy (router bên thứ ba)
+  và ảnh chat chưa smoke.
+
 ## Checklist milestone
 
 | #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                      |
