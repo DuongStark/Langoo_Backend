@@ -57,8 +57,19 @@
 - Population 15.245; mỗi đợt ~2.000 sense: bundle retrieval (MiniLM, pipeline D2 có sẵn)
   + batch muse + bunny confirm + audit mẫu. Ước: ~1-2h/2.000 sense.
 
-## 4. Việc chạy ngay hôm nay
-- [x] Vòng 2 cho 445 unresolved + retry 14 unknown (đang chạy nền).
-- [ ] Audit Pilot A/B (sau khi có tier-2).
-- [ ] Viết code D6 promote + dry-run.
-- [ ] Report tổng + đề xuất gate apply cho chủ dự án.
+## 4. Tiến độ (cập nhật cuối ngày 12/10)
+- [x] Vòng 2 445 unresolved (bunny→muse confirm) + retry 14 unknown + vá gaps 429.
+- [x] **CHỐT ĐỢT 1**: **479 proposal / 966 (49,6%)**
+  - high 439 (dev 99/200=49,5% · holdout 340/800=42,5%)
+  - tier-2 40 (dev 3 · holdout 37)
+  - disputes 82 · unresolved 405 · unknown 0
+  - `their-format` 479 dòng (cả 2 tier, adapter marker crossConfirm.tier)
+- [x] Artifacts: `/opt/langoo/storage/db4-batches/db4-d4-d5-final-2026-10-12/`
+- [ ] Audit D5 (Pilot A 100 + Pilot B ≥100 pos + ≥50 hard-neg) — **đang làm**
+- [ ] D6 promote code + dry-run + rollback drill (chưa có code, sẽ viết mới)
+- [ ] D7 serving + gate apply (báo chủ dự án trước khi apply)
+
+## 5. Kênh model (chốt)
+- Judge #1 = muse-spark-1.3-contributor @ zen/go responses (hạn mức $60/tháng ≈226k req; privacy: contributor tier — dùng cho dữ liệu công khai).
+- Judge #2 = space-bunny @ zen/go chat (theo yêu cầu; không minimax; không bật Use balance). Fallback free: longcat-2.5-preview-free / step-5-preview-free (step-5 chập chờn — xem probe).
+- OpenRouter `minimax-m3:free` **đã bị delist** (12/10) — không còn là phương án; spacebunnymodel.com bỏ $10 free, giá còn $3/M.
