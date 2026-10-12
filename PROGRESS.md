@@ -71,6 +71,20 @@
   Chi tiết + rollback: `docs/reviews/vps-deploy-merged-2026-10-12.md`.
 - Git/triển khai: đã deploy VPS; commit docs/entry này sau.
 
+### 2026-10-12 — DB4-D4/D5 — Batch đối chiếu full 966 (muse + Space Bunny confirm)
+
+- Chạy thay pipeline muse-native đang kẹt: full 966 cohort qua batch API (zen/go muse)
+  trong **11,9 phút**: pass1 651 pick, pass2 521 final (54%), 445 unresolved.
+- Cross-confirm bằng Space Bunny (`space-bunny-alpha` = minimax-m3 router): sau retry
+  lỗi parse (14 mục còn lại không chấm được) → **430 high-confidence (muse∩bunny)**,
+  77 bunny bác (phần lớn hợp lý — over-accept của muse), trùng concept 92% trên mẫu.
+- Deliverables: `proposals-high` 430 + `disagreements` 77 + `their-format` (contract
+  `sense_concept_review`, adapter) — artifact
+  `/opt/langoo/storage/db4-batches/db4-d4-d5-batch-crossconfirm-2026-10-12/`.
+- Không apply DB/runtime; gate D5/promotion giữ nguyên, khuyến nghị validate +
+  spot-check người trước promotion.
+- So sánh: pipeline cũ 38h → 291 R1, 0 proposal; batch này ~30 phút → 430 proposal.
+
 ## Checklist milestone
 
 | #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                      |
