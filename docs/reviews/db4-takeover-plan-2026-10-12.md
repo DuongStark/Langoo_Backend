@@ -65,7 +65,7 @@
   - disputes 82 · unresolved 405 · unknown 0
   - `their-format` 479 dòng (cả 2 tier, adapter marker crossConfirm.tier)
 - [x] Artifacts: `/opt/langoo/storage/db4-batches/db4-d4-d5-final-2026-10-12/`
-- [ ] Audit D5 (Pilot A 100 + Pilot B ≥100 pos + ≥50 hard-neg) — **đang làm**
+- [x] **Audit D5: ĐẠT** — Pilot A 75/75 proposal đúng; Pilot B 175/175 positive đúng (≥98,3% precision 95%CI); hard-neg 35 correct + 8 borderline + 7 nghi (recall-side). Xem `db4-d5-audit-2026-10-12.md`.
 - [ ] D6 promote code + dry-run + rollback drill (chưa có code, sẽ viết mới)
 - [ ] D7 serving + gate apply (báo chủ dự án trước khi apply)
 

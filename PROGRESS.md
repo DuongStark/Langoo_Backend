@@ -107,6 +107,15 @@
 - Kế hoạch đầy đủ (audit Pilot A/B → D6 promote mới code → D7 serving → mở rộng
   population 15.245): `docs/reviews/db4-takeover-plan-2026-10-12.md`.
 
+### 2026-10-12 — DB4-D5 — Audit Pilot A/B đạt; chốt 479 proposal
+
+- Chốt đợt 1: 479 proposal/966 (high 439 + tier-2 40), disputes 82, unresolved 405, unknown 0.
+- Audit: **Pilot A 75/75 đúng** (55 t1+20 t2); **Pilot B 175/175 positive đúng** (≥98,3% precision,
+  95% CI rule-of-three); hard-negative 35 correct + 8 borderline + 7 nghi over-strict/missed (recall-side).
+- Gate D5 **ĐẠT** cho tập proposal (tier-1/tier-2; disputes không promote). Chi tiết + findings:
+  `docs/reviews/db4-d5-audit-2026-10-12.md`. Artifacts: `db4-d4-d5-final-2026-10-12/` (+audit-verdicts).
+- Tiếp: D6 promote code (dry-run/rollback) — apply DB sẽ chờ chủ dự án duyệt.
+
 ## Checklist milestone
 
 | #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                      |
