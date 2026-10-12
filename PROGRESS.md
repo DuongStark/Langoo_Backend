@@ -55,6 +55,22 @@
 - Kiểm tra: `npm run build`, `tsc`, jest `src/dictionary` pass sau merge.
 - Git/triển khai: đã push `main` `66b7d59..5d6fc86`; chưa đổi runtime VPS trong bước này.
 
+### 2026-10-12 — DEPLOY — Hợp nhất VPS với main; scope hồ sơ (M6.2) live
+
+- Lý do: VPS (bản hand-merge) thiếu code scope M6.2 → đăng nhập profile JA vẫn
+  thấy entry EN trong tab tự động. FE đang gửi Bearer (search_history có ghi) và
+  chưa dùng reverse → deploy bản main đã merge là an toàn.
+- Đã làm: backup src (`/opt/langoo/storage/backups/app-src-pre-merge-20261012.tar.gz`);
+  ghi ledger 2 migration có-object-từ-trước (`040_kanji_component.sql`,
+  `041_english_learner_priority.sql`); `rsync -a --delete` src main→VPS (giữ `.bak-*`,
+  xóa orphan `vps-search.ts`); `npm run build` + `pm2 restart langoo-api`.
+- Smoke: anon giữ catalog (en+vi+ja); token JA-only `q=go` → chỉ ja (hết EN);
+  suggestions token → ja; chi tiết lexeme EN token JA → 404 (đúng scope);
+  reverse camelCase OK; `走る` không hồi quy.
+- Trạng thái: **VPS src == main (0 file lệch)** — hết hand-merge.
+  Chi tiết + rollback: `docs/reviews/vps-deploy-merged-2026-10-12.md`.
+- Git/triển khai: đã deploy VPS; commit docs/entry này sau.
+
 ## Checklist milestone
 
 | #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                      |
