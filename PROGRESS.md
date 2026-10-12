@@ -96,6 +96,17 @@
   `docs/reviews/ai-chat-space-bunny-2026-10-12.md`. Lưu ý privacy (router bên thứ ba)
   và ảnh chat chưa smoke.
 
+### 2026-10-12 — DB4-D4/D5 — Tiếp quản; kế hoạch hoàn thiện + vòng 2 unresolved
+
+- Chủ dự án giao toàn quyền DB4-D4/D5 cho phiên deepseek; pipeline muse-native
+  (cookie) ngừng vận hành, artifacts cũ giữ frozen tham chiếu.
+- Đợt 1 (966 ready): 430 high (muse pick + bunny confirm) · 77 bác · 14 unknown ·
+  445 unresolved; dev 48,0% / holdout 41,8%.
+- Đang chạy vòng 2: 445 unresolved (bunny pass1+pass2 → muse confirm chéo) +
+  retry 14 unknown → tier-2 proposals.
+- Kế hoạch đầy đủ (audit Pilot A/B → D6 promote mới code → D7 serving → mở rộng
+  population 15.245): `docs/reviews/db4-takeover-plan-2026-10-12.md`.
+
 ## Checklist milestone
 
 | #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                      |
