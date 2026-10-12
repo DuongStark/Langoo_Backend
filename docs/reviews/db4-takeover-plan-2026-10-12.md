@@ -69,7 +69,12 @@
 - [ ] D6 promote code + dry-run + rollback drill (chưa có code, sẽ viết mới)
 - [ ] D7 serving + gate apply (báo chủ dự án trước khi apply)
 
-## 5. Kênh model (chốt)
+## 5. Kênh model (chốt — cập nhật 12/10 theo yêu cầu chủ dự án)
 - Judge #1 = muse-spark-1.3-contributor @ zen/go responses (hạn mức $60/tháng ≈226k req; privacy: contributor tier — dùng cho dữ liệu công khai).
-- Judge #2 = space-bunny @ zen/go chat (theo yêu cầu; không minimax; không bật Use balance). Fallback free: longcat-2.5-preview-free / step-5-preview-free (step-5 chập chờn — xem probe).
-- OpenRouter `minimax-m3:free` **đã bị delist** (12/10) — không còn là phương án; spacebunnymodel.com bỏ $10 free, giá còn $3/M.
+- **Judge #2 = `mimo-v2.6-flash` @ zen/go chat/completions** ($0.14/$0.28, hạn mức **$60/tháng** ≈150k req).
+  Probe 16 ca (12/10): 16/16 chấm được, 8/8 đồng ý trên ca true-positive (ngang/hơn bunny), ~3s/call,
+  nghiêng "du di" hơn bunny ở ca borderline (thực tế khớp đánh giá tay hơn ở アイデア/惨め).
+  → thay space-bunny cho **vòng 2 + đợt mở rộng 14.245 sense**.
+- Không bật Use balance. Fallback free: longcat-2.5-preview-free (ổn định), step-5-preview-free (chập chờn).
+- Đợt 1 (479 proposal) vẫn từ bunny — giữ nguyên (audit đã đạt); tuỳ chọn re-confirm bằng mimo để đồng nhất sau.
+- OpenRouter `minimax-m3:free` **đã bị delist** (12/10); spacebunnymodel.com bỏ $10 free, giá $3/M → không dùng.
