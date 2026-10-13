@@ -1,12 +1,18 @@
 // DB4-D2 artifact builder; emits D1 candidates/bundles without provider calls.
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+// Output rows are streamed per sense so the full cohort does not need to fit in memory.
 import {
-  MappingCandidate,
-  MappingBundle,
-  hashBytes,
-  semanticInputFingerprint,
-} from './_mapping-types';
+  closeSync,
+  fsyncSync,
+  mkdirSync,
+  openSync,
+  readFileSync,
+  renameSync,
+  rmdirSync,
+  writeSync,
+} from 'node:fs';
+import { createHash } from 'node:crypto';
+import { dirname, resolve } from 'node:path';
+import { hashBytes, semanticInputFingerprint } from './_mapping-types';
 import {
   RETRIEVAL_VERSION,
   SearchManifestSchema,
@@ -20,7 +26,6 @@ import {
   makeCandidate,
   readArtifact,
   sourceIdentity,
-  writeArtifact,
   writeJson,
 } from './_retrieval';
 
@@ -66,11 +71,55 @@ export async function runGenerate(flags: Record<string, string>) {
     sourcePolicyVersion: `db4-d2-source-audit-v1:${hashBytes(audit.bytes)}`,
   };
   const fingerprint = semanticInputFingerprint(snapshot);
-  const candidates: MappingCandidate[] = [];
-  const bundles: MappingBundle[] = [];
-  const identities: unknown[] = [];
-  const statuses: unknown[] = [];
+  const prefix = flags.prefix ?? 'generation';
+  const stageRel = `${prefix}.partial-${process.pid}`;
+  const stageRoot = artifactPath(root, stageRel);
+  mkdirSync(stageRoot, { recursive: true });
+  interface RowStream {
+    rel: string;
+    stagePath: string;
+    fd: number;
+    hash: ReturnType<typeof createHash>;
+    count: number;
+  }
+  const openStream = (name: string): RowStream => {
+    const stagePath = `${stageRel}/${name}`;
+    const target = artifactPath(root, stagePath);
+    mkdirSync(dirname(target), { recursive: true });
+    return {
+      rel: `${prefix}/${name}`,
+      stagePath,
+      fd: openSync(target, 'wx', 0o600),
+      hash: createHash('sha256'),
+      count: 0,
+    };
+  };
+  const writeRow = (stream: RowStream, row: unknown): void => {
+    const line = JSON.stringify(row) + '\n';
+    writeSync(stream.fd, line);
+    stream.hash.update(line);
+    stream.count += 1;
+  };
+  const closeStream = (stream: RowStream): { path: string; sha256: string } => {
+    fsyncSync(stream.fd);
+    closeSync(stream.fd);
+    return { path: stream.rel, sha256: stream.hash.digest('hex') };
+  };
+  const candidates = openStream('candidates.jsonl');
+  const bundles = openStream('bundles.jsonl');
+  const identities = openStream('source-identity.jsonl');
+  const statuses = openStream('status.jsonl');
+  const statusCounts: Record<string, number> = {};
+  const writeStatus = (row: Record<string, unknown>): void => {
+    writeRow(statuses, row);
+    const status = String(row.status);
+    statusCounts[status] = (statusCounts[status] ?? 0) + 1;
+  };
+  let processed = 0;
   for (const s of exported.senses) {
+    processed += 1;
+    if (processed % 1000 === 0)
+      console.log(JSON.stringify({ processed, total: exported.senses.length }));
     const result = resultByKey.get(s.sense.semanticKey);
     if (!result || result.senseId !== s.sense.id)
       throw new Error('Missing or mismatched retrieval sense');
@@ -79,7 +128,7 @@ export async function runGenerate(flags: Record<string, string>) {
     )
       throw new Error('Duplicate hit concept');
     const identity = sourceIdentity(s, exported.concepts, audit.sources);
-    identities.push({
+    writeRow(identities, {
       senseKey: s.sense.semanticKey,
       senseId: s.sense.id,
       semanticInputFingerprint: fingerprint,
@@ -91,7 +140,7 @@ export async function runGenerate(flags: Record<string, string>) {
         identity.status,
       )
     ) {
-      statuses.push({
+      writeStatus({
         senseKey: s.sense.semanticKey,
         senseId: s.sense.id,
         status: identity.status,
@@ -100,7 +149,7 @@ export async function runGenerate(flags: Record<string, string>) {
       continue;
     }
     if (s.wordnetIdentity) {
-      statuses.push({
+      writeStatus({
         senseKey: s.sense.semanticKey,
         senseId: s.sense.id,
         status:
@@ -117,7 +166,7 @@ export async function runGenerate(flags: Record<string, string>) {
     }
     // Any existing exact link stays owned by its original run/source. D3/D6 must inspect it.
     if (s.existingLinks.some((l) => l.relation === 'exact')) {
-      statuses.push({
+      writeStatus({
         senseKey: s.sense.semanticKey,
         senseId: s.sense.id,
         status: 'existing_exact_requires_audit',
@@ -145,15 +194,15 @@ export async function runGenerate(flags: Record<string, string>) {
         snapshot.mode,
       );
     });
-    candidates.push(...selected);
+    for (const candidate of selected) writeRow(candidates, candidate);
     const bundle = bundleReady(selected);
-    if (bundle) bundles.push(bundle);
+    if (bundle) writeRow(bundles, bundle);
     const blocked = s.sourceKeys.some(
       (key) =>
         audit.sources.find((source) => source.key === key)?.audit.status !==
         'verified',
     );
-    statuses.push({
+    writeStatus({
       senseKey: s.sense.semanticKey,
       senseId: s.sense.id,
       status: bundle
@@ -173,32 +222,24 @@ export async function runGenerate(flags: Record<string, string>) {
       candidateCount: selected.length,
     });
   }
-  const prefix = flags.prefix ?? 'generation';
-  const lines = (rows: unknown[]) =>
-    rows.map((row) => JSON.stringify(row) + '\n').join('');
   const files = {
-    candidates: writeArtifact(
-      root,
-      `${prefix}/candidates.jsonl`,
-      lines(candidates),
-    ),
-    bundles: writeArtifact(root, `${prefix}/bundles.jsonl`, lines(bundles)),
-    sourceIdentity: writeArtifact(
-      root,
-      `${prefix}/source-identity.jsonl`,
-      lines(identities),
-    ),
-    status: writeArtifact(root, `${prefix}/status.jsonl`, lines(statuses)),
+    candidates: closeStream(candidates),
+    bundles: closeStream(bundles),
+    sourceIdentity: closeStream(identities),
+    status: closeStream(statuses),
   };
+  mkdirSync(artifactPath(root, prefix), { recursive: true });
+  for (const stream of [candidates, bundles, identities, statuses])
+    renameSync(
+      artifactPath(root, stream.stagePath),
+      artifactPath(root, stream.rel),
+    );
+  rmdirSync(artifactPath(root, stageRel));
   const counts = {
-    senses: statuses.length,
-    candidates: candidates.length,
-    bundles: bundles.length,
-    statuses: statuses.reduce<Record<string, number>>((acc, value) => {
-      const status = (value as { status: string }).status;
-      acc[status] = (acc[status] ?? 0) + 1;
-      return acc;
-    }, {}),
+    senses: statuses.count,
+    candidates: candidates.count,
+    bundles: bundles.count,
+    statuses: statusCounts,
   };
   const manifest = {
     schemaVersion: 1,
