@@ -92,3 +92,11 @@ API: `cp sense-content.repository.ts.bak-20261011` + `npm run build` +
 - Dịch muse: 13.204 câu (~1.321 lô × 10) — ước **~$1–2**, ~25 phút.
 - Matching local: quét 25s + tokenize 4–5 phút/kho (4 nhân).
 - Apply DB: vài giây (một transaction).
+
+## Cập nhật 13/10 — nâng cấp bản dịch VI người cho ví dụ đã gắn
+
+- Kiểm tra nguồn: câu JA Tatoeba có **232.771 bản dịch EN người** nhưng chỉ **6.115 câu có bản dịch VI người** (~2,5%).
+- Trong 13.204 câu JA đã gắn ví dụ: tìm được bản **VI người** cho **242 câu** — 134 trực tiếp (Tatoeba link)
+  + 108 qua bắc cầu JA→EN→VI — đã thay bản muse bằng bản người (`machine:false`).
+  (108 câu bắc cầu có thể lệch nhẹ do dịch chuyển tiếp — ghi nhận; vẫn là văn bản người dịch Tatoeba.)
+- Còn lại ~12.962 câu giữ bản muse (`machine:true`) — nguồn VI người không có thêm.
