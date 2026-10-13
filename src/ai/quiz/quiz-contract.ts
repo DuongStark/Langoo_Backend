@@ -43,7 +43,8 @@ export function fingerprint(value: unknown): string {
 
 export const publicContextSchema = z
   .object({
-    sentence: z.string().min(1).max(240),
+    // +2 code point cho cặp dấu 【 】 đánh dấu từ mục tiêu.
+    sentence: z.string().min(1).max(242),
     target: z
       .object({
         start: z.number().int().nonnegative(),

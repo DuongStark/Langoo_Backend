@@ -153,7 +153,9 @@ describe('ContextQuizProvider routing and quality', () => {
     const input = kanjiInput({ questionCount: 2 });
     const result = await provider.generate(input);
     expect(chat).toHaveBeenCalledTimes(2);
-    expect(result[KANJI_SLOT].context?.sentence).toBe('毎日、銀行へ行きます。');
+    expect(result[KANJI_SLOT].context?.sentence).toBe(
+      '毎日、【銀行】へ行きます。',
+    );
     expect(result[KANJI_SLOT].evidence?.accepted).toBe(true);
     expect(input.usage).toMatchObject({
       tokensIn: 24,
@@ -214,9 +216,9 @@ describe('ContextQuizProvider routing and quality', () => {
     const q = result[2];
     expect(q.questionStyle).toBe('kanji_orthography');
     expect(q.prompt).not.toContain('電話');
-    // JLPT style: prompt chỉ là câu, không còn dòng chỉ dẫn 読み方/漢字で書くと.
-    expect(q.prompt).toBe('🌸でんわへ行きます。');
-    expect(q.context?.target).toEqual({ start: 1, end: 4, text: 'でんわ' });
+    // JLPT style: chỉ câu, không có dòng chỉ dẫn; từ mục tiêu bọc 【 】.
+    expect(q.prompt).toBe('🌸【でんわ】へ行きます。');
+    expect(q.context?.target).toEqual({ start: 2, end: 5, text: 'でんわ' });
     expect(q.evidence?.sentence).toContain('電話'); // private only
   });
 
@@ -287,8 +289,8 @@ describe('ContextQuizProvider routing and quality', () => {
     );
     const result = await provider.generate(kanjiInput({ questionCount: 2 }));
     expect(result[KANJI_SLOT].context?.target).toEqual({
-      start: 3,
-      end: 5,
+      start: 4,
+      end: 6,
       text: '銀行',
     });
   });

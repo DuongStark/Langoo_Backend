@@ -330,17 +330,25 @@ export class ContextQuizProvider implements AiQuizProvider {
     )
       throw new Error('Kanji answer leak');
     const start = Array.from(prefix).length;
+    // Đánh dấu từ mục tiêu bằng 【 】 ngay trong câu để bất kỳ consumer nào
+    // cũng nhận ra từ cần tương tác (JLPT style). Offset target trỏ đúng từ
+    // bên trong dấu để FE vẫn có thể tô khung nếu muốn.
+    const marked = `${prefix}【${text}】${suffix}`;
     const context = publicContextSchema.parse({
-      sentence: rendered,
-      target: { start, end: start + Array.from(text).length, text },
+      sentence: marked,
+      target: {
+        start: start + 1,
+        end: start + 1 + Array.from(text).length,
+        text,
+      },
       origin: evidence.origin,
       attribution: evidence.attribution,
     });
     return {
       ...question,
-      // JLPT style: chỉ câu (không bồi câu chỉ dẫn); FE tô khung theo
-      // context.target. Câu không ngữ cảnh đã có prompt từ ở generator.
-      prompt: rendered,
+      // JLPT style: chỉ câu (không bồi câu chỉ dẫn), từ mục tiêu bọc 【 】.
+      // Câu không ngữ cảnh đã có prompt từ ở generator.
+      prompt: marked,
       context,
     };
   }

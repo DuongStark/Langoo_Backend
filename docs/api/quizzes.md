@@ -46,6 +46,8 @@ curl -s -X POST http://localhost:3000/v1/quizzes \
 - Ngữ cảnh Kanji tự động: câu đã kiểm (cache) → câu từ điển có nguồn → AI sinh mới;
   hết cách thì hiển thị từ đơn lẻ (`context = null`). Không còn các lỗi
   `QUIZ_CONTEXT_UNAVAILABLE`/`QUIZ_CONTEXT_INVALID` — ngữ cảnh không chặn tạo quiz.
+- Từ mục tiêu trong câu ngữ cảnh được bọc **【 】** (`context.sentence`, vd
+  `毎日、【学校】へ行きます。`); `context.target` trỏ span bên trong dấu cho FE tự tô khung.
 - MC nghĩa/matching loại mọi sense của lemma có nhiều nghĩa khác nhau vì đề template chưa có
   ngữ cảnh phân biệt. Sau lọc vẫn cần ≥2 từ khác nghĩa; nếu thiếu trả
   `409 QUIZ_NOT_ENOUGH_ITEMS` trước khi tiêu quota. Fill-blank vẫn dùng các sense này.
