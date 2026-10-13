@@ -11,7 +11,11 @@ import {
   textKey,
   readingKey,
 } from '../quiz/quiz-contract';
-import { AiChatProvider } from './ai-chat.provider';
+import {
+  AiChatProvider,
+  AiChatResult,
+  AiProviderError,
+} from './ai-chat.provider';
 import {
   AiQuizGenerateInput,
   AiQuizProvider,
@@ -55,6 +59,9 @@ function parseModelJson(content: string): unknown {
   }
   return JSON.parse(text.trim());
 }
+
+const sleep = (ms: number): Promise<void> =>
+  new Promise((resolve) => setTimeout(resolve, ms));
 const verdictSchema = z
   .object({
     natural: z.boolean(),
@@ -459,20 +466,39 @@ export class ContextQuizProvider implements AiQuizProvider {
     payload: unknown,
     deadline: number,
   ): Promise<string> {
-    const remaining = deadline - Date.now();
-    if (remaining <= 0 || !this.config.transport)
+    if (deadline - Date.now() <= 0 || !this.config.transport)
       throw new Error('Quiz context deadline exceeded');
     const usage = input.usage!;
-    usage.calls++;
-    const response = await this.config.transport.chat({
-      model,
-      timeoutMs: remaining,
-      maxTokens: 1200,
-      messages: [
-        { role: 'system', content: system },
-        { role: 'user', content: JSON.stringify(payload) },
-      ],
-    });
+    let response: AiChatResult | undefined;
+    let attempt = 0;
+    while (response === undefined) {
+      const left = deadline - Date.now();
+      if (left <= 0) throw new Error('Quiz context deadline exceeded');
+      usage.calls++;
+      try {
+        response = await this.config.transport.chat({
+          model,
+          timeoutMs: left,
+          maxTokens: 1200,
+          messages: [
+            { role: 'system', content: system },
+            { role: 'user', content: JSON.stringify(payload) },
+          ],
+        });
+      } catch (error) {
+        // 429 (rate limit, vd Groq 8k TPM) và 5xx là tạm thời — chờ bucket hồi
+        // rồi thử lại, tối đa 3 lần và luôn nằm trong deadline tổng của quiz.
+        if (
+          !(error instanceof AiProviderError) ||
+          !error.retryable ||
+          attempt >= 3 ||
+          deadline - Date.now() < 4_000
+        )
+          throw error;
+        await sleep(Math.min(8_000, 2_000 * (attempt + 1)));
+        attempt += 1;
+      }
+    }
     usage.tokensIn += response.tokensIn;
     usage.tokensOut += response.tokensOut;
     if (response.usageEstimated) usage.estimated = true;

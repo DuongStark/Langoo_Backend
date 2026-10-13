@@ -1,13 +1,13 @@
 import { kanjiInput } from '../../../test/fixtures/quiz-kanji';
 import { buildQuizQuestions } from '../quiz/quiz-generator';
 import { fingerprint } from '../quiz/quiz-contract';
-import { AiChatRequest } from './ai-chat.provider';
+import { AiChatRequest, AiProviderError } from './ai-chat.provider';
 import { ContextQuizProvider } from './context-quiz.provider';
 import { ConfigService } from '@nestjs/config';
 import { createAiQuizProvider } from './ai-quiz-provider.factory';
 import { OpenAiChatProvider } from './openai-chat.provider';
 
-function setup() {
+function setup(options: { timeoutMs?: number } = {}) {
   const chat = jest.fn<
     Promise<{
       content: string;
@@ -22,7 +22,7 @@ function setup() {
     transport: { name: 'mock', chat },
     generatorModel: 'generator',
     validatorModel: 'validator',
-    timeoutMs: 1000,
+    timeoutMs: options.timeoutMs ?? 1000,
   });
   const response = (content: unknown) => ({
     content: JSON.stringify(content),
@@ -240,6 +240,22 @@ describe('ContextQuizProvider routing and quality', () => {
     chat.mockImplementation(async (request) => {
       const result = await original(request);
       return { ...result, content: `\`\`\`json\n${result.content}\n\`\`\`` };
+    });
+    const [q] = await provider.generate(
+      kanjiInput({ contextMode: 'source_or_generated' }),
+    );
+    expect(q.context?.sentence).toContain('学校');
+  });
+  it('tự thử lại khi provider trả 429 (rate limit)', async () => {
+    const { provider, chat } = setup({ timeoutMs: 60_000 });
+    const original = chat.getMockImplementation()!;
+    let thrown = false;
+    chat.mockImplementation(async (request) => {
+      if (request.model === 'validator' && !thrown) {
+        thrown = true;
+        throw new AiProviderError('provider HTTP 429', 429);
+      }
+      return original(request);
     });
     const [q] = await provider.generate(
       kanjiInput({ contextMode: 'source_or_generated' }),
