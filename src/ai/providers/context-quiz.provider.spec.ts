@@ -234,6 +234,18 @@ describe('ContextQuizProvider routing and quality', () => {
     );
     expect(q.context?.target).toEqual({ start: 3, end: 5, text: '学校' });
   });
+  it('chấp nhận JSON bọc trong code fence từ model', async () => {
+    const { provider, chat } = setup();
+    const original = chat.getMockImplementation()!;
+    chat.mockImplementation(async (request) => {
+      const result = await original(request);
+      return { ...result, content: `\`\`\`json\n${result.content}\n\`\`\`` };
+    });
+    const [q] = await provider.generate(
+      kanjiInput({ contextMode: 'source_or_generated' }),
+    );
+    expect(q.context?.sentence).toContain('学校');
+  });
   it('malformed or answer-leaking sentences never reach semantic validator', async () => {
     const { provider, chat, response } = setup();
     chat.mockResolvedValue(

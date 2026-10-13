@@ -42,6 +42,19 @@ const optionsSchema = z
 const generatedSchema = z.object({
   sentence: z.string().min(1).max(240),
 });
+
+/** Model replies sometimes arrive wrapped in markdown fences; tolerate that. */
+function parseModelJson(content: string): unknown {
+  let text = content.trim();
+  if (text.startsWith('```')) {
+    text = text.includes('\n')
+      ? text.split('\n').slice(1).join('\n')
+      : text.slice(3);
+    const close = text.lastIndexOf('```');
+    if (close >= 0) text = text.slice(0, close);
+  }
+  return JSON.parse(text.trim());
+}
 const verdictSchema = z
   .object({
     natural: z.boolean(),
@@ -361,7 +374,7 @@ export class ContextQuizProvider implements AiQuizProvider {
       deadline,
     );
     try {
-      const parsed = generatedSchema.parse(JSON.parse(content));
+      const parsed = generatedSchema.parse(parseModelJson(content));
       // `render` requires exactly one occurrence of the written form and
       // recomputes code-point offsets itself; stale model offsets or a stale
       // target text cannot reject an otherwise valid sentence.
@@ -408,7 +421,7 @@ export class ContextQuizProvider implements AiQuizProvider {
       deadline,
     );
     try {
-      const verdict = verdictSchema.parse(JSON.parse(content));
+      const verdict = verdictSchema.parse(parseModelJson(content));
       if (
         !verdict.natural ||
         !verdict.correctSense ||
