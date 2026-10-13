@@ -219,6 +219,10 @@ AI_QUIZ_TIMEOUT_MS=60000   # budget thời gian tổng cho sinh/kiểm một qui
 M10.2 (07/10): dùng Qwen trên Groq (`AI_BASE_URL=https://api.groq.com/openai/v1`),
 key Groq hiện có. Hai lượt sinh/kiểm dùng cùng model không phải hai reviewer độc lập.
 
+2026-10-13 — transport riêng cho quiz: quiz ngữ cảnh đọc `AI_QUIZ_API_KEY` /
+`AI_QUIZ_BASE_URL` trước, thiếu mới fallback `AI_API_KEY` / `AI_BASE_URL` (chat).
+VPS dùng Qwen/Groq riêng cho quiz trong khi chat vẫn Space Bunny.
+
 Ngữ cảnh chưa có evidence cần `AI_PROVIDER=openai`, `AI_API_KEY`, `AI_BASE_URL`
 (OpenAI-compatible gateway) và model tương ứng. Dữ liệu/câu đã kiểm phù hợp không cần
 gọi model. Model và key không cần cho quiz nghĩa/nối từ/Kanji mode none.

@@ -10,14 +10,20 @@ import { OpenAiChatProvider } from './openai-chat.provider';
 export function createAiQuizProvider(config: ConfigService): AiQuizProvider {
   const get = (key: string): string | undefined =>
     config.get<string>(key)?.trim() || undefined;
-  const apiKey = get('AI_API_KEY');
+  // Quiz ngữ cảnh có thể dùng transport riêng (AI_QUIZ_*); thiếu thì fallback
+  // về AI_API_KEY/AI_BASE_URL dùng chung với chat.
+  const apiKey = get('AI_QUIZ_API_KEY') ?? get('AI_API_KEY');
+  const baseUrl =
+    get('AI_QUIZ_BASE_URL') ??
+    get('AI_BASE_URL') ??
+    'https://api.openai.com/v1';
   const enabled = get('AI_PROVIDER') === 'openai' && !!apiKey;
   const timeout = Number(config.get<number | string>('AI_QUIZ_TIMEOUT_MS'));
   return new ContextQuizProvider({
     transport: enabled
       ? new OpenAiChatProvider({
           apiKey: apiKey,
-          baseUrl: get('AI_BASE_URL') ?? 'https://api.openai.com/v1',
+          baseUrl: baseUrl,
         })
       : undefined,
     generatorModel: get('AI_QUIZ_MODEL'),

@@ -121,6 +121,10 @@ export const envSchema = z.object({
     emptyToUndefined,
     z.string().optional(),
   ),
+  // Transport riêng cho quiz ngữ cảnh (OpenAI-compatible); bỏ trống = dùng
+  // AI_API_KEY/AI_BASE_URL chung với chat.
+  AI_QUIZ_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  AI_QUIZ_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
   AI_QUIZ_TIMEOUT_MS: z.preprocess(
     emptyToUndefined,
     z.coerce.number().int().min(1_000).max(300_000).optional(),
