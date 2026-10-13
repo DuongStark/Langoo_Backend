@@ -66,9 +66,13 @@ describe('SRS (e2e — langoo_test)', () => {
 
   let tokenA = '';
   let tokenB = '';
+  let tokenC = '';
   let userIdA = 0n;
+  let userIdC = 0n;
   let faceJa = '';
   let faceEn = '';
+  let faceJaC = '';
+  let faceEnC = '';
 
   async function registerUser(
     email: string,
@@ -102,6 +106,9 @@ describe('SRS (e2e — langoo_test)', () => {
 
   async function createCollectionWithItem(
     token: string,
+    senseId = '1',
+    secondarySenseId = '2',
+    meaningVi = 'chạy',
   ): Promise<{ collectionId: string; faceJa: string; faceEn: string }> {
     const collection = await request(server)
       .post('/v1/collections')
@@ -112,7 +119,11 @@ describe('SRS (e2e — langoo_test)', () => {
     const item = await request(server)
       .post(`/v1/collections/${collectionId}/items`)
       .set('Authorization', `Bearer ${token}`)
-      .send({ sense_id: '1', secondary_sense_id: '2', meaning_vi: 'chạy' })
+      .send({
+        sense_id: senseId,
+        secondary_sense_id: secondarySenseId,
+        meaning_vi: meaningVi,
+      })
       .expect(201);
     const faces = (
       item.body as {
@@ -172,6 +183,19 @@ describe('SRS (e2e — langoo_test)', () => {
     await createProfile(tokenB);
     await createCollectionWithItem(tokenB);
     await createCollectionWithItem(tokenB);
+
+    // User riêng cho hàng đợi: M6.2 chỉ giữ một đại diện sibling mỗi item nên
+    // cần ≥4 item để phân trang mà không đổi chuỗi test ôn thẻ của A.
+    const queueUser = await registerUser(`e2e-m6-queue-${runId}@langoo.test`);
+    tokenC = queueUser.token;
+    userIdC = queueUser.userId;
+    await createProfile(tokenC);
+    const queueFirst = await createCollectionWithItem(tokenC);
+    faceJaC = queueFirst.faceJa;
+    faceEnC = queueFirst.faceEn;
+    await createCollectionWithItem(tokenC, '5', '6', 'ăn');
+    await createCollectionWithItem(tokenC, '7', '8', 'đi');
+    await createCollectionWithItem(tokenC, '9', '10', 'nước');
   });
 
   afterAll(async () => {
@@ -190,39 +214,63 @@ describe('SRS (e2e — langoo_test)', () => {
       });
     });
 
-    it('4 thẻ mới vào queue; thẻ recall có nhãn ngôn ngữ đích', async () => {
-      const body = await getDue(tokenA);
-
+    it('mỗi item một đại diện: 4 thẻ mới vào queue; thẻ recall có nhãn ngôn ngữ đích', async () => {
+      // M6.2: sibling new/review của cùng item sẽ bị bury sau lượt trả lời đầu,
+      // queue chỉ giữ một đại diện mỗi item (learning giữ độc lập). 4 item cho
+      // 4 thẻ, không còn 4 mục × 2 mặt × 2 chiều = 16.
+      const body = await getDue(tokenC);
       expect(body.data).toHaveLength(4);
       expect(body.counts).toEqual({ learning: 0, review: 0, new: 4 });
 
-      const jaRecall = body.data.find(
-        (card) => card.face_id === faceJa && card.direction === 'recall',
-      )!;
-      expect(jaRecall.language).toMatchObject({ id: 2, code: 'ja' });
-      expect(jaRecall.instruction).toContain('Nhật');
-      expect(jaRecall.prompt).toMatchObject({ kind: 'meaning', text: 'chạy' });
-      expect(typeof jaRecall.prompt.meaning_source).toBe('string');
-      expect(typeof jaRecall.prompt.is_machine_generated).toBe('boolean');
-      expect(jaRecall.answer).toMatchObject({ kind: 'word', text: '走る' });
-
       const jaRecognize = body.data.find(
-        (card) => card.face_id === faceJa && card.direction === 'recognize',
+        (card) => card.face_id === faceJaC && card.direction === 'recognize',
       )!;
       expect(jaRecognize.prompt).toMatchObject({ kind: 'word', text: '走る' });
       expect(jaRecognize.answer).toMatchObject({
         kind: 'meaning',
         text: 'chạy',
       });
+
+      // Đưa chiều recall của item đầu lên làm đại diện bằng cách tạm bury 3
+      // sibling còn lại (đúng cơ chế bury sau lượt trả lời đầu), rồi kiểm tra
+      // thẻ recall mang nhãn ngôn ngữ đích.
+      await prisma.srsState.updateMany({
+        where: {
+          userId: userIdC,
+          OR: [
+            { faceId: faceJaC, direction: 'recognize' },
+            { faceId: faceEnC },
+          ],
+        },
+        data: { buriedUntil: new Date(Date.now() + 12 * 60 * 60 * 1000) },
+      });
+      try {
+        const withRecall = await getDue(tokenC);
+        expect(withRecall.data).toHaveLength(4);
+        const jaRecall = withRecall.data.find(
+          (card) => card.face_id === faceJaC && card.direction === 'recall',
+        )!;
+        expect(jaRecall.language).toMatchObject({ id: 2, code: 'ja' });
+        expect(jaRecall.instruction).toContain('Nhật');
+        expect(jaRecall.prompt).toMatchObject({
+          kind: 'meaning',
+          text: 'chạy',
+        });
+        expect(typeof jaRecall.prompt.meaning_source).toBe('string');
+        expect(typeof jaRecall.prompt.is_machine_generated).toBe('boolean');
+        expect(jaRecall.answer).toMatchObject({ kind: 'word', text: '走る' });
+      } finally {
+        await clearBury(userIdC);
+      }
     });
 
-    it('phân trang cursor: 2 + 2, không trùng thẻ', async () => {
-      const page1 = await getDue(tokenA, '?limit=2');
+    it('phân trang cursor: 2 + 2 đại diện, không trùng thẻ', async () => {
+      const page1 = await getDue(tokenC, '?limit=2');
       expect(page1.data).toHaveLength(2);
       expect(page1.next_cursor).not.toBeNull();
 
       const page2 = await getDue(
-        tokenA,
+        tokenC,
         `?limit=2&cursor=${encodeURIComponent(page1.next_cursor!)}`,
       );
       expect(page2.data).toHaveLength(2);

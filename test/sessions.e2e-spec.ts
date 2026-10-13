@@ -60,6 +60,8 @@ describe('Sessions (e2e — langoo_test)', () => {
   let tokenOther = '';
   let userId = 0n;
   let faceJa = '';
+  let waterFaceJa = '';
+  let waterFaceEn = '';
 
   async function registerUser(
     email: string,
@@ -182,7 +184,9 @@ describe('Sessions (e2e — langoo_test)', () => {
     faceJa = first.faceJa;
     await createItem('5', '6', 'ăn'); // 食べる + eat
     await createItem('7', '8', 'đi'); // 行く + go
-    await createItem('9', '10', 'nước'); // 水 + water
+    const water = await createItem('9', '10', 'nước'); // 水 + water
+    waterFaceJa = water.faceJa;
+    waterFaceEn = water.faceEn;
   });
 
   afterAll(async () => {
@@ -192,16 +196,19 @@ describe('Sessions (e2e — langoo_test)', () => {
   describe('flashcard (review, chấm bằng rating)', () => {
     let session: SessionDetailBody;
 
-    it('tạo phiên review: snapshot 16 thẻ (4 mục × 2 mặt × 2 chiều), đáp án bị ẩn', async () => {
+    it('tạo phiên review: snapshot 4 đại diện (4 mục × 1 sibling), đáp án bị ẩn', async () => {
       session = await createSession('flashcard', 'review');
+      // M6.2: practice/review chọn một đại diện new/review mỗi item trước
+      // limit; sibling còn lại sẽ bị bury sau lượt trả lời đầu nên không tạo
+      // đề cho chúng. 4 item → 4 thẻ, không còn 4 mục × 2 mặt × 2 chiều = 16.
       expect(session.session).toMatchObject({
         kind: 'review',
         mode: 'flashcard',
         status: 'in_progress',
-        item_count: 16,
+        item_count: 4,
         answered_count: 0,
       });
-      expect(session.items).toHaveLength(16);
+      expect(session.items).toHaveLength(4);
       expect(session.items[0].correct_answer).toBeUndefined();
       expect(session.items[0].prompt.kind).toBe('flashcard');
     });
@@ -362,35 +369,57 @@ describe('Sessions (e2e — langoo_test)', () => {
 
   describe('typing', () => {
     it('đúng/sai + chấp nhận nhiều dạng (trim, hoa thường, kana)', async () => {
-      const session = await createSession('typing');
-
-      // Gõ đáp án đúng của câu 1 kèm khoảng trắng thừa → chuẩn hoá trim
-      const firstAnswer = (await dbItem(session.session.id, 1)).correctAnswer;
-      const ja = await answer(session.session.id, {
-        ordinal: 1,
-        answer_text: ` ${(firstAnswer.accepted as string[])[0]} `,
+      // M6.2: practice chỉ giữ một đại diện new/review mỗi item. Tạm suspend 3
+      // sibling của mục 水/water để chiều EN recall là đại diện, giữ coverage
+      // nhập đáp án EN viết HOA (chuẩn hoá hoa/thường).
+      const suspendSiblings = {
+        userId,
+        OR: [
+          { faceId: waterFaceJa },
+          { faceId: waterFaceEn, direction: 'recognize' as const },
+        ],
+      };
+      await prisma.srsState.updateMany({
+        where: suspendSiblings,
+        data: { suspended: true },
       });
-      expect(ja.item.is_correct).toBe(true);
+      try {
+        const session = await createSession('typing');
 
-      const wrong = await answer(session.session.id, {
-        ordinal: 2,
-        answer_text: 'あるく',
-      });
-      expect(wrong.item.is_correct).toBe(false);
+        // Gõ đáp án đúng của câu 1 kèm khoảng trắng thừa → chuẩn hoá trim
+        const firstAnswer = (await dbItem(session.session.id, 1)).correctAnswer;
+        const ja = await answer(session.session.id, {
+          ordinal: 1,
+          answer_text: ` ${(firstAnswer.accepted as string[])[0]} `,
+        });
+        expect(ja.item.is_correct).toBe(true);
 
-      // thẻ en (recall) nhập đáp án viết HOA vẫn đúng nhờ chuẩn hoá
-      const enRecall = session.items.find(
-        (item) =>
-          item.prompt.direction === 'recall' &&
-          item.prompt.language.code === 'en',
-      )!;
-      const enAnswer = (await dbItem(session.session.id, enRecall.ordinal))
-        .correctAnswer;
-      const en = await answer(session.session.id, {
-        ordinal: enRecall.ordinal,
-        answer_text: (enAnswer.accepted as string[])[0].toUpperCase(),
-      });
-      expect(en.item.is_correct).toBe(true);
+        const wrong = await answer(session.session.id, {
+          ordinal: 2,
+          answer_text: 'あるく',
+        });
+        expect(wrong.item.is_correct).toBe(false);
+
+        // thẻ en (recall) nhập đáp án viết HOA vẫn đúng nhờ chuẩn hoá
+        const enRecall = session.items.find(
+          (item) =>
+            item.prompt.direction === 'recall' &&
+            item.prompt.language.code === 'en',
+        )!;
+        expect(enRecall).toBeDefined();
+        const enAnswer = (await dbItem(session.session.id, enRecall.ordinal))
+          .correctAnswer;
+        const en = await answer(session.session.id, {
+          ordinal: enRecall.ordinal,
+          answer_text: (enAnswer.accepted as string[])[0].toUpperCase(),
+        });
+        expect(en.item.is_correct).toBe(true);
+      } finally {
+        await prisma.srsState.updateMany({
+          where: suspendSiblings,
+          data: { suspended: false },
+        });
+      }
     });
   });
 
