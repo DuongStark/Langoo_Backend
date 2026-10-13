@@ -40,11 +40,13 @@ export class QuizController {
 
   @Post()
   @ApiOperation({
-    summary: 'Sinh quiz từ bộ sưu tập (dữ liệu + ngữ cảnh Kanji tùy chọn)',
+    summary: 'Sinh quiz từ bộ sưu tập (dạng câu hỏi checkbox, Kanji mặc định)',
     description:
       'Nguồn từ vựng: item có srs_state (ưu tiên review → relearning → learning → new). ' +
-      'question_styles: meaning/kanji_reading/kanji_orthography cho multiple_choice/mixed. ' +
-      'context_mode: none/source/source_or_generated. Câu dữ liệu không gọi AI. ' +
+      'question_types: checkbox multiple_choice/fill_blank/matching — câu hỏi luân phiên ' +
+      'các dạng đã chọn, mỗi từ tối đa một câu. Trắc nghiệm tự trộn nghĩa/đọc Kanji/' +
+      'chọn chữ Kanji (fallback nghĩa khi từ thiếu dữ liệu). Ngữ cảnh Kanji tự động và ' +
+      'có thể không có. Không còn difficulty/style/context_mode. ' +
       'Quota riêng 15/ngày (AI_QUIZ_DAILY_LIMIT); cooldown 15s chống spam — bấm đúp cùng ' +
       'tham số trả lại quiz cũ (reused=true). Ví dụ curl: docs/api/quizzes.md',
   })

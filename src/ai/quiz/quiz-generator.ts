@@ -60,7 +60,8 @@ export function questionTypeSlots(
 export function buildQuizQuestions(
   input: QuizGeneratorInput,
 ): GeneratedQuizQuestion[] {
-  const items = prepareItems(input.items);
+  const raw = input.items;
+  const items = prepareItems(raw);
   const questionTypes = canonicalQuestionTypes(input.questionTypes);
   if (questionTypes.length === 0) {
     throw new DomainException(
@@ -71,54 +72,97 @@ export function buildQuizQuestions(
   }
   assertQuizCanGenerate(items);
 
-  // Luân phiên các dạng được chọn để có tỉ lệ xuất hiện đều; mỗi câu matching
-  // tiêu thụ 4 từ nguồn.
-  const slots = questionTypeSlots(questionTypes, input.questionCount);
-  const matchingSlots = slots.filter((type) => type === 'matching').length;
-  const required = slots.length + matchingSlots * (MATCHING_SIZE - 1);
-  if (items.length < required) {
-    throw new DomainException(
-      'QUIZ_NOT_ENOUGH_ITEMS',
-      'Bộ sưu tập không đủ từ cho số câu hỏi yêu cầu',
-      HttpStatus.CONFLICT,
-      { available: items.length, required },
-    );
+  // A lemma with distinct meanings cannot be disambiguated by our prompt
+  // templates: keep it out of MC/matching pools (fill-blank vẫn dùng được).
+  const meaningsByLemma = new Map<string, Set<string>>();
+  for (const item of raw) {
+    if (item.lemma.trim() === '' || item.meaningVi.trim() === '') continue;
+    const key = normalizeText(item.lemma);
+    const meanings = meaningsByLemma.get(key) ?? new Set<string>();
+    meanings.add(normalizeText(item.meaningVi));
+    meaningsByLemma.set(key, meanings);
   }
+  const unambiguous = items.filter(
+    (item) => meaningsByLemma.get(normalizeText(item.lemma))?.size === 1,
+  );
+
+  // Luân phiên các dạng được chọn để có tỉ lệ xuất hiện đều; mỗi câu matching
+  // tiêu thụ 4 từ nguồn, mỗi từ chỉ dùng cho tối đa một câu.
+  const slots = questionTypeSlots(questionTypes, input.questionCount);
+  const mcSlots = slots.filter((type) => type !== 'fill_blank').length;
+  const matchingSlots = slots.filter((type) => type === 'matching').length;
+  const mcPool = mcSlots > 0 ? unambiguous : items;
+  const used = new Set<string>();
+  const take = (pool: QuizSourceItem[]): QuizSourceItem | null => {
+    for (const candidate of pool) {
+      if (!used.has(candidate.itemId)) {
+        used.add(candidate.itemId);
+        return candidate;
+      }
+    }
+    return null;
+  };
+  const takeOrFail = (
+    pool: QuizSourceItem[],
+    required: number,
+  ): QuizSourceItem => {
+    const item = take(pool);
+    if (item === null)
+      throw new DomainException(
+        'QUIZ_NOT_ENOUGH_ITEMS',
+        'Bộ sưu tập không đủ từ cho số câu hỏi yêu cầu',
+        HttpStatus.CONFLICT,
+        { available: pool.length, required },
+      );
+    return item;
+  };
 
   const kanjiPools: Partial<Record<QuestionStyle, KanjiTarget[]>> = {};
   for (const style of ['kanji_reading', 'kanji_orthography'] as const) {
-    const pool = createKanjiPool(items, style);
+    // Nhiễu Kanji lấy từ toàn bộ từ nguồn (kể cả từ đồng nghĩa bị gộp khỏi
+    // pool câu nghĩa) — giống hành vi v1.
+    const pool = createKanjiPool(raw, style);
     if (pool.length > 0) kanjiPools[style] = pool;
   }
 
-  let cursor = 0;
   let mcOrdinal = 0;
   const questions: GeneratedQuizQuestion[] = [];
+  // Pool câu nghĩa/matching cần: MC 1 từ + matching 4 từ mỗi câu
+  // (mcSlots đã bao gồm cả slot matching).
+  const mcNeeded = mcSlots + matchingSlots * (MATCHING_SIZE - 1);
+  const fillNeeded = slots.length - mcSlots;
   for (const type of slots) {
     if (type === 'matching') {
-      const chosen = items.slice(cursor, cursor + MATCHING_SIZE);
-      cursor += chosen.length;
-      questions.push(buildMatchingQuestion(chosen, input.rng));
+      const chosen: QuizSourceItem[] = [];
+      for (let index = 0; index < MATCHING_SIZE; index += 1)
+        chosen.push(takeOrFail(mcPool, mcNeeded));
+      questions.push({
+        ...buildMatchingQuestion(chosen, input.rng),
+        questionStyle: 'matching',
+      });
       continue;
     }
-    const item = items[cursor];
-    cursor += 1;
     if (type === 'fill_blank') {
-      questions.push(buildFillBlank(item, input.languageId));
+      const item = takeOrFail(items, fillNeeded);
+      questions.push({
+        ...buildFillBlank(item, input.languageId),
+        questionStyle: 'fill_blank',
+      });
       continue;
     }
+    const item = takeOrFail(mcPool, mcNeeded);
     const style = MCQ_STYLE_ROTATION[mcOrdinal % MCQ_STYLE_ROTATION.length];
     mcOrdinal += 1;
     const kanji =
       style === 'meaning'
         ? null
-        : buildKanjiQuestionForItem(
-            item,
-            kanjiPools[style] ?? [],
-            style,
-            input.rng,
-          );
-    questions.push(kanji ?? buildMultipleChoice(item, items, input.rng));
+        : buildKanjiQuestionForItem(item, kanjiPools[style] ?? [], style, input.rng);
+    questions.push(
+      kanji ?? {
+        ...buildMultipleChoice(item, items, input.rng),
+        questionStyle: 'meaning',
+      },
+    );
   }
   return questions;
 }

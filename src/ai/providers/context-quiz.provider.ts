@@ -131,10 +131,9 @@ export class ContextQuizProvider implements AiQuizProvider {
     used: Set<string>,
     deadline: number,
   ): Promise<ContextEvidence | undefined> {
-    if ((item.glossEn ?? []).length === 0) return undefined;
-    if (!this.config.validatorModel || !this.config.transport)
-      return undefined;
     try {
+      // Evidence đã kiểm còn dùng được kể cả khi tắt transport/model (policy
+      // gate vẫn được áp qua evidenceSchema + render).
       const reuse = this.reusable(
         { ...input, contextEvidence: evidencePool },
         question,
@@ -146,6 +145,9 @@ export class ContextQuizProvider implements AiQuizProvider {
         input.usage!.reused++;
         return cached;
       }
+      if ((item.glossEn ?? []).length === 0) return undefined;
+      if (!this.config.validatorModel || !this.config.transport)
+        return undefined;
       const examples = this.sourceExamples(item, question).sort(
         (a, b) =>
           Number(used.has(fingerprint(a.sentence))) -
