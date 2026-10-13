@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../db/prisma.service';
 
 export interface GlossRow {
@@ -65,7 +66,10 @@ export class SenseContentRepository {
     // Lọc ví dụ "rác": quote đứt đoạn/elision ([...], "...") — mọi ngôn ngữ;
     // riêng EN thêm unicode ellipsis "…" vì gần như toàn bộ là quote bị cắt
     // (wiktextract). JA/VI dùng "…" hợp lệ trong hội thoại nên không lọc.
-    return this.prisma.$queryRaw<ExampleRow[]>`
+    // Thêm danh sách md5(text) đã chấm junk (bảng staging — xem
+    // db/ops/apply-en-junk-filter.sql); bảng vắng thì điều kiện này rỗng.
+    const junkFilter = await this.junkEnExamplesFilter();
+    return this.prisma.$queryRaw<ExampleRow[]>(Prisma.sql`
       WITH candidates AS (
         SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
         FROM core.example e
@@ -74,6 +78,7 @@ export class SenseContentRepository {
             e.text LIKE '%[%' OR e.text LIKE '%...%'
             OR (e.language_id = 1 AND e.text LIKE '%…%')
           )
+          ${junkFilter}
         UNION
         SELECT e.id, e.language_id, e.text, e.translation, e.difficulty
         FROM core.example_sense es
@@ -85,6 +90,7 @@ export class SenseContentRepository {
             e.text LIKE '%[%' OR e.text LIKE '%...%'
             OR (e.language_id = 1 AND e.text LIKE '%…%')
           )
+          ${junkFilter}
       ),
       dedup AS (
         SELECT DISTINCT ON (dt.display_text, c.language_id)
@@ -118,6 +124,36 @@ export class SenseContentRepository {
       ) vi ON true
       ORDER BY d.id ASC
       LIMIT ${limit}
+    `);
+  }
+
+  /**
+   * Điều kiện SQL loại các ví dụ có `text` nằm trong danh sách đã chấm junk
+   * (`staging.junk_en_example_text.hash = md5(text)`, bảng do ops
+   * `db/ops/apply-en-junk-filter.sql` tạo — KHÔNG có trong db/migrations).
+   *
+   * Vì bảng có thể chưa tồn tại (DB test CI, môi trường chưa apply ops) hoặc
+   * chưa được GRANT cho role app, phải kiểm tra bằng truy vấn riêng rồi mới ghép
+   * điều kiện. Không thể viết `to_regclass(...) IS NULL OR NOT EXISTS
+   * (... FROM staging....)` trong cùng một câu: PostgreSQL phân tích quan hệ
+   * trước khi thực thi nên vẫn báo lỗi 42P01 khi bảng vắng. Kiểm tra luôn quyền
+   * SELECT (`has_table_privilege` trả NULL khi bảng vắng) để API không 500 nếu
+   * ops quên grant — khi đó chỉ đơn giản là chưa lọc.
+   */
+  private async junkEnExamplesFilter(): Promise<Prisma.Sql> {
+    const rows = await this.prisma.$queryRaw<{ readable: boolean | null }[]>`
+      SELECT has_table_privilege(
+        to_regclass('staging.junk_en_example_text'), 'SELECT'
+      ) AS readable
+    `;
+    if (rows[0]?.readable !== true) {
+      return Prisma.empty;
+    }
+    return Prisma.sql`
+      AND NOT EXISTS (
+        SELECT 1 FROM staging.junk_en_example_text j
+        WHERE j.hash = md5(e.text)
+      )
     `;
   }
 

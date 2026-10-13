@@ -1,5 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import { createHash } from 'node:crypto';
 import type { Server } from 'node:http';
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
@@ -23,7 +24,7 @@ interface SenseDetailBody {
     gloss_en: string | null;
   };
   glosses: { language_id: number; text: string }[];
-  examples: { translation: Record<string, string> }[];
+  examples: { text: string; translation: Record<string, string> }[];
   pronunciations: { ipa: string | null; audio_key: string | null }[];
   forms: { kind: string; form_text: string }[];
 }
@@ -285,6 +286,78 @@ describe('Dictionary (e2e — langoo_test)', () => {
 
       const zero = await request(server).get('/v1/senses/0').expect(400);
       expect(zero.body).toMatchObject({ code: 'VALIDATION_FAILED' });
+    });
+  });
+
+  // Bảng staging.junk_en_example_text do ops db/ops/apply-en-junk-filter.sql tạo,
+  // KHÔNG nằm trong db/migrations nên spec này tự tạo/dọn để test cả 2 trạng thái.
+  describe('ví dụ EN rác (staging.junk_en_example_text)', () => {
+    const JUNK_TABLE = 'staging.junk_en_example_text';
+    let sense4Texts: string[] = [];
+
+    const md5 = (text: string): string =>
+      createHash('md5').update(text, 'utf8').digest('hex');
+
+    async function dbExampleTexts(senseId: number): Promise<string[]> {
+      const rows = await prisma.$queryRaw<{ text: string }[]>`
+        SELECT text FROM core.example WHERE sense_id = ${BigInt(senseId)}
+        UNION
+        SELECT e.text
+        FROM core.example_sense es
+        JOIN core.example e ON e.id = es.example_id
+        WHERE es.sense_id = ${BigInt(senseId)}
+          AND es.relation = 'illustrates'
+          AND e.sense_id IS DISTINCT FROM ${BigInt(senseId)}
+      `;
+      return rows.map((row) => row.text);
+    }
+
+    async function detailExamples(senseId: number): Promise<string[]> {
+      const res = await request(server)
+        .get(`/v1/senses/${senseId}`)
+        .expect(200);
+      return (res.body as SenseDetailBody).examples.map((e) => e.text);
+    }
+
+    beforeAll(async () => {
+      await prisma.$executeRawUnsafe('CREATE SCHEMA IF NOT EXISTS staging');
+      await prisma.$executeRawUnsafe(
+        `CREATE TABLE IF NOT EXISTS ${JUNK_TABLE} (hash text PRIMARY KEY)`,
+      );
+      sense4Texts = await dbExampleTexts(4);
+      expect(sense4Texts.length).toBeGreaterThan(0);
+    });
+
+    afterAll(async () => {
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS ${JUNK_TABLE}`);
+    });
+
+    it('ẩn ví dụ có text nằm trong danh sách md5 junk', async () => {
+      const before = await detailExamples(4);
+      expect(before.length).toBeGreaterThan(0);
+
+      await prisma.$executeRaw`
+        INSERT INTO staging.junk_en_example_text (hash)
+        SELECT unnest(${sense4Texts.map(md5)}::text[])
+        ON CONFLICT DO NOTHING
+      `;
+
+      const after = await detailExamples(4);
+      for (const text of sense4Texts) {
+        expect(after).not.toContain(text);
+      }
+    });
+
+    it('câu bình thường của sense khác không bị ảnh hưởng', async () => {
+      const examples = await detailExamples(6);
+      expect(examples).toContain('I eat an apple.');
+    });
+
+    it('bảng junk chưa tồn tại → API vẫn chạy và ví dụ trở lại', async () => {
+      await prisma.$executeRawUnsafe(`DROP TABLE IF EXISTS ${JUNK_TABLE}`);
+
+      const examples = await detailExamples(4);
+      expect(examples.some((text) => sense4Texts.includes(text))).toBe(true);
     });
   });
 
