@@ -216,6 +216,24 @@ describe('ContextQuizProvider routing and quality', () => {
     ).rejects.toMatchObject({ code: 'QUIZ_CONTEXT_INVALID' });
     expect(chat).toHaveBeenCalledTimes(4);
   });
+  it('chấp nhận câu đúng dù model trả offset sai (tự tính lại vị trí)', async () => {
+    const { provider, chat, response } = setup();
+    const original = chat.getMockImplementation()!;
+    chat.mockImplementation((request) =>
+      request.model === 'generator'
+        ? Promise.resolve(
+            response({
+              sentence: '明日、学校へ行きます。',
+              target: { text: '学校', start: 99, end: 101 },
+            }),
+          )
+        : original(request),
+    );
+    const [q] = await provider.generate(
+      kanjiInput({ contextMode: 'source_or_generated' }),
+    );
+    expect(q.context?.target).toEqual({ start: 3, end: 5, text: '学校' });
+  });
   it('malformed or answer-leaking sentences never reach semantic validator', async () => {
     const { provider, chat, response } = setup();
     chat.mockResolvedValue(

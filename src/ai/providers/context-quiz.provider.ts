@@ -36,18 +36,12 @@ const optionsSchema = z
       .strict(),
   )
   .length(4);
-const generatedSchema = z
-  .object({
-    sentence: z.string().min(1).max(240),
-    target: z
-      .object({
-        text: z.string().min(1),
-        start: z.number().int().nonnegative(),
-        end: z.number().int().positive(),
-      })
-      .strict(),
-  })
-  .strict();
+// Offsets do not need to be trusted from the model: `render` locates the single
+// occurrence of the written form itself (code-point safe) and recomputes the
+// highlight. Accepting extra `target` info keeps stricter-prompt replies valid.
+const generatedSchema = z.object({
+  sentence: z.string().min(1).max(240),
+});
 const verdictSchema = z
   .object({
     natural: z.boolean(),
@@ -368,14 +362,9 @@ export class ContextQuizProvider implements AiQuizProvider {
     );
     try {
       const parsed = generatedSchema.parse(JSON.parse(content));
-      const written = question.kanjiTarget!.written;
-      if (
-        parsed.target.text !== written ||
-        Array.from(parsed.sentence)
-          .slice(parsed.target.start, parsed.target.end)
-          .join('') !== written
-      )
-        return null;
+      // `render` requires exactly one occurrence of the written form and
+      // recomputes code-point offsets itself; stale model offsets or a stale
+      // target text cannot reject an otherwise valid sentence.
       this.render(question, {
         sentence: parsed.sentence,
         origin: 'generated',
