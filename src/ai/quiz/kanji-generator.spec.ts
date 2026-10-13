@@ -65,8 +65,10 @@ describe('Kanji quiz data generation', () => {
       }
       if (style === 'kanji_reading') {
         expect(q.prompt).not.toContain('がっこう');
+        expect(q.prompt).toBe(pool[0].pair.written);
       } else {
         expect(q.prompt).not.toContain('学校');
+        expect(q.prompt).toBe(pool[0].pair.reading);
       }
     },
   );

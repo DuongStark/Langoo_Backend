@@ -140,10 +140,9 @@ export function buildKanjiQuestion(
   return {
     questionType: 'multiple_choice',
     questionStyle: style,
-    prompt:
-      style === 'kanji_reading'
-        ? `「${pair.written}」の読み方はどれですか。`
-        : `「${pair.reading}」（${item.meaningVi}）を漢字で書くと、どれですか。`,
+    // JLPT 問題1/2: chỉ hiển thị từ, không kèm câu chỉ dẫn. Khi có câu ngữ cảnh,
+    // provider render đè prompt bằng chính câu đó (FE tô khung context.target).
+    prompt: style === 'kanji_reading' ? pair.written : pair.reading,
     options,
     correctAnswer: {
       index: options.findIndex((o) => o.text === answer),

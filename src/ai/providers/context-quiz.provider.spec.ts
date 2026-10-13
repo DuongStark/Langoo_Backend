@@ -214,6 +214,8 @@ describe('ContextQuizProvider routing and quality', () => {
     const q = result[2];
     expect(q.questionStyle).toBe('kanji_orthography');
     expect(q.prompt).not.toContain('電話');
+    // JLPT style: prompt chỉ là câu, không còn dòng chỉ dẫn 読み方/漢字で書くと.
+    expect(q.prompt).toBe('🌸でんわへ行きます。');
     expect(q.context?.target).toEqual({ start: 1, end: 4, text: 'でんわ' });
     expect(q.evidence?.sentence).toContain('電話'); // private only
   });

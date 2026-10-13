@@ -469,7 +469,7 @@ describe('QuizService', () => {
         id: 1n,
         ordinal: 1,
         questionType: 'multiple_choice',
-        prompt: '毎日、学校へ行きます。\n「学校」の読み方はどれですか。',
+        prompt: '毎日、学校へ行きます。',
         options: [{ index: 0, text: 'がっこう' }],
         correctAnswer: { index: 0, text: 'がっこう' },
         languageId: 2,

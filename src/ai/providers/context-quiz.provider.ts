@@ -338,7 +338,9 @@ export class ContextQuizProvider implements AiQuizProvider {
     });
     return {
       ...question,
-      prompt: `${rendered}\n${reading ? `「${text}」の読み方はどれですか。` : `「${text}」を漢字で書くと、どれですか。`}`,
+      // JLPT style: chỉ câu (không bồi câu chỉ dẫn); FE tô khung theo
+      // context.target. Câu không ngữ cảnh đã có prompt từ ở generator.
+      prompt: rendered,
       context,
     };
   }
