@@ -52,6 +52,16 @@ async function main(): Promise<void> {
   );
   const db = await connect(parsed.raw, 'langoo-test-reset');
   try {
+    // Migration 040_kanji_component.sql GRANTs to the app role `langoo`, which
+    // exists on local/VPS clusters but not in CI (postgres-only kernel).
+    await db.query(`
+      DO $$
+      BEGIN
+        IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'langoo') THEN
+          CREATE ROLE langoo NOLOGIN;
+        END IF;
+      END $$;
+    `);
     await db.query(sql);
   } finally {
     await db.end();

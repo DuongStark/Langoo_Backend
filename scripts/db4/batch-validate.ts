@@ -16,7 +16,6 @@ import {
   ArtifactRefSchema,
   hashBytes,
   hashJson,
-  parseMappingBundleIntegrity,
   parseMappingOutput,
 } from './_mapping-types';
 import {

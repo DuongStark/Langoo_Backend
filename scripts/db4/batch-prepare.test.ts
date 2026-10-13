@@ -557,14 +557,16 @@ void test('batch preparation preserves no-candidate denominator and plans condit
       'shards',
       `${readyShard.shardId}.json`,
     );
-    assert.equal(
-      JSON.parse(readFileSync(checkpointPath, 'utf8')).rows[0].status,
-      'r2_pending',
-    );
+    const checkpointState = JSON.parse(
+      readFileSync(checkpointPath, 'utf8'),
+    ) as { rows: { status: string }[] };
+    assert.equal(checkpointState.rows[0].status, 'r2_pending');
     const sameReport = await buildBatchReport(root, result.manifest.path);
     assert.equal(sameReport.manifest.sha256, report.manifest.sha256);
     const checkpointText = readFileSync(checkpointPath, 'utf8');
-    const corruptCheckpoint = JSON.parse(checkpointText);
+    const corruptCheckpoint = JSON.parse(checkpointText) as {
+      rows: { status: string }[];
+    };
     corruptCheckpoint.rows[0].status = 'proposed_exact';
     writeFileSync(checkpointPath, JSON.stringify(corruptCheckpoint));
     await assert.rejects(
@@ -636,7 +638,18 @@ void test('batch format repair binds rejected raw, enables R2 only after D1 and 
     const shard = manifest.shards.find((row) => row.readyCount === 1)!;
     const original = JSON.parse(
       readFileSync(join(root, shard.requests.r1.path), 'utf8').trim(),
-    );
+    ) as {
+      jobKey: string;
+      bundleKey: string;
+      payload: {
+        bundle: {
+          sense: { id: string };
+          contextHash: string;
+          candidates: { candidateKey: string; concept: { id: string } }[];
+          sourceBranches: string[];
+        };
+      };
+    };
     const valid = {
       schemaVersion: 1,
       task: 'sense_concept_review',
@@ -715,7 +728,7 @@ void test('batch format repair binds rejected raw, enables R2 only after D1 and 
     );
     const repair = JSON.parse(
       readFileSync(join(root, wave.requests.path), 'utf8').trim(),
-    );
+    ) as { jobKey: string; repair: { originalJobKey: string } };
     assert.notEqual(repair.jobKey, original.jobKey);
     assert.equal(repair.repair.originalJobKey, original.jobKey);
     const pending = await validateBatchPhase(
@@ -736,7 +749,11 @@ void test('batch format repair binds rejected raw, enables R2 only after D1 and 
     assert.equal(repaired.counts.r2_eligible, 1);
     const effective = JSON.parse(
       readFileSync(join(root, repaired.results.path), 'utf8').trim(),
-    );
+    ) as {
+      jobKey: string;
+      formatRepair: { jobKey: string; state: string };
+      rawResponse: { path: string };
+    };
     assert.equal(effective.jobKey, original.jobKey);
     assert.equal(effective.formatRepair.jobKey, repair.jobKey);
     assert.equal(effective.formatRepair.state, 'validated');
@@ -751,7 +768,11 @@ void test('batch format repair binds rejected raw, enables R2 only after D1 and 
     );
     const summary = JSON.parse(
       readFileSync(join(root, report.summary.path), 'utf8'),
-    );
+    ) as {
+      byStatus: Record<string, number>;
+      dispatchesByPhase: Record<string, number>;
+      gates: Record<string, unknown>;
+    };
     assert.equal(summary.byStatus.r2_pending, 1);
     assert.equal(summary.dispatchesByPhase.r1, 2);
     assert.equal(summary.gates.apply, false);

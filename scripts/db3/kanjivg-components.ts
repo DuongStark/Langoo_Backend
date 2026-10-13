@@ -97,8 +97,7 @@ export function parseKanjiVg(xml: string): ComponentNode | null {
   const body = xml.slice(start);
   const stack: ComponentNode[] = [];
   let root: ComponentNode | null = null;
-  const tagPattern =
-    /<g\b[^>]*>|<\/g>|<path\b[^>]*>|<text\b[^>]*>/g;
+  const tagPattern = /<g\b[^>]*>|<\/g>|<path\b[^>]*>|<text\b[^>]*>/g;
   let match: RegExpExecArray | null;
   while ((match = tagPattern.exec(body)) !== null) {
     const tag = match[0];
@@ -155,7 +154,11 @@ export function parseKanjiVg(xml: string): ComponentNode | null {
 
 function flatten(root: ComponentNode): ComponentRow[] {
   const rows: ComponentRow[] = [];
-  const visit = (node: ComponentNode, parentOrd: number | null, depth: number) => {
+  const visit = (
+    node: ComponentNode,
+    parentOrd: number | null,
+    depth: number,
+  ) => {
     if (node.component === '') {
       node.children.forEach((child) => visit(child, parentOrd, depth));
       return;
@@ -202,7 +205,9 @@ async function main(): Promise<void> {
   const databaseUrl =
     flags.get('database-url') ?? process.env.DATABASE_URL ?? '';
   if (apply && !allowDb)
-    throw new Error('Apply cần --allow-db <database> (khớp database trong URL)');
+    throw new Error(
+      'Apply cần --allow-db <database> (khớp database trong URL)',
+    );
 
   const files = readdirSync(svgDir)
     .filter((name) => /^[0-9a-f]{5,6}\.svg$/i.test(name))
@@ -210,9 +215,7 @@ async function main(): Promise<void> {
   const selected = limit ? files.slice(0, limit) : files;
 
   if (sampleChar) {
-    for (const row of componentsForFile(
-      path.join(svgDir, `${sampleChar}.svg`),
-    ))
+    for (const row of componentsForFile(path.join(svgDir, `${sampleChar}.svg`)))
       console.log(
         `  ${row.ord} d${row.depth} parent=${row.parent_ord} ${row.component}${row.original ? `(${row.original})` : ''} pos=${row.position ?? '-'} rad=${row.is_radical} phon=${row.is_phonetic} part=${row.part ?? '-'} strokes=[${row.strokes.join(',')}]`,
       );
@@ -241,12 +244,16 @@ async function main(): Promise<void> {
     `  files: ${selected.length} | kanji parse được: ${perKanji.length} | bỏ: ${skipped.length} | trùng literal: ${duplicateLiterals.length}`,
   );
   if (duplicateLiterals.length)
-    console.log(`  trùng (bỏ qua): ${duplicateLiterals.slice(0, 5).join(', ')}…`);
+    console.log(
+      `  trùng (bỏ qua): ${duplicateLiterals.slice(0, 5).join(', ')}…`,
+    );
   console.log(
     `  rows: ${perKanji.reduce((sum, rows) => sum + rows.length, 0)}`,
   );
   if (skipped.length)
-    console.log(`  bỏ (không có StrokePaths): ${skipped.slice(0, 5).join(', ')}…`);
+    console.log(
+      `  bỏ (không có StrokePaths): ${skipped.slice(0, 5).join(', ')}…`,
+    );
 
   if (!apply) {
     console.log('  (dry-run — thêm --apply --allow-db <db> để ghi)');

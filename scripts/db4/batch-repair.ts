@@ -3,13 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { z } from 'zod';
 import { BatchManifestSchema, BatchScheduleSchema } from './_batch-types';
-import {
-  ArtifactRefSchema,
-  canonicalJson,
-  hashBytes,
-  hashJson,
-  parseMappingOutput,
-} from './_mapping-types';
+import { hashBytes, hashJson, parseMappingOutput } from './_mapping-types';
 import {
   RequestSchema,
   cleanReply,
