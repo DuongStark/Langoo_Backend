@@ -1,6 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
+  ArrayMaxSize,
+  ArrayMinSize,
+  ArrayUnique,
+  IsArray,
   IsIn,
   IsInt,
   IsOptional,
@@ -10,23 +14,9 @@ import {
   MaxLength,
   Min,
   ValidateIf,
-  IsArray,
-  ArrayMinSize,
-  ArrayMaxSize,
-  ArrayUnique,
 } from 'class-validator';
-import {
-  CONTEXT_MODES,
-  QUESTION_STYLES,
-  ContextMode,
-  QuestionStyle,
-} from '../quiz-contract';
-import {
-  QUIZ_DIFFICULTIES,
-  QUIZ_TYPES,
-  QuizDifficulty,
-  QuizType,
-} from '../../../sessions/quiz-content';
+import type { QuizQuestionType } from '../../../sessions/quiz-content';
+import { QUIZ_QUESTION_TYPES } from '../quiz-contract';
 
 export class CreateQuizDto {
   @ApiPropertyOptional({
@@ -37,34 +27,22 @@ export class CreateQuizDto {
   @IsUUID()
   collection_id?: string;
 
-  @ApiProperty({ enum: QUIZ_TYPES, example: 'multiple_choice' })
-  @IsIn([...QUIZ_TYPES])
-  quiz_type!: QuizType;
-
-  @ApiPropertyOptional({
-    enum: QUESTION_STYLES,
+  @ApiProperty({
+    enum: QUIZ_QUESTION_TYPES,
     isArray: true,
+    example: ['multiple_choice', 'fill_blank'],
     description:
-      'Các dạng trắc nghiệm; chỉ multiple_choice/mixed. Mặc định meaning.',
+      'Checkbox dạng câu hỏi; câu hỏi được chia đều cho các dạng được chọn. ' +
+      'Trắc nghiệm tự trộn nghĩa / đọc Kanji / chọn chữ Kanji tuỳ dữ liệu từng từ.',
   })
-  @ValidateIf((_object, value: unknown) => value !== undefined)
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(3)
   @ArrayUnique()
-  @IsIn([...QUESTION_STYLES], { each: true })
-  question_styles?: QuestionStyle[];
+  @IsIn([...QUIZ_QUESTION_TYPES], { each: true })
+  question_types!: QuizQuestionType[];
 
-  @ApiPropertyOptional({ enum: CONTEXT_MODES, default: 'none' })
-  @ValidateIf((_object, value: unknown) => value !== undefined)
-  @IsIn([...CONTEXT_MODES])
-  context_mode?: ContextMode;
-
-  @ApiProperty({ enum: QUIZ_DIFFICULTIES, example: 'medium' })
-  @IsIn([...QUIZ_DIFFICULTIES])
-  difficulty!: QuizDifficulty;
-
-  @ApiProperty({ minimum: 1, maximum: 50, example: 5 })
+  @ApiProperty({ minimum: 1, maximum: 50, example: 10 })
   @Type(() => Number)
   @IsInt()
   @Min(1)

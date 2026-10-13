@@ -1,11 +1,6 @@
-import {
-  QuizDifficulty,
-  QuizQuestionType,
-  QuizType,
-} from '../../sessions/quiz-content';
+import { QuizQuestionType } from '../../sessions/quiz-content';
 import { Rng } from '../../srs/scheduler/fuzz';
 import {
-  ContextMode,
   QuestionStyle,
   PublicQuizContext,
   ContextEvidence,
@@ -77,15 +72,13 @@ export interface GeneratedQuizQuestion {
 }
 
 export interface AiQuizGenerateInput {
-  quizType: QuizType;
-  difficulty: QuizDifficulty;
+  /** Checkbox dạng câu hỏi; trắc nghiệm tự trộn dạng Kanji mặc định. */
+  questionTypes: QuizQuestionType[];
   questionCount: number;
   languageId: number;
   items: QuizSourceItem[];
   rng: Rng;
-  questionStyles?: QuestionStyle[];
-  contextMode?: ContextMode;
-  /** Already built inside claim transaction; preserves its preflight selection. */
+  /** Already built inside the claim transaction. */
   baseQuestions?: GeneratedQuizQuestion[];
   contextEvidence?: ContextEvidence[];
   usage?: QuizTokenUsage;
@@ -94,6 +87,4 @@ export interface AiQuizGenerateInput {
 export interface AiQuizProvider {
   readonly name: string;
   generate(input: AiQuizGenerateInput): Promise<GeneratedQuizQuestion[]>;
-  /** Configuration validation only: never calls a model or holds a DB lock. */
-  preflight?(input: AiQuizGenerateInput): void;
 }

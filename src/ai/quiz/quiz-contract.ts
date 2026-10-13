@@ -2,6 +2,7 @@ import { HttpStatus } from '@nestjs/common';
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
 import { DomainException } from '../../common/errors/domain.exception';
+import type { QuizQuestionType } from '../../sessions/quiz-content';
 
 export const QUESTION_STYLES = [
   'meaning',
@@ -11,44 +12,20 @@ export const QUESTION_STYLES = [
 export const CONTEXT_MODES = ['none', 'source', 'source_or_generated'] as const;
 export type QuestionStyle = (typeof QUESTION_STYLES)[number];
 export type ContextMode = (typeof CONTEXT_MODES)[number];
-export const QUIZ_VERSION = 'm11.1-v1';
+export const QUIZ_VERSION = 'm11.2-v2';
 export const CONTEXT_POLICY = 'kanji-context-v1';
 
-export function canonicalStyles(styles?: QuestionStyle[]): QuestionStyle[] {
-  return QUESTION_STYLES.filter((style) =>
-    (styles ?? ['meaning']).includes(style),
-  );
-}
+/** Checkbox dạng câu hỏi của người dùng; thứ tự chuẩn để chia slot ổn định. */
+export const QUIZ_QUESTION_TYPES = [
+  'multiple_choice',
+  'fill_blank',
+  'matching',
+] as const;
 
-export function assertQuizConfig(
-  quizType: string,
-  styles?: QuestionStyle[],
-  mode: ContextMode = 'none',
-): void {
-  if (
-    styles !== undefined &&
-    (!Array.isArray(styles) ||
-      styles.length === 0 ||
-      new Set(styles).size !== styles.length ||
-      styles.some((s) => !QUESTION_STYLES.includes(s)) ||
-      !['multiple_choice', 'mixed'].includes(quizType))
-  ) {
-    throw new DomainException(
-      'VALIDATION_FAILED',
-      'question_styles chỉ dùng cho multiple_choice/mixed và không được rỗng hoặc trùng',
-      HttpStatus.BAD_REQUEST,
-    );
-  }
-  if (
-    !CONTEXT_MODES.includes(mode) ||
-    (mode !== 'none' && !canonicalStyles(styles).some((s) => s !== 'meaning'))
-  ) {
-    throw new DomainException(
-      'VALIDATION_FAILED',
-      'context_mode cần ít nhất một dạng Kanji',
-      HttpStatus.BAD_REQUEST,
-    );
-  }
+export function canonicalQuestionTypes(
+  types: readonly string[],
+): QuizQuestionType[] {
+  return QUIZ_QUESTION_TYPES.filter((type) => types.includes(type));
 }
 
 export function textKey(text: string): string {
@@ -122,8 +99,7 @@ export const metadataSchema = z
   .object({
     version: z.literal(QUIZ_VERSION),
     provider: z.string(),
-    styles: z.array(z.enum(QUESTION_STYLES)).min(1).max(3),
-    contextMode: z.enum(CONTEXT_MODES),
+    questionTypes: z.array(z.enum(QUIZ_QUESTION_TYPES)).min(1).max(3),
     questions: z.array(questionMetaSchema),
     usage: z
       .object({

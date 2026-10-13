@@ -4,7 +4,6 @@ export interface QuizResponse {
   id: string;
   collection_id: string | null;
   quiz_type: string;
-  difficulty: string;
   question_count: number;
   status: string;
   created_at: string;

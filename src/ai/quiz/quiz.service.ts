@@ -25,8 +25,7 @@ import { AiUsageService } from '../usage/ai-usage.service';
 import { CreateQuizDto, QuizListQueryDto } from './dto/quiz.dto';
 import { buildQuizQuestions } from './quiz-generator';
 import {
-  assertQuizConfig,
-  canonicalStyles,
+  canonicalQuestionTypes,
   metadataSchema,
   QUIZ_VERSION,
   readQuestionMetadata,
@@ -118,7 +117,6 @@ export class QuizService {
     userId: bigint,
     dto: CreateQuizDto,
   ): Promise<CreateQuizResponse> {
-    assertQuizConfig(dto.quiz_type, dto.question_styles, dto.context_mode);
     // Only prepare/claim inside the user lock. Never hold a DB transaction
     // open while awaiting an external provider (also works across VPS workers).
     const prepared = await this.prisma.$transaction(async (tx) => {
@@ -135,35 +133,30 @@ export class QuizService {
       const reusable = await this.resolveCooldown(tx, userId, profile.id, dto);
       if (reusable !== null) return { kind: 'reused' as const, reusable };
 
+      const questionTypes = canonicalQuestionTypes(dto.question_types);
       const items = await this.sourceRepo.findSourceItems(
         {
           userId,
           profileId: profile.id,
           collectionId: dto.collection_id ?? null,
-          enrichKanji: canonicalStyles(dto.question_styles).some(
-            (style) => style !== 'meaning',
-          ),
-          withExamples: (dto.context_mode ?? 'none') !== 'none',
+          // Kanji là mặc định trong trắc nghiệm; ngữ cảnh cũng chỉ dùng cho
+          // câu hỏi Kanji nên chỉ enrich khi có multiple_choice.
+          enrichKanji: questionTypes.includes('multiple_choice'),
+          withExamples: questionTypes.includes('multiple_choice'),
         },
         tx,
       );
       const generatorInput: AiQuizGenerateInput = {
-        quizType: dto.quiz_type,
-        difficulty: dto.difficulty,
+        questionTypes,
         questionCount: dto.question_count,
         languageId: profile.primaryLanguageId,
         items,
         rng: mathRng,
-        questionStyles: canonicalStyles(dto.question_styles),
-        contextMode: dto.context_mode ?? 'none',
         usage: { tokensIn: 0, tokensOut: 0, calls: 0, local: 0, reused: 0 },
       };
       // Source validation, quota and claim either all commit or all roll back.
-      // Only pass an explicit styles request to the generator when compatible.
-      if (!['multiple_choice', 'mixed'].includes(dto.quiz_type))
-        generatorInput.questionStyles = undefined;
       generatorInput.baseQuestions = buildQuizQuestions(generatorInput);
-      if (generatorInput.contextMode !== 'none') {
+      if (questionTypes.includes('multiple_choice')) {
         const previous = await tx.quiz.findMany({
           where: { userId, profileId: profile.id, status: 'ready' },
           orderBy: { createdAt: 'desc' },
@@ -179,7 +172,6 @@ export class QuizService {
             : [];
         });
       }
-      this.quizProvider.preflight?.(generatorInput);
       const period = periodDate(localDateString(new Date(), profile.timezone));
       await this.usage.reserveDailyRequest(
         tx,
@@ -195,14 +187,15 @@ export class QuizService {
           userId,
           profileId: profile.id,
           collectionId: dto.collection_id ?? null,
-          quizType: dto.quiz_type,
-          difficulty: dto.difficulty,
+          quizType: questionTypes.length > 1 ? 'mixed' : questionTypes[0],
+          // Cột difficulty vẫn NOT NULL trong schema; UX đã bỏ độ khó nên ghi
+          // giá trị trung tính, không dùng cho logic sinh câu hỏi.
+          difficulty: 'medium',
           questionCount: dto.question_count,
           generator: {
             provider: this.quizProvider.name,
             version: QUIZ_PROMPT_VERSION,
-            styles: canonicalStyles(dto.question_styles),
-            contextMode: dto.context_mode ?? 'none',
+            questionTypes,
             questions: [],
           },
           status: 'generating',
@@ -231,8 +224,7 @@ export class QuizService {
       const metadata = metadataSchema.parse({
         provider: this.quizProvider.name,
         version: QUIZ_PROMPT_VERSION,
-        styles: canonicalStyles(dto.question_styles),
-        contextMode: dto.context_mode ?? 'none',
+        questionTypes: canonicalQuestionTypes(dto.question_types),
         usage: generatorInput.usage,
         questions: questions.map((q, index) => ({
           ordinal: index + 1,
@@ -250,12 +242,6 @@ export class QuizService {
           metadata.questions[index].style !== expected.questionStyle
         )
           throw new Error('Provider changed question style');
-        if (
-          expected.kanjiTarget &&
-          generatorInput.contextMode !== 'none' &&
-          (!q.context || !q.evidence)
-        )
-          throw new Error('Missing validated context');
       }
       const quiz = await this.prisma.$transaction(async (tx) => {
         await lockUser(tx, userId);
@@ -559,21 +545,21 @@ export class QuizService {
       return null;
     }
 
+    const questionTypes = canonicalQuestionTypes(dto.question_types);
     const sameParams =
       last.profileId === profileId &&
-      last.quizType === dto.quiz_type &&
-      last.difficulty === dto.difficulty &&
+      last.quizType ===
+        (questionTypes.length > 1 ? 'mixed' : questionTypes[0]) &&
       last.questionCount === dto.question_count &&
       (last.collectionId ?? null) === (dto.collection_id ?? null);
     const previousConfig = metadataSchema.safeParse(last.generator);
-    const sameStyleConfig =
+    const sameTypeConfig =
       previousConfig.success &&
-      JSON.stringify(previousConfig.data.styles) ===
-        JSON.stringify(canonicalStyles(dto.question_styles)) &&
-      previousConfig.data.contextMode === (dto.context_mode ?? 'none');
+      JSON.stringify(previousConfig.data.questionTypes) ===
+        JSON.stringify(questionTypes);
     if (
       sameParams &&
-      sameStyleConfig &&
+      sameTypeConfig &&
       last.status === 'ready' &&
       (last.expiresAt === null || last.expiresAt.getTime() > Date.now()) &&
       (last.generator as { version?: unknown } | null)?.version ===
@@ -750,7 +736,6 @@ function toQuizResponse(row: QuizRow): QuizResponse {
     id: row.id,
     collection_id: row.collectionId,
     quiz_type: row.quizType,
-    difficulty: row.difficulty,
     question_count: row.questionCount,
     status: row.status,
     created_at: row.createdAt.toISOString(),

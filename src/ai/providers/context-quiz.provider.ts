@@ -79,43 +79,8 @@ export class ContextQuizProvider implements AiQuizProvider {
     this.name = config.transport ? 'hybrid-context' : 'stub';
   }
 
-  preflight(input: AiQuizGenerateInput): void {
-    if ((input.contextMode ?? 'none') === 'none') return;
-    for (const question of input.baseQuestions ?? buildQuizQuestions(input)) {
-      if (!question.kanjiTarget) continue;
-      const item = this.source(input, question);
-      if (this.reusable(input, question, item).length > 0) continue;
-      const examples = this.sourceExamples(item, question);
-      if (input.contextMode === 'source' && examples.length === 0)
-        throw new DomainException(
-          'QUIZ_NOT_ENOUGH_ITEMS',
-          'Không có câu nguồn phù hợp cho từ Kanji',
-          HttpStatus.CONFLICT,
-          { style: question.questionStyle, sense_id: item.senseId },
-        );
-      if (
-        !this.config.transport ||
-        !this.config.validatorModel ||
-        (examples.length === 0 && !this.config.generatorModel)
-      )
-        throw new DomainException(
-          'QUIZ_CONTEXT_UNAVAILABLE',
-          'Cần cấu hình model sinh/kiểm ngữ cảnh quiz trong .env',
-          HttpStatus.SERVICE_UNAVAILABLE,
-        );
-      if ((item.glossEn ?? []).length === 0)
-        throw new DomainException(
-          'QUIZ_NOT_ENOUGH_ITEMS',
-          'Thiếu gloss nguồn của đúng nghĩa để kiểm ngữ cảnh',
-          HttpStatus.CONFLICT,
-          { sense_id: item.senseId },
-        );
-    }
-  }
-
   async generate(input: AiQuizGenerateInput): Promise<GeneratedQuizQuestion[]> {
     const questions = input.baseQuestions ?? buildQuizQuestions(input);
-    this.preflight({ ...input, baseQuestions: questions });
     const usage = input.usage ?? {
       tokensIn: 0,
       tokensOut: 0,
@@ -129,12 +94,47 @@ export class ContextQuizProvider implements AiQuizProvider {
     const evidencePool = [...(input.contextEvidence ?? [])];
     const result: GeneratedQuizQuestion[] = [];
     for (const question of questions) {
-      if ((input.contextMode ?? 'none') === 'none' || !question.kanjiTarget) {
+      if (!question.kanjiTarget) {
         usage.local++;
         result.push(question);
         continue;
       }
       const item = this.source(input, question);
+      const accepted = await this.contextFor(
+        input,
+        item,
+        question,
+        evidencePool,
+        used,
+        deadline,
+      );
+      if (!accepted) {
+        // Ngữ cảnh là tuỳ chọn: không tạo/kiểm được thì trả câu từ đơn lẻ,
+        // quiz không fail vì thiếu ngữ cảnh.
+        usage.local++;
+        result.push(question);
+        continue;
+      }
+      evidencePool.push(accepted);
+      used.add(fingerprint(accepted.sentence));
+      result.push({ ...this.render(question, accepted), evidence: accepted });
+    }
+    return result;
+  }
+
+  /** Trả evidence đã đạt policy; undefined = dùng câu từ đơn lẻ. */
+  private async contextFor(
+    input: AiQuizGenerateInput,
+    item: QuizSourceItem,
+    question: GeneratedQuizQuestion,
+    evidencePool: ContextEvidence[],
+    used: Set<string>,
+    deadline: number,
+  ): Promise<ContextEvidence | undefined> {
+    if ((item.glossEn ?? []).length === 0) return undefined;
+    if (!this.config.validatorModel || !this.config.transport)
+      return undefined;
+    try {
       const reuse = this.reusable(
         { ...input, contextEvidence: evidencePool },
         question,
@@ -143,19 +143,16 @@ export class ContextQuizProvider implements AiQuizProvider {
       const cached =
         reuse.find((e) => !used.has(fingerprint(e.sentence))) ?? reuse[0];
       if (cached) {
-        usage.reused++;
-        used.add(fingerprint(cached.sentence));
-        result.push({ ...this.render(question, cached), evidence: cached });
-        continue;
+        input.usage!.reused++;
+        return cached;
       }
-      let accepted: ContextEvidence | undefined;
       const examples = this.sourceExamples(item, question).sort(
         (a, b) =>
           Number(used.has(fingerprint(a.sentence))) -
           Number(used.has(fingerprint(b.sentence))),
       );
       for (const example of examples.slice(0, 2)) {
-        accepted = await this.verify(
+        const accepted = await this.verify(
           input,
           item,
           question,
@@ -163,13 +160,9 @@ export class ContextQuizProvider implements AiQuizProvider {
           example,
           deadline,
         );
-        if (accepted) break;
+        if (accepted) return accepted;
       }
-      if (
-        !accepted &&
-        input.contextMode === 'source_or_generated' &&
-        this.config.generatorModel
-      ) {
+      if (this.config.generatorModel)
         for (let attempt = 0; attempt < 2; attempt++) {
           const sentence = await this.createSentence(
             input,
@@ -178,7 +171,7 @@ export class ContextQuizProvider implements AiQuizProvider {
             deadline,
           );
           if (!sentence) continue;
-          accepted = await this.verify(
+          const accepted = await this.verify(
             input,
             item,
             question,
@@ -186,20 +179,13 @@ export class ContextQuizProvider implements AiQuizProvider {
             null,
             deadline,
           );
-          if (accepted) break;
+          if (accepted) return accepted;
         }
-      }
-      if (!accepted)
-        throw new DomainException(
-          'QUIZ_CONTEXT_INVALID',
-          'Chưa tạo được ngữ cảnh đúng nghĩa và chỉ có một đáp án',
-          HttpStatus.SERVICE_UNAVAILABLE,
-        );
-      evidencePool.push(accepted);
-      used.add(fingerprint(accepted.sentence));
-      result.push({ ...this.render(question, accepted), evidence: accepted });
+      return undefined;
+    } catch {
+      // Hết deadline hoặc lỗi provider: bỏ ngữ cảnh thay vì fail cả quiz.
+      return undefined;
     }
-    return result;
   }
 
   private source(
@@ -227,7 +213,6 @@ export class ContextQuizProvider implements AiQuizProvider {
       item.glossViMachine,
       item.pos,
       item.kanjiPairs,
-      input.difficulty,
     ]);
   }
   private answerKey(
@@ -270,8 +255,6 @@ export class ContextQuizProvider implements AiQuizProvider {
         e.contextKey !== this.contextKey(input, question, item) ||
         e.answerKey !== this.answerKey(question, e)
       )
-        return [];
-      if (input.contextMode === 'source' && e.origin !== 'dictionary')
         return [];
       if (
         e.origin === 'dictionary' &&
@@ -376,7 +359,6 @@ export class ContextQuizProvider implements AiQuizProvider {
         glossEn: item.glossEn,
         glossVi: item.meaningVi,
         glossViMachine: item.glossViMachine,
-        difficulty: input.difficulty,
       },
       deadline,
     );

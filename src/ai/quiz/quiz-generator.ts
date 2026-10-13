@@ -1,107 +1,138 @@
 import { HttpStatus } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
-import {
-  QuizDifficulty,
-  QuizQuestionType,
-  QuizType,
-} from '../../sessions/quiz-content';
+import { QuizQuestionType } from '../../sessions/quiz-content';
 import { Rng } from '../../srs/scheduler/fuzz';
 import {
   GeneratedQuizQuestion,
   QuizSourceItem,
 } from '../providers/ai-quiz.provider';
+import { canonicalQuestionTypes, QuestionStyle } from './quiz-contract';
 import {
-  assertQuizConfig,
-  canonicalStyles,
-  ContextMode,
-  QuestionStyle,
-} from './quiz-contract';
-import {
-  assertKanjiPool,
   buildKanjiQuestion,
   createKanjiPool,
   KanjiTarget,
 } from './kanji-generator';
 
 export interface QuizGeneratorInput {
-  quizType: QuizType;
-  difficulty: QuizDifficulty;
+  /** Checkbox dạng câu hỏi người dùng chọn (subset của 3 dạng). */
+  questionTypes: QuizQuestionType[];
   questionCount: number;
   languageId: number;
   items: QuizSourceItem[];
   rng: Rng;
-  questionStyles?: QuestionStyle[];
-  contextMode?: ContextMode;
+}
+
+/** Trắc nghiệm tự luân phiên nghĩa → đọc Kanji → chọn chữ Kanji. */
+const MCQ_STYLE_ROTATION: QuestionStyle[] = [
+  'meaning',
+  'kanji_reading',
+  'kanji_orthography',
+];
+const MATCHING_SIZE = 4;
+
+/** Slot dạng câu hỏi: luân phiên các dạng được chọn để có tỉ lệ xuất hiện đều. */
+export function questionTypeSlots(
+  questionTypes: QuizQuestionType[],
+  questionCount: number,
+): QuizQuestionType[] {
+  const types = canonicalQuestionTypes(questionTypes);
+  if (types.length === 0) {
+    throw new DomainException(
+      'VALIDATION_FAILED',
+      'Cần ít nhất một dạng câu hỏi',
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+  return Array.from(
+    { length: questionCount },
+    (_value, index) => types[index % types.length],
+  );
 }
 
 /**
  * Sinh câu hỏi quiz (thuần, RNG injectable — stub provider dùng hàm này).
  *
- * Ngữ nghĩa difficulty của stub:
- * - MC: easy 3 phương án, medium/hard 4 (nếu đủ nhiễu).
- * - Fill-blank: easy/medium chấp nhận cả romaji, hard chỉ lemma + reading.
- * - Matching: K = 3 (easy) hoặc 4, tối đa bằng số từ nguồn.
+ * Không còn độ khó: MC 4 phương án (nếu đủ nhiễu), matching 4 cặp, fill nhận
+ * cả lemma/reading/romaji. Mỗi từ chỉ dùng cho tối đa một câu; dạng Kanji nằm
+ * trong trắc nghiệm như mặc định và tự fallback về câu nghĩa khi từ không có
+ * cặp Kanji–kana hợp lệ.
  */
 export function buildQuizQuestions(
   input: QuizGeneratorInput,
 ): GeneratedQuizQuestion[] {
   const items = prepareItems(input.items);
-  assertQuizConfig(input.quizType, input.questionStyles, input.contextMode);
-  const styles = canonicalStyles(input.questionStyles);
-  const kanjiPools = new Map<QuestionStyle, KanjiTarget[]>();
-  for (const style of styles) {
-    if (style !== 'meaning') {
-      const pool = createKanjiPool(input.items, style);
-      assertKanjiPool(pool, style);
-      kanjiPools.set(style, pool);
-    }
+  const questionTypes = canonicalQuestionTypes(input.questionTypes);
+  if (questionTypes.length === 0) {
+    throw new DomainException(
+      'VALIDATION_FAILED',
+      'Cần ít nhất một dạng câu hỏi',
+      HttpStatus.BAD_REQUEST,
+    );
+  }
+  assertQuizCanGenerate(items);
+
+  // Luân phiên các dạng được chọn để có tỉ lệ xuất hiện đều; mỗi câu matching
+  // tiêu thụ 4 từ nguồn.
+  const slots = questionTypeSlots(questionTypes, input.questionCount);
+  const matchingSlots = slots.filter((type) => type === 'matching').length;
+  const required = slots.length + matchingSlots * (MATCHING_SIZE - 1);
+  if (items.length < required) {
+    throw new DomainException(
+      'QUIZ_NOT_ENOUGH_ITEMS',
+      'Bộ sưu tập không đủ từ cho số câu hỏi yêu cầu',
+      HttpStatus.CONFLICT,
+      { available: items.length, required },
+    );
   }
 
-  const sequence = questionTypeSequence(input.quizType, input.questionCount);
-  // A lemma with distinct meanings cannot be disambiguated by our stub prompts.
-  // Inspect the raw source before meaning dedup so a discarded synonym cannot
-  // hide another sense of the same word.
-  const meaningsByLemma = new Map<string, Set<string>>();
-  for (const item of input.items) {
-    if (item.lemma.trim() === '' || item.meaningVi.trim() === '') continue;
-    const key = normalizeText(item.lemma);
-    const meanings = meaningsByLemma.get(key) ?? new Set<string>();
-    meanings.add(normalizeText(item.meaningVi));
-    meaningsByLemma.set(key, meanings);
+  const kanjiPools: Partial<Record<QuestionStyle, KanjiTarget[]>> = {};
+  for (const style of ['kanji_reading', 'kanji_orthography'] as const) {
+    const pool = createKanjiPool(items, style);
+    if (pool.length > 0) kanjiPools[style] = pool;
   }
-  const unambiguous = items.filter(
-    (item) => meaningsByLemma.get(normalizeText(item.lemma))?.size === 1,
-  );
+
+  let cursor = 0;
   let mcOrdinal = 0;
-  return sequence.map((type, index) => {
-    const style =
-      type === 'multiple_choice'
-        ? styles[mcOrdinal++ % styles.length]
-        : undefined;
-    if (style !== undefined && style !== 'meaning')
-      return buildKanjiQuestion(
-        kanjiPools.get(style)!,
-        style,
-        Math.floor((mcOrdinal - 1) / styles.length),
-        input.rng,
-        input.difficulty,
-      );
-    const source = type === 'fill_blank' ? items : unambiguous;
-    assertQuizCanGenerate(source);
-    return {
-      ...buildQuestion(
-        type,
-        index,
-        input.difficulty,
-        input.languageId,
-        source,
-        input.rng,
-      ),
-      questionStyle: type === 'multiple_choice' ? ('meaning' as const) : type,
-      context: null,
-      evidence: null,
-    };
-  });
+  const questions: GeneratedQuizQuestion[] = [];
+  for (const type of slots) {
+    if (type === 'matching') {
+      const chosen = items.slice(cursor, cursor + MATCHING_SIZE);
+      cursor += chosen.length;
+      questions.push(buildMatchingQuestion(chosen, input.rng));
+      continue;
+    }
+    const item = items[cursor];
+    cursor += 1;
+    if (type === 'fill_blank') {
+      questions.push(buildFillBlank(item, input.languageId));
+      continue;
+    }
+    const style = MCQ_STYLE_ROTATION[mcOrdinal % MCQ_STYLE_ROTATION.length];
+    mcOrdinal += 1;
+    const kanji =
+      style === 'meaning'
+        ? null
+        : buildKanjiQuestionForItem(
+            item,
+            kanjiPools[style] ?? [],
+            style,
+            input.rng,
+          );
+    questions.push(kanji ?? buildMultipleChoice(item, items, input.rng));
+  }
+  return questions;
+}
+
+/** Câu Kanji dựng riêng cho đúng một từ; null khi từ thiếu dữ liệu cho dạng đó. */
+function buildKanjiQuestionForItem(
+  item: QuizSourceItem,
+  pool: KanjiTarget[],
+  style: QuestionStyle,
+  rng: Rng,
+): GeneratedQuizQuestion | null {
+  const targets = pool.filter((target) => target.item.senseId === item.senseId);
+  if (targets.length === 0) return null;
+  return buildKanjiQuestion(targets, style, 0, rng);
 }
 
 /** Kiểm tra nguồn từ vựng trước khi tiêu quota — ném 409 khi không đủ. */
@@ -137,52 +168,15 @@ export function prepareItems(rawItems: QuizSourceItem[]): QuizSourceItem[] {
   return result;
 }
 
-export function questionTypeSequence(
-  quizType: QuizType,
-  questionCount: number,
-): QuizQuestionType[] {
-  const cycle: QuizQuestionType[] =
-    quizType === 'mixed'
-      ? ['multiple_choice', 'fill_blank', 'matching']
-      : [quizType];
-  return Array.from(
-    { length: questionCount },
-    (_value, index) => cycle[index % cycle.length],
-  );
-}
-
-function buildQuestion(
-  type: QuizQuestionType,
-  questionIndex: number,
-  difficulty: QuizDifficulty,
-  languageId: number,
-  items: QuizSourceItem[],
-  rng: Rng,
-): GeneratedQuizQuestion {
-  if (type === 'matching') {
-    return buildMatchingQuestion(questionIndex, difficulty, items, rng);
-  }
-  const item = items[questionIndex % items.length];
-  return type === 'multiple_choice'
-    ? buildMultipleChoice(item, questionIndex, difficulty, items, rng)
-    : buildFillBlank(item, difficulty, languageId);
-}
-
 function buildMultipleChoice(
   item: QuizSourceItem,
-  questionIndex: number,
-  difficulty: QuizDifficulty,
   items: QuizSourceItem[],
   rng: Rng,
 ): GeneratedQuizQuestion {
-  const optionCount = difficulty === 'easy' ? 3 : 4;
+  const optionCount = 4;
   const distractors: string[] = [];
-  for (
-    let step = 1;
-    step < items.length && distractors.length < optionCount - 1;
-    step += 1
-  ) {
-    const candidate = items[(questionIndex + step) % items.length];
+  for (const candidate of shuffle(items, rng)) {
+    if (distractors.length >= optionCount - 1) break;
     if (normalizeText(candidate.meaningVi) === normalizeText(item.meaningVi)) {
       continue;
     }
@@ -225,13 +219,12 @@ function buildMultipleChoice(
 
 function buildFillBlank(
   item: QuizSourceItem,
-  difficulty: QuizDifficulty,
   languageId: number,
 ): GeneratedQuizQuestion {
   const accepted = uniqueNormalized([
     item.lemma,
     item.reading ?? '',
-    difficulty === 'hard' ? '' : (item.romanization ?? ''),
+    item.romanization ?? '',
   ]);
 
   return {
@@ -247,20 +240,9 @@ function buildFillBlank(
 }
 
 function buildMatchingQuestion(
-  questionIndex: number,
-  difficulty: QuizDifficulty,
-  items: QuizSourceItem[],
+  chosen: QuizSourceItem[],
   rng: Rng,
 ): GeneratedQuizQuestion {
-  const want = difficulty === 'easy' ? 3 : 4;
-  const size = Math.min(want, items.length);
-  const chosen: QuizSourceItem[] = [];
-  for (let step = 0; step < items.length && chosen.length < size; step += 1) {
-    const candidate = items[(questionIndex * size + step) % items.length];
-    if (!chosen.some((entry) => entry.itemId === candidate.itemId)) {
-      chosen.push(candidate);
-    }
-  }
   if (chosen.length < 2) {
     throw new DomainException(
       'QUIZ_NOT_ENOUGH_ITEMS',

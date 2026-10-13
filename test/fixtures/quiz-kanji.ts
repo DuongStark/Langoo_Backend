@@ -31,14 +31,11 @@ export function kanjiInput(
   overrides: Partial<AiQuizGenerateInput> = {},
 ): AiQuizGenerateInput {
   return {
-    quizType: 'multiple_choice',
-    difficulty: 'medium',
+    questionTypes: ['multiple_choice'],
     questionCount: 1,
     languageId: 22,
     items: kanjiItems(),
     rng: { next: () => 0.5 },
-    questionStyles: ['kanji_reading'],
-    contextMode: 'none',
     ...overrides,
   };
 }

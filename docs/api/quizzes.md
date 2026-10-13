@@ -1,8 +1,9 @@
 # API: Quizzes (AI Quiz — M11)
 
-Tất cả endpoint dưới `/v1`, cần Bearer token. Câu hỏi nghĩa, nối từ, nhập từ theo
-gợi ý và Kanji không ngữ cảnh được dựng từ dữ liệu, **không gọi AI**. Adapter
-ngữ cảnh chỉ sinh/kiểm các câu Kanji cần ngữ cảnh mới; câu đã kiểm phù hợp được tái sử dụng.
+Tất cả endpoint dưới `/v1`, cần Bearer token. Người dùng chỉ chọn **dạng câu hỏi
+(checkbox)**; câu hỏi được dựng từ dữ liệu, **không gọi AI** ngoại trừ câu ngữ cảnh
+Kanji. Adapter ngữ cảnh sinh/kiểm câu Kanji và **tự fallback về từ đơn lẻ** khi
+không có — quiz không fail vì thiếu ngữ cảnh.
 
 **Chống lạm dụng:** quota riêng `AI_QUIZ_DAILY_LIMIT` (mặc định **15/ngày** theo timezone user)
 
@@ -21,28 +22,30 @@ curl -s -X POST http://localhost:3000/v1/quizzes \
   -H "Content-Type: application/json" \
   -d '{
     "collection_id": "<uuid, tuỳ chọn>",
-    "quiz_type": "mixed",
-    "difficulty": "medium",
-    "question_count": 5
+    "question_count": 5,
+    "question_types": ["multiple_choice", "fill_blank", "matching"]
   }'
 ```
 
-- `quiz_type`: `multiple_choice` | `fill_blank` | `matching` | `mixed` (trộn MC → FB → matching).
+- `question_types`: mảng con **không rỗng/không trùng** của `multiple_choice`,
+  `fill_blank`, `matching`. Field cũ (`quiz_type`, `question_styles`, `context_mode`,
+  `difficulty`) không còn được nhận → `400 VALIDATION_FAILED`.
 - `collection_id`: UUID tùy chọn; bỏ field để dùng mọi collection trong hồ sơ hiện tại.
   `null` không hợp lệ. Collection phải thuộc hồ sơ hiện tại và chưa archive, kể cả khi dedup.
-- `difficulty`: `easy` | `medium` | `hard` (stub: MC 3/4/4 phương án; fill-blank easy-medium nhận
-  thêm romaji; matching K = 3/4/4 cặp).
-- `question_styles`: tùy chọn, mảng không rỗng/không trùng gồm `meaning`, `kanji_reading`,
-  `kanji_orthography`; chỉ dùng với `multiple_choice` hoặc `mixed`. Bỏ field mặc định
-  `['meaning']`. Với mixed, chỉ các slot MC luân phiên styles theo thứ tự canonical trên;
-  fill-blank/matching vẫn chạy bằng code. Không nhận null.
-- `context_mode`: `none` (mặc định), `source` (câu từ điển), `source_or_generated`
-  (ưu tiên câu từ điển/câu đã kiểm, sinh mới khi thiếu). Mode khác none cần Kanji style.
-- Kanji chỉ lấy target và nhiễu trong scope request, resolve form/reading restrictions theo
-  đúng sense Nhật. Luôn có 4 options, kể cả easy. Không đủ target + 3 nhiễu hợp lệ trả
-  `409 QUIZ_NOT_ENOUGH_ITEMS` trước quota; không tự chuyển sang câu nghĩa. Difficulty không phải cấp JLPT.
+- Phân bổ: câu hỏi **luân phiên** các dạng đã chọn (tỉ lệ đều); **mỗi từ tối đa 1 câu**,
+  một câu matching dùng 4 từ. Yêu cầu vượt số từ khả dụng → `409 QUIZ_NOT_ENOUGH_ITEMS`
+  kèm `available`/`required` (không lặp câu).
+- Trắc nghiệm tự trộn 3 dạng con `nghĩa → đọc Kanji → chọn chữ Kanji`; từ không đủ dữ
+  liệu Kanji (kana-only/thiếu cặp/thiếu nhiễu) tự fallback câu nghĩa, không cần chọn.
+- Kanji dùng target + nhiễu trong scope request, resolve form/reading restrictions theo
+  đúng sense Nhật; MC 4 phương án khi đủ nhiễu, matching 4 cặp, fill-blank nhận
+  lemma/reading/romaji. Không còn khái niệm độ khó.
 - Nguồn từ vựng: item thuộc hồ sơ, collection chưa archive, item không `paused`, có `srs_state`
-  thuộc đúng user/hồ sơ (**kể cả `new`**); ưu tiên `review → relearning → learning → new`.
+  thuộc đúng user/hồ sơ (**kể cả `new`**); ưu tiên `review → relearning → learning → new`,
+  xáo trong cùng nhóm trạng thái giữa các lần tạo.
+- Ngữ cảnh Kanji tự động: câu đã kiểm (cache) → câu từ điển có nguồn → AI sinh mới;
+  hết cách thì hiển thị từ đơn lẻ (`context = null`). Không còn các lỗi
+  `QUIZ_CONTEXT_UNAVAILABLE`/`QUIZ_CONTEXT_INVALID` — ngữ cảnh không chặn tạo quiz.
 - MC nghĩa/matching loại mọi sense của lemma có nhiều nghĩa khác nhau vì đề template chưa có
   ngữ cảnh phân biệt. Sau lọc vẫn cần ≥2 từ khác nghĩa; nếu thiếu trả
   `409 QUIZ_NOT_ENOUGH_ITEMS` trước khi tiêu quota. Fill-blank vẫn dùng các sense này.
@@ -54,7 +57,6 @@ Response `201`:
   "id": "019...",
   "collection_id": null,
   "quiz_type": "mixed",
-  "difficulty": "medium",
   "question_count": 5,
   "status": "ready",
   "created_at": "2026-09-30T10:00:00.000Z",
@@ -63,26 +65,23 @@ Response `201`:
 }
 ```
 
-Lỗi: `409 QUIZ_NOT_ENOUGH_ITEMS` (cần ≥2 từ) · `429 QUIZ_GENERATION_COOLDOWN` ·
-`429 AI_QUOTA_EXCEEDED` · `404 COLLECTION_NOT_FOUND` · `400 VALIDATION_FAILED` ·
-`503 AI_PROVIDER_UNAVAILABLE` (lỗi provider hoặc lưu câu hỏi).
-
-Ngữ cảnh có thêm `503 QUIZ_CONTEXT_UNAVAILABLE` (thiếu cấu hình model cần dùng, trước quota),
-`503 QUIZ_CONTEXT_INVALID` (không tạo/kiểm được câu đúng nghĩa và một đáp án, sau provider),
+Lỗi: `409 QUIZ_NOT_ENOUGH_ITEMS` (không đủ từ cho kế hoạch câu hỏi) ·
+`429 QUIZ_GENERATION_COOLDOWN` · `429 AI_QUOTA_EXCEEDED` · `404 COLLECTION_NOT_FOUND` ·
+`400 VALIDATION_FAILED` · `503 AI_PROVIDER_UNAVAILABLE` (lỗi provider hoặc lưu câu hỏi) ·
 `409 QUIZ_METADATA_INVALID` (metadata mới không hợp lệ khi đọc/start).
 
-Ví dụ Kanji không gọi AI:
+Ví dụ trắc nghiệm thuần (Kanji vẫn tự trộn, không cần chọn style):
 
 ```bash
 curl -s -X POST http://localhost:3000/v1/quizzes \
   -H "Authorization: Bearer <access_token>" \
   -H "Content-Type: application/json" \
-  -d '{"collection_id":"<uuid>","quiz_type":"multiple_choice","question_styles":["kanji_reading","kanji_orthography"],"context_mode":"none","difficulty":"medium","question_count":10}'
+  -d '{"collection_id":"<uuid>","question_count":10,"question_types":["multiple_choice"]}'
 ```
 
-Đổi `context_mode` thành `source_or_generated` để luyện Kanji trong câu. Cần dữ liệu
-forms/restrictions được import đầy đủ; ít nhất 4 từ Nhật phân biệt được không luôn đảm bảo
-đủ nhiễu nếu có aliases/homophones. Cấu hình model ở cuối tài liệu.
+Kanji cần dữ liệu forms/restrictions được import đầy đủ; ít nhất 4 từ Nhật phân biệt được
+không luôn đảm bảo đủ nhiễu nếu có aliases/homophones — từ thiếu dữ liệu tự fallback câu nghĩa.
+Cấu hình model ở cuối tài liệu.
 
 Nếu item nguồn bị xóa sau khi provider đã sinh câu hỏi, quiz vẫn lưu nội dung/đáp án
 snapshot và đặt tham chiếu item bị xóa thành `null`. Lỗi lưu câu hỏi khác chuyển quiz

@@ -1,7 +1,6 @@
 import { HttpStatus } from '@nestjs/common';
 import { DomainException } from '../../common/errors/domain.exception';
 import { Rng } from '../../srs/scheduler/fuzz';
-import { QuizDifficulty } from '../../sessions/quiz-content';
 import {
   GeneratedQuizQuestion,
   QuizSourceItem,
@@ -130,29 +129,11 @@ export function buildKanjiQuestion(
   style: QuestionStyle,
   ordinal: number,
   rng: Rng,
-  difficulty: QuizDifficulty = 'medium',
 ): GeneratedQuizQuestion {
   assertKanjiPool(targets, style);
   const { item, pair, distractors } = targets[ordinal % targets.length];
   const answer = style === 'kanji_reading' ? pair.reading : pair.written;
-  const key = style === 'kanji_reading' ? readingKey : textKey;
-  const answerChars = Array.from(key(answer));
-  const proximity = (text: string): number => {
-    const chars = Array.from(key(text));
-    return (
-      Math.abs(answerChars.length - chars.length) * 2 +
-      chars.filter((c) => !answerChars.includes(c)).length +
-      answerChars.filter((c) => !chars.includes(c)).length
-    );
-  };
-  const choices = shuffled(distractors, rng);
-  // A form-similarity heuristic, not an official JLPT difficulty rating.
-  if (difficulty !== 'medium')
-    choices.sort(
-      (a, b) =>
-        (proximity(a) - proximity(b)) * (difficulty === 'hard' ? 1 : -1),
-    );
-  const options = shuffled([answer, ...choices.slice(0, 3)], rng).map(
+  const options = shuffled([answer, ...shuffled(distractors, rng).slice(0, 3)], rng).map(
     (text, index) => ({ index, text }),
   );
   return {

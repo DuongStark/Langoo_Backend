@@ -19,14 +19,11 @@ export class StubQuizProvider implements AiQuizProvider {
     return Promise.resolve(
       input.baseQuestions ??
         buildQuizQuestions({
-          quizType: input.quizType,
-          difficulty: input.difficulty,
+          questionTypes: input.questionTypes,
           questionCount: input.questionCount,
           languageId: input.languageId,
           items: input.items,
           rng: input.rng,
-          questionStyles: input.questionStyles,
-          contextMode: input.contextMode,
         }),
     );
   }
