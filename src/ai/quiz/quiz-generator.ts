@@ -156,7 +156,12 @@ export function buildQuizQuestions(
     const kanji =
       style === 'meaning'
         ? null
-        : buildKanjiQuestionForItem(item, kanjiPools[style] ?? [], style, input.rng);
+        : buildKanjiQuestionForItem(
+            item,
+            kanjiPools[style] ?? [],
+            style,
+            input.rng,
+          );
     questions.push(
       kanji ?? {
         ...buildMultipleChoice(item, items, input.rng),

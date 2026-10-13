@@ -133,9 +133,10 @@ export function buildKanjiQuestion(
   assertKanjiPool(targets, style);
   const { item, pair, distractors } = targets[ordinal % targets.length];
   const answer = style === 'kanji_reading' ? pair.reading : pair.written;
-  const options = shuffled([answer, ...shuffled(distractors, rng).slice(0, 3)], rng).map(
-    (text, index) => ({ index, text }),
-  );
+  const options = shuffled(
+    [answer, ...shuffled(distractors, rng).slice(0, 3)],
+    rng,
+  ).map((text, index) => ({ index, text }));
   return {
     questionType: 'multiple_choice',
     questionStyle: style,

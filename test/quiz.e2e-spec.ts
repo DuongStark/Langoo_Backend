@@ -12,7 +12,6 @@ process.env.AI_QUIZ_DAILY_LIMIT = '3';
 interface QuizBody {
   id: string;
   quiz_type: string;
-  difficulty: string;
   question_count: number;
   status: string;
   reused?: boolean;
@@ -56,8 +55,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
   const runId = Date.now();
   const password = 'matkhau-e2e-123';
   const mcParams = {
-    quiz_type: 'multiple_choice',
-    difficulty: 'medium',
+    question_types: ['multiple_choice'],
     question_count: 3,
   } as const;
 
@@ -139,8 +137,8 @@ describe('AI Quiz (e2e — langoo_test)', () => {
     otherToken = await register(`e2e-quiz-other-${runId}@langoo.test`);
     otherCollectionId = await setupCollection(
       otherToken,
-      ['1', '5'],
-      ['chạy', 'ăn'],
+      ['1', '5', '7', '9'],
+      ['chạy', 'ăn', 'đi', 'nước'],
     );
   });
 
@@ -159,11 +157,11 @@ describe('AI Quiz (e2e — langoo_test)', () => {
 
     expect(quiz).toMatchObject({
       quiz_type: 'multiple_choice',
-      difficulty: 'medium',
       question_count: 3,
       status: 'ready',
       reused: false,
     });
+    expect(quiz).not.toHaveProperty('difficulty');
 
     // bấm đúp cùng tham số trong cooldown → trả lại quiz cũ, không tiêu thêm quota
     const duplicate = await request(server)
@@ -178,9 +176,8 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .post('/v1/quizzes')
       .set(auth(mainToken))
       .send({
-        quiz_type: 'multiple_choice',
-        difficulty: 'hard',
-        question_count: 3,
+        question_types: ['multiple_choice'],
+        question_count: 2,
         collection_id: mainCollectionId,
       })
       .expect(429);
@@ -199,6 +196,9 @@ describe('AI Quiz (e2e — langoo_test)', () => {
     expect(detailBody.questions).toHaveLength(3);
     for (const question of detailBody.questions) {
       expect(question).toMatchObject({ question_type: 'multiple_choice' });
+      expect(['meaning', 'kanji_reading', 'kanji_orthography']).toContain(
+        question.question_style,
+      );
       expect(question).not.toHaveProperty('correct_answer');
       expect(Array.isArray(question.options)).toBe(true);
     }
@@ -333,13 +333,14 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .post('/v1/quizzes')
       .set(auth(mainToken))
       .send({
-        quiz_type: 'mixed',
-        difficulty: 'easy',
+        question_types: ['multiple_choice', 'fill_blank', 'matching'],
         question_count: 3,
         collection_id: mainCollectionId,
       })
       .expect(201);
-    const mixedQuizId = (created.body as QuizBody).id;
+    const mixedBody = created.body as QuizBody;
+    expect(mixedBody.quiz_type).toBe('mixed');
+    const mixedQuizId = mixedBody.id;
 
     const started = await request(server)
       .post(`/v1/quizzes/${mixedQuizId}/start`)
@@ -404,8 +405,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .post('/v1/quizzes')
       .set(auth(token))
       .send({
-        quiz_type: 'multiple_choice',
-        difficulty: 'easy',
+        question_types: ['multiple_choice'],
         question_count: 2,
         collection_id: collectionId,
       })
@@ -464,8 +464,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
         .post('/v1/quizzes')
         .set(auth(token))
         .send({
-          quiz_type: 'multiple_choice',
-          difficulty: 'easy',
+          question_types: ['multiple_choice'],
           question_count: 2,
           collection_id: collectionId,
         })
@@ -547,8 +546,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
         .post('/v1/quizzes')
         .set(auth(token))
         .send({
-          quiz_type: 'multiple_choice',
-          difficulty: 'easy',
+          question_types: ['multiple_choice'],
           question_count: 2,
           collection_id: collectionId,
         })
@@ -639,9 +637,9 @@ describe('AI Quiz (e2e — langoo_test)', () => {
 
   it('quota riêng 3/ngày: lần sinh thứ 4 → 429 AI_QUOTA_EXCEEDED', async () => {
     const params = [
-      { quiz_type: 'multiple_choice', difficulty: 'easy', question_count: 2 },
-      { quiz_type: 'fill_blank', difficulty: 'medium', question_count: 2 },
-      { quiz_type: 'matching', difficulty: 'hard', question_count: 2 },
+      { question_types: ['multiple_choice'], question_count: 2 },
+      { question_types: ['fill_blank'], question_count: 2 },
+      { question_types: ['matching'], question_count: 1 },
     ];
     for (const item of params) {
       await request(server)
@@ -656,9 +654,8 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .post('/v1/quizzes')
       .set(auth(otherToken))
       .send({
-        quiz_type: 'multiple_choice',
-        difficulty: 'hard',
-        question_count: 2,
+        question_types: ['multiple_choice'],
+        question_count: 3,
         collection_id: otherCollectionId,
       })
       .expect(429);
@@ -678,29 +675,52 @@ describe('AI Quiz (e2e — langoo_test)', () => {
     expect(res.body).toMatchObject({ code: 'QUIZ_EXPIRED' });
   });
 
-  it('validation biên: type/count sai → 400; collection người khác → 404', async () => {
+  it('validation biên: field cũ/dạng sai/count sai → 400; collection người khác → 404', async () => {
+    // field cũ không còn được nhận (forbidNonWhitelisted)
     await request(server)
       .post('/v1/quizzes')
       .set(auth(mainToken))
-      .send({ quiz_type: 'khong-co', difficulty: 'easy', question_count: 2 })
+      .send({
+        quiz_type: 'multiple_choice',
+        question_types: ['multiple_choice'],
+        question_count: 2,
+      })
       .expect(400);
 
     await request(server)
       .post('/v1/quizzes')
       .set(auth(mainToken))
       .send({
-        quiz_type: 'multiple_choice',
+        question_types: ['multiple_choice'],
         difficulty: 'easy',
-        question_count: 0,
+        question_count: 2,
       })
+      .expect(400);
+
+    // mảng dạng rỗng/trùng/không hợp lệ
+    for (const question_types of [
+      [],
+      ['multiple_choice', 'multiple_choice'],
+      ['khong-co'],
+    ]) {
+      await request(server)
+        .post('/v1/quizzes')
+        .set(auth(mainToken))
+        .send({ question_types, question_count: 2 })
+        .expect(400);
+    }
+
+    await request(server)
+      .post('/v1/quizzes')
+      .set(auth(mainToken))
+      .send({ question_types: ['multiple_choice'], question_count: 0 })
       .expect(400);
 
     const res = await request(server)
       .post('/v1/quizzes')
       .set(auth(mainToken))
       .send({
-        quiz_type: 'multiple_choice',
-        difficulty: 'easy',
+        question_types: ['multiple_choice'],
         question_count: 2,
         collection_id: otherCollectionId,
       })
@@ -720,8 +740,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .post('/v1/quizzes')
       .set(auth(token))
       .send({
-        quiz_type: 'multiple_choice',
-        difficulty: 'medium',
+        question_types: ['multiple_choice'],
         question_count: 2,
         collection_id: collectionId,
       })

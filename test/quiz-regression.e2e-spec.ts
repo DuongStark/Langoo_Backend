@@ -34,8 +34,7 @@ describe('M11 regressions (e2e — local *_test only)', () => {
   let generate: AiQuizProvider['generate'] = (input) =>
     Promise.resolve(buildQuizQuestions(input));
   const params = {
-    quiz_type: 'multiple_choice',
-    difficulty: 'medium',
+    question_types: ['multiple_choice'],
     question_count: 1,
   };
   const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
@@ -232,9 +231,16 @@ describe('M11 regressions (e2e — local *_test only)', () => {
   });
 
   it('invalid matching indices/duplicate right do not lock the answer or record activity', async () => {
-    const f = await fixture('matching');
+    const f = await fixture(
+      'matching',
+      ['1', '5', '7', '9'],
+      ['chạy', 'ăn', 'đi', 'nước'],
+    );
     const quiz = (
-      await create(f.token, { ...params, quiz_type: 'matching' }).expect(201)
+      await create(f.token, {
+        ...params,
+        question_types: ['matching'],
+      }).expect(201)
     ).body as CreateQuizResponse;
     const started = (
       await request(server)
@@ -288,13 +294,19 @@ describe('M11 regressions (e2e — local *_test only)', () => {
 
   it('polysemy-only MC/matching/mixed source is rejected without quota use', async () => {
     const f = await fixture('polysemy', ['2', '4'], ['chạy', 'điều hành']);
-    for (const quiz_type of ['multiple_choice', 'matching', 'mixed']) {
+    for (const question_types of [
+      ['multiple_choice'],
+      ['matching'],
+      ['multiple_choice', 'fill_blank', 'matching'],
+    ]) {
       expect(
-        (await create(f.token, { ...params, quiz_type }).expect(409)).body,
+        (await create(f.token, { ...params, question_types }).expect(409)).body,
       ).toMatchObject({ code: 'QUIZ_NOT_ENOUGH_ITEMS' });
     }
     expect(await prisma.aiUsage.count({ where: { userId: f.userId } })).toBe(0);
-    await create(f.token, { ...params, quiz_type: 'fill_blank' }).expect(201);
+    await create(f.token, { ...params, question_types: ['fill_blank'] }).expect(
+      201,
+    );
   });
 
   it('requires SRS for the same user/profile; a new-state item is still eligible', async () => {

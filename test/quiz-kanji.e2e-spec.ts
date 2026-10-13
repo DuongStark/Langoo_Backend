@@ -151,15 +151,13 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
     });
     return { token, id, userId: user.id };
   }
+
   const params = {
-    quiz_type: 'multiple_choice',
-    difficulty: 'easy',
+    question_types: ['multiple_choice'],
     question_count: 4,
-    question_styles: ['kanji_reading', 'kanji_orthography'],
-    context_mode: 'none',
   };
 
-  it('resolves real forms/restrictions, GET/start/snapshots and grading without AI', async () => {
+  it('xoay style Kanji, GET/start/snapshots và chấm điểm (mock models)', async () => {
     const f = await fixture('local');
     const create = await request(server)
       .post('/v1/quizzes')
@@ -167,20 +165,24 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
       .send({ ...params, collection_id: f.id })
       .expect(201);
     const id = (create.body as CreateQuizResponse).id;
-    expect(chat).not.toHaveBeenCalled();
     const detail = (
       await request(server)
         .get(`/v1/quizzes/${id}`)
         .set(auth(f.token))
         .expect(200)
     ).body as QuizDetailResponse;
+    // MC slot xoay meaning → kanji_reading → kanji_orthography → meaning.
     expect(detail.questions.map((q) => q.question_style)).toEqual([
+      'meaning',
       'kanji_reading',
       'kanji_orthography',
-      'kanji_reading',
-      'kanji_orthography',
+      'meaning',
     ]);
     for (const q of detail.questions) expect(q.options).toHaveLength(4);
+    expect(detail.questions[1].context?.origin).toBe('generated');
+    expect(detail.questions[2].context?.origin).toBe('generated');
+    // Chỉ 2 slot Kanji gọi model: mỗi câu 1 lượt sinh + 1 lượt kiểm.
+    expect(chat).toHaveBeenCalledTimes(4);
     expect(JSON.stringify(detail)).not.toMatch(
       /correctAnswer|correct_answer|kanjiTarget|evidence/,
     );
@@ -191,6 +193,7 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
         .expect(201)
     ).body as SessionDetailResponse;
     expect(JSON.stringify(started.items)).toContain('kanji_reading');
+    expect(JSON.stringify(started.items)).toContain('generated');
     const stored = await prisma.quizQuestion.findMany({
       where: { quizId: id },
       orderBy: { ordinal: 'asc' },
@@ -203,9 +206,10 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
       .expect(200);
     const quiz = await prisma.quiz.findUniqueOrThrow({ where: { id } });
     expect(metadataSchema.parse(quiz.generator).usage).toMatchObject({
-      calls: 0,
-      tokensIn: 0,
-      tokensOut: 0,
+      calls: 4,
+      tokensIn: 32,
+      tokensOut: 16,
+      local: 2,
     });
   });
 
@@ -214,9 +218,7 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
     const body = {
       ...params,
       collection_id: f.id,
-      question_count: 1,
-      question_styles: ['kanji_orthography'],
-      context_mode: 'source_or_generated',
+      question_count: 3,
     };
     const create = async () =>
       (
@@ -227,9 +229,10 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
           .expect(201)
       ).body as CreateQuizResponse;
     const first = await create();
-    expect(chat).toHaveBeenCalledTimes(2);
+    expect(chat).toHaveBeenCalledTimes(4); // 2 slot Kanji × (sinh + kiểm)
     chat.mockClear();
     const second = await create();
+    // Slot Kanji thứ hai tái dùng evidence đã kiểm, không gọi model.
     expect(chat).not.toHaveBeenCalled();
     const detail = (
       await request(server)
@@ -237,16 +240,22 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
         .set(auth(f.token))
         .expect(200)
     ).body as QuizDetailResponse;
-    expect(detail.questions[0].context?.origin).toBe('generated');
-    expect(detail.questions[0].prompt).not.toContain('学校');
+    const ko = detail.questions.find(
+      (q) => q.question_style === 'kanji_orthography',
+    )!;
+    expect(ko).toBeDefined();
+    expect(ko.context?.origin).toBe('generated');
+    for (const written of ['学校', '本', '学生', '水']) {
+      expect(ko.prompt).not.toContain(written);
+    }
     expect(JSON.stringify(detail)).not.toMatch(
       /sourceSentence|sourceHash|generatorModel|contextKey/,
     );
     const usage = await prisma.aiUsage.findFirstOrThrow({
       where: { userId: f.userId, feature: 'quiz' },
     });
-    expect(usage.tokensIn).toBe(16n);
-    expect(usage.tokensOut).toBe(8n);
+    expect(usage.tokensIn).toBe(32n);
+    expect(usage.tokensOut).toBe(16n);
     expect(usage.requestCount).toBe(2);
     await prisma.collectionItem.deleteMany({ where: { collectionId: f.id } });
     const started = (
@@ -268,11 +277,14 @@ describe('Kanji quiz integration (local *_test, mock models)', () => {
   it('validates config and insufficient scoped pool before quota, without AI calls', async () => {
     const f = await fixture('invalid');
     for (const changes of [
-      { question_styles: null },
-      { question_styles: [] },
-      { question_styles: ['kanji_reading', 'kanji_reading'] },
-      { quiz_type: 'matching' },
-      { question_styles: ['meaning'], context_mode: 'source' },
+      { question_types: null },
+      { question_types: [] },
+      { question_types: ['multiple_choice', 'multiple_choice'] },
+      { question_types: ['khong-co'] },
+      { quiz_type: 'multiple_choice' }, // field cũ → 400
+      { question_styles: ['meaning'] },
+      { context_mode: 'source' },
+      { difficulty: 'easy' },
     ])
       await request(server)
         .post('/v1/quizzes')

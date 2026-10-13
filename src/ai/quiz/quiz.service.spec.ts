@@ -6,10 +6,8 @@ import { AiQuizProvider } from '../providers/ai-quiz.provider';
 import { AiUsageService } from '../usage/ai-usage.service';
 import { QuizService } from './quiz.service';
 import { QuizSourceRepository } from './repositories/quiz-source.repository';
-import { QUIZ_VERSION } from './quiz-contract';
-import { kanjiItems } from '../../../test/fixtures/quiz-kanji';
-import { DomainException } from '../../common/errors/domain.exception';
-import { HttpStatus } from '@nestjs/common';
+import { QuizQuestionType } from '../../sessions/quiz-content';
+import { CONTEXT_POLICY, QUIZ_VERSION } from './quiz-contract';
 
 const QUIZ_ID = '01900000-0000-7000-8000-000000000001';
 
@@ -23,7 +21,12 @@ function quizRow(overrides: Record<string, unknown> = {}) {
     difficulty: 'medium',
     questionCount: 2,
     status: 'ready',
-    generator: { provider: 'stub', version: 'm11-v2' },
+    generator: {
+      provider: 'stub',
+      version: QUIZ_VERSION,
+      questionTypes: ['multiple_choice'],
+      questions: [],
+    },
     createdAt: new Date(),
     expiresAt: new Date(Date.now() + 86_400_000),
     ...overrides,
@@ -43,12 +46,19 @@ function sourceItems(count: number) {
   }));
 }
 
-function generatedQuestions(count: number) {
+function generatedQuestions(
+  count: number,
+  questionType: 'multiple_choice' | 'fill_blank' = 'multiple_choice',
+) {
   return Array.from({ length: count }, (_value, index) => ({
-    questionType: 'multiple_choice' as const,
+    questionType,
     prompt: `Câu ${index + 1}`,
-    options: [{ index: 0, text: 'a' }],
-    correctAnswer: { index: 0, text: 'a' },
+    options:
+      questionType === 'multiple_choice' ? [{ index: 0, text: 'a' }] : [],
+    correctAnswer:
+      questionType === 'multiple_choice'
+        ? { index: 0, text: 'a' }
+        : { accepted: ['a'] },
     explanation: null,
     languageId: 2,
     conceptId: null,
@@ -56,12 +66,26 @@ function generatedQuestions(count: number) {
   }));
 }
 
+const EVIDENCE = {
+  policy: CONTEXT_POLICY,
+  contextKey: 'a'.repeat(64),
+  answerKey: 'b'.repeat(64),
+  sentence: '毎日、学校へ行きます。',
+  origin: 'generated' as const,
+  attribution: null,
+  exampleId: null,
+  sourceHash: null,
+  generatorModel: 'generator',
+  validatorModel: 'validator',
+  accepted: true as const,
+};
+
 function createSetup(cooldownMs = '15000') {
   const tx = {
     quizQuestion: { createMany: jest.fn() },
     quiz: {
       findFirst: jest.fn(),
-      findMany: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
       create: jest.fn(),
       update: jest.fn(),
       updateMany: jest.fn(),
@@ -134,74 +158,104 @@ function firstArg<T>(mock: jest.Mock): T {
 }
 
 const dto = {
-  quiz_type: 'multiple_choice' as const,
-  difficulty: 'medium' as const,
+  question_types: ['multiple_choice'] as QuizQuestionType[],
   question_count: 2,
 };
 
 describe('QuizService', () => {
-  it('canonicalizes styles in cooldown and does not reuse another context mode', async () => {
+  it('canonicalizes question_types when deduping and rejects another type mix', async () => {
     const setup = createSetup();
     setup.prisma.quiz.findFirst.mockResolvedValue(
       quizRow({
+        quizType: 'mixed',
         generator: {
           provider: 'stub',
           version: QUIZ_VERSION,
-          styles: ['kanji_reading', 'kanji_orthography'],
-          contextMode: 'none',
+          questionTypes: ['multiple_choice', 'matching'],
           questions: [],
         },
       }),
     );
     const request = {
-      ...dto,
-      question_styles: ['kanji_orthography', 'kanji_reading'] as (
-        'kanji_reading' | 'kanji_orthography'
+      question_types: ['matching', 'multiple_choice'] as (
+        'multiple_choice' | 'matching'
       )[],
+      question_count: 2,
     };
     await expect(setup.service.create(1n, request)).resolves.toMatchObject({
       reused: true,
     });
     await expect(
-      setup.service.create(1n, { ...request, context_mode: 'source' }),
+      setup.service.create(1n, {
+        question_types: ['matching'],
+        question_count: 2,
+      }),
     ).rejects.toMatchObject({ code: 'QUIZ_GENERATION_COOLDOWN' });
     expect(setup.usage.reserveDailyRequest).not.toHaveBeenCalled();
   });
-  it('context configuration failure happens before quota and model generation', async () => {
-    const setup = createSetup('0');
-    setup.sourceRepo.findSourceItems.mockResolvedValue(kanjiItems());
-    setup.tx.quiz.findMany.mockResolvedValue([]);
-    setup.provider.preflight = () => {
-      throw new DomainException(
-        'QUIZ_CONTEXT_UNAVAILABLE',
-        'missing config',
-        HttpStatus.SERVICE_UNAVAILABLE,
-      );
-    };
-    await expect(
-      setup.service.create(1n, {
-        ...dto,
-        question_styles: ['kanji_reading'],
-        context_mode: 'source_or_generated',
-      }),
-    ).rejects.toMatchObject({ code: 'QUIZ_CONTEXT_UNAVAILABLE' });
-    expect(setup.usage.reserveDailyRequest).not.toHaveBeenCalled();
-    expect(setup.providerGenerate).not.toHaveBeenCalled();
-    expect(setup.tx.quiz.create).not.toHaveBeenCalled();
-  });
-  it('cooldown cùng tham số → trả quiz cũ reused=true, không tiêu quota', async () => {
-    const { service, prisma, usage, providerGenerate } = createSetup();
-    prisma.quiz.findFirst.mockResolvedValue(
-      quizRow({
+
+  it('chỉ multiple_choice mới enrich Kanji và gom context evidence', async () => {
+    const fill = createSetup('0');
+    fill.sourceRepo.findSourceItems.mockResolvedValue(sourceItems(2));
+    fill.prisma.quiz.create.mockResolvedValue(
+      quizRow({ status: 'generating' }),
+    );
+    fill.tx.quiz.update.mockResolvedValue(
+      quizRow({ status: 'ready', questionCount: 2 }),
+    );
+    fill.usage.reserveDailyRequest.mockResolvedValue(1);
+    fill.providerGenerate.mockResolvedValue(
+      generatedQuestions(2, 'fill_blank'),
+    );
+
+    await fill.service.create(1n, {
+      question_types: ['fill_blank'],
+      question_count: 2,
+    });
+    expect(fill.sourceRepo.findSourceItems).toHaveBeenCalledWith(
+      expect.objectContaining({ enrichKanji: false, withExamples: false }),
+      expect.anything(),
+    );
+    expect(fill.tx.quiz.findMany).not.toHaveBeenCalled();
+
+    const mc = createSetup('0');
+    mc.sourceRepo.findSourceItems.mockResolvedValue(sourceItems(2));
+    mc.prisma.quiz.create.mockResolvedValue(quizRow({ status: 'generating' }));
+    mc.tx.quiz.update.mockResolvedValue(
+      quizRow({ status: 'ready', questionCount: 2 }),
+    );
+    mc.usage.reserveDailyRequest.mockResolvedValue(1);
+    mc.tx.quiz.findMany.mockResolvedValue([
+      {
         generator: {
           provider: 'stub',
           version: QUIZ_VERSION,
-          styles: ['meaning'],
-          contextMode: 'none',
-          questions: [],
+          questionTypes: ['multiple_choice'],
+          questions: [
+            { ordinal: 1, style: 'meaning', context: null, evidence: EVIDENCE },
+          ],
         },
-      }),
+      },
+    ]);
+    mc.providerGenerate.mockResolvedValue(generatedQuestions(2));
+
+    await mc.service.create(1n, dto);
+    expect(mc.sourceRepo.findSourceItems).toHaveBeenCalledWith(
+      expect.objectContaining({ enrichKanji: true, withExamples: true }),
+      expect.anything(),
     );
+    expect(mc.tx.quiz.findMany).toHaveBeenCalledTimes(1);
+    const providerInput = firstArg<{
+      contextEvidence: unknown[];
+      questionTypes: string[];
+    }>(mc.providerGenerate);
+    expect(providerInput.contextEvidence).toEqual([EVIDENCE]);
+    expect(providerInput.questionTypes).toEqual(['multiple_choice']);
+  });
+
+  it('cooldown cùng tham số → trả quiz cũ reused=true, không tiêu quota', async () => {
+    const { service, prisma, usage, providerGenerate } = createSetup();
+    prisma.quiz.findFirst.mockResolvedValue(quizRow());
 
     const result = await service.create(1n, dto);
 
@@ -213,7 +267,7 @@ describe('QuizService', () => {
 
   it('cooldown khác tham số → 429 QUIZ_GENERATION_COOLDOWN kèm retry_after', async () => {
     const { service, prisma } = createSetup();
-    prisma.quiz.findFirst.mockResolvedValue(quizRow({ difficulty: 'hard' }));
+    prisma.quiz.findFirst.mockResolvedValue(quizRow({ questionCount: 3 }));
 
     await expect(service.create(1n, dto)).rejects.toMatchObject({
       code: 'QUIZ_GENERATION_COOLDOWN',
@@ -257,14 +311,25 @@ describe('QuizService', () => {
     expect(reserveArgs[4]).toBe(15);
 
     const createArgs = firstArg<{
-      data: { status: string; generator: { provider: string } };
+      data: {
+        status: string;
+        quizType: string;
+        difficulty: string;
+        generator: { provider: string; questionTypes: string[] };
+      };
     }>(prisma.quiz.create);
     expect(createArgs.data.status).toBe('generating');
-    expect(createArgs.data.generator.provider).toBe('stub');
+    expect(createArgs.data.quizType).toBe('multiple_choice');
+    expect(createArgs.data.difficulty).toBe('medium');
+    expect(createArgs.data.generator).toMatchObject({
+      provider: 'stub',
+      questionTypes: ['multiple_choice'],
+    });
 
     expect(tx.quizQuestion.createMany).toHaveBeenCalledTimes(1);
     expect(result.status).toBe('ready');
     expect(result.reused).toBe(false);
+    expect(result).not.toHaveProperty('difficulty');
   });
 
   it('M6.2 rejects a generated quiz if the profile language changes while waiting for AI', async () => {
@@ -374,17 +439,39 @@ describe('QuizService', () => {
     });
   });
 
-  it('start quiz ready → tạo phiên kind=quiz với snapshot câu hỏi', async () => {
+  it('start quiz ready → snapshot câu hỏi kèm style/context từ metadata v2', async () => {
     const { service, prisma, tx, sessions } = createSetup();
-    prisma.quiz.findFirst.mockResolvedValue(quizRow());
+    prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({
+        generator: {
+          provider: 'stub',
+          version: QUIZ_VERSION,
+          questionTypes: ['multiple_choice', 'matching'],
+          questions: [
+            {
+              ordinal: 1,
+              style: 'kanji_reading',
+              context: {
+                sentence: '毎日、学校へ行きます。',
+                target: { start: 3, end: 5, text: '学校' },
+                origin: 'generated',
+                attribution: null,
+              },
+              evidence: null,
+            },
+            { ordinal: 2, style: 'matching', context: null, evidence: null },
+          ],
+        },
+      }),
+    );
     prisma.quizQuestion.findMany.mockResolvedValue([
       {
         id: 1n,
         ordinal: 1,
         questionType: 'multiple_choice',
-        prompt: 'Nghĩa của 「語1」 là gì?',
-        options: [{ index: 0, text: 'nghĩa 1' }],
-        correctAnswer: { index: 0, text: 'nghĩa 1' },
+        prompt: '毎日、学校へ行きます。\n「学校」の読み方はどれですか。',
+        options: [{ index: 0, text: 'がっこう' }],
+        correctAnswer: { index: 0, text: 'がっこう' },
         languageId: 2,
         conceptId: 1n,
         itemId: 'item-1',
@@ -420,12 +507,25 @@ describe('QuizService', () => {
     });
     const itemArgs = firstArg<{
       data: {
-        prompt: { kind: string; left?: unknown[]; right?: unknown[] };
+        prompt: {
+          kind: string;
+          question_style: string;
+          context: { target: unknown } | null;
+          left?: unknown[];
+          right?: unknown[];
+        };
         quizQuestionId: bigint;
       }[];
     }>(tx.studySessionItem.createMany);
     expect(itemArgs.data[0].prompt.kind).toBe('multiple_choice');
+    expect(itemArgs.data[0].prompt.question_style).toBe('kanji_reading');
+    expect(itemArgs.data[0].prompt.context?.target).toEqual({
+      start: 3,
+      end: 5,
+      text: '学校',
+    });
     expect(itemArgs.data[1].prompt.kind).toBe('matching');
+    expect(itemArgs.data[1].prompt.question_style).toBe('matching');
     expect(itemArgs.data[1].prompt.left).toHaveLength(1);
     expect(itemArgs.data[1].prompt.right).toHaveLength(1);
     expect(itemArgs.data[0].quizQuestionId).toBe(1n);

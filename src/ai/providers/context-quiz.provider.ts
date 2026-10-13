@@ -1,6 +1,4 @@
-import { HttpStatus } from '@nestjs/common';
 import { z } from 'zod';
-import { DomainException } from '../../common/errors/domain.exception';
 import { buildQuizQuestions } from '../quiz/quiz-generator';
 import {
   CONTEXT_POLICY,

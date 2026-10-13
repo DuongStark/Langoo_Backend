@@ -58,7 +58,9 @@ function setup(options: { timeoutMs?: number } = {}) {
         noAnswerLeak: true,
         correctOptionIndices: [
           input.options!.find(
-            (o) => o.text === targetReading || o.text === input.target.written,
+            (option) =>
+              option.text === targetReading ||
+              option.text === input.target.written,
           )!.index,
         ],
       }),
@@ -67,54 +69,41 @@ function setup(options: { timeoutMs?: number } = {}) {
   return { chat, provider, response };
 }
 
+/**
+ * Với `questionCount: 2`, slot MC thứ hai mang style `kanji_reading`
+ * (rotation meaning → kanji_reading) và nhắm item thứ hai của fixture (銀行).
+ */
+const KANJI_SLOT = 1;
+
 describe('ContextQuizProvider routing and quality', () => {
   it('reuses validated context when models and key are absent', async () => {
     const { provider } = setup();
-    const [first] = await provider.generate(
-      kanjiInput({ contextMode: 'source_or_generated' }),
-    );
+    const first = await provider.generate(kanjiInput({ questionCount: 2 }));
+    const evidence = first[KANJI_SLOT].evidence!;
+
     const offline = new ContextQuizProvider({ timeoutMs: 1000 });
-    const input = kanjiInput({
-      contextMode: 'source_or_generated',
-      contextEvidence: [first.evidence!],
+    const input = kanjiInput({ questionCount: 2, contextEvidence: [evidence] });
+    const result = await offline.generate(input);
+    expect(result).toHaveLength(2);
+    expect(result[KANJI_SLOT].context?.sentence).toContain('銀行');
+    expect(result[KANJI_SLOT].evidence).toEqual(evidence);
+    expect(input.usage).toMatchObject({
+      calls: 0,
+      reused: 1,
+      local: 1,
     });
-    await expect(offline.generate(input)).resolves.toHaveLength(1);
-    expect(input.usage?.calls).toBe(0);
   });
-  it('blank timeout uses a real deadline rather than failing immediately', async () => {
-    const { chat } = setup();
-    const spy = jest
-      .spyOn(OpenAiChatProvider.prototype, 'chat')
-      .mockImplementation(chat);
-    try {
-      const provider = createAiQuizProvider(
-        new ConfigService({
-          AI_PROVIDER: 'openai',
-          AI_API_KEY: 'fixture',
-          AI_QUIZ_MODEL: 'generator',
-          AI_QUIZ_VALIDATOR_MODEL: 'validator',
-          AI_QUIZ_TIMEOUT_MS: '',
-        }),
-      );
-      await provider.generate(
-        kanjiInput({ contextMode: 'source_or_generated' }),
-      );
-      expect(chat.mock.calls[0][0].timeoutMs).toBeGreaterThan(1000);
-    } finally {
-      spy.mockRestore();
-    }
-  });
-  it.each(['multiple_choice', 'matching', 'fill_blank', 'mixed'] as const)(
-    '%s data-only makes zero AI calls with AI enabled',
-    async (quizType) => {
+
+  it.each([
+    [['fill_blank'], 3, 3],
+    [['matching'], 1, 1],
+  ] as const)(
+    '%j data-only makes zero AI calls with AI enabled',
+    async (questionTypes, questionCount, expectedLocal) => {
       const { provider, chat } = setup();
       const input = kanjiInput({
-        quizType,
-        questionCount: 3,
-        questionStyles:
-          quizType === 'multiple_choice' || quizType === 'mixed'
-            ? ['meaning']
-            : undefined,
+        questionTypes: [...questionTypes],
+        questionCount,
       });
       await provider.generate(input);
       expect(chat).not.toHaveBeenCalled();
@@ -122,80 +111,114 @@ describe('ContextQuizProvider routing and quality', () => {
         tokensIn: 0,
         tokensOut: 0,
         calls: 0,
-        local: 3,
+        local: expectedLocal,
       });
     },
   );
-  it('Kanji without context requires no configured provider', async () => {
-    const provider = new ContextQuizProvider({ timeoutMs: 1000 });
-    await expect(provider.generate(kanjiInput())).resolves.toHaveLength(1);
-    expect(() =>
-      provider.preflight(kanjiInput({ contextMode: 'source_or_generated' })),
-    ).toThrow();
+
+  it('MC không có dữ liệu Kanji → câu nghĩa local, zero AI calls', async () => {
+    const { provider, chat } = setup();
+    const plainItems = [1, 2, 3, 4].map((index) => ({
+      itemId: `word-${index}`,
+      senseId: `${index}`,
+      conceptId: `${index}`,
+      languageId: 1,
+      lemma: `word ${index}`,
+      reading: null,
+      romanization: null,
+      meaningVi: `nghĩa ${index}`,
+    }));
+    const input = kanjiInput({
+      items: plainItems,
+      questionCount: 3,
+      languageId: 1,
+    });
+    await provider.generate(input);
+    expect(chat).not.toHaveBeenCalled();
+    expect(input.usage).toMatchObject({ calls: 0, local: 3 });
   });
+
+  it('Kanji without configured provider falls back to word-only, no throw', async () => {
+    const provider = new ContextQuizProvider({ timeoutMs: 1000 });
+    const input = kanjiInput({ questionCount: 2 });
+    const result = await provider.generate(input);
+    expect(result).toHaveLength(2);
+    expect(result[KANJI_SLOT].kanjiTarget).toBeDefined();
+    expect(result[KANJI_SLOT].context ?? null).toBeNull();
+    expect(input.usage).toMatchObject({ local: 2, calls: 0 });
+  });
+
   it('generates and validates only missing context, keeping source answer', async () => {
     const { provider, chat } = setup();
-    const input = kanjiInput({ contextMode: 'source_or_generated' });
+    const input = kanjiInput({ questionCount: 2 });
     const result = await provider.generate(input);
     expect(chat).toHaveBeenCalledTimes(2);
-    expect(result[0].context?.sentence).toBe('毎日、学校へ行きます。');
-    expect(result[0].evidence?.accepted).toBe(true);
-    expect(input.usage).toMatchObject({ tokensIn: 24, tokensOut: 12 });
+    expect(result[KANJI_SLOT].context?.sentence).toBe('毎日、銀行へ行きます。');
+    expect(result[KANJI_SLOT].evidence?.accepted).toBe(true);
+    expect(input.usage).toMatchObject({
+      tokensIn: 24,
+      tokensOut: 12,
+      local: 1,
+    });
   });
-  it('source mode verifies dictionary context without invoking generation', async () => {
+
+  it('source example is verified without invoking generation', async () => {
     const { provider, chat } = setup();
-    const input = kanjiInput({ contextMode: 'source' });
-    input.items[0].examples = [
+    const input = kanjiInput({ questionCount: 2 });
+    input.items[KANJI_SLOT].examples = [
       {
         id: '1',
-        sentence: '毎日、学校へ行きます。',
+        sentence: '毎日、銀行へ行きます。',
         attribution: 'Source CC BY',
         sourceHash: fingerprint('source-v1'),
       },
     ];
-    const [q] = await provider.generate(input);
+    const result = await provider.generate(input);
     expect(chat).toHaveBeenCalledTimes(1);
     expect(chat.mock.calls[0][0].model).toBe('validator');
-    expect(q.context?.origin).toBe('dictionary');
+    expect(result[KANJI_SLOT].context?.origin).toBe('dictionary');
   });
+
   it('reuses accepted evidence across option shuffles without tokens; source changes invalidate it', async () => {
     const { provider, chat } = setup();
-    const input = kanjiInput({ contextMode: 'source_or_generated' });
-    const [first] = await provider.generate(input);
+    const input = kanjiInput({ questionCount: 2 });
+    const first = (await provider.generate(input))[KANJI_SLOT];
     chat.mockClear();
     const reused = kanjiInput({
-      contextMode: 'source_or_generated',
+      questionCount: 2,
       rng: { next: () => 0.1 },
       contextEvidence: [first.evidence!],
     });
-    const [second] = await provider.generate(reused);
+    const second = await provider.generate(reused);
     expect(chat).not.toHaveBeenCalled();
-    expect(second.evidence).toEqual(first.evidence);
+    expect(second[KANJI_SLOT].evidence).toEqual(first.evidence);
     expect(reused.usage).toMatchObject({ reused: 1, calls: 0 });
-    reused.items[0].glossEn = ['different sense'];
+
+    reused.items[KANJI_SLOT].glossEn = ['different sense'];
     await provider.generate({ ...reused, usage: undefined });
     expect(chat).toHaveBeenCalledTimes(2);
   });
+
   it('masks Kanji in orthography and preserves Unicode code point span', async () => {
     const { provider } = setup();
-    const input = kanjiInput({
-      contextMode: 'source',
-      questionStyles: ['kanji_orthography'],
-    });
-    input.items[0].examples = [
+    const input = kanjiInput({ questionCount: 3 });
+    input.items[2].examples = [
       {
         id: '1',
-        sentence: '🌸学校へ行きます。',
+        sentence: '🌸電話へ行きます。',
         attribution: 'CC BY source',
         sourceHash: fingerprint('source'),
       },
     ];
-    const [q] = await provider.generate(input);
-    expect(q.prompt).not.toContain('学校');
-    expect(q.context?.target).toEqual({ start: 1, end: 5, text: 'がっこう' });
-    expect(q.evidence?.sentence).toContain('学校'); // private only
+    const result = await provider.generate(input);
+    const q = result[2];
+    expect(q.questionStyle).toBe('kanji_orthography');
+    expect(q.prompt).not.toContain('電話');
+    expect(q.context?.target).toEqual({ start: 1, end: 4, text: 'でんわ' });
+    expect(q.evidence?.sentence).toContain('電話'); // private only
   });
-  it('rejects two correct answers and stops after two generated candidates', async () => {
+
+  it('rejects two correct answers and falls back to word-only after two generated candidates', async () => {
     const { provider, chat, response } = setup();
     const original = chat.getMockImplementation()!;
     chat.mockImplementation((request) =>
@@ -211,11 +234,42 @@ describe('ContextQuizProvider routing and quality', () => {
             }),
           ),
     );
-    await expect(
-      provider.generate(kanjiInput({ contextMode: 'source_or_generated' })),
-    ).rejects.toMatchObject({ code: 'QUIZ_CONTEXT_INVALID' });
-    expect(chat).toHaveBeenCalledTimes(4);
+    const input = kanjiInput({ questionCount: 2 });
+    const result = await provider.generate(input);
+    expect(result[KANJI_SLOT].context ?? null).toBeNull();
+    expect(result[KANJI_SLOT].questionStyle).toBe('kanji_reading');
+    expect(result[KANJI_SLOT].questionType).toBe('multiple_choice');
+    expect(chat).toHaveBeenCalledTimes(4); // 2 candidate × (gen + verify)
+    expect(input.usage).toMatchObject({ local: 2, calls: 4 });
   });
+
+  it('malformed or answer-leaking sentences never reach semantic validator and fall back', async () => {
+    const { provider, chat, response } = setup();
+    chat.mockResolvedValue(
+      response({
+        sentence: '銀行（ぎんこう）へ行きます。',
+        target: { text: '銀行', start: 0, end: 2 },
+      }),
+    );
+    const result = await provider.generate(kanjiInput({ questionCount: 2 }));
+    expect(result[KANJI_SLOT].context ?? null).toBeNull();
+    expect(chat).toHaveBeenCalledTimes(2);
+    expect(
+      chat.mock.calls.every(([request]) => request.model === 'generator'),
+    ).toBe(true);
+  });
+
+  it('provider error không retryable → fallback, quiz không fail', async () => {
+    const { provider, chat } = setup();
+    chat.mockRejectedValue(new AiProviderError('provider HTTP 400', 400));
+    const input = kanjiInput({ questionCount: 2 });
+    const result = await provider.generate(input);
+    expect(result).toHaveLength(2);
+    expect(result[KANJI_SLOT].context ?? null).toBeNull();
+    expect(chat).toHaveBeenCalledTimes(1);
+    expect(input.usage).toMatchObject({ local: 2 });
+  });
+
   it('chấp nhận câu đúng dù model trả offset sai (tự tính lại vị trí)', async () => {
     const { provider, chat, response } = setup();
     const original = chat.getMockImplementation()!;
@@ -223,17 +277,20 @@ describe('ContextQuizProvider routing and quality', () => {
       request.model === 'generator'
         ? Promise.resolve(
             response({
-              sentence: '明日、学校へ行きます。',
-              target: { text: '学校', start: 99, end: 101 },
+              sentence: '明日、銀行へ行きます。',
+              target: { text: '銀行', start: 99, end: 101 },
             }),
           )
         : original(request),
     );
-    const [q] = await provider.generate(
-      kanjiInput({ contextMode: 'source_or_generated' }),
-    );
-    expect(q.context?.target).toEqual({ start: 3, end: 5, text: '学校' });
+    const result = await provider.generate(kanjiInput({ questionCount: 2 }));
+    expect(result[KANJI_SLOT].context?.target).toEqual({
+      start: 3,
+      end: 5,
+      text: '銀行',
+    });
   });
+
   it('chấp nhận JSON bọc trong code fence từ model', async () => {
     const { provider, chat } = setup();
     const original = chat.getMockImplementation()!;
@@ -241,11 +298,10 @@ describe('ContextQuizProvider routing and quality', () => {
       const result = await original(request);
       return { ...result, content: `\`\`\`json\n${result.content}\n\`\`\`` };
     });
-    const [q] = await provider.generate(
-      kanjiInput({ contextMode: 'source_or_generated' }),
-    );
-    expect(q.context?.sentence).toContain('学校');
+    const result = await provider.generate(kanjiInput({ questionCount: 2 }));
+    expect(result[KANJI_SLOT].context?.sentence).toContain('銀行');
   });
+
   it('tự thử lại khi provider trả 429 (rate limit)', async () => {
     const { provider, chat } = setup({ timeoutMs: 60_000 });
     const original = chat.getMockImplementation()!;
@@ -257,41 +313,52 @@ describe('ContextQuizProvider routing and quality', () => {
       }
       return original(request);
     });
-    const [q] = await provider.generate(
-      kanjiInput({ contextMode: 'source_or_generated' }),
-    );
-    expect(q.context?.sentence).toContain('学校');
+    const result = await provider.generate(kanjiInput({ questionCount: 2 }));
+    expect(result[KANJI_SLOT].context?.sentence).toContain('銀行');
   });
-  it('malformed or answer-leaking sentences never reach semantic validator', async () => {
-    const { provider, chat, response } = setup();
-    chat.mockResolvedValue(
-      response({
-        sentence: '学校（がっこう）へ行きます。',
-        target: { text: '学校', start: 0, end: 2 },
-      }),
-    );
-    await expect(
-      provider.generate(kanjiInput({ contextMode: 'source_or_generated' })),
-    ).rejects.toMatchObject({ code: 'QUIZ_CONTEXT_INVALID' });
-    expect(chat).toHaveBeenCalledTimes(2);
-    expect(chat.mock.calls.every(([r]) => r.model === 'generator')).toBe(true);
+
+  it('blank timeout uses a real deadline rather than failing immediately', async () => {
+    const { chat } = setup();
+    const spy = jest
+      .spyOn(OpenAiChatProvider.prototype, 'chat')
+      .mockImplementation(chat);
+    try {
+      const provider = createAiQuizProvider(
+        new ConfigService({
+          AI_PROVIDER: 'openai',
+          AI_API_KEY: 'fixture',
+          AI_QUIZ_MODEL: 'generator',
+          AI_QUIZ_VALIDATOR_MODEL: 'validator',
+          AI_QUIZ_TIMEOUT_MS: '',
+        }),
+      );
+      await provider.generate(kanjiInput({ questionCount: 2 }));
+      expect(chat.mock.calls[0][0].timeoutMs).toBeGreaterThan(1000);
+    } finally {
+      spy.mockRestore();
+    }
   });
+
   it('mixed only sends Kanji context slots to the model', async () => {
     const { provider, chat } = setup();
     const input = kanjiInput({
-      quizType: 'mixed',
-      questionCount: 6,
-      questionStyles: ['meaning', 'kanji_reading'],
-      contextMode: 'source_or_generated',
+      questionTypes: ['multiple_choice', 'fill_blank'],
+      questionCount: 3,
     });
     input.baseQuestions = buildQuizQuestions(input);
-    await provider.generate(input);
+    const result = await provider.generate(input);
     expect(chat).toHaveBeenCalledTimes(2);
-    expect(input.usage?.local).toBe(5);
+    expect(input.usage?.local).toBe(2);
+    expect(result[0].context ?? null).toBeNull();
+    expect(result[1].questionStyle).toBe('fill_blank');
+    expect(result[KANJI_SLOT + 1].context?.sentence).toContain('電話');
     expect(
-      chat.mock.calls.every(
-        ([r]) => !r.messages[1].content.includes('mapping'),
-      ),
+      chat.mock.calls.every(([request]) => {
+        const payload = JSON.parse(request.messages[1].content) as {
+          target?: unknown;
+        };
+        return payload.target !== undefined;
+      }),
     ).toBe(true);
   });
 });

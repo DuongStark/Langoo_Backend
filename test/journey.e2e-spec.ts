@@ -144,8 +144,7 @@ describe('Journey (e2e — langoo_test)', () => {
       .post('/v1/quizzes')
       .set(auth())
       .send({
-        quiz_type: 'multiple_choice',
-        difficulty: 'easy',
+        question_types: ['multiple_choice'],
         question_count: 2,
         collection_id: collectionId,
       })
