@@ -131,9 +131,18 @@ export class QuizSourceRepository {
       SELECT s.id AS sense_id, lg.code, x.pos,
         ARRAY(SELECT g.text FROM core.sense_gloss g JOIN public.language gl ON gl.id=g.language_id
           WHERE g.sense_id=s.id AND gl.code='en' ORDER BY g.rank,g.id) AS gloss_en,
-        sc.gloss_vi_machine AS machine
+        sc.machine
       FROM core.sense s JOIN core.lexeme x ON x.id=s.lexeme_id
-      JOIN public.language lg ON lg.id=x.language_id JOIN serve.sense_card sc ON sc.sense_id=s.id
+      JOIN public.language lg ON lg.id=x.language_id
+      -- Keep the card lookup parameterized by sense id: without the lateral +
+      -- OFFSET 0 fence PostgreSQL projects the whole sense_card view first
+      -- (~150s on the full database). Same pattern as findSourceItems.
+      JOIN LATERAL (
+        SELECT card.gloss_vi_machine AS machine
+        FROM serve.sense_card card
+        WHERE card.sense_id = s.id
+        OFFSET 0
+      ) sc ON true
       WHERE s.id IN (${Prisma.join(ids)})
     `);
     const pairs = await client.$queryRaw<

@@ -91,6 +91,14 @@ interface SessionRow {
  * AI Quiz (M11): sinh quiz từ collection (stub), start phiên kind='quiz',
  * lịch sử; quota riêng + cooldown/dedup chống lạm dụng token.
  */
+/**
+ * Only local work (lock + reads + inserts) runs inside these transactions.
+ * Bounded bump over Prisma defaults (5s/2s) so a burst of same-user creates
+ * queued on the FOR UPDATE user lock cannot expire mid-transaction — which
+ * surfaced as HTTP 500s when a slow query pushed the wait past the limit.
+ */
+const QUIZ_TX_OPTIONS = { maxWait: 10_000, timeout: 15_000 };
+
 @Injectable()
 export class QuizService {
   private readonly logger = new Logger(QuizService.name);
@@ -212,7 +220,7 @@ export class QuizService {
           profile.secondaryLanguageId ?? null,
         ),
       };
-    });
+    }, QUIZ_TX_OPTIONS);
     if (prepared.kind === 'reused') return prepared.reusable;
     const { quizId, generatorInput, period, scopeKey } = prepared;
 
@@ -313,7 +321,7 @@ export class QuizService {
             generator: metadata,
           },
         });
-      });
+      }, QUIZ_TX_OPTIONS);
       return { ...toQuizResponse(quiz), reused: false };
     } catch (error) {
       // Also covers persistence failures. A deleted profile may have already
