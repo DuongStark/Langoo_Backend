@@ -66,3 +66,26 @@ curl -s -X PATCH http://localhost:3000/v1/admin/users/42 \
 Nhật ký thao tác admin (mới nhất trước): `action`, `target_kind`, `target_id`, `payload`, admin email.
 Các queue feedback/gloss-report/audit dùng cursor opaque timestamp/id đủ
 microsecond; truyền nguyên `next_cursor` để lấy trang kế tiếp.
+
+## M14 — Curation ghi `core` (sửa gloss + nối nghĩa)
+
+Chính sách 15/10: nội dung máy (gloss VI, mapping LLM) **mặc định OK** — user báo sai
+(`gloss_report` có sẵn) → admin sửa sau. Mọi mutation ghi audit trong `app.admin_audit_log`;
+đổi mapping/concept kích hoạt refresh `serve.sense_pair` **chạy nền** (concurrently, không chặn request).
+
+| Endpoint | Mô tả |
+| --- | --- |
+| `GET /v1/admin/curation/senses?q=&lang=ja&limit=` | tìm sense (lemma/kana/romaji ILIKE hoặc `external_id` chính xác) |
+| `GET /v1/admin/curation/senses/:id` | chi tiết sense: gloss VI/EN, nối nghĩa (concept + confidence + status), 10 report gần nhất |
+| `GET /v1/admin/curation/glosses/:id` | tra gloss theo id (nối từ `gloss_report.target_id`) + sense chứa nó |
+| `GET /v1/admin/curation/concepts?q=&limit=` | tìm concept (gloss_en/vi hoặc id) để chọn khi thêm nối nghĩa |
+| `PATCH /v1/admin/curation/glosses/:id` | `{text?, reviewed?, quality?}` — sửa tay tự bỏ cờ máy dịch; `reviewed` set/bỏ `reviewed_by`; `quality` 0..100 |
+| `POST /v1/admin/curation/senses/:id/glosses` | `{text}` — thêm gloss VI (rank kế tiếp, đánh dấu admin duyệt) |
+| `DELETE /v1/admin/curation/glosses/:id` | xoá gloss (audit giữ nội dung cũ) |
+| `POST /v1/admin/curation/senses/:id/mappings` | `{concept_id, relation?}` — thêm nối nghĩa (method `admin`, verified) |
+| `DELETE /v1/admin/curation/senses/:id/mappings/:conceptId` | xoá nối nghĩa sai |
+| `PATCH /v1/admin/curation/concepts/:id` | `{status: draft｜review｜curated｜rejected}` |
+| `POST /v1/admin/curation/serve/refresh` | refresh `serve.sense_pair` ngay (thường đã tự chạy nền ~vài giây sau mutation) |
+
+Lỗi: `404 SENSE_NOT_FOUND｜GLOSS_NOT_FOUND｜CONCEPT_NOT_FOUND｜MAPPING_NOT_FOUND` · `409 MAPPING_EXISTS` · `400 NO_CHANGES｜VALIDATION_FAILED`.
+Audit actions: `curation.gloss.update|create|delete`, `curation.mapping.create|delete`, `curation.concept.status`.
