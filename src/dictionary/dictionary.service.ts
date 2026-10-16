@@ -487,23 +487,11 @@ export class DictionaryService {
     if (!card || (scope && !scope.languageIds.includes(card.languageId))) {
       throw senseNotFound();
     }
-    // Cặp song ngữ Nhật–Anh là tính năng từ điển — luôn hiển thị bất kể hồ sơ;
-    // các ngôn ngữ khác vẫn giới hạn theo phạm vi hồ sơ (M6.2).
-    const [enId, jaId] = await Promise.all([
-      this.languages.findIdByCode('en'),
-      this.languages.findIdByCode('ja'),
-    ]);
-    const bilingualIds = new Set(
-      [enId, jaId].filter((id): id is number => typeof id === 'number'),
-    );
     const links = await this.pairRepo.findLinks(senseId);
     return {
       data: links
         .filter(
-          (link) =>
-            !scope ||
-            bilingualIds.has(link.language_id) ||
-            scope.languageIds.includes(link.language_id),
+          (link) => !scope || scope.languageIds.includes(link.language_id),
         )
         .map(toSenseLinkItem),
       next_cursor: null,
