@@ -236,10 +236,13 @@ describe('DictionaryService', () => {
     expect(repos.pairs.findLinks).not.toHaveBeenCalled();
   });
 
-  it('JA detail links omit EN suggestions while preserving supported JA entries', async () => {
+  it('JA detail links luôn kèm cặp song ngữ Nhật–Anh, ngôn ngữ khác theo hồ sơ', async () => {
     const { service, repos } = createSetup();
     repos.scope.resolve.mockResolvedValue({ languageIds: [2] });
     repos.senseCard.getBySenseId.mockResolvedValue(senseCard);
+    repos.languages.findIdByCode.mockImplementation((code: string) =>
+      Promise.resolve(code === 'en' ? 1 : code === 'ja' ? 2 : null),
+    );
     const common = {
       sense_id: 2n,
       lemma: 'run',
@@ -251,12 +254,13 @@ describe('DictionaryService', () => {
     repos.pairs.findLinks.mockResolvedValue([
       { ...common, language_id: 1 },
       { ...common, language_id: 2, lemma: '走る' },
+      { ...common, language_id: 3, lemma: 'khác' },
     ]);
     expect(
       (await service.getSenseLinks(1n, 1n)).data.map(
         (link) => link.language_id,
       ),
-    ).toEqual([2]);
+    ).toEqual([1, 2]);
   });
 
   describe('search', () => {

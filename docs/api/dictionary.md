@@ -22,7 +22,8 @@ giữ catalog công khai để tra cứu/onboarding.
 - Cursor search v5 thêm scope key opaque; đổi ngôn ngữ/profile dùng lại cursor
   cũ trả `400 VALIDATION_FAILED`, tải lại trang đầu.
 - Truy cập trực tiếp sense/lexeme của ngôn ngữ bị ẩn trả `404 SENSE_NOT_FOUND` /
-  `LEXEME_NOT_FOUND`. Sense links chỉ chứa ngôn ngữ đang học.
+  `LEXEME_NOT_FOUND`. Sense links **luôn kèm cặp song ngữ Nhật–Anh** (tính năng
+từ điển, không phụ thuộc hồ sơ); các ngôn ngữ khác vẫn theo phạm vi hồ sơ.
 - Reverse lookup giao `to` với ngôn ngữ hồ sơ; JA-only không trả EN hits và
   `viaLemma` rỗng. EN vẫn có thể dùng nội bộ làm cầu nối assertion.
   `matched` phản ánh kết quả hiển thị, không chỉ việc tìm được cầu nối EN.
