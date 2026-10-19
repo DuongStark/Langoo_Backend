@@ -166,6 +166,37 @@ describe('quiz-generator', () => {
     expect(result[0].prompt).toContain('nghĩa 1');
   });
 
+  it('recentItemIds: đẩy từ vừa hỏi xuống cuối, vẫn dùng khi pool thiếu', () => {
+    const prioritized = buildQuizQuestions({
+      questionTypes: ['fill_blank'],
+      questionCount: 2,
+      languageId: 2,
+      items,
+      rng: seededRng(7),
+      recentItemIds: ['item-1', 'item-2', 'item-3'],
+    });
+    expect(prioritized.map((question) => question.itemId)).toEqual([
+      'item-4',
+      'item-5',
+    ]);
+
+    // Toàn bộ pool là recent → fallback dùng lại theo thứ tự gốc.
+    const fallback = buildQuizQuestions({
+      questionTypes: ['fill_blank'],
+      questionCount: 4,
+      languageId: 2,
+      items,
+      rng: seededRng(7),
+      recentItemIds: items.map((entry) => entry.itemId),
+    });
+    expect(fallback.map((question) => question.itemId)).toEqual([
+      'item-1',
+      'item-2',
+      'item-3',
+      'item-4',
+    ]);
+  });
+
   it('matching: 4 cặp, mapping khớp left/right, itemId null', () => {
     const result = buildQuizQuestions({
       questionTypes: ['matching'],

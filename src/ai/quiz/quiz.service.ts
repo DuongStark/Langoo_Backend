@@ -146,12 +146,37 @@ export class QuizService {
         },
         tx,
       );
+      // Lấy từ của tối đa 2 quiz gần nhất: generator đẩy chúng xuống cuối pool
+      // để quiz liền kề không lặp y hệt từ + dạng câu.
+      const recentQuizzes = await tx.quiz.findMany({
+        where: { userId, profileId: profile.id, status: 'ready' },
+        orderBy: { createdAt: 'desc' },
+        take: 2,
+        select: { id: true },
+      });
+      const recentQuestions =
+        recentQuizzes.length === 0
+          ? []
+          : await tx.quizQuestion.findMany({
+              where: {
+                quizId: { in: recentQuizzes.map((quiz) => quiz.id) },
+                itemId: { not: null },
+              },
+              select: { itemId: true },
+            });
       const generatorInput: AiQuizGenerateInput = {
         questionTypes,
         questionCount: dto.question_count,
         languageId: profile.primaryLanguageId,
         items,
         rng: mathRng,
+        recentItemIds: [
+          ...new Set(
+            recentQuestions
+              .map((row) => row.itemId)
+              .filter((id): id is string => id !== null),
+          ),
+        ],
         usage: { tokensIn: 0, tokensOut: 0, calls: 0, local: 0, reused: 0 },
       };
       // Source validation, quota and claim either all commit or all roll back.

@@ -20,6 +20,8 @@ export interface QuizGeneratorInput {
   languageId: number;
   items: QuizSourceItem[];
   rng: Rng;
+  /** Từ đã xuất hiện trong quiz gần nhất — xếp cuối pool để không lặp liền kề. */
+  recentItemIds?: string[];
 }
 
 /** Trắc nghiệm tự luân phiên nghĩa → đọc Kanji → chọn chữ Kanji. */
@@ -91,7 +93,19 @@ export function buildQuizQuestions(
   const slots = questionTypeSlots(questionTypes, input.questionCount);
   const mcSlots = slots.filter((type) => type !== 'fill_blank').length;
   const matchingSlots = slots.filter((type) => type === 'matching').length;
-  const mcPool = mcSlots > 0 ? unambiguous : items;
+  // Quiz liền kề trước đây lấy đúng đầu danh sách nguồn (thứ tự SRS ổn định)
+  // nên lặp y hệt từ; đẩy từ đã hỏi gần đây xuống cuối, take() vẫn chạm tới
+  // chúng khi pool không đủ từ mới.
+  const recent = new Set(input.recentItemIds ?? []);
+  const deprioritize = (pool: QuizSourceItem[]): QuizSourceItem[] =>
+    recent.size === 0
+      ? pool
+      : [
+          ...pool.filter((candidate) => !recent.has(candidate.itemId)),
+          ...pool.filter((candidate) => recent.has(candidate.itemId)),
+        ];
+  const mcPool = deprioritize(mcSlots > 0 ? unambiguous : items);
+  const fillPool = deprioritize(items);
   const used = new Set<string>();
   const take = (pool: QuizSourceItem[]): QuizSourceItem | null => {
     for (const candidate of pool) {
@@ -143,7 +157,7 @@ export function buildQuizQuestions(
       continue;
     }
     if (type === 'fill_blank') {
-      const item = takeOrFail(items, fillNeeded);
+      const item = takeOrFail(fillPool, fillNeeded);
       questions.push({
         ...buildFillBlank(item, input.languageId),
         questionStyle: 'fill_blank',

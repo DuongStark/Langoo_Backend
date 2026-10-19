@@ -82,7 +82,10 @@ const EVIDENCE = {
 
 function createSetup(cooldownMs = '15000') {
   const tx = {
-    quizQuestion: { createMany: jest.fn() },
+    quizQuestion: {
+      createMany: jest.fn(),
+      findMany: jest.fn().mockResolvedValue([]),
+    },
     quiz: {
       findFirst: jest.fn(),
       findMany: jest.fn().mockResolvedValue([]),
@@ -216,7 +219,12 @@ describe('QuizService', () => {
       expect.objectContaining({ enrichKanji: false, withExamples: false }),
       expect.anything(),
     );
-    expect(fill.tx.quiz.findMany).not.toHaveBeenCalled();
+    // Chỉ truy vấn recent (select id), không gom context evidence.
+    expect(fill.tx.quiz.findMany).toHaveBeenCalledTimes(1);
+    expect(
+      firstArg<{ select?: Record<string, unknown> }>(fill.tx.quiz.findMany)
+        .select,
+    ).toEqual({ id: true });
 
     const mc = createSetup('0');
     mc.sourceRepo.findSourceItems.mockResolvedValue(sourceItems(2));
@@ -225,18 +233,31 @@ describe('QuizService', () => {
       quizRow({ status: 'ready', questionCount: 2 }),
     );
     mc.usage.reserveDailyRequest.mockResolvedValue(1);
-    mc.tx.quiz.findMany.mockResolvedValue([
-      {
-        generator: {
-          provider: 'stub',
-          version: QUIZ_VERSION,
-          questionTypes: ['multiple_choice'],
-          questions: [
-            { ordinal: 1, style: 'meaning', context: null, evidence: EVIDENCE },
-          ],
-        },
-      },
-    ]);
+    // Hai lượt findMany: recent (select id) và evidence (select generator).
+    mc.tx.quiz.findMany.mockImplementation(
+      (args: { select?: Record<string, unknown> }) =>
+        Promise.resolve(
+          args?.select && 'generator' in args.select
+            ? [
+                {
+                  generator: {
+                    provider: 'stub',
+                    version: QUIZ_VERSION,
+                    questionTypes: ['multiple_choice'],
+                    questions: [
+                      {
+                        ordinal: 1,
+                        style: 'meaning',
+                        context: null,
+                        evidence: EVIDENCE,
+                      },
+                    ],
+                  },
+                },
+              ]
+            : [],
+        ),
+    );
     mc.providerGenerate.mockResolvedValue(generatedQuestions(2));
 
     await mc.service.create(1n, dto);
@@ -244,13 +265,45 @@ describe('QuizService', () => {
       expect.objectContaining({ enrichKanji: true, withExamples: true }),
       expect.anything(),
     );
-    expect(mc.tx.quiz.findMany).toHaveBeenCalledTimes(1);
+    expect(mc.tx.quiz.findMany).toHaveBeenCalledTimes(2);
     const providerInput = firstArg<{
       contextEvidence: unknown[];
       questionTypes: string[];
     }>(mc.providerGenerate);
     expect(providerInput.contextEvidence).toEqual([EVIDENCE]);
     expect(providerInput.questionTypes).toEqual(['multiple_choice']);
+  });
+
+  it('create: truyền từ của 2 quiz gần nhất vào recentItemIds', async () => {
+    const setup = createSetup('0');
+    setup.sourceRepo.findSourceItems.mockResolvedValue(sourceItems(3));
+    setup.prisma.quiz.create.mockResolvedValue(
+      quizRow({ status: 'generating' }),
+    );
+    setup.tx.quiz.update.mockResolvedValue(
+      quizRow({ status: 'ready', questionCount: 2 }),
+    );
+    setup.usage.reserveDailyRequest.mockResolvedValue(1);
+    setup.providerGenerate.mockResolvedValue(generatedQuestions(2));
+    setup.tx.quiz.findMany.mockImplementation(
+      (args: { select?: Record<string, unknown> }) =>
+        Promise.resolve(
+          args?.select && 'id' in args.select ? [{ id: 'old-quiz' }] : [],
+        ),
+    );
+    setup.tx.quizQuestion.findMany.mockResolvedValue([
+      { itemId: 'item-1' },
+      { itemId: 'item-1' },
+      { itemId: 'item-2' },
+      { itemId: null },
+    ]);
+
+    await setup.service.create(1n, dto);
+
+    const providerInput = firstArg<{ recentItemIds?: string[] }>(
+      setup.providerGenerate,
+    );
+    expect(providerInput.recentItemIds).toEqual(['item-1', 'item-2']);
   });
 
   it('cooldown cùng tham số → trả quiz cũ reused=true, không tiêu quota', async () => {

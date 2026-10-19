@@ -78,6 +78,8 @@ export interface AiQuizGenerateInput {
   languageId: number;
   items: QuizSourceItem[];
   rng: Rng;
+  /** Từ của các quiz gần nhất cùng hồ sơ — generator đẩy chúng xuống cuối pool. */
+  recentItemIds?: string[];
   /** Already built inside the claim transaction. */
   baseQuestions?: GeneratedQuizQuestion[];
   contextEvidence?: ContextEvidence[];
