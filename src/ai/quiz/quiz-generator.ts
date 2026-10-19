@@ -93,19 +93,20 @@ export function buildQuizQuestions(
   const slots = questionTypeSlots(questionTypes, input.questionCount);
   const mcSlots = slots.filter((type) => type !== 'fill_blank').length;
   const matchingSlots = slots.filter((type) => type === 'matching').length;
-  // Quiz liền kề trước đây lấy đúng đầu danh sách nguồn (thứ tự SRS ổn định)
-  // nên lặp y hệt từ; đẩy từ đã hỏi gần đây xuống cuối, take() vẫn chạm tới
-  // chúng khi pool không đủ từ mới.
+  // Từ đã hỏi ở 2 quiz gần nhất cùng hồ sơ. Chỉ xáo lại danh sách khi còn đủ
+  // từ "mới" để lấp đầy quiz; nếu không đủ thì giữ nguyên thứ tự nguồn — quiz
+  // nhỏ lặp lại từ nhưng evidence đã duyệt (đúng từ + dạng câu + bộ phương án)
+  // vẫn tái dùng được, tránh tốn token vô ích.
   const recent = new Set(input.recentItemIds ?? []);
-  const deprioritize = (pool: QuizSourceItem[]): QuizSourceItem[] =>
-    recent.size === 0
-      ? pool
-      : [
-          ...pool.filter((candidate) => !recent.has(candidate.itemId)),
-          ...pool.filter((candidate) => recent.has(candidate.itemId)),
-        ];
-  const mcPool = deprioritize(mcSlots > 0 ? unambiguous : items);
-  const fillPool = deprioritize(items);
+  const rotate = (pool: QuizSourceItem[], needed: number): QuizSourceItem[] => {
+    if (recent.size === 0) return pool;
+    const fresh = pool.filter((candidate) => !recent.has(candidate.itemId));
+    if (fresh.length < needed) return pool;
+    return [
+      ...shuffle(fresh, input.rng),
+      ...pool.filter((candidate) => recent.has(candidate.itemId)),
+    ];
+  };
   const used = new Set<string>();
   const take = (pool: QuizSourceItem[]): QuizSourceItem | null => {
     for (const candidate of pool) {
@@ -145,6 +146,8 @@ export function buildQuizQuestions(
   // (mcSlots đã bao gồm cả slot matching).
   const mcNeeded = mcSlots + matchingSlots * (MATCHING_SIZE - 1);
   const fillNeeded = slots.length - mcSlots;
+  const mcPool = rotate(mcSlots > 0 ? unambiguous : items, mcNeeded);
+  const fillPool = rotate(items, fillNeeded);
   for (const type of slots) {
     if (type === 'matching') {
       const chosen: QuizSourceItem[] = [];

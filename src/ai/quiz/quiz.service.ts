@@ -146,8 +146,8 @@ export class QuizService {
         },
         tx,
       );
-      // Lấy từ của tối đa 2 quiz gần nhất: generator đẩy chúng xuống cuối pool
-      // để quiz liền kề không lặp y hệt từ + dạng câu.
+      // Lấy từ của tối đa 2 quiz gần nhất: generator chỉ xáo nguồn khi còn đủ
+      // từ chưa hỏi để lấp đầy quiz (bộ nhỏ giữ nguyên, evidence cũ tái dùng).
       const recentQuizzes = await tx.quiz.findMany({
         where: { userId, profileId: profile.id, status: 'ready' },
         orderBy: { createdAt: 'desc' },

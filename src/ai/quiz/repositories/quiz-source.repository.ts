@@ -94,9 +94,8 @@ export class QuizSourceRepository {
           WHEN 'learning' THEN 3
           ELSE 4
         END,
-        -- Xáo trong từng nhóm ưu tiên SRS: danh sách ổn định trước đây khiến
-        -- mọi quiz lấy đúng N từ đầu và lặp y hệt giữa hai quiz liền kề.
-        random()
+        i.position,
+        i.id
     `);
 
     const items: QuizSourceItem[] = rows.map((row) => ({
