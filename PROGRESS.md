@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-20 — M4.3 links 0–3 từ khác nhau đã code/kiểm tra local; chưa commit/push/deploy, còn gate tích hợp search VPS/index/performance và FE. Xem entry 2026-10-20 bên dưới.
+> Cập nhật lần cuối: 2026-10-20 — M4.3 links 0–3 từ khác nhau đã commit local `41ed9eb` (dependency M4.2 `71eb828`); chưa push/deploy, còn gate tích hợp search VPS/index/performance và FE. Xem entry 2026-10-20 bên dưới.
 > Tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
@@ -8,13 +8,19 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-20 — M4.2 / M4.3 — Commit search một ký tự và liên kết Anh–Nhật
+
+- Đã commit local: `71eb828` — M4.2 single-character search/migration 042; `41ed9eb` — M4.3 tối đa 3 link khác từ, có VI và tìm được đúng ID. Code, test, plan, report, API/handoff của hai việc đã lưu; không gom WIP quiz/DB4 hay tài liệu khác.
+- Kiểm tra chốt: 54 suite/439 unit pass (28,359s), build pass trong worktree cô lập; 36 integration test đã pass trong lượt triển khai trước, source/test đối chiếu byte. Staged diff-check sạch; không báo whole working tree WIP khác đã build xanh.
+- [Report M4.3](docs/reviews/m4.3-searchable-links-implementation-2026-10-20.md), [report M4.2](docs/reviews/m4.2-short-search-2026-10-13.md). Chưa push/deploy; còn gate tích hợp hotfix search VPS, migration/index, đo latency và FE.
+
 ### 2026-10-20 — M4.3 — Liên kết Anh–Nhật tối đa 3 từ, có nghĩa Việt và tìm được khi search
 
 - Code BE xong local: cả EN → JA/JA → EN, published pair + live exact/curated/confidence/scope gate, VI của chính target sense, JA JMdict có reading. Dùng chung query search kiểm đúng ID ở trang đầu mặc định; batch 6 nhãn, chọn tối đa 3 sau learner rank/dedup, không bù bằng mục không đủ gate và không gọi AI.
 - Phạm vi: service, sense-pair/search repositories, hai DTO, unit + DB integration test; giữ M4.2 WIP có sẵn và không gom quiz/DB4 của phiên khác. [Plan](docs/plans/m4.3-searchable-cross-language-links-2026-10-20.md), [report triển khai](docs/reviews/m4.3-searchable-links-implementation-2026-10-20.md), [API](docs/api/dictionary.md), [handoff FE hôm nay](docs/handoff/fe-handoff-2026-10-20.md).
 - Kiểm tra worktree cô lập: 54 suite/439 unit, 3 suite/36 integration pass; build/scoped ESLint pass. Review sửa nhãn >100 ký tự và EN thiếu source; re-review không còn must-fix. Regression DB đã tái hiện trước sửa, test cả stale mapping/VI sai sense/canonical ngoài pool/25 homograph/scope.
 - Probe SQL VPS chỉ đọc: agony chọn 苦痛 rồi 重苦, chiều ngược 苦痛 chọn agony. Giữ canonical EXISTS theo mặt chữ khắc phục timeout 10s; batch search hai từ còn 5,104s trên VPS thiếu index M4.2. Đây chưa là gate latency production; cần giữ hotfix search VPS, rà/apply 042 và benchmark lại khi tích hợp/deploy. Không đổi DB/runtime VPS trong phiên.
-- Git/triển khai: code/test/docs đã lưu workspace, **chưa commit/push/deploy**. FE/browser smoke, tích hợp search hiện tại VPS và performance sau index còn thiếu; không gọi milestone M4.3 toàn bộ hoàn tất.
+- Git/triển khai: code/test/docs đã commit local `41ed9eb`, dependency M4.2 `71eb828`; **chưa push/deploy**. FE/browser smoke, tích hợp search hiện tại VPS và performance sau index còn thiếu; không gọi milestone M4.3 toàn bộ hoàn tất.
 
 ### 2026-10-20 — M4.3 — Kiểm tra mục có ví dụ nhưng thiếu nghĩa: 重苦
 

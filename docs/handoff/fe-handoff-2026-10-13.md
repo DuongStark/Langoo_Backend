@@ -2,7 +2,7 @@
 
 ## M4.2 — Tối ưu search một ký tự
 
-**Trạng thái:** backend code xong local, chưa commit/push/deploy. FE chưa sửa trong đợt này.
+**Trạng thái cập nhật 2026-10-20:** backend đã commit local `71eb828`, chưa push/deploy. FE chưa sửa trong đợt này.
 
 ### Hành vi search/suggestions
 
@@ -26,4 +26,4 @@ HTTP **504**, error code **`DICTIONARY_SEARCH_TIMEOUT`**, thông báo yêu cầu
 - Cần migration **042** trước code và smoke API thực tế trên VPS sau tích hợp; FE không dùng hành vi mới trước khi BE deploy.
 - [API dictionary](../api/dictionary.md), [plan M4.2](../plans/m4.2-short-search-2026-10-13.md), [report M4.2](../reviews/m4.2-short-search-2026-10-13.md).
 
-Git/triển khai: chưa commit/push/deploy; không có thay đổi FE trong repo backend.
+Git/triển khai cập nhật 2026-10-20: đã commit local `71eb828`; chưa push/deploy; không có thay đổi FE trong repo backend.

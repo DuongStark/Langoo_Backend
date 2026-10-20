@@ -1,6 +1,6 @@
 # M4.3 — FE liên kết Anh–Nhật ít từ, có nghĩa Việt và tìm được khi search
 
-Ngày: 2026-10-20. BE **code xong local, chưa commit/push/deploy**. Không có thay đổi source FE trong repo này. [Report và gate deploy](../reviews/m4.3-searchable-links-implementation-2026-10-20.md).
+Ngày: 2026-10-20. BE **đã commit local `41ed9eb` (dependency M4.2 `71eb828`), chưa push/deploy**. Không có thay đổi source FE trong repo này. [Report và gate deploy](../reviews/m4.3-searchable-links-implementation-2026-10-20.md).
 
 ## Contract
 
