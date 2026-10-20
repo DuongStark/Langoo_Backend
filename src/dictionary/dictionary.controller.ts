@@ -31,6 +31,7 @@ import {
 } from './dto/dictionary-response.dto';
 import { LexemeSensesQueryDto } from './dto/lexeme-senses-query.dto';
 import { ReverseLookupQueryDto } from './dto/reverse-lookup-query.dto';
+import { ReverseSuggestionQueryDto } from './dto/reverse-suggestion-query.dto';
 import { SuggestionQueryDto } from './dto/suggestion-query.dto';
 import { SearchQueryDto } from './dto/search-query.dto';
 import {
@@ -103,6 +104,29 @@ export class SearchController {
     @Req() request: AuthenticatedRequest,
   ): Promise<SearchResult> {
     return this.dictionaryService.suggest(
+      query,
+      request.user ? BigInt(request.user.sub) : undefined,
+    );
+  }
+
+  /**
+   * Gợi ý VI→EN/JA cho autocomplete: prefix, không phân biệt hoa/thường &
+   * dấu (gõ "truong" vẫn ra "trường"). Tôn trọng scope hồ sơ như /reverse.
+   */
+  @Get('suggestions/reverse')
+  @ApiOperation({
+    summary: 'Gợi ý tiếng Việt → Anh/Nhật (tiền tố, không phân biệt dấu)',
+  })
+  @ApiOkResponse({ type: ReverseLookupResultDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'VALIDATION_FAILED (q rỗng/quá dài, to không hợp lệ)',
+  })
+  suggestReverse(
+    @Query() query: ReverseSuggestionQueryDto,
+    @Req() request: AuthenticatedRequest,
+  ): Promise<ReverseLookupResult> {
+    return this.dictionaryService.suggestReverse(
       query,
       request.user ? BigInt(request.user.sub) : undefined,
     );

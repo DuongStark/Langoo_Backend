@@ -5,6 +5,7 @@ import { DomainException } from '../common/errors/domain.exception';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
 import { SearchQueryDto } from './dto/search-query.dto';
+import { ReverseSuggestionQueryDto } from './dto/reverse-suggestion-query.dto';
 import { SuggestionQueryDto } from './dto/suggestion-query.dto';
 import {
   decodeDictionarySearchCursor,
@@ -36,7 +37,10 @@ import {
   KanjiRepository,
   KanjiRow,
 } from './repositories/kanji.repository';
-import { ReverseLookupRepository } from './repositories/reverse-lookup.repository';
+import {
+  ReverseLookupRepository,
+  ViSourceRow,
+} from './repositories/reverse-lookup.repository';
 import { EnglishPriorityRepository } from './repositories/english-priority.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
 import { SenseCardRepository } from './repositories/sense-card.repository';
@@ -204,6 +208,57 @@ export class DictionaryService {
     if (targets.size === 0) return { query, matched: false, en: [], ja: [] };
     const lowered = query.toLowerCase();
     const sources = await this.reverseRepo.findViSources(query, lowered);
+    const { en, ja } = await this.mapReverseHits(targets, sources, 10, 12);
+    return {
+      query,
+      matched: (targets.has('en') && en.length > 0) || ja.length > 0,
+      en,
+      ja,
+    };
+  }
+
+  /**
+   * Autocomplete VI→(EN/JA): prefix, không phân biệt hoa/thường và dấu.
+   * Cùng shape với reverseLookup để FE render thống nhất.
+   */
+  async suggestReverse(
+    dto: ReverseSuggestionQueryDto,
+    userId?: bigint,
+  ): Promise<ReverseLookupResult> {
+    const query = dto.q.trim().replace(/\s+/g, ' ');
+    if (query.length === 0)
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Từ khóa không được để trống',
+        HttpStatus.BAD_REQUEST,
+      );
+    const scope = await this.studyScope.resolve(userId);
+    const targets = new Set((dto.to ?? 'en,ja').split(','));
+    if (scope) {
+      for (const target of targets) {
+        const id = await this.languages.findIdByCode(target);
+        if (id === null || !scope.languageIds.includes(id))
+          targets.delete(target);
+      }
+    }
+    if (targets.size === 0) return { query, matched: false, en: [], ja: [] };
+    const limit = dto.limit ?? 8;
+    const sources = await this.reverseRepo.findViSourcesByPrefix(query);
+    const { en, ja } = await this.mapReverseHits(targets, sources, limit);
+    return {
+      query,
+      matched: (targets.has('en') && en.length > 0) || ja.length > 0,
+      en,
+      ja,
+    };
+  }
+
+  private async mapReverseHits(
+    targets: Set<string>,
+    sources: ViSourceRow[],
+    enLimit: number,
+    jaLimit = enLimit,
+  ): Promise<{ en: ReverseLookupEnHit[]; ja: ReverseLookupJaHit[] }> {
     const en: ReverseLookupEnHit[] = [];
     const sourceIds: bigint[] = [];
     const seenLexeme = new Set<string>();
@@ -219,7 +274,7 @@ export class DictionaryService {
         frequencyRank: row.frequency_rank,
         senseHint: row.sense_hint,
       });
-      if (en.length >= 10) break;
+      if (en.length >= enLimit) break;
     }
     let ja: ReverseLookupJaHit[] = [];
     if (targets.has('ja') && en.length > 0) {
@@ -256,11 +311,9 @@ export class DictionaryService {
           return true;
         })
         .sort((a, b) => Number(b.exactSense) - Number(a.exactSense))
-        .slice(0, 12);
+        .slice(0, jaLimit);
     }
     return {
-      query,
-      matched: (targets.has('en') && en.length > 0) || ja.length > 0,
       en: targets.has('en') ? en : [],
       ja,
     };

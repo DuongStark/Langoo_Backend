@@ -50,7 +50,11 @@ function createSetup(): {
   repos: {
     search: { search: jest.Mock };
     scope: { resolve: jest.Mock };
-    reverse: { findViSources: jest.Mock; findJaTargets: jest.Mock };
+    reverse: {
+      findViSources: jest.Mock;
+      findViSourcesByPrefix: jest.Mock;
+      findJaTargets: jest.Mock;
+    };
     priority: { getByLexemes: jest.Mock };
     senseCard: {
       getBySenseId: jest.Mock;
@@ -79,7 +83,11 @@ function createSetup(): {
   const repos = {
     search: { search: jest.fn() },
     scope: { resolve: jest.fn().mockResolvedValue(null) },
-    reverse: { findViSources: jest.fn(), findJaTargets: jest.fn() },
+    reverse: {
+      findViSources: jest.fn(),
+      findViSourcesByPrefix: jest.fn(),
+      findJaTargets: jest.fn(),
+    },
     priority: { getByLexemes: jest.fn().mockResolvedValue([]) },
     senseCard: {
       getBySenseId: jest.fn(),
@@ -178,6 +186,77 @@ describe('DictionaryService', () => {
     expect((await service.reverseLookup('mèo', undefined, 1n)).matched).toBe(
       false,
     );
+  });
+
+  it('suggestReverse: prefix trả cả EN + JA cho hồ sơ song ngữ', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue({ languageIds: [2, 1] });
+    repos.languages.findIdByCode.mockImplementation((code: string) =>
+      Promise.resolve(code === 'ja' ? 2 : 1),
+    );
+    repos.reverse.findViSourcesByPrefix.mockResolvedValue([
+      {
+        source_lexeme_id: 11n,
+        en_lemma: 'school',
+        en_pos: 'noun',
+        frequency_rank: 191,
+        sense_hint: null,
+      },
+      {
+        source_lexeme_id: 12n,
+        en_lemma: 'field',
+        en_pos: 'noun',
+        frequency_rank: 580,
+        sense_hint: 'physics',
+      },
+    ]);
+    repos.reverse.findJaTargets.mockResolvedValue([
+      { source_lexeme_id: 11n, target_text: '学校', sense_hint: null },
+      { source_lexeme_id: 12n, target_text: '場', sense_hint: 'physics' },
+    ]);
+
+    const result = await service.suggestReverse({ q: 'truong', limit: 5 }, 1n);
+
+    expect(repos.reverse.findViSourcesByPrefix).toHaveBeenCalledWith('truong');
+    expect(result).toMatchObject({
+      query: 'truong',
+      matched: true,
+      en: [{ lemma: 'school' }, { lemma: 'field' }],
+      ja: [
+        { text: '場', viaLemma: 'field', exactSense: true },
+        { text: '学校', viaLemma: 'school', exactSense: false },
+      ],
+    });
+  });
+
+  it('suggestReverse: to=ja ẩn EN nhưng vẫn trả JA', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue(null);
+    repos.reverse.findViSourcesByPrefix.mockResolvedValue([
+      {
+        source_lexeme_id: 11n,
+        en_lemma: 'school',
+        en_pos: 'noun',
+        frequency_rank: 191,
+        sense_hint: null,
+      },
+    ]);
+    repos.reverse.findJaTargets.mockResolvedValue([
+      { source_lexeme_id: 11n, target_text: '学校', sense_hint: null },
+    ]);
+
+    const result = await service.suggestReverse({ q: 'truong', to: 'ja' });
+
+    expect(result.en).toEqual([]);
+    expect(result.ja).toEqual([
+      {
+        text: '学校',
+        senseHint: null,
+        viaLexemeId: '11',
+        viaLemma: '',
+        exactSense: false,
+      },
+    ]);
   });
 
   it('an EN-only profile cannot open Japanese kanji details', async () => {

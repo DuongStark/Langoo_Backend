@@ -52,6 +52,38 @@ export class ReverseLookupRepository {
     `;
   }
 
+  /**
+   * Prefix VI (không phân biệt hoa/thường & dấu) → source EN lexemes.
+   * Dùng cho autocomplete VI→EN/JA; bảng chỉ ~29k assertion VI nên seq scan ổn.
+   */
+  async findViSourcesByPrefix(
+    query: string,
+    limit = 200,
+  ): Promise<ViSourceRow[]> {
+    return this.prisma.$queryRaw<ViSourceRow[]>`
+      SELECT
+        a.source_lexeme_id,
+        a.target_text,
+        a.sense_hint,
+        a.source_ordinal,
+        l.lemma AS en_lemma,
+        l.pos AS en_pos,
+        l.frequency_rank
+      FROM core.translation_assertion a
+      JOIN core.lexeme l ON l.id = a.source_lexeme_id
+      WHERE a.target_language_id = ${LANGUAGE_ID_VI}
+        AND l.language_id = ${LANGUAGE_ID_EN}
+        AND public.f_unaccent(lower(a.target_text)) LIKE public.f_unaccent(lower(${query})) || '%'
+      ORDER BY
+        (lower(a.target_text) = lower(${query})) DESC,
+        length(a.target_text) ASC,
+        l.frequency_rank ASC NULLS LAST,
+        a.source_lexeme_id ASC,
+        a.source_ordinal ASC
+      LIMIT ${limit}
+    `;
+  }
+
   async findJaTargets(lexemeIds: bigint[]): Promise<JaTargetRow[]> {
     if (lexemeIds.length === 0) return [];
     return this.prisma.$queryRaw<JaTargetRow[]>`
