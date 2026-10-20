@@ -76,6 +76,7 @@ export class ReverseLookupRepository {
         AND public.f_unaccent(lower(a.target_text)) LIKE public.f_unaccent(lower(${query})) || '%'
       ORDER BY
         (lower(a.target_text) = lower(${query})) DESC,
+        (lower(a.target_text) LIKE lower(${query}) || '%') DESC,
         length(a.target_text) ASC,
         l.frequency_rank ASC NULLS LAST,
         a.source_lexeme_id ASC,
