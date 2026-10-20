@@ -9,9 +9,9 @@ và `app.gloss_report`.
 > **M4.2 / DB4-D0.2 đã deploy VPS; M4.5 mở rộng JA bên dưới.** Contract dưới đây
 > cần migration **038_dictionary_source_projection.sql** trước khi deploy code mới.
 
-## M4.2 — Search một ký tự (2026-10-13, code local; chưa deploy)
+## M4.2 — Search một ký tự (đã deploy VPS 2026-10-20)
 
-- Cần migration **042_dictionary_short_search_indexes.sql** trước code. Giữ các
+- Đã áp migration **044_dictionary_short_search_indexes.sql** trước code (bản local trước đây tên042). Giữ các
   index cũ; thêm character GIN và B-tree trên `lower(...) text_pattern_ops`.
 - Query đúng một chữ Latin ASCII (`a`–`z`, không phân biệt hoa/thường) dùng
   **prefix**: `a` tìm `a`, `apple`…; không tìm `cat` chỉ vì chứa chữ `a`.
@@ -172,7 +172,7 @@ curl -s http://localhost:3000/v1/senses/1/links
 }
 ```
 
-**M4.3, cập nhật 2026-10-20: code đã kiểm tra local, chưa deploy VPS.**
+**M4.3, cập nhật 2026-10-20: đã push/deploy VPS release `48b8507`, smoke HTTPS pass.**
 
 - Trả **0–3 từ khác nhau** cho sense đang xem, cả EN → JA và JA → EN;
   không bù cho đủ 3. `next_cursor` luôn `null`, schema item không đổi.

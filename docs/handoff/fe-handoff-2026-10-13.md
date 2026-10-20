@@ -31,3 +31,7 @@ Git/triển khai cập nhật 2026-10-20: đã commit local `71eb828`; chưa pus
 ## 2026-10-20 — M4.3 phát hành trên VPS
 
 Migration index search khi tích hợp đổi tên thành **044_dictionary_short_search_indexes.sql**, vì042 đã thuộc M14 trên production. Xem [report deploy](../reviews/m4.3-searchable-links-deploy-2026-10-20.md) để biết trạng thái và kết quả live; số liệu/tên042 trong bản kiểm tra local ngày13/10 là lịch sử.
+
+### Kết quả triển khai 2026-10-20 — M4.2 / M4.3
+
+Đã tích hợp trên bản VPS mới nhất, push/deploy release **48b8507**, migration **044** đã áp; CI và Deploy đều success. Full local491 unit/231 E2E, lint/build pass; live32 HTTPS requests pass. 以下 135465 trả một `following`; agony 261514 trả 苦痛/重苦, target có VI và đúng ID search. Exact search batch sau index 14,825 ms. Các trạng thái “chưa deploy” phía trên là bản ghi trước phát hành; gate tích hợp/index đã đóng, còn FE/browser cache. [Report deploy](../reviews/m4.3-searchable-links-deploy-2026-10-20.md).

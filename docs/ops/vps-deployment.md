@@ -185,3 +185,12 @@ CI 37481567514 / Deploy 37481886745 success. VPS runtime `f700658`, PM2 online,
  giữ. Backup cuối `runtime-final-code.tgz`/patch gồm cả ba script DB3-B.
 [Report](../reviews/m4-3-subsense-integration-2026-10-06.md) ghi số liệu và checks.
 FE cần render con hoặc dùng `view=flat`; DB3-W1 rollback thiếu journal vẫn bị khóa.
+
+
+### 2026-10-20 — M4.2 / M4.3 — Search index và liên kết Anh–Nhật
+
+- VPS release **48b8507**, ghép main local với origin/main4cd6472 để giữ các tính năng mới; CI39357848414 và Deploy39358021757 success, PM2 reload/health200/DBUTC.
+- Migration mới **044_dictionary_short_search_indexes.sql** (đổi tên bản042 local vì042 đã thuộc M14), áp transaction với role langoo. Támindexvalid/owner langoo và ANALYZE xong. Không reset data/mapping.043 ownership/journal của phiên khác không đổi.
+- Backup runtime/schema/response trước phát hành: `/opt/langoo/storage/db4/releases/m43-links-20261020`. Rollback runtime archive và PM2 reload nếu cần; index bổ sung giữ tương thích code cũ, không restore toàn DB.
+- Links0–3 từ khác nhãn, exact/live/curated/VI và cùng query policy search;32 HTTPS smoke pass. 以下 135465 chỉ còn following, agony 261514 còn苦痛/重苦. Không cần deployFE để nhận danh sáchBE mới, nhưng cần invalidatecache/không cộng dồn nhiều sense.
+- [Report deploy](../reviews/m4.3-searchable-links-deploy-2026-10-20.md) và artifacts kèm theo ghi latency/gate còn lại. Source/migration hash VPS trùng release; không lấy sốSQL14,825 ms làm latency browser.

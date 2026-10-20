@@ -1,0 +1,266 @@
+{
+  "work_item": "M4.3",
+  "date": "2026-10-20",
+  "release_commit": "48b8507",
+  "scope": "Public HTTPS smoke; no authentication or data writes; checks actual target VI, first search page, grouped sense visibility.",
+  "health": {
+    "status": "ok",
+    "db": "ok",
+    "db_latency_ms": 1,
+    "db_timezone": "UTC",
+    "uptime_s": 92,
+    "time": "2026-10-20T02:19:28.442Z"
+  },
+  "cases": [
+    {
+      "source_sense_id": "135463",
+      "count": 0,
+      "targets": []
+    },
+    {
+      "source_sense_id": "135464",
+      "count": 1,
+      "targets": [
+        {
+          "sense_id": "503963",
+          "lexeme_id": "411702",
+          "lemma": "nether",
+          "gloss_vi": "; (đùa cợt) dưới, ở dưới.",
+          "search_page_1": true,
+          "visible_sense": true
+        }
+      ]
+    },
+    {
+      "source_sense_id": "135465",
+      "count": 1,
+      "targets": [
+        {
+          "sense_id": "396640",
+          "lexeme_id": "326939",
+          "lemma": "following",
+          "gloss_vi": "Tiếp theo, theo sau, sau đây.",
+          "search_page_1": true,
+          "visible_sense": true
+        }
+      ]
+    },
+    {
+      "source_sense_id": "135466",
+      "count": 0,
+      "targets": []
+    },
+    {
+      "source_sense_id": "261514",
+      "count": 2,
+      "targets": [
+        {
+          "sense_id": "14290",
+          "lexeme_id": "183795",
+          "lemma": "苦痛",
+          "gloss_vi": "nỗi đau đớn, sự thống khổ; sự đau khổ, khổ sở",
+          "search_page_1": true,
+          "visible_sense": true
+        },
+        {
+          "sense_id": "77994",
+          "lexeme_id": "204170",
+          "lemma": "重苦",
+          "gloss_vi": "nỗi đau khổ dữ dội",
+          "search_page_1": true,
+          "visible_sense": true
+        }
+      ]
+    },
+    {
+      "source_sense_id": "261515",
+      "count": 1,
+      "targets": [
+        {
+          "sense_id": "36809",
+          "lexeme_id": "151855",
+          "lemma": "激痛",
+          "gloss_vi": "cơn đau dữ dội",
+          "search_page_1": true,
+          "visible_sense": true
+        }
+      ]
+    },
+    {
+      "source_sense_id": "14290",
+      "count": 1,
+      "targets": [
+        {
+          "sense_id": "261514",
+          "lexeme_id": "224910",
+          "lemma": "agony",
+          "gloss_vi": "Sự đau đớn, sự khổ cực, sự thống khổ; sự quằn quại; sự đau đớn cực độ (về thể xác), nhục hình.",
+          "search_page_1": true,
+          "visible_sense": true
+        }
+      ]
+    }
+  ],
+  "requests": [
+    {
+      "path": "/health",
+      "status": 200,
+      "elapsed_ms": 1189.09
+    },
+    {
+      "path": "/senses/135463/links",
+      "status": 200,
+      "elapsed_ms": 1010.48
+    },
+    {
+      "path": "/senses/135464/links",
+      "status": 200,
+      "elapsed_ms": 864.37
+    },
+    {
+      "path": "/senses/503963",
+      "status": 200,
+      "elapsed_ms": 2268.21
+    },
+    {
+      "path": "/dictionary/search?q=nether&lang=en",
+      "status": 200,
+      "elapsed_ms": 695.64
+    },
+    {
+      "path": "/lexemes/411702/senses",
+      "status": 200,
+      "elapsed_ms": 825.28
+    },
+    {
+      "path": "/senses/135465/links",
+      "status": 200,
+      "elapsed_ms": 665.11
+    },
+    {
+      "path": "/senses/396640",
+      "status": 200,
+      "elapsed_ms": 669.68
+    },
+    {
+      "path": "/dictionary/search?q=following&lang=en",
+      "status": 200,
+      "elapsed_ms": 525.81
+    },
+    {
+      "path": "/lexemes/326939/senses",
+      "status": 200,
+      "elapsed_ms": 438.48
+    },
+    {
+      "path": "/senses/135466/links",
+      "status": 200,
+      "elapsed_ms": 484.92
+    },
+    {
+      "path": "/senses/261514/links",
+      "status": 200,
+      "elapsed_ms": 797.85
+    },
+    {
+      "path": "/senses/14290",
+      "status": 200,
+      "elapsed_ms": 1568.7
+    },
+    {
+      "path": "/dictionary/search?q=%E8%8B%A6%E7%97%9B&lang=ja",
+      "status": 200,
+      "elapsed_ms": 821.7
+    },
+    {
+      "path": "/lexemes/183795/senses",
+      "status": 200,
+      "elapsed_ms": 306.91
+    },
+    {
+      "path": "/senses/77994",
+      "status": 200,
+      "elapsed_ms": 395.19
+    },
+    {
+      "path": "/dictionary/search?q=%E9%87%8D%E8%8B%A6&lang=ja",
+      "status": 200,
+      "elapsed_ms": 474.69
+    },
+    {
+      "path": "/lexemes/204170/senses",
+      "status": 200,
+      "elapsed_ms": 511.46
+    },
+    {
+      "path": "/senses/261515/links",
+      "status": 200,
+      "elapsed_ms": 438.88
+    },
+    {
+      "path": "/senses/36809",
+      "status": 200,
+      "elapsed_ms": 385.1
+    },
+    {
+      "path": "/dictionary/search?q=%E6%BF%80%E7%97%9B&lang=ja",
+      "status": 200,
+      "elapsed_ms": 780.04
+    },
+    {
+      "path": "/lexemes/151855/senses",
+      "status": 200,
+      "elapsed_ms": 498.79
+    },
+    {
+      "path": "/senses/14290/links",
+      "status": 200,
+      "elapsed_ms": 548.64
+    },
+    {
+      "path": "/senses/261514",
+      "status": 200,
+      "elapsed_ms": 3505.14
+    },
+    {
+      "path": "/dictionary/search?q=agony&lang=en",
+      "status": 200,
+      "elapsed_ms": 1521.1
+    },
+    {
+      "path": "/lexemes/224910/senses",
+      "status": 200,
+      "elapsed_ms": 2986.51
+    },
+    {
+      "path": "/dictionary/suggestions?q=a&lang=en",
+      "status": 200,
+      "elapsed_ms": 3926.45
+    },
+    {
+      "path": "/dictionary/suggestions?q=%E7%8C%AB&lang=ja",
+      "status": 200,
+      "elapsed_ms": 1606.88
+    },
+    {
+      "path": "/dictionary/suggestions/reverse?q=m%C3%A8o&to=en%2Cja",
+      "status": 200,
+      "elapsed_ms": 443.02
+    },
+    {
+      "path": "/kanji/%E7%8C%AB",
+      "status": 200,
+      "elapsed_ms": 406.42
+    },
+    {
+      "path": "/kanji/%E7%8C%AB/stroke.svg",
+      "status": 200,
+      "elapsed_ms": 467.03
+    },
+    {
+      "path": "/sources",
+      "status": 200,
+      "elapsed_ms": 926.06
+    }
+  ]
+}

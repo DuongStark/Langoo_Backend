@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-20 — M4.3 links 0–3 từ khác nhau đã commit local `41ed9eb` (dependency M4.2 `71eb828`); chưa push/deploy, còn gate tích hợp search VPS/index/performance và FE. Xem entry 2026-10-20 bên dưới.
+> Cập nhật lần cuối: 2026-10-20 — M4.2/M4.3 đã push/deploy VPS release `48b8507`, migration044 và32 request HTTPS smoke pass; còn FE/browser cache. Xem entry 2026-10-20 bên dưới.
 > Tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
@@ -12,7 +12,7 @@
 
 - Chủ dự án yêu cầu deploy. Merge M4.2/M4.3 trên origin/main4cd6472 để giữ EN VI/canonical/POS/priority, VI autocomplete, Kanji component và ví dụ đang chạy; shared query dùng cùng policy cho links.
 - Migration search đổi042→044 vì042 production thuộc M14. Backup code/schema và response trước deploy; không sửa data/mapping. [Report deploy](docs/reviews/m4.3-searchable-links-deploy-2026-10-20.md).
-- Gate local: 58 suite/491 unit,25 suite/231 E2E, full eslint/build pass. Root WIP giữ nguyên; release ở worktree riêng. Đang tạo index/review, chưa nghiệm thu runtime mới; sẽ cập nhật live sau deploy.
+- Gate local: 58 suite/491 unit,25 suite/231 E2E, full eslint/build pass. Root WIP giữ nguyên; release ở worktree riêng. Migration044 đã áp với8 index valid; review không blocker. Release `48b8507` đã push/deploy, CI39357848414/Deploy39358021757 success,32 HTTPS request pass; 以下 135465 chỉ còn following, agony 261514 còn苦痛/重苦, mọi target có VI và đúng ID search. SQL exactbatch14,825 ms thay5,104s trước index; còn FE/browser cache smoke.
 
 ### 2026-10-20 — M4.2 / M4.3 — Commit search một ký tự và liên kết Anh–Nhật
 
