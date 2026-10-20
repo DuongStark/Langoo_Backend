@@ -1,0 +1,215 @@
+{
+  "work_item": "M4.3",
+  "date": "2026-10-20",
+  "scope": "Read-only generated SQL on VPS. No app deployment or DB mutation. Code differs from current live search.",
+  "queries": [
+    {
+      "name": "agony_candidates",
+      "exit_code": 0,
+      "error": "",
+      "plan_summary": [
+        {
+          "nodes": [
+            {
+              "Node Type": "Function Scan",
+              "Subplan Name": "SubPlan 1",
+              "Total Cost": 1.51
+            }
+          ]
+        },
+        {
+          "Planning Time": 5.257,
+          "Execution Time": 6.069,
+          "nodes": [
+            {
+              "Node Type": "Function Scan",
+              "Subplan Name": "SubPlan 1",
+              "Actual Total Time": 0.0,
+              "Actual Loops": 0,
+              "Actual Rows": 0,
+              "Total Cost": 1.51,
+              "Shared Hit Blocks": 0,
+              "Shared Read Blocks": 0
+            }
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "sense_id": 14290,
+          "lexeme_id": 183795,
+          "language_id": 2,
+          "lang_code": "ja",
+          "lemma": "苦痛",
+          "reading": "くつう",
+          "romanization": null,
+          "confidence": 0.9,
+          "concept_id": 91144
+        },
+        {
+          "sense_id": 77994,
+          "lexeme_id": 204170,
+          "language_id": 2,
+          "lang_code": "ja",
+          "lemma": "重苦",
+          "reading": "じゅうく",
+          "romanization": null,
+          "confidence": 0.9,
+          "concept_id": 91144
+        }
+      ]
+    },
+    {
+      "name": "kutsuu_candidates",
+      "exit_code": 0,
+      "error": "",
+      "plan_summary": [
+        {
+          "nodes": [
+            {
+              "Node Type": "Function Scan",
+              "Subplan Name": "SubPlan 1",
+              "Total Cost": 1.51
+            }
+          ]
+        },
+        {
+          "Planning Time": 11.354,
+          "Execution Time": 1.37,
+          "nodes": [
+            {
+              "Node Type": "Function Scan",
+              "Subplan Name": "SubPlan 1",
+              "Actual Total Time": 0.0,
+              "Actual Loops": 0,
+              "Actual Rows": 0,
+              "Total Cost": 1.51,
+              "Shared Hit Blocks": 0,
+              "Shared Read Blocks": 0
+            }
+          ]
+        }
+      ],
+      "rows": [
+        {
+          "sense_id": 261514,
+          "lexeme_id": 224910,
+          "language_id": 1,
+          "lang_code": "en",
+          "lemma": "agony",
+          "reading": null,
+          "romanization": null,
+          "confidence": 0.9,
+          "concept_id": 91144
+        }
+      ]
+    },
+    {
+      "name": "exact_search_pages",
+      "exit_code": 3,
+      "error": "ERROR:  canceling statement due to statement timeout\nCONTEXT:  SQL function \"bigrams\" statement 1",
+      "plan_summary": [
+        {
+          "nodes": [
+            {
+              "Node Type": "Append",
+              "Total Cost": 2592231929.73
+            },
+            {
+              "Node Type": "Aggregate",
+              "Subplan Name": "CTE hits",
+              "Total Cost": 280434.89
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 280245.84
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 68340.83
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 70946.51
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 87362.57
+            },
+            {
+              "Node Type": "Nested Loop",
+              "Subplan Name": "CTE lexeme_priority",
+              "Total Cost": 15641.28
+            },
+            {
+              "Node Type": "Function Scan",
+              "Subplan Name": "SubPlan 2",
+              "Total Cost": 1.51
+            },
+            {
+              "Node Type": "Nested Loop",
+              "Subplan Name": "SubPlan 3",
+              "Total Cost": 17.68
+            },
+            {
+              "Node Type": "Hash Join",
+              "Subplan Name": "SubPlan 7",
+              "Join Filter": "(((core.bigrams(lower(\"*SELECT* 1_2\".surface)) @> '{苦痛}'::text[]) AND (\"*SELECT* 1_2\".surface ~~* '%苦痛%'::text)) OR ((core.bigrams(lower(\"*SELECT* 1_2\".reading)) @> '{苦痛}'::text[]) AND (\"*SELECT* 1_2\".reading ~~* '%苦痛%'::text)) OR ((core.bigrams(lower(cl2_1.romanization)) @> '{苦痛}'::text[]) AND (cl2_1.romanization ~~* '%苦痛%'::text)))",
+              "Total Cost": 144568.05
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 91240.07
+            },
+            {
+              "Node Type": "Aggregate",
+              "Subplan Name": "CTE hits",
+              "Total Cost": 280434.89
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 280245.84
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 68340.83
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 70946.51
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 87362.57
+            },
+            {
+              "Node Type": "Nested Loop",
+              "Subplan Name": "CTE lexeme_priority",
+              "Total Cost": 15641.28
+            },
+            {
+              "Node Type": "Function Scan",
+              "Subplan Name": "SubPlan 9",
+              "Total Cost": 1.51
+            },
+            {
+              "Node Type": "Nested Loop",
+              "Subplan Name": "SubPlan 10",
+              "Total Cost": 17.68
+            },
+            {
+              "Node Type": "Hash Join",
+              "Subplan Name": "SubPlan 14",
+              "Join Filter": "(((core.bigrams(lower(\"*SELECT* 1_4\".surface)) @> '{重苦}'::text[]) AND (\"*SELECT* 1_4\".surface ~~* '%重苦%'::text)) OR ((core.bigrams(lower(\"*SELECT* 1_4\".reading)) @> '{重苦}'::text[]) AND (\"*SELECT* 1_4\".reading ~~* '%重苦%'::text)) OR ((core.bigrams(lower(cl2_3.romanization)) @> '{重苦}'::text[]) AND (cl2_3.romanization ~~* '%重苦%'::text)))",
+              "Total Cost": 144568.05
+            },
+            {
+              "Node Type": "Append",
+              "Total Cost": 91240.07
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -172,8 +172,25 @@ curl -s http://localhost:3000/v1/senses/1/links
 }
 ```
 
-Chỉ trả cặp đã qua **cổng curated** (`serve.sense_pair`: concept `curated`, confidence ≥ 0.7).
-Khi chưa curate, `data` rỗng — đúng thiết kế.
+**M4.3, cập nhật 2026-10-20: code đã kiểm tra local, chưa deploy VPS.**
+
+- Trả **0–3 từ khác nhau** cho sense đang xem, cả EN → JA và JA → EN;
+  không bù cho đủ 3. `next_cursor` luôn `null`, schema item không đổi.
+- Cặp phải đã công bố trong `serve.sense_pair`; kiểm lại concept `curated`,
+  cả hai mapping còn `exact` và confidence ≥ 0.7. Áp scope hồ sơ cho cả hai đầu.
+- Chính target sense có gloss Việt không rỗng. JA chọn JMdict có reading.
+  Target lexeme phải xuất hiện đúng ID trong trang đầu search mặc định (20 mục),
+  cùng ngôn ngữ/scope; dùng chung query policy search, không remap theo mặt chữ.
+- Ưu tiên BCCWJ/frequency/common hiện có, rồi confidence và ID ổn định.
+  Mỗi lexeme/nhãn sau chuẩn hóa chỉ lấy một đại diện, kể cả khác source/POS/reading/case.
+- Không có target đạt gate thì `data: []`; FE ẩn section và chỉ gọi links của
+  sense đang chọn. Click giữ `sense_id` thật, không search lại rồi chọn mục đầu.
+- Khi bước kiểm search timeout, trả `504 DICTIONARY_SEARCH_TIMEOUT`, không
+  trả danh sách links chưa kiểm chứng. Có thể thử lại sau; nhập thêm chữ không
+  thay đổi nhãn kiểm tra của endpoint links.
+
+Xem [report và gate production](../reviews/m4.3-searchable-links-implementation-2026-10-20.md)
+và [handoff FE](../handoff/fe-handoff-2026-10-20.md).
 
 ## GET /v1/kanji/:literal
 

@@ -47,7 +47,7 @@ const senseCard = {
 function createSetup(): {
   service: DictionaryService;
   repos: {
-    search: { search: jest.Mock };
+    search: { search: jest.Mock; searchExactPages: jest.Mock };
     scope: { resolve: jest.Mock };
     reverse: { findViSources: jest.Mock; findJaTargets: jest.Mock };
     priority: { getByLexemes: jest.Mock };
@@ -71,7 +71,10 @@ function createSetup(): {
   };
 } {
   const repos = {
-    search: { search: jest.fn() },
+    search: {
+      search: jest.fn(),
+      searchExactPages: jest.fn().mockResolvedValue([]),
+    },
     scope: { resolve: jest.fn().mockResolvedValue(null) },
     reverse: { findViSources: jest.fn(), findJaTargets: jest.fn() },
     priority: { getByLexemes: jest.fn().mockResolvedValue([]) },
@@ -224,7 +227,7 @@ describe('DictionaryService', () => {
     expect(repos.pairs.findLinks).not.toHaveBeenCalled();
   });
 
-  it('JA detail links omit EN suggestions while preserving supported JA entries', async () => {
+  it('JA-only detail omits cross-language links outside the profile', async () => {
     const { service, repos } = createSetup();
     repos.scope.resolve.mockResolvedValue({ languageIds: [2] });
     repos.senseCard.getBySenseId.mockResolvedValue(senseCard);
@@ -236,15 +239,12 @@ describe('DictionaryService', () => {
       confidence: 1,
       concept_id: 1n,
     };
-    repos.pairs.findLinks.mockResolvedValue([
-      { ...common, language_id: 1 },
-      { ...common, language_id: 2, lemma: '走る' },
-    ]);
+    repos.pairs.findLinks.mockResolvedValue([{ ...common, language_id: 1 }]);
     expect(
       (await service.getSenseLinks(1n, 1n)).data.map(
         (link) => link.language_id,
       ),
-    ).toEqual([2]);
+    ).toEqual([]);
   });
 
   describe('search', () => {
@@ -603,12 +603,78 @@ describe('DictionaryService', () => {
       expect(repos.pairs.findLinks).not.toHaveBeenCalled();
     });
 
+    it('continues beyond a hidden first batch and never duplicates a visible word', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.getBySenseId.mockResolvedValue(senseCard);
+      const candidate = (id: number, lemma: string) => ({
+        sense_id: BigInt(id),
+        lexeme_id: BigInt(id),
+        language_id: 1,
+        lang_code: 'en',
+        lemma,
+        reading: null,
+        romanization: null,
+        confidence: 0.9,
+        concept_id: 1n,
+      });
+      repos.pairs.findLinks.mockResolvedValue([
+        ...Array.from({ length: 6 }, (_, i) =>
+          candidate(100 + i, 'hidden' + i),
+        ),
+        candidate(1, 'agony'),
+        candidate(2, 'Agony'),
+        candidate(3, 'Ａｇｏｎｙ'),
+        candidate(4, 'torment'),
+        candidate(5, 'anguish'),
+        candidate(6, 'distress'),
+      ]);
+      repos.search.searchExactPages
+        .mockResolvedValueOnce([])
+        .mockResolvedValueOnce([
+          { query_index: 0, lexeme_id: 1n },
+          { query_index: 1, lexeme_id: 2n },
+          { query_index: 2, lexeme_id: 3n },
+          { query_index: 3, lexeme_id: 4n },
+          { query_index: 4, lexeme_id: 5n },
+          { query_index: 5, lexeme_id: 6n },
+        ]);
+      expect(
+        (await service.getSenseLinks(1n)).data.map((x) => x.lemma),
+      ).toEqual(['agony', 'torment', 'anguish']);
+    });
+
+    it('propagates search verification failure rather than serving unverified links', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.getBySenseId.mockResolvedValue(senseCard);
+      repos.pairs.findLinks.mockResolvedValue([
+        {
+          sense_id: 2n,
+          lexeme_id: 2n,
+          language_id: 1,
+          lang_code: 'en',
+          lemma: 'run',
+          reading: null,
+          romanization: null,
+          confidence: 1,
+          concept_id: 1n,
+        },
+      ]);
+      repos.search.searchExactPages.mockRejectedValue(
+        new Error('Search unavailable'),
+      );
+      await expect(service.getSenseLinks(1n)).rejects.toThrow(
+        'Search unavailable',
+      );
+    });
+
     it('map cặp song ngữ (bigint → chuỗi)', async () => {
       const { service, repos } = createSetup();
       repos.senseCard.getBySenseId.mockResolvedValue(senseCard);
       repos.pairs.findLinks.mockResolvedValue([
         {
           sense_id: 2n,
+          lexeme_id: 2n,
+          lang_code: 'en',
           language_id: 1,
           lemma: 'run',
           reading: null,
@@ -618,6 +684,9 @@ describe('DictionaryService', () => {
         },
       ]);
 
+      repos.search.searchExactPages.mockResolvedValue([
+        { query_index: 0, lexeme_id: 2n },
+      ]);
       const result = await service.getSenseLinks(1n);
 
       expect(result.data[0]).toEqual({

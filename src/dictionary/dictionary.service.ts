@@ -1,10 +1,14 @@
 import { HttpStatus, Inject, Injectable } from '@nestjs/common';
 import { StudyLanguageScopeService } from '../users/study-language-scope.service';
 import { toHiragana } from 'wanakana';
+import { maxLength } from 'class-validator';
 import { DomainException } from '../common/errors/domain.exception';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
-import { SearchQueryDto } from './dto/search-query.dto';
+import {
+  SearchQueryDto,
+  DICTIONARY_SEARCH_MAX_LENGTH,
+} from './dto/search-query.dto';
 import { SuggestionQueryDto } from './dto/suggestion-query.dto';
 import {
   decodeDictionarySearchCursor,
@@ -46,6 +50,8 @@ import { SenseCard } from './types/sense-card';
 const EXAMPLES_LIMIT = 5;
 const DEFAULT_SEARCH_LIMIT = 20;
 const SUGGESTION_LIMIT = 5;
+const SENSE_LINK_LIMIT = 3;
+const SENSE_LINK_SEARCH_BATCH = 6;
 
 /**
  * Đọc từ điển: search, sense detail, cặp song ngữ, kanji.
@@ -424,13 +430,78 @@ export class DictionaryService {
     if (!card || (scope && !scope.languageIds.includes(card.languageId))) {
       throw senseNotFound();
     }
-    const links = await this.pairRepo.findLinks(senseId);
-    return {
-      data: links
-        .filter(
-          (link) => !scope || scope.languageIds.includes(link.language_id),
+    const candidates = (
+      await this.pairRepo.findLinks(senseId, scope?.languageIds)
+    ).filter(
+      (link) =>
+        link.language_id !== card.languageId &&
+        link.lemma.trim().length > 0 &&
+        maxLength(link.lemma, DICTIONARY_SEARCH_MAX_LENGTH) &&
+        (!scope || scope.languageIds.includes(link.language_id)),
+    );
+    const selected: SenseLinkRow[] = [];
+    const words = new Set<string>();
+    const lexemes = new Set<bigint>();
+    // Rank first, then validate in batches until three distinct words qualify.
+    // Never cap candidates before visibility/dedup, or hidden duplicates can
+    // consume all three positions. Cache only within this request/profile.
+    const visibility = new Map<string, Set<bigint>>();
+    const queryKey = (link: SenseLinkRow) =>
+      JSON.stringify([link.lang_code, link.lemma.trim()]);
+    for (
+      let offset = 0;
+      offset < candidates.length && selected.length < SENSE_LINK_LIMIT;
+      offset += SENSE_LINK_SEARCH_BATCH
+    ) {
+      const batch = candidates.slice(offset, offset + SENSE_LINK_SEARCH_BATCH);
+      const missing = new Map<string, SenseLinkRow>();
+      for (const link of batch) {
+        const key = queryKey(link);
+        if (!visibility.has(key)) missing.set(key, link);
+      }
+      const queries = [...missing.entries()];
+      if (queries.length > 0) {
+        const hits = await this.searchRepo.searchExactPages(
+          queries.map(([, link]) => {
+            const variants = getSearchQueryVariants(
+              link.lemma.trim(),
+              link.lang_code,
+            );
+            return {
+              queries: variants,
+              patterns: variants.map(escapeLike),
+              lang: link.lang_code,
+              allowedLanguageIds: scope?.languageIds,
+              limit: DEFAULT_SEARCH_LIMIT,
+              cursor: null,
+            };
+          }),
+        );
+        queries.forEach(([key]) => visibility.set(key, new Set()));
+        for (const hit of hits) {
+          const entry = queries[hit.query_index];
+          if (entry) visibility.get(entry[0])!.add(hit.lexeme_id);
+        }
+      }
+      for (const link of batch) {
+        const word = JSON.stringify([
+          link.language_id,
+          link.lemma.trim().normalize('NFKC').toLowerCase(),
+        ]);
+        if (
+          words.has(word) ||
+          lexemes.has(link.lexeme_id) ||
+          !visibility.get(queryKey(link))?.has(link.lexeme_id)
         )
-        .map(toSenseLinkItem),
+          continue;
+        selected.push(link);
+        words.add(word);
+        lexemes.add(link.lexeme_id);
+        if (selected.length === SENSE_LINK_LIMIT) break;
+      }
+    }
+    return {
+      data: selected.map(toSenseLinkItem),
       next_cursor: null,
     };
   }

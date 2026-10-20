@@ -277,7 +277,12 @@ export class SenseLinkDto {
 }
 
 export class SenseLinksResultDto {
-  @ApiProperty({ type: [SenseLinkDto] })
+  @ApiProperty({
+    type: [SenseLinkDto],
+    maxItems: 3,
+    description:
+      'Tối đa 3 từ khác nhau; đúng nghĩa đã map, có nghĩa Việt và xuất hiện trong search',
+  })
   data!: SenseLinkDto[];
 
   @ApiProperty({ nullable: true, example: null })

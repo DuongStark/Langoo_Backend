@@ -25,6 +25,11 @@ export interface SearchRow {
   surface_length: number;
 }
 
+export interface ExactSearchHit {
+  query_index: number;
+  lexeme_id: bigint;
+}
+
 /**
  * Tìm "mặt chữ" trong serve.dictionary_search (view, schema serve KHÔNG map Prisma).
  * `queries` dùng so khớp chính xác; `patterns` đã escape ký tự LIKE để dùng trong ILIKE.
@@ -80,11 +85,39 @@ export class DictionarySearchRepository {
     return this.searchRows(params, false);
   }
 
+  /** Exact matches rank ahead of every prefix/contains match. This is the same
+   * first-page membership for a link whose label is an exact lemma/form, without
+   * evaluating unrelated substring matches. Each page retains the full canonical
+   * visibility check, including canonical entries outside the links candidate set.
+   */
+  async searchExactPages(pages: SearchParams[]): Promise<ExactSearchHit[]> {
+    if (pages.length === 0) return [];
+    const queries = pages.map(
+      (params, index) => Prisma.sql`
+      SELECT ${index}::int AS query_index, r.lexeme_id
+      FROM (${this.buildSearchQuery({ ...params, cursor: null, deduplicateSurface: false }, true)}) r
+    `,
+    );
+    return this.runSearchQuery<ExactSearchHit>(
+      Prisma.sql`${Prisma.join(queries, ' UNION ALL ')}`,
+    );
+  }
+
   private async searchRows(
     params: SearchParams,
     exactOnly: boolean,
     frequencyCeiling: number | null = null,
   ): Promise<SearchRow[]> {
+    return this.runSearchQuery<SearchRow>(
+      this.buildSearchQuery(params, exactOnly, frequencyCeiling),
+    );
+  }
+
+  private buildSearchQuery(
+    params: SearchParams,
+    exactOnly: boolean,
+    frequencyCeiling: number | null = null,
+  ): Prisma.Sql {
     const {
       queries,
       patterns,
@@ -143,6 +176,9 @@ export class DictionarySearchRepository {
               OR (${matchColumn(Prisma.sql`ds.reading`, false, false)})
               OR (${matchColumn(Prisma.sql`cl2.romanization`, false, false)})
             ) ${langFilter}
+          -- Retain the per-surface correlation. Otherwise PostgreSQL can hash
+          -- every matching JMdict face before checking a handful of exact hits.
+          OFFSET 0
         )`
         : Prisma.sql`EXISTS (
           SELECT 1 FROM ranked j
@@ -350,6 +386,10 @@ export class DictionarySearchRepository {
         surface ASC
       LIMIT ${limit}
     `;
+    return query;
+  }
+
+  private async runSearchQuery<T>(query: Prisma.Sql): Promise<T[]> {
     try {
       return await this.prisma.$transaction(
         async (tx) => {
@@ -360,7 +400,7 @@ export class DictionarySearchRepository {
           await tx.$executeRawUnsafe("SET LOCAL statement_timeout = '20000'");
           // Short interactive queries should not spend time compiling JIT functions.
           await tx.$executeRawUnsafe('SET LOCAL jit = off');
-          return tx.$queryRaw<SearchRow[]>(query);
+          return tx.$queryRaw<T[]>(query);
         },
         { timeout: 25000, maxWait: 10000 },
       );
