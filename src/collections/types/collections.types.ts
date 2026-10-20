@@ -34,6 +34,13 @@ export interface DeckListResult {
   data: DeckListItem[];
 }
 
+export interface AppendFromDeckResult {
+  collection_id: string;
+  added: number;
+  skipped: number;
+  item_count: number;
+}
+
 export interface ArchivedResponse {
   id: string;
   archived_at: string;

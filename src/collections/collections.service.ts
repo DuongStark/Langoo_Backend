@@ -9,6 +9,7 @@ import {
   profileLanguageIds,
 } from '../users/profile-languages';
 import { lockUser } from '../users/user-lock';
+import { AppendFromDeckDto } from './dto/append-from-deck.dto';
 import { CloneFromDeckDto } from './dto/clone-from-deck.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
@@ -19,6 +20,7 @@ import {
 } from './list-cursors';
 import { DeckRepository } from './repositories/deck.repository';
 import {
+  AppendFromDeckResult,
   ArchivedResponse,
   CollectionListResult,
   CollectionResponse,
@@ -62,6 +64,8 @@ interface CollectionDbRow {
 }
 
 const CLONE_TRANSACTION_TIMEOUT_MS = 30_000;
+/** Cùng giới hạn position với items.service (int4). */
+const MAX_POSITION = 2_147_483_647;
 
 @Injectable()
 export class CollectionsService {
@@ -359,6 +363,160 @@ export class CollectionsService {
     );
 
     return toCollectionResponse(collection);
+  }
+
+  /** Thêm từ của deck mẫu vào bộ đã có; giữ nguyên từ trùng (bỏ qua). */
+  async appendFromDeck(
+    userId: bigint,
+    collectionId: string,
+    dto: AppendFromDeckDto,
+  ): Promise<AppendFromDeckResult> {
+    const collection = await this.findOwned(userId, collectionId);
+    if (collection.archivedAt !== null) {
+      throw new DomainException(
+        'COLLECTION_NOT_FOUND',
+        'Không tìm thấy bộ sưu tập',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const deckId = parsePositivePostgresBigInt(dto.deck_id, 'deck_id');
+    const deck = await this.deckRepo.findPublished(deckId);
+    if (!deck || !deck.is_published) {
+      throw new DomainException(
+        'DECK_NOT_FOUND',
+        'Không tìm thấy bộ từ',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const deckItems = await this.deckRepo.findItems(deckId);
+    if (deckItems.length === 0) {
+      return {
+        collection_id: collectionId,
+        added: 0,
+        skipped: 0,
+        item_count: collection.itemCount,
+      };
+    }
+
+    const result = await this.prisma.$transaction(
+      async (tx) => {
+        await lockUser(tx, userId);
+        const profile = await tx.studyProfile.findFirst({
+          where: { id: collection.profileId, userId },
+          select: {
+            id: true,
+            primaryLanguageId: true,
+            secondaryLanguageId: true,
+          },
+        });
+        if (!profile) {
+          throw new DomainException(
+            'PROFILE_NOT_FOUND',
+            'Không tìm thấy hồ sơ học của bộ sưu tập',
+            HttpStatus.CONFLICT,
+          );
+        }
+        assertLanguagesInProfile(
+          profileLanguageIds(
+            profile.primaryLanguageId,
+            profile.secondaryLanguageId,
+          ),
+          deckItems.map((item) => item.sense_language_id),
+        );
+
+        const existingRows = await tx.collectionItem.findMany({
+          where: { collectionId },
+          select: { anchorSenseId: true },
+        });
+        const existing = new Set(
+          existingRows.map((row) => row.anchorSenseId.toString()),
+        );
+        const fresh = deckItems.filter(
+          (item) => !existing.has(item.anchor_sense_id.toString()),
+        );
+        if (fresh.length === 0) {
+          return { added: 0, itemCount: collection.itemCount };
+        }
+
+        const aggregate = await tx.collectionItem.aggregate({
+          where: { collectionId },
+          _max: { position: true },
+        });
+        const start = aggregate._max.position ?? 0;
+        if (start + fresh.length > MAX_POSITION) {
+          throw new DomainException(
+            'COLLECTION_POSITION_LIMIT_REACHED',
+            'Bộ sưu tập đã đạt giới hạn vị trí của item',
+            HttpStatus.CONFLICT,
+          );
+        }
+
+        const now = new Date();
+        const rows = fresh.map((deckItem, index) => {
+          const itemId = uuidv7();
+          const faceId = uuidv7();
+          return {
+            item: {
+              id: itemId,
+              collectionId,
+              conceptId: deckItem.concept_id,
+              anchorSenseId: deckItem.anchor_sense_id,
+              meaningVi: deckItem.meaning_vi,
+              meaningSource: deckItem.meaning_source,
+              position: start + index + 1,
+              addedFromDeckId: deckId,
+            },
+            face: {
+              id: faceId,
+              itemId,
+              senseId: deckItem.anchor_sense_id,
+              languageId: deckItem.sense_language_id,
+              role: 'primary',
+            },
+          };
+        });
+
+        await tx.collectionItem.createMany({
+          data: rows.map((row) => row.item),
+        });
+        await tx.collectionItemFace.createMany({
+          data: rows.map((row) => row.face),
+        });
+        await tx.srsState.createMany({
+          data: rows.flatMap((row) => [
+            {
+              faceId: row.face.id,
+              userId,
+              profileId: collection.profileId,
+              direction: 'recognize',
+              state: 'new',
+              dueAt: now,
+            },
+            {
+              faceId: row.face.id,
+              userId,
+              profileId: collection.profileId,
+              direction: 'recall',
+              state: 'new',
+              dueAt: now,
+            },
+          ]),
+        });
+        const updated = await tx.collection.update({
+          where: { id: collectionId },
+          data: { itemCount: { increment: rows.length } },
+        });
+        return { added: rows.length, itemCount: updated.itemCount };
+      },
+      { timeout: CLONE_TRANSACTION_TIMEOUT_MS },
+    );
+
+    return {
+      collection_id: collectionId,
+      added: result.added,
+      skipped: deckItems.length - result.added,
+      item_count: result.itemCount,
+    };
   }
 
   private async withVisibleCount(

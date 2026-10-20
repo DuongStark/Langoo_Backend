@@ -4,8 +4,16 @@ import { CollectionsService } from './collections.service';
 import { DeckRepository, DeckRow } from './repositories/deck.repository';
 
 interface TxMock {
-  collection: { create: jest.Mock; update: jest.Mock };
-  collectionItem: { createMany: jest.Mock };
+  collection: {
+    create: jest.Mock;
+    update: jest.Mock;
+    findFirst: jest.Mock;
+  };
+  collectionItem: {
+    createMany: jest.Mock;
+    findMany: jest.Mock;
+    aggregate: jest.Mock;
+  };
   collectionItemFace: { createMany: jest.Mock };
   srsState: { createMany: jest.Mock };
   studyProfile: { findFirst: jest.Mock };
@@ -61,8 +69,16 @@ function createSetup(): {
   };
 } {
   const tx: TxMock = {
-    collection: { create: jest.fn(), update: jest.fn() },
-    collectionItem: { createMany: jest.fn() },
+    collection: {
+      create: jest.fn(),
+      update: jest.fn(),
+      findFirst: jest.fn(),
+    },
+    collectionItem: {
+      createMany: jest.fn(),
+      findMany: jest.fn(),
+      aggregate: jest.fn(),
+    },
     collectionItemFace: { createMany: jest.fn() },
     srsState: { createMany: jest.fn() },
     studyProfile: {
@@ -246,6 +262,83 @@ describe('CollectionsService', () => {
           },
         ],
       });
+    });
+  });
+
+  describe('appendFromDeck', () => {
+    const collectionId = '01a0dc8a-7191-7e18-93b0-32e8378986fe';
+    const items = [
+      {
+        anchor_sense_id: 1n,
+        concept_id: 1n,
+        position: 1,
+        sense_language_id: 2,
+        meaning_vi: 'chạy',
+        meaning_source: 'source',
+      },
+      {
+        anchor_sense_id: 5n,
+        concept_id: 5n,
+        position: 2,
+        sense_language_id: 2,
+        meaning_vi: 'ăn',
+        meaning_source: 'source',
+      },
+      {
+        anchor_sense_id: 9n,
+        concept_id: null,
+        position: 3,
+        sense_language_id: 2,
+        meaning_vi: 'uống',
+        meaning_source: 'source',
+      },
+    ];
+
+    it('chỉ thêm từ mới, bỏ qua từ đã có và cập nhật item_count', async () => {
+      const { service, prisma, tx, deck } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(
+        collectionRow({ itemCount: 2 }),
+      );
+      deck.findPublished.mockResolvedValue({
+        id: 1n,
+        title: 'Deck mẫu',
+        description: null,
+        language_id: 2,
+        item_count: 3,
+        is_published: true,
+      });
+      deck.findItems.mockResolvedValue(items);
+      tx.collectionItem.findMany.mockResolvedValue([{ anchorSenseId: 1n }]);
+      tx.collectionItem.aggregate.mockResolvedValue({ _max: { position: 4 } });
+      tx.collection.update.mockResolvedValue(collectionRow({ itemCount: 4 }));
+
+      const result = await service.appendFromDeck(1n, collectionId, {
+        deck_id: '1',
+      });
+
+      expect(result).toMatchObject({
+        collection_id: collectionId,
+        added: 2,
+        skipped: 1,
+        item_count: 4,
+      });
+      const created = firstArg<{
+        data: { anchorSenseId: bigint; position: number }[];
+      }>(tx.collectionItem.createMany).data;
+      expect(created.map((row) => row.anchorSenseId)).toEqual([5n, 9n]);
+      expect(created.map((row) => row.position)).toEqual([5, 6]);
+      expect(tx.collectionItemFace.createMany).toHaveBeenCalledTimes(1);
+      expect(tx.srsState.createMany).toHaveBeenCalledTimes(1);
+    });
+
+    it('deck không tồn tại/chưa publish → 404 DECK_NOT_FOUND', async () => {
+      const { service, prisma, deck } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      deck.findPublished.mockResolvedValue(null);
+
+      await expect(
+        service.appendFromDeck(1n, collectionId, { deck_id: '999' }),
+      ).rejects.toMatchObject({ code: 'DECK_NOT_FOUND' });
     });
   });
 

@@ -32,10 +32,15 @@ import {
   CollectionResponseDto,
 } from './dto/collection-response.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
-import { DeckListResponseDto } from './dto/deck-list-response.dto';
+import {
+  DeckListResponseDto,
+  AppendFromDeckResponseDto,
+} from './dto/deck-list-response.dto';
+import { AppendFromDeckDto } from './dto/append-from-deck.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import {
+  AppendFromDeckResult,
   ArchivedResponse,
   CollectionListResult,
   CollectionResponse,
@@ -96,6 +101,27 @@ export class CollectionsController {
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
   listDecks(): Promise<DeckListResult> {
     return this.collectionsService.listDecks();
+  }
+
+  @Post(':id/from-deck')
+  @ApiOperation({
+    summary: 'Thêm từ của bộ mẫu vào bộ đã có (bỏ qua từ trùng)',
+  })
+  @ApiCreatedResponse({ type: AppendFromDeckResponseDto })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'DECK_NOT_FOUND',
+  })
+  appendFromDeck(
+    @CurrentUser() payload: JwtPayload,
+    @Param('id') id: string,
+    @Body() dto: AppendFromDeckDto,
+  ): Promise<AppendFromDeckResult> {
+    return this.collectionsService.appendFromDeck(
+      BigInt(payload.sub),
+      parseUuidParam(id, 'collection_id'),
+      dto,
+    );
   }
 
   @Get(':id')
