@@ -22,6 +22,7 @@ import {
   ArchivedResponse,
   CollectionListResult,
   CollectionResponse,
+  DeckListResult,
 } from './types/collections.types';
 
 interface CollectionRow {
@@ -213,6 +214,21 @@ export class CollectionsService {
    * Clone bộ từ hệ thống: tạo collection + item + face anchor + 2 srs_state/face
    * trong một transaction; dùng createMany (uuid v7 sinh trước) cho deck lớn.
    */
+  async listDecks(): Promise<DeckListResult> {
+    const rows = await this.deckRepo.findPublishedList();
+    return {
+      data: rows.map((row) => ({
+        id: row.id.toString(),
+        slug: row.slug,
+        title: row.title,
+        description: row.description,
+        language_id: row.language_id,
+        level_label: row.level_label,
+        item_count: row.item_count,
+      })),
+    };
+  }
+
   async cloneFromDeck(
     userId: bigint,
     dto: CloneFromDeckDto,

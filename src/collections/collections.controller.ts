@@ -32,12 +32,14 @@ import {
   CollectionResponseDto,
 } from './dto/collection-response.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { DeckListResponseDto } from './dto/deck-list-response.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import {
   ArchivedResponse,
   CollectionListResult,
   CollectionResponse,
+  DeckListResult,
 } from './types/collections.types';
 
 @ApiTags('collections')
@@ -86,6 +88,14 @@ export class CollectionsController {
     @Body() dto: CloneFromDeckDto,
   ): Promise<CollectionResponse> {
     return this.collectionsService.cloneFromDeck(BigInt(payload.sub), dto);
+  }
+
+  @Get('decks')
+  @ApiOperation({ summary: 'Bộ từ mẫu (deck hệ thống đã publish) để clone' })
+  @ApiOkResponse({ type: DeckListResponseDto })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  listDecks(): Promise<DeckListResult> {
+    return this.collectionsService.listDecks();
   }
 
   @Get(':id')

@@ -19,6 +19,16 @@ export interface DeckItemRow {
   meaning_source: string;
 }
 
+export interface DeckListItemRow {
+  id: bigint;
+  slug: string;
+  title: string;
+  description: string | null;
+  language_id: number;
+  level_label: string | null;
+  item_count: number;
+}
+
 /**
  * Đọc bộ từ hệ thống `core.deck`/`core.deck_item` (chỉ đọc).
  * Nghĩa vi khi clone: gloss vi (máy chưa duyệt → meaning_source='machine'),
@@ -35,6 +45,15 @@ export class DeckRepository {
       WHERE id = ${deckId}
     `;
     return rows[0] ?? null;
+  }
+
+  async findPublishedList(): Promise<DeckListItemRow[]> {
+    return this.prisma.$queryRaw<DeckListItemRow[]>`
+      SELECT id, slug, title, description, language_id, level_label, item_count
+      FROM core.deck
+      WHERE is_published
+      ORDER BY level_label NULLS LAST, id ASC
+    `;
   }
 
   async findItems(deckId: bigint): Promise<DeckItemRow[]> {

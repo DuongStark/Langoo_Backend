@@ -20,6 +20,20 @@ export interface CollectionListResult {
   next_cursor: string | null;
 }
 
+export interface DeckListItem {
+  id: string;
+  slug: string;
+  title: string;
+  description: string | null;
+  language_id: number;
+  level_label: string | null;
+  item_count: number;
+}
+
+export interface DeckListResult {
+  data: DeckListItem[];
+}
+
 export interface ArchivedResponse {
   id: string;
   archived_at: string;

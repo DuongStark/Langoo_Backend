@@ -55,6 +55,7 @@ function createSetup(): {
   tx: TxMock;
   deck: {
     findPublished: jest.Mock;
+    findPublishedList: jest.Mock;
     findItems: jest.Mock;
     hasCuratedConceptMapping: jest.Mock;
   };
@@ -90,6 +91,7 @@ function createSetup(): {
   };
   const deck = {
     findPublished: jest.fn(),
+    findPublishedList: jest.fn(),
     findItems: jest.fn(),
     hasCuratedConceptMapping: jest.fn().mockResolvedValue(true),
   };
@@ -213,6 +215,37 @@ describe('CollectionsService', () => {
 
       expect(prisma.collection.update).not.toHaveBeenCalled();
       expect(result.archived_at).toBe(NOW.toISOString());
+    });
+  });
+
+  describe('listDecks', () => {
+    it('trả deck đã publish với id dạng string', async () => {
+      const { service, deck } = createSetup();
+      deck.findPublishedList.mockResolvedValue([
+        {
+          id: 6n,
+          slug: 'starter-100',
+          title: '100 từ tiếng Nhật đầu tiên',
+          description: null,
+          language_id: 2,
+          level_label: 'N5',
+          item_count: 100,
+        },
+      ]);
+
+      await expect(service.listDecks()).resolves.toEqual({
+        data: [
+          {
+            id: '6',
+            slug: 'starter-100',
+            title: '100 từ tiếng Nhật đầu tiên',
+            description: null,
+            language_id: 2,
+            level_label: 'N5',
+            item_count: 100,
+          },
+        ],
+      });
     });
   });
 
