@@ -1,3 +1,4 @@
+import { DomainException } from '../../common/errors/domain.exception';
 import { PrismaService } from '../../db/prisma.service';
 import { Prisma } from '../../generated/prisma/client';
 import { DictionarySearchRepository } from './dictionary-search.repository';
@@ -73,7 +74,7 @@ describe('DictionarySearchRepository', () => {
     expect(query.sql).toContain('FROM visible');
   });
 
-  it('guard statement_timeout (SET LOCAL) + custom plan + cap hits', async () => {
+  it('guard statement_timeout (SET LOCAL) + custom plan without arbitrary candidate cap', async () => {
     const { repository, queryRaw, executeRawUnsafe } = createRepository();
 
     await repository.search(params);
@@ -85,7 +86,7 @@ describe('DictionarySearchRepository', () => {
       "SET LOCAL plan_cache_mode = 'force_custom_plan'",
     );
     const query = firstArg<Prisma.Sql>(queryRaw);
-    expect(query.sql).toContain('LIMIT 5000');
+    expect(query.sql).not.toContain('LIMIT 5000');
   });
 
   it('EN tạm thời VI-only: chỉ hiện lexeme EN có ít nhất 1 gloss VI', async () => {
@@ -96,5 +97,69 @@ describe('DictionarySearchRepository', () => {
     const query = firstArg<Prisma.Sql>(queryRaw);
     expect(query.sql).toContain("r.lang_code <> 'en' OR r.vi_rank = 0");
     expect(query.sql).toContain("vi_l.code='vi'");
+  });
+});
+
+describe('M4.2 dictionary search failures', () => {
+  const params = {
+    queries: ['a'],
+    patterns: ['a'],
+    lang: 'en',
+    limit: 5,
+    cursor: null,
+  };
+  function failingRepository(error: Error) {
+    const tx = {
+      $executeRawUnsafe: jest.fn().mockResolvedValue(0),
+      $queryRaw: jest.fn().mockRejectedValue(error),
+    };
+    return new DictionarySearchRepository({
+      ...tx,
+      $transaction: async (work: (client: typeof tx) => Promise<unknown>) =>
+        work(tx),
+    } as unknown as PrismaService);
+  }
+
+  it('reports a statement timeout as a retryable search failure, not empty results', async () => {
+    const repo = failingRepository(
+      new Error('canceling statement due to statement timeout'),
+    );
+    await expect(repo.search(params)).rejects.toMatchObject({
+      code: 'DICTIONARY_SEARCH_TIMEOUT',
+      status: 504,
+    });
+  });
+
+  it('recognizes structured PostgreSQL query cancellation', async () => {
+    const error = Object.assign(new Error('Raw query failed'), {
+      meta: { code: '57014' },
+    });
+    const repo = failingRepository(error);
+    await expect(repo.search(params)).rejects.toBeInstanceOf(DomainException);
+  });
+
+  it('does not disguise unrelated database failures as a timeout', async () => {
+    const error = new Error('database connection refused');
+    await expect(failingRepository(error).search(params)).rejects.toBe(error);
+  });
+
+  it('recognizes PostgreSQL cancellation in Prisma 7 driver-adapter metadata', async () => {
+    const error = Object.assign(new Error('Raw query failed'), {
+      code: 'P2010',
+      meta: {
+        driverAdapterError: {
+          cause: {
+            originalCode: '57014',
+            originalMessage: 'canceling statement due to user request',
+          },
+        },
+      },
+    });
+    await expect(failingRepository(error).search(params)).rejects.toMatchObject(
+      {
+        code: 'DICTIONARY_SEARCH_TIMEOUT',
+        status: 504,
+      },
+    );
   });
 });

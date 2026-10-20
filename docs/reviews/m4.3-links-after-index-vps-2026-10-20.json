@@ -1,0 +1,69 @@
+{
+  "work_item": "M4.3",
+  "date": "2026-10-20",
+  "scope": "Read-only integrated SQL after migration044 on VPS. Runtime not yet switched.",
+  "queries": [
+    {
+      "name": "agony_candidates",
+      "planning_ms": 22.721,
+      "execution_ms": 11.818,
+      "rows": [
+        {
+          "sense_id": 14290,
+          "lexeme_id": 183795,
+          "language_id": 2,
+          "lang_code": "ja",
+          "lemma": "苦痛",
+          "reading": "くつう",
+          "romanization": null,
+          "confidence": 0.9,
+          "concept_id": 91144
+        },
+        {
+          "sense_id": 77994,
+          "lexeme_id": 204170,
+          "language_id": 2,
+          "lang_code": "ja",
+          "lemma": "重苦",
+          "reading": "じゅうく",
+          "romanization": null,
+          "confidence": 0.9,
+          "concept_id": 91144
+        }
+      ]
+    },
+    {
+      "name": "kutsuu_candidates",
+      "planning_ms": 20.181,
+      "execution_ms": 4.372,
+      "rows": [
+        {
+          "sense_id": 261514,
+          "lexeme_id": 224910,
+          "language_id": 1,
+          "lang_code": "en",
+          "lemma": "agony",
+          "reading": null,
+          "romanization": null,
+          "confidence": 0.9,
+          "concept_id": 91144
+        }
+      ]
+    },
+    {
+      "name": "exact_search_pages",
+      "planning_ms": 43.838,
+      "execution_ms": 14.825,
+      "rows": [
+        {
+          "query_index": 0,
+          "lexeme_id": 183795
+        },
+        {
+          "query_index": 1,
+          "lexeme_id": 204170
+        }
+      ]
+    }
+  ]
+}

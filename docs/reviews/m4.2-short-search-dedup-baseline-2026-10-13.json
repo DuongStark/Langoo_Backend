@@ -1,0 +1,10 @@
+{
+  "code": "M4.2",
+  "scope": "pre-change repository SQL with existing dedup fixture",
+  "expected_by_existing_test": 5,
+  "actual_pre_change": 2,
+  "ids": [
+    "710001",
+    "710002"
+  ]
+}

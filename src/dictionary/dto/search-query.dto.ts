@@ -10,11 +10,13 @@ import {
   MinLength,
 } from 'class-validator';
 
+export const DICTIONARY_SEARCH_MAX_LENGTH = 100;
+
 export class SearchQueryDto {
-  @ApiProperty({ example: '走る', maxLength: 100 })
+  @ApiProperty({ example: '走る', maxLength: DICTIONARY_SEARCH_MAX_LENGTH })
   @IsString()
   @MinLength(1)
-  @MaxLength(100)
+  @MaxLength(DICTIONARY_SEARCH_MAX_LENGTH)
   q!: string;
 
   @ApiPropertyOptional({

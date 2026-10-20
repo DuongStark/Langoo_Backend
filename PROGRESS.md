@@ -1,11 +1,61 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-11 (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
+> Cập nhật lần cuối: 2026-10-20 — M4.3 links 0–3 từ khác nhau đã commit local `41ed9eb` (dependency M4.2 `71eb828`); chưa push/deploy, còn gate tích hợp search VPS/index/performance và FE. Xem entry 2026-10-20 bên dưới.
+> Tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
 > mọi thay đổi code phải lưu tài liệu, kiểm tra và trạng thái Git/triển khai.
 
 ## Quy trình và tài liệu
+
+### 2026-10-20 — M4.3 — Tích hợp VPS và phát hành liên kết ít từ
+
+- Chủ dự án yêu cầu deploy. Merge M4.2/M4.3 trên origin/main4cd6472 để giữ EN VI/canonical/POS/priority, VI autocomplete, Kanji component và ví dụ đang chạy; shared query dùng cùng policy cho links.
+- Migration search đổi042→044 vì042 production thuộc M14. Backup code/schema và response trước deploy; không sửa data/mapping. [Report deploy](docs/reviews/m4.3-searchable-links-deploy-2026-10-20.md).
+- Gate local: 58 suite/491 unit,25 suite/231 E2E, full eslint/build pass. Root WIP giữ nguyên; release ở worktree riêng. Đang tạo index/review, chưa nghiệm thu runtime mới; sẽ cập nhật live sau deploy.
+
+### 2026-10-20 — M4.2 / M4.3 — Commit search một ký tự và liên kết Anh–Nhật
+
+- Đã commit local: `71eb828` — M4.2 single-character search/migration 042; `41ed9eb` — M4.3 tối đa 3 link khác từ, có VI và tìm được đúng ID. Code, test, plan, report, API/handoff của hai việc đã lưu; không gom WIP quiz/DB4 hay tài liệu khác.
+- Kiểm tra chốt: 54 suite/439 unit pass (28,359s), build pass trong worktree cô lập; 36 integration test đã pass trong lượt triển khai trước, source/test đối chiếu byte. Staged diff-check sạch; không báo whole working tree WIP khác đã build xanh.
+- [Report M4.3](docs/reviews/m4.3-searchable-links-implementation-2026-10-20.md), [report M4.2](docs/reviews/m4.2-short-search-2026-10-13.md). Chưa push/deploy; còn gate tích hợp hotfix search VPS, migration/index, đo latency và FE.
+
+### 2026-10-20 — M4.3 — Liên kết Anh–Nhật tối đa 3 từ, có nghĩa Việt và tìm được khi search
+
+- Code BE xong local: cả EN → JA/JA → EN, published pair + live exact/curated/confidence/scope gate, VI của chính target sense, JA JMdict có reading. Dùng chung query search kiểm đúng ID ở trang đầu mặc định; batch 6 nhãn, chọn tối đa 3 sau learner rank/dedup, không bù bằng mục không đủ gate và không gọi AI.
+- Phạm vi: service, sense-pair/search repositories, hai DTO, unit + DB integration test; giữ M4.2 WIP có sẵn và không gom quiz/DB4 của phiên khác. [Plan](docs/plans/m4.3-searchable-cross-language-links-2026-10-20.md), [report triển khai](docs/reviews/m4.3-searchable-links-implementation-2026-10-20.md), [API](docs/api/dictionary.md), [handoff FE hôm nay](docs/handoff/fe-handoff-2026-10-20.md).
+- Kiểm tra worktree cô lập: 54 suite/439 unit, 3 suite/36 integration pass; build/scoped ESLint pass. Review sửa nhãn >100 ký tự và EN thiếu source; re-review không còn must-fix. Regression DB đã tái hiện trước sửa, test cả stale mapping/VI sai sense/canonical ngoài pool/25 homograph/scope.
+- Probe SQL VPS chỉ đọc: agony chọn 苦痛 rồi 重苦, chiều ngược 苦痛 chọn agony. Giữ canonical EXISTS theo mặt chữ khắc phục timeout 10s; batch search hai từ còn 5,104s trên VPS thiếu index M4.2. Đây chưa là gate latency production; cần giữ hotfix search VPS, rà/apply 042 và benchmark lại khi tích hợp/deploy. Không đổi DB/runtime VPS trong phiên.
+- Git/triển khai: code/test/docs đã commit local `41ed9eb`, dependency M4.2 `71eb828`; **chưa push/deploy**. FE/browser smoke, tích hợp search hiện tại VPS và performance sau index còn thiếu; không gọi milestone M4.3 toàn bộ hoàn tất.
+
+### 2026-10-20 — M4.3 — Kiểm tra mục có ví dụ nhưng thiếu nghĩa: 重苦
+
+- Read-only DB/API VPS: JMdict lexeme 204170/sense 77994 có gloss Việt nhưng không có ví dụ; OMW-JA lexeme 625618/sense 822230 có 2 ví dụ kèm dịch Việt, định nghĩa Nhật nhưng thiếu gloss Việt/Anh và definition_language_id. Xác nhận dữ liệu đa nguồn gây ra dạng mục được báo; chưa kiểm source/DOM FE để kết luận nhánh ẩn nghĩa.
+- Search hiện tại chỉ trả exact JMdict cho `重苦`; OMW-JA vẫn truy cập được qua sense detail. Nếu FE hiện cả hai exact mục, cần kiểm endpoint/ID/cache thực. Không ghép ví dụ chỉ theo mặt chữ.
+- [Report M4.3](docs/reviews/m4.3-example-only-juku-2026-10-20.md) có IDs, response API, đối chiếu `重苦しい`/`重苦しげ`/`重苦しさ` và hướng xử lý metadata/fallback/gloss/mapping.
+- Follow-up ảnh agony: sense 261514/concept 91144 trả 18 link JA (16 OMW-JA + 2 JMdict), xếp confidence nên OMW đứng trước. Search ẩn bản OMW thiếu reading khi có JMdict cùng mặt chữ, links không áp cùng policy; xác nhận `重苦`/`苦痛`/`悩み`/`倒懸`/`水火` mở ID khác giữa hai luồng. API agony hiện có nghĩa Việt; ảnh thiếu nghĩa cần kiểm FE/request/cache/thời điểm. Report bổ sung evidence và hướng ưu tiên canonical theo mapping cùng concept, không đổi target chỉ theo lemma.
+- Chỉ lưu docs; scoped diff/whitespace/link kiểm tra, không test/build app. Chưa sửa code/DB/runtime, chưa commit/push/deploy.
+
+### 2026-10-20 — M4.3 — Nghiên cứu ít liên kết liên ngôn ngữ, khác từ và tìm được trong search
+
+- [Phương án M4.3](docs/plans/m4.3-searchable-cross-language-links-2026-10-20.md): theo yêu cầu cập nhật, áp dụng cả Nhật → Anh và Anh → Nhật, chỉ hiện các từ khác nhau và có gloss Việt của chính target sense; đề xuất tối đa 3 từ, không bù cho đủ. Hai mapping exact/cùng curated concept → scope → target qua cùng policy search và sense-list → nghĩa Việt → learner rank → collapse duplicate/biến thể cùng từ → cap. Không thay ID chỉ theo mặt chữ hoặc gọi HTTP search N+1 trong request.
+- Evidence VPS: agony 261514 có 18 link, hai JMdict exact cùng concept 91144 là 苦痛 (BCCWJ 4347) và 重苦 (152442); phương án cập nhật có thể hiện cả hai từ khác nhau, ưu tiên 苦痛 trước. Cả hai search thấy đúng lexeme JMdict. Serving sense_pair hiện thiếu exact gate nên phương án cần recheck relation khi đọc.
+- Chỉ nghiên cứu/read-only và lưu docs; chưa implement, chưa đo độ phủ/hiệu năng toàn DB; chưa commit/push/deploy. Kiểm scoped diff/whitespace/link tài liệu; không build/test app.
+
+### 2026-10-13 — M4.2 — Khảo sát search một ký tự trên VPS
+
+- Read-only: đủ 8 trigram/bigram index nhưng bigram một ký tự là mảng rỗng; runtime substring vẫn đọc rộng. API trực tiếp limit=5: `run` 1,267 s; `猫` 12,328 s; `a` 20,061 s rồi HTTP 200 rỗng, phù hợp nhánh nuốt timeout 20 s trên VPS.
+- EXPLAIN SQL compiled runtime `猫`: 9,641 s; lemma lọc bỏ 512.025 dòng, form lọc bỏ 498.979 dòng. Hướng sửa: exact/prefix có index riêng cho input ngắn; unigram nếu giữ contains một Kanji; timeout rõ ràng.
+- [Report M4.2](docs/reviews/m4.2-single-character-search-2026-10-13.md). Chưa sửa code/DB/runtime; docs chưa commit/push. Một lần đo/mẫu, chưa đo FE hay benchmark phân vị.
+
+### 2026-10-13 — M4.2 — Tối ưu search một ký tự
+
+- Code local: một chữ Latin dùng prefix; Kanji/kana giữ contains với character GIN; 4 lowercase B-tree, exact tier đủ trang trả ngay; suggestion EN một chữ thử frequent tier giữ mọi exact rồi fallback full. Giữ scope, face/dedup, source visibility, cursor v5. Timeout trả 504 `DICTIONARY_SEARCH_TIMEOUT`, custom plan/JIT off.
+- File: migration 042, search repository + unit, dictionary controller/Swagger, integration regression, script benchmark read-only. [Plan](docs/plans/m4.2-short-search-2026-10-13.md), [report và benchmark](docs/reviews/m4.2-short-search-2026-10-13.md), [API](docs/api/dictionary.md), [FE handoff mới ngày 13/10](docs/handoff/fe-handoff-2026-10-13.md).
+- Kiểm tra: 54 suite / 437 unit pass; 2 suite / 30 dictionary integration pass trên DB test riêng; scoped lint/diff pass, build worktree chỉ M4.2 pass. Build chung gặp TS1206 trong WIP quiz của phiên khác. Test dedup cũ lệch expectation đã được chứng minh lỗi trước sửa; không báo toàn e2e pass. Benchmark full đã đo exact tier; frequency tier cuối có regression xanh nhưng chưa benchmark full lại, dừng theo yêu cầu chủ dự án.
+- DB local full 2.375.240 lexeme đã áp 042/ANALYZE để đo, tám index mới ~151,2 MiB. Không áp runtime/DB production. Input có quá nhiều contains match vẫn có chi phí ranking.
+- Gate: tích hợp với hotfix chưa commit trên VPS, giữ source/learner policy thực; không mang frequency tier EN sang ranking khác khi chưa chứng minh bao phủ. Migration 042 trước code, smoke API/latency và UI timeout sau deploy.
+- Git/triển khai: code/test/docs đã lưu local; chưa commit/chưa push/chưa deploy VPS, không gom WIP khác.
 
 | Mã    | Hạng mục                       | Trạng thái                                                                                     |
 | ----- | ------------------------------ | ---------------------------------------------------------------------------------------------- |

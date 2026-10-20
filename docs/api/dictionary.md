@@ -9,6 +9,24 @@ và `app.gloss_report`.
 > **M4.2 / DB4-D0.2 đã deploy VPS; M4.5 mở rộng JA bên dưới.** Contract dưới đây
 > cần migration **038_dictionary_source_projection.sql** trước khi deploy code mới.
 
+## M4.2 — Search một ký tự (2026-10-13, code local; chưa deploy)
+
+- Cần migration **042_dictionary_short_search_indexes.sql** trước code. Giữ các
+  index cũ; thêm character GIN và B-tree trên `lower(...) text_pattern_ops`.
+- Query đúng một chữ Latin ASCII (`a`–`z`, không phân biệt hoa/thường) dùng
+  **prefix**: `a` tìm `a`, `apple`…; không tìm `cat` chỉ vì chứa chữ `a`.
+  Quy tắc áp dụng cả kana được sinh từ input đó khi tra JA/không truyền `lang`.
+- Một ký tự khác (Kanji/kana/ký tự đặc biệt) vẫn substring; `猫` tìm cả
+  `猫`, `山猫`, `猫舌`. Đếm ký tự Unicode, hỗ trợ Kanji ngoài BMP.
+- Từ >=2 ký tự giữ substring. Ranking/source visibility, scope, cursor v5 và
+  shape success response giữ nguyên. Search và suggestions dùng cùng quy tắc.
+- Query dùng custom plan theo parameters; JIT tắt trong transaction search.
+  Statement timeout 20 giây; không chuyển timeout thành `data: []`.
+- Khi DB hủy query vì timeout: **HTTP 504**, code `DICTIONARY_SEARCH_TIMEOUT`,
+  response lỗi theo `{code,message}`. FE hiển thị yêu cầu nhập thêm ký tự/thử lại,
+  không hiển thị "không tìm thấy từ" cho trường hợp này.
+- Không đổi provider AI, không gọi AI trong search; không cần đổi payload FE.
+
 ## M6.2 — Phạm vi hồ sơ (code local, chưa deploy)
 
 Các endpoint search/suggestions/reverse, lexeme senses, sense detail/links và
@@ -154,8 +172,25 @@ curl -s http://localhost:3000/v1/senses/1/links
 }
 ```
 
-Chỉ trả cặp đã qua **cổng curated** (`serve.sense_pair`: concept `curated`, confidence ≥ 0.7).
-Khi chưa curate, `data` rỗng — đúng thiết kế.
+**M4.3, cập nhật 2026-10-20: code đã kiểm tra local, chưa deploy VPS.**
+
+- Trả **0–3 từ khác nhau** cho sense đang xem, cả EN → JA và JA → EN;
+  không bù cho đủ 3. `next_cursor` luôn `null`, schema item không đổi.
+- Cặp phải đã công bố trong `serve.sense_pair`; kiểm lại concept `curated`,
+  cả hai mapping còn `exact` và confidence ≥ 0.7. Áp scope hồ sơ cho cả hai đầu.
+- Chính target sense có gloss Việt không rỗng. JA chọn JMdict có reading.
+  Target lexeme phải xuất hiện đúng ID trong trang đầu search mặc định (20 mục),
+  cùng ngôn ngữ/scope; dùng chung query policy search, không remap theo mặt chữ.
+- Ưu tiên BCCWJ/frequency/common hiện có, rồi confidence và ID ổn định.
+  Mỗi lexeme/nhãn sau chuẩn hóa chỉ lấy một đại diện, kể cả khác source/POS/reading/case.
+- Không có target đạt gate thì `data: []`; FE ẩn section và chỉ gọi links của
+  sense đang chọn. Click giữ `sense_id` thật, không search lại rồi chọn mục đầu.
+- Khi bước kiểm search timeout, trả `504 DICTIONARY_SEARCH_TIMEOUT`, không
+  trả danh sách links chưa kiểm chứng. Có thể thử lại sau; nhập thêm chữ không
+  thay đổi nhãn kiểm tra của endpoint links.
+
+Xem [report và gate production](../reviews/m4.3-searchable-links-implementation-2026-10-20.md)
+và [handoff FE](../handoff/fe-handoff-2026-10-20.md).
 
 ## GET /v1/kanji/:literal
 
@@ -291,3 +326,7 @@ list v1.0 ([dataset](https://doi.org/10.15084/00003218),
 artifact corpus ở storage riêng, không đưa vào Git hoặc response API.
 
 Chi tiết vận hành: [M4.5 handoff](../handoff/m4.5-ja-bccwj-priority.md).
+
+## 2026-10-20 — M4.3 phát hành trên VPS
+
+Migration index search khi tích hợp đổi tên thành **044_dictionary_short_search_indexes.sql**, vì042 đã thuộc M14 trên production. Xem [report deploy](../reviews/m4.3-searchable-links-deploy-2026-10-20.md) để biết trạng thái và kết quả live; số liệu/tên042 trong bản kiểm tra local ngày13/10 là lịch sử.

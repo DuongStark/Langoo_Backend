@@ -10,6 +10,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiGatewayTimeoutResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -54,6 +55,10 @@ export class SearchController {
   constructor(private readonly dictionaryService: DictionaryService) {}
 
   @Get('search')
+  @ApiGatewayTimeoutResponse({
+    type: ErrorResponseDto,
+    description: 'DICTIONARY_SEARCH_TIMEOUT — nhập thêm ký tự rồi thử lại',
+  })
   @ApiOperation({
     summary: 'Tra từ điển (Anh–Việt, Nhật–Việt); có token sẽ ghi lịch sử',
   })
@@ -91,6 +96,10 @@ export class SearchController {
   }
 
   @Get('suggestions')
+  @ApiGatewayTimeoutResponse({
+    type: ErrorResponseDto,
+    description: 'DICTIONARY_SEARCH_TIMEOUT — nhập thêm ký tự rồi thử lại',
+  })
   @ApiOperation({
     summary: 'Gợi ý tìm kiếm tối đa 5 từ phổ biến, không ghi lịch sử tra từ',
   })
