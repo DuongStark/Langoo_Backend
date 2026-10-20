@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
+import { DomainException } from '../../common/errors/domain.exception';
 import { PrismaService } from '../../db/prisma.service';
 import { Prisma } from '../../generated/prisma/client';
 import { DictionarySearchCursor } from '../dictionary-search-cursor';
@@ -30,7 +31,8 @@ export interface SearchRow {
  *
  * DB2: truy vấn dùng 3 nhánh `UNION` (mặt chữ / cách đọc / romaji) — mỗi nhánh chỉ lọc
  * trên MỘT cột nên planner dùng được index: GIN trigram (pattern ≥3 ký tự) và GIN bigram
- * `core.bigrams` (pattern 1–2 ký tự); biểu thức OR trộn nhiều cột/bảng như trước không
+ * `core.bigrams` (pattern ≥2 ký tự); một ký tự dùng character GIN,
+ * một chữ Latin dùng prefix B-tree (migration 042); biểu thức OR trộn nhiều cột/bảng như trước không
  * thể dùng index. `ILIKE` luôn giữ làm điều kiện kiểm chứng vì bigram chỉ là điều kiện
  * CẦN (mất thứ tự/khoảng cách). Search giữ face tốt nhất mỗi lexeme trước
  * cursor/LIMIT; suggestions có thể gộp theo ngôn ngữ + surface + reading để nguồn
@@ -52,6 +54,37 @@ export class DictionarySearchRepository {
   constructor(private readonly prisma: PrismaService) {}
 
   async search(params: SearchParams): Promise<SearchRow[]> {
+    // Exact matches precede every prefix/contains match in the public ordering.
+    // Fetch the full page from that tier when possible; otherwise use the full
+    // query so the page boundary and cursor still include all lower tiers.
+    if (
+      Array.from(params.queries[0]).length === 1 &&
+      (params.cursor === null || params.cursor.exactRank === 0)
+    ) {
+      const exact = await this.searchRows(params, true);
+      if (exact.length === params.limit) return exact;
+    }
+    // EN prefix suggestions have constant source/VI/prefix ranks. Every exact
+    // match plus the frequent prefix tier can therefore supply a correct top
+    // page; less frequent/NULL prefix rows cannot outrank it. Keep full fallback
+    // and do not use this assumption for JA, mixed scopes or cursor pages.
+    if (
+      /^[A-Za-z]$/.test(params.queries[0]) &&
+      params.lang === 'en' &&
+      params.deduplicateSurface === true &&
+      params.cursor === null
+    ) {
+      const frequent = await this.searchRows(params, false, 10000);
+      if (frequent.length === params.limit) return frequent;
+    }
+    return this.searchRows(params, false);
+  }
+
+  private async searchRows(
+    params: SearchParams,
+    exactOnly: boolean,
+    frequencyCeiling: number | null = null,
+  ): Promise<SearchRow[]> {
     const {
       queries,
       patterns,
@@ -65,33 +98,58 @@ export class DictionarySearchRepository {
       ${params.allowedLanguageIds === undefined ? Prisma.sql`` : params.allowedLanguageIds.length === 0 ? Prisma.sql`AND FALSE` : Prisma.sql`AND ds.language_id IN (${Prisma.join(params.allowedLanguageIds)})`}
     `;
 
-    const surfaceMatch = Prisma.join(
-      patterns.map(
-        (pattern, index) => Prisma.sql`(
-          core.bigrams(lower(ds.surface)) @> core.bigrams(lower(${queries[index]}))
-          AND ds.surface ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-        )`,
-      ),
-      ' OR ',
-    );
-    const readingMatch = Prisma.join(
-      patterns.map(
-        (pattern, index) => Prisma.sql`(
-          core.bigrams(lower(ds.reading)) @> core.bigrams(lower(${queries[index]}))
-          AND ds.reading ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-        )`,
-      ),
-      ' OR ',
-    );
-    const romanizationMatch = Prisma.join(
-      patterns.map(
-        (pattern, index) => Prisma.sql`(
-          core.bigrams(lower(cl2.romanization)) @> core.bigrams(lower(${queries[index]}))
-          AND cl2.romanization ILIKE '%' || ${pattern} || '%' ESCAPE '\\'
-        )`,
-      ),
-      ' OR ',
-    );
+    // One Latin letter is autocomplete-like: avoid matching it inside every word.
+    // Apply this policy to derived kana too, so an unscoped "a" stays bounded.
+    const prefixOnly = /^[A-Za-z]$/.test(queries[0]);
+    const matchColumn = (
+      column: Prisma.Sql,
+      requireExact = exactOnly,
+      applyFrequencyBand = true,
+    ): Prisma.Sql =>
+      Prisma.join(
+        patterns.map((pattern, index) => {
+          if (requireExact)
+            return Prisma.sql`lower(${column}) = lower(${queries[index]})`;
+          if (prefixOnly) {
+            const prefix = Prisma.sql`lower(${column}) LIKE lower(${pattern}) || '%' ESCAPE '\\'`;
+            return frequencyCeiling !== null && applyFrequencyBand
+              ? Prisma.sql`(${prefix} AND (ds.frequency_rank <= ${frequencyCeiling} OR lower(${column}) = lower(${queries[index]})))`
+              : prefix;
+          }
+          // JS length counts UTF-16 units; PostgreSQL length counts characters.
+          const tokens =
+            Array.from(queries[index]).length === 1
+              ? Prisma.sql`core.search_characters(lower(${column})) @> core.search_characters(lower(${queries[index]}))`
+              : Prisma.sql`core.bigrams(lower(${column})) @> core.bigrams(lower(${queries[index]}))`;
+          return Prisma.sql`(${tokens} AND ${column} ILIKE '%' || ${pattern} || '%' ESCAPE '\\')`;
+        }),
+        ' OR ',
+      );
+    const surfaceMatch = matchColumn(Prisma.sql`ds.surface`);
+    const readingMatch = matchColumn(Prisma.sql`ds.reading`);
+    const romanizationMatch = matchColumn(Prisma.sql`cl2.romanization`);
+
+    // The exact tier must use the same visibility policy as the full hit set:
+    // a JMdict face may match only a prefix/reading yet hide a secondary face.
+    const canonicalExists =
+      exactOnly || frequencyCeiling !== null
+        ? Prisma.sql`EXISTS (
+          SELECT 1 FROM serve.dictionary_search ds
+          JOIN core.lexeme cl2 ON cl2.id = ds.lexeme_id
+          JOIN public.source src ON src.id = cl2.source_id AND src.code = 'jmdict'
+          WHERE ds.lang_code = r.lang_code AND lower(ds.surface) = lower(r.surface)
+            AND (
+              (${matchColumn(Prisma.sql`ds.surface`, false, false)})
+              OR (${matchColumn(Prisma.sql`ds.reading`, false, false)})
+              OR (${matchColumn(Prisma.sql`cl2.romanization`, false, false)})
+            ) ${langFilter}
+        )`
+        : Prisma.sql`EXISTS (
+          SELECT 1 FROM ranked j
+          WHERE j.lang_code = r.lang_code
+            AND lower(j.surface) = lower(r.surface)
+            AND j.source_rank = 0
+        )`;
 
     const exactCondition = Prisma.join(
       patterns.map(
@@ -152,7 +210,7 @@ export class DictionarySearchRepository {
       ? Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, lexeme_id`
       : Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
 
-    return this.prisma.$queryRaw<SearchRow[]>(Prisma.sql`
+    const query = Prisma.sql`
       WITH hits AS (
         SELECT
           ds.lexeme_id,
@@ -247,12 +305,7 @@ export class DictionarySearchRepository {
         FROM ranked r
         WHERE r.source_rank = 0
            OR r.reading IS NOT NULL
-           OR NOT EXISTS (
-                SELECT 1 FROM ranked j
-                WHERE j.lang_code = r.lang_code
-                  AND lower(j.surface) = lower(r.surface)
-                  AND j.source_rank = 0
-              )
+           OR NOT ${canonicalExists}
       ),
       per_result AS (
         SELECT visible.*,
@@ -296,6 +349,42 @@ export class DictionarySearchRepository {
         surface_kind ASC,
         surface ASC
       LIMIT ${limit}
-    `);
+    `;
+    try {
+      return await this.prisma.$transaction(
+        async (tx) => {
+          // Prefix bounds depend on the supplied pattern; a generic plan loses them.
+          await tx.$executeRawUnsafe(
+            "SET LOCAL plan_cache_mode = 'force_custom_plan'",
+          );
+          await tx.$executeRawUnsafe("SET LOCAL statement_timeout = '20000'");
+          // Short interactive queries should not spend time compiling JIT functions.
+          await tx.$executeRawUnsafe('SET LOCAL jit = off');
+          return tx.$queryRaw<SearchRow[]>(query);
+        },
+        { timeout: 25000, maxWait: 10000 },
+      );
+    } catch (error) {
+      const code = error as {
+        code?: string;
+        meta?: {
+          code?: string;
+          driverAdapterError?: { cause?: { originalCode?: string } };
+        };
+      } | null;
+      if (
+        code?.code === '57014' ||
+        code?.meta?.code === '57014' ||
+        code?.meta?.driverAdapterError?.cause?.originalCode === '57014' ||
+        (error instanceof Error && error.message.includes('statement timeout'))
+      ) {
+        throw new DomainException(
+          'DICTIONARY_SEARCH_TIMEOUT',
+          'Tìm kiếm mất quá nhiều thời gian; hãy nhập thêm ký tự rồi thử lại',
+          HttpStatus.GATEWAY_TIMEOUT,
+        );
+      }
+      throw error;
+    }
   }
 }

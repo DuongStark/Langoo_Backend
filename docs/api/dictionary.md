@@ -9,6 +9,24 @@ và `app.gloss_report`.
 > **M4.2 / DB4-D0.2 đã deploy VPS; M4.5 mở rộng JA bên dưới.** Contract dưới đây
 > cần migration **038_dictionary_source_projection.sql** trước khi deploy code mới.
 
+## M4.2 — Search một ký tự (2026-10-13, code local; chưa deploy)
+
+- Cần migration **042_dictionary_short_search_indexes.sql** trước code. Giữ các
+  index cũ; thêm character GIN và B-tree trên `lower(...) text_pattern_ops`.
+- Query đúng một chữ Latin ASCII (`a`–`z`, không phân biệt hoa/thường) dùng
+  **prefix**: `a` tìm `a`, `apple`…; không tìm `cat` chỉ vì chứa chữ `a`.
+  Quy tắc áp dụng cả kana được sinh từ input đó khi tra JA/không truyền `lang`.
+- Một ký tự khác (Kanji/kana/ký tự đặc biệt) vẫn substring; `猫` tìm cả
+  `猫`, `山猫`, `猫舌`. Đếm ký tự Unicode, hỗ trợ Kanji ngoài BMP.
+- Từ >=2 ký tự giữ substring. Ranking/source visibility, scope, cursor v5 và
+  shape success response giữ nguyên. Search và suggestions dùng cùng quy tắc.
+- Query dùng custom plan theo parameters; JIT tắt trong transaction search.
+  Statement timeout 20 giây; không chuyển timeout thành `data: []`.
+- Khi DB hủy query vì timeout: **HTTP 504**, code `DICTIONARY_SEARCH_TIMEOUT`,
+  response lỗi theo `{code,message}`. FE hiển thị yêu cầu nhập thêm ký tự/thử lại,
+  không hiển thị "không tìm thấy từ" cho trường hợp này.
+- Không đổi provider AI, không gọi AI trong search; không cần đổi payload FE.
+
 ## M6.2 — Phạm vi hồ sơ (code local, chưa deploy)
 
 Các endpoint search/suggestions/reverse, lexeme senses, sense detail/links và

@@ -7,6 +7,21 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-13 — M4.2 — Khảo sát search một ký tự trên VPS
+
+- Read-only: đủ 8 trigram/bigram index nhưng bigram một ký tự là mảng rỗng; runtime substring vẫn đọc rộng. API trực tiếp limit=5: `run` 1,267 s; `猫` 12,328 s; `a` 20,061 s rồi HTTP 200 rỗng, phù hợp nhánh nuốt timeout 20 s trên VPS.
+- EXPLAIN SQL compiled runtime `猫`: 9,641 s; lemma lọc bỏ 512.025 dòng, form lọc bỏ 498.979 dòng. Hướng sửa: exact/prefix có index riêng cho input ngắn; unigram nếu giữ contains một Kanji; timeout rõ ràng.
+- [Report M4.2](docs/reviews/m4.2-single-character-search-2026-10-13.md). Chưa sửa code/DB/runtime; docs chưa commit/push. Một lần đo/mẫu, chưa đo FE hay benchmark phân vị.
+
+### 2026-10-13 — M4.2 — Tối ưu search một ký tự
+
+- Code local: một chữ Latin dùng prefix; Kanji/kana giữ contains với character GIN; 4 lowercase B-tree, exact tier đủ trang trả ngay; suggestion EN một chữ thử frequent tier giữ mọi exact rồi fallback full. Giữ scope, face/dedup, source visibility, cursor v5. Timeout trả 504 `DICTIONARY_SEARCH_TIMEOUT`, custom plan/JIT off.
+- File: migration 042, search repository + unit, dictionary controller/Swagger, integration regression, script benchmark read-only. [Plan](docs/plans/m4.2-short-search-2026-10-13.md), [report và benchmark](docs/reviews/m4.2-short-search-2026-10-13.md), [API](docs/api/dictionary.md), [FE handoff mới ngày 13/10](docs/handoff/fe-handoff-2026-10-13.md).
+- Kiểm tra: 54 suite / 437 unit pass; 2 suite / 30 dictionary integration pass trên DB test riêng; scoped lint/diff pass, build worktree chỉ M4.2 pass. Build chung gặp TS1206 trong WIP quiz của phiên khác. Test dedup cũ lệch expectation đã được chứng minh lỗi trước sửa; không báo toàn e2e pass. Benchmark full đã đo exact tier; frequency tier cuối có regression xanh nhưng chưa benchmark full lại, dừng theo yêu cầu chủ dự án.
+- DB local full 2.375.240 lexeme đã áp 042/ANALYZE để đo, tám index mới ~151,2 MiB. Không áp runtime/DB production. Input có quá nhiều contains match vẫn có chi phí ranking.
+- Gate: tích hợp với hotfix chưa commit trên VPS, giữ source/learner policy thực; không mang frequency tier EN sang ranking khác khi chưa chứng minh bao phủ. Migration 042 trước code, smoke API/latency và UI timeout sau deploy.
+- Git/triển khai: code/test/docs đã lưu local; chưa commit/chưa push/chưa deploy VPS, không gom WIP khác.
+
 | Mã    | Hạng mục                       | Trạng thái                                                                                     |
 | ----- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
 | DOCS1 | Quy ước đặt mã và lưu thay đổi | ✅ đã lưu hướng dẫn agent và đồng bộ PROMPT/CONTEXT/PROGRESS ngày 06/10/2026; đã commit/push 10/10/2026 (021c07f) |
