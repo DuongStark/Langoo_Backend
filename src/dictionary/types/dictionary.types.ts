@@ -194,6 +194,8 @@ export interface ReverseLookupEnHit {
   pos: string | null;
   frequencyRank: number | null;
   senseHint: string | null;
+  /** Từ tiếng Việt khớp (dùng cho autocomplete). */
+  vi?: string | null;
 }
 
 export interface ReverseLookupJaHit {
@@ -202,6 +204,8 @@ export interface ReverseLookupJaHit {
   viaLexemeId: string;
   viaLemma: string;
   exactSense: boolean;
+  /** Từ tiếng Việt khớp (dùng cho autocomplete). */
+  vi?: string | null;
 }
 
 export interface ReverseLookupResult {

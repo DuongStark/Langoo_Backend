@@ -244,7 +244,13 @@ export class DictionaryService {
     if (targets.size === 0) return { query, matched: false, en: [], ja: [] };
     const limit = dto.limit ?? 8;
     const sources = await this.reverseRepo.findViSourcesByPrefix(query);
-    const { en, ja } = await this.mapReverseHits(targets, sources, limit);
+    const { en, ja } = await this.mapReverseHits(
+      targets,
+      sources,
+      limit,
+      limit,
+      true,
+    );
     return {
       query,
       matched: (targets.has('en') && en.length > 0) || ja.length > 0,
@@ -258,21 +264,25 @@ export class DictionaryService {
     sources: ViSourceRow[],
     enLimit: number,
     jaLimit = enLimit,
+    preferSourceOrder = false,
   ): Promise<{ en: ReverseLookupEnHit[]; ja: ReverseLookupJaHit[] }> {
     const en: ReverseLookupEnHit[] = [];
     const sourceIds: bigint[] = [];
     const seenLexeme = new Set<string>();
+    const viByLexeme = new Map<string, string | null>();
     for (const row of sources) {
       const key = String(row.source_lexeme_id);
       if (seenLexeme.has(key)) continue;
       seenLexeme.add(key);
       sourceIds.push(row.source_lexeme_id);
+      viByLexeme.set(key, row.target_text);
       en.push({
         lexemeId: key,
         lemma: row.en_lemma,
         pos: row.en_pos,
         frequencyRank: row.frequency_rank,
         senseHint: row.sense_hint,
+        vi: row.target_text,
       });
       if (en.length >= enLimit) break;
     }
@@ -289,6 +299,9 @@ export class DictionaryService {
       );
       const rows = await this.reverseRepo.findJaTargets(sourceIds);
       const seenJa = new Set<string>();
+      const enOrder = new Map(
+        en.map((hit, index) => [String(hit.lexemeId), index]),
+      );
       ja = rows
         .map((row) => {
           const hint = hintByLexeme.get(String(row.source_lexeme_id)) ?? null;
@@ -303,6 +316,7 @@ export class DictionaryService {
               row.sense_hint !== null &&
               hint !== null &&
               row.sense_hint.toLowerCase() === hint,
+            vi: viByLexeme.get(String(row.source_lexeme_id)) ?? null,
           };
         })
         .filter((hit) => {
@@ -310,7 +324,14 @@ export class DictionaryService {
           seenJa.add(hit.text);
           return true;
         })
-        .sort((a, b) => Number(b.exactSense) - Number(a.exactSense))
+        .sort((a, b) => {
+          if (preferSourceOrder) {
+            const ai = enOrder.get(a.viaLexemeId) ?? Number.MAX_SAFE_INTEGER;
+            const bi = enOrder.get(b.viaLexemeId) ?? Number.MAX_SAFE_INTEGER;
+            if (ai !== bi) return ai - bi;
+          }
+          return Number(b.exactSense) - Number(a.exactSense);
+        })
         .slice(0, jaLimit);
     }
     return {

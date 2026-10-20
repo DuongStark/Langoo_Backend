@@ -514,6 +514,13 @@ export class ReverseLookupEnHitDto {
 
   @ApiProperty({ nullable: true, example: 'finely ground rock' })
   sense_hint!: string | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    example: 'trường',
+    description: 'Từ tiếng Việt khớp (autocomplete)',
+  })
+  vi?: string | null;
 }
 
 export class ReverseLookupJaHitDto {
@@ -535,6 +542,13 @@ export class ReverseLookupJaHitDto {
       'sense_hint của tiếng Nhật khớp sense_hint của nghĩa tiếng Việt',
   })
   exact_sense!: boolean;
+
+  @ApiPropertyOptional({
+    nullable: true,
+    example: 'trường',
+    description: 'Từ tiếng Việt khớp (autocomplete)',
+  })
+  vi?: string | null;
 }
 
 export class ReverseLookupResultDto {

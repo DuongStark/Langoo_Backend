@@ -197,6 +197,7 @@ describe('DictionaryService', () => {
     repos.reverse.findViSourcesByPrefix.mockResolvedValue([
       {
         source_lexeme_id: 11n,
+        target_text: 'trường',
         en_lemma: 'school',
         en_pos: 'noun',
         frequency_rank: 191,
@@ -204,6 +205,7 @@ describe('DictionaryService', () => {
       },
       {
         source_lexeme_id: 12n,
+        target_text: 'trường',
         en_lemma: 'field',
         en_pos: 'noun',
         frequency_rank: 580,
@@ -221,10 +223,14 @@ describe('DictionaryService', () => {
     expect(result).toMatchObject({
       query: 'truong',
       matched: true,
-      en: [{ lemma: 'school' }, { lemma: 'field' }],
+      en: [
+        { lemma: 'school', vi: 'trường' },
+        { lemma: 'field', vi: 'trường' },
+      ],
+      // Thứ tự theo EN phổ biến (school trước field), không chỉ exactSense.
       ja: [
-        { text: '場', viaLemma: 'field', exactSense: true },
-        { text: '学校', viaLemma: 'school', exactSense: false },
+        { text: '学校', viaLemma: 'school', vi: 'trường' },
+        { text: '場', viaLemma: 'field', exactSense: true, vi: 'trường' },
       ],
     });
   });
@@ -235,6 +241,7 @@ describe('DictionaryService', () => {
     repos.reverse.findViSourcesByPrefix.mockResolvedValue([
       {
         source_lexeme_id: 11n,
+        target_text: 'trường',
         en_lemma: 'school',
         en_pos: 'noun',
         frequency_rank: 191,
@@ -255,6 +262,7 @@ describe('DictionaryService', () => {
         viaLexemeId: '11',
         viaLemma: '',
         exactSense: false,
+        vi: 'trường',
       },
     ]);
   });
