@@ -111,6 +111,46 @@ POST /v1/collections/{collection_id}/from-deck
 - **An toàn khi retry** (từ trùng bị bỏ qua) — vẫn nên disable nút khi đang gửi.
 - Trùng chỉ tính trong **cùng một bộ**; cùng từ ở bộ khác vẫn thêm được bình thường.
 
+### 4) Preview từ trong bộ mẫu (mới — 2026-10-20)
+
+```
+GET /v1/collections/decks/{deck_id}?limit=20&cursor=20
+```
+
+- Auth: Bearer JWT (như các endpoint collections khác).
+- `limit` 1–100 (mặc định **20**); `cursor` = `position` cuối của trang trước (bỏ trống cho trang đầu).
+- Từ trong deck trả theo đúng thứ tự `position`, kèm nghĩa VI (fallback EN).
+
+**200:**
+```json
+{
+  "deck": {
+    "id": "6",
+    "slug": "starter-100",
+    "title": "100 từ tiếng Nhật đầu tiên",
+    "description": "Bộ khởi động: ...",
+    "language_id": 2,
+    "level_label": "N5",
+    "item_count": 100
+  },
+  "items": [
+    {
+      "position": 1,
+      "lemma": "年",
+      "reading": "とし",
+      "romanization": null,
+      "pos": "noun",
+      "meaning_vi": "năm"
+    }
+  ],
+  "next_cursor": "20"
+}
+```
+
+- `next_cursor = null` → hết từ.
+- **404** `DECK_NOT_FOUND` nếu deck không tồn tại/chưa publish.
+- FE nên mở preview bằng trang đầu, cuộn tới cuối thì gọi tiếp với `cursor=next_cursor` (infinite scroll) — deck N1 có thể tới 2.683 từ, tránh load hết.
+
 ### Mã lỗi
 
 | HTTP | code | Khi nào |
@@ -130,6 +170,7 @@ Envelope lỗi theo chuẩn BE: `{ "code": "...", "message": "..." }` (+ `detail
 1. **Màn "Bộ từ mẫu"**: gọi `GET /v1/collections/decks`.
    - Card: tiêu đề, mô tả, badge `level_label`, "N từ".
    - Nhóm: *Khởi động & chủ đề* trước, *Theo cấp JLPT* sau (N5 → N1).
+   - Bấm card → màn **Preview**: gọi `GET /v1/collections/decks/:id` (trang đầu), hiển thị danh sách từ (`lemma`, `reading`, `meaning_vi`), cuộn thêm bằng `next_cursor`.
 2. Bấm **Thêm** → bottom sheet:
    - **"Tạo bộ mới"** → gọi API (2).
    - **"Thêm vào bộ của tôi"** → chọn bộ trong danh sách bộ hiện có (`GET /v1/collections`) → gọi API (3).

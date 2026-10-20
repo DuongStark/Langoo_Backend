@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Prisma } from '../../generated/prisma/client';
 import { PrismaService } from '../../db/prisma.service';
 
 export interface DeckRow {
@@ -29,6 +30,15 @@ export interface DeckListItemRow {
   item_count: number;
 }
 
+export interface DeckPreviewRow {
+  position: number;
+  lemma: string;
+  reading: string | null;
+  romanization: string | null;
+  pos: string | null;
+  meaning_vi: string;
+}
+
 /**
  * Đọc bộ từ hệ thống `core.deck`/`core.deck_item` (chỉ đọc).
  * Nghĩa vi khi clone: gloss vi (máy chưa duyệt → meaning_source='machine'),
@@ -54,6 +64,53 @@ export class DeckRepository {
       WHERE is_published
       ORDER BY level_label NULLS LAST, id ASC
     `;
+  }
+
+  async findPublishedDetail(deckId: bigint): Promise<DeckListItemRow | null> {
+    const rows = await this.prisma.$queryRaw<DeckListItemRow[]>`
+      SELECT id, slug, title, description, language_id, level_label, item_count
+      FROM core.deck
+      WHERE id = ${deckId} AND is_published
+    `;
+    return rows[0] ?? null;
+  }
+
+  /** Preview từ trong deck, phân trang theo position (cursor = position cuối). */
+  async findPreviewItems(
+    deckId: bigint,
+    cursor: number | null,
+    limit: number,
+  ): Promise<DeckPreviewRow[]> {
+    return this.prisma.$queryRaw<DeckPreviewRow[]>(Prisma.sql`
+      SELECT
+        di.position,
+        x.lemma,
+        x.reading,
+        x.romanization,
+        x.pos,
+        COALESCE(vi.text, en.text, x.lemma) AS meaning_vi
+      FROM core.deck_item di
+      JOIN core.sense s ON s.id = di.anchor_sense_id
+      JOIN core.lexeme x ON x.id = s.lexeme_id
+      LEFT JOIN LATERAL (
+        SELECT g.text
+        FROM core.sense_gloss g
+        WHERE g.sense_id = s.id AND g.language_id = 3
+        ORDER BY (g.reviewed_by IS NOT NULL) DESC, g.is_machine, g.rank
+        LIMIT 1
+      ) vi ON true
+      LEFT JOIN LATERAL (
+        SELECT g.text
+        FROM core.sense_gloss g
+        WHERE g.sense_id = s.id AND g.language_id = 1
+        ORDER BY (g.reviewed_by IS NOT NULL) DESC, g.is_machine, g.rank
+        LIMIT 1
+      ) en ON true
+      WHERE di.deck_id = ${deckId}
+        ${cursor === null ? Prisma.sql`` : Prisma.sql`AND di.position > ${cursor}`}
+      ORDER BY di.position ASC
+      LIMIT ${limit}
+    `);
   }
 
   async findItems(deckId: bigint): Promise<DeckItemRow[]> {

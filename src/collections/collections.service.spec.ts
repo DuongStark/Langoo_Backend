@@ -64,6 +64,8 @@ function createSetup(): {
   deck: {
     findPublished: jest.Mock;
     findPublishedList: jest.Mock;
+    findPublishedDetail: jest.Mock;
+    findPreviewItems: jest.Mock;
     findItems: jest.Mock;
     hasCuratedConceptMapping: jest.Mock;
   };
@@ -108,6 +110,8 @@ function createSetup(): {
   const deck = {
     findPublished: jest.fn(),
     findPublishedList: jest.fn(),
+    findPublishedDetail: jest.fn(),
+    findPreviewItems: jest.fn(),
     findItems: jest.fn(),
     hasCuratedConceptMapping: jest.fn().mockResolvedValue(true),
   };
@@ -339,6 +343,57 @@ describe('CollectionsService', () => {
       await expect(
         service.appendFromDeck(1n, collectionId, { deck_id: '999' }),
       ).rejects.toMatchObject({ code: 'DECK_NOT_FOUND' });
+    });
+  });
+
+  describe('getDeckPreview', () => {
+    it('trả deck + trang từ (limit+1) + next_cursor theo position', async () => {
+      const { service, deck } = createSetup();
+      deck.findPublishedDetail.mockResolvedValue({
+        id: 6n,
+        slug: 'starter-100',
+        title: '100 từ tiếng Nhật đầu tiên',
+        description: null,
+        language_id: 2,
+        level_label: 'N5',
+        item_count: 100,
+      });
+      deck.findPreviewItems.mockResolvedValue([
+        {
+          position: 1,
+          lemma: '学校',
+          reading: 'がっこう',
+          romanization: null,
+          pos: 'noun',
+          meaning_vi: 'trường học',
+        },
+        {
+          position: 2,
+          lemma: '水',
+          reading: 'みず',
+          romanization: null,
+          pos: 'noun',
+          meaning_vi: 'nước',
+        },
+      ]);
+
+      const result = await service.getDeckPreview('6', { limit: 1 });
+
+      expect(deck.findPreviewItems).toHaveBeenCalledWith(6n, null, 2);
+      expect(result).toMatchObject({
+        deck: { id: '6', slug: 'starter-100', item_count: 100 },
+        items: [{ position: 1, lemma: '学校', meaning_vi: 'trường học' }],
+        next_cursor: '1',
+      });
+    });
+
+    it('deck không tồn tại/chưa publish → 404 DECK_NOT_FOUND', async () => {
+      const { service, deck } = createSetup();
+      deck.findPublishedDetail.mockResolvedValue(null);
+
+      await expect(service.getDeckPreview('999', {})).rejects.toMatchObject({
+        code: 'DECK_NOT_FOUND',
+      });
     });
   });
 

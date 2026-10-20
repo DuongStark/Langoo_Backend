@@ -34,6 +34,21 @@ export interface DeckListResult {
   data: DeckListItem[];
 }
 
+export interface DeckPreviewItem {
+  position: number;
+  lemma: string;
+  reading: string | null;
+  romanization: string | null;
+  pos: string | null;
+  meaning_vi: string;
+}
+
+export interface DeckPreviewResult {
+  deck: DeckListItem;
+  items: DeckPreviewItem[];
+  next_cursor: string | null;
+}
+
 export interface AppendFromDeckResult {
   collection_id: string;
   added: number;

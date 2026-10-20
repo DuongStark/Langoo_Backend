@@ -12,6 +12,7 @@ import { lockUser } from '../users/user-lock';
 import { AppendFromDeckDto } from './dto/append-from-deck.dto';
 import { CloneFromDeckDto } from './dto/clone-from-deck.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { DeckItemsQueryDto } from './dto/deck-items-query.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import {
@@ -25,6 +26,7 @@ import {
   CollectionListResult,
   CollectionResponse,
   DeckListResult,
+  DeckPreviewResult,
 } from './types/collections.types';
 
 interface CollectionRow {
@@ -230,6 +232,55 @@ export class CollectionsService {
         level_label: row.level_label,
         item_count: row.item_count,
       })),
+    };
+  }
+
+  /** Preview từ trong deck mẫu (phân trang theo position). */
+  async getDeckPreview(
+    deckIdRaw: string,
+    query: DeckItemsQueryDto,
+  ): Promise<DeckPreviewResult> {
+    const deckId = parsePositivePostgresBigInt(deckIdRaw, 'deck_id');
+    const deck = await this.deckRepo.findPublishedDetail(deckId);
+    if (!deck) {
+      throw new DomainException(
+        'DECK_NOT_FOUND',
+        'Không tìm thấy bộ từ',
+        HttpStatus.NOT_FOUND,
+      );
+    }
+    const limit = query.limit ?? 20;
+    const cursor =
+      query.cursor === undefined || query.cursor === ''
+        ? null
+        : Number(query.cursor);
+    const rows = await this.deckRepo.findPreviewItems(
+      deckId,
+      cursor,
+      limit + 1,
+    );
+    const hasNext = rows.length > limit;
+    const page = hasNext ? rows.slice(0, limit) : rows;
+    const last = page.at(-1);
+    return {
+      deck: {
+        id: deck.id.toString(),
+        slug: deck.slug,
+        title: deck.title,
+        description: deck.description,
+        language_id: deck.language_id,
+        level_label: deck.level_label,
+        item_count: deck.item_count,
+      },
+      items: page.map((row) => ({
+        position: row.position,
+        lemma: row.lemma,
+        reading: row.reading,
+        romanization: row.romanization,
+        pos: row.pos,
+        meaning_vi: row.meaning_vi,
+      })),
+      next_cursor: hasNext && last ? String(last.position) : null,
     };
   }
 

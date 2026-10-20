@@ -28,6 +28,37 @@ export class DeckListResponseDto {
   data!: DeckItemDto[];
 }
 
+export class DeckPreviewItemDto {
+  @ApiProperty({ example: 1 })
+  position!: number;
+
+  @ApiProperty({ example: '学校' })
+  lemma!: string;
+
+  @ApiProperty({ nullable: true, example: 'がっこう' })
+  reading!: string | null;
+
+  @ApiProperty({ nullable: true, example: null })
+  romanization!: string | null;
+
+  @ApiProperty({ nullable: true, example: 'noun' })
+  pos!: string | null;
+
+  @ApiProperty({ example: 'trường học' })
+  meaning_vi!: string;
+}
+
+export class DeckPreviewResponseDto {
+  @ApiProperty({ type: DeckItemDto })
+  deck!: DeckItemDto;
+
+  @ApiProperty({ type: [DeckPreviewItemDto] })
+  items!: DeckPreviewItemDto[];
+
+  @ApiProperty({ nullable: true, example: '20' })
+  next_cursor!: string | null;
+}
+
 export class AppendFromDeckResponseDto {
   @ApiProperty({ example: '01a0dc8a-7191-7e18-93b0-32e8378986fe' })
   collection_id!: string;

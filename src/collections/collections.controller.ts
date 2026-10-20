@@ -32,9 +32,11 @@ import {
   CollectionResponseDto,
 } from './dto/collection-response.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
+import { DeckItemsQueryDto } from './dto/deck-items-query.dto';
 import {
   DeckListResponseDto,
   AppendFromDeckResponseDto,
+  DeckPreviewResponseDto,
 } from './dto/deck-list-response.dto';
 import { AppendFromDeckDto } from './dto/append-from-deck.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
@@ -45,6 +47,7 @@ import {
   CollectionListResult,
   CollectionResponse,
   DeckListResult,
+  DeckPreviewResult,
 } from './types/collections.types';
 
 @ApiTags('collections')
@@ -101,6 +104,22 @@ export class CollectionsController {
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
   listDecks(): Promise<DeckListResult> {
     return this.collectionsService.listDecks();
+  }
+
+  @Get('decks/:id')
+  @ApiOperation({
+    summary: 'Preview các từ trong bộ mẫu (phân trang theo position)',
+  })
+  @ApiOkResponse({ type: DeckPreviewResponseDto })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'DECK_NOT_FOUND',
+  })
+  previewDeck(
+    @Param('id') id: string,
+    @Query() query: DeckItemsQueryDto,
+  ): Promise<DeckPreviewResult> {
+    return this.collectionsService.getDeckPreview(id, query);
   }
 
   @Post(':id/from-deck')
