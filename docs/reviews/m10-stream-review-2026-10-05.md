@@ -84,3 +84,10 @@ Commit cục bộ trên branch GPT sau khi gate pass. Không push/merge main/dep
 lượt review này theo prompt được giao; bản sửa M13 `4d43752` đã push main trước khi bắt đầu.
 CI và [workflow Deploy VPS của M13](https://github.com/DuongStark/Langoo/actions/runs/37258960255)
 đã thành công; bản sửa streaming trong nhánh này chưa được deploy.
+
+
+## 2026-10-26 — M10.1 — Tích hợp vào checkout main duy nhất
+
+- Commit gốc `9b8c6b5` còn riêng trên worktree GPT, được nhập thành `13d59cb` trên main mới `7efeacd`. Hòa giải để giữ ảnh M10.3 cùng cancel/retry/parser SSE/token validation; chỉnh format provider khi lint.
+- Kiểm tra bản hợp nhất: Node 22 build pass, 60 suite/524 unit pass (gồm chat ảnh và SSE). Kết quả lint cuối, Git và giới hạn xem [report DOCS1](docs1-worktree-consolidation-2026-10-26.md).
+- Chưa chạy lại E2E DB hoặc provider thật, chưa push/deploy bản sửa M10.1 này. Các kết quả E2E ngày 05/10 phía trên là lịch sử của nhánh gốc.

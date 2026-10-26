@@ -1,7 +1,6 @@
 # Handoff FE — phiên làm việc 2026-10-08
 
-File mới của ngày để tổng hợp gửi FE cuối ngày. **BE code local; chưa deploy.
-Chưa sửa source FE trong phiên này.**
+File mới của ngày để tổng hợp gửi FE cuối ngày.
 
 ## M6.2 — Phạm vi ngôn ngữ hồ sơ và hàng đợi SRS
 

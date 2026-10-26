@@ -4,6 +4,11 @@
 `PROGRESS.md`, `PROMPT-BACKEND.md`, `CONTEXT-DU-AN.md` và plan của hạng mục đang làm.
 Yêu cầu trực tiếp của chủ dự án và phạm vi đã được duyệt trong phiên là căn cứ thực hiện.
 
+**Checkout duy nhất (chốt 26/10/2026):** làm trực tiếp tại repo `Langoo` trên
+`main`; không tự tạo worktree mới. Chỉ dùng lại worktree khi chủ dự án yêu cầu
+rõ ràng. Dữ liệu sao lưu hợp nhất ở `uploads/consolidation-20261026/` là local,
+không commit cấu hình bí mật hoặc artifact lớn trong đó.
+
 ## 1. Mọi công việc phải có mã và tên cụ thể
 
 - Xác định mã và tên trước khi làm; giữ cùng mã trong plan, report, handoff,

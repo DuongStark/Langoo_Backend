@@ -286,9 +286,7 @@ export class OpenAiChatProvider implements AiChatProvider {
         typeof payload.model === 'string' && payload.model !== ''
           ? payload.model
           : request.model,
-      tokensIn:
-        validTokenCount(promptTokens) ??
-        estimateRequestTokens(request),
+      tokensIn: validTokenCount(promptTokens) ?? estimateRequestTokens(request),
       tokensOut: validTokenCount(completionTokens) ?? estimateTokens(content),
       costUsd: 0,
       ...(validTokenCount(promptTokens) === undefined ||

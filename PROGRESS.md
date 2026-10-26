@@ -1,12 +1,42 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-20 — M4.2/M4.3 đã push/deploy VPS release `48b8507`, migration044 và32 request HTTPS smoke pass; còn FE/browser cache. Xem entry 2026-10-20 bên dưới.
-> Tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
+> Cập nhật lần cuối: 2026-10-26 — DOCS1 hợp nhất về checkout main duy nhất; đã lấy đủ origin/main đến 7efeacd, tích hợp M10.1 còn thiếu, giữ WIP/artifact và xóa worktree phụ. Xem entry và report hợp nhất bên dưới.
+> Snapshot lịch sử (không phải trạng thái hiện tại): tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
 > mọi thay đổi code phải lưu tài liệu, kiểm tra và trạng thái Git/triển khai.
 
 ## Quy trình và tài liệu
+
+### 2026-10-26 — DOCS1 — Hợp nhất checkout và dọn worktree
+
+- Theo yêu cầu chủ dự án: chỉ dùng `Langoo/main`; đã fast-forward 97 commit đến `7efeacd`, nhập M10.1 `9b8c6b5` thành `13d59cb`, khôi phục/hòa giải WIP và xóa 11 worktree phụ trên đĩa + prune 2 record mất đường dẫn. Branch/stash lịch sử giữ làm mốc phục hồi; không còn checkout phụ.
+- [Report hợp nhất](docs/reviews/docs1-worktree-consolidation-2026-10-26.md), [snapshot tiến độ trước hợp nhất](docs/reviews/docs1-project-status-2026-10-26.md). Backup local ở `uploads/consolidation-20261026/`; 2,3 GB uploads và cấu hình riêng được giữ, không commit. Đã sửa AGENTS theo lựa chọn checkout duy nhất và bỏ symlink node_modules bị track nhầm.
+- Kiểm tra: build Node 22 pass; JSON/JSONL mới 22 file parse pass; secret-pattern scan file mới không match. 60 suite/524 unit pass; DB4 typecheck và 3/3 batch-prepare pass. Lint toàn repo pass; diff-check và trạng thái chốt ghi trong report. Không reset DB, inference, push/deploy.
+- Git/triển khai: các phần được lưu commit local theo mã; origin/main giữ nguyên, không deploy. E2E/FE/runtime provider chưa kiểm lại trong lượt hợp nhất.
+
+### 2026-10-26 — M10.1 — Tích hợp sửa chat SSE còn ở worktree
+
+- Cherry-pick `9b8c6b5` thành `13d59cb`; giữ ảnh M10.3 cùng signal/abort/retry, parser SSE và token validation. Conflict được hòa giải trong chat service/provider, có regression của commit gốc. Xem [report M10.1](docs/reviews/m10-stream-review-2026-10-05.md) và report hợp nhất DOCS1 để phân biệt kiểm tra lịch sử/hiện tại.
+- Đã commit local, chưa push/deploy; chưa chạy lại E2E DB hoặc provider thật.
+
+### 2026-10-26 — M10 — Lưu khảo sát và artifact Devora còn local
+
+- Commit local `cb5e080`: giữ 25 file khảo sát/report/JSON/JSONL/CSV ngày 12–13/10, chuẩn hóa CSV CRLF sang LF. Dữ liệu là kết quả lịch sử, không gọi provider hoặc thay đổi budget/runtime.
+- Kiểm tra JSON/JSONL và secret-pattern scan pass; chưa push/deploy. Link report nằm trong các entry M10 lịch sử được giữ bên dưới.
+
+### 2026-10-26 — DB4-D4/D5 — Giữ prompt v2 và sample audit khi hợp nhất
+
+- Giữ plan/review/sample30 và hai script prepare/report còn untracked; không ghi đè pipeline mới hoặc chạy lại job. Retrieval streaming đã có trên remote nên WIP cũ không tạo delta code.
+- Kiểm tra DB4 TypeScript tái hiện TS2790 ở fixture cũ `batch-prepare.test.ts:675`; đổi delete sang Reflect.deleteProperty để giữ ý định tạo output thiếu trường bắt buộc. Typecheck sau sửa và 3/3 batch-prepare tests pass.
+- Git: đã commit local `eda6001`, chưa push. Phạm vi/files và giới hạn: [report hợp nhất DOCS1](docs/reviews/docs1-worktree-consolidation-2026-10-26.md). Không apply DB/provider/deploy; tooling lịch sử không được gọi là nghiệm thu semantic mới.
+
+### 2026-10-26 — DOCS1 — Đối chiếu tiến độ và tồn đọng dự án
+
+- Đã fetch/đối chiếu `origin/main` tại `7efeacd`; local `56f17fb` chậm 97 commit, có WIP quiz/DB4/M10 nên chưa pull/merge. Không dùng các dòng lịch sử “chưa apply/deploy” làm trạng thái cuối khi commit/report mới đã thay thế.
+- [Report tiến độ và tồn đọng](docs/reviews/docs1-project-status-2026-10-26.md): M4.2/M4.3 đã deploy `48b8507`; DB4 đã apply mở rộng/serving; EN priority, gloss/JA examples, quiz v2, 13 deck và M14 đã có bằng chứng mới. Còn xác nhận FE/journey, auth M2.3 B/C, vận hành, coverage/chất lượng và đồng bộ tài liệu.
+- Kiểm tra: đọc Git/tài liệu/SQL; public health 26/10 HTTP 200, app/DB ok, UTC. Không test/build app hoặc query DB production; số liệu dữ liệu/test lịch sử dẫn từ commit/report. Whole diff có whitespace WIP sẵn ở handoff 08/10 dòng 3; giữ nguyên.
+- Git/triển khai: chỉ thêm report và entry này; chưa commit/push, không sửa code/DB hoặc deploy. Gate còn thiếu: xác nhận runtime release/FE và nghiệm thu xuyên suốt; không kết luận toàn dự án hoàn tất.
 
 ### 2026-10-20 — M4.3 — Tích hợp VPS và phát hành liên kết ít từ
 
@@ -42,23 +72,8 @@
 - Evidence VPS: agony 261514 có 18 link, hai JMdict exact cùng concept 91144 là 苦痛 (BCCWJ 4347) và 重苦 (152442); phương án cập nhật có thể hiện cả hai từ khác nhau, ưu tiên 苦痛 trước. Cả hai search thấy đúng lexeme JMdict. Serving sense_pair hiện thiếu exact gate nên phương án cần recheck relation khi đọc.
 - Chỉ nghiên cứu/read-only và lưu docs; chưa implement, chưa đo độ phủ/hiệu năng toàn DB; chưa commit/push/deploy. Kiểm scoped diff/whitespace/link tài liệu; không build/test app.
 
-### 2026-10-13 — M4.2 — Khảo sát search một ký tự trên VPS
-
-- Read-only: đủ 8 trigram/bigram index nhưng bigram một ký tự là mảng rỗng; runtime substring vẫn đọc rộng. API trực tiếp limit=5: `run` 1,267 s; `猫` 12,328 s; `a` 20,061 s rồi HTTP 200 rỗng, phù hợp nhánh nuốt timeout 20 s trên VPS.
-- EXPLAIN SQL compiled runtime `猫`: 9,641 s; lemma lọc bỏ 512.025 dòng, form lọc bỏ 498.979 dòng. Hướng sửa: exact/prefix có index riêng cho input ngắn; unigram nếu giữ contains một Kanji; timeout rõ ràng.
-- [Report M4.2](docs/reviews/m4.2-single-character-search-2026-10-13.md). Chưa sửa code/DB/runtime; docs chưa commit/push. Một lần đo/mẫu, chưa đo FE hay benchmark phân vị.
-
-### 2026-10-13 — M4.2 — Tối ưu search một ký tự
-
-- Code local: một chữ Latin dùng prefix; Kanji/kana giữ contains với character GIN; 4 lowercase B-tree, exact tier đủ trang trả ngay; suggestion EN một chữ thử frequent tier giữ mọi exact rồi fallback full. Giữ scope, face/dedup, source visibility, cursor v5. Timeout trả 504 `DICTIONARY_SEARCH_TIMEOUT`, custom plan/JIT off.
-- File: migration 042, search repository + unit, dictionary controller/Swagger, integration regression, script benchmark read-only. [Plan](docs/plans/m4.2-short-search-2026-10-13.md), [report và benchmark](docs/reviews/m4.2-short-search-2026-10-13.md), [API](docs/api/dictionary.md), [FE handoff mới ngày 13/10](docs/handoff/fe-handoff-2026-10-13.md).
-- Kiểm tra: 54 suite / 437 unit pass; 2 suite / 30 dictionary integration pass trên DB test riêng; scoped lint/diff pass, build worktree chỉ M4.2 pass. Build chung gặp TS1206 trong WIP quiz của phiên khác. Test dedup cũ lệch expectation đã được chứng minh lỗi trước sửa; không báo toàn e2e pass. Benchmark full đã đo exact tier; frequency tier cuối có regression xanh nhưng chưa benchmark full lại, dừng theo yêu cầu chủ dự án.
-- DB local full 2.375.240 lexeme đã áp 042/ANALYZE để đo, tám index mới ~151,2 MiB. Không áp runtime/DB production. Input có quá nhiều contains match vẫn có chi phí ranking.
-- Gate: tích hợp với hotfix chưa commit trên VPS, giữ source/learner policy thực; không mang frequency tier EN sang ranking khác khi chưa chứng minh bao phủ. Migration 042 trước code, smoke API/latency và UI timeout sau deploy.
-- Git/triển khai: code/test/docs đã lưu local; chưa commit/chưa push/chưa deploy VPS, không gom WIP khác.
-
-| Mã    | Hạng mục                       | Trạng thái                                                                                     |
-| ----- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
+| Mã    | Hạng mục                       | Trạng thái                                                                                                        |
+| ----- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------- |
 | DOCS1 | Quy ước đặt mã và lưu thay đổi | ✅ đã lưu hướng dẫn agent và đồng bộ PROMPT/CONTEXT/PROGRESS ngày 06/10/2026; đã commit/push 10/10/2026 (021c07f) |
 
 ### 2026-10-06 — DOCS1 — Quy ước đặt mã và lưu thay đổi
@@ -87,6 +102,67 @@
   Các entry chi tiết bên dưới vẫn ghi trạng thái tại thời điểm viết.
 - Kiểm tra: `npm run build` (Node 22) pass, `git diff --check` sạch trước commit.
 - Git/triển khai: đã push `main`; không deploy/apply DB.
+
+### 2026-10-12 — M10 — Khảo sát API AI miễn phí và credit thử nghiệm cho Langoo
+
+- Đầu ra: khảo sát nhiều thị trường, tách free tier định kỳ, credit dùng thử, chương trình xét duyệt và ưu đãi cũ/chưa xác minh; ưu tiên nguồn chính thức.
+- Tài liệu: [M10 — Khảo sát API AI miễn phí](docs/reviews/m10-free-ai-api-survey-2026-10-12.md).
+- Phạm vi: chỉ nghiên cứu và lưu docs; không gọi inference, tạo account, đổi provider hoặc chạy job DB.
+- Gate còn thiếu: eligibility/quota tài khoản từ Việt Nam, terms production, benchmark chất lượng/latency và khóa chi phí. Không nghiệm thu model bằng metadata catalog.
+- Git/triển khai: tài liệu mới chưa commit/chưa push; không deploy VPS. Kiểm diff/format và đường dẫn tài liệu; không chạy test/build cho thay đổi chỉ docs.
+
+### 2026-10-13 — M10 — Kiểm tra Devora Events và model miễn phí
+
+- Đầu ra: bổ sung Devora vào [khảo sát M10, §9](docs/reviews/m10-free-ai-api-survey-2026-10-12.md#9-2026-10-13--m10--kiểm-tra-devora-events); phân biệt claim catalog/context và quota free thực nhận.
+- Kiểm tra: đọc web/HTML/public JS; endpoint event trả 403, không có browser khả dụng nên chưa xác nhận budget/dates live. Chưa gọi inference hoặc đăng ký account.
+- Gate: terms, quota/concurrency, upstream model identity, chất lượng/latency và cơ chế dừng khi hết event.
+- Phạm vi: chỉ docs, không đổi provider/job VPS. Git: chưa commit/chưa push; kiểm scoped diff/format, không chạy build/test cho docs.
+
+### 2026-10-13 — M10 — Kiểm tra thực tế API Devora bằng key được cung cấp
+
+- Đầu ra: [report M10](docs/reviews/m10-devora-api-smoke-2026-10-13.md) và [artifact JSON](docs/reviews/m10-devora-api-smoke-2026-10-13.json), không lưu key trong repo.
+- Kết quả: catalog HTTP 200; Space Bunny 403 yêu cầu subscription; DeepSeek một lượt HTTP 200/67,120 giây, JSON đúng 6/6 tình huống tổng hợp đơn giản. Đây không phải gate semantic DB4. Không thử ảnh do thiếu quyền model.
+- Credit: chủ dự án cho phép tối đa 1 credit; usage quy đổi theo giá catalog 0,4324 credit, chưa xác nhận số thực bị trừ/event miễn phí.
+- Phạm vi: chỉ docs/artifact; không đổi provider/config, không chạy job lớn hay deploy/apply DB. Git: chưa commit/chưa push.
+- Kiểm tra: JSON/schema câu trả lời và expected; giá danh nghĩa dưới mức cho phép; secret/whitespace/scoped diff và trạng thái working tree. Gate: billing/free eligibility, vision, benchmark tập khó và tốc độ nhiều lượt.
+
+### 2026-10-13 — M10 — Thử tiếp DeepSeek 4.1 Flash: stream và prompt mới
+
+- [Report M10](docs/reviews/m10-devora-api-smoke-2026-10-13.md): cùng prompt stream trả đúng 6/6 trong 4,016 giây (first content 4,013); prompt mới nonstream mất 65,933 giây, finish_reason=length, không có answer content để chấm.
+- Không kết luận streaming gây tăng tốc vì chưa tách cache/queue/routing; không đánh giá semantic cho output vắng. Provider báo dùng hết 256 completion token nhưng không có reasoning detail.
+- Hai lượt mới giá quy đổi danh nghĩa tổng 0,722 credit, dưới hạn mức 1 credit đợt thử; actual billing chưa xác minh. Không retry, đổi runtime hoặc chạy DB thật.
+- File/phạm vi: report M10 và hai artifact JSON liên kết trong report. Kiểm parse/expected/token cost/secret/scoped diff; không build/test ứng dụng vì chỉ docs/artifact. Git: chưa commit/chưa push; không deploy. Gate tốc độ ổn định, reasoning/output cap, billing và semantic DB4 còn thiếu.
+
+### 2026-10-13 — M10 — DeepSeek 4.1 Flash Devora: test 8 luồng không đặt output cap
+
+- [Report và artifacts M10](docs/reviews/m10-devora-8workers-2026-10-13.md): 8 worker / 24 request / 69,772 giây; 21 HTTP 200, 3 HTTP 502, không 429/timeout. Median lượt thành công 11,026 giây. Bỏ trường max_tokens theo yêu cầu, giữ default provider.
+- Retry riêng ba lỗi bằng 3 worker thành công/7,198 giây. Sau retry đủ 24/24 request logic, 144/144 quyết định đúng trên 24 fixture đơn giản được lặp lại; không nghiệm thu semantic DB4 hoặc tối ưu concurrency.
+- 27 HTTP inference attempt; usage được báo 15.728 token, giá danh nghĩa 9,9572 credits; phí thực/event miễn phí chưa xác nhận, lỗi 502 không có usage.
+- Phạm vi: docs/artifacts, không code/config runtime, không gửi DB/PII thật, không deploy/apply DB. Kiểm JSONL/expected/DONE/stop, số request/retry, tính lại usage/credit, secret/whitespace/scoped diff và working tree; không chạy build/test app.
+- Gate: actual billing/free policy, fixture DB4 thật, baseline concurrency và latency có kiểm soát. Git: chưa commit/chưa push.
+
+### 2026-10-13 — M10 — DeepSeek 4.1 Flash: dịch và review 100 từ Anh–Việt
+
+- [Report + artifacts M10](docs/reviews/m10-devora-en-vi-100-2026-10-13.md): 100 lemma/100 sense từ snapshot M4.5 local; gửi EN/POS, không gửi bản dịch/reference VI. Đủ 100 gloss ngắn + definition đầy đủ, giữ output gốc và đề xuất sửa riêng.
+- Codex đã đọc/đối chiếu 100 mục: 86 pass, 13 minor, 1 major (`show` sai đối tượng trong định nghĩa), 0 severe quan sát được. Đây là AI review trên bộ mẫu, không gate thống kê cho toàn DB hoặc review người độc lập.
+- Vận hành: 37 attempt (16 HTTP 200, 18 HTTP 502, 3 HTTP 524); 4 HTTP 200 length ở default 2.048. Tăng max_tokens=16.384, giảm luồng/chia batch để hoàn tất. Tổng thời gian các pha API 538,584 giây; usage được báo 53.675 token; giá danh nghĩa 42,4196 credits, billing thực chưa xác minh.
+- Phạm vi: docs/artifacts, không code/config runtime, không apply DB/deploy. Kiểm schema/ID/hash/provenance/review/cost arithmetic/secret/links/whitespace/scoped diff và working tree; không build/test app.
+- Gate: model consistency, mẫu độc lập/phức tạp, gateway throughput, billing/free policy và policy apply. Git: chưa commit/chưa push.
+
+### 2026-10-13 — M4.2 — Khảo sát search một ký tự trên VPS
+
+- Read-only: đủ 8 trigram/bigram index nhưng bigram một ký tự là mảng rỗng; runtime substring vẫn đọc rộng. API trực tiếp limit=5: `run` 1,267 s; `猫` 12,328 s; `a` 20,061 s rồi HTTP 200 rỗng, phù hợp nhánh nuốt timeout 20 s trên VPS.
+- EXPLAIN SQL compiled runtime `猫`: 9,641 s; lemma lọc bỏ 512.025 dòng, form lọc bỏ 498.979 dòng. Hướng sửa: exact/prefix có index riêng cho input ngắn; unigram nếu giữ contains một Kanji; timeout rõ ràng.
+- [Report M4.2](docs/reviews/m4.2-single-character-search-2026-10-13.md). Chưa sửa code/DB/runtime; docs chưa commit/push. Một lần đo/mẫu, chưa đo FE hay benchmark phân vị.
+
+### 2026-10-13 — M4.2 — Tối ưu search một ký tự
+
+- Code local: một chữ Latin dùng prefix; Kanji/kana giữ contains với character GIN; 4 lowercase B-tree, exact tier đủ trang trả ngay; suggestion EN một chữ thử frequent tier giữ mọi exact rồi fallback full. Giữ scope, face/dedup, source visibility, cursor v5. Timeout trả 504 `DICTIONARY_SEARCH_TIMEOUT`, custom plan/JIT off.
+- File: migration 042, search repository + unit, dictionary controller/Swagger, integration regression, script benchmark read-only. [Plan](docs/plans/m4.2-short-search-2026-10-13.md), [report và benchmark](docs/reviews/m4.2-short-search-2026-10-13.md), [API](docs/api/dictionary.md), [FE handoff mới ngày 13/10](docs/handoff/fe-handoff-2026-10-13.md).
+- Kiểm tra: 54 suite / 437 unit pass; 2 suite / 30 dictionary integration pass trên DB test riêng; scoped lint/diff pass, build worktree chỉ M4.2 pass. Build chung gặp TS1206 trong WIP quiz của phiên khác. Test dedup cũ lệch expectation đã được chứng minh lỗi trước sửa; không báo toàn e2e pass. Benchmark full đã đo exact tier; frequency tier cuối có regression xanh nhưng chưa benchmark full lại, dừng theo yêu cầu chủ dự án.
+- DB local full 2.375.240 lexeme đã áp 042/ANALYZE để đo, tám index mới ~151,2 MiB. Không áp runtime/DB production. Input có quá nhiều contains match vẫn có chi phí ranking.
+- Gate: tích hợp với hotfix chưa commit trên VPS, giữ source/learner policy thực; không mang frequency tier EN sang ranking khác khi chưa chứng minh bao phủ. Migration 042 trước code, smoke API/latency và UI timeout sau deploy.
+- Git/triển khai: code/test/docs đã lưu local; chưa commit/chưa push/chưa deploy VPS, không gom WIP khác.
 
 ### 2026-10-11 — MERGE — Gộp nhánh `parallel/deepseek-db4` vào `main`
 
@@ -168,51 +244,51 @@
 
 ## Checklist milestone
 
-| #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                      |
-| ----- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| M0    | Bootstrap & DB ops                                                        | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                      |
-| M1    | Data layer (Prisma schema `app` + repository `core`/`serve`)              | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                      |
-| M2    | Auth (register/login/refresh/logout/me)                                   | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                      |
-| M2.1  | Auth fixes sau review                                                     | ✅ hoàn thành                                                                                                                                                                                                                                                                                                                                                                                   |
-| M2.2  | Đăng nhập Google (OAuth2 ID token)                                        | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                      |
-| M2.3  | Sửa Google OAuth sau review                                               | 🛠️ A + C backend opt-in đã triển khai; B và rollout C còn chờ ([kế hoạch](docs/plans/m2.3-google-oauth-fixes.md))                                                                                                                                                                                                                                                                               |
-| M3    | Profile & settings                                                        | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                      |
-| M3.1  | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                                                                                                                                                                                                                                                                                                                   |
-| M4    | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                                                                                                                                                                                                                                                                                           |
-| M4.2  | Search một lexeme một hit và bảo toàn nghĩa đa nguồn                      | ✅ commits04112dc/d861390 đã push/CI deploy VPS, migration038 đã áp; cursor v3/canonical face giữ trong M4.3; [report](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md)                                                                                                                                                                                                                         |
-| M4.3  | Nhóm nghĩa Wiktextract và bảo toàn sense                                  | ✅ 9a52b68 + DB3-B2.1f700658 đã push/deploy;039 đã áp;354 unit/207 E2E/31 DB3 tests,46 live checks pass; FE render con còn chờ; [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md)                                                                                                                                                                                                  |
-| M4.5  | Xếp hạng nghĩa ưu tiên khi tra từ                                         | JA BCCWJ **66.041 profiles đã deploy VPS**, final 7/55 + HTTP pass; [report](docs/reviews/m4.5-ja-bccwj-deploy-2026-10-08.md). EN artifacts riêng, chưa apply trong lượt này; còn FE consume; đã commit/push 10/10 (e740ace, c3a0759, 0dba4b0)                                                                                                                                                                                  |
-| M5    | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                                                                                                                                                                                                                                                                                                         |
-| M5.1  | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                                                                                                                                                                                                                                                                                                   |
-| M6    | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                                                                                                                                                                                                                                                                                                |
-| M6.1  | SRS fixes sau review                                                      | ✅ đã sửa 14 phát hiện + ENV-01; audit 30/30 pass; **cloud đã có 026/027**                                                                                                                                                                                                                                                                                                                      |
-| M7    | Review modes & sessions                                                   | ✅ M7.1 + M7.2 đã sửa (profile xuyên suốt, distractor theo profile); build/lint/unit/e2e local pass; migration 034 đã áp cloud+VPS+local (05/10) ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md))                                                                                                                                                   |
-| M8    | Gamification                                                              | ✅ M8.1 + M8.2 đã sửa (achievement quiz cùng transaction; `reviews_total`/`reviews_1000` chỉ tính SRS, migration 036); migration 034/036 đã áp cloud+VPS+local (05/10) ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md))                                                                                                                             |
-| M9    | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                                                                                                                                                                                                                                                                                                       |
-| M10   | AI Chatbot                                                                | ✅ đã sửa 6 finding sau review; chuẩn bị OpenCode Zen free; migration 037 đã áp cloud+VPS+local (05/10); AI production chạy Groq `openai/gpt-oss-120b` (từ 05/10, ~1-2s/câu); [recheck](docs/reviews/m10-recheck-2026-10-03.md)                                                                                                                                                                 |
-| M11   | AI Quiz                                                                   | ✅ đã sửa sau review 2026-10-05: 6 lỗi P2 + nguồn SRS; [recheck](docs/reviews/m11-recheck-2026-10-05.md)                                                                                                                                                                                                                                                                                        |
-| M10.2 | Cấu hình Qwen cho chat và quiz                                            | Chat đã áp env/reload VPS; quiz env sẵn, runtime còn stub; 20 unit pass; đã commit/push (44a791d); [report](docs/reviews/m10.2-qwen-chat-quiz-2026-10-07.md) |
-| M10.3 | Chat nhận ảnh tạm thời | Code/tests/docs đã vào main 10/10 (294e385); VPS đã apply vision; FE UI còn thiếu; [plan](docs/plans/m10.3-chat-images.md), [report](docs/reviews/m10.3-chat-images-2026-10-07.md)                                                                                                                                                                                                                                                              |
-| M10.4 | Triển khai thử Muse qua browser bridge                                    | Sidecar VPS đã deploy cho job DB/nền; 15 unit local/VPS + 8/8 live fixture pass; giữ Qwen chat; chưa chạy hybrid M4.5 100; đã commit/push (bff5175); [report](docs/reviews/m10.4-muse-browser-bridge-2026-10-07.md)                                                                                                                                                                                                       |
+| #     | Milestone                                                                 | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----- | ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M0    | Bootstrap & DB ops                                                        | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                                    |
+| M1    | Data layer (Prisma schema `app` + repository `core`/`serve`)              | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                                    |
+| M2    | Auth (register/login/refresh/logout/me)                                   | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                                    |
+| M2.1  | Auth fixes sau review                                                     | ✅ hoàn thành                                                                                                                                                                                                                                                                                                                                                                                                 |
+| M2.2  | Đăng nhập Google (OAuth2 ID token)                                        | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                                    |
+| M2.3  | Sửa Google OAuth sau review                                               | 🛠️ A + C backend opt-in đã triển khai; B và rollout C còn chờ ([kế hoạch](docs/plans/m2.3-google-oauth-fixes.md))                                                                                                                                                                                                                                                                                             |
+| M3    | Profile & settings                                                        | ✅ hoàn thành (chờ review)                                                                                                                                                                                                                                                                                                                                                                                    |
+| M3.1  | Profile & settings fixes sau review                                       | ✅ hoàn thành                                                                                                                                                                                                                                                                                                                                                                                                 |
+| M4    | Dictionary (đọc)                                                          | ✅ hoàn tất M4.1: nối lexeme→sense, cursor, romaji và hardening input                                                                                                                                                                                                                                                                                                                                         |
+| M4.2  | Search một lexeme một hit và bảo toàn nghĩa đa nguồn                      | ✅ commits04112dc/d861390 đã push/CI deploy VPS, migration038 đã áp; cursor v3/canonical face giữ trong M4.3; [report](docs/reviews/m4-2-db4-d0-2-deploy-2026-10-06.md)                                                                                                                                                                                                                                       |
+| M4.3  | Nhóm nghĩa Wiktextract và bảo toàn sense                                  | ✅ 9a52b68 + DB3-B2.1f700658 đã push/deploy;039 đã áp;354 unit/207 E2E/31 DB3 tests,46 live checks pass; FE render con còn chờ; [report](docs/reviews/m4-3-subsense-integration-2026-10-06.md)                                                                                                                                                                                                                |
+| M4.5  | Xếp hạng nghĩa ưu tiên khi tra từ                                         | JA BCCWJ **66.041 profiles đã deploy VPS**, final 7/55 + HTTP pass; [report](docs/reviews/m4.5-ja-bccwj-deploy-2026-10-08.md). EN artifacts riêng, chưa apply trong lượt này; còn FE consume; đã commit/push 10/10 (e740ace, c3a0759, 0dba4b0)                                                                                                                                                                |
+| M5    | Collections                                                               | ✅ hoàn thành cùng M5.1                                                                                                                                                                                                                                                                                                                                                                                       |
+| M5.1  | Collections fixes sau review                                              | ✅ hoàn thành                                                                                                                                                                                                                                                                                                                                                                                                 |
+| M6    | SRS                                                                       | ✅ hoàn tất sau M6.1; audit lại 30/30 ca pass ([báo cáo](docs/reviews/m6-recheck-2026-09-29.md))                                                                                                                                                                                                                                                                                                              |
+| M6.1  | SRS fixes sau review                                                      | ✅ đã sửa 14 phát hiện + ENV-01; audit 30/30 pass; **cloud đã có 026/027**                                                                                                                                                                                                                                                                                                                                    |
+| M7    | Review modes & sessions                                                   | ✅ M7.1 + M7.2 đã sửa (profile xuyên suốt, distractor theo profile); build/lint/unit/e2e local pass; migration 034 đã áp cloud+VPS+local (05/10) ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md))                                                                                                                                                                 |
+| M8    | Gamification                                                              | ✅ M8.1 + M8.2 đã sửa (achievement quiz cùng transaction; `reviews_total`/`reviews_1000` chỉ tính SRS, migration 036); migration 034/036 đã áp cloud+VPS+local (05/10) ([kế hoạch](docs/plans/m7-m8-fixes.md), [recheck](docs/reviews/m7-m8-recheck-2026-10-02.md))                                                                                                                                           |
+| M9    | Reminders                                                                 | ⏸️ tạm gác (chủ dự án chốt 2026-09-29; bảng `app.reminder`/`notification_log` giữ nguyên)                                                                                                                                                                                                                                                                                                                     |
+| M10   | AI Chatbot                                                                | ✅ đã sửa 6 finding sau review; chuẩn bị OpenCode Zen free; migration 037 đã áp cloud+VPS+local (05/10); AI production chạy Groq `openai/gpt-oss-120b` (từ 05/10, ~1-2s/câu); [recheck](docs/reviews/m10-recheck-2026-10-03.md)                                                                                                                                                                               |
+| M11   | AI Quiz                                                                   | ✅ đã sửa sau review 2026-10-05: 6 lỗi P2 + nguồn SRS; [recheck](docs/reviews/m11-recheck-2026-10-05.md)                                                                                                                                                                                                                                                                                                      |
+| M10.2 | Cấu hình Qwen cho chat và quiz                                            | Chat đã áp env/reload VPS; quiz env sẵn, runtime còn stub; 20 unit pass; đã commit/push (44a791d); [report](docs/reviews/m10.2-qwen-chat-quiz-2026-10-07.md)                                                                                                                                                                                                                                                  |
+| M10.3 | Chat nhận ảnh tạm thời                                                    | Code/tests/docs đã vào main 10/10 (294e385); VPS đã apply vision; FE UI còn thiếu; [plan](docs/plans/m10.3-chat-images.md), [report](docs/reviews/m10.3-chat-images-2026-10-07.md)                                                                                                                                                                                                                            |
+| M10.4 | Triển khai thử Muse qua browser bridge                                    | Sidecar VPS đã deploy cho job DB/nền; 15 unit local/VPS + 8/8 live fixture pass; giữ Qwen chat; chưa chạy hybrid M4.5 100; đã commit/push (bff5175); [report](docs/reviews/m10.4-muse-browser-bridge-2026-10-07.md)                                                                                                                                                                                           |
 | M10.5 | Muse native gateway và automation bulk VPS                                | Đã cài runner/service3 luồng; chuẩn bị5.000 từ/91.689 source senses,100 shard,1.211 base dispatch; 10+21+5 unit pass; resume50/50 không gọi thêm Muse; user chốt dùng Muse trực tiếp không judge; lô5k đã start/enable VPS18:18+07:00, đang chạy3 luồng; đã commit/push 10/10 (1db42a6); [bulk report](docs/reviews/m10.5-muse-bulk-2026-10-07.md), [pilot](docs/reviews/m10.5-native-three-50-2026-10-07.md) |
-| M11.1 | Quiz Kanji và ngữ cảnh                                                    | ✅ backend local pass: 374 unit / 199 E2E; câu dữ liệu không gọi AI, context có reuse/validator; đã commit/push (9a2d11d); [báo cáo](docs/reviews/m11-1-kanji-quiz-2026-10-06.md)                                                                                                                                                                                                                                         |
-| M12   | Hardening                                                                 | ✅ đã sửa 1 P1 + 3 P2 sau review 2026-10-05; kiểm chứng local pass, chưa deploy VPS; [recheck](docs/reviews/m12-recheck-2026-10-05.md)                                                                                                                                                                                                                                                          |
-| M13   | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ đã sửa 6 P2 + 2 P3 sau review 2026-10-05; local pass, chưa deploy VPS; [recheck](docs/reviews/m13-recheck-2026-10-05.md)                                                                                                                                                                                                                                                                     |
+| M11.1 | Quiz Kanji và ngữ cảnh                                                    | ✅ backend local pass: 374 unit / 199 E2E; câu dữ liệu không gọi AI, context có reuse/validator; đã commit/push (9a2d11d); [báo cáo](docs/reviews/m11-1-kanji-quiz-2026-10-06.md)                                                                                                                                                                                                                             |
+| M12   | Hardening                                                                 | ✅ đã sửa 1 P1 + 3 P2 sau review 2026-10-05; kiểm chứng local pass, chưa deploy VPS; [recheck](docs/reviews/m12-recheck-2026-10-05.md)                                                                                                                                                                                                                                                                        |
+| M13   | Admin, Curation & Feedback (thống kê + duyệt nội dung + hộp thư feedback) | ✅ đã sửa 6 P2 + 2 P3 sau review 2026-10-05; local pass, chưa deploy VPS; [recheck](docs/reviews/m13-recheck-2026-10-05.md)                                                                                                                                                                                                                                                                                   |
 
 ## Lộ trình DB (chốt 2026-10-01 — "thiết kế nốt cái DB")
 
-| #      | Phase                              | Nội dung                                                                                                                                                             | Trạng thái                                                                                                                                                                                                        |
-| ------ | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| DB1    | Dọn schema & chốt nguồn sự thật    | PK staging còn thiếu; metadata curation (`concept.reviewed_by/at`, `candidate.decision_run_id` + index); COMMENT ngữ nghĩa; regenerate CSDL doc; sửa tài liệu sai số | ✅ đã triển khai ([kế hoạch](docs/plans/db1-schema-cleanup.md))                                                                                                                                                   |
-| DB2    | Hạ tầng tìm kiếm                   | `pg_trgm` + 4 GIN trigram (033); `core.bigrams` + 4 GIN bigram (035); query 3 nhánh UNION dùng index; benchmark VPS `走る` 7,7s → 0,11s                              | ✅ đã triển khai ([kế hoạch](docs/plans/db2-search-infra.md))                                                                                                                                                     |
-| DB3    | Seed dữ liệu nền                   | `radical` 214; KanjiVG → `media_asset`/`kanji_media`; deck hệ thống; gloss tiếng Việt cấp sense/concept; chốt chính sách JLPT; audit `/credits`                      | 📋                                                                                                                                                                                                                |
-| DB4    | Hoàn tất mapping sense↔concept | Candidate generation, scoring, LLM review, audit, apply/rollback và serving | 📋 D1 hoàn tất; D2 code đã push, cohort N1–N5 đã freeze VPS (15.245 → 1.000, 200/800, 10 shard); D4/D5 quality gate chưa đạt; D0, D6/D7 còn chờ |
-| DB5    | Curation + serve + go-live DB thật | Quy trình duyệt concept/gloss; refresh `serve.sense_pair`; giao M14 (admin ghi `core`); kiểm readiness DB thật                                                       | 📋 curation/serving còn chờ; API VPS đã đọc DB thật (xác minh 06/10), chưa đồng nghĩa DB5 đạt gate                                                                                                                |
-| DB4-D1 | Contract mapping v1                | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                 | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                 |
-| DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; D4 transport smoke đã lưu 1 response nhưng D1 invalid; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
-| DB4-D3 | Bộ quyết định mapping tự động | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7 |
+| #      | Phase                                                   | Nội dung                                                                                                                                                                                                                         | Trạng thái                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| ------ | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| DB1    | Dọn schema & chốt nguồn sự thật                         | PK staging còn thiếu; metadata curation (`concept.reviewed_by/at`, `candidate.decision_run_id` + index); COMMENT ngữ nghĩa; regenerate CSDL doc; sửa tài liệu sai số                                                             | ✅ đã triển khai ([kế hoạch](docs/plans/db1-schema-cleanup.md))                                                                                                                                                                                                                                                                                                                                                                                                   |
+| DB2    | Hạ tầng tìm kiếm                                        | `pg_trgm` + 4 GIN trigram (033); `core.bigrams` + 4 GIN bigram (035); query 3 nhánh UNION dùng index; benchmark VPS `走る` 7,7s → 0,11s                                                                                          | ✅ đã triển khai ([kế hoạch](docs/plans/db2-search-infra.md))                                                                                                                                                                                                                                                                                                                                                                                                     |
+| DB3    | Seed dữ liệu nền                                        | `radical` 214; KanjiVG → `media_asset`/`kanji_media`; deck hệ thống; gloss tiếng Việt cấp sense/concept; chốt chính sách JLPT; audit `/credits`                                                                                  | 📋                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| DB4    | Hoàn tất mapping sense↔concept                          | Candidate generation, scoring, LLM review, audit, apply/rollback và serving                                                                                                                                                      | 📋 D1 hoàn tất; D2 code đã push, cohort N1–N5 đã freeze VPS (15.245 → 1.000, 200/800, 10 shard); D4/D5 quality gate chưa đạt; D0, D6/D7 còn chờ                                                                                                                                                                                                                                                                                                                   |
+| DB5    | Curation + serve + go-live DB thật                      | Quy trình duyệt concept/gloss; refresh `serve.sense_pair`; giao M14 (admin ghi `core`); kiểm readiness DB thật                                                                                                                   | 📋 curation/serving còn chờ; API VPS đã đọc DB thật (xác minh 06/10), chưa đồng nghĩa DB5 đạt gate                                                                                                                                                                                                                                                                                                                                                                |
+| DB4-D1 | Contract mapping v1                                     | Schema/validator/hash/state/CLI, fixtures, spec và handoff cho D2/D4                                                                                                                                                             | ✅ code xong local: 30/30 tests, TypeScript/lint/format pass; [spec](docs/plans/db4-schema-v1.md), [handoff](docs/handoff/db4-d1.md); đã commit/push 10/10 (c0aa519); còn tích hợp consumer review                                                                                                                                                                                                                                                                |
+| DB4-D2 | Mapping nguồn đã xác minh và chọn candidate bằng MiniLM | READ ONLY export, source audit, ONNX CPU/cache, hybrid lexical-MiniLM RRF, cohort/sampling và D1 artifacts                                                                                                                       | 🟡 `0208649` + `b74268d` đã commit/push; cohort 1.000: raw audit JMdict/OEWN/OMW EN/JA 0 mismatch, Wiktextract blocked; RRF 966 có shortlist / 34 no-candidate, 4.830 candidates. Semantic quality chưa đo; D4 transport smoke đã lưu 1 response nhưng D1 invalid; chưa apply/deploy. [review retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md), [plan](docs/plans/db4-d2-source-minilm-retrieval.md), [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md) |
+| DB4-D3 | Bộ quyết định mapping tự động                           | Pure consensus policy, Muse adapter, generation/raw-response binding, immutable rerun                                                                                                                                            | ✅ engine đã kiểm local: 55/55 DB4 tests, TS/lint pass; 100 target → 20 exact proposals, 44 deferred, 4 all-none, 1 incomplete, 31 no-candidate; [plan](docs/plans/db4-d3-auto-decisions.md), [report](docs/reviews/db4-d3-auto-decisions-2026-10-10.md); đã commit/push 10/10 (3fe3863); chưa apply/deploy, còn D5–D7                                                                                                                                            |
 | DB4-D4 | Prompt chọn candidate theo đầy đủ nghĩa của sense | Conditional R2 + [batch plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [runner review](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md), [v2.1 offline review](docs/reviews/db4-d4-prompt-v2.1-2026-10-10.md) | 🟡 `b955bfa` đã push; một R1 ACK/lưu response 5.203 byte sau 36,138 giây; D1 replay invalid vì Muse trả 4/5 verdict; 965 pending, R2 không đủ điều kiện. Final report incomplete do memory pressure (564/966 evaluation artifacts, không có summary). Không retry R1; chưa shadow 1.000, expansion/repair, Pilot A/B, apply/deploy |
-| DB4-D5 | Audit chất lượng proposal exact | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy |
+| DB4-D5 | Audit chất lượng proposal exact                         | Hash-bound AI audit đủ 20 proposal; replay nguồn D3, lọc pass, report bất biến                                                                                                                                                   | 🟡 16 pass / 2 severe / 2 deferred; 65/65 DB4 tests, TS/lint pass; [plan](docs/plans/db4-d5-proposal-audit.md), [report](docs/reviews/db4-d5-proposal-audit-2026-10-10.md); gate chưa đạt, chưa audit 100 target/Pilot B; đã commit/push 10/10 (b0d344d, 8d83635); chưa apply/deploy                                                                                                                                                                              |
 
 ### 2026-10-10 — DB4-D4/D5 — Mapping tự động theo batch có checkpoint
 
@@ -309,6 +385,60 @@
   hashes and stratification are in [review](docs/reviews/db4-d2-cohort-selector-2026-10-10.md).
 - Git: code/docs commit `0208649` đã push. VPS app code không deploy; source audit,
   ONNX/RRF measurement, Muse, D5/D6/D7 gates vẫn còn.
+
+### 2026-10-10 — DB4-D2 — Source audit và hybrid retrieval trên cohort
+
+- Project selector rows thành export riêng 1.000 sense; xác minh lại selected
+  row/source/snapshot hashes và audit raw JMdict/OEWN/OMW EN/JA (0 mismatch).
+  Wiktextract vẫn blocked do thiếu raw identity adapter.
+- Chạy MiniLM/RRF trên 120.875 concepts: 966/1.000 có shortlist, 34
+  `no_candidates_after_pos_filter`; 4.830 candidate / 966 bundle. Warm cache hit;
+  334,841 giây, peak RSS 469,09 MiB, 2 threads × batch 32. Đây là availability,
+  không phải recall/precision hay semantic pass.
+- Đã tạo D1 retrieval generation với `apply=false`; không gọi Muse, không ghi DB,
+  không deploy. Một lần chạy nhầm full export dừng ở 145/15.245 và được cách ly,
+  không đưa vào generation/decision.
+- Code, test và hash/artifact details: [review DB4-D2 cohort retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md); cập nhật [plan](docs/plans/db4-d2-source-minilm-retrieval.md) và [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md).
+- Kiểm tra: TS, ESLint, Prettier, 45/45 Node tests, 15/15 Python tests pass;
+  scoped diff-check pass. Full diff-check giữ nguyên whitespace có sẵn ở FE
+  handoff phiên khác.
+- Gate còn thiếu: semantic/gold recall; DB4-D4/D5 batch runner, intent/recovery,
+  locks/budget/breaker và smoke; Muse shadow, D5 quality, DB4-D6/D7.
+- Git / triển khai: implementation/docs commit `b74268d` đã push; artifacts lớn
+  ở `uploads/` ignored; không deploy/apply.
+
+### 2026-10-10 — DB4-D5 — Thử prompt v2 trên 30 cặp mới
+
+- Đã chạy 30 sense / 15 lemma ngoài mọi lemma của nhóm 20 audit cũ; giữ đủ 5
+  candidate = 150 pairs, 2 phase v2 = 60 request / 8 worker, không apply DB.
+- VPS 386,71s; 60 replies, D1 valid 59/60. Pure D3 policy: 1 exact (sense 72),
+  27 deferred, 1 all-none, 1 incomplete (police R1 thêm `missingBranches2`).
+- Blind AI scope assessment đủ 30; sanitizer R2 false exact bị bất đồng/defer;
+  còn over-restriction your husband/organization và ambiguity nhiều concept.
+  V1 cùng mẫu 0 proposal exact; không suy quality/precision từ yield 1/30.
+- [Report và cách chọn mẫu](docs/reviews/db4-d5-muse-v2-sample30-2026-10-10.md).
+- TS/scoped lint/format, D3 14/14 tests, prepare/report replay/hash/negative guard
+  pass; scoped diff-check pass, toàn tree có FE whitespace phiên khác giữ nguyên.
+- Code/docs local chưa commit/push; job VPS success/inactive; chưa deploy app,
+  chưa full D5/D6/D7, không apply DB; giữ thay đổi phiên khác.
+
+### 2026-10-10 — DB4-D4 — Prompt semantic match v2
+
+- Follow-up: [sample 30 sense mới với v2](docs/reviews/db4-d5-muse-v2-sample30-2026-10-10.md) đã chạy sau bước chuẩn bị dưới đây; quality gate chưa đạt.
+- Lưu system/R1/R2 v2: xác định source frame, điều kiện/construction, hai chiều
+  bao hàm có phản ví dụ, phân biệt style và scope, sáu cặp đối chiếu; trả đầy đủ
+  candidate theo thứ tự input và tự giữ unresolved. Contract D1 không đổi.
+- Prepare thêm selector `v1|v2` (default v1), artifact v2 riêng; giữ seed để so
+  với v1, đổi prompt version/render hash. [Plan và cách chạy](docs/plans/db4-d4-semantic-match-prompt-v2.md).
+- Kiểm tra: TS/scoped ESLint pass; smoke temp 69 bundle / 138 request mỗi version,
+  hash/replay/order/binding/default v1/immutable pass; adapter giữ 138 not-dispatched
+  unresolved. Max input v2 147.670 byte, chưa dispatch hoặc đo chất lượng mới.
+- Format/link/whitespace/diff-check phạm vi v2 pass; diff-check toàn tree báo
+  whitespace ở FE handoff của phiên khác, chi tiết trong plan; giữ nguyên file đó.
+- Gate: semantic pilot v2, full D5/D6/D7 còn thiếu; prompt không bảo đảm exact đúng.
+- Git / triển khai: code/prompt/docs v2 local chưa commit/push, chưa deploy/apply;
+  giữ thay đổi của phiên khác.
+
 ### 2026-10-10 — DB4-D5 — Audit chất lượng proposal exact
 
 - Chấm đủ 20 exact proposals bằng source JA/EN + raw attrs và context concept,
@@ -346,8 +476,13 @@
 - Kiểm tra: 65/65 DB4 tests, TS/lint/format/Python syntax, D1 adapter/compare
   thực tế + rerun/hash đối chiếu VPS, JSON/link/whitespace/diff-check pass.
   Không có unit riêng reconciler; chưa có expert gold hoặc full pilot gate.
-- Git / triển khai: code/docs local chưa commit/push; chỉ chạy job VPS,
-  không deploy backend hoặc apply DB. Các gate D5–D7 giữ nguyên.
+- Git / triển khai: phiên khác đã commit/push code/report nền `b0d344d`,
+  `8d83635` trong lúc kiểm cuối, rồi `9e01f07` gồm guard duplicate normalized repeat.
+  Cập nhật Git/format report cuối còn local tại thời điểm ghi. Origin/main chứa
+  các commit này khi kiểm; không thay đổi/undo commit đó.
+  [Report](docs/reviews/db4-d5-muse-repeat-2026-10-10.md) đã ghi rõ. Rerun vẫn cùng
+  hash/counts; TS/lint/format, JSON/link/whitespace/diff-check pass. Chỉ chạy và
+  thu hồi job VPS, không deploy backend hoặc apply DB. Các gate D5–D7 giữ nguyên.
 
 ### 2026-10-10 — DB4-D3 — Bộ quyết định mapping tự động
 
@@ -1274,34 +1409,6 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - Git / triển khai: commit `e740ace` đã deploy lên `langoo-vps`; health app/DB OK;
   backup source + dist được lưu ở storage. Chưa push.
 
-### 2026-10-10 — DB4-D2 — Source audit và hybrid retrieval trên cohort
-
-- Project selector rows thành export riêng 1.000 sense; xác minh selected
-  row/source/snapshot hashes và audit raw JMdict/OEWN/OMW EN/JA (0 mismatch).
-  Wiktextract vẫn blocked do thiếu raw identity adapter.
-- Chạy MiniLM/RRF trên 120.875 concepts: 966/1.000 có shortlist, 34
-  `no_candidates_after_pos_filter`; 4.830 candidate / 966 bundle. Warm cache hit;
-  334,841 giây, peak RSS 469,09 MiB, 2 threads × batch 32. Đây là availability,
-  không phải recall/precision hay semantic pass.
-- Đã tạo D1 retrieval generation với `apply=false`; không gọi Muse, không ghi DB,
-  không deploy. Một lần chạy nhầm full export dừng ở 145/15.245 và được cách ly,
-  không đưa vào generation/decision.
-- Code, test và hash/artifact details: [review DB4-D2 cohort retrieval](docs/reviews/db4-d2-cohort-retrieval-2026-10-10.md); cập nhật [plan](docs/plans/db4-d2-source-minilm-retrieval.md) và [handoff](docs/handoff/db4-d2-source-minilm-retrieval-2026-10-08.md).
-- Kiểm tra: TS, ESLint, Prettier, 45/45 Node tests, 15/15 Python tests pass;
-  scoped diff-check pass. Full diff-check giữ nguyên whitespace có sẵn ở FE
-  handoff phiên khác.
-- Gate còn thiếu: semantic/gold recall; DB4-D4/D5 batch runner, intent/recovery,
-  locks/budget/breaker và smoke; Muse shadow, D5 quality, DB4-D6/D7.
-- Git / triển khai: code/docs commit `b74268d` đã push; artifacts lớn ở
-  `uploads/` ignored; không deploy/apply.
-
-### 2026-10-10 — DB4-D3/D4 — Contract batch và conditional R2 foundation
-
-- Thay đổi / lý do: thêm orchestration contract v1, giới hạn run/call, target/schedule, deterministic job key, append-only event hash chain và pure evaluator cho R2 có điều kiện. Giữ nguyên D1/D3 v1; skipped R2 không tạo decision hai lượt giả.
-- File / phạm vi: `scripts/db4/_batch-types.ts`, `scripts/db4/muse-batch-decide.ts`, `scripts/db4/muse-batch-decide.test.ts`; [plan](docs/plans/db4-d4-d5-automated-batch-rollout.md), [review](docs/reviews/db4-d4-d5-batch-foundation-2026-10-10.md).
-- Kiểm tra / kết quả: `npx tsc -p tsconfig.db4.json --noEmit`; ESLint scoped; Prettier; `node --import tsx --test scripts/db4/muse-batch-decide.test.ts` — 8/8 pass; full DB4 suite 77/77 pass.
-- Gate còn thiếu: atomic run artifacts, conditional waves, durable runner/recovery, cross-generation binding, D5 audit, VPS smoke và shadow. Chưa gọi Muse, chưa ghi DB/deploy.
-- Git / triển khai: code/test/plan/review commit `406c8b2` đã push; không deploy/apply.
 
 ### 2026-10-10 — DB4-D4/D5 — Durable batch runner, preflight và report
 
@@ -1315,48 +1422,12 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - Kiểm tra / kết quả: 82/82 DB4 TypeScript tests, 12 runner tests, 2 coordinator
   tests, TypeScript/lint/format và Python compile pass. Full artifact preflight
   (read-only): 1.000 selected, 966 ready, 34 no-candidate, 1.932 requests,
-  10 shards, 78 refs verified; `apply=false`, `museCalled=false`; elapsed 2:20.34,
-  peak RSS 526,776 KiB, no swap.
+  10 shards, 78 refs verified; `apply=false`, `museCalled=false`.
 - Gate còn thiếu: remote preflight/transport smoke (cap tối đa 1 R1 + 1 R2),
   expansion, format repair, Pilot A/B audit, shadow 1.000, D6/D7, DB apply và app
   deploy.
-- Git / triển khai: phần việc được stage riêng để commit/push; chưa cài/chạy
-  service VPS, chưa deploy app hoặc sửa DB.
-
-### 2026-10-11 — DB4-D4/D5 — Nạp request theo phase để giảm RAM VPS
-
-- Thay đổi / lý do: sau khi smoke với release 708e3b8 đạt khoảng 646 MiB cgroup,
-  phát hiện runner giữ target/candidate và cả R1/R2 payload trong lúc Node preflight.
-  Nạp payload sau preflight theo phase, R2 đối chiếu identity qua schedule compact,
-  giải phóng queue trước Node D1 validation.
-- File / phạm vi: Python batch runner + tests; runbook VPS, plan rollout và
-  [review runner](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md).
-- Kiểm tra / kết quả: 13/13 runner tests, 2/2 coordinator tests, 82/82 DB4 TS tests,
-  tsc, Python compile, Prettier plan/review/runbook và scoped git diff check pass. VPS preflight
-  cũ pass; smoke đầu tiên đã stop trước ledger/dispatch, không gọi Muse.
-- Gate còn thiếu: commit/push follow-up này rồi chạy smoke mới với cap 1 R1 + 1 R2;
-  shadow 1.000, expansion, format repair, Pilot A/B, apply và deploy vẫn đóng.
-- Git / triển khai: foundation 708e3b8 đã push; memory fix đang được commit. VPS có
-  unit/env và release cũ; service cũ dừng/failed. Không có Muse call, DB write/apply
-  hay app deploy.
-
-### 2026-10-11 — DB4-D4/D5 — Cho runner ghi thư mục account lock trong sandbox
-
-- Thay đổi / lý do: smoke service phát hiện ensure_private_dir chmod thư mục
-  /opt/langoo/storage/muse-native nhưng unit chỉ cho ghi file runner-account.lock.
-  Cập nhật systemd ReadWritePaths cho thư mục cha; cookie file vẫn read-only.
-  Runbook bổ sung tạo trước thư mục artifact theo run ID để langoo ghi manifest.
-- File / phạm vi: systemd template, runbook VPS, plan rollout, review runner.
-- Kiểm tra / kết quả: systemd-analyze verify trên bản 0644 pass; transient
-  sandbox test lock pass và cookie write bị chặn (EROFS). Runtime pin, full
-  preflight (78 refs) và load 966 R1 requests pass trong sandbox. Actual smoke
-  chưa có ledger event hoặc Muse dispatch.
-- Gate còn thiếu: commit/push và cài unit mới lên VPS, kiểm tra RAM/PSI, retry
-  smoke với cap 1 R1 + tối đa 1 conditional R2. Shadow 1.000, expansion,
-  format repair, Pilot A/B, apply và deploy vẫn đóng.
-- Git / triển khai: foundation 708e3b8 và memory fix cbe9e56 đã push; unit
-  fix đang local. VPS vẫn cài unit cũ; service smoke fail trước ledger/dispatch,
-  không có Muse call, DB write/apply hoặc app deploy.
+- Git / triển khai: code + docs chưa commit/push ở thời điểm cập nhật; chưa cài/
+  chạy service VPS, chưa deploy app hoặc sửa DB.
 
 ### 2026-10-11 — DB4-D4/D5 — Chạy runner bằng Muse Native virtualenv
 
@@ -1463,3 +1534,38 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
   Không thay runner semantic/DB/app runtime, chưa có kết quả canary mới.
 - [Report](docs/reviews/db4-d4-d5-full-initial-2026-10-11.md),
   [runbook](scripts/ops/db4-batch/README.md).
+
+### 2026-10-11 — DB4-D4/D5 — Nạp request theo phase để giảm RAM VPS
+
+- Thay đổi / lý do: sau khi smoke với release 708e3b8 đạt khoảng 646 MiB cgroup,
+  phát hiện runner giữ target/candidate và cả R1/R2 payload trong lúc Node preflight.
+  Nạp payload sau preflight theo phase, R2 đối chiếu identity qua schedule compact,
+  giải phóng queue trước Node D1 validation.
+- File / phạm vi: Python batch runner + tests; runbook VPS, plan rollout và
+  [review runner](docs/reviews/db4-d4-d5-batch-runner-2026-10-10.md).
+- Kiểm tra / kết quả: 13/13 runner tests, 2/2 coordinator tests, 82/82 DB4 TS tests,
+  tsc, Python compile, Prettier plan/review/runbook và scoped git diff check pass. VPS preflight
+  cũ pass; smoke đầu tiên đã stop trước ledger/dispatch, không gọi Muse.
+- Gate còn thiếu: commit/push follow-up này rồi chạy smoke mới với cap 1 R1 + 1 R2;
+  shadow 1.000, expansion, format repair, Pilot A/B, apply và deploy vẫn đóng.
+- Git / triển khai: foundation 708e3b8 đã push; memory fix đang được commit. VPS có
+  unit/env và release cũ; service cũ dừng/failed. Không có Muse call, DB write/apply
+  hay app deploy.
+
+### 2026-10-11 — DB4-D4/D5 — Cho runner ghi thư mục account lock trong sandbox
+
+- Thay đổi / lý do: smoke service phát hiện ensure_private_dir chmod thư mục
+  /opt/langoo/storage/muse-native nhưng unit chỉ cho ghi file runner-account.lock.
+  Cập nhật systemd ReadWritePaths cho thư mục cha; cookie file vẫn read-only.
+  Runbook bổ sung tạo trước thư mục artifact theo run ID để langoo ghi manifest.
+- File / phạm vi: systemd template, runbook VPS, plan rollout, review runner.
+- Kiểm tra / kết quả: systemd-analyze verify trên bản 0644 pass; transient
+  sandbox test lock pass và cookie write bị chặn (EROFS). Runtime pin, full
+  preflight (78 refs) và load 966 R1 requests pass trong sandbox. Actual smoke
+  chưa có ledger event hoặc Muse dispatch.
+- Gate còn thiếu: commit/push và cài unit mới lên VPS, kiểm tra RAM/PSI, retry
+  smoke với cap 1 R1 + tối đa 1 conditional R2. Shadow 1.000, expansion,
+  format repair, Pilot A/B, apply và deploy vẫn đóng.
+- Git / triển khai: foundation 708e3b8 và memory fix cbe9e56 đã push; unit
+  fix đang local. VPS vẫn cài unit cũ; service smoke fail trước ledger/dispatch,
+  không có Muse call, DB write/apply hoặc app deploy.
