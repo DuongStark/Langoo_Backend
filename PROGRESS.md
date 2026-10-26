@@ -17,8 +17,8 @@
 
 ### 2026-10-26 — M10.1 — Tích hợp sửa chat SSE còn ở worktree
 
-- Cherry-pick `9b8c6b5` thành `13d59cb`; giữ ảnh M10.3 cùng signal/abort/retry, parser SSE và token validation. Conflict được hòa giải trong chat service/provider, có regression của commit gốc. Xem [report M10.1](docs/reviews/m10-stream-review-2026-10-05.md) và report hợp nhất DOCS1 để phân biệt kiểm tra lịch sử/hiện tại.
-- Đã commit local, chưa push/deploy; chưa chạy lại E2E DB hoặc provider thật.
+- Cherry-pick `9b8c6b5` thành `13d59cb`; giữ ảnh M10.3 cùng signal/abort/retry, parser SSE và token validation. FE không cần đổi API/client code; hướng dẫn stream giữ contract hiện tại và xử lý JSON lỗi trước delta. Đã xóa thông tin login mock khỏi handoff/chat docs.
+- Build + lint + 60 suite/524 unit pass khi hợp nhất. Lượt E2E chat hiện tại không nghiệm thu được: local PostgreSQL `langoo_test` chưa khởi động, data directory dev không tồn tại; không có listener ở `127.0.0.1:55432`, toàn bộ 4 suite/31 test lỗi kết nối DB trước khi kiểm tra hành vi. CI có PostgreSQL service riêng và sẽ chạy đủ E2E sau push. VPS hiện vẫn ở `7efeacd`, PM2 online, health/DB OK; deploy sẽ theo CI. Xem [report M10.1](docs/reviews/m10-stream-review-2026-10-05.md) và report hợp nhất DOCS1.
 
 ### 2026-10-26 — M10 — Lưu khảo sát và artifact Devora còn local
 

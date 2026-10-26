@@ -18,18 +18,11 @@
 | | |
 | --- | --- |
 | API base (prod) | `https://langoo-api.pixpress.art` |
-| Đăng nhập | `POST /v1/auth/login` `{ email, password }` → `access_token` (Bearer) |
-| Tài khoản demo để test | `admin@langoo.local` / `Langoo-Admin-2026!` (tài khoản mock trên DB demo) |
+| Admin test credentials | Configure locally; do not store them in a handoff. |
 | CORS | đang mở `*` — gọi từ mọi origin trong lúc dev |
 
-```bash
-TOKEN=$(curl -s -X POST https://langoo-api.pixpress.art/v1/auth/login \
-  -H 'content-type: application/json' \
-  -d '{"email":"admin@langoo.local","password":"Langoo-Admin-2026!"}' | jq -r .access_token)
-
-SID=$(curl -s -X POST https://langoo-api.pixpress.art/v1/chat/sessions \
-  -H "Authorization: Bearer $TOKEN" -H 'content-type: application/json' \
-  -d '{"language_id":2,"scenario":"general"}' | jq -r .id)
+```text
+Credentialed login example removed. Use an admin test account configured locally.
 ```
 
 ## 3. Contract
