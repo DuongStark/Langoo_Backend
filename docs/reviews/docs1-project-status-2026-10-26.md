@@ -4,6 +4,29 @@
 
 Ngày kiểm tra: 2026-10-26 (Asia/Bangkok). Phạm vi: tài liệu, lịch sử Git local/remote và public health. Không sửa code, DB, cấu hình hoặc deploy.
 
+## Live check VPS/PostgreSQL — 2026-10-26
+
+SSH alias `langoo-vps` trên máy này kết nối thành công bằng key cá nhân; host `163.223.210.135` (`dataz-1790771447`). PostgreSQL truy vấn bằng user `langoo`, chỉ SELECT.
+
+- API lúc `2026-10-26T00:37:03Z`: HTTP 200, app/DB `ok`, latency 32 ms, UTC. DB size **4.721 MB**.
+- VPS app HEAD `7efeacd`, khớp `origin/main` sau fetch. PM2 `langoo-api` online, process uptime khoảng 5 ngày; restart counter 188 nhưng `unstable_restarts=0`. VPS uptime 25 ngày; load 0.09/0.02/0.01.
+- Tài nguyên: RAM khả dụng 837 MiB, swap còn 1.741 MiB, disk 30 GB dùng 21 GB/còn 7,1 GB (75%).
+- Counts trực tiếp: **1.052.582 lexeme; 1.480.432 sense; 120.875 concept; 625.124 sense_concept; 1.046.182 serve.sense_pair; 350.993 gloss VI**. Concept: 25.617 curated, 95.258 draft.
+- Nguồn lexeme khớp tổng: JMdict JA 218.794; OEWN EN 161.646; OMW EN 156.584; OMW JA 94.002; Wiktextract EN 170.177, JA 199.483, VI 51.896. Số 2.375.240 lexeme trong báo cáo cũ là trước trim Wiktextract EN.
+- JMdict có 253.630 sense, 47.599 exact mapped (**18,77%**). Run full `db4-llm-links-full-20261018`: 40.135 mappings; expansion `db4-llm-exact-expansion-20261014`: 6.985. Tổng 47.599 mapping bổ sung khớp baseline WordNet 577.525 → 625.124.
+- Migration ledger có 040, 041, 042, 044 nhưng **thiếu 043**. Function `public.f_unaccent(text)`, index `translation_assertion_vi_prefix`, extension `unaccent` đều hiện diện. Lệch ledger/effect cần reconcile qua migration tool; không chạy SQL ad hoc.
+- Có 5 backup dump ngày 21–25/10; mới nhất `langoo-2026-10-25-0930.dump`, 331.622.290 bytes. Chưa xác nhận restore drill.
+- VPS checkout HEAD `7efeacd` có 36 file `.bak-*` chưa track và một entry `node_modules` bị xóa khỏi index; không có tracked source sửa. Chưa dọn backup files.
+
+### Tồn đọng đã xác nhận live
+
+1. Local main ahead origin đúng 4 commit (`13d59cb`, `cb5e080`, `eda6001`, `0fe3829`); VPS vẫn `7efeacd`. M10.1 chat/SSE mới tích hợp local chưa push/deploy.
+2. Reconcile ledger migration 043 dù effect hiện diện; dùng runner, rồi kiểm tra ledger/index.
+3. FE browser nghiệm thu links/scope/cache, dictionary priority, decks, quiz, admin curation và journey học chưa có bằng chứng trong phiên.
+4. M2.3 email verification/recovery B và rollout nonce OAuth C còn chờ dịch vụ email/client.
+5. Rà nguyên nhân PM2 restart counter 188 (hiện online, unstable 0); diễn tập restore backup; cập nhật npm audit vì kết quả hiện có cũ.
+6. Tiếp tục audit coverage/chất lượng mapping; M9 nhắc nhở vẫn tạm gác theo quyết định dự án.
+
 ## Nguồn và giới hạn
 
 - Đã `git fetch origin` thành công; `origin/main` tại `7efeacd` (20/10). HEAD local `56f17fb`, không có commit riêng và chậm 97 commit. Không pull/merge vì working tree có WIP.
@@ -26,7 +49,7 @@ Ngày kiểm tra: 2026-10-26 (Asia/Bangkok). Phạm vi: tài liệu, lịch sử
 
 ## Tồn đọng / việc cần xác nhận
 
-1. **DOCS1 — Đồng bộ trạng thái:** local chậm 97 commit và có 10 file tracked sửa + 31 file untracked trước lượt này. WIP tập trung quiz/DB4 và artifacts M10. Phải phân loại, giữ lại và đối chiếu với code mới trước tích hợp; không reset hoặc gom commit tất cả. PROGRESS/header/checklist/backlog và CONTEXT có trạng thái lịch sử mâu thuẫn commit mới.
+1. **DOCS1 — Đồng bộ trạng thái:** đây là snapshot trước hợp nhất. Checkout/WIP đã xử lý; trạng thái live hiện tại xem phần đầu và [report hợp nhất](docs1-worktree-consolidation-2026-10-26.md).
 2. **M4.3/M4.5/M5/M10.3/M11/M14 — Nghiệm thu FE:** cần xác nhận links theo sense/scope/cache; sub_senses và priority; gợi ý VI; decks list/preview/clone/append; UI gửi ảnh; quiz v2; admin xử lý báo lỗi/sửa data. Rồi kiểm journey trình duyệt tra từ → lưu bộ → ôn → quiz → XP/thống kê.
 3. **M2.3 — Auth:** đợt B email verification/recovery/session guard chưa triển khai theo backlog; rollout nonce/challenge C còn phụ thuộc client. Cần dịch vụ email và kiểm trạng thái flag thực trước rollout.
 4. **DB4/M14 — Chất lượng và coverage:** mapping JMdict mới ghi 18,8%; mở rộng là việc sau, không đồng nghĩa 81,2% còn lại đều có exact mapping. Cần theo dõi báo lỗi, sửa nghĩa/mapping và chất lượng dữ liệu máy theo policy 15/10. Audit đạt của đợt 479 proposal không tự nghiệm thu toàn bộ đợt 40.135.
@@ -48,6 +71,6 @@ Các đường dẫn sau đọc từ `origin/main` bằng `git show origin/main:
 
 ## Kiểm tra và Git
 
-- Đã chạy: fetch, log/status/rev-list, đọc tài liệu/SQL trên remote, public health GET. Không chạy test/build ứng dụng trong lượt chỉ rà soát này; kết quả unit/E2E nêu trên dẫn từ report lịch sử.
-- `git diff --check` trước thay đổi phát hiện trailing whitespace có sẵn tại `docs/handoff/fe-handoff-2026-10-08.md:3`; giữ nguyên WIP đó. Scoped whitespace check của report/entry mới sẽ kiểm trước bàn giao.
-- Thay đổi lượt này chỉ report này và entry DOCS1 trong PROGRESS. Chưa commit/push; không deploy.
+- Đã chạy: fetch, Git status, public health GET, SSH diagnostics, PM2 metadata, PostgreSQL read-only counts/source breakdown/concept status/mapping runs/migration ledger/catalog/index/backup list. Không đọc env/secret, không sửa DB/config VPS.
+- Git local lúc live audit: `main` ahead `origin/main` 4 commits; repo source VPS ở `7efeacd`, khớp remote.
+- Cập nhật DOCS1, PROGRESS và VPS runbook bằng bằng chứng live. Tài liệu chưa commit/push; không deploy.

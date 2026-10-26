@@ -38,6 +38,13 @@
 - Kiểm tra: đọc Git/tài liệu/SQL; public health 26/10 HTTP 200, app/DB ok, UTC. Không test/build app hoặc query DB production; số liệu dữ liệu/test lịch sử dẫn từ commit/report. Whole diff có whitespace WIP sẵn ở handoff 08/10 dòng 3; giữ nguyên.
 - Git/triển khai: chỉ thêm report và entry này; chưa commit/push, không sửa code/DB hoặc deploy. Gate còn thiếu: xác nhận runtime release/FE và nghiệm thu xuyên suốt; không kết luận toàn dự án hoàn tất.
 
+### 2026-10-26 — DOCS1 — Kiểm tra live VPS và dữ liệu PostgreSQL
+
+- SSH `langoo-vps` từ máy này thành công; API HTTP 200, DB OK, 32 ms, UTC. PM2 online, restart counter 188 nhưng unstable restarts 0. VPS còn 7,1 GB disk, RAM khả dụng 837 MiB. App HEAD `7efeacd` khớp origin/main; local ahead 4 commit, M10.1 chưa deploy.
+- Đếm DB read-only: 1.052.582 lexeme, 1.480.432 sense, 120.875 concept, 625.124 mappings, 1.046.182 serve pairs; 25.617 curated/95.258 draft. JMdict exact 47.599/253.630 (18,77%). Wiktextract EN hiện 170.177 lexeme sau trim; DB 4.721 MB.
+- Backup gần nhất 25/10 (5 bản); chưa xác nhận restore drill. Ledger thiếu 043 dù function/index/unaccent tồn tại. [Bằng chứng và tồn đọng](docs/reviews/docs1-project-status-2026-10-26.md), [runbook VPS](docs/ops/vps-deployment.md).
+- Chỉ SSH diagnostics/health/SELECT; không đọc env/secret, ghi DB, đổi cấu hình, dọn file VPS hoặc deploy. Các cập nhật tài liệu live chưa commit/push.
+
 ### 2026-10-20 — M4.3 — Tích hợp VPS và phát hành liên kết ít từ
 
 - Chủ dự án yêu cầu deploy. Merge M4.2/M4.3 trên origin/main4cd6472 để giữ EN VI/canonical/POS/priority, VI autocomplete, Kanji component và ví dụ đang chạy; shared query dùng cùng policy cho links.

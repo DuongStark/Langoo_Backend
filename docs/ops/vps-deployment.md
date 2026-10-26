@@ -1,6 +1,6 @@
 # Vận hành VPS — Langoo API + PostgreSQL
 
-> Tài liệu cho **mọi phiên LLM/dev tiếp nhận dự án**. Cập nhật: 2026-10-06 (DB4-D0 khảo sát read-only).
+> Tài liệu cho **mọi phiên LLM/dev tiếp nhận dự án**. Cập nhật: 2026-10-26 (DOCS1 live audit read-only).
 > IP VPS: **163.223.210.135** · Domain API: **https://langoo-api.pixpress.art**
 > ⚠️ Bí mật (mật khẩu DB, key, `.env`) **KHÔNG** nằm trong repo — xem mục 8.
 
@@ -19,6 +19,10 @@ Internet
 ```
 
 - **Xác minh 06/10:** API đang dùng **DB thật `127.0.0.1:5432/langoo` trên VPS**, thay trạng thái cloud demo ghi trước đây. `.env` được đọc có hai DB URL local, PM2 không có override URL; health/search/senses đã đối chiếu runtime và DB.
+- **Live check 26/10/2026:** SSH alias `langoo-vps` từ máy này truy cập được. App HEAD `7efeacd` khớp `origin/main`; PM2 online; API/DB health OK, timezone UTC, DB latency 32 ms. DB size 4.721 MB. Counts: 1.052.582 lexeme / 1.480.432 sense / 120.875 concept / 625.124 mappings / 1.046.182 serve pairs. Xem [DOCS1 live status](../reviews/docs1-project-status-2026-10-26.md) để có breakdown, data source và gate.
+- Backup gần nhất 25/10 09:30; có 5 bản. Disk 75% (còn 7,1 GB), RAM khả dụng 837 MiB. PM2 restart counter 188, unstable restarts 0; cần rà nguyên nhân.
+- VPS checkout có 36 file `.bak-*` untracked và entry symlink `node_modules` bị xóa; không có modified tracked source. Giữ nguyên, chưa dọn.
+- Migration ledger thiếu `043_vi_suggest_index.sql`, dù function `public.f_unaccent(text)`, index `translation_assertion_vi_prefix` và extension `unaccent` tồn tại. Reconcile qua migration runner rồi kiểm tra ledger/index; không chạy SQL ad hoc.
 - **Dictionary runtime có sửa chưa commit:** HEAD checkout `7b13b90`; khảo sát 12:15 UTC có 3 file dictionary modified và dist chứa cùng logic. Preflight 13:10 UTC ghi nhận **5 file modified**, thêm controller/kanji repository cho stroke SVG ngoài scope DB4-D0. HEAD không đủ mô tả code đang chạy; xem [khảo sát DB4-D0](../reviews/db4-d0-vps-duplicates-2026-10-06.md) và [patch mới cả dictionary](../reviews/db4-d0-vps-dictionary-runtime-2026-10-06.patch). Deploy reset có thể mất các sửa trực tiếp; review/reconcile patch mới trước lần deploy tiếp theo. Lượt DB4-D0 không sửa runtime.
 - User hệ thống: `root` (sudo), `langoo` (chạy app, sở hữu code + object DB), `postgres` (superuser DB), `caddy`.
 
