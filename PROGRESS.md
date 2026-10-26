@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-26 — DOCS1 hợp nhất về checkout main duy nhất; đã lấy đủ origin/main đến 7efeacd, tích hợp M10.1 còn thiếu, giữ WIP/artifact và xóa worktree phụ. Xem entry và report hợp nhất bên dưới.
+> Cập nhật lần cuối: 2026-10-26 — M10.1 đã push và deploy lên VPS tại `243585a`; CI (lint/build/unit/E2E) và Deploy VPS đều xanh. VPS PM2 online, health/DB OK. Xem report M10.1 bên dưới.
 > Snapshot lịch sử (không phải trạng thái hiện tại): tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
@@ -18,7 +18,7 @@
 ### 2026-10-26 — M10.1 — Tích hợp sửa chat SSE còn ở worktree
 
 - Cherry-pick `9b8c6b5` thành `13d59cb`; giữ ảnh M10.3 cùng signal/abort/retry, parser SSE và token validation. FE không cần đổi API/client code; hướng dẫn stream giữ contract hiện tại và xử lý JSON lỗi trước delta. Đã xóa thông tin login mock khỏi handoff/chat docs.
-- Build + lint + 60 suite/524 unit pass khi hợp nhất. Lượt E2E chat hiện tại không nghiệm thu được: local PostgreSQL `langoo_test` chưa khởi động, data directory dev không tồn tại; không có listener ở `127.0.0.1:55432`, toàn bộ 4 suite/31 test lỗi kết nối DB trước khi kiểm tra hành vi. CI có PostgreSQL service riêng và sẽ chạy đủ E2E sau push. VPS hiện vẫn ở `7efeacd`, PM2 online, health/DB OK; deploy sẽ theo CI. Xem [report M10.1](docs/reviews/m10-stream-review-2026-10-05.md) và report hợp nhất DOCS1.
+- Build + lint + 60 suite/524 unit pass khi hợp nhất. E2E chat thử local không nghiệm thu được do PostgreSQL dev/data directory `langoo_test` không có; 4 suite/31 test gặp `ECONNREFUSED` trước khi kiểm tra hành vi. CI PostgreSQL 17 sau push chạy E2E đầy đủ thành công. Deploy VPS run `40251098440` success; VPS HEAD `243585a`, PM2 online (restart 189), tracked working tree sạch, health HTTP 200 `status=ok`, `db=ok`, UTC, latency 2 ms. Không có migration. Xem [report M10.1](docs/reviews/m10-stream-review-2026-10-05.md) và report hợp nhất DOCS1.
 
 ### 2026-10-26 — M10 — Lưu khảo sát và artifact Devora còn local
 
