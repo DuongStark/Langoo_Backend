@@ -1,0 +1,31 @@
+{
+  "task": "M10 — Devora fresh prompt nonstream probe",
+  "date": "2026-10-13",
+  "model": "devora-01/deepseek/deepseek-v4.1-flash",
+  "stream": false,
+  "prompt": "Return only JSON with keys 1,2,3 and selected A/B/null. Match exact meaning, not spelling. 1: factory; manufacturing plant. A=plant organism. B=factory. 2: draw a picture. A=pull towards oneself. B=make a picture. 3: bank of a river. A=financial institution. B=bank account. Diagnostic tag: Langoo-20261013-probe2.",
+  "expected": {
+    "1": "B",
+    "2": "B",
+    "3": null
+  },
+  "max_output_tokens": 256,
+  "conservative_estimate_credits": 0.4616,
+  "cumulative_budget_bound_credits": 0.858,
+  "status": 200,
+  "elapsed_s": 65.933,
+  "usage": {
+    "prompt_tokens": 174,
+    "completion_tokens": 256,
+    "total_tokens": 430
+  },
+  "returned_model": "devora-01/deepseek/deepseek-v4.1-flash",
+  "finish_reason": "length",
+  "message": {
+    "role": "assistant"
+  },
+  "billing": {},
+  "parse_error": "JSONDecodeError",
+  "nominal_list_price_credits": 0.3256,
+  "cumulative_repeat_nominal_credits": 0.722
+}

@@ -1,0 +1,15 @@
+{
+  "task": "M10 — Devora EN→VI translation pilot 100",
+  "phase": "small-batch-recovery",
+  "workers": 2,
+  "batch_size": 5,
+  "max_tokens": 16384,
+  "attempts": 8,
+  "wall_s": 230.515,
+  "translations_total": 100,
+  "missing_ids": [],
+  "nominal_list_price_credits": 11.5986,
+  "prompt_tokens": 3879,
+  "completion_tokens": 10047,
+  "actual_billing_verified": false
+}

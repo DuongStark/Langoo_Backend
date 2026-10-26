@@ -1,0 +1,241 @@
+{
+  "task": "M10 — Devora 8-worker load and synthetic sense diagnostics",
+  "date": "2026-10-13",
+  "started_at": "2026-10-13T00:37:40.727800+00:00",
+  "model": "devora-01/deepseek/deepseek-v4.1-flash",
+  "base_url": "https://api.devora.my.id/v1",
+  "workers": 8,
+  "requests": 24,
+  "items_per_request": 6,
+  "unique_cases": 24,
+  "stream": true,
+  "max_tokens_field": "omitted",
+  "temperature": 0,
+  "timeout_idle_s": 180,
+  "overall_response_deadline_s": 240,
+  "retry": false,
+  "catalog_pricing": {
+    "unit": "credits_per_million_tokens",
+    "input": "400",
+    "output": "1000"
+  },
+  "actual_billing_verified": false,
+  "cases": [
+    {
+      "id": "C01",
+      "source": "銀行: financial institution accepting deposits",
+      "candidates": [
+        "financial institution accepting deposits",
+        "sloping land beside a river"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C02",
+      "source": "岸: shore or land beside a river",
+      "candidates": [
+        "financial institution",
+        "land beside a river"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C03",
+      "source": "描く: make a picture with a pencil or paint",
+      "candidates": [
+        "pull something towards oneself",
+        "make a picture with a pencil or paint"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C04",
+      "source": "工場: factory; manufacturing establishment",
+      "candidates": [
+        "plant organism such as a tree",
+        "factory; manufacturing establishment"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C05",
+      "source": "植物: plant organism",
+      "candidates": [
+        "plant organism",
+        "factory"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C06",
+      "source": "教師: person whose occupation is teaching",
+      "candidates": [
+        "person whose occupation is teaching",
+        "person studying at a school"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C07",
+      "source": "学生: student, especially at a university",
+      "candidates": [
+        "student, especially at a university",
+        "teacher"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C08",
+      "source": "走る: move quickly on foot by running",
+      "candidates": [
+        "move quickly on foot by running",
+        "manage a business"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C09",
+      "source": "支店: branch office of an organization",
+      "candidates": [
+        "branch of a tree",
+        "local office of an organization"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C10",
+      "source": "枝: branch of a tree",
+      "candidates": [
+        "local office of an organization",
+        "branch of a tree"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C11",
+      "source": "明るい: well-lit; having abundant light",
+      "candidates": [
+        "having abundant light",
+        "cheerful in temperament"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C12",
+      "source": "軽い: having little weight",
+      "candidates": [
+        "not severe",
+        "having little weight"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C13",
+      "source": "重い: having great weight",
+      "candidates": [
+        "important",
+        "having great weight"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C14",
+      "source": "時計: device that indicates time",
+      "candidates": [
+        "device that indicates time",
+        "act of observing carefully"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C15",
+      "source": "本: book; a bound written or printed work",
+      "candidates": [
+        "make a reservation",
+        "bound written or printed work"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C16",
+      "source": "予約する: make a reservation",
+      "candidates": [
+        "bound written work",
+        "make a reservation"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C17",
+      "source": "鍵: device used to operate a lock",
+      "candidates": [
+        "device used to operate a lock",
+        "solution to a difficult problem"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C18",
+      "source": "春: season after winter and before summer",
+      "candidates": [
+        "coil that stores mechanical energy",
+        "season after winter and before summer"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C19",
+      "source": "鼠: rodent; mouse",
+      "candidates": [
+        "computer pointing device",
+        "rodent; mouse"
+      ],
+      "expected_index": 1
+    },
+    {
+      "id": "C20",
+      "source": "飛ぶ: move through the air using wings",
+      "candidates": [
+        "move through the air using wings",
+        "small flying insect"
+      ],
+      "expected_index": 0
+    },
+    {
+      "id": "C21",
+      "source": "岸: land beside a river",
+      "candidates": [
+        "financial institution",
+        "financial institution account"
+      ],
+      "expected_index": null
+    },
+    {
+      "id": "C22",
+      "source": "工場: manufacturing establishment",
+      "candidates": [
+        "plant organism",
+        "seed planted in the ground"
+      ],
+      "expected_index": null
+    },
+    {
+      "id": "C23",
+      "source": "本: bound written or printed work",
+      "candidates": [
+        "make a reservation",
+        "write down a booking"
+      ],
+      "expected_index": null
+    },
+    {
+      "id": "C24",
+      "source": "教師: person whose occupation is teaching",
+      "candidates": [
+        "person studying at university",
+        "educational institution"
+      ],
+      "expected_index": null
+    }
+  ]
+}

@@ -1,0 +1,96 @@
+{
+  "task": "M10 — retry only three failed Devora 502 requests",
+  "date": "2026-10-13",
+  "workers": 3,
+  "requests": 3,
+  "wall_s": 7.198,
+  "results": [
+    {
+      "original_index": 13,
+      "retry_attempt": 1,
+      "expected": {
+        "C03": "B",
+        "C05": "B",
+        "C01": "B",
+        "C02": "B",
+        "C06": "A",
+        "C04": "B"
+      },
+      "max_tokens_field": "omitted",
+      "workers": 3,
+      "status": 200,
+      "usage": {
+        "prompt_tokens": 404,
+        "completion_tokens": 313,
+        "total_tokens": 717
+      },
+      "first_content_s": 3.043,
+      "finish_reason": "stop",
+      "received_done": true,
+      "content": "{\"C03\":\"B\",\"C05\":\"B\",\"C01\":\"B\",\"C02\":\"B\",\"C06\":\"A\",\"C04\":\"B\"}",
+      "schema_valid": true,
+      "correct": 6,
+      "nominal_list_price_credits": 0.4746,
+      "elapsed_s": 3.043
+    },
+    {
+      "original_index": 23,
+      "retry_attempt": 1,
+      "expected": {
+        "C16": "B",
+        "C17": "A",
+        "C18": "B",
+        "C13": "B",
+        "C14": "B",
+        "C15": "B"
+      },
+      "max_tokens_field": "omitted",
+      "workers": 3,
+      "status": 200,
+      "usage": {
+        "prompt_tokens": 405,
+        "completion_tokens": 459,
+        "total_tokens": 864
+      },
+      "first_content_s": 3.119,
+      "finish_reason": "stop",
+      "received_done": true,
+      "content": "{\"C16\":\"B\",\"C17\":\"A\",\"C18\":\"B\",\"C13\":\"B\",\"C14\":\"B\",\"C15\":\"B\"}",
+      "schema_valid": true,
+      "correct": 6,
+      "nominal_list_price_credits": 0.621,
+      "elapsed_s": 3.119
+    },
+    {
+      "original_index": 8,
+      "retry_attempt": 1,
+      "expected": {
+        "C23": null,
+        "C19": "B",
+        "C24": null,
+        "C20": "A",
+        "C21": null,
+        "C22": null
+      },
+      "max_tokens_field": "omitted",
+      "workers": 3,
+      "status": 200,
+      "first_content_s": 7.182,
+      "finish_reason": "stop",
+      "usage": {
+        "prompt_tokens": 390,
+        "completion_tokens": 323,
+        "total_tokens": 713
+      },
+      "received_done": true,
+      "content": "{\"C23\": null, \"C19\": \"B\", \"C24\": null, \"C20\": \"A\", \"C21\": null, \"C22\": null}",
+      "schema_valid": true,
+      "correct": 6,
+      "nominal_list_price_credits": 0.479,
+      "elapsed_s": 7.183
+    }
+  ],
+  "nominal_list_price_credits": 1.5746,
+  "actual_billing_verified": false,
+  "no_further_retries": true
+}

@@ -1,0 +1,18 @@
+{
+  "task": "M10 — Devora EN→VI translation pilot 100",
+  "reason": "finish_reason length at 2048 default when max_tokens omitted",
+  "workers": 3,
+  "batch_size": 10,
+  "max_tokens": 16384,
+  "phase": "output-budget-recovery",
+  "batches": [
+    2,
+    3,
+    5,
+    6,
+    9,
+    10
+  ],
+  "transport_retries": 1,
+  "same_instruction_sha256": "45fd4a11a110384d3a1513246ec3e810a1f0ad9b5bc795beeee0bfe875c6851e"
+}

@@ -1,0 +1,183 @@
+{
+  "task": "M10 — Devora EN→VI translation pilot 100",
+  "date": "2026-10-13",
+  "model": "devora-01/deepseek/deepseek-v4.1-flash",
+  "words": 100,
+  "senses": 100,
+  "translations": 100,
+  "missing_ids": [],
+  "semantic_review": "completed by Codex",
+  "review_counts": {
+    "pass": 86,
+    "minor": 13,
+    "major": 1,
+    "severe": 0
+  },
+  "phases": [
+    {
+      "task": "M10 — Devora EN→VI translation pilot 100",
+      "model": "devora-01/deepseek/deepseek-v4.1-flash",
+      "workers": 8,
+      "batch_size": 10,
+      "primary_batches": 10,
+      "attempts": 17,
+      "primary_wall_s": 70.285,
+      "retry_wall_s": 31.434,
+      "total_wall_s": 101.726,
+      "successful_batches": 4,
+      "translations": 40,
+      "schema_failures": [
+        {
+          "batch": 1,
+          "attempt": 1,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 7,
+          "attempt": 1,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 6,
+          "attempt": 1,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 5,
+          "attempt": 1,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 9,
+          "attempt": 1,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 3,
+          "attempt": 1,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 10,
+          "attempt": 1,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 2,
+          "attempt": 1,
+          "status": 200,
+          "error": "JSONDecodeError"
+        },
+        {
+          "batch": 9,
+          "attempt": 2,
+          "status": 200,
+          "error": "JSONDecodeError"
+        },
+        {
+          "batch": 5,
+          "attempt": 2,
+          "status": 200,
+          "error": "JSONDecodeError"
+        },
+        {
+          "batch": 3,
+          "attempt": 2,
+          "status": 200,
+          "error": "JSONDecodeError"
+        },
+        {
+          "batch": 6,
+          "attempt": 2,
+          "status": 502,
+          "error": null
+        },
+        {
+          "batch": 10,
+          "attempt": 2,
+          "status": 502,
+          "error": null
+        }
+      ],
+      "prompt_tokens": 9938,
+      "completion_tokens": 15220,
+      "usage_observed_attempts": 8,
+      "nominal_list_price_credits": 19.1952,
+      "actual_billing_verified": false,
+      "semantic_review": "pending"
+    },
+    {
+      "task": "M10 — Devora EN→VI translation pilot 100",
+      "phase": "output-budget-recovery",
+      "workers": 3,
+      "max_tokens": 16384,
+      "attempts": 12,
+      "wall_s": 206.343,
+      "translations_after_recovery": 80,
+      "missing_ids": [
+        "EN021",
+        "EN022",
+        "EN023",
+        "EN024",
+        "EN025",
+        "EN026",
+        "EN027",
+        "EN028",
+        "EN029",
+        "EN030",
+        "EN051",
+        "EN052",
+        "EN053",
+        "EN054",
+        "EN055",
+        "EN056",
+        "EN057",
+        "EN058",
+        "EN059",
+        "EN060"
+      ],
+      "nominal_list_price_credits": 11.6258,
+      "prompt_tokens": 4942,
+      "completion_tokens": 9649,
+      "actual_billing_verified": false
+    },
+    {
+      "task": "M10 — Devora EN→VI translation pilot 100",
+      "phase": "small-batch-recovery",
+      "workers": 2,
+      "batch_size": 5,
+      "max_tokens": 16384,
+      "attempts": 8,
+      "wall_s": 230.515,
+      "translations_total": 100,
+      "missing_ids": [],
+      "nominal_list_price_credits": 11.5986,
+      "prompt_tokens": 3879,
+      "completion_tokens": 10047,
+      "actual_billing_verified": false
+    }
+  ],
+  "http_attempts": 37,
+  "status_counts": {
+    "502": 18,
+    "200": 16,
+    "524": 3
+  },
+  "valid_complete_attempts": 12,
+  "length_attempts": 4,
+  "measured_api_phase_wall_s": 538.584,
+  "wall_note": "Sum of phase execution time, excluding setup/analysis gaps between phases",
+  "prompt_tokens_reported": 18759,
+  "completion_tokens_reported": 34916,
+  "nominal_list_price_credits": 42.4196,
+  "usage_observed_attempts": 16,
+  "actual_billing_verified": false,
+  "not_applied_to_db": true
+}

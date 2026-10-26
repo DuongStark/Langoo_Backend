@@ -1,0 +1,31 @@
+{
+  "task": "M10 — Devora EN→VI translation pilot 100",
+  "phase": "small-batch-recovery",
+  "workers": 2,
+  "batch_size": 5,
+  "max_tokens": 16384,
+  "missing_input_ids": [
+    "EN021",
+    "EN022",
+    "EN023",
+    "EN024",
+    "EN025",
+    "EN026",
+    "EN027",
+    "EN028",
+    "EN029",
+    "EN030",
+    "EN051",
+    "EN052",
+    "EN053",
+    "EN054",
+    "EN055",
+    "EN056",
+    "EN057",
+    "EN058",
+    "EN059",
+    "EN060"
+  ],
+  "instruction_sha256": "45fd4a11a110384d3a1513246ec3e810a1f0ad9b5bc795beeee0bfe875c6851e",
+  "transport_retries_per_group": 2
+}

@@ -1,0 +1,23 @@
+{
+  "task": "M10 — Devora EN→VI translation pilot 100",
+  "date": "2026-10-13",
+  "model": "devora-01/deepseek/deepseek-v4.1-flash",
+  "base_url": "https://api.devora.my.id/v1",
+  "workers": 8,
+  "batches": 10,
+  "batch_size": 10,
+  "words": 100,
+  "max_tokens_field": "omitted",
+  "temperature": 0,
+  "stream": true,
+  "instruction": "Bạn là biên dịch viên từ điển Anh–Việt cho người học Việt Nam. Với MỖI mục đầu vào, dịch CHÍNH XÁC sense đã được chỉ định bằng từ loại và định nghĩa tiếng Anh, không tự đổi sang nghĩa phổ biến khác của cùng từ.\nTrả JSON thuần: {\"translations\":[{\"id\":\"EN001\",\"gloss_vi\":\"...\",\"definition_vi\":\"...\"}]}.\nQuy tắc:\n1. Giữ nguyên id; đúng một kết quả cho mỗi mục, không thiếu, không lặp, không trộn dữ liệu giữa các mục.\n2. gloss_vi là nhãn nghĩa ngắn, tự nhiên, tiếng Việt phổ thông, phù hợp từ loại và đúng riêng sense này. Có thể ghi vài từ tương đương cùng sense; không liệt kê nghĩa ngoài đầu vào.\n3. definition_vi là bản dịch đầy đủ nội dung en_definition: giữ các nét phân biệt, giới hạn, phủ định, lựa chọn, ví dụ hoặc thông tin khoa học/đặc điểm được nguồn nêu. Diễn đạt tự nhiên; không tóm tắt mất ý và không thêm kiến thức hay giải thích ngoài nguồn.\n4. lemma, POS và en_glosses là context để xác định sense, không phải cho phép thêm sense khác. Có thể dùng cách diễn đạt Việt thông thường; không dùng phiên âm hoặc giữ nguyên tiếng Anh thay cho nghĩa Việt.\n5. Định nghĩa nguồn đôi khi có dấu câu lửng hoặc 'e.g.' nhưng không kèm ví dụ: không tự bịa phần thiếu; dịch phần nội dung có sẵn. Thuật ngữ chuyên môn cần chính xác nhưng dễ hiểu.\n6. Nếu lemma đa nghĩa, ưu tiên tuyệt đối định nghĩa đã cho. Ví dụ danh từ table có định nghĩa về dữ liệu thì không dịch thành bàn; tính từ close nghĩa khoảng cách thì không dịch thành đóng; trạng từ back về vị trí cũ thì không dịch thành lưng.\nChỉ trả JSON, không markdown, không lời mở đầu hay giải thích quy trình.",
+  "instruction_sha256": "45fd4a11a110384d3a1513246ec3e810a1f0ad9b5bc795beeee0bfe875c6851e",
+  "catalog_pricing": {
+    "unit": "credits_per_million_tokens",
+    "input": "400",
+    "output": "1000"
+  },
+  "source_input": "m10-devora-en-vi-100-2026-10-13-input.json",
+  "retry_policy": "One retry only for transport errors/5xx/429; no silent semantic repair",
+  "not_applied_to_db": true
+}

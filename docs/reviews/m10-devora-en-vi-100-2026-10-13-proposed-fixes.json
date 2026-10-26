@@ -1,0 +1,134 @@
+{
+  "task": "M10 — Review Devora EN→VI 100",
+  "reviewer": "Codex",
+  "original_outputs_unchanged": true,
+  "not_applied_to_db": true,
+  "fixes": [
+    {
+      "id": "EN022",
+      "lemma": "turn",
+      "sense_id": "641902",
+      "verdict": "minor",
+      "gloss_vi": "đổi hướng; chuyển hướng",
+      "definition_vi": "thay đổi hướng hoặc chiều, kể cả theo nghĩa trừu tượng",
+      "note": "Xoay hướng hơi gượng và thiên về quay vật; đổi hướng/chuyển hướng tự nhiên hơn."
+    },
+    {
+      "id": "EN023",
+      "lemma": "keep",
+      "sense_id": "459738",
+      "verdict": "minor",
+      "gloss_vi": "giữ; duy trì",
+      "definition_vi": "giữ ở một trạng thái, vị trí hoặc hoạt động nhất định",
+      "note": "Nguồn có đuôi e.g. nhưng không có ví dụ; model giữ ví dụ. làm câu dang dở. Đây là phần cần làm sạch nguồn/hiển thị, không phải bịa nội dung."
+    },
+    {
+      "id": "EN025",
+      "lemma": "find",
+      "sense_id": "391630",
+      "verdict": "minor",
+      "gloss_vi": "tình cờ tìm thấy; bắt gặp",
+      "definition_vi": "bắt gặp, như thể tình cờ; gặp phải",
+      "note": "Tình cờ gặp dễ chỉ người; nên có tìm thấy/bắt gặp để diễn đạt đối tượng bất kỳ của sense."
+    },
+    {
+      "id": "EN028",
+      "lemma": "feel",
+      "sense_id": "388987",
+      "verdict": "minor",
+      "gloss_vi": "cảm thấy, có cảm xúc",
+      "definition_vi": "trải qua một cảm xúc hoặc ở trong một trạng thái tâm lý cụ thể",
+      "note": "Emotional sensation là cảm xúc nói chung; xúc động có sắc thái hẹp hơn. Sense chính và vế trạng thái tâm lý vẫn đúng."
+    },
+    {
+      "id": "EN035",
+      "lemma": "eat",
+      "sense_id": "369226",
+      "verdict": "minor",
+      "gloss_vi": "ăn",
+      "definition_vi": "đưa thức ăn dạng rắn vào cơ thể",
+      "note": "Thuật ngữ solid food nên là thức ăn dạng rắn; nạp hơi máy móc."
+    },
+    {
+      "id": "EN036",
+      "lemma": "drink",
+      "sense_id": "365819",
+      "verdict": "minor",
+      "gloss_vi": "uống",
+      "definition_vi": "uống chất lỏng",
+      "note": "Nạp chất lỏng hiểu được nhưng không tự nhiên cho định nghĩa từ điển."
+    },
+    {
+      "id": "EN037",
+      "lemma": "read",
+      "sense_id": "557623",
+      "verdict": "minor",
+      "gloss_vi": "đọc",
+      "definition_vi": "hiểu nội dung được viết hoặc in ra",
+      "note": "Diễn giải dễ gợi hành động giải thích cho người khác; nên diễn đạt việc hiểu chữ viết."
+    },
+    {
+      "id": "EN041",
+      "lemma": "watch",
+      "sense_id": "660713",
+      "verdict": "minor",
+      "gloss_vi": "nhìn chăm chú; quan sát",
+      "definition_vi": "nhìn một cách chăm chú",
+      "note": "Ngắm nhìn có sắc thái thưởng thức; nhìn chăm chú/quan sát trung tính hơn cho sense look attentively."
+    },
+    {
+      "id": "EN050",
+      "lemma": "need",
+      "sense_id": "502827",
+      "verdict": "minor",
+      "gloss_vi": "cần",
+      "definition_vi": "cần đến vì thấy hữu ích, hợp lý hoặc thích hợp",
+      "note": "Đòi hỏi như là hữu ích là cấu trúc dịch sát chữ, thiếu tự nhiên."
+    },
+    {
+      "id": "EN055",
+      "lemma": "show",
+      "sense_id": "590628",
+      "verdict": "major",
+      "gloss_vi": "trình diễn; trưng bày",
+      "definition_vi": "cho những người quan tâm xem một thứ gì đó; trưng bày hoặc trình diễn nó",
+      "note": "Đổi đối tượng được cho xem thành một cuộc triển lãm. Give an exhibition of là cho xem/trình diễn/trưng bày một thứ gì đó cho người quan tâm; nguồn không giới hạn show vào việc tổ chức/trưng bày cuộc triển lãm."
+    },
+    {
+      "id": "EN056",
+      "lemma": "hold",
+      "sense_id": "434694",
+      "verdict": "minor",
+      "gloss_vi": "giữ, duy trì",
+      "definition_vi": "giữ ở một trạng thái, vị trí hoặc hoạt động nhất định",
+      "note": "Nguồn có e.g. bỏ lửng; giữ v.d. khiến định nghĩa dang dở. Cần cleanup nguồn/hiển thị."
+    },
+    {
+      "id": "EN074",
+      "lemma": "water",
+      "sense_id": "660792",
+      "verdict": "minor",
+      "gloss_vi": "nước (hợp chất hóa học)",
+      "definition_vi": "hợp chất gồm hai nguyên tố; ở nhiệt độ phòng là chất lỏng trong suốt, không màu, không mùi, không vị; đóng băng thành nước đá dưới 0 độ C và sôi trên 100 độ C; được dùng rộng rãi làm dung môi",
+      "note": "Binary compound chỉ hợp chất của hai nguyên tố; hợp chất nhị phân không rõ nghĩa với người học."
+    },
+    {
+      "id": "EN086",
+      "lemma": "state",
+      "sense_id": "608867",
+      "verdict": "minor",
+      "gloss_vi": "tiểu bang, bang",
+      "definition_vi": "phần lãnh thổ thuộc một trong các đơn vị hành chính cấu thành một quốc gia",
+      "note": "Chiếm giữ gợi chiếm đóng; ở đây occupied chỉ phần lãnh thổ của đơn vị hành chính."
+    },
+    {
+      "id": "EN091",
+      "lemma": "case",
+      "sense_id": "313003",
+      "verdict": "minor",
+      "gloss_vi": "trường hợp; sự việc xảy ra",
+      "definition_vi": "một sự việc hoặc tình huống xảy ra",
+      "note": "Một sự việc xảy ra của một thứ gì đó quá sát chữ và không tự nhiên."
+    }
+  ]
+}

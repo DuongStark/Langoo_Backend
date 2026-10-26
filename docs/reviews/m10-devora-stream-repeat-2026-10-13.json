@@ -1,0 +1,55 @@
+{
+  "task": "M10 — Devora DeepSeek streaming repeat",
+  "date": "2026-10-13",
+  "model": "devora-01/deepseek/deepseek-v4.1-flash",
+  "stream": true,
+  "max_output_tokens": 384,
+  "credit_budget": 1,
+  "same_prompt_as_previous": true,
+  "prompt": "Choose the candidate whose meaning matches each Japanese sense exactly, or null if none matches. Use ONLY the supplied candidates; do not match merely by shared spelling. Return only a JSON object with item IDs as keys and candidate IDs or null as values. No explanations.\n1. 銀行: bank; financial institution. Candidates: A=financial institution accepting deposits; B=sloping land beside a river.\n2. 描く: to draw; to paint a picture. Candidates: A=make a picture with a pencil; B=pull something towards oneself.\n3. 工場: factory; manufacturing plant. Candidates: A=living organism such as a tree; B=industrial establishment making goods.\n4. 植物: plant; vegetation. Candidates: A=living organism such as a tree; B=industrial establishment making goods.\n5. 学生: student, especially a university student. Candidates: A=person enrolled in an educational institution; B=person who teaches students.\n6. 岸: shore; bank of a river. Candidates: A=financial institution accepting deposits; B=account maintained by a financial institution.",
+  "expected": {
+    "1": "A",
+    "2": "A",
+    "3": "B",
+    "4": "A",
+    "5": "A",
+    "6": null
+  },
+  "catalog_pricing": {
+    "unit": "credits_per_million_tokens",
+    "input": "400",
+    "output": "1000"
+  },
+  "conservative_estimate_credits": 0.8816,
+  "status": 200,
+  "headers_elapsed_s": 4.013,
+  "content_type": "text/event-stream",
+  "first_sse_s": 4.013,
+  "returned_model": "devora-01/deepseek/deepseek-v4.1-flash",
+  "first_content_s": 4.013,
+  "finish_reason": "stop",
+  "usage": {
+    "prompt_tokens": 311,
+    "completion_tokens": 272,
+    "total_tokens": 583
+  },
+  "elapsed_s": 4.016,
+  "received_done": true,
+  "sse_json_chunks": 2,
+  "reasoning_chars": 0,
+  "content": "{\"1\":\"A\",\"2\":\"A\",\"3\":\"B\",\"4\":\"A\",\"5\":\"A\",\"6\":null}",
+  "parsed": {
+    "1": "A",
+    "2": "A",
+    "3": "B",
+    "4": "A",
+    "5": "A",
+    "6": null
+  },
+  "score": {
+    "correct": 6,
+    "total": 6,
+    "exact_keys": true
+  },
+  "nominal_list_price_credits": 0.3964
+}
