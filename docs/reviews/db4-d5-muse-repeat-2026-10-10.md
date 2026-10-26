@@ -1,7 +1,8 @@
 # DB4-D5 — Lặp Muse một lượt và đối chiếu
 
 Ngày: 2026-10-10. Đã chạy job trên VPS, thu đủ 20 reply và đối chiếu; chưa
-commit/push/deploy backend/apply DB. Quality gate vẫn chưa đạt.
+deploy backend/apply DB. Code/report nền đã được phiên khác commit/push trong
+lúc kiểm tra cuối; phần bổ sung cuối còn local. Quality gate vẫn chưa đạt.
 
 ## Thiết kế lượt thử
 
@@ -126,6 +127,9 @@ Hướng tiếp theo theo thứ tự:
 Chưa viết/chạy prompt v2 hoặc repair semantic mới trong đợt này. D5 toàn 100
 target/Pilot B, holdout/recall/budget, D6 preflight/journal và D7 serving còn thiếu.
 
-Git / triển khai: code/test/docs đợt này đã lưu local, **chưa commit/push**; đã
-chạy và thu hồi job trên VPS, không deploy backend hoặc apply DB. Giữ nguyên
-artifacts/audit cũ và các thay đổi hạng mục khác.
+Git / triển khai tại lần kiểm cuối: phiên khác đã commit/push code/report nền ở
+`b0d344d`, `8d83635`, tiếp theo `9e01f07` gồm cả guard duplicate normalized repeat;
+`origin/main` chứa các commit này. Cập nhật trạng thái Git/format report trong lượt
+này còn local chưa commit/push tại thời điểm ghi. Đã chạy và thu hồi job trên VPS,
+không deploy backend hoặc apply DB. Giữ nguyên artifacts/audit cũ và các thay đổi
+hạng mục khác.

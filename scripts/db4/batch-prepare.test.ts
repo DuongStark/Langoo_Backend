@@ -672,7 +672,7 @@ void test('batch format repair binds rejected raw, enables R2 only after D1 and 
       unresolvedReason: null,
     };
     const broken = structuredClone(valid);
-    delete broken.reviews[0].confidence;
+    Reflect.deleteProperty(broken.reviews[0], 'confidence');
     const ledger: ReturnType<typeof createBatchEvent>[] = [];
     const prefix = 'batch-runs/repair-fixture';
     const append = (

@@ -1,7 +1,15 @@
 # DB4-D5 — Audit chất lượng proposal exact
 
+> Follow-up 2026-10-10: [thử v2 trên 30 sense ngoài lemma nhóm audit cũ](../reviews/db4-d5-muse-v2-sample30-2026-10-10.md),
+> 60 reply / 59 D1-valid, pure D3 policy 1 proposal exact; chưa apply hoặc đạt full gate.
+
 Ngày: 2026-10-10. Tiếp tục theo yêu cầu chủ dự án; vận hành tự động, không yêu
 cầu người dùng biết JA hoặc duyệt từng dòng.
+
+Kế hoạch mở rộng: [DB4-D4/D5 — Mapping tự động theo batch có checkpoint](db4-d4-d5-automated-batch-rollout.md).
+Audit tự động bằng Muse, cohort development/holdout tách theo lexeme, budget và
+gate có denominator riêng. Adapter D5 hiện tại chưa hỗ trợ toàn envelope
+conditional R2 mới; plan không cấp quality gate cho các pilot đã chạy.
 
 ## Phạm vi đợt này
 

@@ -97,6 +97,17 @@ và subset pass giữ riêng, không sửa output cũ hoặc ghi DB.
 [Report từng dòng, gate và hướng sửa](../reviews/db4-d5-proposal-audit-2026-10-10.md).
 Đây chưa là audit toàn 100 target/Pilot B; D5 gate fail hiện tại, D6/D7 còn chờ.
 
+### 0.7 Plan ngày 10/10 — DB4-D4/D5 mapping tự động theo batch có checkpoint
+
+[Plan triển khai chi tiết](db4-d4-d5-automated-batch-rollout.md) chốt đợt shadow
+1.000 sense, 10 shard mục tiêu 100 sense, 8 worker toàn account; hybrid retrieval,
+prompt v2.1 dự kiến, R2 có chọn lọc và expansion/repair hữu hạn. Conditional R2
+cần adapter orchestration mới, giữ schema D1 và replay D3 v1; chưa được code.
+
+Plan tách vận hành batch, AI quality gate và D6/D7 apply/serving; không yêu cầu
+chủ dự án duyệt từng mapping. Unknown dispatch không resend, unresolved không
+ép match. Đây là tài liệu local chưa commit/push, không mở job hoặc apply VPS.
+
 ## 1. Mục tiêu, phạm vi và định nghĩa hoàn thành
 
 ### 1.1 Mục tiêu sản phẩm

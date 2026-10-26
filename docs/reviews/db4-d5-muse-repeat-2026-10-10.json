@@ -1106,6 +1106,6 @@
     }
   ],
   "baselineR2FormattingRepairSenseIds": ["104"],
-  "gitStatus": "uncommitted; unpushed",
+  "gitStatus": "At final check: code including duplicate-output guard and baseline report committed/pushed by another session (b0d344d, 8d83635, 9e01f07); final Git-status/report formatting updates remain local at recording time.",
   "deployment": "VPS job only; no backend deploy or database apply"
 }

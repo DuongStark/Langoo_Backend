@@ -1,5 +1,9 @@
 # DB4-D4 — Prompt chọn candidate theo đầy đủ nghĩa của sense
 
+> 2026-10-10: đã có [prompt semantic match v2](db4-d4-semantic-match-prompt-v2.md)
+> và selector prepare. V1 giữ nguyên để đối chiếu các lượt đã chạy;
+> [sample v2 30 sense](../reviews/db4-d5-muse-v2-sample30-2026-10-10.md) đã chạy, quality gate chưa đạt.
+
 Ngày: 2026-10-08. Trạng thái: prompt pilot đã chạy 138 request và một repair pass
 15 request bằng 8 worker. D1 chấp nhận 137/138 output; một output vẫn thiếu
 candidate review. Semantic accuracy chưa được chứng minh; chưa apply DB,

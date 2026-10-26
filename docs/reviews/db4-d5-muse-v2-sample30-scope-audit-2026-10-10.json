@@ -1,0 +1,290 @@
+{
+  "task": "DB4-D5",
+  "reviewerKind": "llm",
+  "reviewerId": "Codex",
+  "scope": "exact_eligibility_only_not_six_relation_gold",
+  "createdAt": "2026-10-10T09:20:37.397622+00:00",
+  "sampleManifestSha256": "425b12f9c9d08bd969f9dc24f07c73eb72898c28cda6b7976e4697a718480379",
+  "auditInputSha256": "8dd6dcba3b97ea3aea4092a7ab751de4fec17285322650bbf6c0f23a971de73d",
+  "responsesSeenBeforeAudit": false,
+  "sentToMuse": false,
+  "apply": false,
+  "rows": [
+    {
+      "senseId": "58",
+      "bundleKey": "3817920bb7c924724d104d3c24eaf85950b7ea61e3cbb6b9566db5b5f873e456",
+      "contextHash": "3abce5bcc1ba8b27de332c868284f1f1f9a42ff06661534596a1e47d3f5e0999",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["32606", "40888", "41850", "45786", "45837"],
+      "reason": "Source gồm đến, đi và ở; không definition nào trong shortlist bao phủ toàn bộ ba usage."
+    },
+    {
+      "senseId": "59",
+      "bundleKey": "338a4aefd15248db0f40efb13e517f4d97804c8556b1bc7c8a36167a607d0c81",
+      "contextHash": "71ee030d822673197c5bd630ba98aa0d2b61835e366560c5ef0d2a53db03510f",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["118647", "31512", "43304", "45169", "45178"],
+      "reason": "Trợ động từ diễn tả đang làm sau -te/de khác đồng nhất, sắp làm, sử dụng thời gian hoặc tuân theo; không có exact được hỗ trợ."
+    },
+    {
+      "senseId": "70",
+      "bundleKey": "ae2c30a4ece7f7dc815a15de103034cc52f9f4bbb651e51b460d0e774bbfd9e9",
+      "contextHash": "b92e3e48ac0dc692b80688236b259d7e9fb2b72c19d60ea28bdf4fdfe47ecfde",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": ["45155", "45169", "45122"],
+      "excludedExactConceptIds": ["43304", "45480"],
+      "reason": "Gloss to be quá ngắn để phân biệt tồn tại/sống với copula/đồng nhất. Nhãn JA ở target không tự chứng minh nghĩa source; exact ở các target này cần thêm context."
+    },
+    {
+      "senseId": "71",
+      "bundleKey": "9814d34c3062b552f22f721053dd648bc6c124608339bc55291db3c9490a9f34",
+      "contextHash": "0f1a391c92f652230cdd837d00d9dcb7050fd8aeb668850862fcecaafd06945b",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["32601", "32606", "32708", "39767", "41850"],
+      "reason": "Đến của người trong おいでになる không đồng nghĩa xảy ra, được nhận, xuất hiện/sinh ra hay có sẵn; từ come trên nhãn gây nhiễu."
+    },
+    {
+      "senseId": "72",
+      "bundleKey": "7653491cbca66109a293b38c76ec23c1f4abdb0b600c76a54a6aa57b22ce5092",
+      "contextHash": "fadc290fd89613093ad3d5e0f697d5f5ab1b056d5e9ac3494070177c930e0289",
+      "supportedExactConceptIds": ["31419"],
+      "uncertainExactConceptIds": ["40888", "41435"],
+      "excludedExactConceptIds": ["37201", "41960"],
+      "reason": "Đi/chuyển từ điểm này sang điểm khác hỗ trợ 31419. Go to/towards và head có thể thêm mục tiêu/hướng hoặc sắc thái chủ ý; definition ngắn nên chưa chốt exact hai target này. Accompany thêm người đi cùng."
+    },
+    {
+      "senseId": "117",
+      "bundleKey": "f5c622c8acf1b5d73bf8200504fdf8226834b86720c7f51004062f281b04864f",
+      "contextHash": "9d47e8dee0b92d791b4d2b2f7b617f5f025bc99bbc29c4574d14b787a88b9781",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["11243", "12882", "89266", "91202", "96741"],
+      "reason": "Thăm/hỏi sức khỏe/bày tỏ cảm thông không phải đi gặp bác sĩ để bản thân được chữa/tư vấn; cảm giác concern cũng không bao phủ các hành động này."
+    },
+    {
+      "senseId": "118",
+      "bundleKey": "c245becccb591c61e94cb10382a96c02205d57de593b52d18a833888f5a39d54",
+      "contextHash": "3a98c5dd3fb440147bdbd5d0d852fd200f9ac28b568b58237144d729880df96f",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["7097", "85766", "85783", "85792", "89301"],
+      "reason": "Sense có thư hỏi thăm, thư/chúc mau khỏe và quà cảm thông. Mỗi loại card/letter hoặc gift chung không đồng nhất toàn bộ sense."
+    },
+    {
+      "senseId": "119",
+      "bundleKey": "dee0d8dfd8689656f3c677cf06d700ba3f5d4b61469d12989792d28f6e274acc",
+      "contextHash": "0d12e9bd382384b792762b092488e9cb6f76e2c717e3d78eec98c7321d2ef327",
+      "supportedExactConceptIds": ["38466"],
+      "uncertainExactConceptIds": ["38526"],
+      "excludedExactConceptIds": ["37449", "51553", "51572"],
+      "reason": "Dealing a hit/striking a blow/landing an attack mô tả giáng đòn, hỗ trợ deal a blow. Sharp blow thêm đặc tính sắc/mạnh chưa rõ có material không; va chạm chung và ground attack không exact."
+    },
+    {
+      "senseId": "129",
+      "bundleKey": "62866d338fffccd14ff56323e069061f09fda0080957966da436ab302ed047bf",
+      "contextHash": "05a24d3e11d6661f3dbad2802b1a6650cbfe627664e4eff2e2a847efe48fecdc",
+      "supportedExactConceptIds": ["105400"],
+      "uncertainExactConceptIds": ["104792"],
+      "excludedExactConceptIds": ["105401", "107855", "14247"],
+      "reason": "お子さん gọi kính trọng con của người khác, cùng quan hệ con trai/con gái không nhất thiết chỉ trẻ nhỏ. Bairn có definition son/daughter nhưng chữ child/nhãn có thể giữ ràng buộc tuổi; chưa chốt exact target đó."
+    },
+    {
+      "senseId": "134",
+      "bundleKey": "1428cfaa26774814f37740cbdda0ee516cd7b9dab3dbd051826e7cea390c1617",
+      "contextHash": "f2de9ab43064e640ba62ebebea979395d5e0b405089003baebc1d7de9a8c7f54",
+      "supportedExactConceptIds": ["73589", "74300"],
+      "uncertainExactConceptIds": ["74322"],
+      "excludedExactConceptIds": ["62728", "73592"],
+      "reason": "Toilet/restroom là phòng/khu vệ sinh. Washroom particularly public không bắt buộc công cộng nên có thể cùng denotation. Phòng có bồn tắm/vòi sen và riêng bồn cầu khác nghĩa. Toilet in Britain chưa rõ là địa lý hay usage British."
+    },
+    {
+      "senseId": "135",
+      "bundleKey": "ae75d129767eb5cc21e4cf0d01950bdfe8c1859c0a1b3a0444bd5fc9500a32a2",
+      "contextHash": "eb416e4fef080ec0472b84a150c7c8f4eeff81b56b7519e6a46a9ab1d0f6beb0",
+      "supportedExactConceptIds": ["108895"],
+      "uncertainExactConceptIds": ["107665", "107602"],
+      "excludedExactConceptIds": ["105234", "107343"],
+      "reason": "Police officer tương ứng member of police force; familiar chỉ cách gọi. Inspector/captain thêm cấp bậc. Lieutenant có definition rộng nhưng nhãn rank cụ thể; law officer có thể rộng hơn police officer nên hai target này chưa chốt exact."
+    },
+    {
+      "senseId": "153",
+      "bundleKey": "d73ba6a74fda665d9f12e3c121c16397e20979d1d2fcc55501a61a5ac0bd885a",
+      "contextHash": "3723920ac6a38ef77cf16e916271dd6a94969ac5171869d53c70e2a2fc574ec0",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": [
+        "106415",
+        "107211",
+        "67618",
+        "97298",
+        "97622"
+      ],
+      "reason": "Nhà/chỗ ở và gia đình của người đối thoại không được một target dwelling/home bao phủ trọn; housemate hoặc family man là người khác loại nghĩa."
+    },
+    {
+      "senseId": "154",
+      "bundleKey": "f305edfd49a16f0099252edf28248ef0588a08201853f2e70302a968346ee84c",
+      "contextHash": "50e778a1aaef026e04a6b72d2bad73a52222d09ef6def479b2375b4aa4bc5dd3",
+      "supportedExactConceptIds": ["107247"],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["106446", "107208", "109910", "110048"],
+      "reason": "Your husband là chồng, cách nói kính trọng/định vị người đối thoại không đổi quan hệ hôn nhân. Househusband thêm nghề/vai trò; các in-law là quan hệ khác."
+    },
+    {
+      "senseId": "155",
+      "bundleKey": "e70d63017664013dcba28ca5e89d83eaa70c973ed1fb876caa6b6a507d3022d7",
+      "contextHash": "2245f2b0f726721aefccbab582cf6ab7004532b49597f2bccd3f53e45879195e",
+      "supportedExactConceptIds": ["94754"],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["119518", "52509", "94755", "94896"],
+      "reason": "Your organization cùng denotation một tổ chức/nhóm người làm việc cùng nhau; các cấu trúc tổ chức đặc thù là hẹp hơn, administrivia là công việc chứ không phải tổ chức."
+    },
+    {
+      "senseId": "166",
+      "bundleKey": "42efa76638ac0b16e37a5e312d602d2eb046001a5ab4971205576a9bcbf5376e",
+      "contextHash": "6595b4ccd829b39663896162727f9d88a160cc18243a080a4995376b8af9a453",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["66871", "69913", "7097", "7120", "74411"],
+      "reason": "Quà đặc sản/lưu niệm mua khi du lịch có điều kiện chuyến đi và đem tặng; generic present thiếu điều kiện này, party favor gắn sự kiện khác."
+    },
+    {
+      "senseId": "167",
+      "bundleKey": "ac8619213ba28a6fa5e78e5d367b300c471d310fde9e6a5c218999b527954b7b",
+      "contextHash": "0037d8a642310640a081449861204c2221cff3c1befe534197a357111ab19ad6",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["106941", "110952", "48916", "7097", "82029"],
+      "reason": "Present brought by a visitor là quà do khách mang tới, hẹp hơn quà chung. Visitor/guest là người, presence là cảm giác có mặt."
+    },
+    {
+      "senseId": "168",
+      "bundleKey": "b1f4ede36583aa9ddee9dbaf15e379b25a9ad4ab13567cf08aafdffa7a27f111",
+      "contextHash": "eb55c39a6f96498637f5f7caf5f9aa407c675bc79458e7ff1018f21e79ed1b02",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["18631", "52912", "7074", "75583", "91119"],
+      "reason": "Quà không mong muốn/hệ quả xấu gồm mắc bệnh khi đi chơi; disservice có điều kiện hành động định giúp nhưng thành xấu, không bao phủ toàn bộ. Gift literal, chất lượng khó chịu và sick leave cũng không exact."
+    },
+    {
+      "senseId": "369",
+      "bundleKey": "b806de067f7f2a237415c83b9db70b4260aead75290897c7f84727e221953825",
+      "contextHash": "5e49fffaffd6cf38045606af0fb84e8ca1ca0fbc12f38659499780945a0b4daf",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": ["27022"],
+      "excludedExactConceptIds": ["27025", "27027", "27147", "27458"],
+      "reason": "Source diễn tả quãng gần hiện tại, có gloss hiện nay và gần đây. Các target recent past/immediate past/present instant riêng lẻ không được xác nhận exact; in these times có thể là cùng quãng thời gian nhưng cần làm rõ có bao phủ recent past không."
+    },
+    {
+      "senseId": "476",
+      "bundleKey": "45eb43fb4b75db0d63577feb7d27d71292a7c282204f98843a1231b32b7ee4da",
+      "contextHash": "ba66dea98d5c93f4b60e06cecb81f452a32cea622e5581cfda417ec7308d25ec",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["27115", "27296", "32227", "34824", "36003"],
+      "reason": "Các cách chuyển động/thực hiện thẳng, nhanh, trực tiếp, đột ngột không đồng nhất chỉ suddenly hay superlative fastest; direct/straighten/shoot đổi vai trò hoặc loại hành động."
+    },
+    {
+      "senseId": "477",
+      "bundleKey": "19fd5dcb36cc4f1f2149875d70ec913b59847c20dda6fd498ac0c0a49cb09f79",
+      "contextHash": "719b392e56865aeffffa6ab6db7a7b234c348fd0d1261844346bc0da1312e22b",
+      "supportedExactConceptIds": ["30616"],
+      "uncertainExactConceptIds": ["27176", "28078", "28461"],
+      "excludedExactConceptIds": ["30624"],
+      "reason": "Quietly/gently/softly được đọc theo manner hành động nhẹ/êm, không nhập mọi sense tiếng Anh của softly. In a gentle manner hỗ trợ paraphrase; volume/force/no sound chỉ là mặt cụ thể, chưa chốt chúng bao phủ trọn mọi usage."
+    },
+    {
+      "senseId": "478",
+      "bundleKey": "274c44824cff86635ba0e28f3b43433b1771fc97f9af8e1cb58bc5c3f68f97b9",
+      "contextHash": "2805dcc4b211d6fc3301709387fd205d5922ad12ac85394d9219cce97c073dcf",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["31584", "40779", "40781", "42457", "45793"],
+      "reason": "Source chủ thể tự cảm thấy sảng khoái/thỏa mãn. Refresh/please/satisfy là gây cảm giác cho đối tượng; feel target mô tả cái được cảm nhận, không phải trạng thái của người cảm thấy."
+    },
+    {
+      "senseId": "554",
+      "bundleKey": "caa145ecd911ae09912b47ea6253d81dc4202ceb85a699bd0fcf5e40eea01f75",
+      "contextHash": "a1f3ade0a2b19751af1857bc5bd96600818ab699ebf7a2e26c34d0a418f3ebd2",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": ["92039"],
+      "excludedExactConceptIds": ["22340", "44618", "55618", "92061"],
+      "reason": "そんな xác định loại đó dựa vào điều người nghe nói/hiểu. Generic similarity không tự thể hiện tham chiếu demonstrative. Of the same kind có thể paraphrase suchlike, nhưng thiếu anchor cần cho nghĩa chỉ loại đó."
+    },
+    {
+      "senseId": "707",
+      "bundleKey": "cf36fa747b5b6bba93b5d2fd012bde06033198ff1c193a4e1da2b10da6370b59",
+      "contextHash": "783af834fad576bc73019b8d588357448297165f995cb689a9e80f4919586fcf",
+      "supportedExactConceptIds": ["26814", "26909", "26913"],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["27078", "30686"],
+      "reason": "Very/awfully/exceedingly là tăng cường mức độ, không bắt buộc đánh giá xấu. Ba definition very much/strongly, exceedingly/extremely, incredibly/very có thể cùng phạm vi; precisely so và dreadful kind khác nghĩa."
+    },
+    {
+      "senseId": "708",
+      "bundleKey": "112cb546964b17d6085b2808e469feeacd02381c346b191ab14b61ac796a1b50",
+      "contextHash": "26b9f9f785322eaba3067557136ec3bc71cf903b9b782415e242a46f08a383ae",
+      "supportedExactConceptIds": ["29834", "26868", "26867"],
+      "uncertainExactConceptIds": ["26844"],
+      "excludedExactConceptIds": ["26748"],
+      "reason": "Trong cấu trúc phủ định, source nhấn mạnh không hề/không cách nào, hỗ trợ các định nghĩa not at all/in no way. Not in any circumstances có thể mạnh/rộng hơn tính không thể trong ngữ cảnh; only/simply không mang phủ định nên không exact."
+    },
+    {
+      "senseId": "1086",
+      "bundleKey": "ac7187aa295660a0ba455244f729fb8f54dd83ac5ec92d3466de849d0d7cb8b2",
+      "contextHash": "be9f58d5e87877762b679bd94ebf8589cf110504c9418540318588596660ecb2",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["63287", "69376", "69671", "70220", "94976"],
+      "reason": "Trang sức/phụ kiện thời trang rộng hơn pin, necklace và bracelet; cửa hàng/người bán là loại thực thể khác."
+    },
+    {
+      "senseId": "1087",
+      "bundleKey": "ef0e728796fcf14a41d79018de591cfe01d51970b90f529fb551191831486482",
+      "contextHash": "3ac54e64f5ff0bf165c2c687a29f30878385231beb85751308a7e3aad0cb7467",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["62404", "63965", "64347", "64594", "70370"],
+      "reason": "Phụ kiện thiết bị nhiều ngành rộng hơn phụ kiện computer/car; clip-on chỉ một cơ chế gắn và CD player/playback là thiết bị hoặc bộ phận chuyên biệt."
+    },
+    {
+      "senseId": "1301",
+      "bundleKey": "6d472994a3abbbc95b9925759d5ebed2e03777e1bcf3384f460e73c2dcd2564b",
+      "contextHash": "070469d08df7528d1f5a547563545841fd39c887cc7c03d71667a74f1622200d",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["50294", "93965", "93971", "93982", "94085"],
+      "reason": "Field chem chỉ alcohol như chất hóa học; đồ uống chứa alcohol và hành động uống không phải chất ấy. Không bỏ field để chọn alcoholic beverage exact."
+    },
+    {
+      "senseId": "1303",
+      "bundleKey": "16f2d14b67d76b83788b2ea4c400efc8bf3fdbc07024a2d91e241ca2043621cd",
+      "contextHash": "d33a4199bf4a1401606cbb2fceb754b1fc8f22ebb3af8692f5cfd8d2170aab27",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["16330", "17739", "64193", "67429", "71363"],
+      "reason": "Hand sanitizer gốc alcohol là sản phẩm sát khuẩn tay; rubbing alcohol dùng ngoài rộng hơn mục đích tay và nguyên liệu propanol không đồng nhất sản phẩm. Các chất sát khuẩn khác không tự thành exact vì cùng công dụng."
+    },
+    {
+      "senseId": "2309",
+      "bundleKey": "470bad9295ceb7ef53b48103b2c9402a78559bf3198a6d73a90ce67f23da0c8d",
+      "contextHash": "57a83281f30a928544d67bf931b24d9d7ce1fc0fa61b25da990b9bdb4fef93f2",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": ["93496"],
+      "excludedExactConceptIds": ["104055", "118787", "119066", "93497"],
+      "reason": "Curry gồm đặc biệt curry Nhật. Definition East Indian cookery/pungent/curry powder có thể mô tả món curry chung hoặc ràng buộc công thức/vùng hẹp hơn; không coi nhãn curry là đủ chứng minh exact. Lamb curry hẹp hơn."
+    },
+    {
+      "senseId": "2310",
+      "bundleKey": "101f4e43539019bc5503e627e1bcb675acf69ce59a8438210ed56af6501a0377",
+      "contextHash": "25bcc0afd9657980749dc960a853c4fb0e112cd4026e13b69be6ed58d3f27941",
+      "supportedExactConceptIds": [],
+      "uncertainExactConceptIds": [],
+      "excludedExactConceptIds": ["93496", "93497", "93687", "93786", "93836"],
+      "reason": "Rice and curry là món cơm kèm curry; generic curry usually eaten with rice không bắt buộc gồm cơm, vì vậy không exact. Fried rice/chicken and rice/raita là món khác."
+    }
+  ]
+}
