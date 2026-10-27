@@ -58,9 +58,10 @@ Internet
 
 ## 5. Ứng dụng API (Node + PM2)
 
+- **M10.1 cập nhật 27/10:** Space Bunny trả 502 trước stream; theo lựa chọn chủ dự án, chat tạm dùng Groq model `qwen/qwen3.8-27b`. Quiz dùng cấu hình provider riêng không đổi. Backup cấu hình trước chuyển ở `/opt/langoo/storage/ops/m10.1-provider-before-groq-20261027-*.env` (private, chứa secret); không commit. Adapter Groq đã thử stream chữ/ảnh giả lập thành công, người dùng xác nhận chat chữ trong app. [Report sự cố](../reviews/m10.1-chat-provider-fallback-2026-10-27.md).
 - Code: `/opt/langoo/app` (clone từ GitHub; mỗi deploy `git fetch` + `git reset --hard origin/main`). Sau deploy phải xác minh HEAD/source/dist và working tree; **06/10 dictionary có sửa trực tiếp chưa commit**, không coi runtime luôn bằng `origin/main`.
 - User chạy: `langoo`; PM2 app `langoo-api` (chế độ fork, `--max-memory-restart 600M`); auto-start sau reboot qua systemd **`pm2-langoo.service`** (enabled).
-- `.env`: `/opt/langoo/app/.env` (chmod 600, user `langoo`):
+- `.env`: `/opt/langoo/app/.env` (owner `langoo`; quyền đo ngày 27/10 là `664`, cần rà để siết về `600`):
   - **Hiện trỏ DB thật VPS** (`DATABASE_URL`/`DIRECT_URL`: `127.0.0.1:5432/langoo`), xác minh 06/10. Không xuất URL chứa mật khẩu trong report.
   - `/opt/langoo/app/.env.localdb.bak` là bản cấu hình DB thật lưu trước đó; không cần chuyển env để đọc DB thật trong trạng thái hiện tại. Kiểm lại target trước thao tác ops.
   - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS=*`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`…
