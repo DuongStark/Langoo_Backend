@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-27 — M8.3 streak và lịch hoạt động đã code/kiểm tra local, chưa deploy. M10.1 chat trên VPS đang dùng provider Groq tạm thời theo lựa chọn chủ dự án; xem các entry bên dưới.
+> Cập nhật lần cuối: 2026-10-27 — M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`; CI và Deploy VPS thành công. M10.1 chat trên VPS đang dùng provider Groq tạm thời theo lựa chọn chủ dự án; xem các entry bên dưới.
 > Snapshot lịch sử (không phải trạng thái hiện tại): tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
@@ -12,20 +12,20 @@
 
 - Chủ dự án chọn dừng cộng XP từ nay nhưng giữ dữ liệu XP cũ; lịch ngày hiển thị số lượt và số từ khác nhau, không cần danh sách từ. Đã khảo sát `streak_day`, `review_log`, receipt SRS/session và giới hạn lịch sử; kiểm tra read-only VPS thấy 10 lượt ôn cũ mất liên kết face.
 - [Thiết kế đã duyệt](docs/superpowers/specs/2026-10-27-m8.3-streak-activity-design.md): API `GET /v1/me/activity` theo năm, dùng dữ liệu hiện có, hiển thị số lượt chưa xác định được từ; ngừng XP mới và giữ idempotency/streak. [Handoff FE](docs/handoff/m8.3-streak-activity-2026-10-27.md), [report](docs/reviews/m8.3-streak-activity-2026-10-27.md), [kế hoạch](docs/plans/m8.3-streak-activity-2026-10-27.md).
-- Kiểm tra Node 22: build và lint pass; 60 suite/524 unit và 27 suite/247 E2E pass trên PostgreSQL test riêng. Review độc lập phát hiện đọc lệch snapshot; đã sửa `RepeatableRead` và kiểm thử cạnh tranh RED→GREEN. Chưa kiểm FE/browser, chưa deploy.
-- Git: code/test/docs đang local, chưa commit/push. Không sửa schema hay ghi DB production trong M8.3; endpoint mới chưa có trên VPS.
+- Kiểm tra Node 22: build và lint pass; 60 suite/524 unit và 27 suite/247 E2E pass trên PostgreSQL test riêng. Review độc lập phát hiện đọc lệch snapshot; đã sửa `RepeatableRead` và kiểm thử cạnh tranh RED→GREEN. CI `40429619932` và Deploy VPS `40429831921` success. VPS `7a33958`, PM2 online, health/DB OK; activity kiểm danh tính giả không có dữ liệu: 2024/366 ngày, 2026/365 ngày, year sai 400, không token 401. Chưa kiểm FE/browser.
+- Git/triển khai: code M8.3 `a64ad29`, release `7a33958` đã push và deploy VPS theo yêu cầu. Không có migration; chưa nghiệm thu dữ liệu tài khoản thật qua FE.
 
 ### 2026-10-27 — M10.1 — Khôi phục chat sau lỗi upstream 502
 
 - Chủ dự án báo chat 503; log xác định Space Bunny trả 502, tái hiện bằng request trực tiếp cả stream và không stream. Commit M10.1 thay thời điểm bắt đầu SSE nên lỗi trước delta hiện ra HTTP 503. Chủ dự án chọn chuyển tạm sang Groq; cấu hình chat VPS hiện dùng `qwen/qwen3.8-27b`, quiz giữ cấu hình riêng; backup cấu hình cũ được lưu private trên VPS.
 - Adapter production đã thử stream chữ và ảnh mẫu thành công; chủ dự án xác nhận chat chữ trong app hoạt động, PM2 online, health/DB OK. Chưa kiểm ảnh trong UI thật và chưa xác nhận Space Bunny ổn định để chuyển về. Xem [report](docs/reviews/m10.1-chat-provider-fallback-2026-10-27.md) và [runbook](docs/ops/vps-deployment.md).
-- Git: chỉ cập nhật tài liệu local chưa commit/push; thay đổi provider đã thực hiện trong cấu hình riêng VPS, không đổi code hay DB.
+- Git: tài liệu đã commit/push `7a33958`; thay đổi provider đã thực hiện trong cấu hình riêng VPS, không đổi code hay DB.
 
 ### 2026-10-26 — DOCS1 — Rà soát độ phủ chức năng và API
 
 - Đối chiếu yêu cầu/plan/handoff với source `5fc41a7` và Swagger production: 93 operation/75 path, 19 file controller; local và live khớp method/path toàn bộ. [Report chức năng/API](docs/reviews/docs1-api-functional-coverage-2026-10-26.md), [inventory 93 operation](docs/reviews/docs1-api-inventory-2026-10-26.json).
 - Thiếu có căn cứ: M2.3 xác thực email/recovery, M5 tìm trong sổ tay; M4 đã trả audio_key nhưng chưa có contract resolver/audio URL phát được. M9 reminders/devices chưa có, đúng quyết định tạm gác. Self-update tài khoản, lịch sử phiên/biểu đồ cá nhân, batch/preview list và admin deck là phần cần chốt theo UX; không tự mở scope. 39 response thành công chưa có schema Swagger (36 JSON + 3 SSE/binary).
-- Kiểm tra: AST decorators + OpenAPI JSON; GET mẫu dictionary/sense và health app/DB OK. Chỉ kiểm tra độ phủ/contract, không smoke hành vi cả 93 endpoint; không mutation/AI/DB write hoặc sửa implementation. Report/inventory local chưa commit/push, không deploy thêm; kiểm link/JSON/diff khi chốt.
+- Kiểm tra: AST decorators + OpenAPI JSON; GET mẫu dictionary/sense và health app/DB OK. Chỉ kiểm tra độ phủ/contract, không smoke hành vi cả 93 endpoint; không mutation/AI/DB write hoặc sửa implementation. Report/inventory đã commit/push `3840adf`.
 
 ### 2026-10-26 — DOCS1 — Hợp nhất checkout và dọn worktree
 

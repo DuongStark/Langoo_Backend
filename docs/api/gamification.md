@@ -1,7 +1,7 @@
 # M8.3 — API streak và hoạt động học
 
-> M8.3 đã kiểm tra local, chưa deploy; xem [handoff FE](../handoff/m8.3-streak-activity-2026-10-27.md)
-> để biết trạng thái triển khai trước khi tích hợp.
+> M8.3 đã deploy VPS release `7a33958`; xem [handoff FE](../handoff/m8.3-streak-activity-2026-10-27.md)
+> để tích hợp và kiểm tra dữ liệu tài khoản thật.
 
 ## GET /v1/me/activity
 
