@@ -65,7 +65,8 @@ export const envSchema = z.object({
     z.coerce.number().int().positive().default(2),
   ),
 
-  // CORS cho web FE khi deploy (danh sách origin cách nhau dấu phẩy; trống = tắt).
+  // CORS cho web FE: danh sách origin cách nhau dấu phẩy; trống = dùng
+  // DEFAULT_CORS_ORIGINS (localhost mọi cổng + langoo.org + www.langoo.org).
   CORS_ORIGINS: z.preprocess(emptyToUndefined, z.string().optional()),
 
   // Đăng nhập Google (M2.2): danh sách client ID được chấp nhận (web/iOS/Android,

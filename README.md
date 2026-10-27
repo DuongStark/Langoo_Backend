@@ -48,7 +48,7 @@ Repo có sẵn [`render.yaml`](render.yaml) (Blueprint):
 2. Điền biến bí mật khi Render hỏi (hoặc sửa sau trong **Environment**):
    - `DATABASE_URL` — pooled (runtime) · `DIRECT_URL` — direct (migration/DDL)
    - `JWT_ACCESS_SECRET` — ≥32 ký tự ngẫu nhiên (xem `.env.example`)
-   - `CORS_ORIGINS` — `*` cho mọi origin, hoặc danh sách origin FE cách nhau dấu phẩy (bỏ trống = tắt CORS)
+   - `CORS_ORIGINS` — danh sách origin FE cách nhau dấu phẩy; bỏ trống = mặc định `http://localhost:*` + `https://langoo.org` + `https://www.langoo.org` (`*` đứng riêng = mọi origin, chỉ dùng khi dev)
    - `GOOGLE_OAUTH_CLIENT_IDS` — tuỳ chọn: client ID Google (web/iOS/Android) cách nhau dấu phẩy (bỏ trống = tắt đăng nhập Google)
    - `GOOGLE_OAUTH_REQUIRE_CHALLENGE` — mặc định `false`; chỉ bật sau khi client đã tích hợp challenge OAuth dùng một lần.
    - `AI_PROVIDER` / `AI_API_KEY` / `AI_CHAT_MODEL` / `AI_BASE_URL` — tuỳ chọn: `stub` (mặc định, trả lời demo) hoặc `openai` để trả lời thật qua OpenAI-compatible/gateway (xem `.env.example`).

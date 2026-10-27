@@ -64,7 +64,7 @@ Internet
 - `.env`: `/opt/langoo/app/.env` (owner `langoo`; quyền đo ngày 27/10 là `664`, cần rà để siết về `600`):
   - **Hiện trỏ DB thật VPS** (`DATABASE_URL`/`DIRECT_URL`: `127.0.0.1:5432/langoo`), xác minh 06/10. Không xuất URL chứa mật khẩu trong report.
   - `/opt/langoo/app/.env.localdb.bak` là bản cấu hình DB thật lưu trước đó; không cần chuyển env để đọc DB thật trong trạng thái hiện tại. Kiểm lại target trước thao tác ops.
-  - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS=*`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`…
+  - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`… **M12 (27/10):** repo mặc định allowlist `http://localhost:*` + `https://langoo.org` + `https://www.langoo.org`; `.env` VPS đo cùng ngày vẫn là `CORS_ORIGINS=*`, cần sửa dòng này rồi restart mới có hiệu lực.
   - **AI production (05/10)**: `AI_PROVIDER=openai`, `AI_BASE_URL=https://api.groq.com/openai/v1`, `AI_CHAT_MODEL=openai/gpt-oss-120b`, key Groq (free tier: 30 RPM / 1.000 req/ngày / 8K TPM). Đo thực tế: **~0,6–2,2s/câu** (nhanh hơn hẳn Zen free), streaming hoạt động.
   - Phương án dự phòng đã thử:
     - **Zen** (`https://opencode.ai/zen/v1`, model `space-bunny-free`): model suy luận, chậm 6–22s, có lúc trả rỗng; các model free khác bị **403** ("free tier chỉ dùng trong OpenCode"), model trả phí **402** (hết balance). ⚠️ Không dùng `/zen/go/v1` (cần header `x-opencode-session` → 400/503).
@@ -167,7 +167,7 @@ ssh langoo-vps 'ufw status verbose'
 
 ## 11. Việc nên làm tiếp (bảo mật / vận hành)
 
-- Siết `CORS_ORIGINS` về đúng domain FE khi FE ổn định (đang `*`).
+- `CORS_ORIGINS` trên VPS vẫn là `*` (đo 27/10) trong khi repo đã mặc định allowlist `http://localhost:*` + `https://langoo.org` + `https://www.langoo.org`; sửa `.env` rồi `pm2 restart` để siết. Trước khi siết, xác nhận origin thật của web (nếu web còn ở domain khác sẽ bị chặn CORS).
 - Cân nhắc `PermitRootLogin prohibit-password` (hiện tại chỉ dùng key nhưng chưa rà `sshd_config`).
 - Theo dõi dung lượng: dump giữ 5 bản (~3GB) + ảnh feedback trong `/opt/langoo/storage`.
 - Khi **go-live DB thật** (DB5): đổi 2 dòng `.env` + `pm2 restart`, bootstrap admin riêng cho DB thật, cân nhắc thêm `pg_hba`/SSL nếu mở DB ra ngoài (hiện không cần).

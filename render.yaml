@@ -30,9 +30,10 @@ services:
       # Bắt buộc ≥32 ký tự ngẫu nhiên (xem .env.example).
       - key: JWT_ACCESS_SECRET
         sync: false
-      # Tuỳ chọn: origin FE cách nhau dấu phẩy; bỏ trống = tắt CORS.
+      # Origin FE cách nhau dấu phẩy; bỏ trống = mặc định localhost mọi cổng +
+      # langoo.org + www.langoo.org.
       - key: CORS_ORIGINS
-        value: '*'
+        value: 'http://localhost:*,https://langoo.org,https://www.langoo.org'
       # Đăng nhập Google (OAuth2): client ID web dùng cho GIS (công khai, không
       # phải secret). FE dùng cùng giá trị qua VITE_GOOGLE_CLIENT_ID.
       - key: GOOGLE_OAUTH_CLIENT_IDS

@@ -19,7 +19,7 @@
 | --- | --- |
 | API base (prod) | `https://langoo-api.pixpress.art` |
 | Admin test credentials | Configure locally; do not store them in a handoff. |
-| CORS | đang mở `*` — gọi từ mọi origin trong lúc dev |
+| CORS | allowlist `http://localhost:*`, `https://langoo.org`, `https://www.langoo.org` (mặc định trong code) |
 
 ```text
 Credentialed login example removed. Use an admin test account configured locally.

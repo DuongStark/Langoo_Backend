@@ -5,7 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
-import { parseCorsOrigins } from './config/cors';
+import { describeCorsRule, parseCorsOrigins } from './config/cors';
 import { configureHttpProxy } from './config/http-proxy';
 
 async function bootstrap(): Promise<void> {
@@ -42,7 +42,7 @@ async function bootstrap(): Promise<void> {
     logger.log(
       corsOrigin === true
         ? 'CORS: cho phép mọi origin (*)'
-        : `CORS: cho phép ${corsOrigin.join(', ')}`,
+        : `CORS: cho phép ${corsOrigin.map(describeCorsRule).join(', ')}`,
     );
   }
   const port = Number(configService.getOrThrow('PORT'));
