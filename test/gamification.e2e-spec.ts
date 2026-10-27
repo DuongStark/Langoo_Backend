@@ -213,54 +213,54 @@ describe('Gamification (e2e — langoo_test)', () => {
       ).toMatchObject({ progress: 0, unlocked_at: null });
     });
 
-    it('lượt ôn đầu tiên: +1 XP review +2 XP ngày học + streak 1', async () => {
+    it('lượt ôn đầu tiên: streak 1, không cộng XP mới', async () => {
       const cards = await cardsOf(userId);
       const first = await review(token, {
         face_id: cards[0].faceId,
         direction: cards[0].direction,
         rating: 3,
       });
-      expect(first.xp.amount).toBe(1);
+      expect(first.xp.amount).toBe(0);
 
       const stats = await getStats(token);
-      expect(stats.xp_total).toBe(3);
+      expect(stats.xp_total).toBe(0);
       expect(stats.streak_current).toBe(1);
       expect(stats.streak_longest).toBe(1);
       expect(stats.reviews_total).toBe(1);
       expect(stats.items_learned).toBe(1);
       expect(stats.today.review_count).toBe(1);
-      expect(stats.today.xp).toBe(3);
+      expect(stats.today.xp).toBe(0);
       expect(stats.today.met_goal).toBe(false);
       expect(stats.last_study_date).toBe(stats.today.day);
 
       const day = await prisma.streakDay.findFirstOrThrow({
         where: { userId },
       });
-      expect(day).toMatchObject({ reviewCount: 1, xp: 3, metGoal: false });
+      expect(day).toMatchObject({ reviewCount: 1, xp: 0, metGoal: false });
       expect(
         await prisma.xpEvent.count({
           where: { userId, source: 'streak' },
         }),
-      ).toBe(1);
+      ).toBe(0);
     });
 
-    it('lượt thứ hai cùng ngày: chỉ +1 XP review, bonus ngày không lặp', async () => {
+    it('lượt thứ hai cùng ngày: giữ streak, không cộng XP', async () => {
       const cards = await cardsOf(userId);
       const second = await review(token, {
         face_id: cards[4].faceId,
         direction: cards[4].direction,
         rating: 3,
       });
-      expect(second.xp.amount).toBe(1);
+      expect(second.xp.amount).toBe(0);
 
       const stats = await getStats(token);
-      expect(stats.xp_total).toBe(4);
+      expect(stats.xp_total).toBe(0);
       expect(stats.streak_current).toBe(1);
       expect(stats.today.review_count).toBe(2);
-      expect(stats.today.xp).toBe(4);
+      expect(stats.today.xp).toBe(0);
       expect(
         await prisma.xpEvent.count({ where: { userId, source: 'streak' } }),
-      ).toBe(1);
+      ).toBe(0);
     });
 
     it('retry cùng client_review_id → không cộng đôi stats', async () => {
@@ -284,12 +284,12 @@ describe('Gamification (e2e — langoo_test)', () => {
       expect(after).toEqual(before);
       expect(
         await prisma.xpEvent.count({ where: { userId, source: 'review' } }),
-      ).toBe(3);
+      ).toBe(0);
     });
   });
 
   describe('daily cap', () => {
-    it('cap review = 2 → lượt thứ 3 nhận 0 XP nhưng vẫn ghi streak_day', async () => {
+    it('XP đang tạm dừng: ba lượt đều ghi streak, không cộng điểm', async () => {
       const ctx = await setupUser('cap');
       await addItem(ctx.token, ctx.collectionId, '1', '2', 'chạy');
       await addItem(ctx.token, ctx.collectionId, '5', '6', 'ăn');
@@ -317,17 +317,17 @@ describe('Gamification (e2e — langoo_test)', () => {
           rating: 3,
         });
         expect([first.xp.amount, second.xp.amount, third.xp.amount]).toEqual([
-          1, 1, 0,
+          0, 0, 0,
         ]);
 
         const stats = await getStats(ctx.token);
-        expect(stats.xp_total).toBe(4); // 2 review + 2 streak
+        expect(stats.xp_total).toBe(0);
         expect(stats.reviews_total).toBe(3);
         const day = await prisma.streakDay.findFirstOrThrow({
           where: { userId: ctx.userId },
         });
         expect(day.reviewCount).toBe(3);
-        expect(day.xp).toBe(4);
+        expect(day.xp).toBe(0);
       } finally {
         await prisma.xpRule.update({
           where: { code: 'review' },
@@ -428,7 +428,7 @@ describe('Gamification (e2e — langoo_test)', () => {
       await prisma.achievement.deleteMany({ where: { code } });
     });
 
-    it('đủ ngưỡng → mở khoá 1 lần + thưởng XP; tiến độ seeded tăng', async () => {
+    it('đủ ngưỡng → mở khoá 1 lần, không thưởng XP', async () => {
       const cards = await cardsOf(userId);
       for (const card of [cards[0], cards[4], cards[8]]) {
         await review(token, {
@@ -447,12 +447,12 @@ describe('Gamification (e2e — langoo_test)', () => {
         await prisma.xpEvent.count({
           where: { userId, source: 'achievement' },
         }),
-      ).toBe(1);
+      ).toBe(0);
 
       const stats = await getStats(token);
-      expect(stats.xp_total).toBe(12); // 3 review + 2 streak + 7 thưởng
+      expect(stats.xp_total).toBe(0);
       expect(stats.level).toBe(1);
-      expect(stats.level_progress.percent).toBe(12);
+      expect(stats.level_progress.percent).toBe(0);
 
       const achievements = await getAchievements(token);
       expect(
@@ -460,7 +460,7 @@ describe('Gamification (e2e — langoo_test)', () => {
       ).toMatchObject({ progress: 3, unlocked_at: null });
       expect(
         achievements.data.find((item) => item.code === code),
-      ).toMatchObject({ progress: 3, xp_reward: 7 });
+      ).toMatchObject({ progress: 3, xp_reward: 0 });
       expect(achievements.unseen_count).toBe(1);
     });
 
@@ -475,8 +475,8 @@ describe('Gamification (e2e — langoo_test)', () => {
         await prisma.xpEvent.count({
           where: { userId, source: 'achievement' },
         }),
-      ).toBe(1);
-      expect((await getStats(token)).xp_total).toBe(13);
+      ).toBe(0);
+      expect((await getStats(token)).xp_total).toBe(0);
 
       const seen = await request(server)
         .post('/v1/me/achievements/seen')
@@ -542,18 +542,18 @@ describe('Gamification (e2e — langoo_test)', () => {
         session: { status: string; xp_awarded: number };
       };
       expect(finished.session.status).toBe('completed');
-      expect(finished.session.xp_awarded).toBe(2);
+      expect(finished.session.xp_awarded).toBe(0);
 
       const stats = await getStats(ctx.token);
       expect(stats.reviews_total).toBe(2);
-      expect(stats.xp_total).toBe(4); // 2 review + 2 streak
+      expect(stats.xp_total).toBe(0);
       expect(stats.streak_current).toBe(1);
       expect(stats.today.review_count).toBe(2);
       expect(
         await prisma.xpEvent.count({
           where: { userId: ctx.userId, source: 'streak' },
         }),
-      ).toBe(1);
+      ).toBe(0);
     });
   });
 

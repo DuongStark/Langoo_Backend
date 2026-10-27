@@ -75,8 +75,8 @@ curl -s -X POST http://localhost:3000/v1/srs/reviews \
 - `collection_id` tùy chọn giữ cùng phạm vi với GET `/srs/due`; bỏ qua nghĩa là toàn profile.
 - Không nhận `reviewed_at`; server luôn lấy thời điểm sau khi giữ lock user.
 - Một transaction: `review_log` + cập nhật `srs_state` (Anki: steps/EF/interval) + **burying nội bộ**
-  sibling new/review của cùng item + **gamification M8** (`xp_event` theo `xp_rule` + daily cap,
-  `streak_day`, `user_stats`, thành tích — xem [`docs/api/gamification.md`](gamification.md)).
+  sibling new/review của cùng item + streak, `user_stats`, thành tích. M8.3 tạm dừng XP mới
+  — xem [API gamification](gamification.md).
 
 Response `200`:
 
@@ -96,7 +96,7 @@ Response `200`:
     "ease_factor": 2.5,
     "learning_step": 1
   },
-  "xp": { "amount": 1 }
+  "xp": { "amount": 0 }
 }
 ```
 

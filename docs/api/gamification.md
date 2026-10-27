@@ -1,73 +1,61 @@
-# API: Gamification (XP, streak, level, thành tích — M8)
+# M8.3 — API streak và hoạt động học
 
-Mọi lượt ôn (`POST /v1/srs/reviews`, `POST /v1/sessions/:id/answers`) cập nhật gamification
-**trong cùng transaction** (CONTEXT §7.2): XP theo `app.xp_rule` + **daily cap** → `streak_day`
-→ `user_stats` (cache) → thành tích. Retry mạng cùng khoá idempotency **không cộng đôi**.
+> M8.3 đã kiểm tra local, chưa deploy; xem [handoff FE](../handoff/m8.3-streak-activity-2026-10-27.md)
+> để biết trạng thái triển khai trước khi tích hợp.
 
-## Luật XP (seed `app.xp_rule`)
+## GET /v1/me/activity
 
-| code | amount | daily_cap | Ghi chú |
-|---|---|---|---|
-| `review` | +1 | 200 | mỗi lượt ôn (mọi mode M6/M7) |
-| `quiz_correct` | +5 | 200 | dành cho AI quiz (M11) |
-| `streak_day` | +2 | 2 | **lượt ôn đầu tiên trong ngày**; khoá `streak:<user>:<day>` |
+Bearer token. Query `year` tùy chọn từ 2000 đến 2100; mặc định năm hiện tại
+theo `user_settings.timezone`. Trả toàn bộ 365/366 ngày, kể cả ngày chưa có
+hoạt động và ngày tương lai. `today` là ngày hiện tại theo timezone user.
 
-- Cap đếm theo **ngày địa phương** (`user_settings.timezone`); hết cap → lượt đó nhận 0 XP
-  nhưng **vẫn ghi** `review_log`/`streak_day` (streak không đứt vì cap).
-- Thành tích thưởng XP nguồn `achievement` (không cap), khoá `ach:<code>` — chỉ thưởng 1 lần.
-
-## Streak & level
-
-- `streak_day.review_count` là **số hoạt động học trong ngày** (lượt ôn SRS **và** câu quiz);
-  `met_goal = review_count ≥ user_settings.daily_goal` → quiz cũng tính vào mục tiêu ngày.
-- `user_stats.reviews_total` (metric của achievement `reviews_1000`) **chỉ đếm lượt ôn SRS**.
-  Quiz M11 cập nhật streak/mục tiêu/XP nhưng **không** cộng bộ đếm này (migration `036` rebuild
-  lại `reviews_total` cho user cũ từ `review_log`; không thu hồi achievement đã mở khoá).
-- `streak_current`: hôm qua đã học → +1; hôm nay đã học → giữ; cũ hơn → reset 1;
-  `streak_longest = max`. Tính tại thời điểm ghi, không cần cron 0h.
-- Level: `level = floor(sqrt(xp_total / 100)) + 1` → **L2=100, L3=400, L4=900, L5=1600 XP**.
-- `items_learned` = số `collection_item` có ≥1 face đã bắt đầu học (`srs_state.introduced_at`).
-
-## GET /v1/me/stats
-
-```bash
-curl -s http://localhost:3000/v1/me/stats -H "Authorization: Bearer <token>"
+```http
+GET /v1/me/activity?year=2026
+Authorization: Bearer <access_token>
 ```
 
 ```json
 {
-  "xp_total": 42, "level": 1,
-  "level_progress": { "level": 1, "xp_in_level": 42, "xp_for_next": 100, "percent": 42 },
-  "streak_current": 3, "streak_longest": 7, "last_study_date": "2026-09-27",
-  "items_learned": 12, "reviews_total": 40,
-  "today": { "day": "2026-09-27", "review_count": 12, "xp": 14, "met_goal": false, "goal": 20 }
+  "year": 2026,
+  "timezone": "Asia/Ho_Chi_Minh",
+  "today": "2026-10-27",
+  "streak_current": 3,
+  "streak_longest": 7,
+  "days": [
+    {"date":"2026-01-01","activity_count":0,"review_count":0,"distinct_words":0,"unresolved_review_count":0},
+    {"date":"2026-01-02","activity_count":5,"review_count":4,"distinct_words":3,"unresolved_review_count":0}
+  ]
 }
 ```
 
-User chưa hoạt động trả mặc định (`xp_total 0`, `level 1`, `streak 0`) — không tạo rác.
+Ví dụ rút gọn hai ngày; response thực trả cả năm.
 
-## GET /v1/me/achievements
+- `activity_count`: số lượt ôn SRS và câu quiz trong ngày, cùng định nghĩa
+  `streak_day.review_count` và mục tiêu ngày hiện có.
+- `review_count`: số lượt ôn SRS (kể cả session), không bao gồm câu quiz.
+- `distinct_words`: số lexeme khác nhau nhận diện được từ các lượt ôn SRS;
+  cùng từ nhiều sense, mặt, chiều hoặc collection chỉ tính một lần. Không tính
+  quiz vì một số câu không giữ đủ ID của mọi từ.
+- `unresolved_review_count`: số lượt ôn không còn nối được face/sense. Khi lớn
+  hơn 0, `distinct_words` là **số tối thiểu**, không khẳng định là tổng đầy đủ.
+- Streak hiện tại giữ khi học hôm nay/hôm qua; nếu lần học cuối trước hôm qua,
+  API trả 0 ngay, không cần chờ lượt học tiếp theo. Streak dài nhất giữ lịch sử.
+- `streak_day.day` được lưu theo timezone lúc học; review log chỉ lưu thời điểm
+  UTC và được nhóm theo timezone hiện tại. Nếu người dùng đổi timezone sau khi
+  đã học, số hoạt động và số lượt ôn cũ có thể nằm ở hai ngày khác nhau.
+- HTTP 401 khi thiếu/sai token; 400 khi year sai kiểu hoặc ngoài khoảng.
 
-```bash
-curl -s http://localhost:3000/v1/me/achievements -H "Authorization: Bearer <token>"
-# → {"data":[{"code":"streak_7","name_vi":"Chuỗi 7 ngày","category":"streak",
-#             "xp_reward":30,"progress":3,"unlocked_at":null,"seen_at":null}, ...],
-#    "unseen_count": 1}
-```
+## XP và API cũ
 
-Seed 5 thành tích: `words_100` (items_learned ≥ 100), `reviews_1000`, `streak_7`, `streak_30`,
-`quiz_100` (quiz_correct — M11). `progress` là giá trị metric hiện tại (UI tự kẹp theo ngưỡng).
+Từ M8.3, ôn SRS, quiz, streak và thành tích không cộng XP mới. Dữ liệu XP/level
+cũ vẫn giữ nguyên. Các response cũ vẫn giữ field `xp_total`, `level`,
+`level_progress`, `today.xp`, `xp_awarded` và `xp.amount` để client cũ đọc được;
+lượt mới nhận `xp.amount = 0`, `xp_reward` trả 0. FE ẩn XP và level.
 
-## POST /v1/me/achievements/seen
+`GET /v1/me/stats` tiếp tục trả streak, số item đã học, `reviews_total`,
+`today.review_count` và mục tiêu. `reviews_total` chỉ tính SRS; `today.review_count`
+tính cả quiz. `GET /v1/me/achievements` và `POST /v1/me/achievements/seen` vẫn
+có contract cũ, phần thưởng XP trả 0. Retry SRS/session dùng receipt tương ứng,
+không nhân đôi hoạt động khi gửi lại.
 
-```bash
-curl -s -X POST http://localhost:3000/v1/me/achievements/seen \
-  -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
-  -d '{}'                      # bỏ trống codes = đánh dấu tất cả
-# → {"updated":1,"unseen_count":0}
-```
-
-Lỗi: `401 AUTH_TOKEN_MISSING` · `400 VALIDATION_FAILED` (`codes` không phải mảng string;
-`null` không được xem như bỏ trống).
-
-Swagger UI: `http://localhost:3000/docs` (nhóm **gamification**).
+Swagger: `/docs`, nhóm `gamification`.

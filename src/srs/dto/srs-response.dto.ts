@@ -108,7 +108,11 @@ export class SrsStateDto {
 export class ReviewResultDto {
   @ApiProperty({ type: ReviewLogDto }) review_log!: ReviewLogDto;
   @ApiProperty({ type: SrsStateDto }) srs!: SrsStateDto;
-  @ApiProperty({ example: { amount: 1 } }) xp!: { amount: number };
+  @ApiProperty({
+    example: { amount: 0 },
+    description: 'XP mới tạm dừng từ M8.3',
+  })
+  xp!: { amount: number };
 }
 
 export class StatsResultDto {

@@ -55,7 +55,8 @@ export class AchievementItemDto {
   @ApiProperty({ nullable: true }) description!: string | null;
   @ApiProperty({ nullable: true, example: '🔥' }) icon!: string | null;
   @ApiProperty({ example: 'streak' }) category!: string;
-  @ApiProperty({ example: 30 }) xp_reward!: number;
+  @ApiProperty({ example: 0, description: 'XP thưởng tạm dừng từ M8.3' })
+  xp_reward!: number;
   @ApiProperty({ example: 3 }) progress!: number;
   @ApiProperty({ nullable: true }) unlocked_at!: string | null;
   @ApiProperty({ nullable: true }) seen_at!: string | null;

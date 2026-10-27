@@ -5,7 +5,7 @@ Phiên ôn là **snapshot**: khi tạo phiên, server chọn thẻ, dựng đề
 bao giờ gửi `is_correct`/điểm (gửi lên sẽ bị `400 VALIDATION_FAILED` do whitelist DTO).
 
 Mọi lượt trả lời đi qua **cùng một engine với `POST /v1/srs/reviews`** (`ReviewEngine`):
-scheduler Anki → `review_log` → `srs_state` → burying sibling → XP thô. Khác biệt duy nhất:
+scheduler Anki → `review_log` → `srs_state` → burying sibling → streak. M8.3 tạm dừng cộng XP. Khác biệt:
 `practice` được ôn trước và miễn due/daily cap; `review` áp due, learn-ahead và quota như
 `/srs/due`. Cả hai loại vẫn kiểm tra lại ownership, profile, ngôn ngữ, archive/paused,
 suspend và bury trong transaction khi trả lời.
@@ -148,7 +148,7 @@ Response `200`:
     "ease_factor": 2.5,
     "learning_step": 1
   },
-  "xp": { "amount": 1 },
+  "xp": { "amount": 0 },
   "session": {
     "answered_count": 1,
     "correct_count": 1,

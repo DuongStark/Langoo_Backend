@@ -1,5 +1,22 @@
 import { LevelProgress } from '../rules';
 
+export interface ActivityDay {
+  date: string;
+  activity_count: number;
+  review_count: number;
+  distinct_words: number;
+  unresolved_review_count: number;
+}
+
+export interface ActivityCalendar {
+  year: number;
+  timezone: string;
+  today: string;
+  streak_current: number;
+  streak_longest: number;
+  days: ActivityDay[];
+}
+
 export interface GamificationStats {
   xp_total: number;
   level: number;
@@ -42,11 +59,11 @@ export interface UnlockedAchievement {
 }
 
 export interface ActivityResult {
-  /** XP của chính lượt này (đã áp daily cap). */
+  /** XP mới đang tạm dừng; giữ field để tương thích. */
   xp_amount: number;
-  /** Bonus "ngày học" (chỉ lượt đầu trong ngày). */
+  /** XP streak mới luôn bằng 0. */
   streak_xp: number;
-  /** Tổng thưởng thành tích vừa mở khoá. */
+  /** XP thưởng thành tích mới luôn bằng 0. */
   achievement_xp: number;
   unlocked: UnlockedAchievement[];
   streak_current: number;

@@ -285,7 +285,7 @@ describe('SRS (e2e — langoo_test)', () => {
     const clientReviewId = uuidv7();
     let firstResult: ReviewBody;
 
-    it('Good lần đầu → learning bước 1 (+10..15 phút), log + XP +1', async () => {
+    it('Good lần đầu → learning bước 1 (+10..15 phút), có log và không cộng XP', async () => {
       const res = await request(server)
         .post('/v1/srs/reviews')
         .set('Authorization', `Bearer ${tokenA}`)
@@ -302,7 +302,7 @@ describe('SRS (e2e — langoo_test)', () => {
       expect(firstResult.srs.state).toBe('learning');
       expect(firstResult.srs.learning_step).toBe(1);
       expect(firstResult.srs.ease_factor).toBe(2.5);
-      expect(firstResult.xp.amount).toBe(1);
+      expect(firstResult.xp.amount).toBe(0);
 
       const dueInMinutes =
         (new Date(firstResult.srs.due_at).getTime() - Date.now()) / 60_000;
@@ -316,7 +316,7 @@ describe('SRS (e2e — langoo_test)', () => {
       const xpCount = await prisma.xpEvent.count({
         where: { userId: userIdA, source: 'review' },
       });
-      expect(xpCount).toBe(1);
+      expect(xpCount).toBe(0);
 
       reviewedSrsId = (await getDue(tokenA)).data[0].srs_id; // thẻ đang học được trả lại nhờ learn-ahead
       expect((await getDue(tokenA)).data).toHaveLength(1);
@@ -353,7 +353,7 @@ describe('SRS (e2e — langoo_test)', () => {
         await prisma.xpEvent.count({
           where: { userId: userIdA, source: 'review' },
         }),
-      ).toBe(1);
+      ).toBe(0);
     });
 
     it('payload khác cùng client_review_id → 409 SRS_IDEMPOTENCY_CONFLICT', async () => {

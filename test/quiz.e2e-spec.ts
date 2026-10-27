@@ -265,7 +265,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .expect(200);
     expect(first.body as AnswerBody).toMatchObject({
       srs: null,
-      xp: { amount: 5 },
+      xp: { amount: 0 },
     });
     expect((first.body as AnswerBody).item.is_correct).toBe(true);
 
@@ -285,7 +285,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .set(auth(mainToken))
       .send({ ordinal: 3, option_index: correctIndexes[2] })
       .expect(200);
-    expect((third.body as AnswerBody).xp.amount).toBe(5);
+    expect((third.body as AnswerBody).xp.amount).toBe(0);
 
     const detail = await request(server)
       .get(`/v1/sessions/${sessionId}`)
@@ -323,7 +323,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       _sum: { amount: true },
       where: { userId, source: 'quiz' },
     });
-    expect(xpSum._sum.amount).toBe(10);
+    expect(xpSum._sum.amount).toBeNull();
   });
 
   it('mixed: đủ 3 loại câu hỏi + chấm fill_blank và matching', async () => {
@@ -375,7 +375,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
       .send({ ordinal: 3, pairs: matching.mapping })
       .expect(200);
     expect((matchAnswer.body as AnswerBody).item.is_correct).toBe(true);
-    expect((matchAnswer.body as AnswerBody).xp.amount).toBe(5);
+    expect((matchAnswer.body as AnswerBody).xp.amount).toBe(0);
 
     // câu MC sai → is_correct false, không XP
     const mcCorrect = (questions[0].correctAnswer as { index: number }).index;
@@ -496,7 +496,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
         await prisma.xpEvent.count({
           where: { userId, source: 'achievement', refId: achievementCode },
         }),
-      ).toBe(1);
+      ).toBe(0);
 
       const replay = await request(server)
         .post(`/v1/sessions/${sessionId}/answers`)
@@ -508,7 +508,7 @@ describe('AI Quiz (e2e — langoo_test)', () => {
         await prisma.xpEvent.count({
           where: { userId, source: 'achievement', refId: achievementCode },
         }),
-      ).toBe(1);
+      ).toBe(0);
     } finally {
       await prisma.achievement.deleteMany({ where: { code: achievementCode } });
     }

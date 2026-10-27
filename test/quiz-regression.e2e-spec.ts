@@ -287,7 +287,7 @@ describe('M11 regressions (e2e — local *_test only)', () => {
       .expect(200);
     expect(answered.body).toMatchObject({
       item: { is_correct: true },
-      xp: { amount: 5 },
+      xp: { amount: 0 },
       session: { status: 'completed' },
     });
   });

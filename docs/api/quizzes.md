@@ -184,17 +184,17 @@ Response `200`:
     "correct_answer": { "mapping": [] }
   },
   "srs": null,
-  "xp": { "amount": 5 },
+  "xp": { "amount": 0 },
   "session": {
     "status": "completed",
     "correct_count": 2,
     "score": 67,
-    "xp_awarded": 10
+    "xp_awarded": 0
   }
 }
 ```
 
-- **XP:** rule `quiz_correct` (+5, cap 200) **chỉ khi đúng**; câu sai vẫn tính streak/activity
+- **M8.3:** XP mới tạm dừng; câu đúng và sai vẫn tính streak/activity
   (mục tiêu ngày) nhưng **không** cộng `user_stats.reviews_total`/`reviews_1000` — hai bộ đếm
   này chỉ dành cho lượt ôn SRS.
 - Với câu multiple choice, `option_index` phải có trong `prompt.options` của snapshot; index

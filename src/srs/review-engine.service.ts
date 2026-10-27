@@ -146,8 +146,8 @@ export class ReviewEngine {
       });
     }
 
-    // Gamification (M8): XP theo xp_rule + daily cap + streak_day + user_stats
-    // + thành tích — chạy trong cùng transaction, idempotent theo khoá.
+    // M8.3: streak_day, user_stats và thành tích trong cùng transaction;
+    // caller đã giữ lock/receipt và XP mới được tạm dừng.
     const activity = await this.gamification.applyActivity(tx, {
       userId: params.userId,
       timezone: params.timezone,

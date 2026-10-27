@@ -137,7 +137,7 @@ describe('Journey (e2e — langoo_test)', () => {
       status: 'completed',
       score: 100,
     });
-    expect(finishedBody.session.xp_awarded).toBeGreaterThanOrEqual(1);
+    expect(finishedBody.session.xp_awarded).toBe(0);
 
     // 5) Quiz từ chính bộ sưu tập
     const quiz = await request(server)
@@ -194,12 +194,35 @@ describe('Journey (e2e — langoo_test)', () => {
       reviews_total: number;
       today: { review_count: number };
     };
-    // 1 lượt ôn (+1) + 2 câu quiz đúng (+10) + thưởng streak ngày đầu (+2)
-    expect(statsBody.xp_total).toBeGreaterThanOrEqual(11);
+    // XP đang tạm dừng; hoạt động vẫn ghi streak và bộ đếm ngày.
+    expect(statsBody.xp_total).toBe(0);
     expect(statsBody.streak_current).toBeGreaterThanOrEqual(1);
     // reviews_total chỉ đếm lượt ôn SRS (1); quiz chỉ tính activity trong ngày.
     expect(statsBody.reviews_total).toBe(1);
     expect(statsBody.today.review_count).toBeGreaterThanOrEqual(3);
+
+    const calendar = await request(server)
+      .get('/v1/me/activity')
+      .set(auth())
+      .expect(200);
+    const activity = calendar.body as {
+      today: string;
+      days: {
+        date: string;
+        activity_count: number;
+        review_count: number;
+        distinct_words: number;
+        unresolved_review_count: number;
+      }[];
+    };
+    expect(
+      activity.days.find((day) => day.date === activity.today),
+    ).toMatchObject({
+      activity_count: 3,
+      review_count: 1,
+      distinct_words: 1,
+      unresolved_review_count: 0,
+    });
 
     const achievements = await request(server)
       .get('/v1/me/achievements')

@@ -222,7 +222,7 @@ describe('Sessions (e2e — langoo_test)', () => {
       expect(result.item).toMatchObject({ is_correct: true, rating: 3 });
       expect(result.item.correct_answer).toBeDefined();
       expect(result.srs.state).toBe('learning');
-      expect(result.xp.amount).toBe(1);
+      expect(result.xp.amount).toBe(0);
       expect(result.session.answered_count).toBe(1);
 
       const logs = await prisma.reviewLog.count({ where: { userId } });
@@ -230,7 +230,7 @@ describe('Sessions (e2e — langoo_test)', () => {
         where: { userId, source: 'review' },
       });
       expect(logs).toBe(1);
-      expect(xp).toBe(1);
+      expect(xp).toBe(0);
 
       const replay = await answer(session.session.id, {
         ordinal: 1,
@@ -238,11 +238,11 @@ describe('Sessions (e2e — langoo_test)', () => {
         elapsed_ms: 2500,
       });
       expect(replay).toEqual(result); // giữ nguyên toàn bộ response lần đầu
-      expect(replay.xp.amount).toBe(1);
+      expect(replay.xp.amount).toBe(0);
       expect(await prisma.reviewLog.count({ where: { userId } })).toBe(1);
       expect(
         await prisma.xpEvent.count({ where: { userId, source: 'review' } }),
-      ).toBe(1);
+      ).toBe(0);
 
       const conflict = await request(server)
         .post(`/v1/sessions/${session.session.id}/answers`)
@@ -552,6 +552,9 @@ describe('Sessions (e2e — langoo_test)', () => {
       const accepted = (item.correctAnswer.accepted as string[])[0];
       const body = { ordinal: 1, answer_text: accepted };
       const logCount = await prisma.reviewLog.count({ where: { userId } });
+      const previousDay = await prisma.streakDay.findFirst({
+        where: { userId },
+      });
 
       const [first, second] = await Promise.all([
         answer(session.session.id, body),
@@ -562,6 +565,10 @@ describe('Sessions (e2e — langoo_test)', () => {
       expect(await prisma.reviewLog.count({ where: { userId } })).toBe(
         logCount + 1,
       );
+      const currentDay = await prisma.streakDay.findFirstOrThrow({
+        where: { userId },
+      });
+      expect(currentDay.reviewCount).toBe((previousDay?.reviewCount ?? 0) + 1);
       expect(
         await prisma.xpEvent.count({
           where: {
@@ -569,7 +576,7 @@ describe('Sessions (e2e — langoo_test)', () => {
             idempotencyKey: `session:${session.session.id}:1`,
           },
         }),
-      ).toBe(1);
+      ).toBe(0);
     });
 
     it('finish sớm → abandoned; trả lời tiếp → 409 SESSION_CLOSED', async () => {
