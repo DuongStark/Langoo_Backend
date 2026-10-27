@@ -1,0 +1,1320 @@
+{
+  "audit_date": "2026-10-26",
+  "source_commit": "5fc41a7",
+  "deployed_code_commit": "243585a",
+  "live_base": "https://langoo-api.pixpress.art",
+  "method": "TypeScript controller decorators compared with public production OpenAPI method/path",
+  "scope": "registration and contract coverage; not a behavioral test of every operation",
+  "counts": {
+    "operations": 93,
+    "controller_files": 19,
+    "controller_classes": 27,
+    "live_paths": 75,
+    "matched_operations": 93,
+    "without_success_response_schema": 39
+  },
+  "operations": [
+    {
+      "method": "GET",
+      "path": "/v1/admin/audit-log",
+      "file": "src/admin/admin.controller.ts",
+      "line": 141,
+      "handler": "list",
+      "swagger_path": "/v1/admin/audit-log",
+      "live_registered": true,
+      "summary": "Nhật ký thao tác admin (mới nhất trước)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/curation/concepts",
+      "file": "src/admin/admin.controller.ts",
+      "line": 171,
+      "handler": "searchConcepts",
+      "swagger_path": "/v1/admin/curation/concepts",
+      "live_registered": true,
+      "summary": "Tìm concept (gloss_en/vi hoặc id) — dùng khi thêm nối nghĩa đúng",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/curation/concepts/:id",
+      "file": "src/admin/admin.controller.ts",
+      "line": 259,
+      "handler": "updateConcept",
+      "swagger_path": "/v1/admin/curation/concepts/{id}",
+      "live_registered": true,
+      "summary": "Đổi trạng thái concept (draft|review|curated|rejected)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/curation/glosses/:id",
+      "file": "src/admin/admin.controller.ts",
+      "line": 219,
+      "handler": "deleteGloss",
+      "swagger_path": "/v1/admin/curation/glosses/{id}",
+      "live_registered": true,
+      "summary": "Xoá gloss (audit giữ nguyên nội dung đã xoá)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/curation/glosses/:id",
+      "file": "src/admin/admin.controller.ts",
+      "line": 179,
+      "handler": "getGloss",
+      "swagger_path": "/v1/admin/curation/glosses/{id}",
+      "live_registered": true,
+      "summary": "Tra gloss theo id + sense chứa nó (nối từ hàng chờ report)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/curation/glosses/:id",
+      "file": "src/admin/admin.controller.ts",
+      "line": 187,
+      "handler": "updateGloss",
+      "swagger_path": "/v1/admin/curation/glosses/{id}",
+      "live_registered": true,
+      "summary": "Sửa gloss: text/reviewed/quality (audit cùng transaction)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/curation/senses",
+      "file": "src/admin/admin.controller.ts",
+      "line": 155,
+      "handler": "search",
+      "swagger_path": "/v1/admin/curation/senses",
+      "live_registered": true,
+      "summary": "Tìm sense để sửa (lemma/kana/romaji hoặc external_id)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/curation/senses/:id",
+      "file": "src/admin/admin.controller.ts",
+      "line": 163,
+      "handler": "detail",
+      "swagger_path": "/v1/admin/curation/senses/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết sense: gloss VI/EN, nối nghĩa, report gần đây",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/curation/senses/:id/glosses",
+      "file": "src/admin/admin.controller.ts",
+      "line": 203,
+      "handler": "createGloss",
+      "swagger_path": "/v1/admin/curation/senses/{id}/glosses",
+      "live_registered": true,
+      "summary": "Thêm gloss VI do admin nhập (đánh dấu đã duyệt)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/curation/senses/:id/mappings",
+      "file": "src/admin/admin.controller.ts",
+      "line": 228,
+      "handler": "addMapping",
+      "swagger_path": "/v1/admin/curation/senses/{id}/mappings",
+      "live_registered": true,
+      "summary": "Thêm nối nghĩa sense→concept (admin, verified; refresh serve chạy nền)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/admin/curation/senses/:id/mappings/:conceptId",
+      "file": "src/admin/admin.controller.ts",
+      "line": 245,
+      "handler": "deleteMapping",
+      "swagger_path": "/v1/admin/curation/senses/{id}/mappings/{conceptId}",
+      "live_registered": true,
+      "summary": "Xoá nối nghĩa sai (refresh serve chạy nền)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/admin/curation/serve/refresh",
+      "file": "src/admin/admin.controller.ts",
+      "line": 275,
+      "handler": "refresh",
+      "swagger_path": "/v1/admin/curation/serve/refresh",
+      "live_registered": true,
+      "summary": "Refresh serve.sense_pair ngay (thường đã tự chạy nền sau mutation)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/feedback",
+      "file": "src/feedback/admin-feedback.controller.ts",
+      "line": 33,
+      "handler": "list",
+      "swagger_path": "/v1/admin/feedback",
+      "live_registered": true,
+      "summary": "Hàng chờ feedback (lọc status/category, keyset cursor)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/feedback/:id",
+      "file": "src/feedback/admin-feedback.controller.ts",
+      "line": 44,
+      "handler": "get",
+      "swagger_path": "/v1/admin/feedback/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết feedback + metadata ảnh + user gửi",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/feedback/:id",
+      "file": "src/feedback/admin-feedback.controller.ts",
+      "line": 71,
+      "handler": "update",
+      "swagger_path": "/v1/admin/feedback/{id}",
+      "live_registered": true,
+      "summary": "Cập nhật trạng thái/ghi chú feedback (audit trong cùng transaction)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/feedback/:id/attachments/:attachmentId",
+      "file": "src/feedback/admin-feedback.controller.ts",
+      "line": 50,
+      "handler": "attachment",
+      "swagger_path": "/v1/admin/feedback/{id}/attachments/{attachmentId}",
+      "live_registered": true,
+      "summary": "Tải ảnh feedback (guard admin; không có public URL)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/gloss-reports",
+      "file": "src/admin/admin.controller.ts",
+      "line": 79,
+      "handler": "list",
+      "swagger_path": "/v1/admin/gloss-reports",
+      "live_registered": true,
+      "summary": "Hàng chờ báo lỗi gloss (dữ liệu user chủ động gửi)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/gloss-reports/:id",
+      "file": "src/admin/admin.controller.ts",
+      "line": 87,
+      "handler": "update",
+      "swagger_path": "/v1/admin/gloss-reports/{id}",
+      "live_registered": true,
+      "summary": "Xử lý báo lỗi: triaged|fixed|rejected (audit cùng transaction)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/stats",
+      "file": "src/admin/admin.controller.ts",
+      "line": 52,
+      "handler": "overview",
+      "swagger_path": "/v1/admin/stats",
+      "live_registered": true,
+      "summary": "Thống kê vận hành tổng hợp (user/học tập/nội dung/AI)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/stats/timeseries",
+      "file": "src/admin/admin.controller.ts",
+      "line": 63,
+      "handler": "timeseries",
+      "swagger_path": "/v1/admin/stats/timeseries",
+      "live_registered": true,
+      "summary": "Chuỗi theo ngày cho metric: signups|reviews|xp|ai_requests",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/admin/users",
+      "file": "src/admin/admin.controller.ts",
+      "line": 111,
+      "handler": "list",
+      "swagger_path": "/v1/admin/users",
+      "live_registered": true,
+      "summary": "Danh sách/tìm người học — filter status/role, q email/tên, cursor (chỉ metadata tài khoản)",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/admin/users/:id",
+      "file": "src/admin/admin.controller.ts",
+      "line": 121,
+      "handler": "updateStatus",
+      "swagger_path": "/v1/admin/users/{id}",
+      "live_registered": true,
+      "summary": "Khoá/mở tài khoản người học (active|locked) — có audit",
+      "tags": [
+        "admin"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/login",
+      "file": "src/auth/auth.controller.ts",
+      "line": 75,
+      "handler": "login",
+      "swagger_path": "/v1/auth/login",
+      "live_registered": true,
+      "summary": "Đăng nhập bằng email/mật khẩu",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/logout",
+      "file": "src/auth/auth.controller.ts",
+      "line": 167,
+      "handler": "logout",
+      "swagger_path": "/v1/auth/logout",
+      "live_registered": true,
+      "summary": "Thu hồi session hiện tại (refresh token của session bị vô hiệu)",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/auth/me",
+      "file": "src/auth/auth.controller.ts",
+      "line": 180,
+      "handler": "me",
+      "swagger_path": "/v1/auth/me",
+      "live_registered": true,
+      "summary": "Thông tin user đang đăng nhập",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/oauth/google",
+      "file": "src/auth/auth.controller.ts",
+      "line": 92,
+      "handler": "oauthGoogle",
+      "swagger_path": "/v1/auth/oauth/google",
+      "live_registered": true,
+      "summary": "Đăng nhập/đăng ký bằng Google ID token (OAuth2)",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/oauth/google/challenge",
+      "file": "src/auth/auth.controller.ts",
+      "line": 110,
+      "handler": "oauthGoogleChallenge",
+      "swagger_path": "/v1/auth/oauth/google/challenge",
+      "live_registered": true,
+      "summary": "Tạo challenge dùng một lần cho Google login/link",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/oauth/google/link",
+      "file": "src/auth/auth.controller.ts",
+      "line": 133,
+      "handler": "oauthGoogleLink",
+      "swagger_path": "/v1/auth/oauth/google/link",
+      "live_registered": true,
+      "summary": "Liên kết Google vào tài khoản hiện tại sau khi xác nhận mật khẩu",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/refresh",
+      "file": "src/auth/auth.controller.ts",
+      "line": 154,
+      "handler": "refresh",
+      "swagger_path": "/v1/auth/refresh",
+      "live_registered": true,
+      "summary": "Xoay vòng refresh token lấy cặp token mới",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/auth/register",
+      "file": "src/auth/auth.controller.ts",
+      "line": 59,
+      "handler": "register",
+      "swagger_path": "/v1/auth/register",
+      "live_registered": true,
+      "summary": "Đăng ký tài khoản mới (tự đăng nhập)",
+      "tags": [
+        "auth"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/chat/sessions",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 67,
+      "handler": "listSessions",
+      "swagger_path": "/v1/chat/sessions",
+      "live_registered": true,
+      "summary": "Danh sách phiên chat (ẩn phiên đã lưu trữ)",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/chat/sessions",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 52,
+      "handler": "createSession",
+      "swagger_path": "/v1/chat/sessions",
+      "live_registered": true,
+      "summary": "Tạo phiên chat AI",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/chat/sessions/:id",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 103,
+      "handler": "archiveSession",
+      "swagger_path": "/v1/chat/sessions/{id}",
+      "live_registered": true,
+      "summary": "Lưu trữ phiên chat (archive mềm, idempotent)",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/chat/sessions/:id",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 77,
+      "handler": "getSession",
+      "swagger_path": "/v1/chat/sessions/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết phiên chat",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/chat/sessions/:id",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 89,
+      "handler": "updateSession",
+      "swagger_path": "/v1/chat/sessions/{id}",
+      "live_registered": true,
+      "summary": "Đổi tên/kịch bản phiên chat",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/chat/sessions/:id/messages",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 115,
+      "handler": "listMessages",
+      "swagger_path": "/v1/chat/sessions/{id}/messages",
+      "live_registered": true,
+      "summary": "Lịch sử tin nhắn (tăng dần theo thời gian)",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/chat/sessions/:id/messages",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 129,
+      "handler": "sendMessage",
+      "swagger_path": "/v1/chat/sessions/{id}/messages",
+      "live_registered": true,
+      "summary": "Gửi tin nhắn, nhận trả lời từ trợ lý AI",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/chat/sessions/:id/messages/stream",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 150,
+      "handler": "streamMessage",
+      "swagger_path": "/v1/chat/sessions/{id}/messages/stream",
+      "live_registered": true,
+      "summary": "Gửi tin nhắn, nhận trả lời dần qua SSE (M10.1)",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/chat/usage",
+      "file": "src/ai/chat/chat.controller.ts",
+      "line": 244,
+      "handler": "getUsage",
+      "swagger_path": "/v1/chat/usage",
+      "live_registered": true,
+      "summary": "Quota chat đã dùng hôm nay (theo timezone user)",
+      "tags": [
+        "chat"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/collections",
+      "file": "src/collections/collections.controller.ts",
+      "line": 60,
+      "handler": "list",
+      "swagger_path": "/v1/collections",
+      "live_registered": true,
+      "summary": "Danh sách bộ sưu tập của tôi (chưa archive)",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/collections",
+      "file": "src/collections/collections.controller.ts",
+      "line": 71,
+      "handler": "create",
+      "swagger_path": "/v1/collections",
+      "live_registered": true,
+      "summary": "Tạo bộ sưu tập (profile mặc định nếu không gửi)",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/collections/:collectionId/items",
+      "file": "src/collections/items.controller.ts",
+      "line": 49,
+      "handler": "list",
+      "swagger_path": "/v1/collections/{collectionId}/items",
+      "live_registered": true,
+      "summary": "Danh sách từ trong bộ (lọc language_id/status, cursor keyset)",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/collections/:collectionId/items",
+      "file": "src/collections/items.controller.ts",
+      "line": 67,
+      "handler": "add",
+      "swagger_path": "/v1/collections/{collectionId}/items",
+      "live_registered": true,
+      "summary": "Thêm từ (1–2 face, khác ngôn ngữ) — mỗi face sinh 2 srs_state trong transaction",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/collections/:collectionId/items/:itemId",
+      "file": "src/collections/items.controller.ts",
+      "line": 112,
+      "handler": "remove",
+      "swagger_path": "/v1/collections/{collectionId}/items/{itemId}",
+      "live_registered": true,
+      "summary": "Xoá từ khỏi bộ (xoá cascade face + srs_state)",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/collections/:collectionId/items/:itemId",
+      "file": "src/collections/items.controller.ts",
+      "line": 90,
+      "handler": "update",
+      "swagger_path": "/v1/collections/{collectionId}/items/{itemId}",
+      "live_registered": true,
+      "summary": "Sửa nghĩa/note/status/position/tag_ids của từ",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/collections/:id",
+      "file": "src/collections/collections.controller.ts",
+      "line": 175,
+      "handler": "archive",
+      "swagger_path": "/v1/collections/{id}",
+      "live_registered": true,
+      "summary": "Xoá mềm (archive) — giữ lịch sử ôn tập",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/collections/:id",
+      "file": "src/collections/collections.controller.ts",
+      "line": 146,
+      "handler": "get",
+      "swagger_path": "/v1/collections/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết bộ sưu tập",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/collections/:id",
+      "file": "src/collections/collections.controller.ts",
+      "line": 160,
+      "handler": "update",
+      "swagger_path": "/v1/collections/{id}",
+      "live_registered": true,
+      "summary": "Đổi tên/mô tả bộ sưu tập",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/collections/:id/from-deck",
+      "file": "src/collections/collections.controller.ts",
+      "line": 125,
+      "handler": "appendFromDeck",
+      "swagger_path": "/v1/collections/{id}/from-deck",
+      "live_registered": true,
+      "summary": "Thêm từ của bộ mẫu vào bộ đã có (bỏ qua từ trùng)",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/collections/decks",
+      "file": "src/collections/collections.controller.ts",
+      "line": 101,
+      "handler": "listDecks",
+      "swagger_path": "/v1/collections/decks",
+      "live_registered": true,
+      "summary": "Bộ từ mẫu (deck hệ thống đã publish) để clone",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/collections/decks/:id",
+      "file": "src/collections/collections.controller.ts",
+      "line": 109,
+      "handler": "previewDeck",
+      "swagger_path": "/v1/collections/decks/{id}",
+      "live_registered": true,
+      "summary": "Preview các từ trong bộ mẫu (phân trang theo position)",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/collections/from-deck",
+      "file": "src/collections/collections.controller.ts",
+      "line": 85,
+      "handler": "cloneFromDeck",
+      "swagger_path": "/v1/collections/from-deck",
+      "live_registered": true,
+      "summary": "Clone bộ từ hệ thống (core.deck) thành bộ của tôi",
+      "tags": [
+        "collections"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dictionary/reverse",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 78,
+      "handler": "reverse",
+      "swagger_path": "/v1/dictionary/reverse",
+      "live_registered": true,
+      "summary": "Tra ngược Việt→Anh/Nhật (vd cát → sand, 砂)",
+      "tags": [
+        "dictionary"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dictionary/search",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 57,
+      "handler": "search",
+      "swagger_path": "/v1/dictionary/search",
+      "live_registered": true,
+      "summary": "Tra từ điển (Anh–Việt, Nhật–Việt); có token sẽ ghi lịch sử",
+      "tags": [
+        "dictionary"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dictionary/suggestions",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 98,
+      "handler": "suggestions",
+      "swagger_path": "/v1/dictionary/suggestions",
+      "live_registered": true,
+      "summary": "Gợi ý tìm kiếm tối đa 5 từ phổ biến, không ghi lịch sử tra từ",
+      "tags": [
+        "dictionary"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/dictionary/suggestions/reverse",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 125,
+      "handler": "suggestReverse",
+      "swagger_path": "/v1/dictionary/suggestions/reverse",
+      "live_registered": true,
+      "summary": "Gợi ý tiếng Việt → Anh/Nhật (tiền tố, không phân biệt dấu)",
+      "tags": [
+        "dictionary"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/feedback",
+      "file": "src/feedback/feedback.controller.ts",
+      "line": 45,
+      "handler": "create",
+      "swagger_path": "/v1/feedback",
+      "live_registered": true,
+      "summary": "Gửi feedback (text + tối đa 3 ảnh ≤5MB, JPEG/PNG/WebP)",
+      "tags": [
+        "feedback"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/gloss-reports",
+      "file": "src/dictionary/feedback.controller.ts",
+      "line": 25,
+      "handler": "create",
+      "swagger_path": "/v1/gloss-reports",
+      "live_registered": true,
+      "summary": "Báo lỗi gloss/nghĩa (badge chưa kiểm duyệt → user report)",
+      "tags": [
+        "dictionary"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/health",
+      "file": "src/health/health.controller.ts",
+      "line": 17,
+      "handler": "check",
+      "swagger_path": "/v1/health",
+      "live_registered": true,
+      "summary": "Kiểm tra API và kết nối cơ sở dữ liệu",
+      "tags": [
+        "health"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/kanji/:literal",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 229,
+      "handler": "get",
+      "swagger_path": "/v1/kanji/{literal}",
+      "live_registered": true,
+      "summary": "Chi tiết chữ Hán: nét, cấp, âm, nghĩa, bộ thủ",
+      "tags": [
+        "kanji"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/kanji/:literal/stroke.svg",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 246,
+      "handler": "stroke",
+      "swagger_path": "/v1/kanji/{literal}/stroke.svg",
+      "live_registered": true,
+      "summary": "Ảnh SVG thứ tự nét (KanjiVG) — cache công khai 1 ngày",
+      "tags": [
+        "kanji"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/lexemes/:id/senses",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 152,
+      "handler": "senses",
+      "swagger_path": "/v1/lexemes/{id}/senses",
+      "live_registered": true,
+      "summary": "Lấy nghĩa của từ: nhóm Wiktextract hoặc danh sách phẳng",
+      "tags": [
+        "lexemes"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/achievements",
+      "file": "src/gamification/gamification.controller.ts",
+      "line": 47,
+      "handler": "achievements",
+      "swagger_path": "/v1/me/achievements",
+      "live_registered": true,
+      "summary": "Danh sách thành tích + tiến độ + số chưa xem",
+      "tags": [
+        "gamification"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/me/achievements/seen",
+      "file": "src/gamification/gamification.controller.ts",
+      "line": 56,
+      "handler": "markSeen",
+      "swagger_path": "/v1/me/achievements/seen",
+      "live_registered": true,
+      "summary": "Đánh dấu đã xem thành tích (tất cả hoặc theo codes)",
+      "tags": [
+        "gamification"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/feedback",
+      "file": "src/feedback/feedback.controller.ts",
+      "line": 88,
+      "handler": "list",
+      "swagger_path": "/v1/me/feedback",
+      "live_registered": true,
+      "summary": "Feedback của tôi (kèm trạng thái + ghi chú admin)",
+      "tags": [
+        "feedback"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/search-history",
+      "file": "src/dictionary/search-history.controller.ts",
+      "line": 24,
+      "handler": "list",
+      "swagger_path": "/v1/me/search-history",
+      "live_registered": true,
+      "summary": "Lịch sử tra từ gần đây của tôi (50 dòng)",
+      "tags": [
+        "dictionary"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/settings",
+      "file": "src/users/settings.controller.ts",
+      "line": 25,
+      "handler": "get",
+      "swagger_path": "/v1/me/settings",
+      "live_registered": true,
+      "summary": "Cài đặt của tôi (chưa có row → trả giá trị mặc định)",
+      "tags": [
+        "settings"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/me/settings",
+      "file": "src/users/settings.controller.ts",
+      "line": 35,
+      "handler": "update",
+      "swagger_path": "/v1/me/settings",
+      "live_registered": true,
+      "summary": "Cập nhật cài đặt (upsert)",
+      "tags": [
+        "settings"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/me/stats",
+      "file": "src/gamification/gamification.controller.ts",
+      "line": 37,
+      "handler": "stats",
+      "swagger_path": "/v1/me/stats",
+      "live_registered": true,
+      "summary": "XP/level/streak/thành tích của tôi (ngày theo timezone user)",
+      "tags": [
+        "gamification"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/profiles",
+      "file": "src/users/profile.controller.ts",
+      "line": 43,
+      "handler": "list",
+      "swagger_path": "/v1/profiles",
+      "live_registered": true,
+      "summary": "Danh sách hồ sơ học của tôi",
+      "tags": [
+        "profiles"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/profiles",
+      "file": "src/users/profile.controller.ts",
+      "line": 53,
+      "handler": "create",
+      "swagger_path": "/v1/profiles",
+      "live_registered": true,
+      "summary": "Tạo hồ sơ học (hồ sơ đầu tiên tự động là mặc định)",
+      "tags": [
+        "profiles"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/profiles/:id",
+      "file": "src/users/profile.controller.ts",
+      "line": 92,
+      "handler": "remove",
+      "swagger_path": "/v1/profiles/{id}",
+      "live_registered": true,
+      "summary": "Xoá hồ sơ học (không xoá hồ sơ mặc định/duy nhất)",
+      "tags": [
+        "profiles"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/profiles/:id",
+      "file": "src/users/profile.controller.ts",
+      "line": 66,
+      "handler": "get",
+      "swagger_path": "/v1/profiles/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết hồ sơ học",
+      "tags": [
+        "profiles"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/profiles/:id",
+      "file": "src/users/profile.controller.ts",
+      "line": 80,
+      "handler": "update",
+      "swagger_path": "/v1/profiles/{id}",
+      "live_registered": true,
+      "summary": "Cập nhật hồ sơ học / đặt làm mặc định",
+      "tags": [
+        "profiles"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/quizzes",
+      "file": "src/ai/quiz/quiz.controller.ts",
+      "line": 65,
+      "handler": "list",
+      "swagger_path": "/v1/quizzes",
+      "live_registered": true,
+      "summary": "Lịch sử quiz (kèm session gần nhất)",
+      "tags": [
+        "quizzes"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/quizzes",
+      "file": "src/ai/quiz/quiz.controller.ts",
+      "line": 41,
+      "handler": "create",
+      "swagger_path": "/v1/quizzes",
+      "live_registered": true,
+      "summary": "Sinh quiz từ bộ sưu tập (dạng câu hỏi checkbox, Kanji mặc định)",
+      "tags": [
+        "quizzes"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/quizzes/:id",
+      "file": "src/ai/quiz/quiz.controller.ts",
+      "line": 75,
+      "handler": "get",
+      "swagger_path": "/v1/quizzes/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết quiz + câu hỏi (không kèm đáp án) + 5 session gần nhất",
+      "tags": [
+        "quizzes"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "POST",
+      "path": "/v1/quizzes/:id/start",
+      "file": "src/ai/quiz/quiz.controller.ts",
+      "line": 89,
+      "handler": "start",
+      "swagger_path": "/v1/quizzes/{id}/start",
+      "live_registered": true,
+      "summary": "Bắt đầu làm quiz — tạo phiên học kind=quiz (snapshot câu hỏi)",
+      "tags": [
+        "quizzes"
+      ],
+      "success_response_schema": false
+    },
+    {
+      "method": "GET",
+      "path": "/v1/senses/:id",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 182,
+      "handler": "get",
+      "swagger_path": "/v1/senses/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết nghĩa: gloss, ví dụ, phát âm, forms của từ",
+      "tags": [
+        "senses"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/senses/:id/links",
+      "file": "src/dictionary/dictionary.controller.ts",
+      "line": 201,
+      "handler": "links",
+      "swagger_path": "/v1/senses/{id}/links",
+      "live_registered": true,
+      "summary": "Cặp sense ngôn ngữ khác cùng concept (serve.sense_pair, chỉ curated)",
+      "tags": [
+        "senses"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions",
+      "file": "src/sessions/sessions.controller.ts",
+      "line": 51,
+      "handler": "create",
+      "swagger_path": "/v1/sessions",
+      "live_registered": true,
+      "summary": "Tạo phiên ôn (snapshot đề bài; đáp án giấu tới khi trả lời; review=due, practice=ôn trước)",
+      "tags": [
+        "sessions"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sessions/:id",
+      "file": "src/sessions/sessions.controller.ts",
+      "line": 68,
+      "handler": "get",
+      "swagger_path": "/v1/sessions/{id}",
+      "live_registered": true,
+      "summary": "Chi tiết phiên + tiến độ (đáp án chỉ hiện với câu đã trả lời)",
+      "tags": [
+        "sessions"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/:id/answers",
+      "file": "src/sessions/sessions.controller.ts",
+      "line": 100,
+      "handler": "answer",
+      "swagger_path": "/v1/sessions/{id}/answers",
+      "live_registered": true,
+      "summary": "Trả lời 1 câu — đáp án chấm ở server (client không gửi is_correct)",
+      "tags": [
+        "sessions"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/sessions/:id/finish",
+      "file": "src/sessions/sessions.controller.ts",
+      "line": 129,
+      "handler": "finish",
+      "swagger_path": "/v1/sessions/{id}/finish",
+      "live_registered": true,
+      "summary": "Đóng phiên sớm (đủ câu → completed + score; thiếu → abandoned)",
+      "tags": [
+        "sessions"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sessions/:id/items",
+      "file": "src/sessions/sessions.controller.ts",
+      "line": 84,
+      "handler": "items",
+      "swagger_path": "/v1/sessions/{id}/items",
+      "live_registered": true,
+      "summary": "Danh sách câu đã trả lời (lọc is_correct=false cho màn \"câu sai\")",
+      "tags": [
+        "sessions"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/sources",
+      "file": "src/sources/sources.controller.ts",
+      "line": 12,
+      "handler": "list",
+      "swagger_path": "/v1/sources",
+      "live_registered": true,
+      "summary": "Danh sách nguồn dữ liệu (license/attribution/url) + số liệu đóng góp",
+      "tags": [
+        "sources"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "PATCH",
+      "path": "/v1/srs/cards",
+      "file": "src/srs/srs.controller.ts",
+      "line": 95,
+      "handler": "suspend",
+      "swagger_path": "/v1/srs/cards",
+      "live_registered": true,
+      "summary": "Suspend/unsuspend một thẻ (face + direction)",
+      "tags": [
+        "srs"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/srs/due",
+      "file": "src/srs/srs.controller.ts",
+      "line": 44,
+      "handler": "due",
+      "swagger_path": "/v1/srs/due",
+      "live_registered": true,
+      "summary": "Hàng đợi ôn hôm nay (intraday → interday → review → new; learn-ahead fallback; daily limit theo settings)",
+      "tags": [
+        "srs"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/srs/reviews",
+      "file": "src/srs/srs.controller.ts",
+      "line": 61,
+      "handler": "review",
+      "swagger_path": "/v1/srs/reviews",
+      "live_registered": true,
+      "summary": "Trả lời 1 thẻ (transaction: log + state + burying + XP)",
+      "tags": [
+        "srs"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/srs/stats",
+      "file": "src/srs/srs.controller.ts",
+      "line": 87,
+      "handler": "stats",
+      "swagger_path": "/v1/srs/stats",
+      "live_registered": true,
+      "summary": "Thống kê SRS của tôi (theo ngày địa phương)",
+      "tags": [
+        "srs"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "GET",
+      "path": "/v1/tags",
+      "file": "src/collections/tags.controller.ts",
+      "line": 46,
+      "handler": "list",
+      "swagger_path": "/v1/tags",
+      "live_registered": true,
+      "summary": "Danh sách tag của tôi",
+      "tags": [
+        "tags"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "POST",
+      "path": "/v1/tags",
+      "file": "src/collections/tags.controller.ts",
+      "line": 56,
+      "handler": "create",
+      "swagger_path": "/v1/tags",
+      "live_registered": true,
+      "summary": "Tạo tag (không phân biệt hoa thường)",
+      "tags": [
+        "tags"
+      ],
+      "success_response_schema": true
+    },
+    {
+      "method": "DELETE",
+      "path": "/v1/tags/:id",
+      "file": "src/collections/tags.controller.ts",
+      "line": 70,
+      "handler": "remove",
+      "swagger_path": "/v1/tags/{id}",
+      "live_registered": true,
+      "summary": "Xoá tag (gỡ khỏi mọi item)",
+      "tags": [
+        "tags"
+      ],
+      "success_response_schema": true
+    }
+  ]
+}
