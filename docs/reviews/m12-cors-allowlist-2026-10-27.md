@@ -51,4 +51,40 @@ không bị hiểu thành regex. `http://localhost:*` không khớp
 ## 5. Git
 
 Code + tài liệu của M12 được commit cùng lượt và push `main` theo yêu cầu chủ dự
-án. Hash cụ thể ghi ở `PROGRESS.md` sau khi commit.
+án: `abacacf`. CI `40442172409` success, Deploy VPS `40442367193` success; VPS
+HEAD `abacacf`, PM2 `langoo-api` online.
+
+## 6. Áp dụng VPS và domain mới `api.langoo.org` (27/10)
+
+Cùng lượt, chủ dự án chuyển domain API sang `api.langoo.org` (đã cấu hình phía
+Cloudflare) và báo lỗi **525**; domain cũ `langoo-api.pixpress.art` không còn bản
+ghi DNS.
+
+- Nguyên nhân 525: `/etc/caddy/Caddyfile` chỉ có site block cũ, Caddy không có
+  chứng chỉ cho SNI `api.langoo.org` nên TLS handshake origin thất bại dù Node/DB
+  vẫn khoẻ (`127.0.0.1:3000/v1/health` = 200).
+- Xử lý trên VPS: backup `/etc/caddy/Caddyfile.bak-m12-20261027`, thêm site block
+  `api.langoo.org` (`encode gzip` + `reverse_proxy 127.0.0.1:3000`), `caddy
+  validate` = Valid, `systemctl reload caddy`; Let's Encrypt cấp cert qua HTTP-01
+  lúc 10:10 UTC (`certificate obtained successfully`).
+- `.env` VPS: `CORS_ORIGINS=http://localhost:*,https://langoo.org,https://www.langoo.org`
+  (bản `*` lưu private `/opt/langoo/storage/ops/m12-cors-before-20261027.env`,
+  600) + `pm2 restart langoo-api`.
+- Đo thật qua `https://api.langoo.org` (27/10, khoảng 10:10–10:15 UTC):
+
+| Origin gửi lên | `access-control-allow-origin` |
+| --- | --- |
+| `https://langoo.org` | `https://langoo.org` |
+| `https://www.langoo.org` | `https://www.langoo.org` |
+| `http://localhost:5173` | `http://localhost:5173` |
+| `http://localhost:3000` | `http://localhost:3000` |
+| `https://evil.example` | không có header |
+
+`GET /v1/health` = 200, `status=ok`, `db=ok`, `db_timezone=UTC`.
+
+- Tài liệu sống đã đổi base URL sang `https://api.langoo.org`: `README.md`,
+  `docs/ops/vps-deployment.md`, `docs/fe/chat-streaming.md`,
+  `docs/handoff/fe-tasks-2026-10-08.md`. Report lịch sử giữ nguyên domain cũ.
+- Còn mở: Cloudflare SSL/TLS mode cần xác nhận **Full (strict)**; rate limit M12
+  giờ thấy IP Cloudflare thay vì IP người dùng (chưa đọc `CF-Connecting-IP`); chưa
+  kiểm FE thật trỏ base URL mới.

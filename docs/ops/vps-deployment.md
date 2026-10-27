@@ -1,7 +1,7 @@
 # Vận hành VPS — Langoo API + PostgreSQL
 
-> Tài liệu cho **mọi phiên LLM/dev tiếp nhận dự án**. Cập nhật: 2026-10-26 (DOCS1 live audit read-only).
-> IP VPS: **163.223.210.135** · Domain API: **https://langoo-api.pixpress.art**
+> Tài liệu cho **mọi phiên LLM/dev tiếp nhận dự án**. Cập nhật: 2026-10-27 (M12 — domain `api.langoo.org`, CORS allowlist).
+> IP VPS: **163.223.210.135** · Domain API: **https://api.langoo.org** (domain cũ `langoo-api.pixpress.art` đã bỏ DNS)
 > ⚠️ Bí mật (mật khẩu DB, key, `.env`) **KHÔNG** nằm trong repo — xem mục 8.
 
 ## 1. Tổng quan
@@ -12,8 +12,8 @@
 
 ```
 Internet
-  └─ Cloudflare DNS: langoo-api.pixpress.art (bản ghi A, mây XÁM – DNS only)
-       └─ Caddy :80/:443 (Let's Encrypt, tự gia hạn)
+  └─ Cloudflare DNS: api.langoo.org (bản ghi A, mây CAM – proxied)
+       └─ Caddy :80/:443 (Let's Encrypt qua HTTP-01, tự gia hạn)
             └─ Node/PM2 "langoo-api" — 127.0.0.1:3000 (ufw chặn từ ngoài)
                  └─ PostgreSQL 16 — 127.0.0.1:5432
 ```
@@ -64,7 +64,7 @@ Internet
 - `.env`: `/opt/langoo/app/.env` (owner `langoo`; quyền đo ngày 27/10 là `664`, cần rà để siết về `600`):
   - **Hiện trỏ DB thật VPS** (`DATABASE_URL`/`DIRECT_URL`: `127.0.0.1:5432/langoo`), xác minh 06/10. Không xuất URL chứa mật khẩu trong report.
   - `/opt/langoo/app/.env.localdb.bak` là bản cấu hình DB thật lưu trước đó; không cần chuyển env để đọc DB thật trong trạng thái hiện tại. Kiểm lại target trước thao tác ops.
-  - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`… **M12 (27/10):** repo mặc định allowlist `http://localhost:*` + `https://langoo.org` + `https://www.langoo.org`; `.env` VPS đo cùng ngày vẫn là `CORS_ORIGINS=*`, cần sửa dòng này rồi restart mới có hiệu lực.
+  - Các nhóm biến: `NODE_ENV=production`, `LOG_LEVEL=info`, `JWT_ACCESS_SECRET` (mới sinh), `GOOGLE_OAUTH_CLIENT_IDS`, `CORS_ORIGINS`, `RATE_LIMIT_ENABLED=true`, `SCHEDULER_ENABLED=true`, `STORAGE_PROVIDER=local`, `STORAGE_DIR=/opt/langoo/storage`, `AI_*`… **M12 (27/10):** `.env` VPS đã đổi `CORS_ORIGINS=http://localhost:*,https://langoo.org,https://www.langoo.org` (bản trước `*` lưu private tại `/opt/langoo/storage/ops/m12-cors-before-20261027.env`) và `pm2 restart`; log khởi động ghi `CORS: cho phép http://localhost:[^/]+, https://langoo.org, https://www.langoo.org`.
   - **AI production (05/10)**: `AI_PROVIDER=openai`, `AI_BASE_URL=https://api.groq.com/openai/v1`, `AI_CHAT_MODEL=openai/gpt-oss-120b`, key Groq (free tier: 30 RPM / 1.000 req/ngày / 8K TPM). Đo thực tế: **~0,6–2,2s/câu** (nhanh hơn hẳn Zen free), streaming hoạt động.
   - Phương án dự phòng đã thử:
     - **Zen** (`https://opencode.ai/zen/v1`, model `space-bunny-free`): model suy luận, chậm 6–22s, có lúc trả rỗng; các model free khác bị **403** ("free tier chỉ dùng trong OpenCode"), model trả phí **402** (hết balance). ⚠️ Không dùng `/zen/go/v1` (cần header `x-opencode-session` → 400/503).
@@ -77,17 +77,22 @@ Internet
 ## 6. Caddy & HTTPS
 
 - Binary `/usr/local/bin/caddy` + systemd `caddy.service` (không dùng repo apt — key Cloudsmith lỗi GPG).
-- `/etc/caddy/Caddyfile`:
+- `/etc/caddy/Caddyfile` (cập nhật 27/10 — có cả domain mới):
   ```
   langoo-api.pixpress.art {
       encode gzip
       reverse_proxy 127.0.0.1:3000
   }
+
+  api.langoo.org {
+      encode gzip
+      reverse_proxy 127.0.0.1:3000
+  }
   ```
-- Let's Encrypt tự xin/gia hạn (DNS mây xám nên ACME HTTP-01 chạy trực tiếp, không qua Cloudflare).
-- Reload sau khi sửa: `systemctl reload caddy`.
+- Let's Encrypt tự xin/gia hạn. `api.langoo.org` đang **proxy qua Cloudflare** nên ACME dùng HTTP-01 (Cloudflare chuyển tiếp `/.well-known/acme-challenge`); **TLS-ALPN không dùng được** khi đang proxied. Chứng chỉ đầu tiên đã lấy 27/10 10:10 UTC.
+- Reload sau khi sửa: `systemctl reload caddy`. Thêm domain mới **phải** thêm site block: thiếu block thì Caddy không có cert cho SNI đó và Cloudflare trả **525 (SSL handshake failed)** dù origin vẫn khoẻ.
 - **ufw đang bật** (từ 05/10): chỉ mở `22/tcp`, `80/tcp`, `443/tcp`; port 3000 đã bị chặn từ ngoài. Thêm port mới phải `ufw allow`.
-- Bản sửa M12 ngày 05/10 cấu hình Express `trust proxy=loopback` qua `configureHttpProxy()` để rate limit dùng IP client do Caddy chuyển tiếp. Peer ngoài loopback không được tin header `X-Forwarded-For`. Phù hợp upstream `127.0.0.1:3000` và DNS only hiện tại; nếu thêm proxy phía trước hoặc đổi upstream cần kiểm tra lại chuỗi IP.
+- Bản sửa M12 ngày 05/10 cấu hình Express `trust proxy=loopback` qua `configureHttpProxy()` để rate limit dùng IP client do Caddy chuyển tiếp. Peer ngoài loopback không được tin header `X-Forwarded-For`. Phù hợp upstream `127.0.0.1:3000`. ⚠️ **Từ 27/10 domain API đi qua Cloudflare proxy**: peer của Caddy là IP Cloudflare nên app thấy IP Cloudflare, rate limit sẽ gộp theo edge Cloudflare thay vì từng người dùng. Muốn đúng IP người dùng phải đọc `CF-Connecting-IP` (chỉ tin khi request đến từ dải IP Cloudflare) — chưa làm, ghi thành gate.
 - Bản sửa này đã kiểm chứng local, **chưa deploy VPS** trong phiên sửa M12. Không thêm migration/env mới; sau khi deploy cần build/restart API theo quy trình mục 7 và kiểm tra `/v1/health` trả `db_timezone=UTC`. Xem [recheck M12](../reviews/m12-recheck-2026-10-05.md).
 
 ## 7. Auto-deploy & migration
@@ -127,7 +132,7 @@ sau khi có handoff46ec612 thì triển khai M4.3.
 
 ```bash
 # Health
-curl -s https://langoo-api.pixpress.art/v1/health
+curl -s https://api.langoo.org/v1/health
 
 # Logs API (100 dòng cuối)
 ssh langoo-vps 'sudo -u langoo -H pm2 logs langoo-api --lines 100 --nostream'
@@ -163,11 +168,14 @@ ssh langoo-vps 'ufw status verbose'
 | 02/10 | Lỗi migrate bị `tail` che mất | Không pipe `db:migrate` qua `tail` |
 | 05/10 | **Cron backup chưa từng chạy** — file cron.d thiếu cột `user` | Đã vá + chạy tay `langoo-2026-10-05-0746.dump` |
 | 05/10 | **Port 3000 lộ ra internet** (`HTTP 200` từ ngoài, không qua TLS) | Bật `ufw` chỉ mở 22/80/443; xác minh lại 3000 đã kín |
+| 27/10 | `https://api.langoo.org` trả **525** dù API/DB khoẻ | Domain mới đi qua Cloudflare proxy nhưng `/etc/caddy/Caddyfile` chỉ có block cũ → Caddy không có cert cho SNI mới, handshake fail. Thêm block `api.langoo.org` + `caddy validate` + `systemctl reload caddy`; cert HTTP-01 lấy 10:10 UTC. Bài học: đổi domain phải thêm site block ở Caddy **trước khi** bật proxy; TLS-ALPN không dùng được khi proxied |
 | — | PG nhúng local tự tắt sau reboot máy | `bash data-Langoo/scripts/pgdev.sh start` trước khi làm việc |
 
 ## 11. Việc nên làm tiếp (bảo mật / vận hành)
 
-- `CORS_ORIGINS` trên VPS vẫn là `*` (đo 27/10) trong khi repo đã mặc định allowlist `http://localhost:*` + `https://langoo.org` + `https://www.langoo.org`; sửa `.env` rồi `pm2 restart` để siết. Trước khi siết, xác nhận origin thật của web (nếu web còn ở domain khác sẽ bị chặn CORS).
+- CORS: **đã áp 27/10** — `.env` VPS `CORS_ORIGINS=http://localhost:*,https://langoo.org,https://www.langoo.org`, PM2 restart, đo header thật qua `api.langoo.org` (3 origin trên được phản chiếu, origin lạ không có `Access-Control-Allow-Origin`). Nếu web chuyển sang domain khác phải thêm vào allowlist.
+- Cloudflare: kiểm SSL/TLS mode đang **Full (strict)** để không hạ bảo mật; nếu cần chặn truy cập trực tiếp IP origin thì thêm rule/firewall cho 443.
+- Rate limit/M12 sau khi qua Cloudflare: app thấy IP Cloudflare (xem mục 6) — cần đọc `CF-Connecting-IP` có kiểm tra dải IP Cloudflare nếu muốn giới hạn theo người dùng.
 - Cân nhắc `PermitRootLogin prohibit-password` (hiện tại chỉ dùng key nhưng chưa rà `sshd_config`).
 - Theo dõi dung lượng: dump giữ 5 bản (~3GB) + ảnh feedback trong `/opt/langoo/storage`.
 - Khi **go-live DB thật** (DB5): đổi 2 dòng `.env` + `pm2 restart`, bootstrap admin riêng cho DB thật, cân nhắc thêm `pg_hba`/SSL nếu mở DB ra ngoài (hiện không cần).

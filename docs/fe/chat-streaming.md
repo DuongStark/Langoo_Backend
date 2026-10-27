@@ -1,7 +1,7 @@
 # FE — Chat streaming (SSE) · M10.1
 
 > Tài liệu cho **LLM/dev làm Frontend**. Backend đã xong: endpoint trả lời dần hoạt động trên
-> production `https://langoo-api.pixpress.art`. Mục tiêu: chat hiện chữ dần như ChatGPT.
+> production `https://api.langoo.org` (từ 27/10; domain cũ `langoo-api.pixpress.art` đã bỏ). Mục tiêu: chat hiện chữ dần như ChatGPT.
 > Đọc kèm: [`docs/api/chat.md`](../api/chat.md).
 
 ## 1. TL;DR
@@ -17,7 +17,7 @@
 
 | | |
 | --- | --- |
-| API base (prod) | `https://langoo-api.pixpress.art` |
+| API base (prod) | `https://api.langoo.org` |
 | Admin test credentials | Configure locally; do not store them in a handoff. |
 | CORS | allowlist `http://localhost:*`, `https://langoo.org`, `https://www.langoo.org` (mặc định trong code) |
 
@@ -307,7 +307,7 @@ export function useChatStream(
 
 ```bash
 # Xem event chảy dần theo thời gian:
-curl -N -s -X POST "https://langoo-api.pixpress.art/v1/chat/sessions/$SID/messages/stream" \
+curl -N -s -X POST "https://api.langoo.org/v1/chat/sessions/$SID/messages/stream" \
   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d '{"content":"Viết 3 câu ngắn giới thiệu Hà Nội."}'
 ```

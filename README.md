@@ -38,7 +38,7 @@ dành cho người Việt, lấy từ điển đa ngữ làm lõi.
 
 ## Vận hành VPS (MVP hiện tại)
 
-API + PostgreSQL thật đang chạy trên VPS riêng (**163.223.210.135**, `https://langoo-api.pixpress.art`) với auto-deploy qua GitHub Actions. Hướng dẫn vận hành đầy đủ (SSH, DB, backup, migration, firewall, runbook, sự cố đã gặp): [`docs/ops/vps-deployment.md`](docs/ops/vps-deployment.md).
+API + PostgreSQL thật đang chạy trên VPS riêng (**163.223.210.135**, `https://api.langoo.org`) với auto-deploy qua GitHub Actions. Hướng dẫn vận hành đầy đủ (SSH, DB, backup, migration, firewall, runbook, sự cố đã gặp): [`docs/ops/vps-deployment.md`](docs/ops/vps-deployment.md).
 
 ## Deploy lên Render
 
