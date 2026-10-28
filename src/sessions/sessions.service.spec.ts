@@ -276,7 +276,7 @@ describe('SessionsService — removeWord (M7.3)', () => {
     });
     expect(tx.studySession.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ itemCount: 1 }),
+        data: expect.objectContaining({ itemCount: 1 }) as unknown,
       }),
     );
   });
@@ -422,7 +422,10 @@ describe('SessionsService — removeWord (M7.3)', () => {
     expect(result.session.correct_count).toBe(0);
     expect(tx.studySession.update).toHaveBeenCalledWith(
       expect.objectContaining({
-        data: expect.objectContaining({ correctCount: 0, itemCount: 1 }),
+        data: expect.objectContaining({
+          correctCount: 0,
+          itemCount: 1,
+        }) as unknown,
       }),
     );
   });

@@ -8,6 +8,14 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-28 — M7.3 — Sửa kiểu matcher trong test xoá từ khỏi phiên
+
+- Thay đổi / lý do: Kiểm tra trước push M6 phát hiện hai lỗi lint có sẵn do matcher Jest lồng nhau trả `any`; thêm `as unknown`, giữ nguyên assertion và hành vi runtime.
+- File / phạm vi: `src/sessions/sessions.service.spec.ts` và [entry handoff M7.3](docs/handoff/m7.3-in-session-remove-word-fe-handoff.md).
+- Kiểm tra / kết quả: Lint toàn snapshot pass; hai suite SRS/sessions pass 13/13 test (9 test M7.3). Snapshot không gồm WIP auth đồng thời trong checkout.
+- Gate còn thiếu / việc tiếp theo: Đã kiểm tra local; CI/E2E chạy sau push. Không đổi API hoặc migration.
+- Git / triển khai: Chuẩn bị commit riêng M7.3 trước M6 theo yêu cầu push; chưa xác nhận deploy.
+
 ### 2026-10-28 — M12 — Bổ sung admin.langoo.org vào CORS allowlist
 
 - Thay đổi / lý do: Theo yêu cầu của chủ dự án, bổ sung domain trang quản trị `https://admin.langoo.org` vào danh sách CORS allowlist của API backend.
