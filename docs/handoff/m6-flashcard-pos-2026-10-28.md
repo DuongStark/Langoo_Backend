@@ -57,5 +57,6 @@ Phía có `kind: "word"` luôn có thêm `pos: string | null`:
 - Không có migration, chưa nghiệm thu FE hoặc response có dữ liệu thật trên VPS.
   Push main kích hoạt CI và pipeline tự deploy đang có.
 
-Git: chuẩn bị commit/push theo yêu cầu; không đưa WIP auth hoặc tài liệu PDF
-DOCS1 vào commit M6. Trạng thái release được bổ sung sau push.
+Git: code/test/docs M6 commit `bf86175`, prerequisite test-only M7.3 `12583fc`;
+đã push `main`. CI `40639436179` đã tạo, chờ kết quả tại thời điểm ghi. Chưa
+xác nhận deploy. WIP auth và tài liệu PDF DOCS1 không nằm trong release này.

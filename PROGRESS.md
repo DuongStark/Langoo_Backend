@@ -14,7 +14,7 @@
 - File / phạm vi: `src/sessions/sessions.service.spec.ts` và [entry handoff M7.3](docs/handoff/m7.3-in-session-remove-word-fe-handoff.md).
 - Kiểm tra / kết quả: Lint toàn snapshot pass; hai suite SRS/sessions pass 13/13 test (9 test M7.3). Snapshot không gồm WIP auth đồng thời trong checkout.
 - Gate còn thiếu / việc tiếp theo: Đã kiểm tra local; CI/E2E chạy sau push. Không đổi API hoặc migration.
-- Git / triển khai: Chuẩn bị commit riêng M7.3 trước M6 theo yêu cầu push; chưa xác nhận deploy.
+- Git / triển khai: Commit `12583fc` đã push `main` cùng release M6 `bf86175`; CI `40639436179` chờ kết quả, chưa xác nhận deploy.
 
 ### 2026-10-28 — M6 — Bổ sung từ loại vào dữ liệu flashcard SRS
 
@@ -22,7 +22,7 @@
 - File / phạm vi: Mapper SRS, response type/Swagger DTO, regression test, API docs và [handoff FE](docs/handoff/m6-flashcard-pos-2026-10-28.md). Không đổi FE, query DB, migration hoặc snapshot `/sessions`.
 - Kiểm tra / kết quả: Bốn ca recognize/recall × có/thiếu từ loại RED→GREEN; toàn bộ unit pass 62 suite/544 test. Snapshot đúng phạm vi commit: build/lint pass, hai suite ảnh hưởng pass 13/13 test. Checkout chung từng build lỗi auth WIP; không gom phần đó. `git diff --check` pass.
 - Gate còn thiếu / việc tiếp theo: FE thêm type/nhãn từ loại; kết quả CI/E2E và trạng thái deploy sẽ ghi đúng sau push.
-- Git / triển khai: Đang làm trên `main`, chưa commit/push. Push main kích hoạt CI và pipeline tự deploy hiện có.
+- Git / triển khai: Commit `bf86175` đã push `main` theo yêu cầu; CI `40639436179` đã tạo, chưa có kết quả tại thời điểm ghi. Pipeline tự deploy khi CI xanh; chưa xác nhận deploy/FE.
 
 ### 2026-10-28 — M12 — Bổ sung admin.langoo.org vào CORS allowlist
 
