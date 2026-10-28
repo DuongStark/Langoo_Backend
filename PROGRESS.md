@@ -32,7 +32,7 @@
   - `npx tsc --noEmit`: No errors found.
   - `git diff --check`: pass (không có lỗi khoảng trắng thừa).
 - Gate còn thiếu / việc tiếp theo: Tích hợp nút xoá và dialog xác nhận trên giao diện Flashcard của Frontend.
-- Git / triển khai: Chưa commit.
+- Git / triển khai: Commit `92b0f54` đã push `main`; deploy VPS qua `deploy.sh` thành công (PM2 reload, health 200 OK, latency 3ms).
 
 ### 2026-10-28 — M4.6 — Chuẩn hóa 100% mục từ bắt buộc có nghĩa tiếng Việt cho 20 bộ từ mẫu tiếng Anh
 
@@ -48,7 +48,7 @@
   - Từ `anxious` trong `cefr-b1` và `en-daily-conversation` khớp 100% sang sense `1615362` (Wiktionary, nghĩa chính tiếng Việt: "Áy náy, lo âu, lo lắng, băn khoăn", chuẩn kết quả search).
   - Đã đồng bộ thành công 100% mục từ trong collection cá nhân đã clone trên VPS (đạt 100/100 có nghĩa tiếng Việt).
 - Gate còn thiếu / việc tiếp theo: Không.
-- Git / triển khai: Chưa commit.
+- Git / triển khai: Commit `41a6ff2` đã push `main`; deploy VPS qua `deploy.sh` thành công.
 
 ### 2026-10-28 — M4.6 — Tự động lọc bộ từ mẫu theo hồ sơ học viên (StudyProfile scoping)
 
@@ -57,7 +57,7 @@
   - Nếu hồ sơ học từ 2 ngôn ngữ trở lên (chế độ song ngữ): mặc định hiển thị danh sách bộ từ của các ngôn ngữ học viên đang học, và cho phép sử dụng query param `?language_id=` để lọc theo ngôn ngữ mong muốn.
 - File / phạm vi: `src/collections/repositories/deck.repository.ts`, `src/collections/collections.service.ts`, `src/collections/collections.controller.ts`, `src/collections/collections.service.spec.ts`. [Report](docs/reviews/m4.6-english-sample-decks-2026-10-28.md).
 - Kiểm tra / kết quả: `npm run build` pass; `collections.service.spec.ts` 19/19 pass (đầy đủ 4 test case cho profile 1 ngôn ngữ EN, 1 ngôn ngữ JA, và song ngữ EN+JA có/không filter); `git diff --check` pass.
-- Git / triển khai: Chưa commit.
+- Git / triển khai: Commit `bba1742` đã push `main`; deploy VPS qua `deploy.sh` thành công.
 
 ### 2026-10-28 — M4.6 — Bộ từ mẫu tiếng Anh (20 English Decks Seed & API Filter)
 
