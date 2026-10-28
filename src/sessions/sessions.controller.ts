@@ -1,10 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -17,6 +19,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiParam,
   ApiTags,
   ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
@@ -29,6 +32,7 @@ import { CreateSessionDto } from './dto/create-session.dto';
 import { ListSessionItemsQueryDto } from './dto/list-session-items-query.dto';
 import {
   AnswerResultResponseDto,
+  RemoveSessionWordResponseDto,
   SessionDetailResponseDto,
   SessionItemResponseDto,
   SessionResponseDto,
@@ -36,6 +40,7 @@ import {
 import { SessionsService } from './sessions.service';
 import {
   AnswerResultResponse,
+  RemoveSessionWordResponse,
   SessionDetailResponse,
   SessionItemResponse,
   SessionResponse,
@@ -124,6 +129,48 @@ export class SessionsController {
     @Body() dto: AnswerSessionDto,
   ): Promise<AnswerResultResponse> {
     return this.sessionsService.answer(BigInt(payload.sub), id, dto);
+  }
+
+  @Delete(':id/items/:ordinal')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary:
+      'Xoá từ khỏi bộ sưu tập và phiên học hiện tại (áp dụng cho flashcard/practice/review)',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'ID phiên học (UUID)',
+    example: '01a18014-bdee-72d8-9891-b3fefa8ec160',
+  })
+  @ApiParam({
+    name: 'ordinal',
+    description: 'Thứ tự câu hỏi trong phiên cần xoá',
+    example: 1,
+  })
+  @ApiOkResponse({ type: RemoveSessionWordResponseDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'SESSION_ACTION_UNSUPPORTED (không hỗ trợ trong phiên quiz)',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description:
+      'SESSION_NOT_FOUND / SESSION_ITEM_NOT_FOUND / COLLECTION_ITEM_NOT_FOUND',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'SESSION_CLOSED',
+  })
+  removeWord(
+    @CurrentUser() payload: JwtPayload,
+    @Param('id') id: string,
+    @Param(
+      'ordinal',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.BAD_REQUEST }),
+    )
+    ordinal: number,
+  ): Promise<RemoveSessionWordResponse> {
+    return this.sessionsService.removeWord(BigInt(payload.sub), id, ordinal);
   }
 
   @Post(':id/finish')

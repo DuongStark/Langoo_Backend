@@ -70,3 +70,29 @@ export class AnswerResultResponseDto {
   xp!: { amount: number };
   @ApiProperty({ type: SessionResponseDto }) session!: SessionResponseDto;
 }
+
+export class RemoveSessionWordResponseDto {
+  @ApiProperty({
+    example: '01a18014-bdef-70dc-b9fd-0ab4c6937199',
+    description: 'ID của collection_item đã xoá',
+  })
+  item_id!: string;
+
+  @ApiProperty({
+    example: '01a18014-bdee-72d8-9891-b3fefa8ec160',
+    description: 'ID bộ sưu tập chứa từ đã xoá',
+  })
+  collection_id!: string;
+
+  @ApiProperty({
+    example: [1],
+    description: 'Danh sách ordinal các câu hỏi trong phiên đã bị loại bỏ',
+  })
+  removed_ordinals!: number[];
+
+  @ApiProperty({
+    type: SessionResponseDto,
+    description: 'Trạng thái phiên học sau khi loại bỏ thẻ',
+  })
+  session!: SessionResponseDto;
+}

@@ -1,12 +1,38 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-28 — M4.6: 20 bộ từ mẫu tiếng Anh (3.177 từ) đã seed vào DB VPS; API language filter đã commit/push `af0ab72` và deploy VPS thành công. M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`. M12: CORS allowlist đã deploy và áp trên VPS, API `https://api.langoo.org`. M10.1 chat dùng provider Groq.
+> Cập nhật lần cuối: 2026-10-28 — M7.3: API xoá từ khỏi bộ sưu tập trong phiên học Flashcard (DELETE /v1/sessions/:id/items/:ordinal) đã hoàn thành, có unit test coverage đầy đủ và tài liệu handoff cho FE. M4.6: 20 bộ từ mẫu tiếng Anh (2.910 từ) đã seed vào DB VPS; API language filter và chuẩn hóa 100% nghĩa tiếng Việt đã commit/push `41a6ff2` và deploy VPS thành công. M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`. M12: CORS allowlist đã deploy và áp trên VPS, API `https://api.langoo.org`. M10.1 chat dùng provider Groq.
 > Snapshot lịch sử (không phải trạng thái hiện tại): tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
 > mọi thay đổi code phải lưu tài liệu, kiểm tra và trạng thái Git/triển khai.
 
 ## Quy trình và tài liệu
+
+### 2026-10-28 — M7.3 — API Xoá từ khỏi bộ sưu tập trong phiên học Flashcard
+
+- Thay đổi / lý do: Theo yêu cầu chủ dự án, cho phép người học khi đang học flashcard (review hoặc practice) có thể xoá một từ khỏi bộ sưu tập nếu từ đó không cần thiết.
+- Triển khai:
+  - Thêm endpoint `DELETE /v1/sessions/:id/items/:ordinal`.
+  - Transaction đảm bảo tính toàn vẹn: khoá user, kiểm tra trạng thái phiên (`in_progress`), cấm xoá trong phiên `quiz` (`SESSION_ACTION_UNSUPPORTED`), kiểm tra quyền sở hữu bộ từ (`COLLECTION_FORBIDDEN`).
+  - Xoá `collection_item` (cascade xoá toàn bộ `collection_item_face`, `srs_state`, `collection_item_tag`) và giảm `item_count` của bộ sưu tập.
+  - Loại bỏ toàn bộ session items trong phiên hiện tại tương ứng với các mặt thẻ của từ này (`removed_ordinals`).
+  - Cập nhật lại số lượng thẻ còn lại (`item_count`), số thẻ đúng (`correct_count`), và tự động hoàn thành phiên (`status: 'completed'`) nếu đã hết thẻ hoặc tất cả thẻ còn lại đã được trả lời.
+  - Trả về payload `{ item_id, collection_id, removed_ordinals, session }` giúp FE cập nhật state local và chuyển card mượt mà mà không cần reload phiên học.
+  - Biên soạn tài liệu handoff chi tiết cho FE: [docs/handoff/m7.3-in-session-remove-word-fe-handoff.md](docs/handoff/m7.3-in-session-remove-word-fe-handoff.md).
+- File / phạm vi:
+  - `src/sessions/types/sessions.types.ts`
+  - `src/sessions/dto/session-response.dto.ts`
+  - `src/sessions/sessions.service.ts`
+  - `src/sessions/sessions.controller.ts`
+  - `src/sessions/sessions.service.spec.ts`
+  - `docs/handoff/m7.3-in-session-remove-word-fe-handoff.md`
+- Kiểm tra / kết quả:
+  - `npm test -- src/sessions`: 3/3 test suites pass, 27/27 tests pass (bao gồm 9/9 test cases cho `removeWord`: xoá thẻ đơn, xoá từ đa mặt thẻ recognize+recall, tự động hoàn thành phiên khi xoá thẻ cuối cùng, điều chỉnh `correct_count`, và toàn bộ các trường hợp lỗi 400/403/404/409).
+  - `npx prettier -c "src/sessions/**"`: pass.
+  - `npx tsc --noEmit`: No errors found.
+  - `git diff --check`: pass (không có lỗi khoảng trắng thừa).
+- Gate còn thiếu / việc tiếp theo: Tích hợp nút xoá và dialog xác nhận trên giao diện Flashcard của Frontend.
+- Git / triển khai: Chưa commit.
 
 ### 2026-10-28 — M4.6 — Chuẩn hóa 100% mục từ bắt buộc có nghĩa tiếng Việt cho 20 bộ từ mẫu tiếng Anh
 

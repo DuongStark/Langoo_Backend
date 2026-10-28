@@ -46,3 +46,10 @@ export interface AnswerResultResponse {
   xp: { amount: number };
   session: SessionResponse;
 }
+
+export interface RemoveSessionWordResponse {
+  item_id: string;
+  collection_id: string;
+  removed_ordinals: number[];
+  session: SessionResponse;
+}

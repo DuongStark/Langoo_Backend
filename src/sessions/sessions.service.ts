@@ -25,6 +25,7 @@ import {
 import { gradeQuizAnswer, QuizQuestionType } from './quiz-content';
 import {
   AnswerResultResponse,
+  RemoveSessionWordResponse,
   SessionDetailResponse,
   SessionItemResponse,
   SessionResponse,
@@ -640,6 +641,165 @@ export class SessionsService {
         },
       });
       return toSessionResponse(updated, answered);
+    });
+  }
+
+  // ----------------------------------------------------------- removeWord
+  async removeWord(
+    userId: bigint,
+    sessionId: string,
+    ordinal: number,
+  ): Promise<RemoveSessionWordResponse> {
+    return this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const session = await tx.studySession.findFirst({
+        where: { id: sessionId, userId },
+        include: { items: { orderBy: { ordinal: 'asc' } } },
+      });
+      if (!session) {
+        throw new DomainException(
+          'SESSION_NOT_FOUND',
+          'Không tìm thấy phiên ôn',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      if (session.status !== 'in_progress') {
+        throw new DomainException(
+          'SESSION_CLOSED',
+          'Phiên đã kết thúc',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (session.kind === 'quiz') {
+        throw new DomainException(
+          'SESSION_ACTION_UNSUPPORTED',
+          'Không thể xoá từ trong phiên quiz',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const targetItem = session.items.find((item) => item.ordinal === ordinal);
+      if (!targetItem) {
+        throw new DomainException(
+          'SESSION_ITEM_NOT_FOUND',
+          'Không tìm thấy câu hỏi trong phiên',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      if (!targetItem.faceId) {
+        throw new DomainException(
+          'SESSION_ITEM_NOT_FOUND',
+          'Câu hỏi không gắn với thẻ ôn',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      const face = await tx.collectionItemFace.findUnique({
+        where: { id: targetItem.faceId },
+        include: {
+          item: {
+            include: {
+              collection: true,
+            },
+          },
+        },
+      });
+      if (!face || !face.item) {
+        throw new DomainException(
+          'COLLECTION_ITEM_NOT_FOUND',
+          'Không tìm thấy từ trong bộ sưu tập',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+      if (face.item.collection.ownerId !== userId) {
+        throw new DomainException(
+          'COLLECTION_FORBIDDEN',
+          'Bạn không có quyền xoá từ khỏi bộ sưu tập này',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+
+      const itemFaces = await tx.collectionItemFace.findMany({
+        where: { itemId: face.item.id },
+        select: { id: true },
+      });
+      const faceIds = itemFaces.map((f) => f.id);
+
+      const matchingSessionItems = session.items.filter(
+        (entry) => entry.faceId !== null && faceIds.includes(entry.faceId),
+      );
+      const removedOrdinals = matchingSessionItems.map(
+        (entry) => entry.ordinal,
+      );
+      const removedSessionItemIds = matchingSessionItems.map(
+        (entry) => entry.id,
+      );
+
+      await tx.collectionItem.delete({
+        where: { id: face.item.id },
+      });
+
+      await tx.collection.update({
+        where: { id: face.item.collectionId },
+        data: { itemCount: { decrement: 1 } },
+      });
+
+      if (removedSessionItemIds.length > 0) {
+        await tx.studySessionItem.deleteMany({
+          where: { id: { in: removedSessionItemIds } },
+        });
+      }
+
+      const answeredCorrectCount = matchingSessionItems.filter(
+        (entry) => entry.answeredAt !== null && entry.isCorrect === true,
+      ).length;
+
+      const newItemCount = Math.max(
+        0,
+        session.itemCount - removedSessionItemIds.length,
+      );
+      const newCorrectCount = Math.max(
+        0,
+        session.correctCount - answeredCorrectCount,
+      );
+
+      const remainingAnsweredCount = await tx.studySessionItem.count({
+        where: {
+          sessionId: session.id,
+          answeredAt: { not: null },
+        },
+      });
+
+      const isCompleted = remainingAnsweredCount >= newItemCount;
+      const now = new Date();
+      let status = session.status;
+      let finishedAt = session.finishedAt;
+      let score = session.score;
+
+      if (isCompleted) {
+        status = 'completed';
+        finishedAt = now;
+        score =
+          newItemCount > 0
+            ? Math.round((newCorrectCount / newItemCount) * 100)
+            : 100;
+      }
+
+      const updatedSession = await tx.studySession.update({
+        where: { id: session.id },
+        data: {
+          itemCount: newItemCount,
+          correctCount: newCorrectCount,
+          status,
+          finishedAt,
+          score,
+        },
+      });
+
+      return {
+        item_id: face.item.id,
+        collection_id: face.item.collectionId,
+        removed_ordinals: removedOrdinals,
+        session: toSessionResponse(updatedSession, remainingAnsweredCount),
+      };
     });
   }
 
