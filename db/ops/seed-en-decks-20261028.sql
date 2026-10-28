@@ -7,6 +7,7 @@ SET LOCAL lock_timeout='10s';
 SET LOCAL statement_timeout='900s';
 
 CREATE TEMP TABLE staging_en_wanted (
+  line_no serial,
   slug text NOT NULL,
   lemma text NOT NULL
 ) ON COMMIT DROP;
@@ -62,36 +63,76 @@ DELETE FROM core.deck_item
  );
 
 -- 3) Pick lexeme, sense, concept cho từng từ tiếng Anh
-CREATE TEMP TABLE pick_en ON COMMIT DROP AS
-WITH cand AS (
-  SELECT DISTINCT ON (w.slug, lower(w.lemma))
-         w.slug, l.id AS lexeme_id, l.lemma
-  FROM staging_en_wanted w
-  JOIN core.lexeme l ON l.language_id = 1 AND lower(l.lemma) = lower(w.lemma)
-  ORDER BY w.slug, lower(w.lemma), l.frequency_rank NULLS LAST, l.id
-)
-SELECT c.slug, c.lexeme_id, c.lemma,
-       COALESCE(sp.sense_id, fb.fallback_sense) AS final_sense, cm.concept_id
-FROM cand c
+-- Thuật toán xếp hạng đa tiêu chí (chuẩn từ điển học & đồng bộ kết quả tìm kiếm):
+--  1. no_vi: Bắt buộc ưu tiên nghĩa có bản dịch tiếng Việt (sense_gloss language_id = 3).
+--  2. priority_order: Độ ưu tiên người học đã được curate (policy en-m10.5-v1).
+--  3. source_pref: Nguồn từ điển đầy đủ ngữ nghĩa (Wiktionary = 8 > WordNet OEWN = 5 > OMW = 7).
+--  4. no_ex: Ưu tiên nghĩa có ví dụ minh họa (core.example hoặc core.example_sense).
+--  5. not_primary: Ưu tiên nghĩa chính của lexeme (sense.is_primary = true).
+--  6. sense_no: Ưu tiên nghĩa thông dụng cơ bản (sense_no nhỏ nhất).
+--  7. sense_id: Tie-breaker xác định.
+CREATE TEMP TABLE cand_senses ON COMMIT DROP AS
+SELECT
+  w.line_no,
+  w.slug,
+  w.lemma,
+  s.id AS sense_id,
+  l.id AS lexeme_id,
+  l.source_id,
+  CASE WHEN vi.text IS NOT NULL THEN 0 ELSE 1 END AS no_vi,
+  CASE WHEN ex.has_ex = 1 THEN 0 ELSE 1 END AS no_ex,
+  CASE WHEN cp.display_order IS NOT NULL THEN cp.display_order ELSE 999 END AS priority_order,
+  CASE WHEN l.source_id = 8 THEN 0 WHEN l.source_id = 5 THEN 1 ELSE 2 END AS source_pref,
+  CASE WHEN s.is_primary THEN 0 ELSE 1 END AS not_primary,
+  s.sense_no,
+  sc.concept_id
+FROM staging_en_wanted w
+JOIN core.lexeme l ON l.language_id = 1 AND lower(l.lemma) = lower(w.lemma)
+JOIN core.sense s ON s.lexeme_id = l.id
+LEFT JOIN core.dictionary_priority_run r ON r.active AND r.policy = 'en-m10.5-v1' AND r.language_id = 1
+LEFT JOIN core.sense_learner_priority cp ON cp.sense_id = s.id AND cp.run_id = r.id
 LEFT JOIN LATERAL (
-  SELECT p.sense_id FROM serve.english_sense_priority p
-  WHERE p.lexeme_id = c.lexeme_id ORDER BY p.display_order LIMIT 1
-) sp ON true
+  SELECT g.text FROM core.sense_gloss g
+  WHERE g.sense_id = s.id AND g.language_id = 3 AND NULLIF(btrim(g.text), '') IS NOT NULL
+  ORDER BY (g.reviewed_by IS NOT NULL) DESC, g.is_machine ASC, g.rank ASC
+  LIMIT 1
+) vi ON true
 LEFT JOIN LATERAL (
-  SELECT s.id AS fallback_sense FROM core.sense s
-  WHERE s.lexeme_id = c.lexeme_id ORDER BY s.is_primary DESC, s.sense_no LIMIT 1
-) fb ON true
+  SELECT 1 AS has_ex FROM core.example e WHERE e.sense_id = s.id
+  UNION
+  SELECT 1 FROM core.example_sense es WHERE es.sense_id = s.id
+  LIMIT 1
+) ex ON true
 LEFT JOIN LATERAL (
   SELECT sc.concept_id FROM core.sense_concept sc
   JOIN core.concept cc ON cc.id = sc.concept_id AND cc.status = 'curated'
-  WHERE sc.sense_id = COALESCE(sp.sense_id, fb.fallback_sense) AND sc.confidence >= 0.7
+  WHERE sc.sense_id = s.id AND sc.confidence >= 0.7
   ORDER BY sc.confidence DESC, sc.concept_id LIMIT 1
-) cm ON true;
+) sc ON true;
 
--- 4) Nạp vào core.deck_item
+CREATE TEMP TABLE pick_en ON COMMIT DROP AS
+SELECT line_no, slug, lemma, lexeme_id, sense_id AS final_sense, concept_id
+FROM (
+  SELECT *,
+    row_number() OVER (
+      PARTITION BY slug, lower(lemma)
+      ORDER BY
+        no_vi ASC,
+        priority_order ASC,
+        source_pref ASC,
+        no_ex ASC,
+        not_primary ASC,
+        sense_no ASC,
+        sense_id ASC
+    ) as rn
+  FROM cand_senses
+) ranked
+WHERE rn = 1;
+
+-- 4) Nạp vào core.deck_item theo đúng thứ tự line_no của file TSV
 INSERT INTO core.deck_item(deck_id, anchor_sense_id, concept_id, position)
 SELECT d.id, p.final_sense, p.concept_id,
-       row_number() OVER (PARTITION BY d.id ORDER BY p.lexeme_id)::int
+       row_number() OVER (PARTITION BY d.id ORDER BY p.line_no)::int
 FROM pick_en p
 JOIN core.deck d ON d.slug = p.slug
 WHERE p.final_sense IS NOT NULL
@@ -107,5 +148,54 @@ FROM (
 ) cnt
 WHERE d.id = cnt.deck_id
   AND d.language_id = 1;
+
+-- 6) Đồng bộ lại anchor_sense_id, concept_id và meaning_vi cho các collection cá nhân đã clone từ 20 deck tiếng Anh (nếu có)
+UPDATE app.collection_item ci
+SET anchor_sense_id = di.anchor_sense_id,
+    concept_id = di.concept_id,
+    meaning_vi = COALESCE(vi.text, en.text, cur_l.lemma),
+    meaning_source = CASE
+      WHEN vi.text IS NOT NULL AND vi.is_machine AND vi.reviewed_by IS NULL THEN 'machine'
+      ELSE 'source'
+    END,
+    updated_at = clock_timestamp()
+FROM app.collection c,
+     core.sense old_s,
+     core.lexeme old_l,
+     core.deck_item di,
+     core.sense cur_s,
+     core.lexeme cur_l
+LEFT JOIN LATERAL (
+  SELECT g.text, g.is_machine, g.reviewed_by
+  FROM core.sense_gloss g
+  WHERE g.sense_id = cur_s.id AND g.language_id = 3
+  ORDER BY (g.reviewed_by IS NOT NULL) DESC, g.is_machine, g.rank
+  LIMIT 1
+) vi ON true
+LEFT JOIN LATERAL (
+  SELECT g.text
+  FROM core.sense_gloss g
+  WHERE g.sense_id = cur_s.id AND g.language_id = 1
+  ORDER BY (g.reviewed_by IS NOT NULL) DESC, g.is_machine, g.rank
+  LIMIT 1
+) en ON true
+WHERE ci.collection_id = c.id
+  AND c.cloned_from_deck_id IN (SELECT id FROM core.deck WHERE language_id = 1)
+  AND old_s.id = ci.anchor_sense_id
+  AND old_l.id = old_s.lexeme_id
+  AND di.deck_id = c.cloned_from_deck_id
+  AND cur_s.id = di.anchor_sense_id
+  AND cur_l.id = cur_s.lexeme_id
+  AND lower(cur_l.lemma) = lower(old_l.lemma);
+
+-- Cập nhật face.sense_id tương ứng cho các mặt tiếng Anh trong collection_item
+UPDATE app.collection_item_face f
+SET sense_id = ci.anchor_sense_id
+FROM app.collection_item ci
+JOIN app.collection c ON c.id = ci.collection_id
+WHERE f.item_id = ci.id
+  AND f.language_id = 1
+  AND c.cloned_from_deck_id IN (SELECT id FROM core.deck WHERE language_id = 1)
+  AND f.sense_id IS DISTINCT FROM ci.anchor_sense_id;
 
 COMMIT;

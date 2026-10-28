@@ -8,6 +8,21 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-28 — M4.6 — Tối ưu thuật toán ánh xạ Sense cho 20 bộ từ mẫu tiếng Anh (Đồng bộ Search & Nghĩa tiếng Việt)
+
+- Thay đổi / lý do: Khắc phục hiện tượng chọn nhầm mục từ WordNet (`source_id = 5`) do ID nhỏ hơn dẫn đến thiếu nghĩa tiếng Việt và ví dụ lệch nghĩa (như từ `anxious` bị gán ví dụ lạ không có nghĩa VI thay vì nghĩa chính "Áy náy, lo âu, lo lắng, băn khoăn" như thanh search).
+- Nâng cấp `db/ops/seed-en-decks-20261028.sql`:
+  - Áp dụng thuật toán xếp hạng đa tầng: Bắt buộc ưu tiên có nghĩa tiếng Việt (`no_vi ASC`), độ ưu tiên người học chuẩn (`priority_order ASC` theo `en-m10.5-v1`), nguồn từ điển chuẩn (`source_pref ASC`: Wiktionary `8` > OEWN `5` > OMW `7`), có câu ví dụ (`no_ex ASC`), nghĩa chính (`not_primary ASC`) và thứ tự nghĩa cơ bản (`sense_no ASC`).
+  - Bảo toàn thứ tự sắp xếp mục từ trong từng deck theo đúng file danh mục gốc (`line_no serial`).
+  - Tự động đồng bộ `anchor_sense_id`, `concept_id` và `meaning_vi` cho các collection người học đã clone từ các bộ từ mẫu tiếng Anh.
+- File / phạm vi: `db/ops/seed-en-decks-20261028.sql`, `docs/reviews/m4.6-english-sample-decks-2026-10-28.md`.
+- Kiểm tra / kết quả: `git diff --check` pass; `npm run lint` pass (0 error, 0 warning); test `src/collections` 41/41 pass. Đã thực thi trực tiếp trên PostgreSQL VPS:
+  - 3.177 mục từ được ánh xạ lại: số từ có nghĩa tiếng Việt tăng từ **1.294 (40.7%)** lên **2.897 (91.2%)** (tăng 1.603 từ). Số từ có cả tiếng Việt lẫn ví dụ tăng từ **1.036 (32.6%)** lên **2.544 (80.1%)**.
+  - Từ `anxious` trong `cefr-b1` và `en-daily-conversation` đã khớp 100% sang sense `1615362` (Wiktionary, nghĩa chính tiếng Việt: "Áy náy, lo âu, lo lắng, băn khoăn", chuẩn kết quả search).
+  - Đã đồng bộ thành công collection cá nhân đã clone trên VPS.
+- Gate còn thiếu / việc tiếp theo: Không.
+- Git / triển khai: Chưa commit.
+
 ### 2026-10-28 — M4.6 — Tự động lọc bộ từ mẫu theo hồ sơ học viên (StudyProfile scoping)
 
 - Điều chỉnh `GET /v1/collections/decks` theo yêu cầu chủ dự án:
