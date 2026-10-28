@@ -19,7 +19,7 @@
 - File / phạm vi: `src/config/cors.ts`, `src/config/env.schema.ts`, `.env.example`, `src/config/cors.spec.ts`.
 - Kiểm tra / kết quả: `cors.spec.ts` 7/7 test pass; `npx tsc --noEmit` pass; `git diff --check` pass. Sau deploy, đo thực tế qua `curl -I -H "Origin: https://admin.langoo.org"` xác nhận `access-control-allow-origin: https://admin.langoo.org`.
 - Gate còn thiếu / việc tiếp theo: Không.
-- Git / triển khai: Chưa commit.
+- Git / triển khai: Commit `b26a542` đã push `main`; deploy VPS qua `deploy.sh` thành công (PM2 reload, health 200 OK). Đã xác nhận header ACAO phản chiếu `https://admin.langoo.org`.
 
 ### 2026-10-28 — M7.3 — API Xoá từ khỏi bộ sưu tập trong phiên học Flashcard
 
