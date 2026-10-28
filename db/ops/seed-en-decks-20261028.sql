@@ -127,7 +127,7 @@ FROM (
     ) as rn
   FROM cand_senses
 ) ranked
-WHERE rn = 1;
+WHERE rn = 1 AND no_vi = 0;
 
 -- 4) Nạp vào core.deck_item theo đúng thứ tự line_no của file TSV
 INSERT INTO core.deck_item(deck_id, anchor_sense_id, concept_id, position)
