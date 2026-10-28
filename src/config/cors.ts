@@ -12,6 +12,7 @@ export const DEFAULT_CORS_ORIGINS = [
   'http://localhost:*',
   'https://langoo.org',
   'https://www.langoo.org',
+  'https://admin.langoo.org',
 ] as const;
 
 function escapeRegExp(value: string): string {

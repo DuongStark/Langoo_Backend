@@ -10,15 +10,17 @@ describe('parseCorsOrigins', () => {
       'http://localhost:*',
       'https://langoo.org',
       'https://www.langoo.org',
+      'https://admin.langoo.org',
     ]);
 
     for (const raw of [undefined, '', '   ', ', ,']) {
       const rules = parseCorsOrigins(raw);
       expect(rules).not.toBeNull();
       const list = (rules as Array<string | RegExp>).map(describeCorsRule);
-      expect(list).toHaveLength(3);
+      expect(list).toHaveLength(4);
       expect(list[1]).toBe('https://langoo.org');
       expect(list[2]).toBe('https://www.langoo.org');
+      expect(list[3]).toBe('https://admin.langoo.org');
       expect(list[0]).toContain('localhost');
     }
   });

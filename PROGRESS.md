@@ -1,12 +1,25 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-28 — M7.3: API xoá từ khỏi bộ sưu tập trong phiên học Flashcard (DELETE /v1/sessions/:id/items/:ordinal) đã hoàn thành, có unit test coverage đầy đủ và tài liệu handoff cho FE. M4.6: 20 bộ từ mẫu tiếng Anh (2.910 từ) đã seed vào DB VPS; API language filter và chuẩn hóa 100% nghĩa tiếng Việt đã commit/push `41a6ff2` và deploy VPS thành công. M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`. M12: CORS allowlist đã deploy và áp trên VPS, API `https://api.langoo.org`. M10.1 chat dùng provider Groq.
+> Cập nhật lần cuối: 2026-10-28 — M12: CORS allowlist đã bổ sung https://admin.langoo.org (cùng localhost, langoo.org, www.langoo.org). M7.3: API xoá từ khỏi bộ sưu tập trong phiên học Flashcard (DELETE /v1/sessions/:id/items/:ordinal) đã hoàn thành, có unit test coverage đầy đủ và tài liệu handoff cho FE. M4.6: 20 bộ từ mẫu tiếng Anh (2.910 từ) đã seed vào DB VPS; API language filter và chuẩn hóa 100% nghĩa tiếng Việt đã commit/push `41a6ff2` và deploy VPS thành công. M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`. API `https://api.langoo.org`. M10.1 chat dùng provider Groq.
 > Snapshot lịch sử (không phải trạng thái hiện tại): tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
 > mọi thay đổi code phải lưu tài liệu, kiểm tra và trạng thái Git/triển khai.
 
 ## Quy trình và tài liệu
+
+### 2026-10-28 — M12 — Bổ sung admin.langoo.org vào CORS allowlist
+
+- Thay đổi / lý do: Theo yêu cầu của chủ dự án, bổ sung domain trang quản trị `https://admin.langoo.org` vào danh sách CORS allowlist của API backend.
+- Triển khai:
+  - Cập nhật `DEFAULT_CORS_ORIGINS` trong `src/config/cors.ts` thêm `'https://admin.langoo.org'`.
+  - Cập nhật mô tả `src/config/env.schema.ts` và `.env.example`.
+  - Cập nhật unit test `src/config/cors.spec.ts` (kiểm tra 4 origin mặc định).
+  - Cập nhật `.env` trên VPS: `CORS_ORIGINS=http://localhost:*,https://langoo.org,https://www.langoo.org,https://admin.langoo.org`.
+- File / phạm vi: `src/config/cors.ts`, `src/config/env.schema.ts`, `.env.example`, `src/config/cors.spec.ts`.
+- Kiểm tra / kết quả: `cors.spec.ts` 7/7 test pass; `npx tsc --noEmit` pass; `git diff --check` pass. Sau deploy, đo thực tế qua `curl -I -H "Origin: https://admin.langoo.org"` xác nhận `access-control-allow-origin: https://admin.langoo.org`.
+- Gate còn thiếu / việc tiếp theo: Không.
+- Git / triển khai: Chưa commit.
 
 ### 2026-10-28 — M7.3 — API Xoá từ khỏi bộ sưu tập trong phiên học Flashcard
 
