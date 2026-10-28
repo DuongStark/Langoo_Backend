@@ -9,6 +9,12 @@ import { Prisma } from '../generated/prisma/client';
 import { DeviceInfoDto } from './dto/device-info.dto';
 import { AuthTokens, UserResponse } from './types/auth.types';
 
+export interface AuthIdentityRow {
+  provider: string;
+  passwordHash?: string | null;
+  createdAt: Date;
+}
+
 /** Các cột của app.users mà tầng auth cần (login thường và OAuth dùng chung). */
 export interface AuthUserRow {
   id: bigint;
@@ -18,6 +24,7 @@ export interface AuthUserRow {
   status: string;
   createdAt: Date;
   lastLoginAt: Date | null;
+  identities?: AuthIdentityRow[];
 }
 
 export function normalizeEmail(email: string): string {
@@ -93,6 +100,21 @@ export function assertUserActive(status: string): void {
 }
 
 export function toUserResponse(user: AuthUserRow): UserResponse {
+  const identitiesList = user.identities ?? [];
+  const identities = identitiesList.map((id) => ({
+    provider: id.provider,
+    created_at:
+      id.createdAt instanceof Date
+        ? id.createdAt.toISOString()
+        : typeof id.createdAt === 'string'
+          ? id.createdAt
+          : new Date().toISOString(),
+  }));
+  const hasPassword = identitiesList.some(
+    (id) => id.provider === 'password' && !!id.passwordHash,
+  );
+  const hasGoogle = identitiesList.some((id) => id.provider === 'google');
+
   return {
     id: user.id.toString(),
     email: user.email,
@@ -101,6 +123,9 @@ export function toUserResponse(user: AuthUserRow): UserResponse {
     status: user.status,
     created_at: user.createdAt.toISOString(),
     last_login_at: user.lastLoginAt?.toISOString() ?? null,
+    identities,
+    has_password: hasPassword,
+    has_google: hasGoogle,
   };
 }
 

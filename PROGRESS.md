@@ -8,6 +8,27 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-28 — M2.4 — Liệt kê phương thức đăng nhập và trạng thái liên kết Google trong GET /v1/auth/me
+
+- Thay đổi / lý do: Khắc phục tình trạng người dùng đăng nhập bằng tài khoản Google bị giao diện Cài đặt/Hồ sơ yêu cầu nhập mật khẩu để liên kết Google (do FE không có thông tin định danh để ẩn/hiện khối liên kết).
+- Triển khai:
+  - Nâng cấp `UserResponse` và `UserResponseDto` bổ sung 3 trường: `identities` (mảng danh tính `{ provider, created_at }`), `has_password` (boolean), và `has_google` (boolean).
+  - Cập nhật helper `toUserResponse` trong `src/auth/session.helpers.ts` để trích xuất trạng thái `has_password` và `has_google` từ `user.identities`.
+  - Cập nhật `me(userId)` trong `src/auth/auth.service.ts` để nạp `include: { identities: true }`.
+  - Cập nhật `login` và `register` (email+password) và `google-oauth.service.ts` (`applyLogin`) để luôn trả về đầy đủ `identities`.
+  - Viết tài liệu bàn giao FE: [docs/handoff/m2.4-auth-me-identities-fe-handoff.md](docs/handoff/m2.4-auth-me-identities-fe-handoff.md).
+- File / phạm vi:
+  - `src/auth/types/auth.types.ts`
+  - `src/auth/dto/auth-response.dto.ts`
+  - `src/auth/session.helpers.ts`
+  - `src/auth/auth.service.ts`
+  - `src/auth/oauth/google-oauth.service.ts`
+  - `src/auth/auth.service.spec.ts`
+  - `docs/handoff/m2.4-auth-me-identities-fe-handoff.md`
+- Kiểm tra / kết quả: `auth.service.spec.ts` 23/23 pass (bổ sung test kiểm tra `has_google`, `has_password` và danh sách `identities`); toàn bộ 6 test suite `src/auth` pass (58/58 test); `npx tsc --noEmit` pass; `npx prettier -c "src/auth/**"` pass; `git diff --check` pass.
+- Gate còn thiếu / việc tiếp theo: Frontend đọc `user.has_google` để hiển thị badge "Đã liên kết" và ẩn form nhập mật khẩu.
+- Git / triển khai: Commit `342977e` trên local main (chưa push / chưa deploy).
+
 ### 2026-10-28 — M7.3 — Sửa kiểu matcher trong test xoá từ khỏi phiên
 
 - Thay đổi / lý do: Kiểm tra trước push M6 phát hiện hai lỗi lint có sẵn do matcher Jest lồng nhau trả `any`; thêm `as unknown`, giữ nguyên assertion và hành vi runtime.
@@ -23,6 +44,22 @@
 - Kiểm tra / kết quả: Bốn ca recognize/recall × có/thiếu từ loại RED→GREEN; toàn bộ unit pass 62 suite/544 test. Snapshot đúng phạm vi commit: build/lint pass, hai suite ảnh hưởng pass 13/13 test. Checkout chung từng build lỗi auth WIP; không gom phần đó. `git diff --check` pass.
 - Gate còn thiếu / việc tiếp theo: FE thêm type/nhãn từ loại; kết quả CI/E2E và trạng thái deploy sẽ ghi đúng sau push.
 - Git / triển khai: Commit `bf86175` đã push `main` theo yêu cầu; CI `40639436179` đã tạo, chưa có kết quả tại thời điểm ghi. Pipeline tự deploy khi CI xanh; chưa xác nhận deploy/FE.
+
+### 2026-10-28 — DOCS1 — Handoff FE sửa an toàn đổi file và lưu ghi chú PDF
+
+- Thay đổi / lý do: Theo yêu cầu chủ dự án, soạn [yêu cầu chi tiết cho FE](docs/handoff/docs1-pdf-file-safety-fe-2026-10-28.md) cho P1 ghi nhầm file và P2 mất ghi chú khi đổi tài liệu.
+- File / phạm vi: Handoff gồm tái hiện, nguyên nhân, các file FE liên quan, yêu cầu snapshot/handle nhất quán, bảo vệ phiên legacy, confirm khi dirty và checklist nghiệm thu.
+- Kiểm tra / kết quả: Đối chiếu report và source hiện có; kiểm liên kết nội bộ và `git diff --check`. Chỉ thay tài liệu, không chạy lại test ứng dụng.
+- Gate còn thiếu / việc tiếp theo: FE triển khai và chạy regression/browser smoke; chưa sửa hay nghiệm thu hai lỗi.
+- Git / triển khai: Tài liệu chưa commit/push; không sửa FE, DB hoặc deploy.
+
+### 2026-10-28 — DOCS1 — Kiểm tra chức năng đọc PDF trên langoo.org
+
+- Thay đổi / lý do: Kiểm tra web theo yêu cầu; lưu [report PDF](docs/reviews/docs1-web-pdf-check-2026-10-28.md). Trang và tài nguyên PDF được đo đều tải được; chưa nghiệm thu giao diện.
+- File / phạm vi: Đọc source FE và bundle production; chỉ thay tài liệu backend, không chạm WIP FE hoặc file người dùng.
+- Kiểm tra / kết quả: HTTP app shell, 16 chunk JS và worker/font/CMap/pdf-lib thành công; kiểm thử hook cách ly tái hiện P1 restore nhầm handle A cho nội dung B (nguy cơ ghi đè A), P2 đổi file xoá ghi chú chưa lưu không confirm.
+- Gate còn thiếu / việc tiếp theo: Hai lỗi FE còn mở; chưa kiểm browser E2E vì không có trình duyệt kết nối. Ưu tiên sửa P1, sau đó kiểm PDF EN/JA, ghi chú/save, zoom, mobile và khôi phục phiên.
+- Git / triển khai: Nền `fefe5ab`; report/PROGRESS chưa commit/push. Không sửa code, DB hoặc deploy trong lượt kiểm tra.
 
 ### 2026-10-28 — M12 — Bổ sung admin.langoo.org vào CORS allowlist
 

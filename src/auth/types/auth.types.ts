@@ -17,6 +17,11 @@ export interface AuthTokens {
   expires_in: number;
 }
 
+export interface UserIdentitySummary {
+  provider: string;
+  created_at: string;
+}
+
 export interface UserResponse {
   id: string;
   email: string;
@@ -25,6 +30,9 @@ export interface UserResponse {
   status: string;
   created_at: string;
   last_login_at: string | null;
+  identities: UserIdentitySummary[];
+  has_password: boolean;
+  has_google: boolean;
 }
 
 export interface AuthResult extends AuthTokens {

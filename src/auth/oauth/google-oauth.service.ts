@@ -363,6 +363,7 @@ export class GoogleOauthService {
         lastLoginAt: new Date(),
         ...(avatarUpgrade === null ? {} : { avatarUrl: avatarUpgrade }),
       },
+      include: { identities: true },
     });
   }
 }

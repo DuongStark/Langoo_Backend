@@ -514,15 +514,57 @@ describe('AuthService', () => {
   });
 
   describe('me', () => {
-    it('trả thông tin user (id dạng chuỗi, ngày ISO)', async () => {
+    it('trả thông tin user (id dạng chuỗi, ngày ISO, identities)', async () => {
       const { service, prisma } = createSetup();
-      prisma.user.findUnique.mockResolvedValue(userRow({ id: 5n }));
+      prisma.user.findUnique.mockResolvedValue(
+        userRow({
+          id: 5n,
+          identities: [
+            {
+              provider: 'google',
+              createdAt: new Date('2026-09-26T00:00:00.000Z'),
+            },
+          ],
+        }),
+      );
 
       const result = await service.me(5n);
 
       expect(result.id).toBe('5');
       expect(result.created_at).toBe('2026-09-26T00:00:00.000Z');
       expect(result.display_name).toBe('An');
+      expect(result.has_google).toBe(true);
+      expect(result.has_password).toBe(false);
+      expect(result.identities).toEqual([
+        {
+          provider: 'google',
+          created_at: '2026-09-26T00:00:00.000Z',
+        },
+      ]);
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({
+        where: { id: 5n },
+        include: { identities: true },
+      });
+    });
+
+    it('trả has_password=true khi user có mật khẩu', async () => {
+      const { service, prisma } = createSetup();
+      prisma.user.findUnique.mockResolvedValue(
+        userRow({
+          id: 6n,
+          identities: [
+            {
+              provider: 'password',
+              passwordHash: 'hash-abc',
+              createdAt: new Date('2026-09-26T00:00:00.000Z'),
+            },
+          ],
+        }),
+      );
+
+      const result = await service.me(6n);
+      expect(result.has_password).toBe(true);
+      expect(result.has_google).toBe(false);
     });
 
     it('user không tồn tại → AUTH_TOKEN_INVALID', async () => {

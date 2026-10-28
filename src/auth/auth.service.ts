@@ -70,7 +70,7 @@ export class AuthService {
             status: 'active',
           },
         });
-        await tx.userIdentity.create({
+        const passwordIdentity = await tx.userIdentity.create({
           data: {
             userId: created.id,
             provider: 'password',
@@ -96,7 +96,10 @@ export class AuthService {
             notify: {},
           },
         });
-        return created;
+        return {
+          ...created,
+          identities: [passwordIdentity],
+        };
       });
     } catch (error) {
       if (isUniqueViolation(error)) {
@@ -146,6 +149,7 @@ export class AuthService {
       const updated = await tx.user.update({
         where: { id: identity.userId },
         data: { lastLoginAt: new Date() },
+        include: { identities: true },
       });
       const deviceId = await createDevice(
         tx,
@@ -248,7 +252,10 @@ export class AuthService {
   }
 
   async me(userId: bigint): Promise<UserResponse> {
-    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+      include: { identities: true },
+    });
     if (!user) {
       throw new DomainException(
         'AUTH_TOKEN_INVALID',
