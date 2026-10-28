@@ -221,8 +221,37 @@ export class CollectionsService {
    * Clone bộ từ hệ thống: tạo collection + item + face anchor + 2 srs_state/face
    * trong một transaction; dùng createMany (uuid v7 sinh trước) cho deck lớn.
    */
-  async listDecks(query?: DeckListQueryDto): Promise<DeckListResult> {
-    const rows = await this.deckRepo.findPublishedList(query?.language_id);
+  async listDecks(
+    userId: bigint,
+    query?: DeckListQueryDto,
+  ): Promise<DeckListResult> {
+    const profile = await this.resolveActiveProfile(userId);
+    let targetLanguageIds: number[] | undefined;
+
+    if (profile) {
+      const allowedLanguages = profileLanguageIds(
+        profile.primaryLanguageId,
+        profile.secondaryLanguageId,
+      );
+
+      if (allowedLanguages.length === 1) {
+        // Hồ sơ chỉ học 1 ngôn ngữ -> luôn chỉ hiện các bộ của ngôn ngữ đó
+        targetLanguageIds = [allowedLanguages[0]];
+      } else {
+        // Hồ sơ học từ 2 ngôn ngữ trở lên -> cho phép lọc qua query, nếu không lọc thì hiện cả 2
+        if (query?.language_id) {
+          targetLanguageIds = allowedLanguages.includes(query.language_id)
+            ? [query.language_id]
+            : [];
+        } else {
+          targetLanguageIds = allowedLanguages;
+        }
+      }
+    } else {
+      targetLanguageIds = query?.language_id ? [query.language_id] : undefined;
+    }
+
+    const rows = await this.deckRepo.findPublishedList(targetLanguageIds);
     return {
       data: rows.map((row) => ({
         id: row.id.toString(),
@@ -618,6 +647,42 @@ export class CollectionsService {
       );
     }
     return row;
+  }
+
+  private async resolveActiveProfile(
+    userId: bigint,
+    profileId?: string,
+  ): Promise<{
+    id: string;
+    primaryLanguageId: number;
+    secondaryLanguageId: number | null;
+  } | null> {
+    let resolvedId: string | undefined = profileId;
+    if (resolvedId !== undefined) {
+      await this.assertProfileOwned(userId, resolvedId);
+    } else {
+      const settings = await this.prisma.userSettings.findUnique({
+        where: { userId },
+      });
+      if (settings?.activeProfileId) {
+        resolvedId = settings.activeProfileId;
+      } else {
+        const fallback = await this.prisma.studyProfile.findFirst({
+          where: { userId, isDefault: true },
+          select: { id: true },
+        });
+        resolvedId = fallback?.id;
+      }
+    }
+
+    if (!resolvedId) {
+      return null;
+    }
+
+    return this.prisma.studyProfile.findUnique({
+      where: { id: resolvedId },
+      select: { id: true, primaryLanguageId: true, secondaryLanguageId: true },
+    });
   }
 
   private async resolveProfileId(

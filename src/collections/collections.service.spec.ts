@@ -57,7 +57,7 @@ function createSetup(): {
     };
     collectionItem: { count: jest.Mock };
     userSettings: { findUnique: jest.Mock };
-    studyProfile: { findFirst: jest.Mock };
+    studyProfile: { findFirst: jest.Mock; findUnique: jest.Mock };
     $transaction: jest.Mock;
   };
   tx: TxMock;
@@ -101,7 +101,7 @@ function createSetup(): {
     },
     collectionItem: { count: jest.fn().mockResolvedValue(0) },
     userSettings: { findUnique: jest.fn() },
-    studyProfile: { findFirst: jest.fn() },
+    studyProfile: { findFirst: jest.fn(), findUnique: jest.fn() },
     $transaction: jest.fn((...args: unknown[]) => {
       const run = args[0] as (client: TxMock) => Promise<unknown>;
       return run(tx);
@@ -239,8 +239,10 @@ describe('CollectionsService', () => {
   });
 
   describe('listDecks', () => {
-    it('trả deck đã publish với id dạng string', async () => {
-      const { service, deck } = createSetup();
+    it('trả deck đã publish với id dạng string khi chưa có profile', async () => {
+      const { service, deck, prisma } = createSetup();
+      prisma.userSettings.findUnique.mockResolvedValue(null);
+      prisma.studyProfile.findFirst.mockResolvedValue(null);
       deck.findPublishedList.mockResolvedValue([
         {
           id: 6n,
@@ -253,7 +255,7 @@ describe('CollectionsService', () => {
         },
       ]);
 
-      await expect(service.listDecks()).resolves.toEqual({
+      await expect(service.listDecks(1n)).resolves.toEqual({
         data: [
           {
             id: '6',
@@ -266,14 +268,65 @@ describe('CollectionsService', () => {
           },
         ],
       });
+      expect(deck.findPublishedList).toHaveBeenCalledWith(undefined);
     });
 
-    it('truyền language_id vào repository khi có query filter', async () => {
-      const { service, deck } = createSetup();
+    it('hồ sơ chỉ học tiếng Anh -> luôn chỉ lọc deck tiếng Anh', async () => {
+      const { service, deck, prisma } = createSetup();
+      prisma.userSettings.findUnique.mockResolvedValue({
+        activeProfileId: 'p-en',
+      });
+      prisma.studyProfile.findUnique.mockResolvedValue({
+        id: 'p-en',
+        primaryLanguageId: 1,
+        secondaryLanguageId: null,
+      });
       deck.findPublishedList.mockResolvedValue([]);
 
-      await service.listDecks({ language_id: 1 });
-      expect(deck.findPublishedList).toHaveBeenCalledWith(1);
+      // Dù client có truyền language_id=2 thì vẫn chỉ lọc tiếng Anh (1)
+      await service.listDecks(1n, { language_id: 2 });
+      expect(deck.findPublishedList).toHaveBeenCalledWith([1]);
+    });
+
+    it('hồ sơ chỉ học tiếng Nhật -> luôn chỉ lọc deck tiếng Nhật', async () => {
+      const { service, deck, prisma } = createSetup();
+      prisma.userSettings.findUnique.mockResolvedValue({
+        activeProfileId: 'p-ja',
+      });
+      prisma.studyProfile.findUnique.mockResolvedValue({
+        id: 'p-ja',
+        primaryLanguageId: 2,
+        secondaryLanguageId: null,
+      });
+      deck.findPublishedList.mockResolvedValue([]);
+
+      await service.listDecks(1n);
+      expect(deck.findPublishedList).toHaveBeenCalledWith([2]);
+    });
+
+    it('hồ sơ học song ngữ -> hiện cả 2 nếu không lọc, lọc đúng ngôn ngữ nếu có truyền', async () => {
+      const { service, deck, prisma } = createSetup();
+      prisma.userSettings.findUnique.mockResolvedValue({
+        activeProfileId: 'p-bi',
+      });
+      prisma.studyProfile.findUnique.mockResolvedValue({
+        id: 'p-bi',
+        primaryLanguageId: 2,
+        secondaryLanguageId: 1,
+      });
+      deck.findPublishedList.mockResolvedValue([]);
+
+      // Không truyền filter -> lấy cả 2
+      await service.listDecks(1n);
+      expect(deck.findPublishedList).toHaveBeenCalledWith([2, 1]);
+
+      // Truyền filter tiếng Anh (1) -> chỉ lấy 1
+      await service.listDecks(1n, { language_id: 1 });
+      expect(deck.findPublishedList).toHaveBeenCalledWith([1]);
+
+      // Truyền filter ngôn ngữ lạ (99) -> trả rỗng
+      await service.listDecks(1n, { language_id: 99 });
+      expect(deck.findPublishedList).toHaveBeenCalledWith([]);
     });
   });
 

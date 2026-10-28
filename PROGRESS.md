@@ -8,6 +8,15 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-28 — M4.6 — Tự động lọc bộ từ mẫu theo hồ sơ học viên (StudyProfile scoping)
+
+- Điều chỉnh `GET /v1/collections/decks` theo yêu cầu chủ dự án:
+  - Nếu hồ sơ học (`StudyProfile`) chỉ học 1 ngôn ngữ (chỉ tiếng Anh hoặc chỉ tiếng Nhật): tự động chỉ hiển thị các bộ từ thuộc ngôn ngữ đó, người học không bị lẫn bộ từ của ngôn ngữ không học.
+  - Nếu hồ sơ học từ 2 ngôn ngữ trở lên (chế độ song ngữ): mặc định hiển thị danh sách bộ từ của các ngôn ngữ học viên đang học, và cho phép sử dụng query param `?language_id=` để lọc theo ngôn ngữ mong muốn.
+- File / phạm vi: `src/collections/repositories/deck.repository.ts`, `src/collections/collections.service.ts`, `src/collections/collections.controller.ts`, `src/collections/collections.service.spec.ts`. [Report](docs/reviews/m4.6-english-sample-decks-2026-10-28.md).
+- Kiểm tra / kết quả: `npm run build` pass; `collections.service.spec.ts` 19/19 pass (đầy đủ 4 test case cho profile 1 ngôn ngữ EN, 1 ngôn ngữ JA, và song ngữ EN+JA có/không filter); `git diff --check` pass.
+- Git / triển khai: Chưa commit.
+
 ### 2026-10-28 — M4.6 — Bộ từ mẫu tiếng Anh (20 English Decks Seed & API Filter)
 
 - Biên soạn và chuẩn bị kịch bản nạp 20 bộ từ mẫu tiếng Anh (3.182 mục từ) phân chia thành 3 nhóm: 6 bộ khung chuẩn Châu Âu CEFR & Học thuật (`cefr-a1-a2`, `cefr-b1`, `cefr-b2`, `cefr-c1`, `cefr-c2`, `academic-word-list`), 5 bộ luyện thi chứng chỉ (`toeic-450`, `toeic-650`, `toeic-800`, `ielts-core-6`, `ielts-advanced-7`), và 9 bộ chuyên đề thực tế (`en-office-work`, `en-hospital-health`, `en-restaurant-dining`, `en-travel-hotel`, `en-shopping-commerce`, `en-transport-traffic`, `en-technology-digital`, `en-finance-banking`, `en-daily-conversation`).

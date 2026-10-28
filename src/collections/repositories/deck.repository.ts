@@ -57,12 +57,23 @@ export class DeckRepository {
     return rows[0] ?? null;
   }
 
-  async findPublishedList(languageId?: number): Promise<DeckListItemRow[]> {
+  async findPublishedList(languageIds?: number[]): Promise<DeckListItemRow[]> {
+    let languageFilter = Prisma.sql``;
+    if (languageIds !== undefined) {
+      if (languageIds.length === 0) {
+        languageFilter = Prisma.sql`AND false`;
+      } else if (languageIds.length === 1) {
+        languageFilter = Prisma.sql`AND language_id = ${languageIds[0]}`;
+      } else {
+        languageFilter = Prisma.sql`AND language_id = ANY(${languageIds}::smallint[])`;
+      }
+    }
+
     return this.prisma.$queryRaw<DeckListItemRow[]>(Prisma.sql`
       SELECT id, slug, title, description, language_id, level_label, item_count
       FROM core.deck
       WHERE is_published
-        ${languageId === undefined ? Prisma.sql`` : Prisma.sql`AND language_id = ${languageId}`}
+        ${languageFilter}
       ORDER BY level_label NULLS LAST, id ASC
     `);
   }

@@ -103,8 +103,11 @@ export class CollectionsController {
   @ApiOperation({ summary: 'Bộ từ mẫu (deck hệ thống đã publish) để clone' })
   @ApiOkResponse({ type: DeckListResponseDto })
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
-  listDecks(@Query() query: DeckListQueryDto): Promise<DeckListResult> {
-    return this.collectionsService.listDecks(query);
+  listDecks(
+    @CurrentUser() payload: JwtPayload,
+    @Query() query: DeckListQueryDto,
+  ): Promise<DeckListResult> {
+    return this.collectionsService.listDecks(BigInt(payload.sub), query);
   }
 
   @Get('decks/:id')
