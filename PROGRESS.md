@@ -1,6 +1,6 @@
 # PROGRESS — Langoo Backend
 
-> Cập nhật lần cuối: 2026-10-27 — M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`; CI và Deploy VPS thành công. M12: CORS allowlist (`localhost`, `langoo.org`, `www.langoo.org`) đã deploy và áp trên VPS, API chuyển sang `https://api.langoo.org` (Cloudflare proxy, đã sửa lỗi 525). M10.1 chat trên VPS đang dùng provider Groq tạm thời theo lựa chọn chủ dự án; xem các entry bên dưới.
+> Cập nhật lần cuối: 2026-10-28 — M4.6: 20 bộ từ mẫu tiếng Anh (3.177 từ) đã seed vào DB VPS; API language filter đã commit/push `af0ab72` và deploy VPS thành công. M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`. M12: CORS allowlist đã deploy và áp trên VPS, API `https://api.langoo.org`. M10.1 chat dùng provider Groq.
 > Snapshot lịch sử (không phải trạng thái hiện tại): tổng hợp mốc 2026-10-11: (DB4-D2 cohort 1.000 frozen; source audit + ONNX/RRF 966 shortlist / 34 no-candidate; DB4-D4/D5 runner và D1 ACK hotfix đã commit/push `b955bfa`; bounded VPS smoke lưu đúng 1 R1 nhưng D1 invalid do Muse trả 4/5 verdict, không R2; report tổng dừng theo memory guard sau 564/966 evaluation artifact, chưa có summary; chưa shadow 1.000, apply DB hoặc deploy app; DB4-D5 audit local: 16/20 pass, 2 severe, 2 deferred/gate chưa đạt; DB4-D3 engine local, pilot 20 exact proposals/chưa apply; M4.5 JA BCCWJ/BE đã deploy VPS, còn FE/EN scope riêng; M4.5 pilot 100 EN đã chạy local, còn semantic gate/BE/FE; M4.2 / DB4-D0.2 đã deploy; M4.3/DB3-B2.1 đã deploy VPS; M7.2/M8.2 sửa follow-up review: quiz không cộng reviews_total, session một profileId + distractor theo profile; migration 034/036/037 đã áp cloud + VPS + local full (05/10, đã push); M7/M8 M7.1/M8.1 pass full local gates; DB1 dọn schema xong; backend + DB thật đã chạy trên VPS; M13 đã sửa 6 P2 + 2 P3, local pass/chưa deploy; M12 đã sửa 4 finding, local pass/chưa deploy; M11 đã sửa sau review; M9 tạm gác; M2.3 A + C backend opt-in đã triển khai, B và rollout C còn chờ; toàn bộ thay đổi local đến 10/10 đã commit/push main, xem entry DOCS1)
 > Quy trình: **kế hoạch → chờ duyệt → code → báo cáo → chờ review** (PROMPT-BACKEND.md §1).
 > Quy tắc agent từ 06/10/2026: [AGENTS.md](AGENTS.md). Mọi việc có mã + tên;
@@ -16,7 +16,7 @@
 - File / phạm vi: `db/ops/data/en-decks-wanted-20261028.tsv`, `db/ops/seed-en-decks-20261028.sql`, `scripts/dictionary/generate_en_decks.py`, `src/collections/dto/deck-list-query.dto.ts`, `src/collections/repositories/deck.repository.ts`, `src/collections/collections.service.ts`, `src/collections/collections.controller.ts`, `src/collections/collections.service.spec.ts`. [Report](docs/reviews/m4.6-english-sample-decks-2026-10-28.md).
 - Kiểm tra / kết quả: `npm run build` pass; `npm run lint` pass (0 error, 0 warning); `collections.service.spec.ts` 17/17 pass; `git diff --check` pass. Đã thực thi `db/ops/seed-en-decks-20261028.sql` trực tiếp trên PostgreSQL VPS: nạp thành công toàn bộ 20 deck mới vào `core.deck` (`language_id = 1`) và 3.177 mục từ vào `core.deck_item`.
 - Gate còn thiếu / việc tiếp theo: Cập nhật FE tiêu thụ query param `?language_id=` trên màn hình chọn bộ từ mẫu.
-- Git / triển khai: Commit và push `main`.
+- Git / triển khai: Commit `af0ab72` đã push `main`; deploy VPS qua `deploy.sh` thành công (PM2 reload, health 200 OK).
 
 ### 2026-10-28 — DOCS2 — Thiết lập Workspace Skills cho Antigravity
 
