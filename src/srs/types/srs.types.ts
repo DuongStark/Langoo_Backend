@@ -3,6 +3,7 @@ export interface LocalizedWord {
   text: string;
   reading: string | null;
   romanization: string | null;
+  pos: string | null;
 }
 
 export interface LocalizedMeaning {

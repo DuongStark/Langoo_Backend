@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class DueCardLanguageDto {
   @ApiProperty({ example: 2 })
@@ -23,6 +23,15 @@ export class LocalizedContentDto {
 
   @ApiProperty({ nullable: true, example: 'hashiru' })
   romanization?: string | null;
+
+  @ApiPropertyOptional({
+    type: String,
+    nullable: true,
+    example: 'verb',
+    description:
+      'Từ loại gốc từ DB; luôn có ở kind=word, null khi thiếu, không có ở kind=meaning',
+  })
+  pos?: string | null;
 
   @ApiProperty({ enum: ['user', 'source', 'machine', 'llm'] })
   meaning_source?: string;

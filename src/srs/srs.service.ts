@@ -892,6 +892,7 @@ function toDueCard(row: DueRow): DueCard {
     text: row.lemma,
     reading: row.reading,
     romanization: row.romanization,
+    pos: row.pos,
   };
   const meaning: LocalizedMeaning = {
     kind: 'meaning',

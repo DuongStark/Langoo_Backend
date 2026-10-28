@@ -39,7 +39,8 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
         "kind": "word",
         "text": "走る",
         "reading": "はしる",
-        "romanization": null
+        "romanization": null,
+        "pos": "verb"
       },
       "due_at": "2026-09-27T02:10:00.000Z"
     }
@@ -51,6 +52,10 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
 
 - `prompt.kind`: `word` khi **recognize** (nhìn từ → nhớ nghĩa) / `meaning` khi **recall**
   (nhìn nghĩa → nhớ từ; FE hiện nhãn ngôn ngữ đích từ `language` + `instruction`).
+- Nội dung `kind: "word"` luôn có `pos: string | null` (từ loại gốc từ DB,
+  không chuẩn hoá/phiên dịch; `null` khi thiếu). Recognize dùng `prompt.pos`,
+  recall dùng `answer.pos`; nội dung `kind: "meaning"` không có trường này.
+  FE ẩn nhãn khi null và chấp nhận mã chưa biết. Xem [handoff M6](../handoff/m6-flashcard-pos-2026-10-28.md).
 - Nghĩa luôn có `meaning_source` (`user`, `source`, `machine`, `llm`) và
   `is_machine_generated`; cờ chỉ phản ánh nguồn dữ liệu, không hàm ý đã kiểm duyệt.
 - Phân trang: `?limit` (mặc định 50, tối đa 100) + cursor version 1 bind với profile,
