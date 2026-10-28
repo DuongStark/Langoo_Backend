@@ -57,13 +57,14 @@ export class DeckRepository {
     return rows[0] ?? null;
   }
 
-  async findPublishedList(): Promise<DeckListItemRow[]> {
-    return this.prisma.$queryRaw<DeckListItemRow[]>`
+  async findPublishedList(languageId?: number): Promise<DeckListItemRow[]> {
+    return this.prisma.$queryRaw<DeckListItemRow[]>(Prisma.sql`
       SELECT id, slug, title, description, language_id, level_label, item_count
       FROM core.deck
       WHERE is_published
+        ${languageId === undefined ? Prisma.sql`` : Prisma.sql`AND language_id = ${languageId}`}
       ORDER BY level_label NULLS LAST, id ASC
-    `;
+    `);
   }
 
   async findPublishedDetail(deckId: bigint): Promise<DeckListItemRow | null> {

@@ -33,6 +33,7 @@ import {
 } from './dto/collection-response.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { DeckItemsQueryDto } from './dto/deck-items-query.dto';
+import { DeckListQueryDto } from './dto/deck-list-query.dto';
 import {
   DeckListResponseDto,
   AppendFromDeckResponseDto,
@@ -102,8 +103,8 @@ export class CollectionsController {
   @ApiOperation({ summary: 'Bộ từ mẫu (deck hệ thống đã publish) để clone' })
   @ApiOkResponse({ type: DeckListResponseDto })
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
-  listDecks(): Promise<DeckListResult> {
-    return this.collectionsService.listDecks();
+  listDecks(@Query() query: DeckListQueryDto): Promise<DeckListResult> {
+    return this.collectionsService.listDecks(query);
   }
 
   @Get('decks/:id')

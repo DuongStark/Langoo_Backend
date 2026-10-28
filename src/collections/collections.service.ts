@@ -13,6 +13,7 @@ import { AppendFromDeckDto } from './dto/append-from-deck.dto';
 import { CloneFromDeckDto } from './dto/clone-from-deck.dto';
 import { CreateCollectionDto } from './dto/create-collection.dto';
 import { DeckItemsQueryDto } from './dto/deck-items-query.dto';
+import { DeckListQueryDto } from './dto/deck-list-query.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
 import {
@@ -220,8 +221,8 @@ export class CollectionsService {
    * Clone bộ từ hệ thống: tạo collection + item + face anchor + 2 srs_state/face
    * trong một transaction; dùng createMany (uuid v7 sinh trước) cho deck lớn.
    */
-  async listDecks(): Promise<DeckListResult> {
-    const rows = await this.deckRepo.findPublishedList();
+  async listDecks(query?: DeckListQueryDto): Promise<DeckListResult> {
+    const rows = await this.deckRepo.findPublishedList(query?.language_id);
     return {
       data: rows.map((row) => ({
         id: row.id.toString(),

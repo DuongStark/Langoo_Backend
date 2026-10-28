@@ -8,6 +8,24 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-28 — M4.6 — Bộ từ mẫu tiếng Anh (20 English Decks Seed & API Filter)
+
+- Biên soạn và chuẩn bị kịch bản nạp 20 bộ từ mẫu tiếng Anh (3.182 mục từ) phân chia thành 3 nhóm: 6 bộ khung chuẩn Châu Âu CEFR & Học thuật (`cefr-a1-a2`, `cefr-b1`, `cefr-b2`, `cefr-c1`, `cefr-c2`, `academic-word-list`), 5 bộ luyện thi chứng chỉ (`toeic-450`, `toeic-650`, `toeic-800`, `ielts-core-6`, `ielts-advanced-7`), và 9 bộ chuyên đề thực tế (`en-office-work`, `en-hospital-health`, `en-restaurant-dining`, `en-travel-hotel`, `en-shopping-commerce`, `en-transport-traffic`, `en-technology-digital`, `en-finance-banking`, `en-daily-conversation`).
+- Tạo file dữ liệu chuẩn: `db/ops/data/en-decks-wanted-20261028.tsv` và script SQL seed: `db/ops/seed-en-decks-20261028.sql`. Script nạp vào `core.deck` (`language_id = 1`), ánh xạ lemma sang `core.lexeme`/`core.sense` (ưu tiên `serve.english_sense_priority` và `is_primary`), neo `concept_id` và tính toán `item_count`.
+- Nâng cấp API `GET /v1/collections/decks`: tạo `DeckListQueryDto` hỗ trợ `?language_id=`, cập nhật `DeckRepository.findPublishedList` và `CollectionsService.listDecks`.
+- File / phạm vi: `db/ops/data/en-decks-wanted-20261028.tsv`, `db/ops/seed-en-decks-20261028.sql`, `scripts/dictionary/generate_en_decks.py`, `src/collections/dto/deck-list-query.dto.ts`, `src/collections/repositories/deck.repository.ts`, `src/collections/collections.service.ts`, `src/collections/collections.controller.ts`, `src/collections/collections.service.spec.ts`. [Report](docs/reviews/m4.6-english-sample-decks-2026-10-28.md).
+- Kiểm tra / kết quả: `npm run build` pass; `npm run lint` pass (0 error, 0 warning); `collections.service.spec.ts` 17/17 pass; `git diff --check` pass. Đã thực thi `db/ops/seed-en-decks-20261028.sql` trực tiếp trên PostgreSQL VPS: nạp thành công toàn bộ 20 deck mới vào `core.deck` (`language_id = 1`) và 3.177 mục từ vào `core.deck_item`.
+- Gate còn thiếu / việc tiếp theo: Cập nhật FE tiêu thụ query param `?language_id=` trên màn hình chọn bộ từ mẫu.
+- Git / triển khai: Commit và push `main`.
+
+### 2026-10-28 — DOCS2 — Thiết lập Workspace Skills cho Antigravity
+
+- Thiết lập 4 workspace skills tại `.agents/skills/` phục vụ Antigravity (`agy`): `langoo-workflow` (quy tắc checkout `main`, mã milestone, cập nhật `PROGRESS.md`, bất biến domain), `nestjs-swagger-contract` (chuẩn hóa Controller, DTO, validation và độ phủ 100% Swagger schema), `prisma-db-inspector` (bản đồ 5 schema, 92 bảng, quy tắc migration bất biến bắt đầu từ `033`), và `sse-stream-tester` (kiểm thử luồng SSE của Chatbot/Quiz, xử lý lỗi và abort signal).
+- File / phạm vi: `.agents/skills/langoo-workflow/SKILL.md`, `.agents/skills/nestjs-swagger-contract/SKILL.md`, `.agents/skills/prisma-db-inspector/SKILL.md`, `.agents/skills/sse-stream-tester/SKILL.md`, `docs/reviews/docs2-antigravity-workspace-skills-2026-10-28.md`. [Report](docs/reviews/docs2-antigravity-workspace-skills-2026-10-28.md).
+- Kiểm tra / kết quả: `git diff --check` pass, cấu trúc Markdown và YAML frontmatter hợp lệ chuẩn Progressive Disclosure của Antigravity.
+- Gate còn thiếu / việc tiếp theo: Không có; các agent phiên sau tự động nạp skill khi có ngữ cảnh phù hợp.
+- Git / triển khai: Chưa commit, chưa push; local workspace config.
+
 ### 2026-10-27 — M12 — CORS allowlist localhost, langoo.org và www.langoo.org
 
 - Theo yêu cầu chủ dự án, CORS đổi từ mở hoàn toàn sang allowlist: `http://localhost:*` (mọi cổng dev), `https://langoo.org`, `https://www.langoo.org`. Đây là phần hardening CORS của M12.

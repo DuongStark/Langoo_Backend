@@ -267,6 +267,14 @@ describe('CollectionsService', () => {
         ],
       });
     });
+
+    it('truyền language_id vào repository khi có query filter', async () => {
+      const { service, deck } = createSetup();
+      deck.findPublishedList.mockResolvedValue([]);
+
+      await service.listDecks({ language_id: 1 });
+      expect(deck.findPublishedList).toHaveBeenCalledWith(1);
+    });
   });
 
   describe('appendFromDeck', () => {
