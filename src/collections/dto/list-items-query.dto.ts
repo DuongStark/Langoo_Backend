@@ -27,6 +27,17 @@ export class ListItemsQueryDto {
   @IsIn(['learning', 'paused', 'known'])
   status?: string;
 
+  @ApiPropertyOptional({
+    enum: ['asc', 'desc'],
+    default: 'asc',
+    example: 'desc',
+    description:
+      'Thứ tự theo (position, id). Đổi order phải bỏ cursor và tải lại trang đầu.',
+  })
+  @ValidateIf((_, value: unknown) => value !== undefined)
+  @IsIn(['asc', 'desc'])
+  order?: 'asc' | 'desc';
+
   @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 100 })
   @ValidateIf((_, value: unknown) => value !== undefined)
   @Type(() => Number)

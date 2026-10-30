@@ -8,13 +8,18 @@ const MAX_BIGINT_ID = 9223372036854775807n;
 
 /** Con trỏ keyset cho danh sách item: vị trí + id (uuid). */
 export interface ItemCursor {
+  order?: 'asc' | 'desc';
   position: number;
   id: string;
 }
 
 export function encodeCursor(cursor: ItemCursor): string {
   return Buffer.from(
-    JSON.stringify({ p: cursor.position, i: cursor.id }),
+    JSON.stringify({
+      p: cursor.position,
+      i: cursor.id,
+      ...(cursor.order === undefined ? {} : { o: cursor.order }),
+    }),
     'utf8',
   ).toString('base64url');
 }
@@ -23,7 +28,7 @@ export function decodeCursor(raw: string): ItemCursor {
   try {
     const parsed = JSON.parse(
       Buffer.from(raw, 'base64url').toString('utf8'),
-    ) as { p?: unknown; i?: unknown };
+    ) as { p?: unknown; i?: unknown; o?: unknown };
 
     if (
       typeof parsed.p !== 'number' ||
@@ -31,11 +36,16 @@ export function decodeCursor(raw: string): ItemCursor {
       parsed.p <= 0 ||
       parsed.p > MAX_POSITION ||
       typeof parsed.i !== 'string' ||
-      !UUID_PATTERN.test(parsed.i)
+      !UUID_PATTERN.test(parsed.i) ||
+      (parsed.o !== undefined && parsed.o !== 'asc' && parsed.o !== 'desc')
     ) {
       throw new Error('shape');
     }
-    return { position: parsed.p, id: parsed.i };
+    return {
+      position: parsed.p,
+      id: parsed.i,
+      ...(parsed.o === undefined ? {} : { order: parsed.o }),
+    };
   } catch {
     throw new DomainException(
       'VALIDATION_FAILED',

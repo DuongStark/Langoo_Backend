@@ -8,6 +8,118 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-30 — M5.2 — Sắp xếp item collection tăng/giảm với cursor
+
+- Thay đổi / lý do: Thêm order=asc|desc cho GET collection items để FE lấy position lớn nhất từ trang đầu, không phải tải toàn bộ rồi đảo. Mặc địnhasc/limit20/max100 và filters/ownership giữnguyên; cursor desc boundhướng và keysetlt/lt, legacyasc tươngthích.
+- File / phạm vi: DTO/controller/service item, cursorhelper+tests và E2E M5.2; [plan](docs/plans/m5.2-collection-items-order-2026-10-30.md), [API](docs/api/collections.md), [FE handoff](docs/handoff/m5.2-collection-items-order-2026-10-30.md), [report](docs/reviews/m5.2-collection-items-order-2026-10-30.md). Khôngđổi schema/dependencies/M14WIP.
+- Kiểm tra / kết quả: Target29unit pass (đãquan sátRED9), build/full lintpass, full63suites/557unitpass. LocaltestDBcũ offline; khởi tạo PostgreSQL16clusterriêng55436/langoo_m52_test, 3suite/20HTTP+DBtestpass gồm cursor tiedpositions/exclusiveboundary/defaultasc/directionmismatch/invalidquery. Cluster riêngđãstop/xóa. ReviewLuna độclập khôngfinding quantrọng; format/link/diff/status đãkiểm.
+- Gate còn thiếu / việc tiếp theo: Chưa productionHTTP smoke hoặc FE/browser. Đổiorder phải resetcursor; sorttheopositionhiệntại khôngphải created_at khi userđãreorder.
+- Git / triển khai: Code/test/docs local chưa commit/push/deploy; khôngsửaDB/VPSapp hoặc gomWIP khác.
+
+### 2026-10-30 — M14.2 — Tự động export ảnh đã tạo khi Muse trả tên file
+
+- Thay đổi / lý do: Muse có lượt chỉ trả workspace/tên4PNG mà khôngattachmedia; worker bảo toàn ở8/76. Luna export-only cùngownedthread lấyđược4ảnh đãtạo, resumeđạt12/76. Bổsung fallbackgeneric tự yêu cầuattachment filehiệncó, khônggenerate/reroll hoặc sceneviếttay.
+- File / phạm vi: batch-worker.mjs ensureImageDelivery/ownedmarker/intent+replay/newassistantguard; batch-policy.mjs/test deliveryprompt theoID; cậpnhật [ops](docs/handoff/m14.2-restaurant-76-automation-2026-10-30.md)/[report](docs/reviews/m14.2-restaurant-76-automation-2026-10-30.md). KhôngđụngscopeAPI M5.2.
+- Kiểm tra / kết quả: Policy12/12pass vớiRED→GREEN, workersyntaxpass. Đãkhôi phục4ảnhcóthật512PNG trênVPS/R2/DB màkhôngdownloadlocal hoặcgọiimagegenerationmới; kếtiếpworkerresume tựđộngđểtracktoàn76.
+- Gate còn thiếu / việc tiếp theo: Chưa76/76, Luna tiếptụctrack vàchỉbáođủkhi finalverify. Quotaunavailable, API/FEđọcảnhchưa có.
+- Git / triển khai: Local chưa commit/push. ChỉupdateworkerCLI/service riêng trênVPS; khôngdeploy/restartapp. Khôngxóa/dropcheckpoint hoặc secretfilekhi jobchưađủ.
+
+### 2026-10-30 — M14.2 — Phân loại thể chia tiếng Anh cho ảnh AI (4 nhóm)
+
+- Thay đổi / lý do: Theo yêu cầu chủ dự án, phân loại toàn bộ từ và concept thể chia tiếng Anh trong CSDL thành 4 nhóm chuẩn xác để chuẩn hoá hàng đợi sinh ảnh AI, tránh lãng phí quota Muse và không phải rà soát thủ công lại.
+- File / phạm vi: `scripts/media/classify-inflections.mjs`; [báo cáo phân loại chi tiết](docs/reviews/m14.2-english-inflected-classification-2026-10-30.md), PROGRESS. Truy vấn READ-ONLY DB VPS.
+- Kiểm tra / kết quả: Tầng Concept có 10.397 concept phái sinh (-ed/-ing/-en) gồm Nhóm 1 (Tính từ trực quan: 5.428), Nhóm 2 (Danh từ hoạt động/nghề/hiện vật: 4.279), Nhóm 3 (Động từ chia thì: 453), Nhóm 4 (Trừu tượng/trợ từ: 237). Tầng Sense thuần ngữ pháp có 26.615 senses gồm Nhóm 3 (26.601 senses kế thừa từ gốc) và Nhóm 4 (14 senses bỏ qua).
+- Gate còn thiếu / việc tiếp theo: Áp dụng bộ lọc 4 nhóm vào worker sinh ảnh hàng loạt; cấu hình API backend fallback ảnh từ gốc cho Nhóm 3.
+- Git / triển khai: Script và tài liệu local chưa commit/push; không sửa đổi schema, dữ liệu DB hay deploy app.
+
+### 2026-10-30 — M14.2 — Worker tự động tạo/lưu 76 ảnh còn thiếu (đang chạy)
+
+- Thay đổi / lý do: Chủ dự án yêu cầu tạo hết76nghĩa thiếu, tự scene/prompt, R2/DB tự động, không lưu bytes ảnh local. Worker VPS chạy theo source definition/POS, morphology và candidate retrieval; không prompt viết tay từng từ.
+- File / phạm vi: `scripts/media/batch-{cohort,candidates,policy,worker,status}.mjs`, service unit, tests; helper profile auto và registrar assetOnly; [plan](docs/plans/m14.2-restaurant-76-automation-2026-10-30.md), [ops](docs/handoff/m14.2-restaurant-76-automation-2026-10-30.md). Không đổi schema/appAPI.
+- Kiểm tra / kết quả: Full30/30 tests pass, review phát hiện3resume blockers đã sửa/test và review lại không blocker; policy9/9, SDK audit0vulnerabilities. READONLY cohort76/330candidate ban đầu, generic lexical/FTS enrichment; configephemeral0600root, R2preflight200. Service VPS đang chạy bounded76; lượt đầu plannerJSON lỗi cúpháp đã xửlý trước khi tạoảnh, không resendgeneration.
+- Gate còn thiếu / việc tiếp theo: Chưa hoàn tất76, đang monitor job; chỉ báo số đã register/hash thực tế. Cần finalcoverage116, giữ44ảnh/link cũ, kiểm noimagefileslocal, docs/diff/status. QuotaMuse chưa cómeter đángtin; API/FE chưa tíchhợp ảnh.
+- Git / triển khai: Code/test/docs local chưa commit/push. Worker CLI/service riêng đã start VPS; không deploy/restart app. Ảnh quaRAM lênR2; keyR2 riêng /run0600 sẽ xóa khi complete.
+
+### 2026-10-30 — M14.2 — Khảo sát quy trình tạo khoảng 1.000 ảnh từ vựng
+
+- Thay đổi / lý do: Đánh giá Universal Prompt và pipeline scene→ảnh→QA theo câu hỏi chủ dự án; đề xuất dùng nghĩa/POS DB, baseline C, một ảnh/concept, scene có kiểm đa dạng và rollout nhỏ có checkpoint/ngân sách retry.
+- File / phạm vi: [Khảo sát/phương án](docs/reviews/m14.2-vocabulary-images-1000-options-2026-10-30.md), PROGRESS; chưa implement design/worker hoặc đổi API/schema.
+- Kiểm tra / kết quả: Đối chiếu prompt/summary/manifest lô1–3 và script runner/storage hiện có; xác minh R2 pricing chính thức và tham khảo GenEval. Có timing lô nhỏ nhưng quota unavailable; không hứa chi phí hay throughput bulk. Docs links/diff/status đã kiểm.
+- Gate còn thiếu / việc tiếp theo: Chưa chọn cohort/pilot hoặc tạo ảnh; cần phân biệt 1.000 ảnh mới với phủ tổng1.000concept, và kiểm mẫu baseline/hybrid trước rollout. Chưa có meter quota Muse đáng tin.
+- Git / triển khai: Docs local chưa commit/push. Không gọi Muse, ghi DB/R2, deploy hoặc mở job1.000 trong lượt tư vấn.
+
+### 2026-10-30 — M14.1 — Upload và gắn đủ 40 ảnh lô 1–2
+
+- Thay đổi / lý do: Chủ dự án làm rõ phải gắn cả 40 ảnh trước; đã upload/gắn thêm đủ 20+20 ngoài 4C. Dùng explicit anchor definition/POS, giữ default-accept ảnh, không gọi thêm Muse hoặc tạo ảnh.
+- File / phạm vi: `scripts/media/` profiles/helper/uploader/receipt/registrar/tests, bulk40-anchors và binding từng lô; CSDL/README/[plan](docs/plans/m14.1-r2-concept-images-2026-10-30.md)/[handoff](docs/handoff/m14.1-cloudflare-r2-setup-2026-10-30.md)/[report + link40ảnh](docs/reviews/m14.1-r2-all40-images-2026-10-30.md). Không thêm migration/app dependency hoặc đổi API/schema.
+- Kiểm tra / kết quả: Full20/20 tests pass, review độc lập không blocker. Thêm40PNG R2 (13.441.764 bytes) GET S3/public đúng hash. Tổng44imageasset/44approvedlink, 40primary/4alternate trên40concept; view40. Bốn C giữ primary/provenance, source/mapping/status trước/sau khớp; mediaasset6461, kanjimedia6417, concept120875. Upload rerun PUT0; register/bind rerun không trùng. Syntax/format/link/diff/status đã kiểm.
+- Gate còn thiếu / việc tiếp theo: API/FE đọc ảnh và gallery alternate chưa triển khai. Không tự xử lý 4B lô3 hoặc toàn kho95.258 concept ngoài phạm vi40ảnh được yêu cầu.
+- Git / triển khai: Code/test/bindings/docs local chưa commit/push. Object R2 và data DB VPS đã apply theo yêu cầu; không deploy/restart app, không đổi ENV/credentials hoặc lưu bytes ảnh trên VPS.
+
+### 2026-10-30 — M14.1 — Gắn đủ bốn ảnh theo chính sách mặc định dùng
+
+- Thay đổi / lý do: Chủ dự án yêu cầu bỏ việc duyệt Muse toàn kho và gắn hết ảnh hiện có. Áp migration046 riêng cho view ảnh, cho concept draft dùng ảnh mà không đổi trạng thái concept hoặc mapping từ điển.
+- File / phạm vi: `046_concept_image_default_accept.sql`, `scripts/media/bind-existing.mjs`, tests, binding JSON, CLI migration allowlist; cập nhật CSDL/README/[plan](docs/plans/m14.1-r2-concept-images-2026-10-30.md)/[handoff](docs/handoff/m14.1-cloudflare-r2-setup-2026-10-30.md)/[report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md). Không sửa 045 đã apply.
+- Kiểm tra / kết quả: Full 17/17 tests pass; sau delta khóa/gate chạy lại binding 4/4 pass, review độc lập không blocker. VPS migration046 + bind apply/rerun thành công; view và concept_media đều 4. breakfast→91622, fry→32506, spicy→21297, picnic→91634 đều approved primary. Dùng anchor nghĩa tương đương cho breakfast/spicy, giữ source gốc; asset/mapping/status/provenance picnic trước/sau khớp, không trùng. Syntax/format/link/diff/status kiểm trước bàn giao.
+- Gate còn thiếu / việc tiếp theo: API/FE chưa tích hợp ảnh. Phạm vi bốn ảnh C hiện có; không chạy job Muse 95.258 concept hoặc tạo thêm ảnh.
+- Git / triển khai: Local chưa commit/push. Schema/data đã apply DB VPS theo yêu cầu hiện tại; không deploy/restart app hoặc đổi ENV/credentials.
+
+### 2026-10-30 — M14 — Khảo sát duyệt toàn bộ concept bằng Muse
+
+- Thay đổi / lý do: Đối chiếu lại chính sách nội dung máy mặc định dùng được (15/10); đính chính curated không đồng nghĩa người đã duyệt. Khảo sát phạm vi trước khi chọn mục tiêu Muse duyệt hàng loạt.
+- File / phạm vi: [Handoff M14, ghi chú 30/10](docs/handoff/m14-curation-2026-10-15.md); PROGRESS. Chỉ query DB VPS READ ONLY.
+- Kiểm tra / kết quả: 95.258 draft đều có gloss_en và ít nhất một mapping exact verified confidence ≥ 0.7; chỉ 1.905 có core.concept.gloss_vi, 93.353 chưa có. Không suy số này thành thiếu core.sense_gloss hoặc chất lượng đã bảo đảm. Link/diff/status đã kiểm.
+- Gate còn thiếu / việc tiếp theo: Phân biệt kiểm lại mapping/định nghĩa với bổ sung nghĩa Việt; chưa đo quota/tốc độ lượt mới, chưa gọi Muse hoặc bulk chuyển curated.
+- Git / triển khai: Tài liệu local chưa commit/push; không sửa DB/schema/API hoặc deploy app.
+
+### 2026-10-30 — M14.1 — Lưu ảnh Muse trên R2 và liên kết concept
+
+- Thay đổi / lý do: Hoàn tất pilot 4 ảnh C lên bucket thật `langoo-image`, domain `media.langoo.org`; sau duyệt rõ ràng của chủ dự án đã apply migration 045 và đăng ký metadata/concept. Ảnh lưu R2, không chiếm dung lượng ảnh trên VPS.
+- File / phạm vi: `scripts/media/`, `db/migrations/045_concept_images.sql`, `CSDL-THAM-CHIEU.md`; [plan](docs/plans/m14.1-r2-concept-images-2026-10-30.md), [handoff](docs/handoff/m14.1-cloudflare-r2-setup-2026-10-30.md), [report và link ảnh](docs/reviews/m14.1-r2-concept-images-2026-10-30.md). Credentials chỉ ở home config 0600 ngoài Git/VPS.
+- Kiểm tra / kết quả: 13/13 Node/PGlite tests pass, review độc lập không finding quan trọng; 4 ảnh S3/public GET đúng hash, rerun PUT 0. DB VPS asset 6418–6421; picnic→91634 approved primary, fry→32506 pending, breakfast/spicy chưa mapping. Rerun DB tạo 0 asset; view trả 1 ảnh; 6.417 kanji media và 120.875 concept giữ nguyên, mapping/status trước/sau khớp. Syntax/format/link/diff/status đã kiểm.
+- Gate còn thiếu / việc tiếp theo: Chưa tích hợp API/FE; breakfast/spicy cần mapping, fry cần curation. Không tự curated/map bằng chữ; không tạo thêm ảnh hoặc dùng thêm quota sinh ảnh trong lượt này.
+- Git / triển khai: Code/test/docs local chưa commit/push. Migration 045 và dữ liệu đã apply DB VPS theo duyệt; chưa deploy app hoặc đổi ENV runtime. Giữ WIP khác.
+
+### 2026-10-30 — DOCS3 — Prompt ảnh điện thoại: 8 mẫu mới và so sánh A/B/C
+
+- Thay đổi / lý do: Theo phản hồi ảnh quá nét/dàn dựng, tra nguồn Adobe và nghiên cứu realism; thử 4 từ × 2 prompt tiếng Anh, dùng lại 4 ảnh A lô cũ. Tải/xem đủ 8 PNG 512×512 mới (3.302.920 bytes), preview 12 ảnh A/B/C. C mềm/rộng hơn ở một số mẫu, vẫn có ảnh kiểu stock và thiên lệch bối cảnh cũ; chưa chốt tối ưu toàn cục.
+- File / phạm vi: [Plan lô 3](docs/plans/docs3-muse-image-pilot-2026-10-30.md), [report nguồn/prompt/ảnh](docs/reviews/docs3-muse-phone-prompt-2026-10-30.md); script spike nhận custom batch 1..20 với sample ID variant. Artifacts `uploads/docs3-muse-images-20261030-batch3/` (gitignored), giữ các lô trước.
+- Kiểm tra / kết quả: Syntax/format/diff, cohort 4 sense/8 sample ID, ảnh/hash/UI labels, xem trực quan, 4 tham chiếu không đổi bytes, ZIP/link và health. Lượt đầu trả 4/8; lượt tiếp chỉ tạo 4 còn thiếu, không reroll. Hai runner tổng 280,69s, không tính khoảng chuẩn bị giữa lượt; quota chưa đo được.
+- Gate còn thiếu / việc tiếp theo: Chủ dự án xem B/C và chọn hướng; chưa có seed/replicate để chứng minh ổn định, quota accounting, formal curation hoặc test bulk. Không suy số từ thành token/chi phí.
+- Git / triển khai: Script/plan/report/PROGRESS local chưa commit/push; không đổi app/DB/ENV/deploy. Dịch vụ VPS giữ trạng thái active như trước; không lưu kho ảnh lên VPS.
+
+### 2026-10-30 — DOCS3 — Lô 2: 20 ảnh Muse đời thường và đa dạng
+
+- Thay đổi / lý do: Theo yêu cầu chủ dự án, thêm 20 nghĩa không trùng lô 1 từ bộ Ẩm thực & Nhà hàng; brief riêng tạo 14 ảnh giả lập chụp sinh hoạt, 2 tranh mực, 1 chì màu, 2 cắt giấy, 1 comic. Tải và xem đủ 20 PNG 512×512; 9.154.279 bytes, kết quả ổn định sau 307,02s, toàn runner 317,77s. Quota thực vẫn chưa đo được.
+- File / phạm vi: [Plan lô 2](docs/plans/docs3-muse-image-pilot-2026-10-30.md), [report lô 2](docs/reviews/docs3-muse-image-batch2-2026-10-30.md); script spike nhận prompt/marker tùy chọn và ghi nhãn UI. Artifacts riêng ở `uploads/docs3-muse-images-20261030-batch2/` (gitignored), giữ nguyên lô 1.
+- Kiểm tra / kết quả: Syntax/format, cohort/hash không trùng lô 1, decode/verify 20 PNG, đối chiếu filename/nghĩa, xem trực quan 20 ảnh, ZIP CRC/link/diff. Muse hoán đổi IDs stir/marinate trong raw reply; manifest đã lấy đúng cohort (`stir=2462808`, `marinate=898972`), không ghi DB. Dịch vụ browser/display/bridge giữ active như trước lô; health app/DB ok.
+- Gate còn thiếu / việc tiếp theo: Chưa có quota meter, formal curation, đo trí nhớ, WebP hoặc storage/bulk production; ảnh AI chưa xuất bản. Không chạy test ứng dụng vì chỉ spike.
+- Git / triển khai: Script/plan/report/PROGRESS local chưa commit/push; không deploy hoặc apply DB. Giữ nguyên các tài liệu PDF untracked có sẵn.
+
+### 2026-10-30 — DOCS3 — Thử 20 ảnh Muse từ bộ Ẩm thực & Nhà hàng
+
+- Thay đổi / lý do: Theo yêu cầu chủ dự án, chạy pilot Muse web một lô 20 nghĩa thật từ deck `en-restaurant-dining`; tải đủ 20 PNG 512×512 về local, tổng 4.287.485 bytes. Kết quả DOM ổn định sau 331,83s; toàn runner gồm nhận file 340,45s. Chưa đo được quota/token, không suy là miễn phí hoặc tiêu thụ 0.
+- File / phạm vi: [Plan](docs/plans/docs3-muse-image-pilot-2026-10-30.md), [report](docs/reviews/docs3-muse-image-pilot-2026-10-30.md), `scripts/ops/muse-native/image-pilot-browser.mjs`; ảnh/ZIP/preview/evidence ở `uploads/docs3-muse-images-20261030/` (gitignored). Không đổi API/DB/ENV.
+- Kiểm tra / kết quả: Syntax/format script, decode/kích thước/hash của 20 ảnh khác nhau, đối chiếu tên UI với cohort, xem trực quan cả 20 ảnh, kiểm ZIP/link/diff. Browser/display bật tạm để đăng nhập lại được hoàn nguyên inactive; bridge giữ active; health app/DB kiểm sau thử. Không chạy test ứng dụng.
+- Gate còn thiếu / việc tiếp theo: Không có meter usage số đáng tin để đo trước–sau; chưa formal curation, xác minh điều khoản đầu ra, nén WebP hoặc triển khai R2/bulk. Native cũ lỗi DecodeError, dùng browser fallback cho pilot.
+- Git / triển khai: Chưa commit/push; không deploy hoặc apply DB. Giữ nguyên các tài liệu PDF untracked có sẵn.
+
+### 2026-10-30 — DOCS3 — Đối chiếu Muse Image, quota web và dung lượng lưu ảnh
+
+- Thay đổi / lý do: Bổ sung [báo cáo DOCS3, mục 7](docs/reviews/docs3-vocabulary-illustration-options-2026-10-30.md#7-bổ-sung--muse-và-lưu-ảnh-ngoài-vps): tách quota Muse web chưa đo với giá API Muse Image; khuyến nghị pilot 20 nghĩa và R2 ngoài VPS.
+- File / phạm vi: Chỉ báo cáo và PROGRESS. SSH read-only `date -u; df -h /; df -i /; free -m`: root 76% đã dùng, còn 6.8G; RAM available 763 MiB tại 2026-10-30 00:40:45 +07.
+- Kiểm tra / kết quả: Đọc báo cáo M10.4/M10.5; tra docs chính thức Meta Image/pricing và R2; kiểm diff/link tài liệu. Không gọi Muse tạo ảnh, không tiêu quota generation, không sửa runtime.
+- Gate còn thiếu / việc tiếp theo: Chưa đo usage/latency ảnh tài khoản web, chưa xác minh quyền sử dụng đầu ra theo điều khoản tài khoản hoặc billing R2; chưa triển khai storage/API.
+- Git / triển khai: Chưa commit/push; không deploy hoặc dọn dữ liệu VPS.
+
+### 2026-10-30 — DOCS3 — Phương án ảnh minh họa từ vựng
+
+- Thay đổi / lý do: Nghiên cứu cách có ảnh minh họa đúng nghĩa, giảm rủi ro bản quyền, thời gian và chi phí; khuyến nghị AI tạo trước kết hợp asset CC0, tái sử dụng qua concept đã duyệt hoặc gắn sense khi chưa có mapping đạt chất lượng.
+- File / phạm vi: [Báo cáo DOCS3](docs/reviews/docs3-vocabulary-illustration-options-2026-10-30.md); đối chiếu schema media, DTO từ điển, storage và 20 deck EN được ghi trong tiến độ. Chỉ tài liệu, không sửa code/DB.
+- Kiểm tra / kết quả: Đối chiếu nguồn chính thức về giấy phép, giá API và hạn chế dịch vụ; kiểm link nội bộ, `git diff --check` và trạng thái Git. Không chạy test ứng dụng hoặc gọi API tạo ảnh.
+- Gate còn thiếu / việc tiếp theo: Pilot đề xuất 100 nghĩa, đo công duyệt/chi phí thực và chốt provider; chưa triển khai hay coi ảnh AI/CC0 là bảo đảm tuyệt đối về quyền.
+- Git / triển khai: Báo cáo và entry chưa commit/push; không deploy. Giữ nguyên tài liệu PDF untracked có sẵn.
+
 ### 2026-10-28 — M2.4 — Liệt kê phương thức đăng nhập và trạng thái liên kết Google trong GET /v1/auth/me
 
 - Thay đổi / lý do: Khắc phục tình trạng người dùng đăng nhập bằng tài khoản Google bị giao diện Cài đặt/Hồ sơ yêu cầu nhập mật khẩu để liên kết Google (do FE không có thông tin định danh để ẩn/hiện khối liên kết).
@@ -1746,3 +1858,17 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - Git / triển khai: foundation 708e3b8 và memory fix cbe9e56 đã push; unit
   fix đang local. VPS vẫn cài unit cũ; service smoke fail trước ledger/dispatch,
   không có Muse call, DB write/apply hoặc app deploy.
+
+### 2026-10-30 — M14.2 — Prompt v2 hạn chế người và ảnh dàn dựng
+
+- Theo phản hồi chủ dự án, cập nhật planner/style trong `scripts/media/batch-policy.mjs`: ưu tiên chủ thể không người, chỉ dùng người khi nghĩa yêu cầu; giảm bóng nhựa, showroom, đối xứng và màu điện ảnh. Version `muse-ordinary-auto-v2`.
+- Kiểm tra: policy 12/12 pass, syntax pass; chưa tạo ảnh mẫu hoặc nghiệm thu chất lượng. [Report](docs/reviews/m14.2-restaurant-76-automation-2026-10-30.md).
+- Git/triển khai: local chưa commit/push; chưa cập nhật VPS/restart job. Checkpoint prompt cũ chưa đổi; phải giữ request đã dispatch/uncertain và chỉ replan phần chưa gửi khi rollout.
+
+### 2026-10-30 — DOCS1 / M5.2 / M14.1 / M14.2 — Kiểm tra và phát hành thay đổi còn local
+
+- Chủ dự án yêu cầu commit/push các phần đã sửa. Rà toàn bộ WIP, chia commit PDF/docs, pilot DOCS3, M14 ảnh/R2/worker và M5.2 collection order.
+- Kiểm tra lại Node22: full63suite/557unit pass, build pass; collection HTTP/DB3suite/20test pass trên clusterUTF8 riêng55438 đãstop. Script media33/33pass; syntaxpass. E2E có MaxListeners warning, khôngfail/skip; lần initDB đầu lỗi encoding đã thay cluster riêng UTF8.
+- M5.2 desc theo(position,id), cursor bound hướng; không đổi defaultasc. [Report](docs/reviews/m5.2-collection-items-order-2026-10-30.md).
+- M14 worker vẫn chưa hoàn tất, promptv2 mớilocal; commit/push không có nghĩa chạy lại worker hoặc nghiệm thu ảnh. API/FEảnh chưa tíchhợp. Migration045/046 được giữ nguyên; testreset đãáp thànhcông trongDBtest.
+- Git: chuẩn bị commit/push theo từnghạngmục; CI tự chạy saupush và app tựdeploy khiCIxanh. Trạngthái cụthể báo cuối; chưa xácnhận deploy.

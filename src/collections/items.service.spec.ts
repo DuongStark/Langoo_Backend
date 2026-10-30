@@ -399,6 +399,72 @@ describe('ItemsService', () => {
       );
     });
 
+    it('lists the highest positions first and carries a descending cursor', async () => {
+      const { service, prisma } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      const rows = [
+        itemRow({ id: '01a0dc8a-7193-7e18-93b0-32e8378986fe', position: 101 }),
+        itemRow({ id: '01a0dc8a-7192-7e18-93b0-32e8378986fe', position: 100 }),
+        itemRow({ id: '01a0dc8a-7191-7e18-93b0-32e8378986fe', position: 100 }),
+      ];
+      prisma.collectionItem.findMany.mockResolvedValue(rows);
+      const result = await service.list(1n, COLLECTION_ID, {
+        order: 'desc',
+        limit: 2,
+      });
+      const args = firstArg<{ orderBy: unknown[]; take: number }>(
+        prisma.collectionItem.findMany,
+      );
+      expect(args.orderBy).toEqual([{ position: 'desc' }, { id: 'desc' }]);
+      expect(args.take).toBe(3);
+      expect(result.data.map((x) => x.position)).toEqual([101, 100]);
+      expect(result.next_cursor).toBe(
+        encodeCursor({ position: 100, id: rows[1].id, order: 'desc' }),
+      );
+    });
+
+    it('descending continuation excludes the boundary including tied positions', async () => {
+      const { service, prisma } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      prisma.collectionItem.findMany.mockResolvedValue([
+        itemRow({ position: 3 }),
+      ]);
+      const id = '01a0dc8a-7192-7e18-93b0-32e8378986fe';
+      const cursor = Buffer.from(
+        JSON.stringify({ p: 3, i: id, o: 'desc' }),
+      ).toString('base64url');
+      const result = await service.list(1n, COLLECTION_ID, {
+        order: 'desc',
+        cursor,
+        limit: 2,
+      });
+      const args = firstArg<{ where: { OR: unknown[] } }>(
+        prisma.collectionItem.findMany,
+      );
+      expect(args.where.OR).toEqual([
+        { position: { lt: 3 } },
+        { position: 3, id: { lt: id } },
+      ]);
+      expect(result.next_cursor).toBeNull();
+    });
+
+    it('rejects changing direction or passing a legacy ascending cursor to descending', async () => {
+      const { service, prisma } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      const id = '01a0dc8a-7192-7e18-93b0-32e8378986fe';
+      const desc = Buffer.from(
+        JSON.stringify({ p: 3, i: id, o: 'desc' }),
+      ).toString('base64url');
+      const asc = encodeCursor({ position: 3, id });
+      await expect(
+        service.list(1n, COLLECTION_ID, { cursor: desc }),
+      ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+      await expect(
+        service.list(1n, COLLECTION_ID, { cursor: asc, order: 'desc' }),
+      ).rejects.toMatchObject({ code: 'VALIDATION_FAILED' });
+      expect(prisma.collectionItem.findMany).not.toHaveBeenCalled();
+    });
+
     it('truyền cursor → điều kiện keyset; language không tồn tại → LANGUAGE_NOT_FOUND', async () => {
       const { service, prisma, languages } = createSetup();
       prisma.collection.findFirst.mockResolvedValue(collectionRow());

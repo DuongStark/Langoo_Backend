@@ -90,6 +90,7 @@ export class ItemsService {
     }
 
     const limit = query.limit ?? DEFAULT_ITEMS_LIMIT;
+    const order = query.order ?? 'asc';
     const visibleLanguages =
       query.language_id === undefined
         ? allowed
@@ -103,15 +104,23 @@ export class ItemsService {
     }
     if (query.cursor !== undefined) {
       const cursor = decodeCursor(query.cursor);
+      if ((cursor.order ?? 'asc') !== order) {
+        throw new DomainException(
+          'VALIDATION_FAILED',
+          'Cursor không cùng thứ tự sắp xếp; hãy tải lại trang đầu',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      const compare = order === 'desc' ? 'lt' : 'gt';
       where.OR = [
-        { position: { gt: cursor.position } },
-        { position: cursor.position, id: { gt: cursor.id } },
+        { position: { [compare]: cursor.position } },
+        { position: cursor.position, id: { [compare]: cursor.id } },
       ];
     }
 
     const rows = await this.prisma.collectionItem.findMany({
       where,
-      orderBy: [{ position: 'asc' }, { id: 'asc' }],
+      orderBy: [{ position: order }, { id: order }],
       take: limit + 1,
       include: {
         faces: { where: { languageId: { in: visibleLanguages } } },
@@ -126,7 +135,11 @@ export class ItemsService {
       data: page.map(toItemResponse),
       next_cursor:
         hasMore && last !== undefined
-          ? encodeCursor({ position: last.position, id: last.id })
+          ? encodeCursor({
+              position: last.position,
+              id: last.id,
+              ...(order === 'desc' ? { order } : {}),
+            })
           : null,
     };
   }

@@ -11,6 +11,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBadRequestResponse,
+  ApiUnauthorizedResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -48,10 +50,22 @@ export class ItemsController {
 
   @Get()
   @ApiOperation({
-    summary: 'Danh sách từ trong bộ (lọc language_id/status, cursor keyset)',
+    summary: 'Danh sách từ trong bộ (lọc, order asc/desc, cursor keyset)',
+    description:
+      'Sắp xếp theo (position, id), mặc định asc; desc trả position lớn nhất trước. Giữ cùng order khi dùng next_cursor, đổi chiều phải tải lại trang đầu.',
   })
   @ApiParam({ name: 'collectionId' })
   @ApiOkResponse({ type: ItemListResponseDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description:
+      'VALIDATION_FAILED khi order/cursor/limit sai hoặc cursor khác chiều; LANGUAGE_NOT_FOUND khi ngôn ngữ không tồn tại',
+  })
+  @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'COLLECTION_NOT_FOUND',
+  })
   list(
     @CurrentUser() payload: JwtPayload,
     @Param('collectionId') collectionId: string,

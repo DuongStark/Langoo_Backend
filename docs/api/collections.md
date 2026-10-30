@@ -73,13 +73,13 @@ từ client (nếu có) phải đúng concept của cặp; nếu chỉ có một
 phải là mapping curated của sense đó. Sense chưa có mapping hợp lệ vẫn có thể
 được lưu một face với `concept_id: null`.
 
-## Danh sách từ (lọc + phân trang cursor)
+## Danh sách từ (lọc + thứ tự + phân trang cursor)
 
 ```bash
-curl -s "localhost:3000/v1/collections/<id>/items?language_id=2&status=learning&limit=20" \
+curl -s "localhost:3000/v1/collections/<id>/items?language_id=2&status=learning&order=desc&limit=20" \
   -H "Authorization: Bearer <token>"
 # trang sau:
-curl -s "localhost:3000/v1/collections/<id>/items?limit=20&cursor=<next_cursor>" \
+curl -s "localhost:3000/v1/collections/<id>/items?language_id=2&status=learning&order=desc&limit=20&cursor=<next_cursor>" \
   -H "Authorization: Bearer <token>"
 ```
 
@@ -94,8 +94,17 @@ curl -s "localhost:3000/v1/collections/<id>/items?limit=20&cursor=<next_cursor>"
   `item_count` vẫn là tổng lưu trong DB, gồm từ đang ẩn. Một item song ngữ chỉ tính một.
 - API list collections giữ khả năng xem các hồ sơ của chủ sở hữu; màn hình học
   phải gửi `profile_id` của hồ sơ active để không trộn các bộ của hồ sơ khác.
-- Đổi language/profile phải tải lại trang đầu, không nối cache/cursor cũ.
-- Cursor keyset `(position, id)` base64url; `next_cursor=null` khi hết.
+- `order=asc|desc` (M5.2), mặc định `asc`. Sắp xếp **trước phân trang** theo
+  `(position ASC, id ASC)` hoặc `(position DESC, id DESC)`, kể cả khi trùng position.
+  `order=desc&limit=100` lấy tối đa 100 item có position lớn nhất ngay trang đầu.
+- Đây là thứ tự position hiện tại; nếu đã chỉnh position thì không đồng nghĩa thời gian tạo.
+- Cursor keyset `(position, id)` base64url là opaque; giữ nguyên `next_cursor`,
+  `order`, collection và các filter ở trang sau; `next_cursor=null` khi hết.
+- Đổi order/language/status/profile/collection phải tải lại trang đầu và bỏ cursor/cache cũ.
+  Desc cursor dùng lại với asc (kể cả khi bỏ order) trả `400 VALIDATION_FAILED`;
+  cursor legacy chưa có hướng vẫn dùng cho asc, không dùng được cho desc.
+- `order` ngoài đúng hai giá trị chữ thường `asc`/`desc` trả `400 VALIDATION_FAILED`.
+  Limit vẫn mặc định 20, tối đa 100; response `{ data, next_cursor }` không thêm field.
 
 ## Sửa / xoá từ
 
@@ -141,8 +150,8 @@ fallback en → lemma. Deck sai/chưa publish → `404 DECK_NOT_FOUND`; concept 
 deck item không còn là mapping curated confidence ≥ 0.7 → `409 DECK_CONCEPT_INVALID`.
 
 Các danh sách dùng keyset cursor, mặc định 20 dòng và tối đa 100 dòng/trang.
-Cursor gắn với bộ lọc hiện tại; cursor sai, hết hạn hình dạng hoặc dùng với
-`profile_id` khác trả `400 VALIDATION_FAILED`. UUID, bigint ngoài miền PostgreSQL,
+Cursor phải dùng với cùng phạm vi/bộ lọc của trang đầu; item cursor ràng buộc thêm
+chiều `order`. Cursor sai hình dạng hoặc item cursor khác chiều trả `400 VALIDATION_FAILED`. UUID, bigint ngoài miền PostgreSQL,
 null hoặc chuỗi chỉ có khoảng trắng đều bị từ chối bằng lỗi 4xx trước khi chạm DB.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **collections**, **tags**).
