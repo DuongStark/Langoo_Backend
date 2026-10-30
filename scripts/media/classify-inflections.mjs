@@ -58,8 +58,8 @@ async function main() {
       CASE
         -- Nhóm 4: Trợ động từ, từ trừu tượng, logic, trạng từ
         WHEN pos = 'adverb'
-          OR lemma IN ('being', 'having', 'willing', 'meaning', 'feeling', 'seeming', 
-                       'understanding', 'reasoning', 'believing', 'belonging', 
+          OR lemma IN ('being', 'having', 'willing', 'meaning', 'feeling', 'seeming',
+                       'understanding', 'reasoning', 'believing', 'belonging',
                        'seemed', 'occurred', 'resulted', 'implied', 'depended')
           OR gloss_en ~* '(pertaining to|relating to|in a manner|quality of being|state of being|philosophical|logical|the act of thinking|degree|grammatical)'
           THEN 'GROUP_4_ABSTRACT_NO_IMAGE'
@@ -125,9 +125,9 @@ async function main() {
 
   // 2. Thống kê tầng Sense thuần ngữ pháp (Wiktionary grammatical senses)
   const senseGrammarQuery = `
-    SELECT 
-      CASE 
-        WHEN l.lemma IN ('did', 'done', 'doing', 'was', 'were', 'been', 'being', 'had', 'having', 'became', 'seemed', 'existed') 
+    SELECT
+      CASE
+        WHEN l.lemma IN ('did', 'done', 'doing', 'was', 'were', 'been', 'being', 'had', 'having', 'became', 'seemed', 'existed')
           THEN 'GROUP_4_ABSTRACT_NO_IMAGE'
         ELSE 'GROUP_3_INHERIT_ROOT_INFLECTION'
       END AS classification,
