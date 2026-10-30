@@ -1,0 +1,362 @@
+[
+  {
+    "lemma": "bartender",
+    "source_sense_id": "284966",
+    "anchor_sense_id": "284966",
+    "concept_id": "104854",
+    "anchor_definition": "an employee who mixes and serves alcoholic drinks at a bar",
+    "anchor_definition_sha256": "9bc7d04954acb85a6d183a43e2a76431686664495539c4bf3ab2d38103bd5bf3",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "chef",
+    "source_sense_id": "319130",
+    "anchor_sense_id": "319130",
+    "concept_id": "105680",
+    "anchor_definition": "a professional cook",
+    "anchor_definition_sha256": "d9b5d4564ce62e20b57e3eab5457b1171701e2d24114f83d768f9689471b7942",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "dessert",
+    "source_sense_id": "355066",
+    "anchor_sense_id": "355066",
+    "concept_id": "91897",
+    "anchor_definition": "a dish served as the last course of a meal",
+    "anchor_definition_sha256": "d625ce2bb6ad989693f71b03f37b666edd8a11e9f866b95f164ffdfee3db97a8",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "dishwasher",
+    "source_sense_id": "359929",
+    "anchor_sense_id": "359929",
+    "concept_id": "65405",
+    "anchor_definition": "a machine for washing dishes",
+    "anchor_definition_sha256": "7f4c21747cb2736ab1f5730922d3da717c27b9817b2277c8b8423cd7ddc8f1ff",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "fry",
+    "source_sense_id": "401763",
+    "anchor_sense_id": "401763",
+    "concept_id": "32506",
+    "anchor_definition": "cook in hot fat or oil",
+    "anchor_definition_sha256": "52804ba3a2fae210af7a0cac9f60838dee18bb14534b8b0c626f5760bf0c6ba6",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "kitchen",
+    "source_sense_id": "461565",
+    "anchor_sense_id": "461565",
+    "concept_id": "68103",
+    "anchor_definition": "a room equipped for preparing meals",
+    "anchor_definition_sha256": "1b92d702227be401807b21985a9620b679a6950dabc7225e04256141de9d4ff9",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "menu",
+    "source_sense_id": "488290",
+    "anchor_sense_id": "488290",
+    "concept_id": "84970",
+    "anchor_definition": "a list of dishes available at a restaurant",
+    "anchor_definition_sha256": "487dec29fa0d7d0df9f74710a41821b351c9f38524c18545053519a5d0d55b0b",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "pantry",
+    "source_sense_id": "522050",
+    "anchor_sense_id": "522050",
+    "concept_id": "69848",
+    "anchor_definition": "a small storeroom for storing foods or wines",
+    "anchor_definition_sha256": "c08aa753e069494828f14c784092592c47bee9b28132b9997f6ea5355728f10f",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "picnic",
+    "source_sense_id": "532214",
+    "anchor_sense_id": "532214",
+    "concept_id": "91634",
+    "anchor_definition": "any informal meal eaten outside or on an excursion",
+    "anchor_definition_sha256": "75c340355eb9325b868b73372b653d83d82c78c9254e1882ccaac4668200c843",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "restaurant",
+    "source_sense_id": "565086",
+    "anchor_sense_id": "565086",
+    "concept_id": "71124",
+    "anchor_definition": "a building where people go to eat",
+    "anchor_definition_sha256": "8f33f1a1070c00c8e91403ec382b1a1f8a88f348596b2971fc3f2e5fcf735036",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "roast",
+    "source_sense_id": "569322",
+    "anchor_sense_id": "569322",
+    "concept_id": "32502",
+    "anchor_definition": "cook with dry heat, usually in an oven",
+    "anchor_definition_sha256": "ff4d345549ad8a60737a237cc762a8fd9b866ea5e2c340f4c6e17c49ec758108",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "rotten",
+    "source_sense_id": "571534",
+    "anchor_sense_id": "571534",
+    "concept_id": "71773",
+    "anchor_definition": "having decayed or disintegrated; usually implies foulness",
+    "anchor_definition_sha256": "939c0247122ad630dd00fa27d8d89159acba3dfa9c6d41e634741dd97c6497ba",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "slice",
+    "source_sense_id": "596089",
+    "anchor_sense_id": "596089",
+    "concept_id": "102331",
+    "anchor_definition": "a thin flat piece cut off of some object",
+    "anchor_definition_sha256": "6e909c2ac884f0cee52a09fbd3daffd873410f0062c3f7f651d593078f11dfb0",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "snack",
+    "source_sense_id": "597929",
+    "anchor_sense_id": "597929",
+    "concept_id": "91641",
+    "anchor_definition": "a light informal meal",
+    "anchor_definition_sha256": "49fc672414830a977200c8f0d51edc49cd8af484ce60ab484363573b9e4950c3",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "sour",
+    "source_sense_id": "601701",
+    "anchor_sense_id": "601701",
+    "concept_id": "21306",
+    "anchor_definition": "one of the four basic taste sensations; like the taste of vinegar or lemons",
+    "anchor_definition_sha256": "eff2979c475725bb4ae95cb2638a5eb890a2eabc04d3554163e9db8c1a47579f",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "steam",
+    "source_sense_id": "609450",
+    "anchor_sense_id": "609450",
+    "concept_id": "18105",
+    "anchor_definition": "water at boiling temperature diffused in the atmosphere",
+    "anchor_definition_sha256": "691a9e1225c91002b42d914bc773ece48a1badad92df6676ae36a8bb2565b900",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "sweet",
+    "source_sense_id": "620236",
+    "anchor_sense_id": "620236",
+    "concept_id": "21127",
+    "anchor_definition": "having or denoting the characteristic taste of sugar",
+    "anchor_definition_sha256": "ab746098b576d7c20e79f2b21938e8980055f419f1fe9d60d9c36aa6492fe31a",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "wine",
+    "source_sense_id": "666800",
+    "anchor_sense_id": "666800",
+    "concept_id": "94012",
+    "anchor_definition": "fermented juice (of grapes especially)",
+    "anchor_definition_sha256": "858a034a9768f9068df482c686a84356fcf25af3cc8a87ff6e9848a4ba39f0a8",
+    "reason": "Existing exact source mapping."
+  },
+  {
+    "lemma": "bake",
+    "source_sense_id": "833764",
+    "anchor_sense_id": "282624",
+    "concept_id": "39944",
+    "anchor_definition": "prepare with dry heat in an oven",
+    "anchor_definition_sha256": "639f98b95de98db8ca82341c973822cde2861394343ba72249c05e9864586d70",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "marinate",
+    "source_sense_id": "898972",
+    "anchor_sense_id": "483263",
+    "concept_id": "31869",
+    "anchor_definition": "soak in marinade",
+    "anchor_definition_sha256": "ea5248549b58e2d184fe744c182b780c46d20679e0e72c52c9f252b3fa8800c9",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "appetizer",
+    "source_sense_id": "901481",
+    "anchor_sense_id": "272007",
+    "concept_id": "91667",
+    "anchor_definition": "food or drink to stimulate the appetite (usually served before a meal or as the first course)",
+    "anchor_definition_sha256": "3c8df32fe58063d71149a35bf920822e3a7fd572233e214b04ef10fb631b1679",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "boil",
+    "source_sense_id": "1355380",
+    "anchor_sense_id": "296403",
+    "concept_id": "32524",
+    "anchor_definition": "immerse or be immersed in a boiling liquid, often for cooking purposes",
+    "anchor_definition_sha256": "2acbd9797463de23a957207d988a606fb926f43af1def06bbf287c3d605e13c0",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "crispy",
+    "source_sense_id": "1485928",
+    "anchor_sense_id": "342847",
+    "concept_id": "21621",
+    "anchor_definition": "tender and brittle",
+    "anchor_definition_sha256": "e9fde0f66bc7e8d3eb95d564eb153d52c2bac9eea0d2d86d5040b967849c3913",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "beverage",
+    "source_sense_id": "1549551",
+    "anchor_sense_id": "290184",
+    "concept_id": "93948",
+    "anchor_definition": "any liquid suitable for drinking",
+    "anchor_definition_sha256": "8a9fbc91fa083630e5494df599451198304110e0cd1c79332121a126467b717f",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "whisk",
+    "source_sense_id": "1616956",
+    "anchor_sense_id": "664096",
+    "concept_id": "74458",
+    "anchor_definition": "a mixer incorporating a coil of wires; used for whipping eggs or cream",
+    "anchor_definition_sha256": "65ea26f3cf8b01ddfcd978fd5c2c5ba3a51db2c006e33b4d271fe914a85a65a4",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "bistro",
+    "source_sense_id": "1680951",
+    "anchor_sense_id": "292264",
+    "concept_id": "62997",
+    "anchor_definition": "a small informal restaurant; serves wine",
+    "anchor_definition_sha256": "a143eac454e8c8a1a25971384feb4ab26553158b557522717aec83b8296b1979",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "waitress",
+    "source_sense_id": "1746344",
+    "anchor_sense_id": "659155",
+    "concept_id": "110999",
+    "anchor_definition": "a woman waiter",
+    "anchor_definition_sha256": "a4243e25bccb6dfb40588187767f078501766b16149ecf83da2dc902ffce61d9",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "chop",
+    "source_sense_id": "1811154",
+    "anchor_sense_id": "321478",
+    "concept_id": "37591",
+    "anchor_definition": "cut into pieces with repeated blows",
+    "anchor_definition_sha256": "c747ff8c664ffdae3dc44206aeea668e1ca08e076df040d053c2ecf24fd5df73",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "bakery",
+    "source_sense_id": "1812196",
+    "anchor_sense_id": "282663",
+    "concept_id": "62524",
+    "anchor_definition": "a workplace where baked goods (breads and cakes and pastries) are produced or sold",
+    "anchor_definition_sha256": "769c0b20811d836ddd4af0cc530f739ace773dc9edd117650117e8309f60099d",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "grill",
+    "source_sense_id": "1815338",
+    "anchor_sense_id": "284190",
+    "concept_id": "62613",
+    "anchor_definition": "a rack to hold meat for cooking over hot charcoal usually out of doors",
+    "anchor_definition_sha256": "24fd769e0b8bd078a15e04644d3d3ab2d92905c900dc3480fcaa4bb2136322f0",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "seafood",
+    "source_sense_id": "1880223",
+    "anchor_sense_id": "581723",
+    "concept_id": "93156",
+    "anchor_definition": "edible fish (broadly including freshwater fish) or shellfish or roe etc",
+    "anchor_definition_sha256": "9a97ccdf30b31afab06e473e67bdfcfbc403df0a7d4ae9bbc072b0de72f59249",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "ripe",
+    "source_sense_id": "2138120",
+    "anchor_sense_id": "568727",
+    "concept_id": "97539",
+    "anchor_definition": "fully developed or matured and ready to be eaten or used",
+    "anchor_definition_sha256": "62f114433387acd7ea48997882b861a293e032c45fc31edb629f4302be0ad96b",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "grate",
+    "source_sense_id": "2267889",
+    "anchor_sense_id": "420670",
+    "concept_id": "39437",
+    "anchor_definition": "reduce to small shreds or pulverize by rubbing against a rough or sharp perforated surface",
+    "anchor_definition_sha256": "6faf5340d464f22dc9ca67a989cf93c92d862280ef1c380b9127a46997f97d4e",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "spicy",
+    "source_sense_id": "2270650",
+    "anchor_sense_id": "604192",
+    "concept_id": "21297",
+    "anchor_definition": "producing a burning sensation on the taste nerves",
+    "anchor_definition_sha256": "20d99634bbfa1518e6d5130b7dc0ecc1f1cfbf7e8ab3809767aacd12f2fe6e06",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "buffet",
+    "source_sense_id": "2398582",
+    "anchor_sense_id": "303554",
+    "concept_id": "91632",
+    "anchor_definition": "a meal set out on a buffet at which guests help themselves",
+    "anchor_definition_sha256": "ede030e4b643a798d1da1fdf7e4cee5e808fd5682d6f7eb9c0c47ccae88dc2b7",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "stir",
+    "source_sense_id": "2462808",
+    "anchor_sense_id": "611176",
+    "concept_id": "41193",
+    "anchor_definition": "move an implement through",
+    "anchor_definition_sha256": "0b1361f474ad5ea9450c4413b969cc1c2aad29bf3fad605cbeb223dd94969810",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "cocktail",
+    "source_sense_id": "2464753",
+    "anchor_sense_id": "327705",
+    "concept_id": "94158",
+    "anchor_definition": "a short mixed drink",
+    "anchor_definition_sha256": "da59c5d7c2361cee6de0f7d35ab2fadb9059bc8bba6c455051f8538576e3c531",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "waiter",
+    "source_sense_id": "2528757",
+    "anchor_sense_id": "659133",
+    "concept_id": "110998",
+    "anchor_definition": "a person whose occupation is to serve at table (as in a restaurant)",
+    "anchor_definition_sha256": "a70d390d2f899b6ce506e714e2c762bde7822d2d938858c94bd4fbf33b3d36fe",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "dairy",
+    "source_sense_id": "2592491",
+    "anchor_sense_id": "347743",
+    "concept_id": "93642",
+    "anchor_definition": "milk and butter and cheese",
+    "anchor_definition_sha256": "49e9ea29abc839cb607644f0ddd3047e75955e58d8d0b36ebd6b5c1ba08e150b",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  },
+  {
+    "lemma": "breakfast",
+    "source_sense_id": "2854503",
+    "anchor_sense_id": "300487",
+    "concept_id": "91622",
+    "anchor_definition": "the first meal of the day (usually in the morning)",
+    "anchor_definition_sha256": "09a8a1ee5f3d59275b435a8b7318baf85800b66b19378490f377f838be59cf6d",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning."
+  }
+]

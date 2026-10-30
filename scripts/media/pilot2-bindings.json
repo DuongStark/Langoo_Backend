@@ -1,0 +1,202 @@
+[
+  {
+    "lemma": "sweet",
+    "source_sense_id": "620236",
+    "anchor_sense_id": "620236",
+    "concept_id": "21127",
+    "anchor_definition": "having or denoting the characteristic taste of sugar",
+    "anchor_definition_sha256": "ab746098b576d7c20e79f2b21938e8980055f419f1fe9d60d9c36aa6492fe31a",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6446"
+  },
+  {
+    "lemma": "sour",
+    "source_sense_id": "601701",
+    "anchor_sense_id": "601701",
+    "concept_id": "21306",
+    "anchor_definition": "one of the four basic taste sensations; like the taste of vinegar or lemons",
+    "anchor_definition_sha256": "eff2979c475725bb4ae95cb2638a5eb890a2eabc04d3554163e9db8c1a47579f",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6447"
+  },
+  {
+    "lemma": "spicy",
+    "source_sense_id": "2270650",
+    "anchor_sense_id": "604192",
+    "concept_id": "21297",
+    "anchor_definition": "producing a burning sensation on the taste nerves",
+    "anchor_definition_sha256": "20d99634bbfa1518e6d5130b7dc0ecc1f1cfbf7e8ab3809767aacd12f2fe6e06",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6448"
+  },
+  {
+    "lemma": "crispy",
+    "source_sense_id": "1485928",
+    "anchor_sense_id": "342847",
+    "concept_id": "21621",
+    "anchor_definition": "tender and brittle",
+    "anchor_definition_sha256": "e9fde0f66bc7e8d3eb95d564eb153d52c2bac9eea0d2d86d5040b967849c3913",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6449"
+  },
+  {
+    "lemma": "ripe",
+    "source_sense_id": "2138120",
+    "anchor_sense_id": "568727",
+    "concept_id": "97539",
+    "anchor_definition": "fully developed or matured and ready to be eaten or used",
+    "anchor_definition_sha256": "62f114433387acd7ea48997882b861a293e032c45fc31edb629f4302be0ad96b",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6450"
+  },
+  {
+    "lemma": "rotten",
+    "source_sense_id": "571534",
+    "anchor_sense_id": "571534",
+    "concept_id": "71773",
+    "anchor_definition": "having decayed or disintegrated; usually implies foulness",
+    "anchor_definition_sha256": "939c0247122ad630dd00fa27d8d89159acba3dfa9c6d41e634741dd97c6497ba",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6451"
+  },
+  {
+    "lemma": "bake",
+    "source_sense_id": "833764",
+    "anchor_sense_id": "282624",
+    "concept_id": "39944",
+    "anchor_definition": "prepare with dry heat in an oven",
+    "anchor_definition_sha256": "639f98b95de98db8ca82341c973822cde2861394343ba72249c05e9864586d70",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6452"
+  },
+  {
+    "lemma": "roast",
+    "source_sense_id": "569322",
+    "anchor_sense_id": "569322",
+    "concept_id": "32502",
+    "anchor_definition": "cook with dry heat, usually in an oven",
+    "anchor_definition_sha256": "ff4d345549ad8a60737a237cc762a8fd9b866ea5e2c340f4c6e17c49ec758108",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6453"
+  },
+  {
+    "lemma": "grill",
+    "source_sense_id": "1815338",
+    "anchor_sense_id": "284190",
+    "concept_id": "62613",
+    "anchor_definition": "a rack to hold meat for cooking over hot charcoal usually out of doors",
+    "anchor_definition_sha256": "24fd769e0b8bd078a15e04644d3d3ab2d92905c900dc3480fcaa4bb2136322f0",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6454"
+  },
+  {
+    "lemma": "fry",
+    "source_sense_id": "401763",
+    "anchor_sense_id": "401763",
+    "concept_id": "32506",
+    "anchor_definition": "cook in hot fat or oil",
+    "anchor_definition_sha256": "52804ba3a2fae210af7a0cac9f60838dee18bb14534b8b0c626f5760bf0c6ba6",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6455"
+  },
+  {
+    "lemma": "boil",
+    "source_sense_id": "1355380",
+    "anchor_sense_id": "296403",
+    "concept_id": "32524",
+    "anchor_definition": "immerse or be immersed in a boiling liquid, often for cooking purposes",
+    "anchor_definition_sha256": "2acbd9797463de23a957207d988a606fb926f43af1def06bbf287c3d605e13c0",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6456"
+  },
+  {
+    "lemma": "steam",
+    "source_sense_id": "609450",
+    "anchor_sense_id": "609450",
+    "concept_id": "18105",
+    "anchor_definition": "water at boiling temperature diffused in the atmosphere",
+    "anchor_definition_sha256": "691a9e1225c91002b42d914bc773ece48a1badad92df6676ae36a8bb2565b900",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6457"
+  },
+  {
+    "lemma": "chop",
+    "source_sense_id": "1811154",
+    "anchor_sense_id": "321478",
+    "concept_id": "37591",
+    "anchor_definition": "cut into pieces with repeated blows",
+    "anchor_definition_sha256": "c747ff8c664ffdae3dc44206aeea668e1ca08e076df040d053c2ecf24fd5df73",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6458"
+  },
+  {
+    "lemma": "slice",
+    "source_sense_id": "596089",
+    "anchor_sense_id": "596089",
+    "concept_id": "102331",
+    "anchor_definition": "a thin flat piece cut off of some object",
+    "anchor_definition_sha256": "6e909c2ac884f0cee52a09fbd3daffd873410f0062c3f7f651d593078f11dfb0",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6459"
+  },
+  {
+    "lemma": "grate",
+    "source_sense_id": "2267889",
+    "anchor_sense_id": "420670",
+    "concept_id": "39437",
+    "anchor_definition": "reduce to small shreds or pulverize by rubbing against a rough or sharp perforated surface",
+    "anchor_definition_sha256": "6faf5340d464f22dc9ca67a989cf93c92d862280ef1c380b9127a46997f97d4e",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6460"
+  },
+  {
+    "lemma": "stir",
+    "source_sense_id": "2462808",
+    "anchor_sense_id": "611176",
+    "concept_id": "41193",
+    "anchor_definition": "move an implement through",
+    "anchor_definition_sha256": "0b1361f474ad5ea9450c4413b969cc1c2aad29bf3fad605cbeb223dd94969810",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6461"
+  },
+  {
+    "lemma": "marinate",
+    "source_sense_id": "898972",
+    "anchor_sense_id": "483263",
+    "concept_id": "31869",
+    "anchor_definition": "soak in marinade",
+    "anchor_definition_sha256": "ea5248549b58e2d184fe744c182b780c46d20679e0e72c52c9f252b3fa8800c9",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6462"
+  },
+  {
+    "lemma": "breakfast",
+    "source_sense_id": "2854503",
+    "anchor_sense_id": "300487",
+    "concept_id": "91622",
+    "anchor_definition": "the first meal of the day (usually in the morning)",
+    "anchor_definition_sha256": "09a8a1ee5f3d59275b435a8b7318baf85800b66b19378490f377f838be59cf6d",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6463"
+  },
+  {
+    "lemma": "snack",
+    "source_sense_id": "597929",
+    "anchor_sense_id": "597929",
+    "concept_id": "91641",
+    "anchor_definition": "a light informal meal",
+    "anchor_definition_sha256": "49fc672414830a977200c8f0d51edc49cd8af484ce60ab484363573b9e4950c3",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6464"
+  },
+  {
+    "lemma": "picnic",
+    "source_sense_id": "532214",
+    "anchor_sense_id": "532214",
+    "concept_id": "91634",
+    "anchor_definition": "any informal meal eaten outside or on an excursion",
+    "anchor_definition_sha256": "75c340355eb9325b868b73372b653d83d82c78c9254e1882ccaac4668200c843",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6465"
+  }
+]

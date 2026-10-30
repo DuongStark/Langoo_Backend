@@ -1,0 +1,25 @@
+[Unit]
+Description=M14.2 automated remaining 76 restaurant vocabulary images
+After=network-online.target muse-browser.service
+Wants=network-online.target
+StartLimitIntervalSec=1800
+StartLimitBurst=3
+
+[Service]
+Type=exec
+User=root
+WorkingDirectory=/opt/langoo/services/vocab-images-m142
+Environment=M141_APP_ROOT=/opt/langoo/app
+UMask=0077
+ExecStart=/usr/bin/flock -n /opt/langoo/storage/muse-native/runner-account.lock /usr/bin/node /opt/langoo/services/vocab-images-m142/batch-worker.mjs /opt/langoo/storage/vocab-images/m142-restaurant-20261030
+Restart=on-failure
+RestartSec=30
+MemoryMax=256M
+CPUQuota=70%
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=/opt/langoo/storage/vocab-images/m142-restaurant-20261030 /run/langoo-m142 /opt/langoo/storage/muse-native/runner-account.lock
+StandardOutput=journal
+StandardError=journal

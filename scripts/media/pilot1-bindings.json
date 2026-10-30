@@ -1,0 +1,202 @@
+[
+  {
+    "lemma": "restaurant",
+    "source_sense_id": "565086",
+    "anchor_sense_id": "565086",
+    "concept_id": "71124",
+    "anchor_definition": "a building where people go to eat",
+    "anchor_definition_sha256": "8f33f1a1070c00c8e91403ec382b1a1f8a88f348596b2971fc3f2e5fcf735036",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6426"
+  },
+  {
+    "lemma": "bistro",
+    "source_sense_id": "1680951",
+    "anchor_sense_id": "292264",
+    "concept_id": "62997",
+    "anchor_definition": "a small informal restaurant; serves wine",
+    "anchor_definition_sha256": "a143eac454e8c8a1a25971384feb4ab26553158b557522717aec83b8296b1979",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6427"
+  },
+  {
+    "lemma": "buffet",
+    "source_sense_id": "2398582",
+    "anchor_sense_id": "303554",
+    "concept_id": "91632",
+    "anchor_definition": "a meal set out on a buffet at which guests help themselves",
+    "anchor_definition_sha256": "ede030e4b643a798d1da1fdf7e4cee5e808fd5682d6f7eb9c0c47ccae88dc2b7",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6428"
+  },
+  {
+    "lemma": "bakery",
+    "source_sense_id": "1812196",
+    "anchor_sense_id": "282663",
+    "concept_id": "62524",
+    "anchor_definition": "a workplace where baked goods (breads and cakes and pastries) are produced or sold",
+    "anchor_definition_sha256": "769c0b20811d836ddd4af0cc530f739ace773dc9edd117650117e8309f60099d",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6429"
+  },
+  {
+    "lemma": "kitchen",
+    "source_sense_id": "461565",
+    "anchor_sense_id": "461565",
+    "concept_id": "68103",
+    "anchor_definition": "a room equipped for preparing meals",
+    "anchor_definition_sha256": "1b92d702227be401807b21985a9620b679a6950dabc7225e04256141de9d4ff9",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6430"
+  },
+  {
+    "lemma": "pantry",
+    "source_sense_id": "522050",
+    "anchor_sense_id": "522050",
+    "concept_id": "69848",
+    "anchor_definition": "a small storeroom for storing foods or wines",
+    "anchor_definition_sha256": "c08aa753e069494828f14c784092592c47bee9b28132b9997f6ea5355728f10f",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6431"
+  },
+  {
+    "lemma": "chef",
+    "source_sense_id": "319130",
+    "anchor_sense_id": "319130",
+    "concept_id": "105680",
+    "anchor_definition": "a professional cook",
+    "anchor_definition_sha256": "d9b5d4564ce62e20b57e3eab5457b1171701e2d24114f83d768f9689471b7942",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6432"
+  },
+  {
+    "lemma": "waiter",
+    "source_sense_id": "2528757",
+    "anchor_sense_id": "659133",
+    "concept_id": "110998",
+    "anchor_definition": "a person whose occupation is to serve at table (as in a restaurant)",
+    "anchor_definition_sha256": "a70d390d2f899b6ce506e714e2c762bde7822d2d938858c94bd4fbf33b3d36fe",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6433"
+  },
+  {
+    "lemma": "waitress",
+    "source_sense_id": "1746344",
+    "anchor_sense_id": "659155",
+    "concept_id": "110999",
+    "anchor_definition": "a woman waiter",
+    "anchor_definition_sha256": "a4243e25bccb6dfb40588187767f078501766b16149ecf83da2dc902ffce61d9",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6434"
+  },
+  {
+    "lemma": "bartender",
+    "source_sense_id": "284966",
+    "anchor_sense_id": "284966",
+    "concept_id": "104854",
+    "anchor_definition": "an employee who mixes and serves alcoholic drinks at a bar",
+    "anchor_definition_sha256": "9bc7d04954acb85a6d183a43e2a76431686664495539c4bf3ab2d38103bd5bf3",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6435"
+  },
+  {
+    "lemma": "dishwasher",
+    "source_sense_id": "359929",
+    "anchor_sense_id": "359929",
+    "concept_id": "65405",
+    "anchor_definition": "a machine for washing dishes",
+    "anchor_definition_sha256": "7f4c21747cb2736ab1f5730922d3da717c27b9817b2277c8b8423cd7ddc8f1ff",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6436"
+  },
+  {
+    "lemma": "menu",
+    "source_sense_id": "488290",
+    "anchor_sense_id": "488290",
+    "concept_id": "84970",
+    "anchor_definition": "a list of dishes available at a restaurant",
+    "anchor_definition_sha256": "487dec29fa0d7d0df9f74710a41821b351c9f38524c18545053519a5d0d55b0b",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6437"
+  },
+  {
+    "lemma": "appetizer",
+    "source_sense_id": "901481",
+    "anchor_sense_id": "272007",
+    "concept_id": "91667",
+    "anchor_definition": "food or drink to stimulate the appetite (usually served before a meal or as the first course)",
+    "anchor_definition_sha256": "3c8df32fe58063d71149a35bf920822e3a7fd572233e214b04ef10fb631b1679",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6438"
+  },
+  {
+    "lemma": "dessert",
+    "source_sense_id": "355066",
+    "anchor_sense_id": "355066",
+    "concept_id": "91897",
+    "anchor_definition": "a dish served as the last course of a meal",
+    "anchor_definition_sha256": "d625ce2bb6ad989693f71b03f37b666edd8a11e9f866b95f164ffdfee3db97a8",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6439"
+  },
+  {
+    "lemma": "beverage",
+    "source_sense_id": "1549551",
+    "anchor_sense_id": "290184",
+    "concept_id": "93948",
+    "anchor_definition": "any liquid suitable for drinking",
+    "anchor_definition_sha256": "8a9fbc91fa083630e5494df599451198304110e0cd1c79332121a126467b717f",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6440"
+  },
+  {
+    "lemma": "cocktail",
+    "source_sense_id": "2464753",
+    "anchor_sense_id": "327705",
+    "concept_id": "94158",
+    "anchor_definition": "a short mixed drink",
+    "anchor_definition_sha256": "da59c5d7c2361cee6de0f7d35ab2fadb9059bc8bba6c455051f8538576e3c531",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6441"
+  },
+  {
+    "lemma": "wine",
+    "source_sense_id": "666800",
+    "anchor_sense_id": "666800",
+    "concept_id": "94012",
+    "anchor_definition": "fermented juice (of grapes especially)",
+    "anchor_definition_sha256": "858a034a9768f9068df482c686a84356fcf25af3cc8a87ff6e9848a4ba39f0a8",
+    "reason": "Existing exact source mapping.",
+    "asset_id": "6442"
+  },
+  {
+    "lemma": "whisk",
+    "source_sense_id": "1616956",
+    "anchor_sense_id": "664096",
+    "concept_id": "74458",
+    "anchor_definition": "a mixer incorporating a coil of wires; used for whipping eggs or cream",
+    "anchor_definition_sha256": "65ea26f3cf8b01ddfcd978fd5c2c5ba3a51db2c006e33b4d271fe914a85a65a4",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6443"
+  },
+  {
+    "lemma": "dairy",
+    "source_sense_id": "2592491",
+    "anchor_sense_id": "347743",
+    "concept_id": "93642",
+    "anchor_definition": "milk and butter and cheese",
+    "anchor_definition_sha256": "49e9ea29abc839cb607644f0ddd3047e75955e58d8d0b36ebd6b5c1ba08e150b",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6444"
+  },
+  {
+    "lemma": "seafood",
+    "source_sense_id": "1880223",
+    "anchor_sense_id": "581723",
+    "concept_id": "93156",
+    "anchor_definition": "edible fish (broadly including freshwater fish) or shellfish or roe etc",
+    "anchor_definition_sha256": "9a97ccdf30b31afab06e473e67bdfcfbc403df0a7d4ae9bbc072b0de72f59249",
+    "reason": "Existing mapped dictionary anchor selected by source definition and POS; image illustrates this meaning.",
+    "asset_id": "6445"
+  }
+]

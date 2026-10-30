@@ -9,9 +9,9 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 - **public** (5) — [`public.language`](#publiclanguage) · [`public.radical`](#publicradical) · [`public.schema_migration`](#publicschema_migration) · [`public.source`](#publicsource) · [`public.tag`](#publictag)
 - **staging** (14) — [`staging.ili_map_pwn30`](#stagingili_map_pwn30) · [`staging.import_batch`](#stagingimport_batch) · [`staging.jlpt_entry`](#stagingjlpt_entry) · [`staging.jmdict_entry`](#stagingjmdict_entry) · [`staging.kanji_data_entry`](#stagingkanji_data_entry) · [`staging.kanji_entry`](#stagingkanji_entry) · [`staging.krad_entry`](#stagingkrad_entry) · [`staging.omw_wikt_vi`](#stagingomw_wikt_vi) · [`staging.tatoeba_link`](#stagingtatoeba_link) · [`staging.tatoeba_sentence`](#stagingtatoeba_sentence) · [`staging.wikt_entry`](#stagingwikt_entry) · [`staging.wn_example`](#stagingwn_example) · [`staging.wn_relation`](#stagingwn_relation) · [`staging.wn_synset`](#stagingwn_synset)
-- **core** (41) — [`core.concept`](#coreconcept) · [`core.concept_gloss`](#coreconcept_gloss) · [`core.concept_gloss_history`](#coreconcept_gloss_history) · [`core.concept_label`](#coreconcept_label) · [`core.deck`](#coredeck) · [`core.deck_item`](#coredeck_item) · [`core.example`](#coreexample) · [`core.example_annotation`](#coreexample_annotation) · [`core.example_concept`](#coreexample_concept) · [`core.example_sense`](#coreexample_sense) · [`core.example_translation`](#coreexample_translation) · [`core.jlpt_link`](#corejlpt_link) · [`core.kanji`](#corekanji) · [`core.kanji_media`](#corekanji_media) · [`core.kanji_radical`](#corekanji_radical) · [`core.lexeme`](#corelexeme) · [`core.lexeme_form`](#corelexeme_form) · [`core.lexeme_form_applies_to`](#corelexeme_form_applies_to) · [`core.lexeme_form_char`](#corelexeme_form_char) · [`core.lexeme_form_kanji_char`](#corelexeme_form_kanji_char) · [`core.lexeme_form_tag`](#corelexeme_form_tag) · [`core.lexeme_level`](#corelexeme_level) · [`core.mapping_run`](#coremapping_run) · [`core.media_asset`](#coremedia_asset) · [`core.pronunciation`](#corepronunciation) · [`core.sense`](#coresense) · [`core.sense_concept`](#coresense_concept) · [`core.sense_concept_candidate`](#coresense_concept_candidate) · [`core.sense_concept_candidate_review`](#coresense_concept_candidate_review) · [`core.sense_form`](#coresense_form) · [`core.sense_gloss`](#coresense_gloss) · [`core.sense_gloss_history`](#coresense_gloss_history) · [`core.sense_relation`](#coresense_relation) · [`core.sense_relation_candidate`](#coresense_relation_candidate) · [`core.sense_tag`](#coresense_tag) · [`core.source_entry_identity`](#coresource_entry_identity) · [`core.source_form`](#coresource_form) · [`core.translation_assertion`](#coretranslation_assertion) · [`core.translation_target_candidate`](#coretranslation_target_candidate) · [`core.wordnet_relation`](#corewordnet_relation) · [`core.wordnet_synset`](#corewordnet_synset)
+- **core** (42) — [`core.concept`](#coreconcept) · [`core.concept_media`](#coreconcept_media) · [`core.concept_gloss`](#coreconcept_gloss) · [`core.concept_gloss_history`](#coreconcept_gloss_history) · [`core.concept_label`](#coreconcept_label) · [`core.deck`](#coredeck) · [`core.deck_item`](#coredeck_item) · [`core.example`](#coreexample) · [`core.example_annotation`](#coreexample_annotation) · [`core.example_concept`](#coreexample_concept) · [`core.example_sense`](#coreexample_sense) · [`core.example_translation`](#coreexample_translation) · [`core.jlpt_link`](#corejlpt_link) · [`core.kanji`](#corekanji) · [`core.kanji_media`](#corekanji_media) · [`core.kanji_radical`](#corekanji_radical) · [`core.lexeme`](#corelexeme) · [`core.lexeme_form`](#corelexeme_form) · [`core.lexeme_form_applies_to`](#corelexeme_form_applies_to) · [`core.lexeme_form_char`](#corelexeme_form_char) · [`core.lexeme_form_kanji_char`](#corelexeme_form_kanji_char) · [`core.lexeme_form_tag`](#corelexeme_form_tag) · [`core.lexeme_level`](#corelexeme_level) · [`core.mapping_run`](#coremapping_run) · [`core.media_asset`](#coremedia_asset) · [`core.pronunciation`](#corepronunciation) · [`core.sense`](#coresense) · [`core.sense_concept`](#coresense_concept) · [`core.sense_concept_candidate`](#coresense_concept_candidate) · [`core.sense_concept_candidate_review`](#coresense_concept_candidate_review) · [`core.sense_form`](#coresense_form) · [`core.sense_gloss`](#coresense_gloss) · [`core.sense_gloss_history`](#coresense_gloss_history) · [`core.sense_relation`](#coresense_relation) · [`core.sense_relation_candidate`](#coresense_relation_candidate) · [`core.sense_tag`](#coresense_tag) · [`core.source_entry_identity`](#coresource_entry_identity) · [`core.source_form`](#coresource_form) · [`core.translation_assertion`](#coretranslation_assertion) · [`core.translation_target_candidate`](#coretranslation_target_candidate) · [`core.wordnet_relation`](#corewordnet_relation) · [`core.wordnet_synset`](#corewordnet_synset)
 - **app** (37) — [`app.achievement`](#appachievement) · [`app.admin_audit_log`](#appadmin_audit_log) · [`app.ai_usage`](#appai_usage) · [`app.chat_message`](#appchat_message) · [`app.chat_session`](#appchat_session) · [`app.collection`](#appcollection) · [`app.collection_item`](#appcollection_item) · [`app.collection_item_face`](#appcollection_item_face) · [`app.collection_item_tag`](#appcollection_item_tag) · [`app.collection_share`](#appcollection_share) · [`app.device`](#appdevice) · [`app.feedback`](#appfeedback) · [`app.feedback_attachment`](#appfeedback_attachment) · [`app.gloss_report`](#appgloss_report) · [`app.google_oauth_challenge`](#appgoogle_oauth_challenge) · [`app.leaderboard_snapshot`](#appleaderboard_snapshot) · [`app.notification_log`](#appnotification_log) · [`app.quiz`](#appquiz) · [`app.quiz_question`](#appquiz_question) · [`app.reminder`](#appreminder) · [`app.review_log`](#appreview_log) (partition) · [`app.search_history`](#appsearch_history) · [`app.srs_review_receipt`](#appsrs_review_receipt) · [`app.srs_state`](#appsrs_state) · [`app.streak_day`](#appstreak_day) · [`app.study_profile`](#appstudy_profile) · [`app.study_session`](#appstudy_session) · [`app.study_session_item`](#appstudy_session_item) · [`app.tag`](#apptag) · [`app.user_achievement`](#appuser_achievement) · [`app.user_identity`](#appuser_identity) · [`app.user_session`](#appuser_session) · [`app.user_settings`](#appuser_settings) · [`app.user_stats`](#appuser_stats) · [`app.users`](#appusers) · [`app.xp_event`](#appxp_event) · [`app.xp_rule`](#appxp_rule)
-- **serve** (4) — [`serve.dictionary_search`](#servedictionary_search) (view) · [`serve.kanji_card`](#servekanji_card) (view) · [`serve.sense_card`](#servesense_card) (view) · [`serve.sense_pair`](#servesense_pair) (matview)
+- **serve** (5) — [`serve.concept_image`](#serveconcept_image) (view) · [`serve.dictionary_search`](#servedictionary_search) (view) · [`serve.kanji_card`](#servekanji_card) (view) · [`serve.sense_card`](#servesense_card) (view) · [`serve.sense_pair`](#servesense_pair) (matview)
 
 ## Schema `public`
 
@@ -1139,7 +1139,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 <a id="coremedia_asset"></a>
 ### `core.media_asset`
 
-*table — 0 dòng*
+*table — 6.461 dòng (VPS, 2026-10-30; M14.1 gồm 44 concept images)*
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
@@ -1152,6 +1152,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 | 7 | `provider` | text | có |  |  |
 | 8 | `source_id` | integer | có |  |  |
 | 9 | `created_at` | timestamp with time zone | không | now() |  |
+| 10 | `metadata` | jsonb | không | `{}` | Bucket, prompt/definition provenance; không chứa secret |
 
 **Khoá chính**: `PRIMARY KEY (id)`
 
@@ -1160,12 +1161,46 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 **Ràng buộc khác**:
 - `media_asset_bytes_check` (check): CHECK ((bytes > 0))
-- `media_asset_kind_check` (check): CHECK ((kind = ANY (ARRAY['stroke_svg'::text, 'stroke_gif'::text, 'audio_tts'::text])))
+- `media_asset_kind_check` (check): CHECK ((kind = ANY (ARRAY['stroke_svg'::text, 'stroke_gif'::text, 'audio_tts'::text, 'concept_image'::text])))
 - `media_asset_object_key_check` (check): CHECK ((btrim(object_key) <> ''::text))
 - `media_asset_object_key_key` (unique): UNIQUE (object_key)
 
 **Chỉ mục**:
 - `media_asset_by_kind`: CREATE INDEX media_asset_by_kind ON core.media_asset USING btree (kind)
+
+- `media_asset_metadata_object`: metadata phải là JSON object.
+- `media_asset_image_integrity`: concept_image cần MIME PNG/JPEG/WebP, bytes > 0, SHA-256 hex 64 ký tự.
+
+<a id="coreconcept_media"></a>
+### `core.concept_media`
+
+*table — 44 dòng (VPS, 2026-10-30; M14.1, 40 primary + 4 alternate)*
+
+| Cột | Kiểu | Null / mặc định |
+| --- | --- | --- |
+| concept_id | bigint | NOT NULL, FK core.concept(id), RESTRICT |
+| asset_id | bigint | NOT NULL, FK core.media_asset(id), RESTRICT |
+| anchor_sense_id | bigint | NOT NULL, FK core.sense(id), RESTRICT |
+| status | text | NOT NULL, pending; pending/approved/rejected |
+| is_primary | boolean | NOT NULL, false |
+| created_at | timestamptz | NOT NULL, now() |
+| reviewed_at | timestamptz | nullable |
+| reviewed_by_label | text | nullable, không rỗng khi có |
+
+PK `(concept_id, asset_id)`; partial unique một approved primary/concept; index anchor sense.
+Review time/label phải cùng có hoặc cùng null; approved cần review, primary cần approved.
+Không FK composite tới sense_concept để curation vẫn sửa/xóa mapping được.
+
+<a id="serveconcept_image"></a>
+### `serve.concept_image`
+
+*view — 40 dòng (VPS, 2026-10-30; M14.1 sau upload/gắn 40 ảnh lô 1–2)*
+
+Cột: `concept_id`, `asset_id`, `anchor_sense_id`, `object_key`, `mime`, `bytes`, `sha256`, `provider`.
+Concept draft/curated (review/rejected bị ẩn), link approved primary, media kind concept_image, anchor mapping hiện tại
+exact + verified + confidence ≥ 0.7. Mapping đổi/xóa thì ảnh tự ẩn. Consumer dựng URL bằng
+public base cấu hình + `/` + object_key; không chứa URL tạm hoặc credentials.
+Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 
 <a id="corepronunciation"></a>
 ### `core.pronunciation`

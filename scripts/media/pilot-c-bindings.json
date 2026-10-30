@@ -1,0 +1,38 @@
+[
+  {
+    "asset_id": "6418",
+    "source_sense_id": "2854503",
+    "anchor_sense_id": "300487",
+    "concept_id": "91622",
+    "anchor_definition": "the first meal of the day (usually in the morning)",
+    "anchor_definition_sha256": "09a8a1ee5f3d59275b435a8b7318baf85800b66b19378490f377f838be59cf6d",
+    "reason": "Owner default-accept for selected C image; anchor is the same meaning as archived source definition."
+  },
+  {
+    "asset_id": "6419",
+    "source_sense_id": "401763",
+    "anchor_sense_id": "401763",
+    "concept_id": "32506",
+    "anchor_definition": "cook in hot fat or oil",
+    "anchor_definition_sha256": "52804ba3a2fae210af7a0cac9f60838dee18bb14534b8b0c626f5760bf0c6ba6",
+    "reason": "Owner default-accept for selected C image; anchor is the same meaning as archived source definition."
+  },
+  {
+    "asset_id": "6420",
+    "source_sense_id": "2270650",
+    "anchor_sense_id": "604192",
+    "concept_id": "21297",
+    "anchor_definition": "producing a burning sensation on the taste nerves",
+    "anchor_definition_sha256": "20d99634bbfa1518e6d5130b7dc0ecc1f1cfbf7e8ab3809767aacd12f2fe6e06",
+    "reason": "Owner default-accept for selected C image; anchor is the same meaning as archived source definition."
+  },
+  {
+    "asset_id": "6421",
+    "source_sense_id": "532214",
+    "anchor_sense_id": "532214",
+    "concept_id": "91634",
+    "anchor_definition": "any informal meal eaten outside or on an excursion",
+    "anchor_definition_sha256": "75c340355eb9325b868b73372b653d83d82c78c9254e1882ccaac4668200c843",
+    "reason": "Owner default-accept for selected C image; anchor is the same meaning as archived source definition."
+  }
+]
