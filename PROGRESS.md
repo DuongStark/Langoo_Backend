@@ -8,6 +8,15 @@
 
 ## Quy trình và tài liệu
 
+### 2026-10-30 — M5.3 — Đề xuất kỹ thuật & sản phẩm: Import bộ từ bên thứ ba (Mazii, Anki, Quizlet, Excel)
+
+- Thay đổi / lý do: Phân tích toàn diện 5 thách thức kỹ thuật (DB anchor_sense_id NOT NULL, WSD đa nghĩa, OOV từ ngoại lai, SRS backlog flood, encoding/timeout) và đề xuất kiến trúc 4 trụ cột (User Custom Sense, 3-Tier Matcher, Paced Staggering, Chunked Batch Preview API) phục vụ duyệt chủ trương triển khai.
+- File / phạm vi: [Tài liệu đề xuất trình cấp trên](docs/plans/m5.3-vocabulary-import-proposal-2026-10-30.md), PROGRESS. Không thay đổi code/schema hay deploy trong phiên này.
+- Kiểm tra / kết quả: Đối chiếu triết lý sản phẩm CONTEXT-DU-AN.md §1.3, schema app.collection_item và core.sense; tài liệu format chuẩn markdown, không lỗi whitespace `git diff --check`.
+- Gate còn thiếu / việc tiếp theo: Chờ cấp trên/chủ dự án phê duyệt đề xuất chủ trương; sau khi duyệt sẽ lập Technical Implementation Plan cho Phase 1 (MVP: Mazii CSV/Excel + Batch Preview API + Custom Sense).
+- Git / triển khai: Tài liệu local chưa commit/push; không sửa đổi DB/VPS hay deploy.
+
+
 ### 2026-10-30 — M5.2 — Sắp xếp item collection tăng/giảm với cursor
 
 - Thay đổi / lý do: Thêm order=asc|desc cho GET collection items để FE lấy position lớn nhất từ trang đầu, không phải tải toàn bộ rồi đảo. Mặc địnhasc/limit20/max100 và filters/ownership giữnguyên; cursor desc boundhướng và keysetlt/lt, legacyasc tươngthích.
@@ -1872,3 +1881,37 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - M5.2 desc theo(position,id), cursor bound hướng; không đổi defaultasc. [Report](docs/reviews/m5.2-collection-items-order-2026-10-30.md).
 - M14 worker vẫn chưa hoàn tất, promptv2 mớilocal; commit/push không có nghĩa chạy lại worker hoặc nghiệm thu ảnh. API/FEảnh chưa tíchhợp. Migration045/046 được giữ nguyên; testreset đãáp thànhcông trongDBtest.
 - Git: chuẩn bị commit/push theo từnghạngmục; CI tự chạy saupush và app tựdeploy khiCIxanh. Trạngthái cụthể báo cuối; chưa xácnhận deploy.
+
+### 2026-10-30 — M14.2 — Áp dụng policy v2 và batch8 cho worker Muse
+
+- Đãcopy policyv2/worker/classifier lên runtime VPS, backup checkpoint/worker, startlại service theo yêu cầu. Khôngrestartapp hoặc đổiDB. Batch mới tốiđa8; requestđãgửi giữnguyên, completedrequests khôngreplay.
+- Classifier có test cho tính từ/danh từ riêng, cooked/ran/plural kếthừa và auxiliary bỏqua; planner theo4nhóm. Guard khônggọi gen cho inherit/skip.
+- Tests42/42pass, syntaxpass. Gate: resolver ảnhgốc/binding và skipaccounting chưa tựđộng; gặp nhóm3/4 workerdừng INFLECTION_RESOLUTION_REQUIRED để khôngtốnquota. Chưanghiệmthu ảnhv2 hoặc đủ76.
+- [Report](docs/reviews/m14.2-restaurant-76-automation-2026-10-30.md). Code/docs localchưacommit/push tronglượt này; runtimeVPSđãcopy theo yêu cầu áp dụng.
+
+### 2026-10-30 — M14.2 — Sửa validator receipt không nhận profile v2
+
+- Lỗi RECEIPT_IMAGE_INVALID do worker upload namespacev2 nhưng registry profile chỉv1. Thêm profilev2, regressionRED→GREEN; khôngnới checkhash/key/MIME. Planmới lưuversion, legacydùngv1 đểkhônggắnnhầmnhãn.
+- Media42/42testpass, syntax/diffcheckpass; ảnhpending terrace trênpublicR2 đúnghash. Backupcheckpoint, cậpnhậtworker/images/policyVPS và restart riêngservice. Khônggenlạiảnhpending; khôngrestartapp.
+- [Chi tiết và ngoại lệ provenance terrace](docs/reviews/m14.2-restaurant-76-automation-2026-10-30.md). Code/docslocalchưacommit/push. Chưahoàn tất76, gateinherit/skipvẫn còn.
+
+### 2026-10-31 — M14.2 — Sửa resume nhận attachment lazyload
+
+- Xácđịnh ảnhđãattach nhưng workerđọcDOM quásớm (snapshotmedia rỗng). Thêm hydrateAttachments cuộn/chờ thumbnail load và đọc lại, giữexactfilename/host/hashguard, khônggenlại. Diagnostic lỗi lọcURL.
+- Kiểmtra: media44/44testpass, syntax/diffcheckpass; VPS logattachment_probe4 vàimage_registered tăng13→16/76 (reservation/special/starter) xácnhậnluồngthậtđãqua.
+- [Report](docs/reviews/m14.2-restaurant-76-automation-2026-10-30.md). RuntimeVPSđãcậpnhật; localchưacommit/push. Chưahoàntất76 hoặc rootinherit/skipgate, chưanghiệmthu ảnhv2.
+
+### 2026-10-31 — M14.2 — Sửa dispatch kế hoạch mất URL và xác nhận gửi
+
+- Plan-2 bịsentnhưng /thread/new; sửadebounce/composerack/sendfallback theodrivergốc, waitURL120giây; retryboundedtextonly giữarchive, generationkhôngretry. Chờknownthreadmarker trướcownershipcheck.
+- Media48/48testpass, syntax/diffcheckpass; đãrestart riêngChromevìCDPtimeout/RAM, khôngrestartapp. VPSxácnhận scenes_planned8 vàgen-2-0dispatched; vẫ n16/76, chưaxácnhậnảnhbatch2.
+- [Report](docs/reviews/m14.2-restaurant-76-automation-2026-10-30.md). Code/docs localchưacommit/push; runtimeđãápdụng. Gateđủ76/ảnhv2/rootinheritcònmở.
+
+### 2026-10-31 — M14.2 — Gia cố toàn luồng resume và media identity
+
+- Sửa aliaslemma theo requestduynhất+numericreceipt, bỏreplayrecordcũđãcovered, lấyURLattachmentmới thay vìblobURLcheckpoint, xửlýthumbnailẩn/lazy. Khôngnới host/hash/IDguard hoặc rerollảnh.
+- Kiểmtoàncohort: cooked kếthừa, táchdeferredkhỏigeneration đểkhôngchặn từkhác; jobcódeferred kếtthúcneeds_resolution, khôngbáocompletegiả. Root-sensefallback vẫn cần xửlý riêng.
+- Media52/52testpass, syntax/format/diffcheckpass. VPSđãlưu20→24, batch3đãplan8/dispatch, resume knownthread đangchạy. [Report](docs/reviews/m14.2-restaurant-76-automation-2026-10-30.md). Chưanghiệmthuđủ76 hoặc ảnhv2.
+- RuntimeVPSđãcậpnhật; code/docs đangchốtGit, khônggom proposalM5.3 vàkhôngrestartapp.
+
+M14.2 xác nhận thêm cùnglượt: batchmới đãlưu24→28/76, serviceactive; targeted19/19pass sau chốt resume chỉcovered bằnglaterrecords córequestđãlưu. Toànmedia52/52pass ởlượtrộng trước. Khôngbáođủ76; worker tựtiếptụcphầncònthiếu.

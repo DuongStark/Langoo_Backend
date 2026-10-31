@@ -27,6 +27,7 @@ console.log(
       missing: cohort.items
         .filter((x) => state.items[x.sense_id]?.status !== 'complete')
         .map((x) => ({ sense_id: x.sense_id, lemma: x.lemma })),
+      deferred: state.deferred || {},
       quota: 'unavailable',
     },
     null,

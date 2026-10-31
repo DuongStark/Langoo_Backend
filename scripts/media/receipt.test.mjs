@@ -4,7 +4,12 @@ import { createHash } from 'node:crypto';
 import { validateReceipt } from './register.mjs';
 const hash = (s) => createHash('sha256').update(s).digest('hex');
 test('accepts actual legacy batch provenance and rejects cross-profile keys', () => {
-  for (const version of ['muse-illustration-pilot-v1', 'muse-mixed-pilot-v1']) {
+  for (const version of [
+    'muse-illustration-pilot-v1',
+    'muse-mixed-pilot-v1',
+    'muse-ordinary-auto-v1',
+    'muse-ordinary-auto-v2',
+  ]) {
     const sha = 'a'.repeat(64),
       prompt = 'long original batch prompt '.repeat(600),
       definition = 'A source definition.';
@@ -20,7 +25,9 @@ test('accepts actual legacy batch provenance and rejects cross-profile keys', ()
       s3_verified: true,
       public_verified: true,
       prompt,
-      prompt_scope: 'batch_brief',
+      prompt_scope: version.startsWith('muse-ordinary-auto-')
+        ? 'single_image_brief'
+        : 'batch_brief',
       prompt_sha256: hash(prompt),
       prompt_version: version,
       source_definition: definition,

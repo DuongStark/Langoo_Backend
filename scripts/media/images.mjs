@@ -54,6 +54,7 @@ export function loadR2Config(path) {
 
 export const IMAGE_PROFILES = Object.freeze({
   auto: { version: 'muse-ordinary-auto-v1', scope: 'single_image_brief' },
+  'auto-v2': { version: 'muse-ordinary-auto-v2', scope: 'single_image_brief' },
   'phone-c': { version: 'muse-phone-c-v1', scope: 'single_image_brief' },
   pilot1: { version: 'muse-illustration-pilot-v1', scope: 'batch_brief' },
   pilot2: { version: 'muse-mixed-pilot-v1', scope: 'batch_brief' },

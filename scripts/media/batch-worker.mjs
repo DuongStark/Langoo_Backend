@@ -12,9 +12,15 @@ import { createRequire } from 'node:module';
 import { loadR2Config } from './images.mjs';
 import { registerImages } from './register.mjs';
 import { bindExisting } from './bind-existing.mjs';
+import {
+  normalizeMediaIdentity,
+  coveredByLaterRequests,
+} from './media-identity.mjs';
+import { canRetryLostPlan, submitComposer } from './dispatch-recovery.mjs';
+import { hydrateAttachments } from './attachment-recovery.mjs';
+import { partitionImageActions } from './inflection-policy.mjs';
 import { extraCandidates } from './batch-candidates.mjs';
 import {
-  AUTO_VERSION,
   digest,
   makePlanPrompt,
   validatePlans,
@@ -168,6 +174,29 @@ async function observe(request, minimumRows = 1) {
 }
 async function ensureImageDelivery(request, rows) {
   if (request.kind !== 'generate') return rows;
+  const attachmentCount = rows.some((r) =>
+    r.media?.some((m) => m.width >= 200 && m.height >= 200),
+  )
+    ? 0
+    : await hydrateAttachments(page);
+  emit('attachment_probe', { request: request.id, buttons: attachmentCount });
+  if (attachmentCount) {
+    rows = await page
+      .locator('[data-message-item][data-message-role="assistant"]')
+      .evaluateAll((els) =>
+        els.map((el) => ({
+          text: el.innerText,
+          media: [...el.querySelectorAll('img[src]')].map((n) => ({
+            href: n.currentSrc || n.src,
+            label: n.closest('button')?.getAttribute('aria-label') || '',
+            width: n.naturalWidth,
+            height: n.naturalHeight,
+          })),
+        })),
+      );
+    request.rows = rows;
+    save();
+  }
   const hasMedia = rows.some((r) =>
     r.media.some((m) => m.width >= 200 && m.height >= 200),
   );
@@ -210,7 +239,7 @@ async function ensureImageDelivery(request, rows) {
     save();
     await editor.click();
     await page.keyboard.insertText(prompt);
-    await page.keyboard.press('Enter');
+    await submitComposer(page, editor, marker);
     request.delivery.status = 'sent';
     save();
     emit('existing_file_export', { request: request.id });
@@ -236,6 +265,16 @@ async function ensureImageDelivery(request, rows) {
 }
 async function requestMuse(id, kind, prompt) {
   let request = state.requests[id];
+  state.dispatch_recovery ??= {};
+  const retries = state.dispatch_recovery[id]?.length || 0;
+  if (canRetryLostPlan(request, retries)) {
+    state.dispatch_recovery[id] ??= [];
+    state.dispatch_recovery[id].push(request);
+    delete state.requests[id];
+    request = undefined;
+    save();
+    emit('text_plan_retry', { request: id, attempt: retries + 1 });
+  }
   if (request?.status === 'observed') {
     if (kind === 'generate') {
       await page.goto(request.thread_url, {
@@ -246,6 +285,13 @@ async function requestMuse(id, kind, prompt) {
         .locator('[data-message-item][data-message-role="assistant"]')
         .first()
         .waitFor({ state: 'attached', timeout: 60000 });
+      if (request.rows?.some((r) => r.media?.length)) {
+        await page
+          .locator('button[aria-label^="Open generated image "]')
+          .first()
+          .waitFor({ state: 'visible', timeout: 60000 });
+      }
+      await hydrateAttachments(page);
       await sleep(2000);
       request.rows = await page
         .locator('[data-message-item][data-message-role="assistant"]')
@@ -274,6 +320,16 @@ async function requestMuse(id, kind, prompt) {
       waitUntil: 'domcontentloaded',
       timeout: 60000,
     });
+    await page.waitForFunction(
+      (marker) =>
+        [
+          ...document.querySelectorAll(
+            '[data-message-item][data-message-role="user"]',
+          ),
+        ].some((el) => el.innerText.includes(marker)),
+      request.marker,
+      { timeout: 60000 },
+    );
     const own = await page
       .locator('[data-message-item][data-message-role="user"]')
       .allTextContents();
@@ -295,7 +351,7 @@ async function requestMuse(id, kind, prompt) {
     await page.locator('[data-message-item][data-message-role="user"]').count()
   )
     throw Error('NEW_CHAT_NOT_EMPTY');
-  const marker = `M142-RESTAURANT76-${id}`;
+  const marker = `M142-RESTAURANT76-${id}${retries ? '-dispatch' + retries : ''}`;
   await editor.click();
   await page.keyboard.insertText(`Job marker ${marker}.\n${prompt}`);
   request = {
@@ -309,12 +365,12 @@ async function requestMuse(id, kind, prompt) {
   };
   state.requests[id] = request;
   save();
-  await page.keyboard.press('Enter');
+  await submitComposer(page, editor, marker);
   request.status = 'sent';
   request.sent_at = new Date().toISOString();
   save();
   emit('muse_dispatched', { kind, request: id });
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < 240; i++) {
     await sleep(500);
     const url = page.url();
     if (/^https:\/\/muse\.ai\/thread\/[0-9a-f-]+$/i.test(url)) {
@@ -355,8 +411,9 @@ async function storeImage(plan, media) {
       height = data.readUInt32BE(20);
     if (width < 256 || height < 256 || width > 2048 || height > 2048)
       throw Error('IMAGE_DIMENSIONS_INVALID');
+    const version = plan.prompt_version || 'muse-ordinary-auto-v1';
     const sha256 = digest(data),
-      key = `illustrations/${AUTO_VERSION}/${sha256}.png`;
+      key = `illustrations/${version}/${sha256}.png`;
     image = {
       sense_id: plan.sense_id,
       lemma: plan.lemma,
@@ -369,7 +426,7 @@ async function storeImage(plan, media) {
       height,
       prompt: plan.image_prompt,
       prompt_sha256: plan.prompt_sha256,
-      prompt_version: AUTO_VERSION,
+      prompt_version: version,
       prompt_scope: 'single_image_brief',
       source_definition: plan.source_definition,
       source_definition_sha256: plan.source_definition_sha256,
@@ -400,7 +457,7 @@ async function storeImage(plan, media) {
             Body: data,
             ContentType: 'image/png',
             CacheControl: 'public,max-age=31536000,immutable',
-            Metadata: { sha256, prompt_version: AUTO_VERSION },
+            Metadata: { sha256, prompt_version: version },
             IfNoneMatch: '*',
           }),
           { abortSignal: AbortSignal.timeout(30000) },
@@ -505,7 +562,12 @@ try {
       save();
       emit('candidates_ready', { batch: key });
     }
-    const items = state.prepared[key];
+    const { generate: items, deferred } = partitionImageActions(
+      state.prepared[key],
+    );
+    state.deferred = { ...state.deferred, ...deferred };
+    save();
+    if (!items.length) continue;
     let batch = state.batches[key];
     if (!batch?.plans) {
       const recent = Object.values(state.batches)
@@ -550,12 +612,26 @@ try {
     )
       continue;
     // The complete request record is persisted before dispatch; uploads reconcile without browser media.
-    for (const record of batch.generations) {
+    for (const [recordIndex, record] of batch.generations.entries()) {
+      if (
+        coveredByLaterRequests(
+          record,
+          batch.generations
+            .slice(recordIndex + 1)
+            .filter((r) => state.requests[r.id]),
+          state.items,
+        )
+      )
+        continue;
+      if (
+        record.target_ids.every((id) => state.items[id]?.status === 'complete')
+      )
+        continue;
       const rows = await requestMuse(record.id, 'generate', record.prompt);
-      const media = rows.flatMap((x) => x.media);
       const targets = batch.plans.filter((p) =>
         record.target_ids.includes(p.sense_id),
       );
+      const media = normalizeMediaIdentity(rows, targets);
       validateGeneratedMedia(media, targets);
       for (const plan of targets) {
         const match = mediaForItem(media, plan);
@@ -575,7 +651,7 @@ try {
     ) {
       const plans = batch.plans
         .filter((x) => missing.includes(x.sense_id))
-        .slice(0, 4);
+        .slice(0, 8);
       const id = `gen-${key}-${attempt}`;
       const record = generationRecord(plans, id);
       if (!batch.generations.some((x) => x.id === id)) {
@@ -583,11 +659,8 @@ try {
         save();
       }
       const rows = await requestMuse(id, 'generate', record.prompt);
-      validateGeneratedMedia(
-        rows.flatMap((x) => x.media),
-        plans,
-      );
-      const media = rows.flatMap((x) => x.media);
+      const media = normalizeMediaIdentity(rows, plans);
+      validateGeneratedMedia(media, plans);
       let found = 0;
       for (const plan of plans) {
         const match = mediaForItem(media, plan);
@@ -605,12 +678,18 @@ try {
     }
     if (missing.length) throw Error('PARTIAL_DELIVERY_LIMIT');
   }
-  state.status = 'complete';
+  state.status = Object.keys(state.deferred || {}).length
+    ? 'needs_resolution'
+    : 'complete';
   state.finished_at = new Date().toISOString();
   save();
-  emit('complete', { target: 76, quota: 'unavailable' });
+  emit(state.status, {
+    target: 76,
+    deferred: state.deferred,
+    quota: 'unavailable',
+  });
   // Ephemeral credentials belong only to this run, and are not retained after success.
-  unlinkSync('/run/langoo-m142/r2.env');
+  if (state.status === 'complete') unlinkSync('/run/langoo-m142/r2.env');
 } catch (e) {
   state.status = 'needs_attention';
   state.error = {
@@ -618,7 +697,12 @@ try {
     sqlstate: /^[A-Z0-9]{5}$/.test(e.code || '') ? e.code : undefined,
   };
   save();
-  emit('stopped', state.error);
+  emit('stopped', {
+    ...state.error,
+    diagnostic: String(e.message || '')
+      .replace(/https?:\/\/[^\s]+/g, '[URL]')
+      .slice(0, 700),
+  });
   process.exitCode = 1;
 } finally {
   if (page) await page.close().catch(() => {});
