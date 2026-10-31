@@ -1915,3 +1915,5 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 - RuntimeVPSđãcậpnhật; code/docs đangchốtGit, khônggom proposalM5.3 vàkhôngrestartapp.
 
 M14.2 xác nhận thêm cùnglượt: batchmới đãlưu24→28/76, serviceactive; targeted19/19pass sau chốt resume chỉcovered bằnglaterrecords córequestđãlưu. Toànmedia52/52pass ởlượtrộng trước. Khôngbáođủ76; worker tựtiếptụcphầncònthiếu.
+
+M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa push. RuntimeVPS đã áp dụng các fix chính; lầnkiểmcuối28/76/serviceactive, gen-3-1đanggửi/xửlý. ProposalM5.3 giữngoài commit. Khôngbáođãhoàn tấtlô.
