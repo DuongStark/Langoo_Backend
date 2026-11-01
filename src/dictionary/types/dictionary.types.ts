@@ -26,6 +26,8 @@ export interface LexemeSensesResult {
   next_cursor: null;
 }
 
+import { ImageContract } from '../../media/types/image.types';
+
 export interface SenseCardResponse {
   sense_id: string;
   lexeme_id: string;
@@ -90,6 +92,7 @@ export interface SenseFormItem {
 
 export interface SenseDetailResponse {
   card: SenseCardResponse;
+  image: ImageContract | null;
   glosses: SenseGlossItem[];
   examples: SenseExampleItem[];
   pronunciations: SensePronunciationItem[];

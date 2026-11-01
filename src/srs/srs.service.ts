@@ -35,6 +35,8 @@ import {
   ReviewResult,
   StatsResult,
 } from './types/srs.types';
+import { SenseImageService } from '../media/sense-image.service';
+import { ImageContract } from '../media/types/image.types';
 
 const DEFAULT_DUE_LIMIT = 50;
 const ACCURACY_WINDOW_DAYS = 7;
@@ -57,6 +59,7 @@ export class SrsService {
     private readonly dueRepo: DueRepository,
     private readonly statsRepo: SrsStatsRepository,
     private readonly reviewEngine: ReviewEngine,
+    private readonly senseImageService?: SenseImageService,
   ) {}
 
   // ------------------------------------------------------------------ due
@@ -171,7 +174,14 @@ export class SrsService {
         row,
       ]),
     );
-    const data = rows.map((entry) => toDueCard(getRow(bySrs, entry.srsId)));
+    const targetRows = rows.map((entry) => getRow(bySrs, entry.srsId));
+    const senseIds = Array.from(new Set(targetRows.map((r) => r.sense_id)));
+    const imageMap: Map<string, ImageContract | null> =
+      (await this.senseImageService?.resolveMany(senseIds)) ??
+      new Map<string, ImageContract | null>();
+    const data = targetRows.map((row) =>
+      toDueCard(row, imageMap.get(row.sense_id.toString()) ?? null),
+    );
 
     return {
       data,
@@ -886,7 +896,7 @@ function addDueCounts(
   };
 }
 
-function toDueCard(row: DueRow): DueCard {
+function toDueCard(row: DueRow, image: ImageContract | null = null): DueCard {
   const word: LocalizedWord = {
     kind: 'word',
     text: row.lemma,
@@ -924,6 +934,7 @@ function toDueCard(row: DueRow): DueCard {
     meaning_source: row.meaning_source,
     is_machine_generated:
       row.meaning_source === 'machine' || row.meaning_source === 'llm',
+    image,
   };
 }
 

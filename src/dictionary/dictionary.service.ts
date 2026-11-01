@@ -56,6 +56,8 @@ import {
   SensePairRepository,
 } from './repositories/sense-pair.repository';
 import { SenseCard } from './types/sense-card';
+import { SenseImageService } from '../media/sense-image.service';
+import { ImageContract } from '../media/types/image.types';
 
 const EXAMPLES_LIMIT = 5;
 const DEFAULT_SEARCH_LIMIT = 20;
@@ -82,6 +84,7 @@ export class DictionaryService {
     private readonly reverseRepo: ReverseLookupRepository,
     private readonly studyScope: StudyLanguageScopeService,
     private readonly englishPriority: EnglishPriorityRepository,
+    private readonly senseImageService?: SenseImageService,
   ) {}
 
   async search(dto: SearchQueryDto, userId?: bigint): Promise<SearchResult> {
@@ -538,15 +541,20 @@ export class DictionaryService {
       throw senseNotFound();
     }
 
-    const [glosses, examples, pronunciations, forms] = await Promise.all([
-      this.contentRepo.getGlosses(senseId),
-      this.contentRepo.getExamples(senseId, EXAMPLES_LIMIT),
-      this.contentRepo.getPronunciations(card.lexemeId),
-      this.contentRepo.getForms(card.lexemeId),
-    ]);
+    const [glosses, examples, pronunciations, forms, imageMap] =
+      await Promise.all([
+        this.contentRepo.getGlosses(senseId),
+        this.contentRepo.getExamples(senseId, EXAMPLES_LIMIT),
+        this.contentRepo.getPronunciations(card.lexemeId),
+        this.contentRepo.getForms(card.lexemeId),
+        this.senseImageService
+          ? this.senseImageService.resolveMany([senseId])
+          : Promise.resolve(new Map<string, ImageContract | null>()),
+      ]);
 
     return {
       card: toSenseCardResponse(card),
+      image: imageMap.get(senseId.toString()) ?? null,
       glosses: glosses.map(toGlossItem),
       examples: examples.map(toExampleItem),
       pronunciations: pronunciations.map(toPronunciationItem),

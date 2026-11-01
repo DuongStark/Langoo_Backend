@@ -127,4 +127,35 @@ describe('validateEnv', () => {
       validateEnv({ ...base, JWT_ACCESS_SECRET: 'ngan-qua' }),
     ).toThrow(/JWT_ACCESS_SECRET/);
   });
+
+  it('áp dụng MEDIA_BASE_URL mặc định https://media.langoo.org', () => {
+    const env = validateEnv(base);
+    expect(env.MEDIA_BASE_URL).toBe('https://media.langoo.org');
+  });
+
+  it('chấp nhận MEDIA_BASE_URL HTTPS hợp lệ với đường dẫn prefix', () => {
+    const env = validateEnv({
+      ...base,
+      MEDIA_BASE_URL: 'https://cdn.langoo.org/v1/assets/',
+    });
+    expect(env.MEDIA_BASE_URL).toBe('https://cdn.langoo.org/v1/assets/');
+  });
+
+  it('từ chối MEDIA_BASE_URL không phải HTTPS, có user, query hoặc fragment', () => {
+    const invalidUrls = [
+      'http://media.langoo.org',
+      'ftp://media.langoo.org',
+      'https://user:pass@media.langoo.org',
+      'https://media.langoo.org?foo=bar',
+      'https://media.langoo.org#section',
+      'https://media.langoo.org/#',
+      'https://media.langoo.org/?',
+      'not-a-url',
+    ];
+    for (const url of invalidUrls) {
+      expect(() => validateEnv({ ...base, MEDIA_BASE_URL: url })).toThrow(
+        /MEDIA_BASE_URL/,
+      );
+    }
+  });
 });

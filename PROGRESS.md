@@ -1917,3 +1917,9 @@ langoo-muse-bulk@common-5000-ready-20261007.service` lúc18:18:01+07:00.
 M14.2 xác nhận thêm cùnglượt: batchmới đãlưu24→28/76, serviceactive; targeted19/19pass sau chốt resume chỉcovered bằnglaterrecords córequestđãlưu. Toànmedia52/52pass ởlượtrộng trước. Khôngbáođủ76; worker tựtiếptụcphầncònthiếu.
 
 M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa push. RuntimeVPS đã áp dụng các fix chính; lầnkiểmcuối28/76/serviceactive, gen-3-1đanggửi/xửlý. ProposalM5.3 giữngoài commit. Khôngbáođãhoàn tấtlô.
+
+### 2026-11-01 — M14.3 — Sửa findings và triển khai API ảnh chi tiết nghĩa/SRS
+
+- Theo yêu cầu chủ dự án, sửa target fallback validation, keyword false-positive, E2E pass giả và lint; tích hợp sharedimagecontract, batchresolver tối đa3SELECT, ENV/Swagger/docs/handoff. [Report cập nhật](docs/reviews/m14.3-image-delivery-api-2026-11-01.md), [handoff FE](docs/handoff/m14.3-image-delivery-api-2026-11-01.md).
+- Kết quả combined M14.3/M4.7: full67suite/596unitpass; build/lintpass; PostgreSQLUTF8test riêng55437,7suite/78HTTPDBtestpass, khôngskip. Fixture ảnh ban đầu thiếubytes/sha failsetup đãsửa vàrerunpass; khôngnới constraint.
+- Gate: chưa publicproduction/FE/browser smoke, chưa push/deploy; khôngmigrationmới. Giữ WIP khác ngoài commit; đang chốt commit riêng M14.3.

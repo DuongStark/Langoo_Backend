@@ -330,3 +330,12 @@ Chi tiết vận hành: [M4.5 handoff](../handoff/m4.5-ja-bccwj-priority.md).
 ## 2026-10-20 — M4.3 phát hành trên VPS
 
 Migration index search khi tích hợp đổi tên thành **044_dictionary_short_search_indexes.sql**, vì042 đã thuộc M14 trên production. Xem [report deploy](../reviews/m4.3-searchable-links-deploy-2026-10-20.md) để biết trạng thái và kết quả live; số liệu/tên042 trong bản kiểm tra local ngày13/10 là lịch sử.
+
+## M14.3 — Ảnh chi tiết nghĩa (code local, chưa deploy)
+
+`GET /v1/senses/:id` thêm field `image` ở cấp response: `{url, mime, width, height} | null`.
+Dimensions nullable, URL dựng từ `MEDIA_BASE_URL` (mặc định `https://media.langoo.org`).
+Ảnh phải qua gate `serve.concept_image`; hỗ trợ anchor, provenance source còn khớp định nghĩa
+và exact concept mapping. Fallback thể chia chỉ khi phân giải root chắc chắn; không có ảnh
+hoặc root nhiều nghĩa trả null. [Handoff FE M14.3](../handoff/m14.3-image-delivery-api-2026-11-01.md).
+Không thay search hoặc lexeme-senses bằng field image trong hạng mục này.

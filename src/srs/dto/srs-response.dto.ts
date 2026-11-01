@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ImageContractDto } from '../../media/dto/image-contract.dto';
 
 export class DueCardLanguageDto {
   @ApiProperty({ example: 2 })
@@ -79,6 +80,14 @@ export class DueCardDto {
 
   @ApiProperty({ example: false })
   is_machine_generated!: boolean;
+
+  @ApiProperty({
+    type: ImageContractDto,
+    nullable: true,
+    description:
+      'Ảnh minh họa được phê duyệt cho nghĩa của mặt thẻ này (null nếu chưa có)',
+  })
+  image!: ImageContractDto | null;
 }
 
 export class DueCountsDto {

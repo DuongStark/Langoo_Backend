@@ -22,6 +22,17 @@ function booleanEnv(value: unknown): unknown {
   return normalized;
 }
 
+function isValidMediaBaseUrl(val: string): boolean {
+  try {
+    const url = new URL(val);
+    if (url.protocol !== 'https:') return false;
+    if (url.username || url.password || /[?#]/.test(val)) return false;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Schema biến môi trường (validate bằng zod khi app khởi động).
  *
@@ -157,6 +168,18 @@ export const envSchema = z.object({
     z.enum(['local', 's3']).default('local'),
   ),
   STORAGE_DIR: z.preprocess(emptyToUndefined, z.string().optional()),
+
+  // M14.3 — Public base URL cho ảnh minh họa concept (R2/CDN).
+  MEDIA_BASE_URL: z.preprocess(
+    emptyToUndefined,
+    z
+      .string()
+      .refine(
+        isValidMediaBaseUrl,
+        'phải là HTTPS URL hợp lệ không chứa user, search hoặc hash',
+      )
+      .default('https://media.langoo.org'),
+  ),
 });
 
 export type Env = z.infer<typeof envSchema>;

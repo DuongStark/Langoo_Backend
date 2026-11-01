@@ -1,3 +1,5 @@
+import { ImageContract } from '../../media/types/image.types';
+
 export interface LocalizedWord {
   kind: 'word';
   text: string;
@@ -27,6 +29,7 @@ export interface DueCard {
   due_at: string;
   meaning_source: string;
   is_machine_generated: boolean;
+  image: ImageContract | null;
 }
 
 export interface DueResult {

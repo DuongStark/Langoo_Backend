@@ -134,3 +134,12 @@ curl -s -X PATCH http://localhost:3000/v1/srs/cards \
 Lỗi: `404 SRS_ITEM_NOT_FOUND` (không có thẻ của user) · `400 VALIDATION_FAILED`.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **srs**).
+
+## M14.3 — Ảnh minh hoạ trên thẻ (code local, chưa deploy)
+
+`GET /v1/srs/due`: mỗi `data[i]` thêm `image: {url, mime, width, height} | null`.
+Ảnh chọn theo `face.sense_id`, hydrate theo batch sau khi chọn queue; không đổi IDs,
+counts, thứ tự hoặc cursor, không nhân bản thẻ khi một nghĩa có nhiều ảnh/mapping.
+Width/height nullable; ảnh không hợp lệ hoặc fallback chưa rõ nghĩa trả null.
+Field này không được thêm vào `/sessions` snapshot. FE kiểm thời điểm reveal ảnh để
+không gợi đáp án sớm ở chiều recall. [Handoff M14.3](../handoff/m14.3-image-delivery-api-2026-11-01.md).

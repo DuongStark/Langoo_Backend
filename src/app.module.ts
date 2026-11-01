@@ -21,6 +21,7 @@ import { SessionsModule } from './sessions/sessions.module';
 import { SourcesModule } from './sources/sources.module';
 import { StorageModule } from './storage/storage.module';
 import { UsersModule } from './users/users.module';
+import { MediaModule } from './media/media.module';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { UsersModule } from './users/users.module';
     AdminModule,
     HealthModule,
     SourcesModule,
+    MediaModule,
   ],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },

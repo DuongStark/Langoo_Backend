@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ImageContractDto } from '../../media/dto/image-contract.dto';
 
 export class SenseCardDto {
   @ApiProperty({ example: '1' })
@@ -239,6 +240,13 @@ export class SenseFormDto {
 export class SenseDetailDto {
   @ApiProperty({ type: SenseCardDto })
   card!: SenseCardDto;
+
+  @ApiProperty({
+    type: ImageContractDto,
+    nullable: true,
+    description: 'Ảnh minh họa được phê duyệt cho nghĩa này (null nếu chưa có)',
+  })
+  image!: ImageContractDto | null;
 
   @ApiProperty({ type: [SenseGlossDto] })
   glosses!: SenseGlossDto[];

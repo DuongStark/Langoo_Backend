@@ -207,3 +207,10 @@ FE cần render con hoặc dùng `view=flat`; DB3-W1 rollback thiếu journal v�
 - Backup runtime/schema/response trước phát hành: `/opt/langoo/storage/db4/releases/m43-links-20261020`. Rollback runtime archive và PM2 reload nếu cần; index bổ sung giữ tương thích code cũ, không restore toàn DB.
 - Links0–3 từ khác nhãn, exact/live/curated/VI và cùng query policy search;32 HTTPS smoke pass. 以下 135465 chỉ còn following, agony 261514 còn苦痛/重苦. Không cần deployFE để nhận danh sáchBE mới, nhưng cần invalidatecache/không cộng dồn nhiều sense.
 - [Report deploy](../reviews/m4.3-searchable-links-deploy-2026-10-20.md) và artifacts kèm theo ghi latency/gate còn lại. Source/migration hash VPS trùng release; không lấy sốSQL14,825 ms làm latency browser.
+
+### M14.3 — Public media URL (2026-11-01, code local)
+
+`MEDIA_BASE_URL` mặc định `https://media.langoo.org`, HTTPS không credentials/query/fragment.
+Dùng để dựng URL response, không phải credential R2 và không upload ảnh trong API request.
+Cần migrations 045/046 hiện có trước chạy API ảnh. Không có migration mới trong M14.3.
+Hạng mục mới commit local chưa có nghĩa production đã deploy; không sửa ENV private để giả lập release.

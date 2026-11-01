@@ -11,6 +11,7 @@ import { SearchHistoryRepository } from './repositories/search-history.repositor
 import { SenseCardRepository } from './repositories/sense-card.repository';
 import { SenseContentRepository } from './repositories/sense-content.repository';
 import { SensePairRepository } from './repositories/sense-pair.repository';
+import { SenseImageService } from '../media/sense-image.service';
 import {
   DictionaryService,
   escapeLike,
@@ -79,6 +80,7 @@ function createSetup(): {
     languages: { findIdByCode: jest.Mock; findExistingIds: jest.Mock };
     storage: { get: jest.Mock; put: jest.Mock; delete: jest.Mock };
     englishPriority: { getByLexemes: jest.Mock };
+    images: { resolveMany: jest.Mock };
   };
 } {
   const repos = {
@@ -115,6 +117,7 @@ function createSetup(): {
     languages: { findIdByCode: jest.fn(), findExistingIds: jest.fn() },
     storage: { get: jest.fn(), put: jest.fn(), delete: jest.fn() },
     englishPriority: { getByLexemes: jest.fn().mockResolvedValue([]) },
+    images: { resolveMany: jest.fn().mockResolvedValue(new Map()) },
   };
   const service = new DictionaryService(
     repos.search as unknown as DictionarySearchRepository,
@@ -129,6 +132,7 @@ function createSetup(): {
     repos.reverse as unknown as ReverseLookupRepository,
     repos.scope as unknown as StudyLanguageScopeService,
     repos.englishPriority as unknown as EnglishPriorityRepository,
+    repos.images as unknown as SenseImageService,
   );
   return { service, repos };
 }
@@ -587,6 +591,47 @@ describe('DictionaryService', () => {
       expect(result.forms[0]).toMatchObject({
         form_text: '走る',
         kind: 'kanji',
+      });
+      expect(result.image).toBeNull();
+    });
+
+    it('sense có ảnh được phê duyệt → trả contract image đầy đủ', async () => {
+      const { service, repos } = createSetup();
+      repos.senseCard.getBySenseId.mockResolvedValue({
+        senseId: 1n,
+        lexemeId: 1n,
+        languageId: 2,
+        lemma: '走る',
+        reading: 'はしる',
+        romanization: 'hashiru',
+        pos: 'verb',
+        isPrimary: true,
+      });
+      repos.content.getGlosses.mockResolvedValue([]);
+      repos.content.getExamples.mockResolvedValue([]);
+      repos.content.getPronunciations.mockResolvedValue([]);
+      repos.content.getForms.mockResolvedValue([]);
+      repos.images.resolveMany.mockResolvedValueOnce(
+        new Map([
+          [
+            '1',
+            {
+              url: 'https://media.langoo.org/illustrations/run.png',
+              mime: 'image/png',
+              width: 512,
+              height: 512,
+            },
+          ],
+        ]),
+      );
+
+      const result = await service.getSenseDetail(1n);
+      expect(repos.images.resolveMany).toHaveBeenCalledWith([1n]);
+      expect(result.image).toEqual({
+        url: 'https://media.langoo.org/illustrations/run.png',
+        mime: 'image/png',
+        width: 512,
+        height: 512,
       });
     });
   });

@@ -1,6 +1,7 @@
 import { UsersModule } from '../users/users.module';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
+import { MediaModule } from '../media/media.module';
 import { DictionaryService } from './dictionary.service';
 import {
   KanjiController,
@@ -27,7 +28,7 @@ import { SensePairRepository } from './repositories/sense-pair.repository';
  * Chỉ đọc core/serve; ghi app.search_history + app.gloss_report.
  */
 @Module({
-  imports: [AuthModule, UsersModule],
+  imports: [AuthModule, UsersModule, MediaModule],
   controllers: [
     SearchController,
     LexemeController,
