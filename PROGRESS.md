@@ -1923,3 +1923,9 @@ M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa pu
 - Theo yêu cầu chủ dự án, sửa target fallback validation, keyword false-positive, E2E pass giả và lint; tích hợp sharedimagecontract, batchresolver tối đa3SELECT, ENV/Swagger/docs/handoff. [Report cập nhật](docs/reviews/m14.3-image-delivery-api-2026-11-01.md), [handoff FE](docs/handoff/m14.3-image-delivery-api-2026-11-01.md).
 - Kết quả combined M14.3/M4.7: full67suite/596unitpass; build/lintpass; PostgreSQLUTF8test riêng55437,7suite/78HTTPDBtestpass, khôngskip. Fixture ảnh ban đầu thiếubytes/sha failsetup đãsửa vàrerunpass; khôngnới constraint.
 - Gate: chưa publicproduction/FE/browser smoke, chưa push/deploy; khôngmigrationmới. Giữ WIP khác ngoài commit; đang chốt commit riêng M14.3.
+
+### 2026-11-01 — M4.7 — Backend canonical lemma đã code và kiểm tra
+
+- Theo yêu cầu chủ dự án, thêm lemma cho search/suggestions từ cùnglexeme, giữsurface/exact/ranking/cursor; Swaggerrequired vàservice/HTTPregression RED→GREEN. [Report](docs/reviews/m4.7-canonical-search-title-2026-11-01.md), [handoff FE](docs/handoff/m4.7-canonical-search-title-fe-2026-11-01.md).
+- Combinedunit595/build/lint/E2E78pass. FE giữ nguyên, cần agentFE tíchhợptitle helper theohandoff sau releaseBE. Khôngsửaquery/ID hoặcDBdata.
+- Git: chuẩn bị commit riêng M4.7 sauM14.3; chưa push/deploy. Khônggom reportM14.2/proposalM5.3.

@@ -8,6 +8,7 @@ export interface SearchRow {
   lexeme_id: bigint;
   language_id: number;
   lang_code: string;
+  lemma: string;
   surface: string;
   reading: string | null;
   pos: string | null;
@@ -347,7 +348,7 @@ export class DictionarySearchRepository {
         ) jp ON true
       ),
       ranked AS (
-        SELECT h.lexeme_id,h.language_id,h.lang_code,h.surface,h.reading,h.pos,
+        SELECT h.lexeme_id,h.language_id,h.lang_code,cl.lemma,h.surface,h.reading,h.pos,
           cl.frequency_rank,cl.frequency_source,h.homograph_no,h.surface_kind,
           CASE WHEN ${exactCondition} THEN 0 ELSE 1 END AS exact_rank,
           CASE WHEN ${prefixCondition} THEN 0 ELSE 1 END AS prefix_rank,
@@ -380,6 +381,7 @@ export class DictionarySearchRepository {
       )
       SELECT
         lexeme_id,
+        lemma,
         language_id,
         lang_code,
         surface,

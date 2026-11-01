@@ -1312,3 +1312,36 @@ describe('DictionaryService suggestions', () => {
     expect(repos.senseCard.getBySenseIds).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('M4.7 canonical search heading', () => {
+  it.each(['search', 'suggest'] as const)(
+    '%s keeps matched surface and returns canonical lemma',
+    async (method) => {
+      const { service, repos } = createSetup();
+      repos.scope.resolve.mockResolvedValue(null);
+      repos.languages.findIdByCode.mockResolvedValue(2);
+      repos.search.search.mockResolvedValue([
+        {
+          lexeme_id: 124626n,
+          language_id: 2,
+          lang_code: 'ja',
+          lemma: '折り紙',
+          surface: '折紙',
+          reading: 'おりがみ',
+          pos: 'noun',
+          frequency_rank: 16541,
+          homograph_no: 1,
+          surface_kind: 'kanji',
+          is_exact: true,
+        },
+      ]);
+      const result = await service[method]({ q: '折紙', lang: 'ja' });
+      expect(result.data[0]).toMatchObject({
+        lexeme_id: '124626',
+        lemma: '折り紙',
+        surface: '折紙',
+        is_exact: true,
+      });
+    },
+  );
+});

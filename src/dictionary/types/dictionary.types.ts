@@ -2,6 +2,7 @@ export interface SearchHit {
   lexeme_id: string;
   language_id: number;
   lang_code: string;
+  lemma: string;
   surface: string;
   reading: string | null;
   pos: string | null;

@@ -89,6 +89,13 @@ export class SenseCardDto {
 }
 
 export class SearchHitDto {
+  @ApiProperty({
+    type: String,
+    example: '折り紙',
+    description: 'Dạng chính của lexeme; surface vẫn là dạng khớp tìm kiếm',
+  })
+  lemma!: string;
+
   @ApiProperty({ example: '2' })
   lexeme_id!: string;
 

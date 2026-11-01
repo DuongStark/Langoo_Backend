@@ -339,3 +339,12 @@ Dimensions nullable, URL dựng từ `MEDIA_BASE_URL` (mặc định `https://me
 và exact concept mapping. Fallback thể chia chỉ khi phân giải root chắc chắn; không có ảnh
 hoặc root nhiều nghĩa trả null. [Handoff FE M14.3](../handoff/m14.3-image-delivery-api-2026-11-01.md).
 Không thay search hoặc lexeme-senses bằng field image trong hạng mục này.
+
+## M4.7 — Tiêu đề dạng chính trong search và suggestions (code local, chưa deploy)
+
+Mỗi hit của `GET /v1/dictionary/search` và `/v1/dictionary/suggestions` thêm `lemma: string`
+từ chính `core.lexeme` của lexeme_id. `surface` vẫn là dạng khớp được search chọn.
+Ví dụ query `折紙`: `lemma="折り紙"`, `surface="折紙"`, cùng lexeme_id `124626`.
+Không đổi exact/ranking, cursor v5 hoặc giới hạn/gộp suggestions. FE dùng lemma làm tiêu đề,
+hiện surface khác biệt ở dòng “Dạng khớp”; không đổi query/ID theo tiêu đề.
+[Handoff FE M4.7](../handoff/m4.7-canonical-search-title-fe-2026-11-01.md).

@@ -743,6 +743,7 @@ function toSearchHit(row: {
   lexeme_id: bigint;
   language_id: number;
   lang_code: string;
+  lemma: string;
   surface: string;
   reading: string | null;
   pos: string | null;
@@ -756,6 +757,7 @@ function toSearchHit(row: {
     lexeme_id: row.lexeme_id.toString(),
     language_id: row.language_id,
     lang_code: row.lang_code,
+    lemma: row.lemma,
     surface: row.surface,
     reading: row.reading,
     pos: row.pos,
