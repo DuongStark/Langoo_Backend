@@ -1918,6 +1918,26 @@ M14.2 xác nhận thêm cùnglượt: batchmới đãlưu24→28/76, serviceacti
 
 M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa push. RuntimeVPS đã áp dụng các fix chính; lầnkiểmcuối28/76/serviceactive, gen-3-1đanggửi/xửlý. ProposalM5.3 giữngoài commit. Khôngbáođãhoàn tấtlô.
 
+### 2026-11-01 — M14.3 — Kế hoạch cấp ảnh cho API chi tiết nghĩa và Flashcard
+
+- Theo yêu cầu chủ dự án, soạn [kế hoạch đầy đủ](docs/plans/m14.3-image-delivery-api-2026-11-01.md): shared DTO/resolver batch, provenance source khácanchor, gateview, metadata/ENV, fallbackcóbằngchứng, tests/rollout/rollback/handoff.
+- Kiểm tra: đối chiếu source/relationDDL013/view046; tựreviewspec/type/taskcoverage vàlinks/diff. Khôngchạytestứngdụng vìchỉkếhoạch.
+- Gate: chờduyệtkếhoạchtrướctriểnkhai. KhôngbáoM14.3đãcode/deploy, khôngcamkếtcookedcóảnhkhithiếumapping.
+- Git: plan/entrylocalchưacommit/push; giữWIPreportM14.2/proposalM5.3ngoàiphạmvi.
+
+### 2026-11-01 — M4.7 — Plan và handoff tiêu đề dạng chính trong tìm kiếm
+
+- Theo yêu cầu chủ dự án, chỉ soạn [plan M4.7](docs/plans/m4.7-canonical-search-title-2026-11-01.md) và [handoff FE](docs/handoff/m4.7-canonical-search-title-fe-2026-11-01.md), để agent khác code.
+- Đã đọc BE search/suggestions/mapper/cursor và FE thực tế LanGoo-User: list/autocomplete dùng surface, modal dùng card.lemma. Đề xuất BE thêm lemma additive; FE dùng canonical title và nhãn dạng khớp, giữ surface/query/ID/ranking/cursor.
+- Kiểm tra: tự review contract/file paths/consumer/rollout và links/diff; chưa chạy test ứng dụng vì không sửa implementation. FE có WIP được giữ nguyên.
+- Gate: agent khác triển khai BE/FE, kiểm unit/HTTP/DB/browser theo plan. Git: plan/handoff/entry local chưa commit/push; không deploy, không gom WIP M14.3/M5.3.
+
+### 2026-11-01 — M14.3 — Review API trả ảnh trước commit
+
+- Theo yêu cầu review và chỉ commit khi ổn, kiểm WIP media/dictionary/SRS/ENV. [Report](docs/reviews/m14.3-image-delivery-api-2026-11-01.md) có3finding: target fallback thiếu kiểm language/POS/grammar; E2E thiếuprefix và chấp nhận404 làm pass giả; regex abstract chặn cả vật thể có định nghĩa chứa grammatical.
+- Targeted unit7suite/86testpass, repro chạy policy thật xác nhận thiếuguard; full lint fail24errors/0warnings (media/SRS/E2E typing), chưa đạt CIgate. Chưa build/E2E hoặc mutationDB/deploy.
+- Trạng thái: chưa đạt gate commit, không commit implementation. Cần agent sửa findings/tests, hoàn thiệnconsumerdocs và review lại. Report/entry local chưa commit/push; không gom WIP khác.
+
 ### 2026-11-01 — M14.3 — Sửa findings và triển khai API ảnh chi tiết nghĩa/SRS
 
 - Theo yêu cầu chủ dự án, sửa target fallback validation, keyword false-positive, E2E pass giả và lint; tích hợp sharedimagecontract, batchresolver tối đa3SELECT, ENV/Swagger/docs/handoff. [Report cập nhật](docs/reviews/m14.3-image-delivery-api-2026-11-01.md), [handoff FE](docs/handoff/m14.3-image-delivery-api-2026-11-01.md).
@@ -1929,3 +1949,9 @@ M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa pu
 - Theo yêu cầu chủ dự án, thêm lemma cho search/suggestions từ cùnglexeme, giữsurface/exact/ranking/cursor; Swaggerrequired vàservice/HTTPregression RED→GREEN. [Report](docs/reviews/m4.7-canonical-search-title-2026-11-01.md), [handoff FE](docs/handoff/m4.7-canonical-search-title-fe-2026-11-01.md).
 - Combinedunit595/build/lint/E2E78pass. FE giữ nguyên, cần agentFE tíchhợptitle helper theohandoff sau releaseBE. Khôngsửaquery/ID hoặcDBdata.
 - Git: chuẩn bị commit riêng M4.7 sauM14.3; chưa push/deploy. Khônggom reportM14.2/proposalM5.3.
+
+### 2026-11-01 — M14.3 / M4.7 — Chốt commit sau review và kiểm tra
+
+- M14.3 `59c8c79` và M4.7 `8e380ff` đã commit riêng theo yêu cầu. Các entry plan/review trước sửa phía trên là lịch sử, đã được thay thế bởi trạng thái code xong và kiểm tra này.
+- Node22: full67suite/596unit pass, build/lint pass;7suite/78HTTPDB test pass trên PostgreSQL test UTF8 riêng, cluster đã stop. Review độc lập không còn blocker sau sửa ENV delimiter rỗng. EXPLAIN fixture nhỏ có số đo trong report, chưa benchmark production.
+- Chưa push/deploy hoặc nghiệm thu FE/browser. FE M4.7 còn theo handoff, M14.3 không tự phân giải cooked khi thiếu mapping chắc chắn. WIP M14.2/proposal M5.3 giữ ngoài commit.
