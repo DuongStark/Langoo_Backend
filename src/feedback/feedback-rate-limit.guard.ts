@@ -1,6 +1,7 @@
 import { ExecutionContext, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
+import { PrismaService } from '../db/prisma.service';
 import { ThrottlerException, ThrottlerStorage } from '@nestjs/throttler';
 import type { Response } from 'express';
 import {
@@ -18,8 +19,9 @@ export class FeedbackRateLimitGuard extends JwtAuthGuard {
     jwt: JwtService,
     private readonly config: ConfigService,
     @Inject(ThrottlerStorage) private readonly storage: ThrottlerStorage,
+    prisma: PrismaService,
   ) {
-    super(jwt);
+    super(jwt, prisma);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

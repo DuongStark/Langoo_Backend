@@ -20,7 +20,7 @@ export class AdminGuard extends JwtAuthGuard implements CanActivate {
     jwt: JwtService,
     private readonly prisma: PrismaService,
   ) {
-    super(jwt);
+    super(jwt, prisma);
   }
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

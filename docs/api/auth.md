@@ -1,9 +1,15 @@
 # API: Auth
 
-Tất cả endpoint dưới prefix `/v1`. Access token là JWT HS256 sống **15 phút**;
+Tất cả endpoint dưới prefix `/v1`. Access token là JWT HS256 sống mặc định **15 phút**;
 refresh token opaque 32 byte, server chỉ lưu SHA-256 — gọi `refresh` sẽ **xoay vòng**
 token (token cũ bị từ chối ngay). Nếu nhiều request đồng thời dùng cùng một token,
 chỉ một request thành công; các request còn lại nhận `AUTH_INVALID_REFRESH_TOKEN`.
+
+Từ **M2.5 (2026-11-03)**, mỗi request có access token còn phải có session tồn tại,
+đúng user, chưa bị thu hồi, chưa hết hạn và user đang active. Logout vô hiệu ngay
+access token của session ở các request mới. Kiểm tra session thất bại do DB trả
+`503 AUTH_SERVICE_UNAVAILABLE`; token/session không hợp lệ trả `401 AUTH_TOKEN_INVALID`.
+API cho guest vẫn nhận request không có Authorization, nhưng không bỏ qua token sai.
 
 ## POST /v1/auth/register
 
@@ -158,7 +164,9 @@ Lỗi: `401 AUTH_INVALID_REFRESH_TOKEN` (token sai/đã xoay/đã thu hồi) · 
 
 ## POST /v1/auth/logout
 
-Thu hồi session hiện tại (refresh token của session bị vô hiệu ngay).
+Thu hồi **mọi access token và refresh token của session hiện tại**, bao gồm access
+token cũ trước lần refresh. Các session đăng nhập khác của cùng tài khoản không bị ảnh hưởng.
+Server giữ bản ghi session với `revoked_at`, không xóa cứng dữ liệu.
 
 ```bash
 curl -s -X POST http://localhost:3000/v1/auth/logout \
@@ -167,6 +175,15 @@ curl -s -X POST http://localhost:3000/v1/auth/logout \
 
 Response `200`: `{ "id": "<session_id>", "revoked_at": "2026-09-26T12:05:00.000Z" }`.
 Lỗi: `401 AUTH_TOKEN_MISSING` / `AUTH_TOKEN_INVALID`.
+
+Gọi lại logout bằng cùng JWT **chưa hết hạn** vẫn trả 200 và cùng `revoked_at`,
+kể cả nhiều request logout đồng thời. JWT hết hạn/sai chữ ký hoặc sid không thuộc
+user vẫn bị từ chối. Logout là ngoại lệ duy nhất cho phép token của session đã revoke
+đi vào handler để retry; token đó không truy cập được API bảo vệ khác.
+
+FE phải gửi logout trước khi xóa token local. Nếu mất mạng/5xx, chưa xác nhận được
+server đã thu hồi session; xử lý retry và thông báo rõ. Xem
+[handoff M2.5](../handoff/m2.5-immediate-logout-revocation-fe-2026-11-03.md).
 
 ## GET /v1/auth/me
 
@@ -178,8 +195,9 @@ curl -s http://localhost:3000/v1/auth/me \
 Response `200`: `{ "id": "5", "email": "...", "display_name": "...", "avatar_url": null, "status": "active", "created_at": "...", "last_login_at": "..." }`.
 Lỗi: `401 AUTH_TOKEN_MISSING` / `AUTH_TOKEN_INVALID`.
 
-> Ghi chú: `id` là bigint nên trả dạng **chuỗi** (JSON không có bigint). Sau logout,
-> access token cũ vẫn dùng được tới khi hết hạn (tối đa 15 phút) — đúng thiết kế
-> "access ngắn hạn, không tra DB mỗi request".
+> Ghi chú: user `id` là bigint nên trả dạng **chuỗi** (JSON không có bigint); session
+> `id` là UUID. M2.5 thay thế thiết kế stateless cũ: sau khi logout trả 200, request
+> mới dùng token của session đó nhận 401. Không hủy HTTP/SSE đã qua bước xác thực
+> trước khi session bị thu hồi; FE cần abort luồng và xóa thông tin đăng nhập/cache.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **auth**).

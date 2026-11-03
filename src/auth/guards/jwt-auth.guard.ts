@@ -7,44 +7,57 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import type { Request } from 'express';
 import { DomainException } from '../../common/errors/domain.exception';
+import { PrismaService } from '../../db/prisma.service';
 import { JwtPayload } from '../types/auth.types';
+import { invalidAccessToken, verifyBearerAccessToken } from './access-token';
 
 export type AuthenticatedRequest = Request & { user?: JwtPayload };
 
 /**
- * Xác thực Bearer access token (HS256, hết hạn 15 phút).
- * KHÔNG tra DB mỗi request — access token ngắn hạn tự hết hiệu lực;
- * refresh token của session bị thu hồi ngay khi logout.
+ * Xác thực JWT và session từ DB mỗi request để logout thu hồi ngay.
+ * Không cache session active: trạng thái cached sẽ giữ quyền sau revocation.
  */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
-  constructor(private readonly jwt: JwtService) {}
+  constructor(
+    private readonly jwt: JwtService,
+    private readonly sessions: PrismaService,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
-    const header = request.headers.authorization;
-    if (!header || !header.startsWith('Bearer ')) {
-      throw new DomainException(
-        'AUTH_TOKEN_MISSING',
-        'Thiếu access token',
-        HttpStatus.UNAUTHORIZED,
-      );
-    }
-
-    const token = header.slice('Bearer '.length).trim();
+    const payload = await verifyBearerAccessToken(
+      this.jwt,
+      request.headers.authorization,
+    );
+    let session;
     try {
-      const payload = await this.jwt.verifyAsync<JwtPayload>(token);
-      if (payload.typ !== 'access' || !payload.sub || !payload.sid) {
-        throw new Error('claims không hợp lệ');
-      }
-      request.user = payload;
-      return true;
+      session = await this.sessions.userSession.findUnique({
+        where: { id: payload.sid },
+        select: {
+          userId: true,
+          revokedAt: true,
+          expiresAt: true,
+          user: { select: { status: true } },
+        },
+      });
     } catch {
       throw new DomainException(
-        'AUTH_TOKEN_INVALID',
-        'Access token không hợp lệ hoặc đã hết hạn',
-        HttpStatus.UNAUTHORIZED,
+        'AUTH_SERVICE_UNAVAILABLE',
+        'Không thể xác minh phiên đăng nhập, vui lòng thử lại sau',
+        HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
+    if (
+      !session ||
+      session.userId !== BigInt(payload.sub) ||
+      session.revokedAt !== null ||
+      session.expiresAt <= new Date() ||
+      session.user.status !== 'active'
+    ) {
+      throw invalidAccessToken();
+    }
+    request.user = payload;
+    return true;
   }
 }

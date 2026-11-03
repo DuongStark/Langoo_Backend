@@ -460,24 +460,30 @@ describe('AuthService', () => {
 
     it('thu hồi session và trả resource', async () => {
       const { service, prisma } = createSetup();
-      prisma.userSession.findUnique.mockResolvedValue({
-        id: 'session-1',
-        userId: 1n,
-        revokedAt: null,
-      });
-      prisma.userSession.update.mockResolvedValue({
-        id: 'session-1',
-        userId: 1n,
-        revokedAt: new Date('2026-09-26T02:00:00.000Z'),
-      });
+      prisma.userSession.findUnique
+        .mockResolvedValueOnce({
+          id: 'session-1',
+          userId: 1n,
+          revokedAt: null,
+        })
+        .mockResolvedValueOnce({
+          id: 'session-1',
+          userId: 1n,
+          revokedAt: new Date('2026-09-26T02:00:00.000Z'),
+        });
+      prisma.userSession.updateMany.mockResolvedValue({ count: 1 });
 
       const result = await service.logout(payload);
 
       const updateArgs = firstArg<{
-        where: { id: string };
+        where: { id: string; userId: bigint; revokedAt: null };
         data: { revokedAt: Date };
-      }>(prisma.userSession.update);
-      expect(updateArgs.where).toEqual({ id: 'session-1' });
+      }>(prisma.userSession.updateMany);
+      expect(updateArgs.where).toEqual({
+        id: 'session-1',
+        userId: 1n,
+        revokedAt: null,
+      });
       expect(updateArgs.data.revokedAt).toBeInstanceOf(Date);
       expect(result).toEqual({
         id: 'session-1',
@@ -496,7 +502,28 @@ describe('AuthService', () => {
       const result = await service.logout(payload);
 
       expect(prisma.userSession.update).not.toHaveBeenCalled();
+      expect(prisma.userSession.updateMany).not.toHaveBeenCalled();
       expect(result.revoked_at).toBe('2026-09-26T02:00:00.000Z');
+    });
+
+    it('concurrent logout preserves the timestamp written by the winner', async () => {
+      const { service, prisma } = createSetup();
+      prisma.userSession.findUnique
+        .mockResolvedValueOnce({
+          id: 'session-1',
+          userId: 1n,
+          revokedAt: null,
+        })
+        .mockResolvedValueOnce({
+          id: 'session-1',
+          userId: 1n,
+          revokedAt: new Date('2026-09-26T02:00:00.000Z'),
+        });
+      prisma.userSession.updateMany.mockResolvedValue({ count: 0 });
+      await expect(service.logout(payload)).resolves.toEqual({
+        id: 'session-1',
+        revoked_at: '2026-09-26T02:00:00.000Z',
+      });
     });
 
     it('session không tồn tại hoặc không thuộc user → AUTH_TOKEN_INVALID', async () => {

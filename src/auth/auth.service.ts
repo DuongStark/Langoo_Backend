@@ -241,13 +241,24 @@ export class AuthService {
       return { id: session.id, revoked_at: session.revokedAt.toISOString() };
     }
 
-    const revoked = await this.prisma.userSession.update({
-      where: { id: session.id },
+    await this.prisma.userSession.updateMany({
+      where: { id: session.id, userId: session.userId, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+    // A concurrent logout may have won the update; return its stored timestamp.
+    const revoked = await this.prisma.userSession.findUnique({
+      where: { id: session.id },
+    });
+    if (!revoked || revoked.userId !== session.userId || !revoked.revokedAt) {
+      throw new DomainException(
+        'AUTH_TOKEN_INVALID',
+        'Access token không hợp lệ',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
     return {
       id: revoked.id,
-      revoked_at: revoked.revokedAt?.toISOString() ?? null,
+      revoked_at: revoked.revokedAt.toISOString(),
     };
   }
 

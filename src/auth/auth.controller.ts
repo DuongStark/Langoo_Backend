@@ -14,6 +14,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiServiceUnavailableResponse,
   ApiTags,
   ApiTooManyRequestsResponse,
   ApiUnauthorizedResponse,
@@ -35,6 +36,7 @@ import { RegisterDto } from './dto/register.dto';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { AuthenticatedRequest, JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
+import { LogoutJwtAuthGuard } from './guards/logout-jwt-auth.guard';
 import { GoogleOauthService } from './oauth/google-oauth.service';
 import { GoogleOAuthChallengeService } from './oauth/google-oauth-challenge.service';
 import {
@@ -165,11 +167,15 @@ export class AuthController {
   }
 
   @Post('logout')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(LogoutJwtAuthGuard)
   @ApiBearerAuth()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Thu hồi session hiện tại (refresh token của session bị vô hiệu)',
+    summary:
+      'Đăng xuất: thu hồi ngay access/refresh token của session hiện tại',
+    description:
+      'Request mới dùng token của session đã thu hồi bị từ chối. Gọi lại logout ' +
+      'với cùng JWT chưa hết hạn vẫn trả 200 và cùng revoked_at.',
   })
   @ApiOkResponse({ type: SessionResponseDto })
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
@@ -183,6 +189,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Thông tin user đang đăng nhập' })
   @ApiOkResponse({ type: UserResponseDto })
   @ApiUnauthorizedResponse({ type: ErrorResponseDto })
+  @ApiServiceUnavailableResponse({
+    type: ErrorResponseDto,
+    description: 'AUTH_SERVICE_UNAVAILABLE: không xác minh được session từ DB',
+  })
   me(@CurrentUser() payload: JwtPayload): Promise<UserResponse> {
     return this.authService.me(BigInt(payload.sub));
   }
