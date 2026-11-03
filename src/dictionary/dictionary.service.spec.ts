@@ -1264,6 +1264,71 @@ describe('M4.5 Japanese learner presentation', () => {
 });
 
 describe('DictionaryService suggestions', () => {
+  it.each([true, false])(
+    'returns English meaning and provenance, translated candidate available=%s',
+    async (hasVietnamese) => {
+      const { service, repos } = createSetup();
+      repos.search.search.mockResolvedValue([
+        {
+          lexeme_id: 2n,
+          language_id: 1,
+          lang_code: 'en',
+          surface: 'run',
+          reading: null,
+          pos: 'verb',
+          frequency_rank: 110,
+          homograph_no: 1,
+          surface_kind: 'lemma',
+          is_exact: true,
+        },
+      ]);
+      repos.englishPriority.getByLexemes.mockResolvedValue(
+        [2n, 3n].map((id, index) => ({
+          lexeme_id: 2n,
+          sense_id: id,
+          display_order: index + 1,
+          recommended: true,
+          basis: 'curated_learner',
+        })),
+      );
+      repos.senseCard.getBySenseIds.mockResolvedValue([
+        {
+          ...senseCard,
+          senseId: 2n,
+          lexemeId: 2n,
+          languageId: 1,
+          lemma: 'run',
+          glossVi: null,
+          glossViMachine: null,
+          glossViReviewed: null,
+        },
+        {
+          ...senseCard,
+          senseId: 3n,
+          lexemeId: 2n,
+          languageId: 1,
+          lemma: 'run',
+          glossVi: hasVietnamese ? 'chạy' : null,
+          glossViMachine: true,
+          glossViReviewed: false,
+        },
+      ]);
+
+      const result = await service.suggest({ q: 'run' });
+
+      expect(result.data[0].preview).toMatchObject({
+        sense_id: hasVietnamese ? '3' : '2',
+        lexeme_id: '2',
+        gloss_vi: hasVietnamese ? 'chạy' : null,
+        gloss_vi_machine: hasVietnamese ? true : null,
+        gloss_vi_reviewed: hasVietnamese ? false : null,
+        gloss_en: 'to run',
+      });
+      expect(result.next_cursor).toBeNull();
+      expect(repos.history.create).not.toHaveBeenCalled();
+    },
+  );
+
   it('loads Japanese previews once and leaves English hits without one', async () => {
     const { service, repos } = createSetup();
     repos.languages.findIdByCode.mockResolvedValue(2);

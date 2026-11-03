@@ -102,6 +102,8 @@ export class SearchController {
   })
   @ApiOperation({
     summary: 'Gợi ý tìm kiếm tối đa 5 từ phổ biến, không ghi lịch sử tra từ',
+    description:
+      'Mỗi kết quả EN/JA có preview nghĩa theo policy learner nếu có sense phù hợp; FE dùng preview.gloss_vi và cờ machine/reviewed, fallback gloss_en/definition.',
   })
   @ApiOkResponse({ type: SearchResultDto })
   @ApiBadRequestResponse({

@@ -137,7 +137,8 @@ export class SearchHitDto {
 
   @ApiPropertyOptional({
     type: () => SenseCardDto,
-    description: 'Selected JA learner sense; uses existing sense ID/gloss',
+    description:
+      'Selected EN/JA learner sense for search and suggestions; includes gloss_vi and machine/reviewed flags, with gloss_en/definition fallback',
   })
   preview?: SenseCardDto;
 }

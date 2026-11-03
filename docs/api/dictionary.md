@@ -98,6 +98,15 @@ nguồn trùng không chiếm các ô gợi ý. Ranking dùng cùng policy searc
 JA. Không gọi AI; có thể ít hơn 5 nếu không đủ kết quả. Các ID khác vẫn được giữ
 trong DB và endpoint detail.
 
+M4.5 (03/11/2026, code local): suggestions bổ sung preview **EN**, dùng cùng policy
+chọn sense như search; JA giữ preview hiện có. FE đọc `data[].preview.gloss_vi` để
+hiển thị nghĩa ngay trong danh sách, không cần gọi detail cho từng hit. Giữ
+`preview.gloss_vi_machine` / `preview.gloss_vi_reviewed` để hiện badge nghĩa máy
+chưa duyệt; khi thiếu VI dùng `preview.gloss_en` rồi `preview.definition` nếu có.
+`preview.sense_id` là ID nghĩa, khác `lexeme_id`. Không có sense được chọn/card
+hợp lệ thì `preview` có thể vắng; FE ẩn dòng nghĩa, không hiển thị `undefined`.
+Nghĩa của một sense được chọn, không phải toàn bộ nghĩa của từ đa nghĩa. Chưa deploy.
+
 ## GET /v1/lexemes/:id/senses
 
 Sau khi search trả `lexeme_id`, gọi endpoint này để lấy các nghĩa thuộc đúng lexeme đó. Không dùng

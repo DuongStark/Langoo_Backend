@@ -387,7 +387,9 @@ export class DictionaryService {
     });
 
     return {
-      data: await this.addJapanesePreviews(rows.map(toSearchHit)),
+      data: await this.addEnglishPreviews(
+        await this.addJapanesePreviews(rows.map(toSearchHit)),
+      ),
       next_cursor: null,
     };
   }

@@ -8,6 +8,14 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-03 — M4.5 — Trả nghĩa trong gợi ý tìm kiếm
+
+- Thay đổi / lý do: Suggestions trước chỉ có preview JA; bổ sung EN bằng cùng helper/policy batch như search để FE hiển thị nghĩa ngay. Trả qua preview.gloss_vi, giữ machine/reviewed/sense_id và fallback EN/definition; không thay ranking/scope/limit5/history.
+- File / phạm vi: Dictionary service/spec, controller/DTO descriptions, docs/api/dictionary.md; [plan](docs/plans/m4.5-suggestions-meanings-2026-11-03.md), [review](docs/reviews/m4.5-suggestions-meanings-2026-11-03.md), [handoff FE](docs/handoff/m4.5-suggestions-meanings-fe-2026-11-03.md).
+- Kiểm tra / kết quả: RED 2 ca EN preview undefined; GREEN full unit Node22 68 suites/613 tests PASS. Node22 build và ESLint thực exit0; wrapper lint lần đầu parse lỗi không tính pass. Link tài liệu và git diff --check PASS; đã đọc diff runtime và kiểm working tree.
+- Gate còn thiếu / việc tiếp theo: Chưa HTTP/DB E2E hoặc FE/browser/live smoke; FE cần render preview theo handoff. Preview có thể vắng nếu không có sense/card hợp lệ theo policy hiện có.
+- Git / triển khai: Commit/push theo yêu cầu 03/11/2026; CI/deploy sau push cần xác nhận riêng. Không migration/dependency/ENV/DB; giữ WIP của các việc khác.
+
 ### 2026-11-03 — M2.5 — Thu hồi access token ngay khi đăng xuất
 
 - Thay đổi / lý do: Theo yêu cầu chủ dự án, thay thiết kế access token stateless bằng kiểm session mỗi request có token. Logout vô hiệu mọi access/refresh token của đúng session; giữ phiên khác, retry idempotent và timestamp revoke ổn định. Optional/admin/feedback cùng kiểm session; DB lỗi guard trả503, session/user không hợp lệ trả401.
