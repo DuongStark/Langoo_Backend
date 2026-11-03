@@ -1,3 +1,4 @@
+import { PrivacyModule } from './privacy/privacy.module';
 import { Module, ValidationPipe } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
@@ -70,6 +71,7 @@ import { MediaModule } from './media/media.module';
     SessionsModule,
     GamificationModule,
     UsersModule,
+    PrivacyModule,
     FeedbackModule,
     AdminModule,
     HealthModule,

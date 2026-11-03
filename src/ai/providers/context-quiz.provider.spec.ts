@@ -1,3 +1,5 @@
+import { DomainException } from '../../common/errors/domain.exception';
+import { HttpStatus } from '@nestjs/common';
 import { kanjiInput } from '../../../test/fixtures/quiz-kanji';
 import { buildQuizQuestions } from '../quiz/quiz-generator';
 import { fingerprint } from '../quiz/quiz-contract';
@@ -76,6 +78,39 @@ function setup(options: { timeoutMs?: number } = {}) {
 const KANJI_SLOT = 1;
 
 describe('ContextQuizProvider routing and quality', () => {
+  it('checks privacy before every external call and does not swallow withdrawal', async () => {
+    const { provider, chat } = setup();
+    let count = 0;
+    const input = {
+      ...kanjiInput({ questionCount: 2 }),
+      beforeExternalCall: () => {
+        if (++count > 1)
+          throw new DomainException(
+            'PRIVACY_CONSENT_REQUIRED',
+            'withdrawn',
+            HttpStatus.FORBIDDEN,
+          );
+        return Promise.resolve();
+      },
+    };
+    await expect(provider.generate(input)).rejects.toMatchObject({
+      code: 'PRIVACY_CONSENT_REQUIRED',
+    });
+    expect(chat).toHaveBeenCalledTimes(1);
+  });
+  it('does not request privacy consent for a quiz without external calls', async () => {
+    const { provider, chat } = setup();
+    const beforeExternalCall = jest
+      .fn()
+      .mockRejectedValue(new Error('must not call'));
+    const result = await provider.generate({
+      ...kanjiInput({ questionCount: 1 }),
+      beforeExternalCall,
+    });
+    expect(result).toHaveLength(1);
+    expect(beforeExternalCall).not.toHaveBeenCalled();
+    expect(chat).not.toHaveBeenCalled();
+  });
   it('reuses validated context when models and key are absent', async () => {
     const { provider } = setup();
     const first = await provider.generate(kanjiInput({ questionCount: 2 }));

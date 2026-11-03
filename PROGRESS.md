@@ -8,6 +8,30 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-03 — M12.1 — Quyền riêng tư và quyền dữ liệu
+
+- Thay đổi / lý do: Theo quyết định chủ dự án, bỏ mốc 13 tuổi và không thay bằng 16+; BE công bố policy không giới hạn tuổi, chưa xác minh người đại diện. Bổ sung manifest, event grant/withdraw theo purpose/version với retry idempotent; chặn external AI theo lựa chọn trước từng call/retry, giữ quiz local hoạt động; nhận ticket quyền dữ liệu và hàng đợi admin có audit.
+- File / phạm vi: `src/privacy`, tích hợp AI/config, Prisma + migration 047; [plan](docs/plans/m12.1-privacy-controls-2026-11-03.md), [review](docs/reviews/m12.1-privacy-controls-2026-11-03.md), [handoff FE](docs/handoff/m12.1-privacy-fe-2026-11-03.md), [API](docs/api/privacy.md), [runbook](docs/ops/m12.1-privacy-rollout-2026-11-03.md), CSDL tham chiếu và ENV mẫu. Đồng bộ DOCS4 với quyết định tuổi và contract hiện hành.
+- Kiểm tra / kết quả: Node22 full unit 69 suites/624 tests và E2E 32 suites/275 tests PASS trên PostgreSQL16.2 riêng; build, ESLint trực tiếp, Prisma generate/validate PASS. Đã sửa 5 finding review độc lập. Chạy lại privacy E2E 5/5 sau validation version rỗng; kiểm link/diff/status trước commit.
+- Gate còn thiếu / việc tiếp theo: FE chưa sửa/QA. Cờ bắt buộc grant mặc định false chờ rollout FE, explicit withdraw luôn chặn; chưa đóng toàn finding consent. Ticket chỉ intake/manual, chưa tự export/xóa/vendor/backup hoặc xác minh người đại diện; căn cứ/notice/DPA/retention và người xử lý cần hoàn thiện theo runbook.
+- Git / triển khai: Đã áp chỉ migration 047 trên VPS, ledger đúng một dòng/hai bảng tồn tại; giữ migration 043 đang chờ. Code/docs chuẩn bị commit/push theo yêu cầu, CI/deploy cần xác nhận sau push. Không thay ENV production hoặc sửa repo FE; giữ WIP khác.
+
+### 2026-11-03 — DOCS4 — Handoff khắc phục pháp lý cho BE, FE và vận hành
+
+- Thay đổi / lý do: Theo yêu cầu chủ dự án, phân công R1–R3/Y1–Y7 thành BE/FE/ops; nêu việc BE cần bổ sung consent evidence/enforcement, quyền dữ liệu/retention và policy tuổi; FE sửa nội dung, onboarding, privacy center, PDF/dịch/analytics. Contract chỉ là đề xuất chưa triển khai; không mặc định tự động xóa tài khoản là nghĩa vụ bắt buộc.
+- File / phạm vi: [Handoff DOCS4 BE/FE](docs/handoff/docs4-legal-remediation-be-fe-2026-11-03.md), liên kết từ [audit](docs/reviews/docs4-vietnam-legal-audit-2026-11-03.md). Giữ mã DOCS4; chưa sửa runtime.
+- Kiểm tra / kết quả: Đối chiếu BE auth/settings/chat và FE main archive a4e1a64; tải live bundle index-D0op7NmE/LegalArticle-BQhu6Kvg xác nhận vẫn có30ngày/13tuổi; kiểm thuộc tính luật trên nguồn Chính phủ. PASS 2 link local của handoff, code fence hợp lệ, phân công đủ10nhóm audit; git diff --check exit0 và đã kiểm working tree. Không chạy unit/build cho docs-only.
+- Gate còn thiếu / việc tiếp theo: Chốt chủ thể/căn cứ/vendor/tuổi/retention/người xử lý yêu cầu; thiết kế và triển khai BE/FE sau handoff, test DB/browser/network và hồ sơ pháp lý. Checkbox QA trong handoff chưa chạy.
+- Git / triển khai: Tài liệu local chưa commit/push/deploy; không đổi BE/FE/DB/ENV/VPS. Giữ WIP của các hạng mục khác.
+
+### 2026-11-03 — DOCS4 — Audit pháp lý website Langoo theo luật Việt Nam
+
+- Thay đổi / lý do: Rà soát source backend, frontend local và bundle công khai langoo.org theo `.vn-law-check`; xác minh văn bản Chính phủ và bản scan ký số. Ghi nhận 3 nhóm cần xử lý ngay (consent/căn cứ xử lý, SLA quyền dữ liệu, người dùng dưới 16 tuổi), 7 nhóm cải thiện/xác minh và 3 nhóm có bằng chứng đáp ứng một phần. Phát hiện checklist dẫn sai Điều 39 về miễn trừ; báo cáo đối chiếu đúng Điều 38 và không suy diễn miễn hồ sơ chuyển dữ liệu theo quy mô nhỏ.
+- File / phạm vi: [Plan DOCS4](docs/plans/docs4-vietnam-legal-audit-2026-11-03.md), [báo cáo DOCS4](docs/reviews/docs4-vietnam-legal-audit-2026-11-03.md), [evidence](docs/reviews/docs4-vietnam-legal-audit-2026-11-03/evidence.md) và manifest JSON. Chỉ thêm tài liệu audit; giữ WIP của các việc khác.
+- Kiểm tra / kết quả: Script scan hoàn tất; tải HTTP trang pháp lý/register và JS production thành công; đối chiếu chunk thay vì dùng frontend local cũ để kết luận thiếu policy. API public health/sources trả 403 từ đường truy cập audit. PASS 3 link nội bộ của bộ tài liệu, JSON evidence hợp lệ, 16 hash chunk khớp bản tải và `git diff --check` exit 0; đã kiểm working tree. Không chạy build/unit vì không sửa code.
+- Gate còn thiếu / việc tiếp theo: Chưa browser E2E/network, thực thi quyền dữ liệu, kiểm DB/runtime ENV, pháp nhân, DPA/DPIA/biên nhận chuyển dữ liệu. Cần người phụ trách và luật sư xác minh các nhóm rủi ro; không coi thiếu hồ sơ trong repo là bằng chứng vi phạm.
+- Git / triển khai: Tài liệu local chưa commit/push/deploy; không thay đổi website, backend, DB hoặc repo FE. Đây là kết quả rà soát sơ bộ, chưa phải nghiệm thu tuân thủ pháp lý.
+
 ### 2026-11-03 — M4.5 — Trả nghĩa trong gợi ý tìm kiếm
 
 - Thay đổi / lý do: Suggestions trước chỉ có preview JA; bổ sung EN bằng cùng helper/policy batch như search để FE hiển thị nghĩa ngay. Trả qua preview.gloss_vi, giữ machine/reviewed/sense_id và fallback EN/definition; không thay ranking/scope/limit5/history.

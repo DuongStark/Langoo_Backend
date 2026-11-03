@@ -1,3 +1,4 @@
+import { PrivacyModule } from '../privacy/privacy.module';
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AuthModule } from '../auth/auth.module';
@@ -20,7 +21,13 @@ import { AiUsageService } from './usage/ai-usage.service';
  * Chat có OpenAI-compatible; quiz dựng từ dữ liệu, model chỉ dùng cho context.
  */
 @Module({
-  imports: [AuthModule, DictionaryModule, SrsModule, SessionsModule],
+  imports: [
+    PrivacyModule,
+    AuthModule,
+    DictionaryModule,
+    SrsModule,
+    SessionsModule,
+  ],
   controllers: [ChatController, QuizController],
   providers: [
     ChatService,

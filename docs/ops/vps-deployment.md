@@ -214,3 +214,10 @@ FE cần render con hoặc dùng `view=flat`; DB3-W1 rollback thiếu journal v�
 Dùng để dựng URL response, không phải credential R2 và không upload ảnh trong API request.
 Cần migrations 045/046 hiện có trước chạy API ảnh. Không có migration mới trong M14.3.
 Hạng mục mới commit local chưa có nghĩa production đã deploy; không sửa ENV private để giả lập release.
+
+### M12.1 — Privacy rollout (03/11/2026)
+
+Đọc [runbook privacy](m12.1-privacy-rollout-2026-11-03.md) trước deploy.
+Migration 047 phải có trước runtime mới; không chạy kèm migration 043 đang chờ.
+Cờ `PRIVACY_AI_CONSENT_REQUIRED` mặc định false đến khi FE triển khai và QA;
+rút consent đã lưu vẫn chặn external AI. Không reset DB khi rollout.

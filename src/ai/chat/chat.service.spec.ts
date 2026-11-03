@@ -1,3 +1,4 @@
+import { PrivacyService } from '../../privacy/privacy.service';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { setTimeout as nativeDelay } from 'node:timers/promises';
@@ -110,6 +111,9 @@ function createSetup(configValues: Record<string, string | number> = {}) {
     dictionary as unknown as DictionaryService,
     usage as unknown as AiUsageService,
     provider,
+    {
+      assertAiAllowed: jest.fn().mockResolvedValue(undefined),
+    } as unknown as PrivacyService,
   );
   return {
     service,

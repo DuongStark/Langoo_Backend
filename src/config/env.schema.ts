@@ -142,6 +142,12 @@ export const envSchema = z.object({
     z.coerce.number().int().min(1_000).max(300_000).optional(),
   ),
 
+  // M12.1 — Enable mandatory AI consent after FE rollout. Withdrawals always apply.
+  PRIVACY_AI_CONSENT_REQUIRED: z.preprocess(
+    booleanEnv,
+    z.boolean().default(false),
+  ),
+
   // M12 — Hardening.
   RATE_LIMIT_ENABLED: z.preprocess(booleanEnv, z.boolean().default(true)),
   SCHEDULER_ENABLED: z.preprocess(booleanEnv, z.boolean().default(true)),

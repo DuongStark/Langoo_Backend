@@ -1,3 +1,4 @@
+import { PrivacyService } from '../../privacy/privacy.service';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../db/prisma.service';
 import { SrsService } from '../../srs/srs.service';
@@ -137,6 +138,9 @@ function createSetup(cooldownMs = '15000') {
     sourceRepo as unknown as QuizSourceRepository,
     usage as unknown as AiUsageService,
     provider,
+    {
+      assertAiAllowed: jest.fn().mockResolvedValue(undefined),
+    } as unknown as PrivacyService,
   );
   return {
     service,

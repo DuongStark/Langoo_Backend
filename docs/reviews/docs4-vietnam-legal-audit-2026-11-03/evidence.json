@@ -1,0 +1,192 @@
+{
+  "task": "DOCS4 — Audit pháp lý website Langoo theo luật Việt Nam",
+  "captured_at": "2026-11-03T01:59:54.739450+00:00",
+  "http": {
+    "observed_at": "2026-11-03T01:56:53.347699+00:00",
+    "responses": [
+      {
+        "url": "https://api.langoo.org/v1/health",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      {
+        "url": "https://api.langoo.org/v1/sources",
+        "error": "HTTP Error 403: Forbidden"
+      },
+      {
+        "url": "https://langoo.org/_vercel/insights/script.js",
+        "status": 200,
+        "bytes": 4522,
+        "sha256": "050e35bf7e6e96590f2a9de114c14ff792806ed28457b3248762944350c0ba4c",
+        "file": "script.js.http",
+        "headers": {
+          "Content-Type": "application/javascript; charset=utf-8",
+          "Server": "Vercel",
+          "Strict-Transport-Security": "max-age=63072000; includeSubDomains; preload"
+        }
+      },
+      {
+        "url": "https://langoo.org/privacy",
+        "status": 200,
+        "bytes": 4219,
+        "sha256": "a290e6c38c1e6ffac9ad74d67bb375e9a6e09629b395ed933c1928af09c245d6",
+        "file": "privacy.http",
+        "headers": {
+          "Content-Type": "text/html; charset=utf-8",
+          "Referrer-Policy": "strict-origin-when-cross-origin",
+          "Server": "Vercel",
+          "Strict-Transport-Security": "max-age=63072000",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN"
+        }
+      },
+      {
+        "url": "https://langoo.org/terms",
+        "status": 200,
+        "bytes": 4219,
+        "sha256": "a290e6c38c1e6ffac9ad74d67bb375e9a6e09629b395ed933c1928af09c245d6",
+        "file": "terms.http",
+        "headers": {
+          "Content-Type": "text/html; charset=utf-8",
+          "Referrer-Policy": "strict-origin-when-cross-origin",
+          "Server": "Vercel",
+          "Strict-Transport-Security": "max-age=63072000",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN"
+        }
+      },
+      {
+        "url": "https://langoo.org/register",
+        "status": 200,
+        "bytes": 4219,
+        "sha256": "a290e6c38c1e6ffac9ad74d67bb375e9a6e09629b395ed933c1928af09c245d6",
+        "file": "register.http",
+        "headers": {
+          "Content-Type": "text/html; charset=utf-8",
+          "Referrer-Policy": "strict-origin-when-cross-origin",
+          "Server": "Vercel",
+          "Strict-Transport-Security": "max-age=63072000",
+          "X-Content-Type-Options": "nosniff",
+          "X-Frame-Options": "SAMEORIGIN"
+        }
+      }
+    ]
+  },
+  "chunks": [
+    {
+      "url": "https://langoo.org/assets/index-B3u4C25p.js",
+      "file": "index-B3u4C25p.js",
+      "status": 200,
+      "bytes": 2686,
+      "sha256": "e3d6c9eda571b3bdbc414750a3e271ea22b9a140f3cd4a87cc67dbf4ec147c74"
+    },
+    {
+      "url": "https://langoo.org/assets/index-BS-IYO6t.js",
+      "file": "index-BS-IYO6t.js",
+      "status": 200,
+      "bytes": 19543,
+      "sha256": "77ae7353eaea2db057fdb7ee87441880a7c4a6ceba0ee9fc9cd51eefaceeaa0a"
+    },
+    {
+      "url": "https://langoo.org/assets/index-BSK_PmAM.js",
+      "file": "index-BSK_PmAM.js",
+      "status": 200,
+      "bytes": 8053,
+      "sha256": "84e9623e41d1406bfd9bf6c2cfdcd0e5ad864b4855a08b4a9f9d34f38c2bcbf6"
+    },
+    {
+      "url": "https://langoo.org/assets/index-Bu9sIIH-.js",
+      "file": "index-Bu9sIIH-.js",
+      "status": 200,
+      "bytes": 36758,
+      "sha256": "654f49d845db5c2aa5836d92b0f9f5e56e9cba5ba2ba7d6a121ff330a977d785"
+    },
+    {
+      "url": "https://langoo.org/assets/LegalArticle-puk0jdG5.js",
+      "file": "LegalArticle-puk0jdG5.js",
+      "status": 200,
+      "bytes": 21044,
+      "sha256": "b50b41cd8b9959dc892ca666e628193b35eb66918d904a59549802dab468d6db"
+    },
+    {
+      "url": "https://langoo.org/assets/index-BS5jhdSt.js",
+      "file": "index-BS5jhdSt.js",
+      "status": 200,
+      "bytes": 27924,
+      "sha256": "aec22b2e6f1aae77b1f45404d2bfb8d2e304e9bc7fd31159b132b3fdfa5fb8e0"
+    },
+    {
+      "url": "https://langoo.org/assets/index-CvUqf9jZ.js",
+      "file": "index-CvUqf9jZ.js",
+      "status": 200,
+      "bytes": 17699,
+      "sha256": "73a581f2b3b528fa239e9e80050c7ba2c138478752f1afec3bd5c632bc70288f"
+    },
+    {
+      "url": "https://langoo.org/assets/index-C_xRiejk.js",
+      "file": "index-C_xRiejk.js",
+      "status": 200,
+      "bytes": 3329,
+      "sha256": "5cde33bf165901835e0bedb9d99e3f2ec46aceee626b10b11aa7bcfbbed8b6c9"
+    },
+    {
+      "url": "https://langoo.org/assets/index-C8PE09p3.js",
+      "file": "index-C8PE09p3.js",
+      "status": 200,
+      "bytes": 360342,
+      "sha256": "c9a7db4abdf5c4f0455de142dde04fd445d1e6277403aa0d3034283fbe37b516"
+    },
+    {
+      "url": "https://langoo.org/assets/index-CMr8VUun.js",
+      "file": "index-CMr8VUun.js",
+      "status": 200,
+      "bytes": 9330,
+      "sha256": "8ec5712ae7cc480fad2a1f2c125f267dc09bc96a1ab17ca955e568ba87982d5d"
+    },
+    {
+      "url": "https://langoo.org/assets/index-CZbZy3Cv.js",
+      "file": "index-CZbZy3Cv.js",
+      "status": 200,
+      "bytes": 3237,
+      "sha256": "2175e18907a3d20549055e1f5fa4a5398b978a5141393c2bdb5bd94360d808c5"
+    },
+    {
+      "url": "https://langoo.org/assets/index-CrRaYT6C.js",
+      "file": "index-CrRaYT6C.js",
+      "status": 200,
+      "bytes": 8710,
+      "sha256": "07673bbe9b88e7d8057d94ad922cc5b0290495034178e1b905ec4abd56d818a4"
+    },
+    {
+      "url": "https://langoo.org/assets/index-DnSKDSsS.js",
+      "file": "index-DnSKDSsS.js",
+      "status": 200,
+      "bytes": 6416,
+      "sha256": "daed351d4a6789291b65cc74a13f5b922026068562d7c96a30405777013a4f4d"
+    },
+    {
+      "url": "https://langoo.org/assets/index-D2Yu2JOa.js",
+      "file": "index-D2Yu2JOa.js",
+      "status": 200,
+      "bytes": 254,
+      "sha256": "5510055f2e2d78f8e55985080905c19f5aee766c1fe44d7bb0ed68db20e666da"
+    },
+    {
+      "url": "https://langoo.org/assets/index-CyHlhl2G.js",
+      "file": "index-CyHlhl2G.js",
+      "status": 200,
+      "bytes": 28823,
+      "sha256": "fe35c1b3c0831e0941f389e1ae86276792ac1730075417b899c67e6edcfc87a6"
+    },
+    {
+      "url": "https://langoo.org/assets/index-DoXtiim2.js",
+      "file": "index-DoXtiim2.js",
+      "status": 200,
+      "bytes": 256,
+      "sha256": "b9b32ccf44d9d96087c29acd20e78ffbb8f51c8a6068ceaeb9878ec1e470f395"
+    }
+  ],
+  "main_bundle": {
+    "url": "https://langoo.org/assets/index-B55iaWwM.js",
+    "sha256": "44fc8580dc3a16d83a0fa002d85ff07da8cfbab8aeca7e5194ce1bca42f255ab"
+  }
+}

@@ -1,3 +1,4 @@
+import { PrivacyService } from '../src/privacy/privacy.service';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
@@ -66,6 +67,7 @@ describe('M10 fixes (e2e — local test DB)', () => {
       app.get(DictionaryService),
       app.get(AiUsageService),
       provider,
+      app.get(PrivacyService),
     );
   });
 

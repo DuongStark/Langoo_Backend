@@ -3065,3 +3065,22 @@ UNION ALL
   WHERE la.language_id <> lb.language_id AND LEAST(ca.confidence, cb.confidence) >= 0.7::double precision
 ```
 
+
+## M12.1 — Bổ sung quyền riêng tư (03/11/2026)
+
+Nguồn DDL: [migration 047](db/migrations/047_privacy_controls.sql). Mapping:
+`PrivacyEvent`, `PrivacyRequest` trong Prisma; [API](docs/api/privacy.md).
+
+- `app.privacy_event`: `id` bigint identity; `user_id` FK users/cascade;
+  `request_id` UUID, unique theo user; `purpose_id`, `action`, `notice_version`;
+  `created_at` timestamptz. Check purpose/action/version; index user/purpose/id DESC.
+  Biên nhận sự kiện theo phiên bản, không ghi nội dung chat, IP hoặc giấy tờ.
+- `app.privacy_request`: `id` UUID; `user_id` FK users/cascade; `request_id` UUID
+  unique theo user; `kind`, `status`, received/acknowledged/target/updated timestamps;
+  `updated_by` FK users/set null; `rejection_reason`, `resolution_reference`.
+  Check kind/status/lý do; index hàng đợi status/received_at/id.
+- `completed` và `resolution_reference` được dành sẵn ở schema; API đợt này chỉ nhận
+  ticket và chuyển `in_progress`/`rejected`, không tự export hoặc xóa dữ liệu.
+- Không thêm ngày sinh, giới hạn tuổi hoặc thông tin xác minh người đại diện.
+  Retention và việc xóa ledger cần quy trình được duyệt riêng; cascade theo user
+  không thay thế quy trình xử lý file, vendor và backup.

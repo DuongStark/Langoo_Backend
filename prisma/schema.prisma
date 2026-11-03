@@ -37,6 +37,9 @@ model User {
   lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz(6)
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
 
+  privacyEvents      PrivacyEvent[]
+  privacyRequests    PrivacyRequest[]       @relation("PrivacyRequestOwner")
+  privacyAssignments PrivacyRequest[]       @relation("PrivacyRequestOperator")
   identities         UserIdentity[]
   googleChallenges   GoogleOAuthChallenge[]
   userSessions       UserSession[]
@@ -771,5 +774,42 @@ model AdminAuditLog {
 
   @@index([createdAt(sort: Desc)])
   @@map("admin_audit_log")
+  @@schema("app")
+}
+
+// M12.1 privacy tables; constraints live in migration 047.
+model PrivacyEvent {
+  id            BigInt   @id @default(autoincrement())
+  userId        BigInt   @map("user_id")
+  requestId     String   @map("request_id") @db.Uuid
+  purposeId     String   @map("purpose_id")
+  action        String
+  noticeVersion String   @map("notice_version")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, requestId])
+  @@map("privacy_event")
+  @@schema("app")
+}
+
+model PrivacyRequest {
+  id                  String   @id @db.Uuid
+  userId              BigInt   @map("user_id")
+  requestId           String   @map("request_id") @db.Uuid
+  kind                String
+  status              String   @default("received")
+  receivedAt          DateTime @default(now()) @map("received_at") @db.Timestamptz(6)
+  acknowledgedAt      DateTime @default(now()) @map("acknowledged_at") @db.Timestamptz(6)
+  targetAt            DateTime @map("target_at") @db.Timestamptz(6)
+  updatedAt           DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  updatedBy           BigInt?  @map("updated_by")
+  resolutionReference String?  @map("resolution_reference") @db.Uuid
+  rejectionReason     String?  @map("rejection_reason")
+  user                User     @relation("PrivacyRequestOwner", fields: [userId], references: [id], onDelete: Cascade)
+  operator            User?    @relation("PrivacyRequestOperator", fields: [updatedBy], references: [id], onDelete: SetNull)
+
+  @@unique([userId, requestId])
+  @@map("privacy_request")
   @@schema("app")
 }

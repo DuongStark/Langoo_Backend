@@ -1,3 +1,4 @@
+import { PrivacyService } from '../../privacy/privacy.service';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v7 as uuidv7 } from 'uuid';
@@ -110,6 +111,7 @@ export class QuizService {
     private readonly sourceRepo: QuizSourceRepository,
     private readonly usage: AiUsageService,
     @Inject(AI_QUIZ_PROVIDER) private readonly quizProvider: AiQuizProvider,
+    private readonly privacy: PrivacyService,
   ) {}
 
   // ---------------------------------------------------------------- create
@@ -165,6 +167,7 @@ export class QuizService {
               select: { itemId: true },
             });
       const generatorInput: AiQuizGenerateInput = {
+        beforeExternalCall: () => this.privacy.assertAiAllowed(userId),
         questionTypes,
         questionCount: dto.question_count,
         languageId: profile.primaryLanguageId,

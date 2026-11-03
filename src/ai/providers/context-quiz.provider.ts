@@ -1,3 +1,4 @@
+import { DomainException } from '../../common/errors/domain.exception';
 import { z } from 'zod';
 import { buildQuizQuestions } from '../quiz/quiz-generator';
 import {
@@ -182,7 +183,9 @@ export class ContextQuizProvider implements AiQuizProvider {
           if (accepted) return accepted;
         }
       return undefined;
-    } catch {
+    } catch (error) {
+      if (error instanceof DomainException && error.code.startsWith('PRIVACY_'))
+        throw error;
       // Hết deadline hoặc lỗi provider: bỏ ngữ cảnh thay vì fail cả quiz.
       return undefined;
     }
@@ -466,6 +469,7 @@ export class ContextQuizProvider implements AiQuizProvider {
     while (response === undefined) {
       const left = deadline - Date.now();
       if (left <= 0) throw new Error('Quiz context deadline exceeded');
+      await input.beforeExternalCall?.();
       usage.calls++;
       try {
         response = await this.config.transport.chat({

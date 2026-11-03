@@ -72,6 +72,8 @@ export interface GeneratedQuizQuestion {
 }
 
 export interface AiQuizGenerateInput {
+  /** Internal policy hook: executed before each external transport attempt, never serialized. */
+  beforeExternalCall?: () => Promise<void>;
   /** Checkbox dạng câu hỏi; trắc nghiệm tự trộn dạng Kanji mặc định. */
   questionTypes: QuizQuestionType[];
   questionCount: number;

@@ -1,3 +1,4 @@
+import { PrivacyService } from '../../privacy/privacy.service';
 import { validateChatImages } from './chat-images';
 import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -111,6 +112,7 @@ export class ChatService {
     private readonly dictionary: DictionaryService,
     private readonly usage: AiUsageService,
     @Inject(AI_CHAT_PROVIDER) private readonly provider: AiChatProvider,
+    private readonly privacy: PrivacyService,
   ) {}
 
   async createSession(
@@ -428,10 +430,14 @@ export class ChatService {
 
     let reply: AiChatResult;
     try {
-      reply = await this.callProviderWithRetry(() =>
-        this.provider.chat(this.buildProviderRequest(prepared)),
-      );
+      reply = await this.callProviderWithRetry(async () => {
+        if (this.provider.name !== 'stub')
+          await this.privacy.assertAiAllowed(userId);
+        return this.provider.chat(this.buildProviderRequest(prepared));
+      });
     } catch (error) {
+      if (error instanceof DomainException && error.code.startsWith('PRIVACY_'))
+        throw error;
       throw this.providerUnavailable(error);
     }
 
@@ -474,13 +480,21 @@ export class ChatService {
     try {
       if (stream) {
         reply = await this.callProviderWithRetry(
-          () => stream(request, onDelta),
+          async () => {
+            if (this.provider.name !== 'stub')
+              await this.privacy.assertAiAllowed(userId);
+            return stream(request, onDelta);
+          },
           { signal, shouldRetry: () => !firstDelta },
         );
       } else {
         // Provider không hỗ trợ stream: trả một lần rồi kết thúc như bình thường.
         reply = await this.callProviderWithRetry(
-          () => this.provider.chat(request),
+          async () => {
+            if (this.provider.name !== 'stub')
+              await this.privacy.assertAiAllowed(userId);
+            return this.provider.chat(request);
+          },
           { signal },
         );
       }
@@ -493,6 +507,11 @@ export class ChatService {
     } catch (error) {
       signal?.throwIfAborted();
       if (!firstDelta) {
+        if (
+          error instanceof DomainException &&
+          error.code.startsWith('PRIVACY_')
+        )
+          throw error;
         throw this.providerUnavailable(error);
       }
       this.logger.warn(
@@ -577,6 +596,8 @@ export class ChatService {
     images?: string[],
     signal?: AbortSignal,
   ): Promise<PreparedTurn> {
+    if (this.provider.name !== 'stub')
+      await this.privacy.assertAiAllowed(userId);
     const timezone = await this.resolveTimezone(userId);
     signal?.throwIfAborted();
     const period = periodDate(localDateString(new Date(), timezone));
