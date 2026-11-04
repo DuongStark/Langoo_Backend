@@ -3,7 +3,11 @@ import { ConfigService } from '@nestjs/config';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
 import { PrismaService } from '../db/prisma.service';
-import { PrivacyEvent, PrivacyRequest } from '../generated/prisma/client';
+import {
+  PrivacyEvent,
+  PrivacyRequest,
+  TermsAcceptance,
+} from '../generated/prisma/client';
 import { lockUser } from '../users/user-lock';
 import {
   AdminPrivacyRequestListResponse,
@@ -16,8 +20,12 @@ import {
   PrivacyRequestListResponse,
   PrivacyStateResponse,
   UpdatePrivacyRequestInput,
+  TermsAcceptanceInput,
+  TermsAcceptanceResponse,
+  TermsStateResponse,
 } from './privacy.dto';
 
+export const TERMS_VERSION = '2026-11-04-v1';
 export const PRIVACY_NOTICE_VERSION = '2026-11-03-v1';
 const TARGET_DAYS: Record<string, number> = {
   access: 10,
@@ -36,6 +44,8 @@ export class PrivacyService {
 
   manifest(): LegalManifestResponse {
     return {
+      terms_version: TERMS_VERSION,
+      terms_url: 'https://langoo.org/terms',
       notice_version: PRIVACY_NOTICE_VERSION,
       notice_url: 'https://langoo.org/privacy',
       ai_consent_required: this.required(),
@@ -79,6 +89,61 @@ export class PrivacyService {
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
+  }
+
+  async termsState(userId: bigint): Promise<TermsStateResponse> {
+    return this.safe(async () => {
+      const latest = await this.prisma.termsAcceptance.findFirst({
+        where: { userId },
+        orderBy: { id: 'desc' },
+      });
+      return {
+        terms_version: TERMS_VERSION,
+        status:
+          latest?.termsVersion === TERMS_VERSION ? 'accepted' : 'needs_action',
+        latest_acceptance: latest ? termsResponse(latest) : null,
+      };
+    });
+  }
+
+  async acceptTerms(
+    userId: bigint,
+    input: TermsAcceptanceInput,
+  ): Promise<TermsAcceptanceResponse> {
+    return this.safe(() =>
+      this.prisma.$transaction(async (tx) => {
+        await lockUser(tx, userId);
+        const existing = await tx.termsAcceptance.findUnique({
+          where: { userId_requestId: { userId, requestId: input.request_id } },
+        });
+        if (existing) {
+          if (existing.termsVersion !== input.terms_version) {
+            throw new DomainException(
+              'TERMS_REQUEST_CONFLICT',
+              'Mã yêu cầu đã được dùng với phiên bản điều khoản khác',
+              HttpStatus.CONFLICT,
+            );
+          }
+          return termsResponse(existing);
+        }
+        if (input.terms_version !== TERMS_VERSION) {
+          throw new DomainException(
+            'TERMS_VERSION_OUTDATED',
+            'Điều khoản đã thay đổi; vui lòng đọc và lựa chọn lại',
+            HttpStatus.CONFLICT,
+          );
+        }
+        return termsResponse(
+          await tx.termsAcceptance.create({
+            data: {
+              userId,
+              requestId: input.request_id,
+              termsVersion: input.terms_version,
+            },
+          }),
+        );
+      }),
+    );
   }
 
   async state(userId: bigint): Promise<PrivacyStateResponse> {
@@ -352,5 +417,14 @@ function requestResponse(row: PrivacyRequest): PrivacyRequestResponse {
     updated_at: row.updatedAt.toISOString(),
     rejection_reason: row.rejectionReason,
     resolution_reference: row.resolutionReference,
+  };
+}
+
+function termsResponse(row: TermsAcceptance): TermsAcceptanceResponse {
+  return {
+    id: String(row.id),
+    request_id: row.requestId,
+    terms_version: row.termsVersion,
+    accepted_at: row.acceptedAt.toISOString(),
   };
 }

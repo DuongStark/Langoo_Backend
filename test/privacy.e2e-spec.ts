@@ -281,4 +281,103 @@ describe('M12.1 privacy HTTP/DB', () => {
       .expect(403);
     expect(chat).toHaveBeenCalledTimes(1);
   });
+  it('records terms idempotently without granting optional services and scopes state', async () => {
+    const initial = await request(server)
+      .get('/v1/me/legal/terms')
+      .set(auth(other))
+      .expect(200);
+    expect(initial.body).toMatchObject({
+      terms_version: '2026-11-04-v1',
+      status: 'needs_action',
+      latest_acceptance: null,
+    });
+    const before = await request(server)
+      .get('/v1/me/privacy')
+      .set(auth(owner))
+      .expect(200);
+    const body = { terms_version: '2026-11-04-v1', request_id: uuidv7() };
+    const receipts = await Promise.all(
+      [1, 2, 3].map(() =>
+        request(server)
+          .post('/v1/me/legal/terms')
+          .set(auth(owner))
+          .send(body)
+          .expect(201),
+      ),
+    );
+    expect(
+      new Set(receipts.map((r) => (r.body as { id: string }).id)).size,
+    ).toBe(1);
+    expect(receipts[0].body).toMatchObject(body);
+    const rows = await db.$queryRaw<
+      Array<{ count: bigint }>
+    >`SELECT count(*) AS count FROM app.terms_acceptance WHERE user_id=${owner.id} AND request_id=${body.request_id}::uuid`;
+    expect(rows[0].count).toBe(1n);
+    const after = await request(server)
+      .get('/v1/me/privacy')
+      .set(auth(owner))
+      .expect(200);
+    expect(after.body).toEqual(before.body);
+    const state = await request(server)
+      .get('/v1/me/legal/terms')
+      .set(auth(owner))
+      .expect(200);
+    expect(state.body).toMatchObject({
+      status: 'accepted',
+      latest_acceptance: { id: (receipts[0].body as { id: string }).id },
+    });
+    const otherState = await request(server)
+      .get('/v1/me/legal/terms')
+      .set(auth(other))
+      .expect(200);
+    expect(otherState.body).toMatchObject({
+      status: 'needs_action',
+      latest_acceptance: null,
+    });
+    await request(server)
+      .post('/v1/me/legal/terms')
+      .set(auth(other))
+      .send(body)
+      .expect(201);
+  });
+  it('validates terms consent input, auth and versions without writing invalid receipts', async () => {
+    const route = '/v1/me/legal/terms';
+    await request(server).get(route).expect(401);
+    const body = { terms_version: '2026-11-04-v1', request_id: uuidv7() };
+    await request(server).post(route).send(body).expect(401);
+    for (const invalid of [
+      { ...body, terms_version: '' },
+      { ...body, terms_version: null },
+      { ...body, request_id: 'invalid' },
+      { ...body, user_id: String(other.id) },
+      { ...body, accept_all: true },
+    ]) {
+      await request(server)
+        .post(route)
+        .set(auth(owner))
+        .send(invalid)
+        .expect(400);
+    }
+    const old = await request(server)
+      .post(route)
+      .set(auth(owner))
+      .send({ ...body, terms_version: 'old' })
+      .expect(409);
+    expect(old.body).toMatchObject({ code: 'TERMS_VERSION_OUTDATED' });
+    await request(server).post(route).set(auth(owner)).send(body).expect(201);
+    const conflict = await request(server)
+      .post(route)
+      .set(auth(owner))
+      .send({ ...body, terms_version: 'old' })
+      .expect(409);
+    expect(conflict.body).toMatchObject({ code: 'TERMS_REQUEST_CONFLICT' });
+    const doc = SwaggerModule.createDocument(
+      app,
+      new DocumentBuilder().build(),
+    );
+    expect(doc.paths['/v1/me/legal/terms'].get?.responses['200']).toBeDefined();
+    expect(
+      doc.paths['/v1/me/legal/terms'].post?.responses['201'],
+    ).toBeDefined();
+  });
 });

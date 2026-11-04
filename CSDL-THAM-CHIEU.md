@@ -3084,3 +3084,13 @@ Nguồn DDL: [migration 047](db/migrations/047_privacy_controls.sql). Mapping:
 - Không thêm ngày sinh, giới hạn tuổi hoặc thông tin xác minh người đại diện.
   Retention và việc xóa ledger cần quy trình được duyệt riêng; cascade theo user
   không thay thế quy trình xử lý file, vendor và backup.
+
+### M12.1 — Terms acceptance (04/11/2026)
+
+Nguồn: [migration048](db/migrations/048_terms_acceptance.sql), Prisma `TermsAcceptance`.
+`app.terms_acceptance`: id bigint identity PK, user_id FK app.users/cascade,
+request_id UUID, terms_version text length1–80, accepted_at timestamptz6 default now.
+Unique `(user_id,request_id)`, index `(user_id,id DESC)`. Không sửa privacy_event/check
+purpose của 047; receipt terms và grant/withdraw dữ liệu là hai loại record riêng.
+Không thu IP/UA/ngày sinh/CCCD. Migration đã áp DB test riêng và sau yêu cầu push đã áp chỉ048 trên production;
+ledger048 một dòng, giữ043 pending và không reset DB live. [API](docs/api/privacy.md).

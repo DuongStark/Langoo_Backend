@@ -1,3 +1,4 @@
+import { TermsController } from './terms.controller';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { PrismaModule } from '../db/prisma.module';
@@ -9,7 +10,12 @@ import {
 import { PrivacyService } from './privacy.service';
 @Module({
   imports: [AuthModule, PrismaModule],
-  controllers: [LegalController, PrivacyController, AdminPrivacyController],
+  controllers: [
+    TermsController,
+    LegalController,
+    PrivacyController,
+    AdminPrivacyController,
+  ],
   providers: [PrivacyService],
   exports: [PrivacyService],
 })

@@ -123,6 +123,10 @@ export class LegalPurposeResponse {
   @ApiProperty({ type: String }) description_vi!: string;
 }
 export class LegalManifestResponse {
+  @ApiProperty({ type: String, example: '2026-11-04-v1' })
+  terms_version!: string;
+  @ApiProperty({ type: String, example: 'https://langoo.org/terms' })
+  terms_url!: string;
   @ApiProperty({ type: String }) notice_version!: string;
   @ApiProperty({
     type: String,
@@ -145,4 +149,36 @@ export class AdminPrivacyRequestListResponse {
   @ApiProperty({ type: [AdminPrivacyRequestResponse] })
   data!: AdminPrivacyRequestResponse[];
   @ApiProperty({ type: String, nullable: true }) next_cursor!: string | null;
+}
+
+export class TermsAcceptanceInput {
+  @ApiProperty({ type: String, minLength: 1, maxLength: 80 })
+  @IsString()
+  @MinLength(1)
+  @MaxLength(80)
+  terms_version!: string;
+  @ApiProperty({ type: String, format: 'uuid' })
+  @IsUUID()
+  request_id!: string;
+}
+export class TermsAcceptanceResponse {
+  @ApiProperty({
+    type: String,
+    description: 'Historical acceptance receipt ID',
+  })
+  id!: string;
+  @ApiProperty({ type: String, format: 'uuid' })
+  request_id!: string;
+  @ApiProperty({ type: String })
+  terms_version!: string;
+  @ApiProperty({ type: String, format: 'date-time' })
+  accepted_at!: string;
+}
+export class TermsStateResponse {
+  @ApiProperty({ type: String })
+  terms_version!: string;
+  @ApiProperty({ enum: ['accepted', 'needs_action'] })
+  status!: 'accepted' | 'needs_action';
+  @ApiProperty({ type: TermsAcceptanceResponse, nullable: true })
+  latest_acceptance!: TermsAcceptanceResponse | null;
 }

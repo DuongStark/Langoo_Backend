@@ -8,13 +8,29 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-04 — M12.1 — Ghi nhận điều khoản cho nút chấp nhận tất cả
+
+- Thay đổi / lý do: Theo yêu cầu giữ nút “Chấp nhận tất cả điều khoản và dịch vụ”, BE ba purpose đã đủ; bổ sung receipt terms độc lập theo phiên bản, không tự grant dịch vụ. Manifest thêm terms_version/terms_url; JWT GET/POST /v1/me/legal/terms có ownership/idempotency/version conflict và DB fail503.
+- File / phạm vi: Migration048 + Prisma TermsAcceptance, src/privacy DTO/service/controller/module + unit/HTTP tests; [plan](docs/plans/m12.1-accept-all-terms-2026-11-04.md), [review](docs/reviews/m12.1-accept-all-terms-2026-11-04.md), [handoff FE](docs/handoff/m12.1-accept-all-fe-2026-11-04.md), API/CSDL/runbook. Không đổi register/Google DTO, privacy purpose hay global JWT guard.
+- Kiểm tra / kết quả: RED manifest1 assertion và HTTP2 route test trước triển khai; HTTP test bắt prefix v1 lặp, đã sửa. Full69suite/630unit và full32suite/277E2E PASS, target15 chạy lại sau cleanup assertion PASS; build, full ESLint0warning, Prisma generate/validate PASS. DB test PostgreSQL16.2 riêng mới có marker, chỉ048 migrate thêm sau reset database mới; cluster đã dừng. Link10/fence/diff/status PASS; review độc lập không finding actionable, lỗi prefix do E2E phát hiện được ghi rõ.
+- Gate còn thiếu / việc tiếp theo: BE local chưa apply048 production/deploy; FE thực hiện một click gồm4request/4UUID, partial/replay/refetch theo handoff, onboarding email/Google/user cũ và không auto-grant khi mount. Có đường terms-only/custom; không chứng nhận ép analytics hợp lệ. F1–F5 FE/browser/network QA còn mở, chưa bật enforce. Terms gate toàn app ở FE, chưa server enforcement mọi API.
+- Git / triển khai: Người dùng yêu cầu push; đã áp chỉ048 trên VPS, ledger một dòng/table tồn tại, giữ043 pending. Code/docs đang chuẩn bị commit/push; CI/deploy cần xác nhận sau push. Không đổi ENV/FE runtime, giữ WIP khác; kiểm link/diff/status trước commit.
+
+### 2026-11-04 — M12.1 — Kiểm tra FE pháp lý sau triển khai
+
+- Thay đổi / lý do: Theo yêu cầu kiểm FE mới, đối chiếu source `DuyBigPP/LanGoo-User@05829be` và bundle live index-0_F8Rs-R/content-BZ7CVMdj. Đã bỏ 13 tuổi, thêm privacy settings/purpose/ticket; chưa nghiệm thu do 5 finding F1–F5.
+- File / phạm vi: [review](docs/reviews/m12.1-fe-postdeploy-2026-11-04.md), [evidence](docs/reviews/m12.1-fe-postdeploy-2026-11-04/evidence.json), [repro](docs/reviews/m12.1-fe-postdeploy-2026-11-04/reproduce.cjs), [kết quả](docs/reviews/m12.1-fe-postdeploy-2026-11-04/reproduction-results.json); liên kết từ handoff hiện hành. Không sửa runtime FE/BE.
+- Kiểm tra / kết quả: Tải archive theo SHA, không pull đè checkout/WIP; 30 asset public tải thành công, source/bundle xác nhận mốc 30 ngày và shared cache keys. Node22 + helper nguồn thật/QueryClient5.104 đúng lock tái hiện 4 lỗi: fallback dịch sau withdraw, grant guest thiếu manifest, dùng cache grant A cho B, giữ grant sau refetch503. Mạng vendor/storage đều mock. Health/manifest HTTPS200, enforce false, minimum_age null.
+- Gate còn thiếu / việc tiếp theo: FE sửa cache scope/account transition, re-check trước mỗi fetch dịch, timeline theo quyền, fail-closed/cross-tab, consent AI quiz external nhưng giữ local quiz. Browser surface không khả dụng nên chưa kiểm UI/network/authed/cross-tab thực tế; chưa bật enforcement. Pháp lý/vận hành trẻ em/controller/vendor/retention/xóa thủ công vẫn mở.
+- Git / triển khai: Report/repro/docs local chưa commit/push; không deploy, không thay ENV/consent/user/ticket hoặc gửi prompt vendor thật. Giữ nguyên WIP khác. Kiểm syntax/JSON/link/diff/status trước bàn giao.
+
 ### 2026-11-03 — M12.1 — Quyền riêng tư và quyền dữ liệu
 
 - Thay đổi / lý do: Theo quyết định chủ dự án, bỏ mốc 13 tuổi và không thay bằng 16+; BE công bố policy không giới hạn tuổi, chưa xác minh người đại diện. Bổ sung manifest, event grant/withdraw theo purpose/version với retry idempotent; chặn external AI theo lựa chọn trước từng call/retry, giữ quiz local hoạt động; nhận ticket quyền dữ liệu và hàng đợi admin có audit.
 - File / phạm vi: `src/privacy`, tích hợp AI/config, Prisma + migration 047; [plan](docs/plans/m12.1-privacy-controls-2026-11-03.md), [review](docs/reviews/m12.1-privacy-controls-2026-11-03.md), [handoff FE](docs/handoff/m12.1-privacy-fe-2026-11-03.md), [API](docs/api/privacy.md), [runbook](docs/ops/m12.1-privacy-rollout-2026-11-03.md), CSDL tham chiếu và ENV mẫu. Đồng bộ DOCS4 với quyết định tuổi và contract hiện hành.
 - Kiểm tra / kết quả: Node22 full unit 69 suites/624 tests và E2E 32 suites/275 tests PASS trên PostgreSQL16.2 riêng; build, ESLint trực tiếp, Prisma generate/validate PASS. Đã sửa 5 finding review độc lập. Chạy lại privacy E2E 5/5 sau validation version rỗng; kiểm link/diff/status trước commit.
 - Gate còn thiếu / việc tiếp theo: FE chưa sửa/QA. Cờ bắt buộc grant mặc định false chờ rollout FE, explicit withdraw luôn chặn; chưa đóng toàn finding consent. Ticket chỉ intake/manual, chưa tự export/xóa/vendor/backup hoặc xác minh người đại diện; căn cứ/notice/DPA/retention và người xử lý cần hoàn thiện theo runbook.
-- Git / triển khai: Đã áp chỉ migration 047 trên VPS, ledger đúng một dòng/hai bảng tồn tại; giữ migration 043 đang chờ. Code/docs chuẩn bị commit/push theo yêu cầu, CI/deploy cần xác nhận sau push. Không thay ENV production hoặc sửa repo FE; giữ WIP khác.
+- Git / triển khai: Code/API/handoff đã commit/push `46680ed`; CI41574456646 và Deploy41574722395 success. VPS HEAD đúng46680ed; health/manifest HTTPS200, DBok/UTC, age null/enforce false. Đã áp chỉ migration047, ledger một dòng/hai bảng tồn tại; giữ043 đang chờ. Cluster test riêng đã dừng. Không thay ENV hoặc sửa FE; giữ WIP khác. Bổ sung trạng thái sau push ở review/PROGRESS còn local chưa commit/push.
 
 ### 2026-11-03 — DOCS4 — Handoff khắc phục pháp lý cho BE, FE và vận hành
 

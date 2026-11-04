@@ -66,3 +66,28 @@ ENV `PRIVACY_AI_CONSENT_REQUIRED=false` mặc định rolloutcompatible. Withdra
 truecòn deny missing/oldgrant. PublishBE→tíchhợpFE→QA→bậttrue, ghi rõ gate này.
 Không được coi cờfalse là trạng thái tuân thủ hoàn tất. Không có authDTOlegalcontext,
 không áp minimumage, không có guardianverification hay automaticdataexport/deletion.
+
+## M12.1 — Terms acceptance (04/11/2026, additive)
+
+Migration `048_terms_acceptance.sql` đã áp trước push; runtime mới cần CI/deploy xác nhận. Không thay auth DTO,
+không thêm purpose terms vào privacy events và không ngầm grant AI/dịch/analytics.
+Manifest thêm `terms_version=2026-11-04-v1`, `terms_url=https://langoo.org/terms`;
+privacy `notice_version=2026-11-03-v1` độc lập.
+
+| Endpoint JWT | Contract |
+|---|---|
+| GET `/v1/me/legal/terms` | 200 `{terms_version,status:accepted|needs_action,latest_acceptance:receipt|null}` |
+| POST `/v1/me/legal/terms` | body `{terms_version,request_id:UUID}`, 201 receipt `{id:string,request_id,terms_version,accepted_at:ISO8601}` |
+
+User lấy từ JWT, không nhận user_id/profile_id/accept_all. DB timestamp, version mới
+phải bằng manifest. Unique user/request; same body replay trước version validation,
+khác body409 `TERMS_REQUEST_CONFLICT`, stale new body409 `TERMS_VERSION_OUTDATED`.
+DB fail503 `PRIVACY_UNAVAILABLE`; bad input/extra400, auth401. Receipt replay lịch sử
+không thay state hiện hành. GET chọn record mới nhất theo identity ID; old version
+trả needs_action và vẫn có latest_acceptance lịch sử. Không có API withdraw terms.
+
+FE một click orchestrate 1 terms + 3 purpose grants với 4 UUID khác nhau; không có
+transaction HTTP chung, partial failure phải xử lý riêng. Không gửi grant tự động
+khi mount/auth callback. Chỉ hoàn tất sau refetch đúng 2 state. Gate terms toàn app
+chỉ ở FE trong pha này, chưa có server guard áp lên mọi route.
+[Handoff đầy đủ](../handoff/m12.1-accept-all-fe-2026-11-04.md).

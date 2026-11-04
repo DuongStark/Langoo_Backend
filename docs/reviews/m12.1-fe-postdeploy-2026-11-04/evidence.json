@@ -1,0 +1,232 @@
+{
+  "checked_at": "2026-11-04 Asia/Bangkok",
+  "source_repository": "DuyBigPP/LanGoo-User",
+  "source_sha": "05829be111f3a1b7c789d77895c12e0cfababfc4",
+  "retrieval": "GitHub read-only archive; no checkout/pull over existing WIP",
+  "main_asset": "/assets/index-0_F8Rs-R.js",
+  "main_sha256": "ee037ce215fba40d64f0e4a0ad36a7d3e67f7615339c3868666028b2dee2107d",
+  "source_files": [
+    {
+      "path": "src/hooks/use-privacy.ts",
+      "sha256": "a8110c72f85ed2390a731a2f00dabe3b6b6b857f90d0689379dfcce7c74b3885"
+    },
+    {
+      "path": "src/lib/privacy.ts",
+      "sha256": "e21c6c66e377bfec1f3b4d599062630e77d0298b1ec20ba8ee290280a344db45"
+    },
+    {
+      "path": "src/lib/translate.ts",
+      "sha256": "7d6f17469ac155446e1b209e008bb482b03c429f7e7fa53e2450e4b62adb5750"
+    },
+    {
+      "path": "src/contexts/AuthContext.tsx",
+      "sha256": "8ce256be483e77965aca84c24a4cfcb75b867db3e75ec88b7ee135ec197fa9a6"
+    },
+    {
+      "path": "src/components/legal/content.ts",
+      "sha256": "2506bcd23bbe10597857af071db2a82db82d3de41360bd70c768e5c7428f42bd"
+    },
+    {
+      "path": "src/components/review/StartStudyDialog.tsx",
+      "sha256": "60ec1ec1ef1578e31ecb54c5491134b80d06538cd7e4adab7b46bd006a1c4235"
+    },
+    {
+      "path": "src/pages/privacy-settings/index.tsx",
+      "sha256": "6903ae016731030c80c63a38a7d946282b55bc58814eb7cf60bbf4eeff09e7c3"
+    },
+    {
+      "path": "src/components/privacy/PrivacyGate.tsx",
+      "sha256": "5d849a4ebeef10f558df480b386b66bd102699f78d87c3f0410fb3d89e084258"
+    }
+  ],
+  "live_assets": [
+    {
+      "url": "https://langoo.org/assets/LegalArticle-ThLGi61k.js",
+      "sha256": "85e120823aeeeda6b6f294b01fe4bf0908727eb91be590e6b43da361238ac4c4",
+      "size": 2695
+    },
+    {
+      "url": "https://langoo.org/assets/PasswordInput-B_15NloZ.js",
+      "sha256": "74443fa83f262545585cf33be2aa9a75ee0cc0d5f6dcbe0028d83636261eca42",
+      "size": 3167
+    },
+    {
+      "url": "https://langoo.org/assets/StartStudyDialog-BPYDALfT.js",
+      "sha256": "306f47a92eb6f4489e8672d19818cf68fd151f2d06f00991d62a66f0c52d7756",
+      "size": 10295
+    },
+    {
+      "url": "https://langoo.org/assets/alert-dialog-LmXSAuHP.js",
+      "sha256": "b19859283cc2657322526c211382831ae4227b6d71df4bb2c5176176b9d48f53",
+      "size": 1917
+    },
+    {
+      "url": "https://langoo.org/assets/content-BZ7CVMdj.js",
+      "sha256": "170ef75cdc3e408f96017d623b4e52e8b40a7bf4452737c176609ca021f57b92",
+      "size": 23894
+    },
+    {
+      "url": "https://langoo.org/assets/detail-FU3yCEJM.js",
+      "sha256": "7e8ce0fa8a7e2e2f3e23b83551860d3880cc1abf5d8515dff18726c0fad0a084",
+      "size": 17716
+    },
+    {
+      "url": "https://langoo.org/assets/form-CylPULn9.js",
+      "sha256": "930294a740be786fcaad8a8a3a100be42229ee3801c8252e5af3478bb3386b30",
+      "size": 3784
+    },
+    {
+      "url": "https://langoo.org/assets/index-7ENN0uJO.js",
+      "sha256": "2469a04d538abb5042d384e9098cc93a850fca718a8a5b65ab7cd84974af5979",
+      "size": 29173
+    },
+    {
+      "url": "https://langoo.org/assets/index-B-C1U9eA.js",
+      "sha256": "33bf82d1e3f690562c0a1f9413a7cc9d8fb03d9d95e7576925eeca74d73bda4f",
+      "size": 284
+    },
+    {
+      "url": "https://langoo.org/assets/index-B1lUTo-K.js",
+      "sha256": "3d3467983117ceb02e4a02402f32bd45f48628b0547d39ee79a54b7620e8af36",
+      "size": 360630
+    },
+    {
+      "url": "https://langoo.org/assets/index-BDQdelp_.js",
+      "sha256": "9e3ddaddd79074daba9c4f105054e0b88690981d725129dd4e006efb8e1359a2",
+      "size": 2686
+    },
+    {
+      "url": "https://langoo.org/assets/index-BbxWcj-5.js",
+      "sha256": "911475c0297660217ebcf7aaeee9ebb08b8150d8c32dffbaa056471b419788ac",
+      "size": 3330
+    },
+    {
+      "url": "https://langoo.org/assets/index-BdU3I0kq.js",
+      "sha256": "9c131fde79286d4b06093d78b9a51f7d837c0c0b0d8e8111d752b899c6b36459",
+      "size": 8053
+    },
+    {
+      "url": "https://langoo.org/assets/index-BmS4AIeK.js",
+      "sha256": "3d47942dba37f9ff20d578a075a4e8379e414358c9ebd819dce6b7ca7005f19f",
+      "size": 36759
+    },
+    {
+      "url": "https://langoo.org/assets/index-BqkeqXQb.js",
+      "sha256": "6460fbecb5111b4f3a87d54f126cc45f2bee3164976174239a8752c38c0482a3",
+      "size": 8766
+    },
+    {
+      "url": "https://langoo.org/assets/index-CMaTDE8K.js",
+      "sha256": "84bf2b7372755b6c6c448819f763d63a42f495c23256ba746299909315e29aa1",
+      "size": 3237
+    },
+    {
+      "url": "https://langoo.org/assets/index-CVWqvKzo.js",
+      "sha256": "560d7b875c5e9f170f4958a7e9a35a7d269ff3f0bbd01e5a4142c885bbbb84f8",
+      "size": 27924
+    },
+    {
+      "url": "https://langoo.org/assets/index-D5Bgz_BM.js",
+      "sha256": "ff4950e35f27f1f90f09c14f07c48b153f2bc0d2243ec0b074f0fe8dddeb6ff7",
+      "size": 6578
+    },
+    {
+      "url": "https://langoo.org/assets/index-D7C-n4wn.js",
+      "sha256": "826a2593208409cf49cd66f21cef47d7092b673c9364d8eeddfd07896fa181f1",
+      "size": 6420
+    },
+    {
+      "url": "https://langoo.org/assets/index-DDaHU4GS.js",
+      "sha256": "3953c0a50006292b3e35554fd0dcd6e97af4cbc8014e4645776f1d6be34c674a",
+      "size": 9330
+    },
+    {
+      "url": "https://langoo.org/assets/index-DSwZnxJx.js",
+      "sha256": "7a43acd6636686ec3d70033b2f06d634ea1cc5395c8613ed8d3ae11b8e1df7b7",
+      "size": 286
+    },
+    {
+      "url": "https://langoo.org/assets/index-DvqikPOV.js",
+      "sha256": "60e938104dca567b6d68a0d146894569b280523d357de17e150e7563a33307ce",
+      "size": 17700
+    },
+    {
+      "url": "https://langoo.org/assets/index-DwdZ--ZL.js",
+      "sha256": "c8326bd254d4c032c5d6650e041a37ee977710c63591204135145851d44deec0",
+      "size": 19543
+    },
+    {
+      "url": "https://langoo.org/assets/kanji-ink-C6QrdPmJ.js",
+      "sha256": "c956ee47d0d3d58e78a345ac138b07f0514adabe56031a07d9dfd7819fa93d95",
+      "size": 2225
+    },
+    {
+      "url": "https://langoo.org/assets/progress-UUQdvjVj.js",
+      "sha256": "4576508de20ef45a113f6e1afaed957d38b8c20f5ab63daab9a2967da9963f3c",
+      "size": 481
+    },
+    {
+      "url": "https://langoo.org/assets/slider-CikQDP3s.js",
+      "sha256": "4d560ff016f16701e6ec3bcb475849d7f4b9f85282da4035808f387302f30d7a",
+      "size": 3231
+    },
+    {
+      "url": "https://langoo.org/assets/use-paginated-WPR8PwMz.js",
+      "sha256": "90da93831d89c9d72a794c0caaf95dafc455a31aa5dd5671caf5d584af346a38",
+      "size": 602
+    },
+    {
+      "url": "https://langoo.org/assets/vendor-data--gSGo5mg.js",
+      "sha256": "7908a48f965e5a9899e26cb6b0d77da0e21169cb02d055988903ce5e096815da",
+      "size": 190297
+    },
+    {
+      "url": "https://langoo.org/assets/vendor-react-4trFa2Jg.js",
+      "sha256": "d02723e859f675a72dfb0017aee2dbc8ad1c5e036e6489a87d6e2fbf47e0690c",
+      "size": 282141
+    },
+    {
+      "url": "https://langoo.org/assets/vendor-ui-BiI4LP1p.js",
+      "sha256": "3e78982bc8c7a673f1528dee015bd75ed2a65acb7edc5858963c80c4b696a204",
+      "size": 264503
+    }
+  ],
+  "reproduction": {
+    "translationCalls": [
+      {
+        "vendor": "translate.googleapis.com",
+        "stateAtDispatch": "granted"
+      },
+      {
+        "vendor": "clients5.google.com",
+        "stateAtDispatch": "withdrawn"
+      },
+      {
+        "vendor": "api.mymemory.translated.net",
+        "stateAtDispatch": "withdrawn"
+      }
+    ],
+    "guestOldGrantWithoutManifest": "granted",
+    "accountSwitch": {
+      "nextAccountFetches": 0,
+      "nextAccountChoice": "granted"
+    },
+    "refetch503": {
+      "queryStatus": "error",
+      "choiceStill": "granted"
+    },
+    "outcome": "4 undesired behaviors reproduced with actual FE helpers; no real vendor requests"
+  },
+  "query_core_version": "5.104.0 (same as source lockfile)",
+  "browser_qa": "Unavailable: cua.getState() returned no browsers/apps; no rendered, authenticated or network browser QA performed",
+  "api_smoke": {
+    "health": 200,
+    "manifest": 200,
+    "notice_version": "2026-11-03-v1",
+    "ai_consent_required": false,
+    "minimum_age": null,
+    "representative_verification": "not_implemented"
+  },
+  "production_mutations": "none; no user creation, ticket submission, consent changes, ENV changes, vendor prompts or deploy",
+  "legal_baseline": "M12.1 / DOCS4 verified NĐ356 Điều5; official signed PDF re-fetched HTTP200, scanned text layer insufficient for fresh full-text extraction; no new legal opinion"
+}

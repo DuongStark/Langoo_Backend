@@ -1,0 +1,26 @@
+{
+  "translationCalls": [
+    {
+      "vendor": "translate.googleapis.com",
+      "stateAtDispatch": "granted"
+    },
+    {
+      "vendor": "clients5.google.com",
+      "stateAtDispatch": "withdrawn"
+    },
+    {
+      "vendor": "api.mymemory.translated.net",
+      "stateAtDispatch": "withdrawn"
+    }
+  ],
+  "guestOldGrantWithoutManifest": "granted",
+  "accountSwitch": {
+    "nextAccountFetches": 0,
+    "nextAccountChoice": "granted"
+  },
+  "refetch503": {
+    "queryStatus": "error",
+    "choiceStill": "granted"
+  },
+  "outcome": "4 undesired behaviors reproduced with actual FE helpers; no real vendor requests"
+}

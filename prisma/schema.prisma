@@ -37,6 +37,7 @@ model User {
   lastLoginAt DateTime? @map("last_login_at") @db.Timestamptz(6)
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
 
+  termsAcceptances   TermsAcceptance[]
   privacyEvents      PrivacyEvent[]
   privacyRequests    PrivacyRequest[]       @relation("PrivacyRequestOwner")
   privacyAssignments PrivacyRequest[]       @relation("PrivacyRequestOperator")
@@ -811,5 +812,19 @@ model PrivacyRequest {
 
   @@unique([userId, requestId])
   @@map("privacy_request")
+  @@schema("app")
+}
+
+model TermsAcceptance {
+  id           BigInt   @id @default(autoincrement())
+  userId       BigInt   @map("user_id")
+  requestId    String   @map("request_id") @db.Uuid
+  termsVersion String   @map("terms_version")
+  acceptedAt   DateTime @default(now()) @map("accepted_at") @db.Timestamptz(6)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, requestId], map: "terms_acceptance_user_request_key")
+  @@index([userId, id(sort: Desc)], map: "terms_acceptance_user_latest_idx")
+  @@map("terms_acceptance")
   @@schema("app")
 }
