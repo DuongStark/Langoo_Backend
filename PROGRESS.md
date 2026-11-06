@@ -16,6 +16,8 @@
 - Gate còn thiếu / việc tiếp theo: codepatchBE/FE chưa deploy; chưa authenticatedreplay bộ Nhật cụ thể của bạn người dùng; không khẳng định mọi transactiontimeout đã hết. FErepo cóWIP nên fetch/readmain308a1c4, chỉ sửa APIfile/viết docs vàpatch độc lập, không pull đè.120s làbudgetdanhnghĩa không SLA. E2Elần đầuthiếuDB đã khởi tạoDBtestriêng vàrerunpass, không đụngDBproduction.
 - Git / triển khai: chủ dự án đã yêu cầu push; đang đóng gói commit M11.1 riêng, kết quả remote ghi trong receipt. Code/docs trước commit còn local. Productionvẫn0cb13d5; chỉ4quizENV đã áp/reload09:34:14UTC (receipt/backupkíntrongreport). Không push/deploy applicationcode; giữ nguyênWIPkhác.
 
+- Cập nhật sau push: BE359fd9e và FEced83c7 đã lên main, remote SHA xác nhận; CI BE42200005152 đang chạy, server vẫn0cb13d5/health200 tại lúc kiểm. [Receipt](docs/reviews/m11.1-quiz-reliability-2026-11-06/push-receipt.json). Chưa xác nhận deploy code; các trạng thái chuẩn bị commit ở trên là lịch sử.
+
 ### 2026-11-06 — M10.6 — Deploy DeepSeek, thinking OFF và10lượt học
 
 - Thay đổi / lý do: Chủ dự án yêu cầu thay Groq bằng DeepSeek qua Deploy và tắt thinking, thử10câu học. Secret không lưu Git. Bổ sung none cho chat enum, AI_QUIZ_REASONING_EFFORT optional và forwarding mọi gen/validator/retry; unset/blank giữ hành vi cũ, không đổi API/DB.
