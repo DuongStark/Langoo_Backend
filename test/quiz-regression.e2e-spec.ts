@@ -10,6 +10,7 @@ import {
   AiQuizProvider,
 } from '../src/ai/providers/ai-quiz.provider';
 import { buildQuizQuestions } from '../src/ai/quiz/quiz-generator';
+import { AiUsageService } from '../src/ai/usage/ai-usage.service';
 import { QuizSourceRepository } from '../src/ai/quiz/repositories/quiz-source.repository';
 import { CreateQuizResponse } from '../src/ai/quiz/types/quiz.types';
 import { SessionDetailResponse } from '../src/sessions/types/sessions.types';
@@ -115,6 +116,30 @@ describe('M11 regressions (e2e — local *_test only)', () => {
   afterAll(async () => {
     await prisma.user.deleteMany({ where: { email: { in: emails } } });
     await app.close();
+  });
+
+  it('rolls back a real expired prepare transaction and returns 503 without an AI call', async () => {
+    const f = await fixture('prepare-timeout');
+    const usage = app.get(AiUsageService);
+    const reserve = usage.reserveDailyRequest.bind(usage);
+    jest
+      .spyOn(usage, 'reserveDailyRequest')
+      .mockImplementationOnce(async (...args) => {
+        const count = await reserve(...args);
+        // Expire the real 15s interactive transaction after reserving quota.
+        await new Promise((resolve) => setTimeout(resolve, 15_100));
+        return count;
+      });
+    const provider = jest.fn((input: AiQuizGenerateInput) =>
+      Promise.resolve(buildQuizQuestions(input)),
+    );
+    generate = provider;
+    expect((await create(f.token).expect(503)).body).toMatchObject({
+      code: 'AI_PROVIDER_UNAVAILABLE',
+    });
+    expect(provider).not.toHaveBeenCalled();
+    expect(await prisma.aiUsage.count({ where: { userId: f.userId } })).toBe(0);
+    expect(await prisma.quiz.count({ where: { userId: f.userId } })).toBe(0);
   });
 
   it('serializes simultaneous creates: one quiz/provider call/quota reservation', async () => {

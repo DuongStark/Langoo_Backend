@@ -69,7 +69,7 @@ Response `201`:
 
 Lỗi: `409 QUIZ_NOT_ENOUGH_ITEMS` (không đủ từ cho kế hoạch câu hỏi) ·
 `429 QUIZ_GENERATION_COOLDOWN` · `429 AI_QUOTA_EXCEEDED` · `404 COLLECTION_NOT_FOUND` ·
-`400 VALIDATION_FAILED` · `503 AI_PROVIDER_UNAVAILABLE` (lỗi provider hoặc lưu câu hỏi) ·
+`400 VALIDATION_FAILED` · `503 AI_PROVIDER_UNAVAILABLE` (prepare transaction P2028 hết thời gian, lỗi provider hoặc lưu câu hỏi) ·
 `409 QUIZ_METADATA_INVALID` (metadata mới không hợp lệ khi đọc/start).
 
 Ví dụ trắc nghiệm thuần (Kanji vẫn tự trộn, không cần chọn style):
@@ -253,3 +253,13 @@ M6.2: khi thay đổi tập ngôn ngữ, quiz `ready` của hồ sơ được đ
 vẫn tuân cooldown/quota. Nếu đổi hồ sơ/ngôn ngữ trong lúc AI đang tạo câu hỏi,
 BE trả `409 QUIZ_SCOPE_CHANGED` và đánh dấu job failed; FE báo cần tạo lại,
 không render kết quả cũ.
+
+
+## 2026-11-06 — M11.1: model và ngân sách chờ
+
+- Production: chat `deepseek-ai/deepseek-v4.1-flash`/`none`; quiz generator **và** validator `zai-org/glm-5.3-flash`/`low`. Không gọi GLM cho câu dựng hoàn toàn từ dữ liệu. Đây là cấu hình triển khai, không phải model cố định trong code.
+- `AI_QUIZ_TIMEOUT_MS=60000`: tổng budget sinh/kiểm ngữ cảnh. Hết budget fallback câu từ đơn lẻ theo cơ chế hiện có; không bỏ câu hỏi/quota hoặc thay dạng quiz.
+- FE chỉ đặt timeout **120000ms** ở `POST /v1/quizzes`; các API khác giữ timeout cũ. Không tự động POST lại khi timeout: request có thể đã hoàn thành ở server. Kiểm tra danh sách/chi tiết quiz trước khi đề nghị tạo lại.
+- Bản sửa BE local: P2028 ở prepare trả `503 AI_PROVIDER_UNAVAILABLE`, transaction rollback trước khi gọi AI; không gọi cleanup hoặc tự retry. Business error giữ mã/status cũ. Lỗi final persistence vẫn theo contract cũ (claim failed, lượt sau khi gọi provider giữ nguyên).
+- Hai transaction có timeout 15s và maxWait 10s mỗi lần; cộng provider 60s là budget danh nghĩa 110s. Cleanup/usage, tải hệ thống, mạng/proxy có thể ảnh hưởng tổng; 120s không là SLA. Nếu chờ dài vẫn tái diễn, cân nhắc job async/poll riêng.
+- Trạng thái triển khai và gate thực tế: [report M11.1](../reviews/m11.1-quiz-reliability-2026-11-06.md).

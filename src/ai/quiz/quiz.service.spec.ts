@@ -1,3 +1,5 @@
+import { Prisma } from '../../generated/prisma/client';
+import { DomainException } from '../../common/errors/domain.exception';
 import { PrivacyService } from '../../privacy/privacy.service';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../db/prisma.service';
@@ -170,6 +172,37 @@ const dto = {
 };
 
 describe('QuizService', () => {
+  it('returns controlled 503 for an expired prepare transaction without calling AI or cleanup', async () => {
+    const setup = createSetup();
+    const expired = new Prisma.PrismaClientKnownRequestError(
+      'Transaction expired',
+      {
+        code: 'P2028',
+        clientVersion: '7.10.0',
+      },
+    );
+    setup.prisma.$transaction.mockRejectedValueOnce(expired);
+    await expect(setup.service.create(1n, dto)).rejects.toMatchObject({
+      code: 'AI_PROVIDER_UNAVAILABLE',
+      status: 503,
+    });
+    expect(setup.prisma.$transaction).toHaveBeenCalledTimes(1);
+    expect(setup.providerGenerate).not.toHaveBeenCalled();
+    expect(setup.tx.quiz.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('preserves business errors thrown during prepare', async () => {
+    const setup = createSetup();
+    const error = new DomainException(
+      'PROFILE_NOT_FOUND',
+      'Missing profile',
+      404,
+    );
+    setup.prisma.$transaction.mockRejectedValueOnce(error);
+    await expect(setup.service.create(1n, dto)).rejects.toBe(error);
+    expect(setup.providerGenerate).not.toHaveBeenCalled();
+  });
+
   it('canonicalizes question_types when deduping and rejects another type mix', async () => {
     const setup = createSetup();
     setup.prisma.quiz.findFirst.mockResolvedValue(

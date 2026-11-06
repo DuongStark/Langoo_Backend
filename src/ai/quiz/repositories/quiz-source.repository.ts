@@ -17,6 +17,7 @@ interface SourceRow {
   reading: string | null;
   romanization: string | null;
   meaning_vi: string;
+  gloss_vi_machine: boolean | null;
 }
 
 /**
@@ -48,6 +49,7 @@ export class QuizSourceRepository {
         sc.lemma,
         sc.reading,
         sc.romanization,
+        sc.gloss_vi_machine,
         COALESCE(NULLIF(btrim(i.meaning_vi), ''), sc.gloss_vi, sc.gloss_en, sc.lemma) AS meaning_vi
       FROM app.collection_item i
       JOIN app.collection c ON c.id = i.collection_id
@@ -63,7 +65,7 @@ export class QuizSourceRepository {
       -- can make PostgreSQL project the whole sense_card view before matching.
       JOIN LATERAL (
         SELECT card.language_id, card.lemma, card.reading, card.romanization,
-               card.gloss_vi, card.gloss_en
+               card.gloss_vi, card.gloss_en, card.gloss_vi_machine
         FROM serve.sense_card card
         WHERE card.sense_id = visible_face.sense_id
         OFFSET 0
@@ -107,6 +109,9 @@ export class QuizSourceRepository {
       reading: row.reading,
       romanization: row.romanization,
       meaningVi: row.meaning_vi,
+      ...(params.enrichKanji
+        ? { glossViMachine: row.gloss_vi_machine ?? false }
+        : {}),
     }));
     if (params.enrichKanji && items.length > 0)
       await this.enrich(items, client, params.withExamples ?? false);
@@ -125,24 +130,15 @@ export class QuizSourceRepository {
         code: string;
         pos: string | null;
         gloss_en: string[];
-        machine: boolean | null;
       }[]
     >(Prisma.sql`
       SELECT s.id AS sense_id, lg.code, x.pos,
         ARRAY(SELECT g.text FROM core.sense_gloss g JOIN public.language gl ON gl.id=g.language_id
-          WHERE g.sense_id=s.id AND gl.code='en' ORDER BY g.rank,g.id) AS gloss_en,
-        sc.machine
+          WHERE g.sense_id=s.id AND gl.code='en' ORDER BY g.rank,g.id) AS gloss_en
       FROM core.sense s JOIN core.lexeme x ON x.id=s.lexeme_id
       JOIN public.language lg ON lg.id=x.language_id
-      -- Keep the card lookup parameterized by sense id: without the lateral +
-      -- OFFSET 0 fence PostgreSQL projects the whole sense_card view first
-      -- (~150s on the full database). Same pattern as findSourceItems.
-      JOIN LATERAL (
-        SELECT card.gloss_vi_machine AS machine
-        FROM serve.sense_card card
-        WHERE card.sense_id = s.id
-        OFFSET 0
-      ) sc ON true
+      -- gloss_vi_machine was read with the initial card lookup. Re-reading
+      -- sense_card here repeats its expensive projections for every item.
       WHERE s.id IN (${Prisma.join(ids)})
     `);
     const pairs = await client.$queryRaw<
@@ -208,7 +204,6 @@ export class QuizSourceRepository {
       item.languageCode = detail?.code;
       item.pos = detail?.pos ?? null;
       item.glossEn = detail?.gloss_en ?? [];
-      item.glossViMachine = detail?.machine ?? false;
       item.kanjiPairs = bySense.get(item.senseId) ?? [];
       const ownSpellings = new Set(item.kanjiPairs.map((p) => p.written));
       for (const alias of [...ownSpellings].flatMap(

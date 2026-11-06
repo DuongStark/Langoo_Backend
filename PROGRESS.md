@@ -8,6 +8,14 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-06 — M11.1 — Tách model quiz GLM và sửa lỗi tạo quiz
+
+- Thay đổi / lý do: theo yêu cầu chủ dự án, đã đổi ENV production riêng quiz generator+validator sang GLM5.3Flash/low/context60s, chat DeepSeeknone giữ nguyên. Sửa local mismatch FE45s/BE300s; tối ưu source Nhật bỏ lookup sense_card lặp để lấy machineflag; prepareP2028 trả503 theo contract có sẵn, không retry/gọiAI/cleanup sau rollback.
+- File / phạm vi: QuizService/repository/controller/OpenAPI +unit/E2E; API docs; helper ops; FE `src/api/quizzes.ts` riêng timeout120s. [Plan](docs/plans/m11.1-quiz-reliability-2026-11-06.md), [report + evidence](docs/reviews/m11.1-quiz-reliability-2026-11-06.md), [handoff +patch FE main](docs/handoff/m11.1-quiz-glm-fe-2026-11-06.md).
+- Kiểm tra / kết quả: full69suites/635unitpass;17QuizServicepass sau rút gọn diff;3suites/25E2Equizpass trên Postgres17local `_test`, gồm realexpiry15.1s sau reserve→503/noAI/quota0/quiz0. BuildBE/FE và lintpass. Readonlyparity5184/107/67items deepEqual toàn output; trace lớn6353→2515ms có cachecaveat. Chromeactualmodule/XHRlocal46s pass/1POST/global45s. ProductionnativeGLM10JA/12HTTP200/6context/34.538s; health200DBUTC. Independentreview không blocker. diff/status/link/artifactcheck trước bàn giao.
+- Gate còn thiếu / việc tiếp theo: codepatchBE/FE chưa deploy; chưa authenticatedreplay bộ Nhật cụ thể của bạn người dùng; không khẳng định mọi transactiontimeout đã hết. FErepo cóWIP nên fetch/readmain308a1c4, chỉ sửa APIfile/viết docs vàpatch độc lập, không pull đè.120s làbudgetdanhnghĩa không SLA. E2Elần đầuthiếuDB đã khởi tạoDBtestriêng vàrerunpass, không đụngDBproduction.
+- Git / triển khai: chủ dự án đã yêu cầu push; đang đóng gói commit M11.1 riêng, kết quả remote ghi trong receipt. Code/docs trước commit còn local. Productionvẫn0cb13d5; chỉ4quizENV đã áp/reload09:34:14UTC (receipt/backupkíntrongreport). Không push/deploy applicationcode; giữ nguyênWIPkhác.
+
 ### 2026-11-06 — M10.6 — Deploy DeepSeek, thinking OFF và10lượt học
 
 - Thay đổi / lý do: Chủ dự án yêu cầu thay Groq bằng DeepSeek qua Deploy và tắt thinking, thử10câu học. Secret không lưu Git. Bổ sung none cho chat enum, AI_QUIZ_REASONING_EFFORT optional và forwarding mọi gen/validator/retry; unset/blank giữ hành vi cũ, không đổi API/DB.

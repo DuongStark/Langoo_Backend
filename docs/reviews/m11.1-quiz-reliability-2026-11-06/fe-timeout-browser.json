@@ -1,0 +1,1 @@
+{"code":"M11.1","fixture":"actual FE module + Chrome XHR; local synthetic 46s API","result":"PASS","state":"done","elapsed_ms":46019,"quiz":{"id":"synthetic-quiz","status":"ready","question_count":1},"global_timeout_ms":45000,"posts":1,"errors":[]}

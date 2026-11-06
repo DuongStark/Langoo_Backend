@@ -121,7 +121,7 @@ export class QuizService {
   ): Promise<CreateQuizResponse> {
     // Only prepare/claim inside the user lock. Never hold a DB transaction
     // open while awaiting an external provider (also works across VPS workers).
-    const prepared = await this.prisma.$transaction(async (tx) => {
+    const preparation = this.prisma.$transaction(async (tx) => {
       await lockUser(tx, userId);
       const profile = await this.srs.getProfileContextInTransaction(tx, userId);
       if (dto.collection_id !== undefined) {
@@ -242,6 +242,23 @@ export class QuizService {
         ),
       };
     }, QUIZ_TX_OPTIONS);
+    const prepared = await preparation.catch((error: unknown) => {
+      // Preparation has no external AI calls. Prisma rolls back an expired
+      // interactive transaction, including its quota reservation. Never retry
+      // the entire create flow or clean up a claim that was rolled back.
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2028'
+      ) {
+        this.logger.warn('Quiz prepare transaction expired (P2028)');
+        throw new DomainException(
+          'AI_PROVIDER_UNAVAILABLE',
+          'Chuẩn bị dữ liệu quiz quá thời gian; vui lòng thử lại',
+          HttpStatus.SERVICE_UNAVAILABLE,
+        );
+      }
+      throw error;
+    });
     if (prepared.kind === 'reused') return prepared.reusable;
     const { quizId, generatorInput, period, scopeKey } = prepared;
 

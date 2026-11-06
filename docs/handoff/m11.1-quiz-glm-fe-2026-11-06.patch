@@ -1,0 +1,13 @@
+diff --git a/src/api/quizzes.ts b/src/api/quizzes.ts
+--- a/src/api/quizzes.ts
++++ b/src/api/quizzes.ts
+@@ -4,4 +4,8 @@
+ export async function createQuiz(dto: CreateQuizDto): Promise<QuizDto> {
+-  const { data } = await api.post<QuizDto>("/v1/quizzes", dto)
++  const { data } = await api.post<QuizDto>("/v1/quizzes", dto, {
++    // Context AI has a 60s budget, with additional DB preparation/persistence.
++    // Do not retry POST automatically: it may already have created a quiz.
++    timeout: 120_000,
++  })
+   return data
+ }

@@ -1,0 +1,686 @@
+[
+  {
+    "condition": "production-env",
+    "model": "zai-org/glm-5.3-flash",
+    "effort": "low",
+    "base_question_sha256": "a7c9be7a2bbf3faa49489e8ec61406821f7cf23cb7e91b7f513dca847ac89780",
+    "questions": 10,
+    "elapsed_ms": 34538,
+    "provider_calls": 12,
+    "context_questions": 6,
+    "styles": {
+      "meaning": 4,
+      "kanji_reading": 3,
+      "kanji_orthography": 3
+    },
+    "usage": {
+      "tokensIn": 2948,
+      "tokensOut": 386,
+      "calls": 12,
+      "local": 4,
+      "reused": 0
+    },
+    "calls": [
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 1276,
+        "input_tokens": 205,
+        "cached_tokens": 0,
+        "output_tokens": 31,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 16511,
+        "input_tokens": 279,
+        "cached_tokens": 0,
+        "output_tokens": 30,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 999,
+        "input_tokens": 203,
+        "cached_tokens": 0,
+        "output_tokens": 30,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 2661,
+        "input_tokens": 276,
+        "cached_tokens": 0,
+        "output_tokens": 30,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 1034,
+        "input_tokens": 211,
+        "cached_tokens": 0,
+        "output_tokens": 36,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 988,
+        "input_tokens": 295,
+        "cached_tokens": 0,
+        "output_tokens": 30,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 1246,
+        "input_tokens": 209,
+        "cached_tokens": 0,
+        "output_tokens": 32,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 1262,
+        "input_tokens": 287,
+        "cached_tokens": 0,
+        "output_tokens": 41,
+        "reasoning_tokens": 11,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 996,
+        "input_tokens": 205,
+        "cached_tokens": 0,
+        "output_tokens": 31,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 964,
+        "input_tokens": 283,
+        "cached_tokens": 0,
+        "output_tokens": 30,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 3960,
+        "input_tokens": 208,
+        "cached_tokens": 0,
+        "output_tokens": 35,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      },
+      {
+        "model": "zai-org/glm-5.3-flash",
+        "effort": "low",
+        "role": "provider-call",
+        "status": 200,
+        "latency_ms": 2561,
+        "input_tokens": 287,
+        "cached_tokens": 0,
+        "output_tokens": 30,
+        "reasoning_tokens": 0,
+        "finish_reason": "stop"
+      }
+    ],
+    "generated_questions": [
+      {
+        "questionType": "multiple_choice",
+        "prompt": "Nghĩa của 「学校」 (がっこう) là gì?",
+        "options": [
+          {
+            "index": 0,
+            "text": "phim"
+          },
+          {
+            "index": 1,
+            "text": "tàu điện"
+          },
+          {
+            "index": 2,
+            "text": "trường học"
+          },
+          {
+            "index": 3,
+            "text": "xe đạp"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "trường học"
+        },
+        "explanation": null,
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000001",
+        "questionStyle": "meaning"
+      },
+      {
+        "questionType": "multiple_choice",
+        "questionStyle": "kanji_reading",
+        "prompt": "明日、【銀行】でお金を送ります。",
+        "options": [
+          {
+            "index": 0,
+            "text": "でんわ"
+          },
+          {
+            "index": 1,
+            "text": "ぎんこう"
+          },
+          {
+            "index": 2,
+            "text": "がっこう"
+          },
+          {
+            "index": 3,
+            "text": "でんしゃ"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "ぎんこう"
+        },
+        "explanation": "「銀行」 (ぎんこう): ngân hàng",
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000002",
+        "kanjiTarget": {
+          "senseId": "2",
+          "written": "銀行",
+          "reading": "ぎんこう",
+          "validWritten": [
+            "銀行"
+          ],
+          "validReadings": [
+            "ぎんこう"
+          ]
+        },
+        "context": {
+          "sentence": "明日、【銀行】でお金を送ります。",
+          "target": {
+            "start": 4,
+            "end": 6,
+            "text": "銀行"
+          },
+          "origin": "generated",
+          "attribution": null
+        },
+        "evidence": {
+          "policy": "kanji-context-v1",
+          "contextKey": "485151ea729a296ec87326d4fe3771247ff384d6915a30259bc94400758abe65",
+          "answerKey": "a1325029e0ba9eb08a8d8757797fe0f30a5a4ff7f1b186682b580234960d14aa",
+          "sentence": "明日、銀行でお金を送ります。",
+          "origin": "generated",
+          "attribution": null,
+          "exampleId": null,
+          "sourceHash": null,
+          "generatorModel": "zai-org/glm-5.3-flash",
+          "validatorModel": "zai-org/glm-5.3-flash",
+          "accepted": true
+        }
+      },
+      {
+        "questionType": "multiple_choice",
+        "questionStyle": "kanji_orthography",
+        "prompt": "彼は古い【でんわ】をまだ使っている。",
+        "options": [
+          {
+            "index": 0,
+            "text": "公園"
+          },
+          {
+            "index": 1,
+            "text": "会社"
+          },
+          {
+            "index": 2,
+            "text": "電話"
+          },
+          {
+            "index": 3,
+            "text": "病院"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "電話"
+        },
+        "explanation": "「電話」 (でんわ): điện thoại",
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000003",
+        "kanjiTarget": {
+          "senseId": "3",
+          "written": "電話",
+          "reading": "でんわ",
+          "validWritten": [
+            "電話"
+          ],
+          "validReadings": [
+            "でんわ"
+          ]
+        },
+        "context": {
+          "sentence": "彼は古い【でんわ】をまだ使っている。",
+          "target": {
+            "start": 5,
+            "end": 8,
+            "text": "でんわ"
+          },
+          "origin": "generated",
+          "attribution": null
+        },
+        "evidence": {
+          "policy": "kanji-context-v1",
+          "contextKey": "31e6aa2525c430428b36343356efa4671df1f37d5316eab0c10fe76bc06d8dd8",
+          "answerKey": "e2b5dd87aa59b8e70d76d4455072a7a5947b93ca2d3c05ebe58ec333086a6549",
+          "sentence": "彼は古い電話をまだ使っている。",
+          "origin": "generated",
+          "attribution": null,
+          "exampleId": null,
+          "sourceHash": null,
+          "generatorModel": "zai-org/glm-5.3-flash",
+          "validatorModel": "zai-org/glm-5.3-flash",
+          "accepted": true
+        }
+      },
+      {
+        "questionType": "multiple_choice",
+        "prompt": "Nghĩa của 「新聞」 (しんぶん) là gì?",
+        "options": [
+          {
+            "index": 0,
+            "text": "tàu điện"
+          },
+          {
+            "index": 1,
+            "text": "báo"
+          },
+          {
+            "index": 2,
+            "text": "điện thoại"
+          },
+          {
+            "index": 3,
+            "text": "nấu ăn"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "báo"
+        },
+        "explanation": null,
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000004",
+        "questionStyle": "meaning"
+      },
+      {
+        "questionType": "multiple_choice",
+        "questionStyle": "kanji_reading",
+        "prompt": "毎週末、【図書館】で本を借りています。",
+        "options": [
+          {
+            "index": 0,
+            "text": "じてんしゃ"
+          },
+          {
+            "index": 1,
+            "text": "でんしゃ"
+          },
+          {
+            "index": 2,
+            "text": "でんわ"
+          },
+          {
+            "index": 3,
+            "text": "としょかん"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "としょかん"
+        },
+        "explanation": "「図書館」 (としょかん): thư viện",
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000005",
+        "kanjiTarget": {
+          "senseId": "5",
+          "written": "図書館",
+          "reading": "としょかん",
+          "validWritten": [
+            "図書館"
+          ],
+          "validReadings": [
+            "としょかん"
+          ]
+        },
+        "context": {
+          "sentence": "毎週末、【図書館】で本を借りています。",
+          "target": {
+            "start": 5,
+            "end": 8,
+            "text": "図書館"
+          },
+          "origin": "generated",
+          "attribution": null
+        },
+        "evidence": {
+          "policy": "kanji-context-v1",
+          "contextKey": "d5cd32aeff442611ef8b820022e233468c2b66439d04444a838168ace0bee4f6",
+          "answerKey": "e2a744dd502f5395b6fe110c8989a498d5bacc3eb85b312dcf48ffa54064d7b3",
+          "sentence": "毎週末、図書館で本を借りています。",
+          "origin": "generated",
+          "attribution": null,
+          "exampleId": null,
+          "sourceHash": null,
+          "generatorModel": "zai-org/glm-5.3-flash",
+          "validatorModel": "zai-org/glm-5.3-flash",
+          "accepted": true
+        }
+      },
+      {
+        "questionType": "multiple_choice",
+        "questionStyle": "kanji_orthography",
+        "prompt": "母は町の【びょういん】で働いています。",
+        "options": [
+          {
+            "index": 0,
+            "text": "公園"
+          },
+          {
+            "index": 1,
+            "text": "図書館"
+          },
+          {
+            "index": 2,
+            "text": "会社"
+          },
+          {
+            "index": 3,
+            "text": "病院"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "病院"
+        },
+        "explanation": "「病院」 (びょういん): bệnh viện",
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000006",
+        "kanjiTarget": {
+          "senseId": "6",
+          "written": "病院",
+          "reading": "びょういん",
+          "validWritten": [
+            "病院"
+          ],
+          "validReadings": [
+            "びょういん"
+          ]
+        },
+        "context": {
+          "sentence": "母は町の【びょういん】で働いています。",
+          "target": {
+            "start": 5,
+            "end": 10,
+            "text": "びょういん"
+          },
+          "origin": "generated",
+          "attribution": null
+        },
+        "evidence": {
+          "policy": "kanji-context-v1",
+          "contextKey": "10e3bc6f675a5fed2648c371e8e1edebd5afa457596716238a146e1c43c6594a",
+          "answerKey": "1265acd26a7b15a227416dc5f557935267202ae1cb3df79c60cdc9fc0d0f21b6",
+          "sentence": "母は町の病院で働いています。",
+          "origin": "generated",
+          "attribution": null,
+          "exampleId": null,
+          "sourceHash": null,
+          "generatorModel": "zai-org/glm-5.3-flash",
+          "validatorModel": "zai-org/glm-5.3-flash",
+          "accepted": true
+        }
+      },
+      {
+        "questionType": "multiple_choice",
+        "prompt": "Nghĩa của 「会社」 (かいしゃ) là gì?",
+        "options": [
+          {
+            "index": 0,
+            "text": "công ty"
+          },
+          {
+            "index": 1,
+            "text": "điện thoại"
+          },
+          {
+            "index": 2,
+            "text": "báo"
+          },
+          {
+            "index": 3,
+            "text": "xe đạp"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "công ty"
+        },
+        "explanation": null,
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000007",
+        "questionStyle": "meaning"
+      },
+      {
+        "questionType": "multiple_choice",
+        "questionStyle": "kanji_reading",
+        "prompt": "毎朝、【電車】で会社に行きます。",
+        "options": [
+          {
+            "index": 0,
+            "text": "でんしゃ"
+          },
+          {
+            "index": 1,
+            "text": "びょういん"
+          },
+          {
+            "index": 2,
+            "text": "りょうり"
+          },
+          {
+            "index": 3,
+            "text": "しんぶん"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "でんしゃ"
+        },
+        "explanation": "「電車」 (でんしゃ): tàu điện",
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000008",
+        "kanjiTarget": {
+          "senseId": "8",
+          "written": "電車",
+          "reading": "でんしゃ",
+          "validWritten": [
+            "電車"
+          ],
+          "validReadings": [
+            "でんしゃ"
+          ]
+        },
+        "context": {
+          "sentence": "毎朝、【電車】で会社に行きます。",
+          "target": {
+            "start": 4,
+            "end": 6,
+            "text": "電車"
+          },
+          "origin": "generated",
+          "attribution": null
+        },
+        "evidence": {
+          "policy": "kanji-context-v1",
+          "contextKey": "a630d5c6cafe2e02e767db32badd03a3729905b810beade888b143a30946331a",
+          "answerKey": "cdd06a939754f03d07a7ea55e1758c4398d70aa480b9ca7e24f1ed5fc2762e55",
+          "sentence": "毎朝、電車で会社に行きます。",
+          "origin": "generated",
+          "attribution": null,
+          "exampleId": null,
+          "sourceHash": null,
+          "generatorModel": "zai-org/glm-5.3-flash",
+          "validatorModel": "zai-org/glm-5.3-flash",
+          "accepted": true
+        }
+      },
+      {
+        "questionType": "multiple_choice",
+        "questionStyle": "kanji_orthography",
+        "prompt": "週末に公園で【じてんしゃ】に乗ります。",
+        "options": [
+          {
+            "index": 0,
+            "text": "公園"
+          },
+          {
+            "index": 1,
+            "text": "自転車"
+          },
+          {
+            "index": 2,
+            "text": "銀行"
+          },
+          {
+            "index": 3,
+            "text": "電話"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "自転車"
+        },
+        "explanation": "「自転車」 (じてんしゃ): xe đạp",
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000009",
+        "kanjiTarget": {
+          "senseId": "9",
+          "written": "自転車",
+          "reading": "じてんしゃ",
+          "validWritten": [
+            "自転車"
+          ],
+          "validReadings": [
+            "じてんしゃ"
+          ]
+        },
+        "context": {
+          "sentence": "週末に公園で【じてんしゃ】に乗ります。",
+          "target": {
+            "start": 7,
+            "end": 12,
+            "text": "じてんしゃ"
+          },
+          "origin": "generated",
+          "attribution": null
+        },
+        "evidence": {
+          "policy": "kanji-context-v1",
+          "contextKey": "7f292a586faef15d94470425eb80c087fde657c9c3d688b31980a2cf92cb6a6c",
+          "answerKey": "d59a1815b7d553a8fac792cabd5cf757b67bcc415e5dfd68f0b2a7c558a041ef",
+          "sentence": "週末に公園で自転車に乗ります。",
+          "origin": "generated",
+          "attribution": null,
+          "exampleId": null,
+          "sourceHash": null,
+          "generatorModel": "zai-org/glm-5.3-flash",
+          "validatorModel": "zai-org/glm-5.3-flash",
+          "accepted": true
+        }
+      },
+      {
+        "questionType": "multiple_choice",
+        "prompt": "Nghĩa của 「公園」 (こうえん) là gì?",
+        "options": [
+          {
+            "index": 0,
+            "text": "công viên"
+          },
+          {
+            "index": 1,
+            "text": "phim"
+          },
+          {
+            "index": 2,
+            "text": "nấu ăn"
+          },
+          {
+            "index": 3,
+            "text": "bệnh viện"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "công viên"
+        },
+        "explanation": null,
+        "languageId": 22,
+        "conceptId": null,
+        "itemId": "00000000-0000-4000-8000-000000000010",
+        "questionStyle": "meaning"
+      }
+    ]
+  }
+]

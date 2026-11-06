@@ -15,6 +15,7 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiServiceUnavailableResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../../auth/decorators/current-user.decorator';
@@ -54,6 +55,11 @@ export class QuizController {
   @ApiConflictResponse({
     type: ErrorResponseDto,
     description: 'QUIZ_NOT_ENOUGH_ITEMS',
+  })
+  @ApiServiceUnavailableResponse({
+    type: ErrorResponseDto,
+    description:
+      'AI_PROVIDER_UNAVAILABLE: chuẩn bị DB hết thời gian, lỗi provider hoặc lưu câu hỏi',
   })
   create(
     @CurrentUser() payload: JwtPayload,

@@ -1,0 +1,14 @@
+{
+  "code": "M11.1",
+  "utc": "20261106T093414Z",
+  "changed": {
+    "AI_QUIZ_MODEL": "zai-org/glm-5.3-flash",
+    "AI_QUIZ_VALIDATOR_MODEL": "zai-org/glm-5.3-flash",
+    "AI_QUIZ_REASONING_EFFORT": "low",
+    "AI_QUIZ_TIMEOUT_MS": "60000"
+  },
+  "chat_model": "deepseek-ai/deepseek-v4.1-flash",
+  "chat_effort": "none",
+  "backup": "/opt/langoo/backups/m11.1/before-20261106T093414Z.env",
+  "scope": "ENV only, no application code deployment"
+}
