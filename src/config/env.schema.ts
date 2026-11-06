@@ -113,7 +113,9 @@ export const envSchema = z.object({
   ),
   AI_CHAT_REASONING_EFFORT: z.preprocess(
     emptyToUndefined,
-    z.enum(['minimal', 'low', 'medium', 'high', 'xhigh', 'max']).optional(),
+    z
+      .enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'])
+      .optional(),
   ),
   AI_DAILY_REQUEST_LIMIT: z.preprocess(
     emptyToUndefined,
@@ -137,6 +139,12 @@ export const envSchema = z.object({
   // AI_API_KEY/AI_BASE_URL chung với chat.
   AI_QUIZ_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   AI_QUIZ_BASE_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
+  AI_QUIZ_REASONING_EFFORT: z.preprocess(
+    emptyToUndefined,
+    z
+      .enum(['none', 'minimal', 'low', 'medium', 'high', 'xhigh', 'max'])
+      .optional(),
+  ),
   AI_QUIZ_TIMEOUT_MS: z.preprocess(
     emptyToUndefined,
     z.coerce.number().int().min(1_000).max(300_000).optional(),

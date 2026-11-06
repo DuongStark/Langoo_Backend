@@ -28,6 +28,7 @@ export function createAiQuizProvider(config: ConfigService): AiQuizProvider {
       : undefined,
     generatorModel: get('AI_QUIZ_MODEL'),
     validatorModel: get('AI_QUIZ_VALIDATOR_MODEL'),
+    reasoningEffort: get('AI_QUIZ_REASONING_EFFORT'),
     timeoutMs:
       Number.isInteger(timeout) && timeout >= 1_000 && timeout <= 300_000
         ? timeout

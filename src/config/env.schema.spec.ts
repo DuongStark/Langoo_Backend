@@ -158,4 +158,20 @@ describe('validateEnv', () => {
       );
     }
   });
+  it('accepts explicit thinking-off for chat and quiz', () => {
+    const env = validateEnv({
+      ...base,
+      AI_CHAT_REASONING_EFFORT: 'none',
+      AI_QUIZ_REASONING_EFFORT: 'none',
+    });
+    expect(env).toMatchObject({
+      AI_CHAT_REASONING_EFFORT: 'none',
+      AI_QUIZ_REASONING_EFFORT: 'none',
+    });
+  });
+  it('rejects an invalid quiz reasoning effort', () => {
+    expect(() =>
+      validateEnv({ ...base, AI_QUIZ_REASONING_EFFORT: 'invalid' }),
+    ).toThrow(/AI_QUIZ_REASONING_EFFORT/);
+  });
 });

@@ -1,0 +1,19 @@
+{
+  "successful_turns": 10,
+  "input_tokens_sum": 15870,
+  "output_tokens_sum": 2450,
+  "cached_tokens_sum": 6656,
+  "reasoning_tokens_sum": 0,
+  "estimated_total_cost_usd": 0.0017988680000000001,
+  "estimated_cost_1000_similar_conversations_usd": 1.7988680000000001,
+  "latency_median_s": 3.222,
+  "latency_max_s": 4.539,
+  "price_source": "https://deploy.com/pricing",
+  "price_per_million_usd": {
+    "uncached_input": 0.1,
+    "cached_input": 0.003,
+    "output": 0.35
+  },
+  "billing_verified": false,
+  "scenario": "single 10-turn conversation with actual Langoo general/en system prompt, full history up to20messages, max_tokens4000, reasoning_effort none"
+}

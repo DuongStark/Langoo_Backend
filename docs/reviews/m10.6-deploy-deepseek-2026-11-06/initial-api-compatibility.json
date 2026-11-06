@@ -1,0 +1,42 @@
+[
+  {
+    "case": "text",
+    "status": 200,
+    "elapsed_s": 1.76,
+    "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+    "finish_reason": "stop",
+    "content": "CONNECTED",
+    "reasoning_characters": 0,
+    "usage": {
+      "prompt_tokens": 11,
+      "completion_tokens": 4,
+      "total_tokens": 15,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 0
+      }
+    }
+  },
+  {
+    "case": "quiz-json-default",
+    "status": 200,
+    "elapsed_s": 2.66,
+    "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+    "finish_reason": "stop",
+    "content": "{\"sentence\":\"私は学校に行きます。\",\"meaning_vi\":\"Tôi đi đến trường.\"}",
+    "reasoning_characters": 243,
+    "usage": {
+      "prompt_tokens": 63,
+      "completion_tokens": 82,
+      "total_tokens": 145,
+      "prompt_tokens_details": {
+        "cached_tokens": 0
+      },
+      "completion_tokens_details": {
+        "reasoning_tokens": 59
+      }
+    }
+  }
+]

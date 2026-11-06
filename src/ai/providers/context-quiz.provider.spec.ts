@@ -400,4 +400,40 @@ describe('ContextQuizProvider routing and quality', () => {
       }),
     ).toBe(true);
   });
+  it('forwards configured thinking-off to generation, validation and retry', async () => {
+    const { chat } = setup();
+    const original = chat.getMockImplementation()!;
+    let failedOnce = false;
+    chat.mockImplementation((request) => {
+      if (request.model === 'validator' && !failedOnce) {
+        failedOnce = true;
+        return Promise.reject(new AiProviderError('temporary rate limit', 429));
+      }
+      return original(request);
+    });
+    const spy = jest
+      .spyOn(OpenAiChatProvider.prototype, 'chat')
+      .mockImplementation(chat);
+    try {
+      const provider = createAiQuizProvider(
+        new ConfigService({
+          AI_PROVIDER: 'openai',
+          AI_API_KEY: 'fixture',
+          AI_QUIZ_MODEL: 'generator',
+          AI_QUIZ_VALIDATOR_MODEL: 'validator',
+          AI_QUIZ_TIMEOUT_MS: '60000',
+          AI_QUIZ_REASONING_EFFORT: 'none',
+        }),
+      );
+      await provider.generate(kanjiInput({ questionCount: 2 }));
+      expect(chat.mock.calls.length).toBeGreaterThanOrEqual(3);
+      expect(
+        chat.mock.calls.every(
+          ([request]) => request.reasoningEffort === 'none',
+        ),
+      ).toBe(true);
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });

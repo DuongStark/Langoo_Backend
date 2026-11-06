@@ -28,6 +28,7 @@ export interface ContextQuizOptions {
   generatorModel?: string;
   validatorModel?: string;
   timeoutMs: number;
+  reasoningEffort?: string;
 }
 const optionsSchema = z
   .array(
@@ -476,6 +477,7 @@ export class ContextQuizProvider implements AiQuizProvider {
           model,
           timeoutMs: left,
           maxTokens: 1200,
+          reasoningEffort: this.config.reasoningEffort,
           messages: [
             { role: 'system', content: system },
             { role: 'user', content: JSON.stringify(payload) },

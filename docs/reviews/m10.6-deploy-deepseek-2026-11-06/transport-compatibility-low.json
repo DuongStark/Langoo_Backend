@@ -1,0 +1,31 @@
+[
+  {
+    "case": "actual-transport-stream-low",
+    "elapsed_ms": 2299,
+    "first_delta_ms": 2280,
+    "deltas": 9,
+    "content": "Xin chào các bạn đang học tiếng Nhật! Chúc các bạn học vui và kiên trì nhé!",
+    "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+    "tokensIn": 51,
+    "tokensOut": 81,
+    "costUsd": 0
+  },
+  {
+    "case": "actual-transport-vision",
+    "elapsed_ms": 2337,
+    "content": "Red",
+    "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+    "tokensIn": 230,
+    "tokensOut": 135,
+    "costUsd": 0
+  },
+  {
+    "case": "actual-transport-validator-json-default",
+    "elapsed_ms": 1954,
+    "content": "{\"natural\":true,\"correctSense\":true,\"correctTarget\":true,\"noAnswerLeak\":true,\"correctOptionIndices\":[0]}",
+    "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+    "tokensIn": 98,
+    "tokensOut": 160,
+    "costUsd": 0
+  }
+]
