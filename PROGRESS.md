@@ -2050,3 +2050,12 @@ M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa pu
 - Build + restart `langoo-api`; API đã trả ảnh WebP cho `manager` (1811634), `政策` (149550), `employee` (373668).
 - Bắt đầu style test **8 style × 8 từ = 64 ảnh**, nén 512 WebP q75; chờ kết quả để chốt style trước batch 9.144.
 - Docs: spec/handoff đã cập nhật trạng thái applied.
+
+
+### 2026-11-08 — Muse translation apply vào DB
+
+- Job `ja-vi-20261108-muse`: 13.667/13.667 batch, 273.338 sense.
+- Apply `core.sense_gloss`: **273.338 gloss VI** mới, source mới `public.source.id=187` (`llm-sense-vi-v2-muse-native-20261108`), `is_machine=true`, rank 1, default-accept; không reviewed/curated.
+- Dry-run sạch: 0 duplicate, 0 missing sense, 0 gloss VI đã có.
+- Tổng VI gloss sau apply: 624.331; sample `736617` API trả `"thách thức (ai đó) thực hiện lời tuyên bố"`.
+- Handoff: [2026-11-08-muse-translation-apply.md](docs/handoff/2026-11-08-muse-translation-apply.md).
