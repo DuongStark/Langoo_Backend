@@ -2041,3 +2041,12 @@ M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa pu
 - Không đụng `concept_media`/`serve.concept_image`, mapping từ điển, hay `media_asset.kind`.
 
 - Verification: `npm test -- --runInBand src/media/sense-image.repository.spec.ts` 4/4 pass; `npm run build` pass. Chưa apply migration/backfill production.
+
+
+### 2026-11-08 — M14.4 — Apply migration + backfill + deploy 100 ảnh pilot
+
+- Muse translation hoàn tất: **13.667/13.667 batch** (batch lỗi cuối đã rerun thành công).
+- Apply `049_sense_images.sql` + `backfill-sense-media-pilot-20261108.sql`: **100 `sense_media`**, **100 `serve.sense_image`**, **13 concept pilot**.
+- Build + restart `langoo-api`; API đã trả ảnh WebP cho `manager` (1811634), `政策` (149550), `employee` (373668).
+- Bắt đầu style test **8 style × 8 từ = 64 ảnh**, nén 512 WebP q75; chờ kết quả để chốt style trước batch 9.144.
+- Docs: spec/handoff đã cập nhật trạng thái applied.

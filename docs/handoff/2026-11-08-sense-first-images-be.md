@@ -1,7 +1,7 @@
 # Sense-first vocabulary images — BE implementation handoff
 
 **Ngày:** 2026-11-08  
-**Trạng thái:** Code + migration + docs đã commit; **chưa apply production**  
+**Trạng thái:** Code + migration + docs đã commit; **migration/backfill đã apply production, app đã restart**  
 **Spec gốc:** [2026-11-08-sense-first-vocabulary-images.md](../plans/2026-11-08-sense-first-vocabulary-images.md)
 
 ---
@@ -75,7 +75,10 @@ Không sửa `core.concept_media`, `serve.concept_image`, logic mapping từ đi
 - Verification:
   - `npm test -- --runInBand src/media/sense-image.repository.spec.ts` → **4/4 pass**
   - `npm run build` → **pass**
-  - Migration/backfill **chưa apply production**
+  - Migration/backfill **đã apply production**
+  - DB: 100 `sense_media`, 100 `serve.sense_image`, 13 concept pilot
+  - `GET /v1/senses/1811634`, `/149550`, `/373668` đều trả ảnh WebP
+  - Translation Muse: 13.667/13.667 batch
 
 ---
 
@@ -99,16 +102,13 @@ Không sửa `core.concept_media`, `serve.concept_image`, logic mapping từ đi
 
 ## 5. Thứ tự deploy
 
-1. Review migration `049`.
-2. Apply `049_sense_images.sql` qua migration ledger hiện tại.
-3. Apply `backfill-sense-media-pilot-20261108.sql`.
-4. Build/deploy backend có Tier 0.
-5. Kiểm tra:
+1–4. **Đã làm ngày 2026-11-08**: migration + backfill + build + restart `langoo-api`.
+5. **Đã kiểm tra**:
    - `manager` (sense 1811634) hiện ảnh
    - `政策` (sense 149550) hiện ảnh
    - `employee` (sense 373668) vẫn hiện
    - 13 concept image cũ không regression
-6. Style test 64 ảnh trước khi chạy batch 9.144.
+6. **Đang chạy**: style test 64 ảnh trước khi batch 9.144.
 
 ---
 

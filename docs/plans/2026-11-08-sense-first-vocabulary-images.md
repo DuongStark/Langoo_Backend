@@ -511,10 +511,12 @@ Dữ liệu pilot hiện tại:
 - 87 ảnh chưa bind concept; sau migration/backfill sẽ hiện qua sense.
 - 100/100 ảnh đúng thứ tự theo manifest.
 
-Chưa apply migration/backfill lên production trong bước code này. Thứ tự deploy:
+Đã apply production ngày 2026-11-08:
 
-1. Review + apply `049_sense_images.sql`.
-2. Apply `backfill-sense-media-pilot-20261108.sql`.
-3. Build/deploy backend có Tier 0.
-4. Kiểm tra 100 ảnh pilot trong app.
-5. Style test 64 ảnh → batch 9.144 ảnh.
+1. `049_sense_images.sql` — applied, ledger ghi nhận.
+2. `backfill-sense-media-pilot-20261108.sql` — applied.
+3. Backend build + restart `langoo-api`.
+4. DB hiện có **100 `sense_media`**, **100 `serve.sense_image`**, **13 concept pilot**.
+5. API đã trả ảnh cho `manager` (1811634), `政策` (149550), `employee` (373668).
+6. Translation Muse hoàn tất **13.667/13.667**.
+7. Style test 8 style × 8 từ (64 ảnh) đang chạy.
