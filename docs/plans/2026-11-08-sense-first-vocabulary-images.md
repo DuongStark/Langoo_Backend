@@ -72,33 +72,32 @@ Trong 100 ảnh pilot:
 
 ## 3. Database migration
 
-Tên gợi ý: `047_sense_images.sql` (theo ledger `public.schema_migration` hiện tại).
+Tên gợi ý: `049_sense_images.sql` (theo ledger `public.schema_migration` hiện tại; `047` và `048` đã dùng).
 
 ### 3.1 Bảng `core.sense_media`
 
 ```sql
 CREATE TABLE core.sense_media (
-  id           bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   sense_id     bigint NOT NULL REFERENCES core.sense(id) ON DELETE CASCADE,
   asset_id     bigint NOT NULL REFERENCES core.media_asset(id) ON DELETE RESTRICT,
   status       text NOT NULL DEFAULT 'pending'
                CHECK (status IN ('pending', 'approved', 'rejected')),
   is_primary   boolean NOT NULL DEFAULT false,
   style_id     text,
-  source       text NOT NULL DEFAULT 'vocab-batch',
+  source       text NOT NULL DEFAULT 'vocab-batch' CHECK (btrim(source) <> ''),
   created_at   timestamptz NOT NULL DEFAULT now(),
   reviewed_at  timestamptz,
-  reviewed_by_label text,
-  UNIQUE (sense_id, asset_id)
+  reviewed_by_label text CHECK (reviewed_by_label IS NULL OR btrim(reviewed_by_label) <> ''),
+  PRIMARY KEY (sense_id, asset_id),
+  CONSTRAINT sense_media_review_pair CHECK ((reviewed_at IS NULL) = (reviewed_by_label IS NULL)),
+  CONSTRAINT sense_media_approved_review CHECK (status <> 'approved' OR reviewed_at IS NOT NULL),
+  CONSTRAINT sense_media_primary_approved CHECK (NOT is_primary OR status = 'approved')
 );
 
-CREATE INDEX sense_media_sense_idx ON core.sense_media (sense_id);
-CREATE INDEX sense_media_asset_idx ON core.sense_media (asset_id);
-
--- Mỗi sense chỉ một ảnh primary approved
 CREATE UNIQUE INDEX sense_media_one_primary
   ON core.sense_media (sense_id)
-  WHERE status = 'approved' AND is_primary;
+  WHERE is_primary AND status = 'approved';
+CREATE INDEX sense_media_asset ON core.sense_media (asset_id);
 ```
 
 Không cần đổi constraint `media_asset_kind_check`.
@@ -360,7 +359,7 @@ Không thay đổi endpoint/response shape ngoài field `styleId` optional.
 
 ### Migration / data
 
-- [ ] Migration `047` chạy trong transaction, không đổi bảng concept.
+- [ ] Migration `049` chạy trong transaction, không đổi bảng concept.
 - [ ] `serve.sense_image` trả đúng `approved + is_primary`.
 - [ ] Unique index chặn 2 primary approved/sense.
 - [ ] Backfill đủ 100 ảnh pilot.
@@ -381,7 +380,7 @@ Không thay đổi endpoint/response shape ngoài field `styleId` optional.
 
 ### Phase 0 — Migration + 100 pilot
 
-1. Tạo `047_sense_images.sql`.
+1. Tạo `049_sense_images.sql`.
 2. Chạy migration.
 3. Backfill 100 ảnh pilot.
 4. Deploy repository tier 0.
@@ -472,7 +471,7 @@ Sau migration vẫn hiện; tier 0 và tier 1 cùng trỏ một ảnh, không co
 ## 12. File/commit đề xuất
 
 ```text
-prisma/migrations/047_sense_images.sql
+db/migrations/049_sense_images.sql
 src/media/sense-image.repository.ts   # thêm tier 0
 src/media/sense-image.service.ts      # giữ nguyên logic, optional styleId
 src/media/types/image.types.ts        # optional styleId
@@ -481,3 +480,41 @@ scripts/media/backfill-sense-media.mjs (optional CLI)
 ```
 
 Migration phải được review và chạy qua `apply-schema.mjs`/ledger hiện tại, không dùng `prisma db push`.
+
+---
+
+## 13. Implementation log — 2026-11-08
+
+Đã implement trên backend VPS:
+
+- `db/migrations/049_sense_images.sql`
+  - bảng `core.sense_media` (composite PK `sense_id, asset_id`)
+  - unique primary approved/sense
+  - view `serve.sense_image`
+- `db/ops/backfill-sense-media-pilot-20261108.sql`
+  - backfill 100 ảnh pilot hiện có từ `media_asset.metadata.pilot=true`
+- `src/media/sense-image.repository.ts`
+  - thêm **Tier 0** đọc `serve.sense_image` trước Tier 1–3 concept
+- `src/media/sense-image.repository.spec.ts`
+  - test SQL có `serve.sense_image` và `0 AS tier`
+- Verification:
+  - `npm test -- --runInBand src/media/sense-image.repository.spec.ts` → **4/4 pass**
+  - `npm run build` → **pass**
+  - Migration/backfill **chưa apply production**
+- `docs/plans/2026-11-08-sense-first-vocabulary-images.md`
+  - spec này
+
+Dữ liệu pilot hiện tại:
+
+- 100 ảnh đã upload R2 + `media_asset`.
+- 13 ảnh EN đã bind concept cũ.
+- 87 ảnh chưa bind concept; sau migration/backfill sẽ hiện qua sense.
+- 100/100 ảnh đúng thứ tự theo manifest.
+
+Chưa apply migration/backfill lên production trong bước code này. Thứ tự deploy:
+
+1. Review + apply `049_sense_images.sql`.
+2. Apply `backfill-sense-media-pilot-20261108.sql`.
+3. Build/deploy backend có Tier 0.
+4. Kiểm tra 100 ảnh pilot trong app.
+5. Style test 64 ảnh → batch 9.144 ảnh.

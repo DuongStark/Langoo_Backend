@@ -57,6 +57,28 @@ export class SenseImageRepository {
         WHERE s.id IN (${Prisma.join(uniqueIds)})
       ),
       candidates AS (
+        -- Tier 0: Sense-level image (M14.4)
+        -- This is the preferred path for vocabulary/deck images:
+        -- it does not require a concept mapping or an exact sense_concept link.
+        SELECT
+          rs.sense_id,
+          0 AS tier,
+          1.0::real AS confidence,
+          ssi.asset_id,
+          NULL::bigint AS concept_id,
+          NULL::bigint AS anchor_sense_id,
+          ssi.object_key,
+          ssi.mime,
+          ssi.bytes,
+          ssi.sha256,
+          ssi.provider,
+          ma.metadata
+        FROM requested_senses rs
+        JOIN serve.sense_image ssi ON ssi.sense_id = rs.sense_id
+        JOIN core.media_asset ma ON ma.id = ssi.asset_id
+
+        UNION ALL
+
         -- Tier 1: Anchor sense match
         SELECT
           rs.sense_id,

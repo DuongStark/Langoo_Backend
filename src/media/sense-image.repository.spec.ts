@@ -19,6 +19,18 @@ describe('SenseImageRepository', () => {
     expect(queryRaw).not.toHaveBeenCalled();
   });
 
+  it('có tier 0 đọc ảnh sense-level trước ảnh concept', async () => {
+    const queryRaw = mockPrisma.$queryRaw as jest.Mock;
+    queryRaw.mockResolvedValueOnce([]);
+
+    await repo.findSourcesWithDirectImages(mockPrisma, [100n]);
+
+    const sql = queryRaw.mock.calls[0][0] as { strings: string[] };
+    const text = sql.strings.join('?');
+    expect(text).toContain('serve.sense_image');
+    expect(text).toContain('0 AS tier');
+  });
+
   it('map đúng cấu trúc SenseImageSource và directCandidate từ SQL rows', async () => {
     mockPrisma.$queryRaw.mockResolvedValueOnce([
       {

@@ -2030,3 +2030,14 @@ M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa pu
 - M14.3 `59c8c79` và M4.7 `8e380ff` đã commit riêng theo yêu cầu. Các entry plan/review trước sửa phía trên là lịch sử, đã được thay thế bởi trạng thái code xong và kiểm tra này.
 - Node22: full67suite/596unit pass, build/lint pass;7suite/78HTTPDB test pass trên PostgreSQL test UTF8 riêng, cluster đã stop. Review độc lập không còn blocker sau sửa ENV delimiter rỗng. EXPLAIN fixture nhỏ có số đo trong report, chưa benchmark production.
 - Chưa push/deploy hoặc nghiệm thu FE/browser. FE M4.7 còn theo handoff, M14.3 không tự phân giải cooked khi thiếu mapping chắc chắn. WIP M14.2/proposal M5.3 giữ ngoài commit.
+
+
+### 2026-11-08 — M14.4 — Sense-first vocabulary images (BE code)
+
+- Theo yêu cầu chủ dự án: ảnh theo sense thay vì concept; giữ concept image làm fallback. Thêm migration `049_sense_images.sql` (`core.sense_media`, `serve.sense_image`), backfill 100 ảnh pilot, và **Tier 0** trong `SenseImageRepository` để ảnh sense thắng ảnh concept.
+- Test bổ sung: SQL repository phải chứa `serve.sense_image` và `0 AS tier`. Spec/handoff: `docs/plans/2026-11-08-sense-first-vocabulary-images.md`, `docs/handoff/2026-11-08-sense-first-images-be.md`.
+- Dữ liệu: 100 ảnh pilot đã upload R2 + `media_asset`; 13 ảnh concept cũ, 87 ảnh chờ sense backfill. Tổng 9.734 sense thiếu ảnh; 9.144 direct, 1.144 prompt 8 ảnh, 9 inherit, 581 no-image.
+- Gate: **chưa apply migration/backfill production, chưa build/deploy**. Thứ tự: apply 049 → backfill pilot → deploy Tier 0 → kiểm tra manager/政策/employee → style test 64 ảnh → batch 9.144.
+- Không đụng `concept_media`/`serve.concept_image`, mapping từ điển, hay `media_asset.kind`.
+
+- Verification: `npm test -- --runInBand src/media/sense-image.repository.spec.ts` 4/4 pass; `npm run build` pass. Chưa apply migration/backfill production.
