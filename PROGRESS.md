@@ -2059,3 +2059,13 @@ M14.2 Git chốt: code/test/docs gia cố worker đã commit `e50a685`, chưa pu
 - Dry-run sạch: 0 duplicate, 0 missing sense, 0 gloss VI đã có.
 - Tổng VI gloss sau apply: 624.331; sample `736617` API trả `"thách thức (ai đó) thực hiện lời tuyên bố"`.
 - Handoff: [2026-11-08-muse-translation-apply.md](docs/handoff/2026-11-08-muse-translation-apply.md).
+
+
+### 2026-11-09 — Tạm dừng image generation + chốt trạng thái
+
+- Full image runner đã dừng: **953/9.016 ảnh**, **119/1.128 prompt** hoàn tất; 1 prompt dở; 8 style × 141 prompt.
+- Ảnh local: `C:\Users\PC\Desktop\muse-native\full-images`; gallery live `http://127.0.0.1:8766/`; checkpoint `result.json` để resume.
+- DB/app hiện có **124 ảnh** sense-level (100 pilot + 24 validation); **124/124 public R2 OK**; API trả ảnh.
+- Dịch: 13.667/13.667 batch; apply source 187 = 273.338 gloss VI; tổng VI 624.331; JA còn 73.731 sense ngoài scope.
+- Code/docs: `cd2d172`, `0cbbd16`, `1805f43`; migration 049 + backfill + app restart đã xong.
+- Handoff: [2026-11-09-full-image-pause.md](docs/handoff/2026-11-09-full-image-pause.md).
