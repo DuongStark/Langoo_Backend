@@ -37,6 +37,13 @@ ffmpeg -y -i <output-1600.webp> \
 - Exit: 0, elapsed 0.08s
 - Output: 512×512 WebP, **7.232 bytes** (ảnh apple đơn giản; ảnh thật có thể ~20 KB).
 
+## Batch capability — đã test
+
+- CLI **không có** flag `--num`, `--count`, `--batch`, `--max-images`; help ghi rõ output là **single final media file**.
+- `--conversation-json` là mảng hội thoại nhiều lượt, **không phải batch**.
+- Test 4 text entries (apple, cup, book, ball) trong một call: exit 0, 9s, nhưng chỉ sinh **1 file**; `media_paths` có 1 phần tử.
+- Kết luận: **1 call = 1 ảnh**. Song song bằng N process CLI, không có batch 4 ảnh/call.
+
 ## Kết luận cho driver
 
 1. Gọi CLI **một lần / sense**, output 1600 rồi ffmpeg 512×512 q75.
