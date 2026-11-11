@@ -6,7 +6,11 @@
 - **1 sense bị loại có chủ đích:** `full2-ja-0633` / `たまたま` (sense `103463`) bị gloss máy `"testicles"` sai/không phù hợp; model từ chối 0/1 sau 303s. Giữ **7 ảnh đúng item 2–8**, sense này dùng fallback concept hoặc bỏ trống.
 - `full2-ja-0096` bản result cũ 0/8 chỉ là duplicate; bản trong shard đã 8/8.
 - `full2-ja-0360` từng bị model trả item 2–8 (lệch 1 vị trí); đã sinh bù item 1 `姿勢` và remap.
-- **Ảnh full v2 chưa upload R2/DB.** DB hiện vẫn 124 ảnh sense-level đã verify.
+- **Ảnh full v2 ĐÃ upload R2/DB ngày 2026-11-11.**
+  - `media_asset`: **9.015**
+  - `sense_media` source `vocab-batch-2026-11-11-full-v2`: **9.015** rows, **9.015 unique sense**, tất cả approved/primary.
+  - Tổng `sense_media` DB: **9.139** (124 ảnh cũ + 9.015 ảnh mới), tất cả approved/primary.
+  - 8 lỗi transient `fetch failed`/timeout đã retry **8/8** thành công.
 
 ## Nơi lưu
 
@@ -65,16 +69,15 @@ Acc1 dùng cookies mặc định, bỏ `MUSE_COOKIE_FILE`, chạy 6 luồng.
 5. Upload chỉ dùng `completed-manifest.json` (9.015 rows), không dùng kết quả `full2-ja-0096` cũ 0/8.
 6. `full2-ja-0633` có `excluded_senses`; không tạo ảnh cho sense `103463` nếu gloss chưa sửa.
 
-## Upload R2/DB (chưa làm)
+## Upload R2/DB — ĐÃ HOÀN TẤT 2026-11-11
 
-Template: `C:\Users\PC\Desktop\Langoo-Gemini\vps_upload_sense_batch.mjs`.
-
-Script cũ đọc:
-- `/tmp/sense-batch-items.json`
-- `/tmp/sense-batch-prompts.jsonl`
-- `/tmp/sense-batch-images/`
-
-Cần map từ `completed-manifest.json` → items/prompts/images, scp lên VPS, rồi chạy `--apply` trên VPS. Script cũ dùng `PROMPT_VERSION='vocab-square-512-webp75-style-v4'`; nên đổi version cho full v2 (tránh ghi đè pilot) và dry-run trước.
+- Ảnh: `/tmp/sense-batch-images` trên VPS.
+- Items/prompts: `/tmp/sense-batch-items.json`, `/tmp/sense-batch-prompts.jsonl`.
+- Prompt version: `vocab-square-512-webp75-full-v2-20261111`.
+- Source DB: `vocab-batch-2026-11-11-full-v2`.
+- Uploader: `/tmp/vps_upload_parallel.mjs` chạy 4 shard, sau đó retry 8 item fail.
+- Kết quả: **9.015 asset / 9.015 sense_media unique / 0 fail**.
+- Tổng DB: **9.139 sense_media** approved/primary.
 
 ## Kiểm tra cuối trước upload
 
