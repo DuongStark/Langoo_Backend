@@ -1,0 +1,1001 @@
+﻿run_order,phase,sense_id,lexeme_id,lemma,reading,pos,sense_no,level,level_label,deck_slug,en_gloss,vi_gloss,definition
+1,smoke,1614,7704,ウェイトレス,ウェイトレス,noun,1,,N2,jlpt-n2,waitress,"nữ bồi bàn, nữ phục vụ bàn",
+2,smoke,2190,12470,カクテル,カクテル,noun,1,,N1,jlpt-n1,cocktail,"cocktail, cốc-tai",
+3,smoke,3423,22224,システム,システム,noun,1,,N1,jlpt-n1,system,hệ thống,
+4,smoke,5935,40597,ピクニック,ピクニック,noun,1,,N3,jlpt-n3,picnic,"buổi picnic, buổi dã ngoại",
+5,smoke,6929,47697,ポイント,ポイント,noun,1,,N1,jlpt-n1,"point (of a story, argument, etc.)","điểm chính, ý chính; phần quan trọng",
+6,smoke,10040,154179,煙い,けむい,adjective,1,,N2,jlpt-n2,smoky,"đầy khói, sặc khói",
+7,smoke,11813,139524,格別,かくべつ,adjective,1,,N2,jlpt-n2,particular,"đặc biệt, đặc thù, khác thường, ngoại lệ",
+8,smoke,11851,166091,確保,かくほ,noun,1,,N1,jlpt-n1,securing,"sự giành được, bảo đảm; sự duy trì",
+9,smoke,12358,158294,甘い,あまい,adjective,1,,N5,jlpt-n5,sweet-tasting,"ngọt, có vị ngọt; nhiều đường, được thêm đường",
+10,smoke,12965,105081,季節,きせつ,noun,1,,N4,jlpt-n4,season,"mùa, thời điểm trong năm",
+11,smoke,12972,189870,規模,きぼ,noun,1,,N1,jlpt-n1,scale,"quy mô, tầm cỡ; phạm vi; kế hoạch, cơ cấu",
+12,smoke,13173,106922,客,きゃく,noun,1,,N4,jlpt-n4,guest,"khách, khách mời, người đến thăm",
+13,smoke,16721,195531,購入,こうにゅう,noun,1,,N1,jlpt-n1,purchase,"sự mua, việc mua (hàng)",
+14,smoke,18000,87622,参照,さんしょう,noun,1,,N1,jlpt-n1,"reference (e.g. to a dictionary, passage, footnotes)","sự tham khảo, tra cứu (từ điển, đoạn văn, chú thích...); sự đối chiếu, so sánh",
+15,smoke,18113,203724,酸っぱい,すっぱい,adjective,1,,N3,jlpt-n3,sour,"chua, có vị chua",
+16,smoke,18718,65621,事項,じこう,noun,1,,N1,jlpt-n1,matter,"điều, khoản mục, sự việc",
+17,smoke,19122,106491,実,じつ,noun,1,,N1,jlpt-n1,truth,"sự thật; thực tế, hiện thực",
+18,smoke,20529,104113,始め,はじめ,noun,1,,N1,jlpt-n1,beginning,"sự bắt đầu, khởi đầu; lúc đầu, ban đầu",
+19,smoke,20592,123054,所得,しょとく,noun,1,,N1,jlpt-n1,income,thu nhập,
+20,smoke,21570,178321,職員,しょくいん,noun,1,,N1,jlpt-n1,staff member,"nhân viên, cán bộ nhân viên",
+21,smoke,21897,130945,新鮮,しんせん,adjective,1,,N3,jlpt-n3,fresh,"tươi mới, tươi",
+22,smoke,22440,126936,推進,すいしん,noun,1,,N1,jlpt-n1,propulsion,"lực đẩy, sự đẩy tới, sự thúc đẩy",
+23,smoke,22918,158419,生,なま,adjective,1,,N3,jlpt-n3,raw,"sống, chưa nấu chín; tươi, tươi sống",
+24,smoke,23474,191553,設置,せっち,noun,1,,N1,jlpt-n1,establishment,"sự thành lập, thiết lập; cơ quan, tổ chức",
+25,smoke,24938,70999,体験,たいけん,noun,1,,N1,jlpt-n1,(practical) experience,"trải nghiệm thực tế, kinh nghiệm trực tiếp (tự mình trải qua)",
+26,smoke,24980,108448,対応,たいおう,noun,1,,N1,jlpt-n1,correspondence (to),"sự tương ứng, sự tương đương",
+27,smoke,25173,89820,台所,だいどころ,noun,1,,N5,jlpt-n5,kitchen,nhà bếp,
+28,smoke,26040,133774,昼飯,ひるめし,noun,1,,N1,jlpt-n1,lunch,"bữa trưa, bữa ăn buổi trưa",
+29,smoke,26329,163141,直ぐ,すぐ,adverb,1,,N1,jlpt-n1,immediately,ngay lập tức,
+30,smoke,27337,103626,奴,やつ,noun,1,,N1,jlpt-n1,fellow,"gã, anh chàng, tên (dùng chỉ người)",
+31,smoke,27458,124476,投資,とうし,noun,1,,N1,jlpt-n1,investment,sự đầu tư,
+32,smoke,29130,203466,配達,はいたつ,noun,1,,N3,jlpt-n3,delivery,"sự giao hàng, việc giao hàng",
+33,smoke,30694,194385,負担,ふたん,noun,1,,N1,jlpt-n1,burden,gánh nặng; trách nhiệm (phải gánh vác),
+34,smoke,33410,135935,有機,ゆうき,adjective,1,,N3,jlpt-n3,organic,hữu cơ,
+35,smoke,33575,65263,予約,よやく,noun,1,,N4,jlpt-n4,reservation,"sự đặt chỗ, đặt lịch hẹn; sự đặt hàng trước",
+36,smoke,35245,184194,茹でる,ゆでる,verb,1,,N3,jlpt-n3,to boil (something in hot water),"luộc, nấu chín (trong nước sôi)",
+37,smoke,36310,136219,朝ごはん,あさごはん,noun,1,,N5,jlpt-n5,breakfast,bữa sáng,
+38,smoke,36583,215189,香り,かおり,noun,1,,N3,jlpt-n3,aroma,"hương thơm, mùi thơm",
+39,smoke,37441,214738,飲み込む,のみこむ,verb,1,,N1,jlpt-n1,to swallow,"nuốt, nuốt chửng",
+40,smoke,37447,214732,飲み物,のみもの,noun,1,,N5,jlpt-n5,drink,"đồ uống, thức uống",
+41,smoke,37612,133768,昼食,ちゅうしょく,noun,1,,N3,jlpt-n3,lunch,"bữa trưa, bữa ăn giữa ngày",
+42,smoke,37858,159623,申し込み,もうしこみ,noun,1,,N1,jlpt-n1,application,"đơn đăng ký, sự đăng ký (tham gia, mua, thuê bao); yêu cầu, đề nghị; lời đề xuất, chào mời; lời thách đấu",
+43,smoke,41018,11613,お昼,おひる,noun,1,,N3,jlpt-n3,lunch,"bữa trưa, bữa ăn trưa",
+44,smoke,103463,29265,たまたま,たまたま,noun,1,,N3,jlpt-n3,testicles,tinh hoàn; hòn dái,
+45,smoke,129749,17596,ゲスト,ゲスト,noun,1,,N1,jlpt-n1,guest,"khách, khách mời",
+46,smoke,129840,18571,コック,コック,noun,1,,N2,jlpt-n2,cook,đầu bếp,
+47,smoke,130862,25058,スチーム,スチーム,noun,1,,N1,jlpt-n1,steam,hơi nước,
+48,smoke,134646,54484,ランチ,ランチ,noun,1,,N2,jlpt-n2,lunch,bữa trưa,
+49,smoke,135107,57519,ワイン,ワイン,noun,1,,N3,jlpt-n3,wine,"rượu vang, rượu nho",
+50,smoke,136174,59366,一部,いちぶ,noun,1,,N1,jlpt-n1,one part,một phần,
+51,smoke,136829,107194,宴会,えんかい,noun,1,,N2,jlpt-n2,party,"bữa tiệc, tiệc liên hoan ăn uống; yến tiệc, tiệc chiêu đãi",
+52,smoke,136879,154181,煙たい,けむたい,adjective,1,,N1,jlpt-n1,smoky,"đầy khói, sặc khói",
+53,smoke,138363,128133,改革,かいかく,noun,1,,N1,jlpt-n1,reform,"cải cách; cải tổ, tái tổ chức",
+54,smoke,138488,207160,開発,かいはつ,noun,1,,N1,jlpt-n1,development,"sự phát triển, khai thác; sự khai phá, khai hoang (đất đai, tài nguyên); sự ứng dụng, đưa vào sử dụng",
+55,smoke,138502,208941,階,かい,noun,1,,N1,jlpt-n1,storey,tầng nhà,
+56,smoke,138869,139215,株式,かぶしき,noun,1,,N1,jlpt-n1,share (in a company),"cổ phần, cổ phiếu (của công ty)",
+57,smoke,138996,84189,勧告,かんこく,noun,1,,N1,jlpt-n1,advice,"lời khuyên, lời tư vấn; khuyến nghị (chính thức); lời can gián",
+58,smoke,139814,189846,規定,きてい,noun,1,,N1,jlpt-n1,stipulation,"quy định; điều khoản, thể lệ, quy tắc",
+59,smoke,140461,196686,距離,きょり,noun,1,,N1,jlpt-n1,distance,khoảng cách,
+60,smoke,140856,140506,業務,ぎょうむ,noun,1,,N1,jlpt-n1,business,"công việc, nghiệp vụ; hoạt động kinh doanh, vận hành; nhiệm vụ, phận sự trong công việc",
+61,smoke,140872,134771,曲,きょく,noun,1,,N1,jlpt-n1,composition,"khúc nhạc, bài hát",
+62,smoke,141167,84793,区,く,noun,1,,N1,jlpt-n1,ward,quận,
+63,smoke,141177,183714,苦い,にがい,adjective,1,,N4,jlpt-n4,bitter (taste),đắng (vị đắng),
+64,smoke,142078,156919,献立,こんだて,noun,1,,N2,jlpt-n2,menu,thực đơn,
+65,smoke,143529,187439,行為,こうい,noun,1,,N1,jlpt-n1,act,"hành vi, hành động, việc làm",
+66,smoke,143672,90072,号,ごう,noun,1,,N1,jlpt-n1,number,"số, ấn bản, kiểu mẫu",
+67,smoke,144391,173477,細胞,さいぼう,noun,1,,N1,jlpt-n1,cell,tế bào,
+68,smoke,144487,71486,作り,つくり,noun,1,,N1,jlpt-n1,making,"sự làm, chế tạo, sản xuất, xây dựng; cấu tạo, kết cấu",
+69,smoke,145216,112528,市場,しじょう,noun,1,,N1,jlpt-n1,"market (financial, stock, domestic, etc.)","thị trường (tài chính, chứng khoán, trong nước, v.v.); chợ, nơi mua bán; sàn giao dịch",
+70,smoke,145334,131085,施設,しせつ,noun,1,,N1,jlpt-n1,facility,"cơ sở vật chất, công trình; cơ sở, tổ chức",
+71,smoke,145482,195278,資金,しきん,noun,1,,N1,jlpt-n1,funds,"vốn, tiền vốn, quỹ",
+72,smoke,145486,195251,資産,しさん,noun,1,,N1,jlpt-n1,property,"tài sản, của cải, gia sản",
+73,smoke,145541,65564,事業,じぎょう,noun,1,,N1,jlpt-n1,business,"kinh doanh, doanh nghiệp, việc kinh doanh; hoạt động thương mại, hoạt động kinh doanh; ngành công nghiệp",
+74,smoke,149550,128648,政策,せいさく,noun,1,,N1,jlpt-n1,political measures,chính sách,
+75,smoke,149891,188691,製法,せいほう,noun,1,,N1,jlpt-n1,manufacturing method,"phương pháp chế tạo, sản xuất; công thức chế biến",
+76,smoke,150252,191542,設定,せってい,noun,1,,N1,jlpt-n1,establishment,"sự thiết lập, sự tạo dựng; việc đặt ra (vấn đề); bối cảnh, khung cảnh (phim, tiểu thuyết...), cảnh",
+77,smoke,150937,126957,措置,そち,noun,1,,N1,jlpt-n1,measure,"biện pháp, bước đi, hành động (để đối phó, xử lý)",
+78,smoke,153496,106206,定める,さだめる,verb,1,,N1,jlpt-n1,to decide,"quyết định, xác định",
+79,smoke,153572,127080,提供,ていきょう,noun,1,,N1,jlpt-n1,offer,"sự cung cấp, cung ứng; sự hiến (máu, nội tạng, v.v.)",
+80,smoke,154109,161552,登録,とうろく,noun,1,,N1,jlpt-n1,registration,"sự đăng ký, ghi danh; sổ đăng ký, hồ sơ ghi chép; đăng ký thuê bao",
+81,smoke,154552,83700,動き,うごき,noun,1,,N1,jlpt-n1,movement,"sự chuyển động, sự di chuyển, cử động",
+82,smoke,155565,192359,認識,にんしき,noun,1,,N1,jlpt-n1,recognition,"sự nhận thức, nhận biết, ý thức; sự hiểu biết, tri thức",
+83,smoke,156228,161348,発生,はっせい,noun,1,,N1,jlpt-n1,occurrence,"sự xảy ra, xuất hiện; sự bùng phát; sự ra đời, phát sinh",
+84,smoke,156298,70299,伴う,ともなう,verb,1,,N1,jlpt-n1,to accompany,"đi cùng, đi kèm; song hành, gắn liền với; kéo theo (như hệ quả)",
+85,smoke,156828,176855,美味しい,おいしい,adjective,1,,N5,jlpt-n5,good(-tasting),"ngon, ngon miệng, thơm ngon",
+86,smoke,157633,202939,部,ぶ,noun,1,,N1,jlpt-n1,"department (in an organization, company, etc.)","bộ, phòng ban",
+87,smoke,157770,167581,福祉,ふくし,noun,1,,N1,jlpt-n1,welfare,"phúc lợi, hạnh phúc, sự an lành; phúc lợi xã hội, an sinh xã hội, dịch vụ xã hội",
+88,smoke,157864,80189,分,ふん,noun,1,,N1,jlpt-n1,minute (unit of time),phút,
+89,smoke,158511,72655,保険,ほけん,noun,1,,N1,jlpt-n1,insurance,bảo hiểm,
+90,smoke,162922,73760,側,がわ,noun,1,,N1,jlpt-n1,"side (of something, or taking someone's side)","phía, phe",
+91,smoke,164068,175391,総合,そうごう,noun,1,,N1,jlpt-n1,synthesis,"sự tổng hợp, sự kết hợp",
+92,smoke,164316,88560,取引,とりひき,noun,1,,N1,jlpt-n1,transactions,"giao dịch, mua bán, kinh doanh",
+93,smoke,164597,133720,昼ご飯,ひるごはん,noun,1,,N5,jlpt-n5,lunch,"bữa trưa, bữa ăn buổi trưa",
+94,smoke,165103,98080,塩辛い,しおからい,adjective,1,,N2,jlpt-n2,salty (taste),mặn; mặn như nước biển,
+95,main,15,133217,明白,あからさま,adjective,1,1,N1,jlpt-n1,plain,"rõ ràng, lộ liễu",
+96,main,18,120542,悪どい,あくどい,adjective,1,1,N1,jlpt-n1,gaudy,"lòe loẹt, sặc sỡ, chói mắt (màu sắc, trang trí)",
+97,main,112,11323,お供,おとも,noun,1,1,N1,jlpt-n1,attendant,"người hầu cận, người theo hầu; bạn đồng hành",
+98,main,296,127885,擽ったい,くすぐったい,adjective,1,1,N1,jlpt-n1,ticklish,buồn nhột,
+99,main,353,125177,拘る,こだわる,verb,1,1,N1,jlpt-n1,to be obsessive (about),"quá để tâm, câu nệ (về); kén chọn, khó tính (về); khăng khăng giữ, bám chặt (vào)",
+100,main,501,25898,ずぶ濡れ,ずぶぬれ,adjective,1,1,N1,jlpt-n1,dripping wet,"ướt sũng, ướt đẫm",
+101,main,648,154463,熟,つくづく,adverb,1,1,N1,jlpt-n1,deeply,"một cách sâu sắc, thấm thía; hoàn toàn, triệt để",
+102,main,715,214201,飛んだ,とんだ,adjective,1,1,N1,jlpt-n1,unexpected,"bất ngờ, không ngờ tới; kỳ lạ",
+103,main,956,186027,藻掻く,もがく,verb,1,1,N1,jlpt-n1,to struggle,"vùng vẫy, vật lộn; giãy giụa, quằn quại",
+104,main,961,183613,若しかして,もしかして,adverb,1,1,N1,jlpt-n1,perhaps,"có lẽ, có thể, biết đâu; nếu tôi không nhầm",
+105,main,1298,66611,亜爾加里,アルカリ,noun,1,1,N1,jlpt-n1,alkali,kiềm,
+106,main,8202,66633,亜科,あか,noun,1,1,N1,jlpt-n1,subfamily,phân họ,
+107,main,8515,134498,暗算,あんざん,noun,1,1,N1,jlpt-n1,mental arithmetic,tính nhẩm,
+108,main,8536,139666,案じる,あんじる,verb,1,1,N1,jlpt-n1,to be anxious (about),"lo lắng, lo âu, lo ngại (về điều gì); sợ hãi",
+109,main,8760,160500,異見,いけん,noun,1,1,N1,jlpt-n1,different opinion,"ý kiến khác, quan điểm khác; ý kiến bất đồng, sự phản đối",
+110,main,8824,184757,萎びる,しなびる,verb,1,1,N1,jlpt-n1,"to shrivel (e.g. cut vegetables, skin)","héo, héo rũ, héo úa; nhăn nheo, quắt lại (rau củ đã cắt, da)",
+111,main,8851,201968,違える,ちがえる,verb,1,1,N1,jlpt-n1,to change,"thay đổi, biến đổi",
+112,main,9111,59424,一頃,ひところ,noun,1,1,N1,jlpt-n1,once,"một thời, trước đây",
+113,main,9343,58135,一別,いちべつ,noun,1,1,N1,jlpt-n1,parting,"sự chia tay, sự từ biệt",
+114,main,9438,168534,稲光,いなびかり,noun,1,1,N1,jlpt-n1,(flash of) lightning,"tia chớp, ánh chớp",
+115,main,9455,86600,印,いん,noun,1,1,N1,jlpt-n1,stamp,con dấu,
+116,main,9842,133439,映写,えいしゃ,noun,1,1,N1,jlpt-n1,projection (on a screen),"sự chiếu, trình chiếu (lên màn hình)",
+117,main,10094,202047,遠回り,とおまわり,noun,1,1,N1,jlpt-n1,detour,"đường vòng, lối đi vòng",
+118,main,10164,146085,汚れる,けがれる,verb,1,1,N1,jlpt-n1,to be violated,bị vấy bẩn,
+119,main,10215,124948,押し寄せる,おしよせる,verb,1,1,N1,jlpt-n1,to advance on,"tiến tới, áp sát, tiến đánh (kẻ địch); ào tới, tràn tới, xô tới (đám đông, làn sóng...), đổ xô tới (cửa); tràn ngập, nhấn chìm, áp đảo; đẩy dạt ra",
+120,main,10515,61272,下取り,したどり,noun,1,1,N1,jlpt-n1,trade-in,"đổi cũ lấy mới, thu mua hàng cũ để trừ tiền vào hàng mới",
+121,main,10622,84364,化する,かする,verb,1,1,N1,jlpt-n1,to change (into),"biến thành, hóa thành",
+122,main,10724,71115,何なり,なんなり,adverb,1,1,N1,jlpt-n1,anything,"bất cứ cái gì, bất cứ điều gì",
+123,main,10787,71701,佳句,かく,noun,1,1,N1,jlpt-n1,beautiful passage of literature,đoạn văn hay,
+124,main,11159,184683,華奢,きゃしゃ,adjective,1,1,N1,jlpt-n1,dainty,"mảnh mai, thanh mảnh và duyên dáng; mỏng manh, tinh tế",
+125,main,11165,192903,課外,かがい,noun,1,1,N1,jlpt-n1,extracurricular,ngoại khóa,
+126,main,11255,159987,画期,かっき,noun,1,1,N1,jlpt-n1,transition from one epoch to another,bước chuyển thời đại,
+127,main,11312,68220,介抱,かいほう,noun,1,1,N1,jlpt-n1,nursing,"sự chăm sóc, trông nom (người ốm)",
+128,main,11492,122205,懐く,なつく,verb,1,1,N1,jlpt-n1,to become attached (to),"quấn quýt, gắn bó, trở nên thân thiết (với ai); trở nên thuần, dạn người (động vật)",
+129,main,11513,128072,改悪,かいあく,noun,1,1,N1,jlpt-n1,changing (something) for the worse,"sự thay đổi làm cho tệ đi, xấu đi; sự suy thoái, xuống cấp",
+130,main,11736,99409,外方,そっぽ,noun,1,1,N1,jlpt-n1,the other way,"hướng khác, phía khác (quay đi chỗ khác)",
+131,main,12298,121777,感無量,かんむりょう,noun,1,1,N1,jlpt-n1,deep emotion,"xúc động sâu sắc, tràn đầy cảm xúc",
+132,main,12370,158335,甘口,あまくち,adjective,1,1,N1,jlpt-n1,sweet flavour,vị ngọt; vị dịu nhẹ,
+133,main,12481,194700,貫禄,かんろく,noun,1,1,N1,jlpt-n1,presence,"phong thái chững chạc, uy nghi",
+134,main,12806,114372,幾多,いくた,adjective,1,1,N1,jlpt-n1,many,"nhiều, vô số",
+135,main,12933,144978,気触れる,かぶれる,verb,1,1,N1,jlpt-n1,to develop a rash or inflammation (e.g. in response to a skin irritant),"bị nổi mẩn, viêm (do chất gây kích ứng da); phản ứng với (điều gì đó)",
+136,main,12946,144849,気品,きひん,noun,1,1,N1,jlpt-n1,elegance,"sự thanh lịch, tao nhã, duyên dáng; khí chất cao quý, phẩm cách trang trọng",
+137,main,13170,192142,詰る,なじる,verb,1,1,N1,jlpt-n1,to rebuke,"khiển trách, mắng mỏ, la rầy; bắt lỗi, chê trách; cằn nhằn mãi (về lỗi lầm)",
+138,main,13397,157765,球根,きゅうこん,noun,1,1,N1,jlpt-n1,(plant) bulb,củ (của cây),
+139,main,13407,174452,給う,たまう,verb,1,1,N1,jlpt-n1,to give,"cho, ban cho",
+140,main,13456,132734,旧知,きゅうち,noun,1,1,N1,jlpt-n1,old friend,"bạn cũ, người quen cũ",
+141,main,13770,120107,恐れ入る,おそれいる,verb,1,1,N1,jlpt-n1,to be sorry,"xin lỗi, mong được tha thứ; cảm thấy áy náy, tự thấy mình nhỏ bé",
+142,main,13808,128989,教職,きょうしょく,noun,1,1,N1,jlpt-n1,the teaching profession,"nghề dạy học, nghề giáo",
+143,main,13872,182113,興じる,きょうじる,verb,1,1,N1,jlpt-n1,to amuse oneself,"vui chơi, tiêu khiển cho vui",
+144,main,13918,79311,凝らす,こごらす,verb,1,1,N1,jlpt-n1,to freeze,làm đông; làm đông đặc,
+145,main,13938,140496,業,ごう,noun,1,1,N1,jlpt-n1,karma,nghiệp,
+146,main,14054,83956,務まる,つとまる,verb,1,1,N1,jlpt-n1,to be fit (for a role),"phù hợp, đủ khả năng, đủ tư cách (đảm nhận vai trò, nhiệm vụ); làm tròn được nhiệm vụ",
+147,main,14754,174910,継ぎ目,つぎめ,noun,1,1,N1,jlpt-n1,joint,"mối nối, chỗ nối, đường nối",
+148,main,14924,14633,きまり悪い,きまりわるい,adjective,1,1,N1,jlpt-n1,embarrassed,"ngượng ngùng, xấu hổ",
+149,main,14965,174211,結びつける,むすびつける,verb,1,1,N1,jlpt-n1,to tie (to),"buộc vào, cột chặt, gắn, nối lại",
+150,main,15039,69568,件,くだん,adjective,1,1,N1,jlpt-n1,the aforementioned,đã nêu trên; đã nói đến,
+151,main,15224,189477,見すぼらしい,みすぼらしい,adjective,1,1,N1,jlpt-n1,shabby,"rách rưới, tồi tàn, lôi thôi khó coi",
+152,main,15232,189575,見世物,みせもの,noun,1,1,N1,jlpt-n1,misemono,"trò biểu diễn mua vui, trò tạp kỹ (thời Edo-Meiji, thường diễn ngoài trời hoặc trong lều tạm dựng ở sân chùa, đền)",
+153,main,15341,202229,遣り通す,やりとおす,verb,1,1,N1,jlpt-n1,to carry through,"làm đến cùng, hoàn thành, đạt được",
+154,main,15670,92177,呼び止める,よびとめる,verb,1,1,N1,jlpt-n1,to (call and) stop,"gọi (ai đang đi) dừng lại; vẫy gọi, đón (xe, taxi)",
+155,main,16541,140908,構え,かまえ,noun,1,1,N1,jlpt-n1,structure,"cấu trúc, vẻ ngoài",
+156,main,16973,95044,国定,こくてい,noun,1,1,N1,jlpt-n1,state-sponsored,do nhà nước quy định,
+157,main,17074,215836,骨,こつ,noun,1,1,N1,jlpt-n1,knack,"bí quyết, kỹ năng",
+158,main,17091,215951,骨董品,こっとうひん,noun,1,1,N1,jlpt-n1,curio,"đồ cổ; vật lạ, vật sưu tầm quý hiếm",
+159,main,17230,112217,差し引く,さしひく,verb,1,1,N1,jlpt-n1,to deduct,khấu trừ,
+160,main,17598,209091,際,きわ,noun,1,1,N1,jlpt-n1,edge,"mép, rìa",
+161,main,17707,71634,作物,さくぶつ,noun,1,1,N1,jlpt-n1,artistic work,tác phẩm nghệ thuật; tác phẩm văn học,
+162,main,17776,26520,すれ違い,すれちがい,noun,1,1,N1,jlpt-n1,passing each other,"sự lướt qua nhau, đi ngang qua nhau",
+163,main,17814,209800,雑木,ぞうき,noun,1,1,N1,jlpt-n1,various kinds of small trees,"cây tạp, các loại cây nhỏ đủ loại",
+164,main,18046,111146,山腹,さんぷく,noun,1,1,N1,jlpt-n1,hillside,"sườn núi, triền núi",
+165,main,18097,159185,産後,さんご,adjective,1,1,N1,jlpt-n1,after childbirth,"sau khi sinh, sau sinh; hậu sản",
+166,main,18125,143694,残金,ざんきん,noun,1,1,N1,jlpt-n1,remaining money,số tiền còn lại,
+167,main,18180,68472,仕付ける,しつける,verb,1,1,N1,jlpt-n1,to be used to,quen làm,
+168,main,18546,144351,氏,うじ,noun,1,1,N1,jlpt-n1,family name,"họ, dòng họ",
+169,main,18648,195355,賜る,たまわる,verb,1,1,N1,jlpt-n1,to be given,"được ban cho, được ban tặng, được vinh dự nhận (từ người trên)",
+170,main,18775,104948,字,あざ,noun,1,1,N1,jlpt-n1,section of village,khu nhỏ trong làng,
+171,main,18816,125473,持ちきり,もちきり,noun,1,1,N1,jlpt-n1,hot topic,"chủ đề nóng hổi, chuyện được mọi người bàn tán xôn xao",
+172,main,18975,181286,自尊心,じそんしん,noun,1,1,N1,jlpt-n1,self-esteem,"lòng tự trọng, lòng tự tôn, lòng kiêu hãnh; tính tự phụ, kiêu căng",
+173,main,18977,181916,自転,じてん,noun,1,1,N1,jlpt-n1,rotation (on an axis),sự tự quay (quanh trục),
+174,main,19087,102903,失調,しっちょう,noun,1,1,N1,jlpt-n1,lack of harmony,"sự thiếu hài hòa, mất cân bằng, thiếu phối hợp; sự trục trặc, rối loạn",
+175,main,19101,150625,湿気る,しける,verb,1,1,N1,jlpt-n1,to get damp,bị ẩm; bị ỉu; trở nên ẩm ướt,
+176,main,19475,88490,取り混ぜる,とりまぜる,verb,1,1,N1,jlpt-n1,to mix,"trộn lẫn, pha trộn; kết hợp lại với nhau",
+177,main,19501,88505,取り立てる,とりたてる,verb,1,1,N1,jlpt-n1,to collect (debts),"thu nợ, đòi nợ (thúc nợ); bắt phải nộp, cưỡng đoạt",
+178,main,19570,123429,手回し,てまわし,noun,1,1,N1,jlpt-n1,turning by hand,"sự quay bằng tay; quay tay, vận hành bằng tay quay",
+179,main,19697,215157,首輪,くびわ,noun,1,1,N1,jlpt-n1,(animal) collar,vòng cổ (cho động vật),
+180,main,19959,196978,蹴飛ばす,けとばす,verb,1,1,N1,jlpt-n1,to kick (hard),"đá mạnh; đá văng đi, đá bay đi",
+181,main,20546,81238,初耳,はつみみ,noun,1,1,N1,jlpt-n1,something heard for the first time,"điều mới nghe lần đầu, chuyện nghe thấy lần đầu tiên",
+182,main,20969,114562,床,とこ,noun,1,1,N1,jlpt-n1,bed,"giường, chăn nệm",
+183,main,21006,139902,梢,こずえ,noun,1,1,N1,jlpt-n1,treetop,ngọn cây; đầu cành,
+184,main,21080,18383,こげ茶,こげちゃ,noun,1,1,N1,jlpt-n1,dark brown,"màu nâu sẫm, nâu đậm; nâu ô liu",
+185,main,21087,154253,照り返す,てりかえす,verb,1,1,N1,jlpt-n1,to reflect,"phản chiếu, hắt lại ánh sáng",
+186,main,21090,154269,照合,しょうごう,noun,1,1,N1,jlpt-n1,check (against),"sự đối chiếu, so sánh (để kiểm tra); xác minh",
+187,main,21279,60654,上下,うえした,noun,1,1,N1,jlpt-n1,top and bottom,trên và dưới; lên và xuống; cao và thấp,
+188,main,21459,97267,城下,じょうか,noun,1,1,N1,jlpt-n1,land near a castle,"vùng đất quanh thành, dưới chân thành",
+189,main,21911,130502,新入生,しんにゅうせい,noun,1,1,N1,jlpt-n1,new student,"học sinh mới, sinh viên mới; sinh viên năm nhất, tân sinh viên",
+190,main,21963,159597,申し分,もうしぶん,noun,1,1,N1,jlpt-n1,complaint,"lời phàn nàn, sự phản đối, sự chống đối; lỗi, điểm đáng chê trách",
+191,main,21977,164044,真ん丸い,まんまるい,adjective,1,1,N1,jlpt-n1,perfectly round,"tròn vo, tròn xoe; tròn vành vạnh",
+192,main,21978,164045,真ん前,まんまえ,adjective,1,1,N1,jlpt-n1,right in front,"ngay trước mặt, ngay trước mắt; ngay đối diện",
+193,main,21983,164050,真下,ました,noun,1,1,N1,jlpt-n1,right under,"ngay bên dưới, ngay phía dưới",
+194,main,22158,200934,進度,しんど,noun,1,1,N1,jlpt-n1,progress,"tiến độ, sự tiến triển",
+195,main,22561,111581,嵩む,かさむ,verb,1,1,N1,jlpt-n1,to mount up,"chất đống, dồn lại; tích lũy, tăng lên",
+196,main,22753,122384,成る丈,なるたけ,adverb,1,1,N1,jlpt-n1,as (much) as possible,"hết mức có thể, càng nhiều càng tốt; nếu có thể",
+197,main,22756,122493,成育,せいいく,noun,1,1,N1,jlpt-n1,growth (to maturity),"sự lớn lên, trưởng thành; sự nuôi dưỡng, nuôi dạy",
+198,main,22829,142436,正しく,まさしく,adverb,1,1,N1,jlpt-n1,certainly,"chắc chắn, hẳn là; quả thật, thực sự",
+199,main,22910,149929,清純,せいじゅん,adjective,1,1,N1,jlpt-n1,purity,"trong sáng, thuần khiết, ngây thơ trong trắng",
+200,main,22914,149909,清濁,せいだく,noun,1,1,N1,jlpt-n1,good and evil,cái thiện và cái ác; sự thanh khiết và ô uế,
+201,main,22917,158420,生,き,noun,1,1,N1,jlpt-n1,pure,đồ tươi sống; chất nguyên chất,
+202,main,23033,162545,盛る,さかる,verb,1,1,N1,jlpt-n1,to become vigorous,"trở nên sôi nổi, mạnh lên",
+203,main,23166,211788,静的,せいてき,adjective,1,1,N1,jlpt-n1,static,"tĩnh, đứng yên, không thay đổi",
+204,main,23395,80875,切開,せっかい,noun,1,1,N1,jlpt-n1,incision,"sự rạch mổ, vết rạch (mổ); cuộc phẫu thuật, ca mổ",
+205,main,23540,174839,絶版,ぜっぱん,noun,1,1,N1,jlpt-n1,out of print,"hết bản in, ngừng xuất bản",
+206,main,23552,68894,仙,せん,noun,1,1,N1,jlpt-n1,hermit,"tiên nhân, ẩn sĩ",
+207,main,23754,148261,浅ましい,あさましい,adjective,1,1,N1,jlpt-n1,wretched,"khốn khổ, thảm hại; đáng xấu hổ, hèn hạ, đáng khinh",
+208,main,23972,182720,良し,よし,adjective,1,1,N1,jlpt-n1,good,"tốt, giỏi, tuyệt vời; dễ chịu, dễ mến",
+209,main,23995,153997,然程,さほど,adverb,1,1,N1,jlpt-n1,(not) so,"(dùng với phủ định) không đến thế, không lắm, không nhiều đến vậy",
+210,main,24320,12432,かき回す,かきまわす,verb,1,1,N1,jlpt-n1,to stir,"khuấy, đảo; khêu (lửa); khuấy động (nước)",
+211,main,24611,81967,則る,のっとる,verb,1,1,N1,jlpt-n1,"to follow (a rule, precedent, style, etc.)","noi theo, tuân theo",
+212,main,24783,68659,他意,たい,noun,1,1,N1,jlpt-n1,other intention,"ý đồ khác, dụng ý ngầm; ác ý",
+213,main,24799,68629,他動詞,たどうし,noun,1,1,N1,jlpt-n1,transitive verb,ngoại động từ,
+214,main,24924,70827,体,てい,noun,1,1,N1,jlpt-n1,appearance,"dáng vẻ, tình trạng",
+215,main,25055,151174,滞る,とどこおる,verb,1,1,N1,jlpt-n1,to stagnate,"bị đình trệ, bị trì hoãn; bị bỏ dở, chưa được làm",
+216,main,25205,100864,大家,たいか,noun,1,1,N1,jlpt-n1,master,"bậc thầy, chuyên gia, người có uy tín; nhân vật hàng đầu",
+217,main,25326,101132,大柄,おおがら,adjective,1,1,N1,jlpt-n1,large build,"to lớn, cao to (vóc dáng)",
+218,main,25755,115881,弛み,たるみ,noun,1,1,N1,jlpt-n1,slack,"sự chùng, lỏng lẻo; sự chảy xệ, nhão (da, v.v.)",
+219,main,25784,201051,遅くとも,おそくとも,adverb,1,1,N1,jlpt-n1,at the latest,"muộn nhất là, chậm nhất là",
+220,main,26203,178279,聴診器,ちょうしんき,noun,1,1,N1,jlpt-n1,stethoscope,ống nghe,
+221,main,26466,160964,痛切,つうせつ,adjective,1,1,N1,jlpt-n1,keen,"sâu sắc, thấm thía; chân thành, tha thiết (từ đáy lòng)",
+222,main,26619,205209,釣鐘,つりがね,noun,1,1,N1,jlpt-n1,temple bell,"chuông treo, chuông chùa; chuông tang lễ",
+223,main,26815,162177,的,まと,noun,1,1,N1,jlpt-n1,mark,"bia, mục tiêu",
+224,main,26873,102294,天津,あまつ,adjective,1,1,N1,jlpt-n1,heavenly,thuộc về cõi trời; thuộc về hoàng gia,
+225,main,27145,70173,伝来,でんらい,noun,1,1,N1,jlpt-n1,introduction (from abroad),"sự du nhập, truyền đến (từ nước ngoài)",
+226,main,27621,174602,統率,とうそつ,noun,1,1,N1,jlpt-n1,command,"sự chỉ huy, sự lãnh đạo; tài cầm quân, tài thống lĩnh",
+227,main,27647,196885,踏み込む,ふみこむ,verb,1,1,N1,jlpt-n1,to step into (e.g. someone else's territory),"bước vào, xông vào (lãnh thổ, khu vực của người khác); đột nhập; bố ráp, đột kích",
+228,main,27737,83861,動的,どうてき,adjective,1,1,N1,jlpt-n1,dynamic,"động, mang tính động (trái với tĩnh); thuộc về chuyển động, thuộc động học",
+229,main,28634,75571,入る,いる,verb,1,1,N1,jlpt-n1,to enter,đi vào,
+230,main,28764,192306,認める,したためる,verb,1,1,N1,jlpt-n1,to write (e.g. a letter),"viết, soạn",
+231,main,305,15777,くっ付ける,くっつける,verb,1,2,N2,jlpt-n2,to attach,"gắn vào, dính lại với nhau, dán, dán bằng keo",
+232,main,367,142826,此間,こないだ,noun,1,2,N2,jlpt-n2,the other day,"hôm nọ, hôm trước; gần đây, dạo gần đây",
+233,main,435,97330,執拗い,しつこい,adjective,1,2,N2,jlpt-n2,insistent,"dai dẳng, lì lợm, ngoan cố, cố chấp",
+234,main,443,146355,沁み沁み,しみじみ,adverb,1,2,N2,jlpt-n2,keenly,"một cách thấm thía, sâu sắc; chân thành, hết lòng; nghiêm túc",
+235,main,446,90155,吃逆,しゃっくり,noun,1,2,N2,jlpt-n2,hiccup,nấc cụt,
+236,main,468,23243,じゃん拳,じゃんけん,noun,1,2,N2,jlpt-n2,rock-paper-scissors (game),"trò oẳn tù tì, kéo-búa-bao",
+237,main,591,29352,だらし無い,だらしない,adjective,1,2,N2,jlpt-n2,"slovenly (appearance, work, etc.)","luộm thuộm, lôi thôi, cẩu thả (vẻ ngoài, công việc...); thiếu kỷ luật, buông thả, lỏng lẻo",
+238,main,990,107725,寄越す,よこす,verb,1,2,N2,jlpt-n2,to send,gửi tới; chuyển tiếp,
+239,main,2984,149709,混凝土,コンクリート,noun,1,2,N2,jlpt-n2,concrete,bê tông,
+240,main,3117,193935,護謨,ゴム,noun,1,2,N2,jlpt-n2,gum,cao su,
+241,main,11052,152129,火口,かこう,noun,1,2,N2,jlpt-n2,(volcanic) crater,"miệng núi lửa, hõm chảo núi lửa",
+242,main,12202,107931,寒帯,かんたい,noun,1,2,N2,jlpt-n2,frigid zone,"đới lạnh, vùng hàn đới",
+243,main,14665,116675,形容動詞,けいようどうし,noun,1,2,N2,jlpt-n2,adjectival noun (in Japanese),"tính từ đuôi na (trong tiếng Nhật), tính từ danh từ (gồm loại na, taru, nari, tari)",
+244,main,14886,151831,激増,げきぞう,noun,1,2,N2,jlpt-n2,sharp increase,"sự tăng mạnh, tăng vọt; sự tăng đột ngột",
+245,main,15234,189510,見っともない,みっともない,adjective,1,2,N2,jlpt-n2,shameful,"đáng xấu hổ, mất thể diện; khó coi, xấu xí; khiếm nhã, không đứng đắn, không phù hợp",
+246,main,16686,187216,行き成り,いきなり,adverb,1,2,N2,jlpt-n2,abruptly,"một cách đột ngột, thình lình; không báo trước",
+247,main,17772,127811,擦る,こする,verb,1,2,N2,jlpt-n2,to rub,"chà xát, cọ rửa; cạo, quẹt",
+248,main,18163,68422,仕上がる,しあがる,verb,1,2,N2,jlpt-n2,to be finished,"hoàn thành, xong",
+249,main,20435,199052,述語,じゅつご,noun,1,2,N2,jlpt-n2,predicate,vị ngữ,
+250,main,20511,212910,順々,じゅんじゅん,adverb,1,2,N2,jlpt-n2,in order,"theo thứ tự, lần lượt",
+251,main,20793,84027,勝手に,かってに,adverb,1,2,N2,jlpt-n2,arbitrarily,"một cách tùy tiện, tự ý theo ý mình (không hỏi ý kiến, ích kỷ); tự động, tự nó",
+252,main,22170,205145,針路,しんろ,noun,1,2,N2,jlpt-n2,course,"hướng đi, lộ trình (của tàu thuyền, máy bay)",
+253,main,23824,177095,羨む,うらやむ,verb,1,2,N2,jlpt-n2,to envy,"ghen tị, ganh tị, đố kỵ (với ai/cái gì)",
+254,main,25336,100528,大凡,おおよそ,adverb,1,2,N2,jlpt-n2,about,"khoảng, chừng, xấp xỉ",
+255,main,27774,90864,同格,どうかく,noun,1,2,N2,jlpt-n2,the same rank,"cùng cấp bậc, ngang hàng; sự bình đẳng",
+256,main,32008,97011,坊や,ぼうや,noun,1,2,N2,jlpt-n2,boy,"cậu bé, đứa trẻ; con trai (cách gọi thân mật)",
+257,main,34837,79483,凭れる,もたれる,verb,1,2,N2,jlpt-n2,to lean against,"dựa vào, tựa vào; ngả người tựa vào",
+258,main,35313,189028,襤褸,ぼろ,noun,1,2,N2,jlpt-n2,rag,giẻ rách,
+259,main,35327,193104,諄い,くどい,adjective,1,2,N2,jlpt-n2,repetitious,"dài dòng, rườm rà, lặp đi lặp lại gây chán; dai dẳng, nài ép phiền phức",
+260,main,35631,179616,脅かす,おどかす,verb,1,2,N2,jlpt-n2,to threaten,"đe dọa, hăm dọa, uy hiếp",
+261,main,36690,80619,切っ掛け,きっかけ,noun,1,2,N2,jlpt-n2,chance,"cơ hội, dịp; cớ, duyên cớ, động lực để bắt đầu một việc",
+262,main,36878,199602,逆さま,さかさま,adjective,1,2,N2,jlpt-n2,inverted,"lộn ngược, đảo ngược (ngược đầu, ngược trước-sau)",
+263,main,37087,74805,先々月,せんせんげつ,noun,1,2,N2,jlpt-n2,month before last,tháng trước nữa,
+264,main,37487,192167,話し中,はなしちゅう,adjective,1,2,N2,jlpt-n2,busy (phone),"máy bận, đang nói chuyện điện thoại",
+265,main,38062,162892,目出度い,めでたい,adjective,1,2,N2,jlpt-n2,happy,"vui mừng, hân hoan; tốt lành, may mắn, cát tường",
+266,main,38147,151637,潜る,もぐる,verb,1,2,N2,jlpt-n2,to dive (into or under water),lặn (xuống nước),
+267,main,38240,218777,齧る,かじる,verb,1,2,N2,jlpt-n2,to gnaw,"gặm, gặm nhấm, cắn, nhai",
+268,main,38412,202207,遣っ付ける,やっつける,verb,1,2,N2,jlpt-n2,to beat,"đánh bại, tấn công (kẻ địch); tiêu diệt, kết liễu",
+269,main,40293,11728,お目出度い,おめでたい,adjective,1,2,N2,jlpt-n2,(matter) for congratulations,"đáng chúc mừng, đáng ăn mừng; vui mừng, hân hoan (dịp, kết thúc...); cát tường, tốt lành",
+270,main,41138,214905,養分,ようぶん,noun,1,2,N2,jlpt-n2,nutrient,"chất dinh dưỡng, chất bổ dưỡng",
+271,main,41845,128156,攻め手,せめて,noun,1,2,N2,jlpt-n2,offense,sự tấn công; cách tấn công,
+272,main,48010,147622,洋品店,ようひんてん,noun,1,2,N2,jlpt-n2,shop that handles Western-style apparel and accessories,cửa hàng quần áo và phụ kiện kiểu phương Tây,
+273,main,52300,74806,先々週,せんせんしゅう,noun,1,2,N2,jlpt-n2,week before last,"tuần trước nữa, tuần kia",
+274,main,53079,114725,店屋,みせや,noun,1,2,N2,jlpt-n2,store,"cửa hàng, cửa tiệm",
+275,main,56502,105007,存ずる,ぞんずる,verb,1,2,N2,jlpt-n2,to know,"biết; nhận biết, ý thức được (về); quen biết (với)",
+276,main,56505,184156,茶色い,ちゃいろい,adjective,1,2,N2,jlpt-n2,light brown,"nâu nhạt, nâu vàng",
+277,main,56506,199971,通ずる,つうずる,verb,1,2,N2,jlpt-n2,to be open (to traffic),"thông (đường cho giao thông); dẫn đến, nối tới, kéo dài đến, đi tới, tới được; chạy (tuyến xe buýt)",
+278,main,61840,130176,斜,はす,adjective,1,2,N2,jlpt-n2,diagonal,"chéo, xiên",
+279,main,71249,109522,小母さん,おばさん,noun,1,2,N2,jlpt-n2,old lady,"cô, bác gái, bà (cách gọi lịch sự với phụ nữ trung niên hoặc lớn tuổi)",
+280,main,71255,70292,伯父さん,おじさん,noun,1,2,N2,jlpt-n2,uncle,"bác trai, chú, cậu",
+281,main,105478,205223,鈍い,のろい,adjective,1,2,N2,jlpt-n2,thickheaded,"đần độn, ngu ngốc, chậm hiểu",
+282,main,111460,29887,チップ,チップ,noun,1,2,N2,jlpt-n2,chip,chip; vi mạch,
+283,main,113395,54485,ランチ,ランチ,noun,1,2,N2,jlpt-n2,launch (boat),tàu nhỏ; thuyền đưa đón,
+284,main,113529,30210,チョーク,チョーク,noun,1,2,N2,jlpt-n2,chock (wedge placed under a wheel),cái chèn bánh xe,
+285,main,113531,30211,チョーク,チョーク,noun,1,2,N2,jlpt-n2,choke (hold),đòn siết cổ,
+286,main,113836,51293,メーター,メーター,noun,1,2,N2,jlpt-n2,animator,họa sĩ hoạt hình,
+287,main,115001,161182,発つ,たつ,verb,1,2,N2,jlpt-n2,"to depart (on a journey, trip, etc.)","khởi hành, lên đường",
+288,main,115403,45326,ブローチ,ブローチ,noun,1,2,N2,jlpt-n2,broach (cutting tool),mũi doa; dao chuốt,
+289,main,118961,57080,ロッカー,ロッカー,noun,1,2,N2,jlpt-n2,rocker,người chơi nhạc rock,
+290,main,124942,174534,統一,とういつ,noun,1,2,N2,jlpt-n2,Touitsu,Touitsu,
+291,main,125575,57773,ワンピース,ワンピース,noun,1,2,N2,jlpt-n2,One Piece (manga series and media franchise),One Piece; bộ manga và thương hiệu truyền thông,
+292,main,125833,97009,坊っちゃん,ぼっちゃん,noun,1,2,N2,jlpt-n2,Botchan (1906 novel by Natsume Sōseki),Cậu ấm ngây thơ; Botchan,
+293,main,127071,93880,嚏,くしゃみ,noun,1,2,N2,jlpt-n2,sneeze,"cái hắt hơi, sự hắt hơi",
+294,main,127080,184298,草臥れる,くたびれる,verb,1,2,N2,jlpt-n2,to get tired,"mệt mỏi, kiệt sức, rã rời",
+295,main,127828,164770,矢っ張り,やっぱり,adverb,1,2,N2,jlpt-n2,as expected,"đúng như dự đoán, quả nhiên",
+296,main,129615,158223,瓜姆,グアム,noun,1,2,N2,jlpt-n2,Guam,Guam,
+297,main,132349,215356,馬穴,バケツ,noun,1,2,N2,jlpt-n2,bucket,"xô, thùng",
+298,main,132431,161304,発条,ばね,noun,1,2,N2,jlpt-n2,spring (device),lò xo,
+299,main,137458,61514,下線,かせん,noun,1,2,N2,jlpt-n2,underline,"đường gạch dưới, gạch chân; dấu gạch dưới",
+300,main,137741,83240,加速度,かそくど,noun,1,2,N2,jlpt-n2,acceleration,gia tốc,
+301,main,138247,190576,解く,ほどく,verb,1,2,N2,jlpt-n2,to undo,"tháo, cởi, gỡ (dây, nút buộc); nới lỏng; tháo bung, gỡ rối; mở, dỡ (bao, gói hàng)",
+302,main,139522,97472,基板,きばん,noun,1,2,N2,jlpt-n2,(circuit) board,bo mạch,
+303,main,141532,103144,契る,ちぎる,verb,1,2,N2,jlpt-n2,to pledge,thề ước,
+304,main,142440,190780,言いつける,いいつける,verb,1,2,N2,jlpt-n2,to tell (to do),"bảo, dặn làm (việc gì); ra lệnh, chỉ thị",
+305,main,142752,91849,呉れ呉れも,くれぐれも,adverb,1,2,N2,jlpt-n2,sincerely,"một cách chân thành, tha thiết; hết lòng",
+306,main,143956,119305,忽ち,たちまち,adverb,1,2,N2,jlpt-n2,in an instant,"trong chớp mắt, ngay lập tức",
+307,main,145986,160754,疾っくに,とっくに,adverb,1,2,N2,jlpt-n2,long ago,"từ lâu, từ lâu rồi; đã (xong) từ lâu",
+308,main,150826,151590,漸く,ようやく,adverb,1,2,N2,jlpt-n2,finally,"cuối cùng, mãi rồi mới",
+309,main,153231,163307,直流,ちょくりゅう,noun,1,2,N2,jlpt-n2,direct current,"dòng điện một chiều, DC",
+310,main,153361,199978,通りかかる,とおりかかる,verb,1,2,N2,jlpt-n2,to happen to pass by,tình cờ đi ngang qua,
+311,main,154050,75404,兎も角,ともかく,adverb,1,2,N2,jlpt-n2,anyhow,"dù sao đi nữa, dù thế nào đi nữa; bằng cách nào đó; nói chung, nhìn chung",
+312,main,158812,214832,飽くまで,あくまで,adverb,1,2,N2,jlpt-n2,to the end,"cho đến cùng, đến phút chót; một cách ngoan cố, kiên trì, trước sau như một; hết sức, đến mức tối đa",
+313,main,159904,162870,目下,めした,noun,1,2,N2,jlpt-n2,subordinate,"cấp dưới, người dưới quyền (người có địa vị thấp hơn)",
+314,main,161902,111565,嵌める,はめる,verb,1,2,N2,jlpt-n2,to fit (e.g. a pane into a frame),"lắp vừa vào, lồng vào, nhét vào (tấm kính vào khung, nút chai...); cài (cúc, khuy)",
+315,main,161912,112181,巫山戯る,ふざける,verb,1,2,N2,jlpt-n2,to joke,"đùa, nói đùa, đùa giỡn",
+316,main,161988,127291,揶揄う,からかう,verb,1,2,N2,jlpt-n2,to tease,"trêu chọc, trêu đùa; chế giễu, châm chọc",
+317,main,162062,152586,炙る,あぶる,verb,1,2,N2,jlpt-n2,to warm (e.g. one's hands over a fire),"sưởi ấm (ví dụ hơ tay trên lửa); hong khô, sấy khô",
+318,main,162080,156423,狡い,ずるい,adjective,1,2,N2,jlpt-n2,sly,"ranh ma, xảo quyệt, lén lút; gian dối, chơi xấu, không công bằng",
+319,main,162371,215024,饂飩,うどん,noun,1,2,N2,jlpt-n2,udon,"mì udon, mì sợi dày của Nhật Bản làm từ bột mì",
+320,main,162464,120653,悪日,あくにち,noun,1,2,N2,jlpt-n2,unlucky day,ngày xấu,
+321,main,162489,58605,一昨昨日,いっさくさくじつ,noun,1,2,N2,jlpt-n2,two days before yesterday,ba hôm trước,
+322,main,162608,89875,台詞,せりふ,noun,1,2,N2,jlpt-n2,"(spoken) line (in a play, film, comic, etc.)","lời thoại (trong vở kịch, phim, truyện tranh, v.v.)",
+323,main,162757,81828,刷子,さっし,noun,1,2,N2,jlpt-n2,brush,bàn chải; cọ,
+324,main,163204,186787,螺子,ネジ,noun,1,2,N2,jlpt-n2,screw,ốc vít,
+325,main,163372,121171,愈,いよいよ,adverb,1,2,N2,jlpt-n2,more and more,"càng ngày càng, ngày càng; càng thêm",
+326,main,163477,11839,お菜,おかず,noun,1,2,N2,jlpt-n2,small dish (usu. one of several accompanying rice),món ăn kèm với cơm; món ăn phụ,
+327,main,163541,11342,お八つ,おやつ,noun,1,2,N2,jlpt-n2,between-meal snack,"đồ ăn vặt giữa bữa, bữa ăn nhẹ giữa buổi",
+328,main,163849,190963,言付ける,ことづける,verb,1,2,N2,jlpt-n2,"to have someone send (a message, parcel, etc.)","nhờ người khác gửi, chuyển giúp (tin nhắn, bưu kiện, v.v.); để lại lời nhắn nhờ chuyển",
+329,main,164245,152690,点々,てんてん,adverb,1,2,N2,jlpt-n2,here and there,"rải rác đây đó, lốm đốm từng giọt; lác đác, từng chút một",
+330,main,164546,40989,ひっくり返す,ひっくりかえす,verb,1,2,N2,jlpt-n2,to turn over,"lật lại, lật ngược, lật ngửa lên; lộn trái (mặt trong ra ngoài)",
+331,main,164641,128713,故郷,ふるさと,noun,1,2,N2,jlpt-n2,hometown,"quê hương, quê quán, nơi sinh; ngôi nhà xưa của mình",
+332,main,164818,185838,薬缶,やかん,noun,1,2,N2,jlpt-n2,kettle,ấm đun nước,
+333,main,165163,126213,捩る,ねじる,verb,1,2,N2,jlpt-n2,to twist,"vặn, xoắn; vặn mạnh",
+334,main,165275,116994,彼是,あれこれ,adverb,1,2,N2,jlpt-n2,this and that,"cái này cái nọ, thứ này thứ khác, đủ thứ; cách này cách khác",
+335,main,168447,153463,無沙汰,ぶさた,noun,1,2,N2,jlpt-n2,not writing or contacting for a while,"lâu ngày không liên lạc, thư từ (gọi điện, thăm hỏi...); sự im lặng, bặt tin lâu ngày",
+336,main,183544,165746,破く,やぶく,verb,1,2,N2,jlpt-n2,to tear,"xé, xé rách",
+337,main,213819,163739,相舞,あいまい,noun,1,2,N2,jlpt-n2,"dancing together in unison (in noh, kyogen, etc.)",cùng múa đồng điệu,
+338,main,217213,142373,止まる,とどまる,verb,1,2,N2,jlpt-n2,to remain,"ở lại, lưu lại ở một chỗ; vẫn còn, còn duy trì",
+339,main,226597,97654,堪える,こらえる,verb,1,2,N2,jlpt-n2,to bear,"chịu đựng, cam chịu, chịu được",
+340,main,228652,84287,包む,くるむ,verb,1,2,N2,jlpt-n2,to wrap up (in),"gói lại, bọc (trong), cuốn lại, quấn lại; đắp kín, ủ kín",
+341,main,229795,122168,憾む,うらむ,verb,1,2,N2,jlpt-n2,to regret,hối tiếc; hối hận,
+342,main,235010,50089,マラソン,マラソン,noun,1,2,N2,jlpt-n2,malathion (insecticide),malathion; thuốc trừ sâu malathion,
+343,main,237456,112441,巻子,へそ,noun,1,2,N2,jlpt-n2,bobbin,ống chỉ; cuộn chỉ; suốt chỉ,
+344,main,239429,12160,カーブ,カーブ,noun,1,2,N2,jlpt-n2,(wine) cellar,hầm rượu vang,
+345,main,239900,13476,カラー,カラー,noun,1,2,N2,jlpt-n2,collar,cổ áo,
+346,main,239901,13477,カラー,カラー,noun,1,2,N2,jlpt-n2,calla (variety of arum lily),hoa calla; hoa thủy vu,
+347,main,240404,54486,ランチ,ランチ,noun,1,2,N2,jlpt-n2,ranch,trang trại chăn nuôi,
+348,main,242294,172672,紅葉,もみじ,noun,1,2,N2,jlpt-n2,maple (tree),cây phong,
+349,main,244585,18572,コック,コック,noun,1,2,N2,jlpt-n2,cock,vòi; van khóa; vòi nước,
+350,main,888260,2160112,あぶる,,verb,1,2,N2,jlpt-n2,"to scorch, to broil, to toast, to grill (to cook by direct flame)",,"to scorch, to broil, to toast, to grill (to cook by direct flame)"
+351,main,888520,2201615,バケツ,,noun,1,2,N2,jlpt-n2,bucket; pail (container),,bucket; pail (container)
+352,main,889832,2192335,チップ,,noun,1,2,N2,jlpt-n2,woodchip,,woodchip
+353,main,889833,2163059,インキ,,noun,1,2,N2,jlpt-n2,ink,,ink
+354,main,889882,2202159,バック,,verb,1,2,N2,jlpt-n2,to go back,,to go back
+355,main,890100,2200710,のろのろ,,verb,1,2,N2,jlpt-n2,to be sluggish,,to be sluggish
+356,main,955064,2165680,オーバーコート,,noun,1,2,N2,jlpt-n2,overcoat,,overcoat
+357,main,955070,2192334,チップ,,noun,1,2,N2,jlpt-n2,a tip; a gratuity,,a tip; a gratuity
+358,main,955071,2164063,うっかり,,adverb,1,2,N2,jlpt-n2,carelessly,,carelessly
+359,main,955073,2165668,オートメーション,,noun,1,2,N2,jlpt-n2,automation,,automation
+360,main,955093,2186331,すくなくとも,,adverb,1,2,N2,jlpt-n2,少なくとも: at least,,少なくとも: at least
+361,main,955359,2170690,カラー,,noun,1,2,N2,jlpt-n2,collar,,collar
+362,main,955926,2200023,ネックレス,,noun,1,2,N2,jlpt-n2,a necklace (jewelry),,a necklace (jewelry)
+363,main,957110,2208147,ふわふわ,,verb,1,2,N2,jlpt-n2,be soft (in the sense of gently and smoothly),,be soft (in the sense of gently and smoothly)
+364,main,958852,2217715,ランニング,,noun,1,2,N2,jlpt-n2,running (as a physical activity),,running (as a physical activity)
+365,main,1019084,2179268,コンセント,,noun,1,2,N2,jlpt-n2,a wall socket; an outlet,,a wall socket; an outlet
+366,main,1019317,2187117,スマート,,adjective,1,2,N2,jlpt-n2,"slim, trim, slender",,"slim, trim, slender"
+367,main,1019537,2170229,カバー,,verb,1,2,N2,jlpt-n2,to cover,,to cover
+368,main,1020497,2196264,どきどき,,verb,1,2,N2,jlpt-n2,to pound,,to pound
+369,main,1020766,2172773,ギャング,,noun,1,2,N2,jlpt-n2,gang,,gang
+370,main,1022298,2219045,レジャー,,noun,1,2,N2,jlpt-n2,leisure,,leisure
+371,main,1084792,2179182,コンクリート,,adjective,1,2,N2,jlpt-n2,concrete,,concrete
+372,main,1085086,2211015,まあまあ,,adjective,1,2,N2,jlpt-n2,"so-so, passable, tolerable",,"so-so, passable, tolerable"
+373,main,1085110,2208039,プログラム,,noun,1,2,N2,jlpt-n2,"a program (leaflet listing information about a play, game or other activity)",,"a program (leaflet listing information about a play, game or other activity)"
+374,main,1086055,2219648,ロッカー,,noun,1,2,N2,jlpt-n2,a locker (storage compartment),,a locker (storage compartment)
+375,main,1149216,2207416,プラスチック,,noun,1,2,N2,jlpt-n2,plastic (a stiff but usually slightly flexible synthetic material),,plastic (a stiff but usually slightly flexible synthetic material)
+376,main,1150275,2211082,マイナス,,verb,1,2,N2,jlpt-n2,subtract,,subtract
+377,main,1150464,2202158,バック,,noun,1,2,N2,jlpt-n2,back (of something),,back (of something)
+378,main,1150694,2179034,コレクション,,noun,1,2,N2,jlpt-n2,collection,,collection
+379,main,1152675,2210700,ぼろ,,noun,1,2,N2,jlpt-n2,rag,,rag
+380,main,1213989,2215595,やっぱり,,adverb,1,2,N2,jlpt-n2,alternative form of やはり (yahari),"quả nhiên, rốt cuộc (dạng khác của やはり)",alternative form of やはり (yahari)
+381,main,1214214,2203937,ぴかぴか,,adjective,1,2,N2,jlpt-n2,"shiny, glossy","sáng bóng, lấp lánh","shiny, glossy"
+382,main,1215461,2208001,ブローチ,,noun,1,2,N2,jlpt-n2,a brooch (jewelry with pin),trâm cài áo (đồ trang sức có ghim),a brooch (jewelry with pin)
+383,main,1215664,2182344,しつこい,,adjective,1,2,N2,jlpt-n2,"very thick (used for the flavor, smell, etc. of something)",,"very thick (used for the flavor, smell, etc. of something)"
+384,main,1215673,2164539,うろうろ,,verb,1,2,N2,jlpt-n2,"wander, hang around","lang thang, lảng vảng","wander, hang around"
+385,main,1215685,2198751,ナンバー,,noun,1,2,N2,jlpt-n2,number,,number
+386,main,1215716,2172204,ぎっしり,,adverb,1,2,N2,jlpt-n2,tightly,"chặt chẽ, chật ních",tightly
+387,main,1216988,2218969,レインコート,,noun,1,2,N2,jlpt-n2,a raincoat,áo mưa,a raincoat
+388,main,1279130,2163183,インタビュー,,verb,1,2,N2,jlpt-n2,to interview,phỏng vấn,to interview
+389,main,1279131,2163337,ウール,,noun,1,2,N2,jlpt-n2,wool,len (lông cừu),wool
+390,main,1279409,2201153,バイバイ,,verb,1,2,N2,jlpt-n2,"to take one's leave, to say goodbye",chào tạm biệt (từ thân mật),"to take one's leave, to say goodbye"
+391,main,1280042,2178308,コック,,noun,1,2,N2,jlpt-n2,chef; cook,,chef; cook
+392,main,1280811,2163504,ウエートレス,,noun,1,2,N2,jlpt-n2,alternative form of ウェイトレス,,alternative form of ウェイトレス
+393,main,1280817,2181330,シーツ,,noun,1,2,N2,jlpt-n2,bed sheet,,bed sheet
+394,main,1280818,2181217,サンプル,,noun,1,2,N2,jlpt-n2,sample,,sample
+395,main,1280825,2186309,スクール,,noun,1,2,N2,jlpt-n2,school (a place of learning),,school (a place of learning)
+396,main,1280835,2206608,ふざける,,verb,1,2,N2,jlpt-n2,"to joke around, to goof around",,"to joke around, to goof around"
+397,main,1344391,2208988,ヘリコプター,,noun,1,2,N2,jlpt-n2,a helicopter,máy bay trực thăng,a helicopter
+398,main,1344458,2205891,ファスナー,,noun,1,2,N2,jlpt-n2,"zipper (of jeans, or clothing, etc), (UK) zip fastener",khóa kéo; dây kéo,"zipper (of jeans, or clothing, etc), (UK) zip fastener"
+399,main,1344721,2179183,コンクリート,,noun,1,2,N2,jlpt-n2,concrete (building material),bê tông,concrete (building material)
+400,main,1345828,2208002,ブローチ,,noun,1,2,N2,jlpt-n2,a broach: a tool with multiple chisel points mounted on a single piece of steel,dụng cụ doa (dụng cụ cắt có nhiều lưỡi đục trên một thanh thép),a broach: a tool with multiple chisel points mounted on a single piece of steel
+401,main,1346035,2163332,ウーマン,,noun,1,2,N2,jlpt-n2,woman,phụ nữ,woman
+402,main,1346049,2190253,ダイヤル,,noun,1,2,N2,jlpt-n2,a dial,"mặt số, đĩa quay số",a dial
+403,main,1346450,2168160,カーブ,,noun,1,2,N2,jlpt-n2,a curve,đường cong,a curve
+404,main,1346636,2210068,ポスター,,noun,1,2,N2,jlpt-n2,poster (large printed notice),áp phích; poster,poster (large printed notice)
+405,main,1347089,2204873,ビニール,,noun,1,2,N2,jlpt-n2,"vinyl, PVC (substance)","nhựa vinyl, PVC","vinyl, PVC (substance)"
+406,main,1409219,2161679,イコール,,noun,1,2,N2,jlpt-n2,"the equals sign, =","dấu bằng, =","the equals sign, ="
+407,main,1409327,2194169,テーマ,,noun,1,2,N2,jlpt-n2,"theme, subject",chủ đề; đề tài,"theme, subject"
+408,main,1409714,2191420,ダム,,noun,1,2,N2,jlpt-n2,a dam,đập (đập nước),a dam
+409,main,1409802,2170228,カバー,,noun,1,2,N2,jlpt-n2,material to cover with (such as a cosy),"vật liệu để phủ, bọc (như áo giữ ấm)",material to cover with (such as a cosy)
+410,main,1410025,2208040,プログラム,,verb,1,2,N2,jlpt-n2,"to program (to write code, to enter a program or other instructions into a computer)","lập trình (viết mã, nhập chương trình vào máy tính)","to program (to write code, to enter a program or other instructions into a computer)"
+411,main,1410698,2212607,ミシン,,noun,1,2,N2,jlpt-n2,sewing machine,máy may,sewing machine
+412,main,1410765,2203571,ハンドル,,noun,1,2,N2,jlpt-n2,handle,"tay cầm, tay nắm",handle
+413,main,1410992,2207580,フリー,,noun,1,2,N2,jlpt-n2,freedom in the above senses,sự tự do,freedom in the above senses
+414,main,1411004,2207336,フライパン,,noun,1,2,N2,jlpt-n2,a frying pan,chảo rán,a frying pan
+415,main,1411371,2197471,トレーニング,,noun,1,2,N2,jlpt-n2,"training, often in sports or at the workplace","huấn luyện, đào tạo (thường trong thể thao hoặc nơi làm việc)","training, often in sports or at the workplace"
+416,main,1412103,2179829,サイレン,,noun,1,2,N2,jlpt-n2,siren (device for making a sound alarm),còi báo động,siren (device for making a sound alarm)
+417,main,1475170,2202608,ばね,,noun,1,2,N2,jlpt-n2,"発条, 撥条, 弾機: spring (device made of flexible material)",lò xo,"発条, 撥条, 弾機: spring (device made of flexible material)"
+418,main,1475926,2207004,ぶつぶつ,,adverb,1,2,N2,jlpt-n2,"grumbling, complaining, muttering","lầm bầm, càu nhàu","grumbling, complaining, muttering"
+419,main,1476417,2188328,せめて,,adverb,1,2,N2,jlpt-n2,at least,ít nhất,at least
+420,main,1476551,2187219,スライド,,verb,1,2,N2,jlpt-n2,"slide, slip","trượt, trượt đi","slide, slip"
+421,main,1476768,2200709,のろのろ,,adverb,1,2,N2,jlpt-n2,slowly,"chậm chạp, lừ đừ",slowly
+422,main,1539997,2158948,アクセント,,noun,1,2,N2,jlpt-n2,accent (stronger articulation),trọng âm (cách phát âm mạnh hơn),accent (stronger articulation)
+423,main,458,79324,凝乎と,じっと,adverb,1,3,N3,jlpt-n3,"motionlessly (e.g. stand, wait)","bất động, đứng yên (không nhúc nhích)",
+424,main,718,34631,とんでも無い,とんでもない,adjective,1,3,N3,jlpt-n3,unthinkable,"không thể tưởng tượng được, bất ngờ; vô lý, lố bịch, quá quắt; khủng khiếp",
+425,main,921,91829,呆んやり,ぼんやり,adverb,1,3,N3,jlpt-n3,dimly,"mờ mờ, nhạt nhòa, không rõ ràng; mơ hồ",
+426,main,963,183614,若しかすると,もしかすると,adverb,1,3,N3,jlpt-n3,perhaps,"có lẽ, có thể; biết đâu, nhỡ đâu",
+427,main,5835,217801,麦酒,ばくしゅ,noun,1,3,N3,jlpt-n3,beer,bia,
+428,main,6733,160283,番瀝青,ペンキ,noun,1,3,N3,jlpt-n3,paint,sơn,
+429,main,9744,217524,鵜飼い,うかい,noun,1,3,N3,jlpt-n3,cormorant fishing,nghề đánh cá bằng chim cốc,
+430,main,11364,190578,解ける,とける,verb,1,3,N3,jlpt-n3,to be solved,được giải; được giải quyết,
+431,main,11977,213501,額,ひたい,noun,1,3,N3,jlpt-n3,forehead,"trán, vầng trán",
+432,main,12488,207282,間,ま,noun,1,3,N3,jlpt-n3,time,"thời gian; quãng nghỉ, lúc tạm dừng",
+433,main,12575,63942,丸で,まるで,adverb,1,3,N3,jlpt-n3,as if,"như thể, cứ như là; giống hệt như",
+434,main,14164,204530,金,きん,noun,1,3,N3,jlpt-n3,gold (metal),vàng (kim loại),
+435,main,14335,168803,空,から,noun,1,3,N3,jlpt-n3,emptiness,"sự trống rỗng, trạng thái trống không",
+436,main,14775,176423,繋げる,つなげる,verb,1,3,N3,jlpt-n3,to connect,"nối, kết nối",
+437,main,14925,146320,決行,けっこう,noun,1,3,N3,jlpt-n3,doing (with resolve),"quyết tâm thực hiện, tiến hành (kế hoạch...)",
+438,main,15154,126242,捲る,めくる,verb,1,3,N3,jlpt-n3,to turn over,"lật, giở (trang giấy, trang sách)",
+439,main,18357,112478,市,いち,noun,1,3,N3,jlpt-n3,market,"chợ, phiên chợ, hội chợ",
+440,main,18370,112527,市場,いちば,noun,1,3,N3,jlpt-n3,(town) market,"chợ; khu chợ, nơi họp chợ",
+441,main,21172,60560,上,うわ,noun,1,3,N3,jlpt-n3,upper,"phía trên, mặt trên, đỉnh; mặt ngoài, bề mặt",
+442,main,23490,171187,節,ふし,noun,1,3,N3,jlpt-n3,joint,"khớp; khớp ngón tay, đốt ngón tay",
+443,main,24891,123988,打つ,ぶつ,verb,1,3,N3,jlpt-n3,to hit (someone),"đánh, đập (ai đó)",
+444,main,24975,108365,対,つい,noun,1,3,N3,jlpt-n3,pair,"cặp, đôi; bộ hai vật đi với nhau",
+445,main,26800,127499,摘む,つむ,verb,1,3,N3,jlpt-n3,to pick,"hái, ngắt",
+446,main,27048,176544,纏める,まとめる,verb,1,3,N3,jlpt-n3,to collect,"thu gom, tập hợp lại; tích hợp, hợp nhất, thống nhất",
+447,main,27064,197874,転校,てんこう,noun,1,3,N3,jlpt-n3,changing schools,"chuyển trường, đổi trường",
+448,main,27933,117685,得る,うる,verb,1,3,N3,jlpt-n3,to be able to ...,có thể ...,
+449,main,32936,175193,綿,わた,noun,1,3,N3,jlpt-n3,cotton plant (Gossypium spp.),cây bông,
+450,main,33287,89581,只,ただ,adjective,1,3,N3,jlpt-n3,ordinary,"bình thường, thông thường",
+451,main,35497,120577,悪口,わるぐち,noun,1,3,N3,jlpt-n3,(verbal) abuse,"lời nói xấu, gièm pha (người khác); lời chửi bới, lăng mạ, sỉ nhục",
+452,main,36246,74421,儘,まま,noun,1,3,N3,jlpt-n3,as (it is),giữ nguyên như vậy,
+453,main,36356,171790,粗,あら,noun,1,3,N3,jlpt-n3,remaining bony parts (of a fish after filleting),xương cá còn lại sau khi lóc thịt,
+454,main,36364,79372,凡ゆる,あらゆる,adjective,1,3,N3,jlpt-n3,all,"mọi, tất cả",
+455,main,36999,199312,退く,どく,verb,1,3,N3,jlpt-n3,to step aside,"tránh sang một bên, nhường đường",
+456,main,37062,26523,すれ違う,すれちがう,verb,1,3,N3,jlpt-n3,to pass (by) each other,"đi ngang qua nhau, lướt qua nhau",
+457,main,38762,63101,中,ちゅう,noun,1,3,N3,jlpt-n3,medium (size),"cỡ vừa, cỡ trung; mức trung bình; phần giữa, vị trí giữa",
+458,main,55126,176136,縒り,より,noun,1,3,N3,jlpt-n3,twist,mối xoắn,
+459,main,55208,208925,隊,たい,noun,1,3,N3,jlpt-n3,party,"đội, đoàn, nhóm, tổ (người)",
+460,main,56318,11298,お互い,おたがい,noun,1,3,N3,jlpt-n3,each other,"lẫn nhau, với nhau",
+461,main,58072,107735,密,みつ,adjective,1,3,N3,jlpt-n3,dense,"dày đặc; đông đúc, chen chúc",
+462,main,58952,186783,螯,はさみ,noun,1,3,N3,jlpt-n3,"pincers (of a crab, scorpion, etc.)",càng; kìm; kẹp,
+463,main,60334,160303,異,い,noun,1,3,N3,jlpt-n3,difference (of opinion),"sự khác nhau, khác biệt (về ý kiến)",
+464,main,60932,73838,偶,たま,adjective,1,3,N3,jlpt-n3,occasional,"thỉnh thoảng, không thường xuyên, hiếm",
+465,main,61511,61118,下,しも,noun,1,3,N3,jlpt-n3,lower reaches (of a river),hạ lưu (của sông),
+466,main,61569,121177,意,い,noun,1,3,N3,jlpt-n3,feelings,"cảm xúc, suy nghĩ; ý nghĩ, tâm ý",
+467,main,61976,158421,生,せい,noun,1,3,N3,jlpt-n3,life,"sự sống, cuộc sống",
+468,main,65088,117181,後,ご,noun,1,3,N3,jlpt-n3,after,"sau, sau khi",
+469,main,67177,148495,浮屠,ふと,noun,1,3,N3,jlpt-n3,Buddha,Đức Phật,
+470,main,69712,91509,吝嗇,ケチ,noun,1,3,N3,jlpt-n3,stinginess,"sự keo kiệt, bủn xỉn; người keo kiệt, kẻ bủn xỉn",
+471,main,71278,143892,毀れる,こぼれる,verb,1,3,N3,jlpt-n3,to be chipped,bị sứt mẻ,
+472,main,73905,1563,ｐｉｎｇ,ピング,noun,1,3,N3,jlpt-n3,ping,ping,
+473,main,80021,1354,ＭＩＳ,エム・アイ・エス,noun,1,3,N3,jlpt-n3,management information system,hệ thống thông tin quản lý,
+474,main,89854,92666,品,ひん,noun,1,3,N3,jlpt-n3,elegance,"sự thanh lịch, tao nhã, sang trọng; phẩm giá, khí chất cao quý",
+475,main,91558,117550,徒,いたずら,adjective,1,3,N3,jlpt-n3,useless,vô ích,
+476,main,94607,124010,打付ける,ぶつける,verb,1,3,N3,jlpt-n3,to hit (e.g. one's head),"đập, đánh vào; đâm vào, tông vào, va vào",
+477,main,95275,146578,河,ホー,noun,1,3,N3,jlpt-n3,discarded tiles,bài đã đánh ra,
+478,main,96178,168413,稚,やや,noun,1,3,N3,jlpt-n3,baby,trẻ con; em bé,
+479,main,97546,91595,含嗽,がんそう,noun,1,3,N3,jlpt-n3,gargling,súc miệng,
+480,main,100147,159865,町代,ちょうだい,noun,1,3,N3,jlpt-n3,assisting town official (Edo period),chức dịch phụ tá khu phố thời Edo,
+481,main,104326,73419,値,ね,noun,1,3,N3,jlpt-n3,price,"giá, giá cả; chi phí",
+482,main,107551,95875,土,ト,noun,1,3,N3,jlpt-n3,Turkey,Thổ Nhĩ Kỳ,
+483,main,108042,97820,堵,と,noun,1,3,N3,jlpt-n3,fence,tường rào,
+484,main,108596,20616,サイン,サイン,noun,1,3,N3,jlpt-n3,sine,hàm sin; sin,
+485,main,110445,12074,カード,カード,noun,1,3,N3,jlpt-n3,curd,sữa đông,
+486,main,113440,136242,朝代,ちょうだい,noun,1,3,N3,jlpt-n3,dynastic era,triều đại,
+487,main,114109,41738,ピン,ピン,noun,1,3,N3,jlpt-n3,(a) one (on dice or Japanese playing cards),mặt một; con một,
+488,main,114213,47429,ホーム,ホーム,noun,1,3,N3,jlpt-n3,home,nhà; tổ ấm,
+489,main,114233,17951,コード,コード,noun,1,3,N3,jlpt-n3,cord,dây điện; dây cáp,
+490,main,114537,47537,ボール,ボール,noun,1,3,N3,jlpt-n3,"board (cardboard, pasteboard, etc.)",tấm bìa; bìa cứng,
+491,main,114563,108912,将に,まさに,adverb,1,3,N3,jlpt-n3,just (about to),sắp; sắp sửa; trên bờ vực,
+492,main,114564,116503,当に,まさに,adverb,1,3,N3,jlpt-n3,really (ought to),quả thật nên; chắc chắn phải; lẽ dĩ nhiên,
+493,main,115895,212600,音,おん,noun,1,3,N3,jlpt-n3,sound,"âm thanh, tiếng động; tiếng ồn",
+494,main,116641,45306,プロ,プロ,noun,1,3,N3,jlpt-n3,percent,phần trăm,
+495,main,119979,125865,挟み,はさみ,noun,1,3,N3,jlpt-n3,clip,cái kẹp,
+496,main,122992,32749,と,と,noun,1,3,N3,jlpt-n3,promoted pawn,tốt đã phong (cờ shogi),
+497,main,123685,56475,レベル,レベル,noun,1,3,N3,jlpt-n3,Revell,Revell,
+498,main,123968,77171,共同,きょうどう,noun,1,3,N3,jlpt-n3,Kyodo News (abbr),Hãng tin Kyodo (viết tắt),
+499,main,125493,91058,名人,めいじん,noun,1,3,N3,jlpt-n3,The Master of Go (1951 novel by Yasunari Kawabata),Danh nhân cờ vây; tiểu thuyết 1951 của Kawabata Yasunari,
+500,main,127821,197268,軈て,やがて,adverb,1,3,N3,jlpt-n3,before long,"chẳng bao lâu nữa, không lâu nữa, sớm thôi",
+501,main,127973,1523,ＯＵＴ,アウト,noun,1,3,N3,jlpt-n3,"out (of a ball; in tennis, etc.)","bóng ra ngoài, ra ngoài vạch",
+502,main,134524,142194,欧羅巴,ヨーロッパ,noun,1,3,N3,jlpt-n3,Europe,châu Âu,
+503,main,135370,106386,宛てる,あてる,verb,1,3,N3,jlpt-n3,to address,"gửi đến, đề địa chỉ gửi đến (ai)",
+504,main,136336,72062,依る,よる,verb,1,3,N3,jlpt-n3,to be due to,"là do, do... gây ra",
+505,main,136902,176025,縁,えん,noun,1,3,N3,jlpt-n3,fate,"duyên, duyên phận (lực lượng huyền bí gắn kết hai người với nhau)",
+506,main,137647,71288,何時か,いつか,adverb,1,3,N3,jlpt-n3,sometime,lúc nào đó; một ngày nào đó; hôm nọ,
+507,main,137650,71302,何時までも,いつまでも,adverb,1,3,N3,jlpt-n3,forever,"mãi mãi, vĩnh viễn, vô thời hạn; bao lâu tùy thích; trong thời gian rất dài",
+508,main,137658,71208,何処か,どこか,noun,1,3,N3,jlpt-n3,somewhere,"đâu đó, nơi nào đó, chỗ nào đó",
+509,main,142760,117180,後,のち,noun,1,3,N3,jlpt-n3,later,"sau này, về sau; sau đó",
+510,main,146000,106492,実,み,noun,1,3,N3,jlpt-n3,fruit,"quả, trái; hạt",
+511,main,146218,203325,酌む,くむ,verb,1,3,N3,jlpt-n3,to pour (sake),"rót rượu (sake), mời rượu; cùng uống rượu",
+512,main,146735,73011,修飾,しゅうしょく,noun,1,3,N3,jlpt-n3,ornamentation,"sự trang trí, tô điểm, trang hoàng",
+513,main,148026,60561,上,かみ,noun,1,3,N3,jlpt-n3,upper reaches (of a river),"thượng lưu (của sông), dòng thượng nguồn",
+514,main,150187,126690,接ぐ,つぐ,verb,1,3,N3,jlpt-n3,to join,"nối, chắp nối, ghép lại; nắn (xương gãy cho liền lại)",
+515,main,151132,126032,挿す,さす,verb,1,3,N3,jlpt-n3,to insert,"chèn vào, cắm vào",
+516,main,151872,121871,態と,わざと,adverb,1,3,N3,jlpt-n3,on purpose,"cố ý, cố tình",
+517,main,153174,163132,直,なお,adjective,1,3,N3,jlpt-n3,straight,thẳng,
+518,main,154047,75401,兎に角,とにかく,adverb,1,3,N3,jlpt-n3,anyway,"dù sao đi nữa, dù thế nào đi nữa; ít nhất là; cứ (nhấn mạnh)",
+519,main,154083,117551,徒,と,noun,1,3,N3,jlpt-n3,party,bọn nhóm người,
+520,main,154320,140082,棟,とう,noun,1,3,N3,jlpt-n3,large building,tòa nhà lớn; tòa nhà có mái dài,
+521,main,154960,110842,屯,トン,noun,1,3,N3,jlpt-n3,"ton (esp. a metric ton, i.e. 1000 kg)",tấn,
+522,main,157226,61838,不図,ふと,adverb,1,3,N3,jlpt-n3,suddenly,"bỗng nhiên, bất chợt",
+523,main,157812,68253,仏,ほとけ,noun,1,3,N3,jlpt-n3,Buddha,Phật; Đức Phật Thích-ca Mâu-ni,
+524,main,157866,80190,分,ぶ,noun,1,3,N3,jlpt-n3,one-tenth,"một phần mười; một phần trăm (một phần mười wari); 3 mm (một phần mười sun); 2,4 mm (một phần mười mon, đơn vị truyền thống đo cỡ giày); 0,1 độ (một phần mười độ, dùng đo thân nhiệt)",
+525,main,157871,80191,分,ぶん,noun,1,3,N3,jlpt-n3,part,"phần, khẩu phần, phần được chia",
+526,main,158188,138758,柄,え,noun,1,3,N3,jlpt-n3,handle,"tay cầm, cán",
+527,main,158401,155072,片付け,かたづけ,noun,1,3,N3,jlpt-n3,tidying up,"sự dọn dẹp, thu dọn cho gọn gàng; sự làm xong, hoàn tất",
+528,main,159234,136952,末,すえ,noun,1,3,N3,jlpt-n3,end,"đoạn cuối, phần cuối; đầu mút, ngọn",
+529,main,160158,74437,優,ゆう,noun,1,3,N3,jlpt-n3,Excellent (grade),"điểm xuất sắc, loại ưu, điểm A",
+530,main,160915,157141,率土,そっと,noun,1,3,N3,jlpt-n3,ends of the earth,vùng đất xa xôi nơi biên viễn,
+531,main,161005,160186,略,ほぼ,adverb,1,3,N3,jlpt-n3,almost,"hầu như, gần như",
+532,main,161383,210483,零す,こぼす,verb,1,3,N3,jlpt-n3,to spill,"làm đổ, làm tràn; rơi (nước mắt)",
+533,main,161720,166057,碗,わん,noun,1,3,N3,jlpt-n3,"bowl (ceramic, porcelain)","bát (bằng gốm, sứ)",
+534,main,162140,168342,稍,やや,adverb,1,3,N3,jlpt-n3,a little,hơi,
+535,main,162335,205903,鋏,はさみ,noun,1,3,N3,jlpt-n3,scissors,kéo,
+536,main,162643,93642,嗽,うがい,noun,1,3,N3,jlpt-n3,gargling,sự súc miệng,
+537,main,163135,130950,方々,ほうぼう,adverb,1,3,N3,jlpt-n3,here and there,"khắp nơi, mọi nơi, khắp mọi chỗ; đây đó, chỗ này chỗ nọ",
+538,main,163645,89642,可也,かなり,adverb,1,3,N3,jlpt-n3,considerably,"khá, tương đối, khá là",
+539,main,164095,77623,其れ其れ,それぞれ,adverb,1,3,N3,jlpt-n3,each,"mỗi cái, mỗi người; tương ứng, lần lượt",
+540,main,164154,69237,仮令,たとえ,adverb,1,3,N3,jlpt-n3,even if,"dù cho, ngay cả khi",
+541,main,164158,73840,偶々,たまたま,adverb,1,3,N3,jlpt-n3,by chance,"tình cờ, ngẫu nhiên; vô tình; bất ngờ, ngoài dự kiến",
+542,main,165096,92560,咥える,くわえる,verb,1,3,N3,jlpt-n3,to hold in one's mouth,ngậm trong miệng,
+543,main,165108,123101,所為,せい,noun,1,3,N3,jlpt-n3,consequence,"hậu quả, kết quả; lỗi, điều đáng trách",
+544,main,165236,183616,若しも,もしも,adverb,1,3,N3,jlpt-n3,if,"nếu, nếu như, giả sử",
+545,main,181879,68592,他,た,adverb,1,3,N3,jlpt-n3,other (esp. people and abstract matters),"khác; người khác, điều khác",
+546,main,186338,183711,苦,く,noun,1,3,N3,jlpt-n3,pain,"nỗi đau, sự đau khổ, thống khổ, phiền muộn; nỗi lo lắng, lo âu; sự khó khăn, vất vả, gian khổ",
+547,main,187303,191602,訳,やく,noun,1,3,N3,jlpt-n3,translation,bản dịch; phiên bản (ví dụ: bản tiếng Anh),
+548,main,188409,117936,御目出糖,おめでとう,noun,1,3,N3,jlpt-n3,Japanese sweets made with glutinous rice and azuki bean paste,bánh kẹo Nhật Bản bằng gạo nếp và đậu đỏ,
+549,main,188538,61117,下,げ,noun,1,3,N3,jlpt-n3,"lowness (of degree, value, etc.)","sự thấp (về mức độ, giá trị, v.v.); sự thấp kém, thua kém",
+550,main,188614,107653,寄り,より,noun,1,3,N3,jlpt-n3,pushing back one's opponent while locked in close quarters,đòn ép đẩy khi áp sát,
+551,main,188642,168345,税,ぜい,noun,1,3,N3,jlpt-n3,tax,thuế,
+552,main,191906,147480,注ぐ,つぐ,verb,1,3,N3,jlpt-n3,to pour (into a vessel),"rót (vào vật chứa), đổ đầy (cốc, bát, v.v.); múc (thức ăn, đồ uống)",
+553,main,195894,74576,元,もと,adjective,1,3,N3,jlpt-n3,former,cựu; cũ; nguyên,
+554,main,204504,163135,直,ただ,adjective,1,3,N3,jlpt-n3,straight,thẳng; trực tiếp,
+555,main,205003,202417,選り,より,noun,1,3,N3,jlpt-n3,selecting,sự tuyển chọn; sự lựa chọn,
+556,main,205740,113094,帳台,ちょうだい,noun,1,3,N3,jlpt-n3,curtained sleeping platform in shinden-style residences (used by people of high rank),giường màn trong dinh thự shinden,
+557,main,209812,136011,有界,うかい,noun,1,3,N3,jlpt-n3,realm of existence,cõi hữu,
+558,main,229251,165705,砥,と,noun,1,3,N3,jlpt-n3,whetstone,đá mài,
+559,main,229538,137901,東,トン,noun,1,3,N3,jlpt-n3,east wind tile,quân gió Đông (mạt chược),
+560,main,232382,1895,ＵＰ,ユー・ピー,noun,1,3,N3,jlpt-n3,upstairs,tầng trên,
+561,main,235161,53699,ライター,ライター,noun,1,3,N3,jlpt-n3,writer,người viết; tác giả,
+562,main,235624,124828,抱く,だく,verb,1,3,N3,jlpt-n3,to hold in one's arms (e.g. a baby),"ôm; bế, ẵm (trẻ nhỏ) trong vòng tay",
+563,main,236907,16001,グラス,グラス,noun,1,3,N3,jlpt-n3,grass,cỏ,
+564,main,237950,39843,バン,バン,noun,1,3,N3,jlpt-n3,van,xe van; xe tải nhỏ; xe giao hàng,
+565,main,237951,39844,バン,バン,noun,1,3,N3,jlpt-n3,bang,tiếng bang; tiếng nổ,
+566,main,238135,50624,ミス,ミス,noun,1,3,N3,jlpt-n3,myth,thần thoại,
+567,main,238338,33836,トラック,トラック,noun,1,3,N3,jlpt-n3,(running) track,đường chạy,
+568,main,241171,28544,ダイヤ,ダイヤ,noun,1,3,N3,jlpt-n3,(railway) schedule,lịch trình tàu; thời gian biểu đường sắt,
+569,main,241264,17952,コード,コード,noun,1,3,N3,jlpt-n3,chord,hợp âm,
+570,main,242292,18114,ゴール,ゴール,noun,1,3,N3,jlpt-n3,Gaul (region),xứ Gaul; Gô-loa,
+571,main,242922,212601,音,ね,noun,1,3,N3,jlpt-n3,sound,"âm thanh, tiếng; âm điệu, nốt nhạc; tiếng chuông reo, tiếng chim kêu líu lo",
+572,main,243655,614,ＣＡＳＥ,ケース,noun,1,3,N3,jlpt-n3,computer-aided software engineering,kỹ thuật phần mềm có sự trợ giúp của máy tính; CASE,
+573,main,244082,38118,パス,パス,noun,1,3,N3,jlpt-n3,"path (of a file, directory, etc.)","đường dẫn (tệp, thư mục)",
+574,main,244086,38119,パス,パス,noun,1,3,N3,jlpt-n3,calipers,compa đo; thước cặp,
+575,main,244149,56474,レベル,レベル,noun,1,3,N3,jlpt-n3,rebel,kẻ nổi loạn,
+576,main,244569,56961,ロケット,ロケット,noun,1,3,N3,jlpt-n3,locket,mặt dây chuyền đựng ảnh,
+577,main,244816,99079,夕べ,ゆうべ,noun,1,3,N3,jlpt-n3,evening,buổi tối,
+578,main,245080,31739,デザート,デザート,noun,1,3,N3,jlpt-n3,desert,sa mạc,
+579,main,247509,171010,管,くだ,noun,1,3,N3,jlpt-n3,pipe,ống,
+580,main,253459,206536,長大,ちょうだい,noun,1,3,N3,jlpt-n3,Nagasaki University (abbr),Đại học Nagasaki (viết tắt),
+581,main,253518,24304,スイッチ,スイッチ,noun,1,3,N3,jlpt-n3,(Nintendo) Switch (video game console),Máy chơi game Nintendo Switch,
+582,main,888244,2186432,すごい,,adjective,1,3,N3,jlpt-n3,"horrible, dreadful, ghastly",,"horrible, dreadful, ghastly"
+583,main,888307,2190245,ダイヤ,,noun,1,3,N3,jlpt-n3,"clipping of ダイヤモンド (daiyamondo, “diamond”)",,"clipping of ダイヤモンド (daiyamondo, “diamond”)"
+584,main,889466,2197835,なお,,adjective,1,3,N3,jlpt-n3,"common, ordinary, straight",,"common, ordinary, straight"
+585,main,890218,2201792,パス,,noun,1,3,N3,jlpt-n3,a pair of calipers,,a pair of calipers
+586,main,891351,2204557,ぴったり,,adverb,1,3,N3,jlpt-n3,synonym of ぴたり,,synonym of ぴたり
+587,main,953174,2194134,で,,verb,1,3,N3,jlpt-n3,is/am/are ... and: the て-form or conjunctive form of だ (da),,is/am/are ... and: the て-form or conjunctive form of だ (da)
+588,main,953201,2161257,いい,,adjective,1,3,N3,jlpt-n3,good,,good
+589,main,953365,2217086,より,,adverb,1,3,N3,jlpt-n3,more,,more
+590,main,953548,2191780,ダンス,,noun,1,3,N3,jlpt-n3,a dance,,a dance
+591,main,953764,2176872,コーチ,,noun,1,3,N3,jlpt-n3,a coach (trainer),,a coach (trainer)
+592,main,953766,2189437,そのまま,,adverb,1,3,N3,jlpt-n3,as is; as it is; without modification,,as is; as it is; without modification
+593,main,954341,2173599,キロ,,noun,1,3,N3,jlpt-n3,"clipping of キログラム (kiroguramu, “kilogram”); kilo",,"clipping of キログラム (kiroguramu, “kilogram”); kilo"
+594,main,956579,2204556,ぴったり,,adjective,1,3,N3,jlpt-n3,"suitable, well-fitting",,"suitable, well-fitting"
+595,main,1019134,2213262,ミルク,,noun,1,3,N3,jlpt-n3,"milk, usually cow's milk",,"milk, usually cow's milk"
+596,main,1019385,2179528,サービス,,verb,1,3,N3,jlpt-n3,service,,service
+597,main,1019811,2201847,パスポート,,noun,1,3,N3,jlpt-n3,passport,,passport
+598,main,1019961,2186034,スイッチ,,noun,1,3,N3,jlpt-n3,"switch, a device to turn electric current on and off or direct its flow",,"switch, a device to turn electric current on and off or direct its flow"
+599,main,1020493,2212615,ミス,,noun,1,3,N3,jlpt-n3,"Miss (term of address for a woman, especially an unmarried woman)",,"Miss (term of address for a woman, especially an unmarried woman)"
+600,main,1020496,2191982,チーム,,noun,1,3,N3,jlpt-n3,team,,team
+601,main,1021452,2162862,いらいら,,noun,1,3,N3,jlpt-n3,"irritation, frustration",,"irritation, frustration"
+602,main,1022334,2204558,ぴったり,,verb,1,3,N3,jlpt-n3,to suit; to fit; to match,,to suit; to fit; to match
+603,main,1023531,2181738,しきりに,,adverb,1,3,N3,jlpt-n3,frequently; repeatedly; constantly,,frequently; repeatedly; constantly
+604,main,1084263,2194127,で,,adverb,1,3,N3,jlpt-n3,indicating the following sentence is a consequence of something previously stated: and then; therefore,,indicating the following sentence is a consequence of something previously stated: and then; therefore
+605,main,1084509,2162430,いつまでも,,adverb,1,3,N3,jlpt-n3,"forever, for good, eternally",,"forever, for good, eternally"
+606,main,1084550,2179369,コンピューター,,noun,1,3,N3,jlpt-n3,computer,,computer
+607,main,1084707,2215650,やはり,,adverb,1,3,N3,jlpt-n3,as I thought; as expected; after all (is said and done),,as I thought; as expected; after all (is said and done)
+608,main,1084800,2217264,ライター,,noun,1,3,N3,jlpt-n3,a lighter (fire making device),,a lighter (fire making device)
+609,main,1085800,2189345,そっくり,,adverb,1,3,N3,jlpt-n3,"all, entire, everything",,"all, entire, everything"
+610,main,1085805,2192630,ちゃんと,,verb,1,3,N3,jlpt-n3,"to be proper, to be exact, to be right",,"to be proper, to be exact, to be right"
+611,main,58,110470,居らっしゃる,いらっしゃる,verb,1,4,N4,jlpt-n4,to come,"đến; đi; ở, có mặt (ở đâu đó)",
+612,main,117,11860,お見舞い,おみまい,noun,1,4,N4,jlpt-n4,visit (to someone affected by illness or misfortune),"sự thăm hỏi, thăm viếng (người ốm hoặc gặp chuyện không may); lời hỏi thăm sức khỏe; lời chia buồn, động viên",
+613,main,129,11461,お子さん,おこさん,noun,1,4,N4,jlpt-n4,child,con của người khác (cách nói lịch sự),
+614,main,267,111243,屹度,きっと,adverb,1,4,N4,jlpt-n4,surely,"chắc chắn, nhất định, gần như chắc chắn",
+615,main,415,74800,先,さっき,noun,1,4,N4,jlpt-n4,a short while ago,lúc nãy; vừa rồi; ban nãy,
+616,main,958,183610,若し,もし,adverb,1,4,N4,jlpt-n4,if,"nếu, giả sử",
+617,main,6022,914,ＦＡＸ,ファックス,noun,1,4,N4,jlpt-n4,fax,"máy fax, bản fax",
+618,main,8208,66637,亜米利加,アメリカ,noun,1,4,N4,jlpt-n4,(United States of) America,"nước Mỹ, Hoa Kỳ",
+619,main,8217,92911,唖,おし,noun,1,4,N4,jlpt-n4,muteness,chứng câm,
+620,main,9441,168538,稲子,いなご,noun,1,4,N4,jlpt-n4,rice grasshopper (of genus Oxya),châu chấu lúa,
+621,main,9749,169489,窺う,うかがう,verb,1,4,N4,jlpt-n4,to peep (through),"nhìn trộm, lén nhìn",
+622,main,10866,89733,可笑しい,おかしい,adjective,1,4,N4,jlpt-n4,funny,"buồn cười, hài hước, khôi hài; nực cười, lố bịch (đáng chê cười)",
+623,main,16261,83556,効,こう,noun,1,4,N4,jlpt-n4,efficacy,hiệu quả,
+624,main,16568,150896,溝,こう,noun,1,4,N4,jlpt-n4,10^32,10 mũ 32,
+625,main,16741,208220,降り出す,ふりだす,verb,1,4,N4,jlpt-n4,to begin to rain,开始下雨; 开始下雪,
+626,main,16753,212893,項,こう,noun,1,4,N4,jlpt-n4,clause,"điều khoản, khoản mục",
+627,main,22364,98109,塵,ゴミ,noun,1,4,N4,jlpt-n4,rubbish,"rác, rác thải, đồ bỏ đi",
+628,main,22568,129277,数奇,すうき,noun,1,4,N4,jlpt-n4,misfortune,vận rủi; số phận bất hạnh,
+629,main,23225,168670,積もり,つもり,noun,1,4,N4,jlpt-n4,intention,dự định; ý định,
+630,main,24295,110800,層,そう,noun,1,4,N4,jlpt-n4,layer,lớp,
+631,main,27623,81674,到頭,とうとう,adverb,1,4,N4,jlpt-n4,finally,cuối cùng,
+632,main,28527,131331,日,ひ,noun,1,4,N4,jlpt-n4,day,ngày,
+633,main,30135,187690,表,おもて,noun,1,4,N4,jlpt-n4,surface,"bề mặt, mặt ngoài",
+634,main,34808,73884,偸盗,ちゅうとう,noun,1,4,N4,jlpt-n4,theft (one of the ten evil deeds),tội trộm cắp,
+635,main,35683,76542,公,こう,noun,1,4,N4,jlpt-n4,public affair,việc công; nhà nước,
+636,main,35694,114750,庚,かのえ,noun,1,4,N4,jlpt-n4,7th in rank,can Canh (can thứ bảy),
+637,main,35728,83388,劫,こう,noun,1,4,N4,jlpt-n4,"kalpa (eon, aeon)",kiếp,
+638,main,36938,166089,確り,しっかり,adverb,1,4,N4,jlpt-n4,tightly (holding on),"chặt, chắc chắn, vững chắc",
+639,main,37750,11762,お祭り,おまつり,noun,1,4,N4,jlpt-n4,festival,"lễ hội, ngày hội",
+640,main,39582,73842,偶に,たまに,adverb,1,4,N4,jlpt-n4,occasionally,"thỉnh thoảng, đôi khi, lâu lâu một lần",
+641,main,40882,81814,刷り,すり,noun,1,4,N4,jlpt-n4,printing,việc in ấn,
+642,main,41212,95121,国府,こくふ,noun,1,4,N4,jlpt-n4,Nationalist Government (of China; i.e. under the Kuomintang),Chính phủ Quốc dân Trung Hoa,
+643,main,41237,118654,心算,しんさん,noun,1,4,N4,jlpt-n4,intention,ý định; kế hoạch; mục đích; kỳ vọng,
+644,main,43991,151162,滔々,とうとう,adverb,1,4,N4,jlpt-n4,torrentially,cuồn cuộn; chảy xiết,
+645,main,46968,185487,蕩々,とうとう,adjective,1,4,N4,jlpt-n4,vast,"mênh mông, yên ả",
+646,main,53166,141235,模試,もし,noun,1,4,N4,jlpt-n4,mock exam,kỳ thi thử,
+647,main,53902,208135,阿弗利加,アフリカ,noun,1,4,N4,jlpt-n4,Africa,châu Phi,
+648,main,55156,215184,香,こう,noun,1,4,N4,jlpt-n4,incense,"hương, nhang",
+649,main,57618,147598,泳ぎ方,およぎかた,noun,1,4,N4,jlpt-n4,way of swimming,cách bơi; kiểu bơi,
+650,main,59171,170264,笙,しょう,noun,1,4,N4,jlpt-n4,traditional Japanese wind instrument resembling panpipes,khèn sho Nhật Bản,
+651,main,62091,105741,安和,あんな,noun,1,4,N4,jlpt-n4,Anna era (968.8.13-970.3.25),niên hiệu An Hòa,
+652,main,66528,218551,鼕々,とうとう,adjective,1,4,N4,jlpt-n4,beating (of drums),tiếng trống dồn,
+653,main,67552,62482,不道,ふどう,adjective,1,4,N4,jlpt-n4,inhuman,bất nhân; vô đạo; tàn ác; ngang ngược,
+654,main,69606,155036,爻,こう,noun,1,4,N4,jlpt-n4,yao (line representing yin or yang that comprises one third of an I Ching trigram),hào trong Kinh Dịch,
+655,main,70435,66729,亢,こう,noun,1,4,N4,jlpt-n4,"Chinese ""Neck"" constellation (one of the 28 mansions)",chòm sao亢,
+656,main,70511,184439,荘,しょう,noun,1,4,N4,jlpt-n4,manor,"trang viên, biệt thự",
+657,main,70540,206544,長官,かみ,noun,1,4,N4,jlpt-n4,director (highest of the four administrative positions of the ritsuryō system),trưởng quan; chánh quan,
+658,main,70752,105865,宋,そう,noun,1,4,N4,jlpt-n4,Song dynasty (of China; 960-1279),nhà Tống,
+659,main,71189,134874,更,こう,noun,1,4,N4,jlpt-n4,one-fifth of the night (approx. 2 hours),canh; một phần năm đêm,
+660,main,77940,83056,功,こう,noun,1,4,N4,jlpt-n4,merit,công trạng,
+661,main,78091,185674,薨,こう,noun,1,4,N4,jlpt-n4,"death (of a nobleman, etc.)",cái chết (của quý tộc),
+662,main,78098,177646,考,こう,noun,1,4,N4,jlpt-n4,thought,suy nghĩ,
+663,main,78101,97037,坑,こう,noun,1,4,N4,jlpt-n4,pit (esp. of a mine),hầm mỏ,
+664,main,78112,184202,草,そう,noun,1,4,N4,jlpt-n4,draft,bản thảo; bản nháp,
+665,main,78114,188232,装,そう,noun,1,4,N4,jlpt-n4,clothing,quần áo; cách ăn mặc,
+666,main,78137,193555,講,こう,noun,1,4,N4,jlpt-n4,(Buddhist) lecture meeting,buổi thuyết pháp,
+667,main,80495,112387,巴豆,はず,noun,1,4,N4,jlpt-n4,purging croton (Croton tiglium),cây ba đậu,
+668,main,85950,66346,五味,ごみ,noun,1,4,N4,jlpt-n4,"five flavors (sweet, salty, spicy, sour, bitter)",ngũ vị,
+669,main,89373,158286,甑,こしき,noun,1,4,N4,jlpt-n4,steaming basket (traditionally clay or wood),xửng hấp truyền thống,
+670,main,94815,169934,端,つま,noun,1,4,N4,jlpt-n4,edge,"mép, đầu, cuối",
+671,main,99896,133651,昨季,さくき,noun,1,4,N4,jlpt-n4,last season (e.g. in sports),mùa giải trước,
+672,main,105155,66733,交,こう,noun,1,4,N4,jlpt-n4,association,"sự giao thiệp, tình thân",
+673,main,105765,90054,右舞,うまい,noun,1,4,N4,jlpt-n4,variety of court dance (Nara period),điệu múa cung đình thời Nara,
+674,main,107515,147856,洪,こう,noun,1,4,N4,jlpt-n4,Hungary,Hungary,
+675,main,107758,112064,巧,こう,noun,1,4,N4,jlpt-n4,skilfulness,sự khéo léo,
+676,main,107988,88871,叟,そう,noun,1,4,N4,jlpt-n4,old man,ông lão đáng kính,
+677,main,107989,135139,曹,そう,noun,1,4,N4,jlpt-n4,palace room for government officials,phòng quan trong cung,
+678,main,107991,196980,躁,そう,noun,1,4,N4,jlpt-n4,mania,chứng hưng cảm,
+679,main,108442,174393,絞,こう,noun,1,4,N4,jlpt-n4,death by hanging (punishment in the ritsuryō system),tử hình bằng treo cổ (luật lệnh),
+680,main,108460,105997,宗,そう,noun,1,4,N4,jlpt-n4,origin,nguồn gốc; cội nguồn,
+681,main,108521,208101,阿,あ,noun,1,4,N4,jlpt-n4,first Sanskrit alphabet letter,chữ A tiếng Phạn,
+682,main,110524,81988,削器,さっき,noun,1,4,N4,jlpt-n4,(stone) scraper,đồ cạo bằng đá,
+683,main,112496,104045,妻,つま,noun,1,4,N4,jlpt-n4,my dear,mình ơi; em yêu,
+684,main,114944,59462,丁々,とうとう,adverb,1,4,N4,jlpt-n4,with a chopping sound (of an axe),tiếng bổ rìu chan chát; tiếng đóng cọc thình thịch,
+685,main,127114,130398,斯う,こう,adverb,1,4,N4,jlpt-n4,in this way,như thế này,
+686,main,127354,66560,些とも,ちっとも,adverb,1,4,N4,jlpt-n4,(not) at all,"không... chút nào, chẳng... tí nào; không hề",
+687,main,127826,151591,漸と,やっと,adverb,1,4,N4,jlpt-n4,at last,"cuối cùng, rốt cuộc",
+688,main,128039,66639,亜細亜,アジア,noun,1,4,N4,jlpt-n4,Asia,châu Á,
+689,main,129261,158254,瓦斯,ガス,noun,1,4,N4,jlpt-n4,gas (as a fuel),"khí gas, khí đốt",
+690,main,129286,165869,硝子,ガラス,noun,1,4,N4,jlpt-n4,glass,"thủy tinh, kính; tấm kính",
+691,main,135579,152791,為さる,なさる,verb,1,4,N4,jlpt-n4,to do,làm (kính ngữ của する),
+692,main,142748,91848,呉れる,くれる,verb,1,4,N4,jlpt-n4,to give,"cho, tặng",
+693,main,142969,73303,候,こう,noun,1,4,N4,jlpt-n4,season,"mùa, thời tiết",
+694,main,143272,105042,孝,こう,noun,1,4,N4,jlpt-n4,filial piety,lòng hiếu thảo,
+695,main,145352,142396,止める,とめる,verb,1,4,N4,jlpt-n4,to stop,"làm dừng, ngăn lại; tắt (máy, thiết bị)",
+696,main,151214,163438,相,そう,noun,1,4,N4,jlpt-n4,aspect,"vẻ ngoài, diện mạo, dáng vẻ; phương diện, mặt",
+697,main,156565,85737,卑下,ひげ,noun,1,4,N4,jlpt-n4,self-abasement,sự tự hạ mình,
+698,main,161448,120005,恋う,こう,verb,1,4,N4,jlpt-n4,to love,yêu,
+699,main,161970,126351,掏摸,すり,noun,1,4,N4,jlpt-n4,pickpocket,kẻ móc túi,
+700,main,165702,203163,都,と,noun,1,4,N4,jlpt-n4,Metropolis (of Tokyo),thủ đô Tokyo; tỉnh đô thị Tokyo (đơn vị hành chính cấp tỉnh),
+701,main,168513,153760,無道,むどう,adjective,1,4,N4,jlpt-n4,inhuman,vô đạo; bất nhân; trái đạo lý,
+702,main,182272,134346,暈,かさ,noun,1,4,N4,jlpt-n4,"halo (around the Sun, Moon, etc.)",quầng; vầng hào quang,
+703,main,185297,206420,鑑,かがみ,noun,1,4,N4,jlpt-n4,model,gương mẫu; khuôn mẫu,
+704,main,185795,141093,槽,そう,noun,1,4,N4,jlpt-n4,body (of a biwa),thân đàn biwa,
+705,main,188517,217656,鸛,こうのとり,noun,1,4,N4,jlpt-n4,"stork (esp. the Oriental stork, Ciconia boyciana)",cò hạc,
+706,main,191515,153933,然う,そう,adverb,1,4,N4,jlpt-n4,in that way,"như thế, như vậy",
+707,main,193673,175032,綱,こう,noun,1,4,N4,jlpt-n4,class,cương (bậc phân loại),
+708,main,196451,146144,江,こう,noun,1,4,N4,jlpt-n4,large river (esp. the Yangtze),sông lớn (nhất là sông Dương Tử),
+709,main,197451,93357,喉,こん,noun,1,4,N4,jlpt-n4,fish,cá,
+710,main,197742,194513,貢,こう,noun,1,4,N4,jlpt-n4,tribute,cống vật; triều cống,
+711,main,198603,187179,行,こう,noun,1,4,N4,jlpt-n4,going,chuyến đi,
+712,main,198683,88892,口,く,noun,1,4,N4,jlpt-n4,mouth,miệng; lời nói,
+713,main,204521,98465,壮,そう,noun,1,4,N4,jlpt-n4,vibrancy,"sự tráng kiện, dũng mãnh",
+714,main,204887,165941,硬,こう,noun,1,4,N4,jlpt-n4,hardness,độ cứng,
+715,main,204964,107820,寇,こう,noun,1,4,N4,jlpt-n4,invasion,cuộc xâm lược; kẻ xâm lược,
+716,main,218316,180168,腔,こう,noun,1,4,N4,jlpt-n4,cavity,"khoang, hốc",
+717,main,221798,104719,子,こう,noun,1,4,N4,jlpt-n4,child,đứa trẻ; con,
+718,main,223767,149682,混ず,まず,verb,1,4,N4,jlpt-n4,to mix,trộn; khuấy; pha trộn,
+719,main,234558,217535,鵠,こく,noun,1,4,N4,jlpt-n4,swan,thiên nga,
+720,main,234779,121083,惣,そう,noun,1,4,N4,jlpt-n4,rural local self-government (Muromachi period),tự trị nông thôn,
+721,main,234781,160609,疎雨,そう,noun,1,4,N4,jlpt-n4,drizzle,mưa phùn; mưa lác đác,
+722,main,234790,103125,奏,そう,noun,1,4,N4,jlpt-n4,report to the emperor,tấu trình lên hoàng đế,
+723,main,234793,185114,葬,そう,noun,1,4,N4,jlpt-n4,funeral,đám tang,
+724,main,236382,108227,寤寐,ごび,noun,1,4,N4,jlpt-n4,being asleep and awake,lúc ngủ lúc thức,
+725,main,239985,133665,昨期,さくき,noun,1,4,N4,jlpt-n4,last period,kỳ trước,
+726,main,240881,5161,アルバイト,アルバイト,noun,1,4,N4,jlpt-n4,albite,albit,
+727,main,241354,41637,ビル,ビル,noun,1,4,N4,jlpt-n4,bill,hóa đơn; phiếu thanh toán,
+728,main,242314,46914,ベル,ベル,noun,1,4,N4,jlpt-n4,bel (unit),ben (đơn vị đo),
+729,main,245679,127139,揚げる,あげる,verb,1,4,N4,jlpt-n4,to deep-fry,"chiên ngập dầu, rán ngập dầu",
+730,main,245684,125834,挙げる,あげる,verb,1,4,N4,jlpt-n4,to give (an example),"nêu ví dụ; liệt kê; đưa ra, trình bày; trích dẫn, viện dẫn",
+731,main,888837,2194572,テキスト,,noun,1,4,N4,jlpt-n4,text (a written passage),,text (a written passage)
+732,main,888879,2169590,ガソリンスタンド,,noun,1,4,N4,jlpt-n4,"gas station, petrol station",,"gas station, petrol station"
+733,main,952251,2188873,そう,,adverb,1,4,N4,jlpt-n4,"so, like that, in such a way, such",,"so, like that, in such a way, such"
+734,main,955434,2209004,ベル,,noun,1,4,N4,jlpt-n4,Böll,,Böll
+735,main,1019034,2207955,プレゼント,,noun,1,4,N4,jlpt-n4,"present, gift",,"present, gift"
+736,main,1020971,2181112,サンダル,,noun,1,4,N4,jlpt-n4,sandals,,sandals
+737,main,1084308,2166722,おっしゃる,,verb,1,4,N4,jlpt-n4,to say (honorific for 言う),,to say (honorific for 言う)
+738,main,1084678,2189705,そんな,,adjective,1,4,N4,jlpt-n4,like that; that kind of,,like that; that kind of
+739,main,1084896,2205482,ビル,,noun,1,4,N4,jlpt-n4,"clipping of ビルディング (birudingu, “(non-residential) building”)",,"clipping of ビルディング (birudingu, “(non-residential) building”)"
+740,main,1086349,2197653,どんどん,,adverb,1,4,N4,jlpt-n4,"drumming sound, boom, bang",,"drumming sound, boom, bang"
+741,main,1148711,2159802,アナウンサー,,noun,1,4,N4,jlpt-n4,"a media announcer, a TV or radio presenter",,"a media announcer, a TV or radio presenter"
+742,main,1151975,2186662,すっと,,verb,1,4,N4,jlpt-n4,to feel refreshed; without hard feelings or worries,,to feel refreshed; without hard feelings or worries
+743,main,1214324,2186688,ステーキ,,noun,1,4,N4,jlpt-n4,steak (slice of beef),,steak (slice of beef)
+744,main,1214424,2205484,ビル,,noun,1,4,N4,jlpt-n4,a transliteration of the English male given name Bill,,a transliteration of the English male given name Bill
+745,main,1279169,2158269,ああ,,adverb,1,4,N4,jlpt-n4,in that other way,theo cách khác đó,in that other way
+746,main,1279673,2205483,ビル,,noun,1,4,N4,jlpt-n4,"bill of sale, invoice",,"bill of sale, invoice"
+747,main,1281424,2186644,すっかり,,adverb,1,4,N4,jlpt-n4,"completely, thoroughly",,"completely, thoroughly"
+748,main,1281425,2190088,たいてい,,adverb,1,4,N4,jlpt-n4,"generally, mostly, for the most part; usually, normally, as a rule, more often than not, most of the time, much (a great deal) of the time; more or less; nearly all, almost all; almost, nearly; probably",,"generally, mostly, for the most part; usually, normally, as a rule, more often than not, most of the time, much (a great deal) of the time; more or less; nearly all, almost all; almost, nearly; probably"
+749,main,1344400,2172228,きっと,,adverb,1,4,N4,jlpt-n4,"surely, certainly","chắc chắn, nhất định","surely, certainly"
+750,main,1344955,2198849,におい,,noun,1,4,N4,jlpt-n4,"smell, scent","mùi thơm, hương thơm","smell, scent"
+751,main,1346258,2185871,スーツ,,noun,1,4,N4,jlpt-n4,a suit (set of clothes),"bộ com lê, bộ vest",a suit (set of clothes)
+752,main,1411556,2166166,おかげ,,noun,1,4,N4,jlpt-n4,"grace (of God), benevolence (of Buddha), blessing, assistance, help, aid, influence","nhờ ơn, nhờ sự giúp đỡ (ân huệ, phước lành)","grace (of God), benevolence (of Buddha), blessing, assistance, help, aid, influence"
+753,main,1411592,2178525,このあいだ,,noun,1,4,N4,jlpt-n4,"the other day, a recent time",Hôm nọ; gần đây,"the other day, a recent time"
+754,main,1474694,2160803,アルバイト,,noun,1,4,N4,jlpt-n4,"part-time job, especially for students (as opposed to one's main occupation when it is only part time)",việc làm thêm bán thời gian (nhất là cho sinh viên),"part-time job, especially for students (as opposed to one's main occupation when it is only part time)"
+755,main,1475002,2170752,ガラス,,noun,1,4,N4,jlpt-n4,glass (substance),thủy tinh,glass (substance)
+756,main,1475003,2168128,カーテン,,noun,1,4,N4,jlpt-n4,curtain (window covering),rèm cửa,curtain (window covering)
+757,main,1475703,2164246,うまい,,adjective,1,4,N4,jlpt-n4,"上手い, 巧い: good at something, skillful","giỏi, khéo léo","上手い, 巧い: good at something, skillful"
+758,main,1540131,2165660,オートバイ,,noun,1,4,N4,jlpt-n4,a motorcycle,xe mô tô,a motorcycle
+759,main,1605315,2182294,しっかり,,adverb,1,4,N4,jlpt-n4,"fast (in a firm or secure manner), tightly","chặt, chắc chắn","fast (in a firm or secure manner), tightly"
+760,main,1605591,2189496,ソフト,,adjective,1,4,N4,jlpt-n4,soft (giving way under pressure),mềm (lún xuống khi bị ấn),soft (giving way under pressure)
+761,main,1607245,2209003,ベル,,noun,1,4,N4,jlpt-n4,Bell,Bell,Bell
+762,main,1670548,2167365,おもちゃ,,noun,1,4,N4,jlpt-n4,玩具: toy,đồ chơi,玩具: toy
+763,main,1672494,2209002,ベル,,noun,1,4,N4,jlpt-n4,"short for ポケットベル (poketto beru, “pager”)",viết tắt của ポケットベル (máy nhắn tin),"short for ポケットベル (poketto beru, “pager”)"
+764,main,1735803,2164608,うん,,adverb,1,4,N4,jlpt-n4,"strainingly, with a grunt","gắng sức, kèm tiếng rên","strainingly, with a grunt"
+765,main,1736672,2205900,ファックス,,noun,1,4,N4,jlpt-n4,"a fax (either the device for transmitting facsimiles, or the transmitted document)",máy fax (hoặc bản fax),"a fax (either the device for transmitting facsimiles, or the transmitted document)"
+766,main,1738608,2189708,そんなに,,adverb,1,4,N4,jlpt-n4,"so much, like that, so","nhiều đến thế, như vậy, đến mức đó","so much, like that, so"
+767,main,1801651,2219832,ワープロ,,noun,1,4,N4,jlpt-n4,"clipping of ワードプロセッサ (wādo purosessa, “word processor”)",máy xử lý văn bản (dạng rút gọn của ワードプロセッサ),"clipping of ワードプロセッサ (wādo purosessa, “word processor”)"
+768,main,1803194,2200849,パート,,noun,1,4,N4,jlpt-n4,part (portion of a whole),"phần, bộ phận",part (portion of a whole)
+769,main,1866378,2214648,もし,,adverb,1,4,N4,jlpt-n4,若し: if; supposing,nếu; giả sử,若し: if; supposing
+770,main,1866868,2193992,つもり,,verb,1,4,N4,jlpt-n4,積もり: stem or continuative form of 積もる (tsumoru),"dạng gốc, liên dụng của 積もる (chất đống, tích tụ)",積もり: stem or continuative form of 積もる (tsumoru)
+771,main,1867624,2202141,はっきり,,adverb,1,4,N4,jlpt-n4,"clearly, distinctly, straight","một cách rõ ràng, rành mạch, thẳng thắn","clearly, distinctly, straight"
+772,main,1929754,2160094,アフリカ,,noun,1,4,N4,jlpt-n4,Africa (the continent south of Europe and between the Atlantic and Indian Oceans),"châu Phi (lục địa phía nam châu Âu, giữa Đại Tây Dương và Ấn Độ Dương)",Africa (the continent south of Europe and between the Atlantic and Indian Oceans)
+773,main,1933009,2209001,ベル,,noun,1,4,N4,jlpt-n4,bell (a type of small noise-making device),chuông (thiết bị nhỏ phát ra tiếng kêu),bell (a type of small noise-making device)
+774,main,1996337,2183434,ジャム,,noun,1,4,N4,jlpt-n4,jam; jelly; a sweet mixture of fruit boiled with sugar,mứt (trái cây nấu với đường),jam; jelly; a sweet mixture of fruit boiled with sugar
+775,main,1998288,2186748,ステレオ,,noun,1,4,N4,jlpt-n4,having stereo audio,âm thanh nổi (stereo),having stereo audio
+776,main,2061344,2158176,あ,,verb,1,4,N4,jlpt-n4,"to be, to exist",là; tồn tại (cổ ngữ),"to be, to exist"
+777,main,2061603,2189645,そろそろ,,adverb,1,4,N4,jlpt-n4,slowly,chậm rãi; từ từ,slowly
+778,main,2062462,2219032,レジ,,noun,1,4,N4,jlpt-n4,cash register,máy tính tiền,cash register
+779,main,2063228,2185873,スーツケース,,noun,1,4,N4,jlpt-n4,suitcase,va li,suitcase
+780,main,2126303,2182295,しっかり,,verb,1,4,N4,jlpt-n4,"be fast, securely in place","chắc chắn, vững chắc","be fast, securely in place"
+781,main,2127753,2202142,はっきり,,verb,1,4,N4,jlpt-n4,to be clear and distinct,rõ ràng; rành mạch,to be clear and distinct
+782,main,2190864,2159204,アジア,,noun,1,4,N4,jlpt-n4,"Asia (the largest continent, located between Europe and the Pacific Ocean)","châu Á (lục địa lớn nhất, nằm giữa châu Âu và Thái Bình Dương)","Asia (the largest continent, located between Europe and the Pacific Ocean)"
+783,main,2190866,2160368,アメリカ,,noun,1,4,N4,jlpt-n4,America (one of the continents of North America or South America),châu Mỹ (Bắc Mỹ hoặc Nam Mỹ),America (one of the continents of North America or South America)
+784,main,2257705,2203818,ピアノ,,noun,1,4,N4,jlpt-n4,piano (keyboard instrument),đàn piano,piano (keyboard instrument)
+785,main,2257719,2201897,パソコン,,noun,1,4,N4,jlpt-n4,"syllabic abbreviation of パーソナルコンピューター (pāsonaru konpyūtā, “personal computer”); a PC",Từ viết tắt âm tiết của パーソナルコンピューター (máy tính cá nhân); máy tính cá nhân,"syllabic abbreviation of パーソナルコンピューター (pāsonaru konpyūtā, “personal computer”); a PC"
+786,main,2322941,2215053,もらう,,verb,1,4,N4,jlpt-n4,to receive,nhận (được),to receive
+787,main,2388214,2158937,アクセサリー,,noun,1,4,N4,jlpt-n4,fashion accessories,phụ kiện thời trang,fashion accessories
+788,main,2388261,2175206,くれる,,verb,1,4,N4,jlpt-n4,"to give to me, to us, or to someone close to me",cho tôi/chúng tôi (hoặc người thân của tôi),"to give to me, to us, or to someone close to me"
+789,main,2388304,2204073,ひげ,,noun,1,4,N4,jlpt-n4,"facial hair on the upper lip region, the chin, and the cheeks","râu (lông mặt ở môi trên, cằm và má)","facial hair on the upper lip region, the chin, and the cheeks"
+790,main,2388347,2181143,サンドイッチ,,noun,1,4,N4,jlpt-n4,a sandwich (snack consisting of two slices of bread),bánh sandwich (bánh kẹp hai lát bánh mì),a sandwich (snack consisting of two slices of bread)
+791,main,2389093,2169589,ガソリン,,noun,1,4,N4,jlpt-n4,gasoline (motor fuel),xăng,gasoline (motor fuel)
+792,main,2389762,2179220,コンサート,,noun,1,4,N4,jlpt-n4,music concert,buổi hòa nhạc,music concert
+793,main,2453071,2158172,あ,,noun,1,4,N4,jlpt-n4,ridge between rice fields; ridge between groves,bờ ruộng; bờ giữa các lùm cây (từ cổ),ridge between rice fields; ridge between groves
+794,main,2453311,2207956,プレゼント,,verb,1,4,N4,jlpt-n4,give a present,tặng quà,give a present
+795,main,2453709,2191371,たまに,,adverb,1,4,N4,jlpt-n4,"once in a while, occasionally, now and then",thỉnh thoảng; đôi khi,"once in a while, occasionally, now and then"
+796,main,2454195,2162879,いらっしゃる,,verb,1,4,N4,jlpt-n4,to go,đi (kính ngữ),to go
+797,main,2518590,2160754,アルコール,,noun,1,4,N4,jlpt-n4,an alcohol,ancol (hóa học),an alcohol
+798,main,2520385,2186747,ステレオ,,adjective,1,4,N4,jlpt-n4,stereo,stereo (âm thanh nổi),stereo
+799,main,2583361,2169416,ガス,,noun,1,4,N4,jlpt-n4,gas,"khí, ga",gas
+800,main,2585331,2186350,スクリーン,,noun,1,4,N4,jlpt-n4,"screen of a computer, television, movie theater, etc.","màn hình (máy tính, tivi, rạp chiếu phim...)","screen of a computer, television, movie theater, etc."
+801,main,2586447,2186661,すっと,,adverb,1,4,N4,jlpt-n4,"straight, quickly, all of a sudden","thẳng; nhanh chóng, bất chợt","straight, quickly, all of a sudden"
+802,main,2648163,2158171,あ,,noun,1,4,N4,jlpt-n4,foot,bàn chân (từ cổ),foot
+803,main,2648406,2165016,エスカレーター,,noun,1,4,N4,jlpt-n4,an escalator (mechanical device),thang cuốn,an escalator (mechanical device)
+804,main,2648691,2189497,ソフト,,noun,1,4,N4,jlpt-n4,"clipping of ソフトウェア (sofutowea, “software”)",phần mềm (viết tắt của ソフトウェア),"clipping of ソフトウェア (sofutowea, “software”)"
+805,main,2650123,2190155,タイプ,,noun,1,4,N4,jlpt-n4,"type, kind, sort","loại, kiểu, dạng","type, kind, sort"
+806,main,2650126,2190154,タイプ,,adjective,1,4,N4,jlpt-n4,being a type (that one likes),"đúng gu, đúng kiểu mình thích (thân mật)",being a type (that one likes)
+807,main,30,116955,彼の,あの,adjective,1,5,N5,jlpt-n5,that,kia,
+808,main,707,199023,迚も,とても,adverb,1,5,N5,jlpt-n5,very,"rất, vô cùng, cực kỳ",
+809,main,2309,92559,咖哩,カレー,noun,1,5,N5,jlpt-n5,curry (esp. Japanese curry),món cà ri (nhất là cà ri kiểu Nhật),
+810,main,6880,205215,釦,ボタン,noun,1,5,N5,jlpt-n5,button (clothing),cúc áo; khuy áo,
+811,main,7136,154782,燐寸,マッチ,noun,1,5,N5,jlpt-n5,match (for lighting a fire),diêm; que diêm,
+812,main,8717,152799,為る,する,verb,1,5,N5,jlpt-n5,to do,"làm, thực hiện",
+813,main,9183,58337,一寸,ちょっと,adverb,1,5,N5,jlpt-n5,a little,"một chút, một tí, hơi",
+814,main,9973,95844,園,その,noun,1,5,N5,jlpt-n5,garden,vườn; công viên,
+815,main,10583,61467,下番,かばん,noun,1,5,N5,jlpt-n5,going off duty,hết phiên trực,
+816,main,10921,107215,家,うち,noun,1,5,N5,jlpt-n5,one's house,nhà mình; gia đình mình,
+817,main,11007,138728,架かる,かかる,verb,1,5,N5,jlpt-n5,to span,bắc qua; vắt ngang qua,
+818,main,14591,72268,係る,かかる,verb,1,5,N5,jlpt-n5,to be the work of,là công của; là kết quả của; do... làm nên,
+819,main,14972,174336,結構,けっこう,adjective,1,5,N5,jlpt-n5,splendid,"tốt đẹp, tuyệt vời, xuất sắc, đáng yêu",
+820,main,17787,143840,殺陣,たて,noun,1,5,N5,jlpt-n5,"sword fight (in a film, play, etc.)",cảnh đấu kiếm,
+821,main,17827,11716,お皿,おさら,noun,1,5,N5,jlpt-n5,plate,"đĩa, dĩa",
+822,main,19671,11915,お酒,おさけ,noun,1,5,N5,jlpt-n5,alcohol,"rượu, đồ uống có cồn; rượu sake (rượu gạo Nhật Bản)",
+823,main,19848,110079,就ける,つける,verb,1,5,N5,jlpt-n5,"to install (a king, emperor, etc.)",đưa lên ngôi,
+824,main,24598,73759,側,そば,noun,1,5,N5,jlpt-n5,(place) near by,"bên cạnh, gần kề",
+825,main,31538,155074,片仮名,カタカナ,noun,1,5,N5,jlpt-n5,katakana,"chữ katakana; bảng chữ âm tiết Nhật nét góc, dùng chủ yếu cho từ ngoại lai",
+826,main,31973,66681,亡い,ない,adjective,1,5,N5,jlpt-n5,dead,đã chết; đã mất,
+827,main,32390,87697,又,また,adverb,1,5,N5,jlpt-n5,again,"lại, một lần nữa",
+828,main,34783,71689,佩,はい,noun,1,5,N5,jlpt-n5,type of ancient oriental belt,loại thắt lưng cổ phương Đông,
+829,main,35014,126350,掏る,する,verb,1,5,N5,jlpt-n5,to pickpocket,móc túi,
+830,main,36048,142788,此の,この,adjective,1,5,N5,jlpt-n5,this,này,
+831,main,36245,71481,佚,いつ,noun,1,5,N5,jlpt-n5,being comfortable,"sự nhàn nhã, thoải mái",
+832,main,36311,207003,開く,あく,verb,1,5,N5,jlpt-n5,to open (e.g. doors),mở (cửa),
+833,main,39884,122941,戸戸,ここ,noun,1,5,N5,jlpt-n5,each house,"từng nhà, mỗi nhà",
+834,main,53158,185178,蒙,もう,noun,1,5,N5,jlpt-n5,ignorance,sự ngu muội,
+835,main,55116,92042,呱々,ここ,noun,1,5,N5,jlpt-n5,cry of a baby at birth,tiếng khóc chào đời,
+836,main,58332,137888,杯,はい,noun,1,5,N5,jlpt-n5,sake cup,chén rượu sake,
+837,main,58360,170946,箔,はく,noun,1,5,N5,jlpt-n5,foil,lá kim loại mỏng; vàng lá,
+838,main,60489,179230,胚,はい,noun,1,5,N5,jlpt-n5,embryo,phôi,
+839,main,63998,144225,毛,もう,noun,1,5,N5,jlpt-n5,one-thousandth,một phần nghìn (đơn vị đo cũ),
+840,main,67279,1555,ＰＥＴ,ペット,noun,1,5,N5,jlpt-n5,polyethylene terephthalate,nhựa PET; polyethylene terephthalate,
+841,main,68303,138729,架ける,かける,verb,1,5,N5,jlpt-n5,to suspend between two points,bắc (cầu); gác lên; giăng qua hai điểm,
+842,main,70643,127522,摩多,また,noun,1,5,N5,jlpt-n5,vowel (in the Siddham script),nguyên âm (chữ Tất-đàm),
+843,main,70701,92912,唖々,ああ,adverb,1,5,N5,jlpt-n5,"caw (of a crow, etc.)",tiếng quạ kêu; quạ quạ,
+844,main,71853,113385,幢,はたほこ,noun,1,5,N5,jlpt-n5,long-handled Chinese spear bearing a small flag,giáo dài có cờ nhỏ,
+845,main,79747,151354,演る,やる,verb,1,5,N5,jlpt-n5,to perform,biểu diễn; đóng vai; diễn xuất,
+846,main,87085,112789,帛,はく,noun,1,5,N5,jlpt-n5,silk,lụa,
+847,main,95105,155223,牌,はい,noun,1,5,N5,jlpt-n5,medal,huy hiệu,
+848,main,100001,39846,パン,パン,noun,1,5,N5,jlpt-n5,Pan (god),thần Pan,
+849,main,103128,81813,刷く,はく,verb,1,5,N5,jlpt-n5,to daub,"quét, trát",
+850,main,105047,79259,凍つ,いつ,verb,1,5,N5,jlpt-n5,to freeze,đóng băng,
+851,main,106826,162398,皸る,かかる,verb,1,5,N5,jlpt-n5,to chap,nứt nẻ; nứt da,
+852,main,107348,17949,コート,コート,noun,1,5,N5,jlpt-n5,"court (e.g. tennis, basketball, volleyball)","sân (quần vợt, bóng rổ...)",
+853,main,107867,57868,一,いつ,noun,1,5,N5,jlpt-n5,one,số một; một,
+854,main,108425,163076,盲,もう,noun,1,5,N5,jlpt-n5,blindness,"sự mù, mù lòa",
+855,main,108487,147811,洞,どう,noun,1,5,N5,jlpt-n5,sinus,xoang,
+856,main,108969,38113,バス,バス,noun,1,5,N5,jlpt-n5,bath,bồn tắm,
+857,main,110425,42930,フォーク,フォーク,noun,1,5,N5,jlpt-n5,folk (esp. music),nhạc folk; dân ca hiện đại,
+858,main,114451,83198,加番,かばん,noun,1,5,N5,jlpt-n5,guards at Ōsaka and Sunpu castles (Edo period),lính canh thành Osaka và Sunpu (thời Edo),
+859,main,120462,215015,館,たち,noun,1,5,N5,jlpt-n5,mansion (of a noble),dinh thự của quý tộc,
+860,main,122785,177346,翔ける,かける,verb,1,5,N5,jlpt-n5,to soar,bay lượn; tung bay,
+861,main,127309,77595,其の,その,adjective,1,5,N5,jlpt-n5,that,đó,
+862,main,127454,103829,如何,どう,adverb,1,5,N5,jlpt-n5,how,như thế nào,
+863,main,127843,202230,遣る,やる,verb,1,5,N5,jlpt-n5,to do,làm,
+864,main,129653,158244,瓦,グラム,noun,1,5,N5,jlpt-n5,gram,gam (đơn vị đo khối lượng),
+865,main,129790,157356,珈琲,コーヒー,noun,1,5,N5,jlpt-n5,coffee,cà phê,
+866,main,129844,147642,洋杯,コップ,noun,1,5,N5,jlpt-n5,glass (drinking vessel),cốc thủy tinh; ly uống nước,
+867,main,131104,147670,洋袴,ズボン,noun,1,5,N5,jlpt-n5,trousers,"quần dài, quần tây",
+868,main,134275,171473,米,メートル,noun,1,5,N5,jlpt-n5,metre (unit of length),mét (đơn vị đo độ dài),
+869,main,137269,155349,牡丹,ぼたん,noun,1,5,N5,jlpt-n5,tree peony (Paeonia suffruticosa),hoa mẫu đơn,
+870,main,138684,190409,角,かど,noun,1,5,N5,jlpt-n5,corner,"góc, cạnh",
+871,main,147211,79714,出切る,できる,verb,1,5,N5,jlpt-n5,to be out of,hết; không còn,
+872,main,148923,198400,辛い,からい,adjective,1,5,N5,jlpt-n5,spicy,cay,
+873,main,155526,103838,如何して,どうして,adverb,1,5,N5,jlpt-n5,how,"như thế nào, bằng cách nào",
+874,main,155898,179044,背,せい,noun,1,5,N5,jlpt-n5,height,"chiều cao, tầm vóc",
+875,main,158723,130947,方,かた,noun,1,5,N5,jlpt-n5,direction,"hướng, phương hướng; phía, bên",
+876,main,162669,110473,居る,いる,verb,1,5,N5,jlpt-n5,to be (of animate objects),"có, ở, tồn tại (chỉ người, động vật)",
+877,main,162826,80024,出端,では,noun,1,5,N5,jlpt-n5,chance of going out,dịp ra ngoài; cơ hội thành đạt,
+878,main,163269,217056,鮠,はや,noun,1,5,N5,jlpt-n5,minnow,cá tuế,
+879,main,166427,125249,拝,はい,noun,1,5,N5,jlpt-n5,bowing one's head (in respect or worship),sự cúi lạy,
+880,main,179818,128832,敗,はい,noun,1,5,N5,jlpt-n5,loss,sự thua; thất bại,
+881,main,180492,71129,何の,どの,adjective,1,5,N5,jlpt-n5,which,nào,
+882,main,184938,143784,殺る,やる,verb,1,5,N5,jlpt-n5,to do someone in,giết; thủ tiêu; thanh toán,
+883,main,188359,130402,斯かる,かかる,adjective,1,5,N5,jlpt-n5,such,"như vậy, như thế này",
+884,main,188635,156710,猛,もう,adjective,1,5,N5,jlpt-n5,greatly energetic,tràn đầy năng lượng; mãnh liệt,
+885,main,189634,110270,尾ける,つける,verb,1,5,N5,jlpt-n5,to follow (someone),theo dõi; bám đuôi; rình theo,
+886,main,192581,201722,道,どう,noun,1,5,N5,jlpt-n5,road,con đường,
+887,main,193576,216840,魄,はく,noun,1,5,N5,jlpt-n5,Yin energy,"phách, phần vía thuộc âm",
+888,main,193654,198185,輩,はい,noun,1,5,N5,jlpt-n5,group,nhóm; băng đảng; bọn,
+889,main,196771,125124,拍,はく,noun,1,5,N5,jlpt-n5,beat,phách nhạc,
+890,main,197832,169784,立破,りっぱ,noun,1,5,N5,jlpt-n5,establishing and refuting (a doctrine),lập và phá; thiết lập và bác bỏ,
+891,main,198149,70286,伯母さん,おばさん,noun,1,5,N5,jlpt-n5,aunt,"cô, dì, bác gái",
+892,main,213041,185424,蔤,はい,noun,1,5,N5,jlpt-n5,lotus root,củ sen; ngó sen,
+893,main,213511,167785,私窩子,しかし,noun,1,5,N5,jlpt-n5,prostitute,gái mại dâm; gái điếm,
+894,main,214780,115239,建て,たて,noun,1,5,N5,jlpt-n5,contract,hợp đồng; cam kết,
+895,main,218277,156220,犯る,やる,verb,1,5,N5,jlpt-n5,to rape,cưỡng hiếp; hãm hiếp,
+896,main,222117,161579,白,はく,noun,1,5,N5,jlpt-n5,white,màu trắng,
+897,main,234797,119306,忽地,こっち,adverb,1,5,N5,jlpt-n5,suddenly,đột nhiên; bất ngờ,
+898,main,235801,38114,バス,バス,noun,1,5,N5,jlpt-n5,bass,giọng trầm; bè trầm,
+899,main,235803,38115,バス,バス,noun,1,5,N5,jlpt-n5,bass (fish; esp. black bass),cá vược đen; cá bass,
+900,main,238541,39847,パン,パン,noun,1,5,N5,jlpt-n5,pan,chảo; chảo rán,
+901,main,244689,96924,地震,ない,noun,1,5,N5,jlpt-n5,earthquake,động đất,
+902,main,249951,1249,ＫＯＰＦ,コップ,noun,1,5,N5,jlpt-n5,Federacio de Proletaj Kultur-Organizoj Japanaj (1931-1934),Liên đoàn tổ chức văn hóa vô sản Nhật Bản; KOPF,
+903,main,249955,1552,ＰＥＮ,ペン,noun,1,5,N5,jlpt-n5,"International Association of Poets, Playwrights, Editors, Essayists and Novelists",Tổ chức PEN quốc tế; PEN,
+904,main,888045,2159916,アパート,,noun,1,5,N5,jlpt-n5,"apartment building, apartment block",,"apartment building, apartment block"
+905,main,888121,2162435,いつも,,noun,1,5,N5,jlpt-n5,"the usual, ordinary",,"the usual, ordinary"
+906,main,888169,2201787,バス,,noun,1,5,N5,jlpt-n5,bass (the lower spectrum of sound of a singing voice or musical instrument),,bass (the lower spectrum of sound of a singing voice or musical instrument)
+907,main,889785,2186170,スカート,,noun,1,5,N5,jlpt-n5,skirt (clothing),,skirt (clothing)
+908,main,953312,2216730,よく,,adjective,1,5,N5,jlpt-n5,"良く, 善く, 克く: adverbial form of よい (yoi, “good”) good, well",,"良く, 善く, 克く: adverbial form of よい (yoi, “good”) good, well"
+909,main,953534,2176882,コート,,noun,1,5,N5,jlpt-n5,coat,,coat
+910,main,956433,2189594,それから,,adverb,1,5,N5,jlpt-n5,and then; after that,,and then; after that
+911,main,1019355,2186982,スプーン,,noun,1,5,N5,jlpt-n5,spoon,,spoon
+912,main,1019888,2205805,プール,,noun,1,5,N5,jlpt-n5,"a swimming pool, a pool",,"a swimming pool, a pool"
+913,main,1148810,2201784,バス,,noun,1,5,N5,jlpt-n5,bus,,bus
+914,main,1148978,2171011,カレンダー,,noun,1,5,N5,jlpt-n5,calender,,calender
+915,main,1149078,2194156,テープ,,noun,1,5,N5,jlpt-n5,adhesive tape,,adhesive tape
+916,main,1149217,2208735,ベッド,,noun,1,5,N5,jlpt-n5,bed (piece of furniture to sleep on),,bed (piece of furniture to sleep on)
+917,main,1214103,2176883,コート,,noun,1,5,N5,jlpt-n5,court,sân (thi đấu),court
+918,main,1278126,2208330,ページ,,noun,1,5,N5,jlpt-n5,"page (of a book, newspaper, etc.)","trang (sách, báo...)","page (of a book, newspaper, etc.)"
+919,main,1279240,2210161,ボタン,,noun,1,5,N5,jlpt-n5,a button (clothing),cúc áo,a button (clothing)
+920,main,1279553,2206058,フィルム,,noun,1,5,N5,jlpt-n5,"cinema, that is, film or movies as a group",điện ảnh; phim (nói chung),"cinema, that is, film or movies as a group"
+921,main,1280734,2206260,フォーク,,noun,1,5,N5,jlpt-n5,folk,,folk
+922,main,1280749,2219026,レコード,,noun,1,5,N5,jlpt-n5,record (e.g. LP),,record (e.g. LP)
+923,main,1344184,2203276,パン,,noun,1,5,N5,jlpt-n5,a pan (flat vessel used for cooking),chảo (dụng cụ nấu ăn bằng phẳng),a pan (flat vessel used for cooking)
+924,main,1344422,2217450,ラジオ,,noun,1,5,N5,jlpt-n5,radio,radio; máy thu thanh,radio
+925,main,1344628,2179329,こんな,,adjective,1,5,N5,jlpt-n5,like this; this kind of,"như thế này, loại này",like this; this kind of
+926,main,1345944,2187437,セーター,,noun,1,5,N5,jlpt-n5,a sweater,áo len,a sweater
+927,main,1409357,2174857,グラム,,adjective,1,5,N5,jlpt-n5,"glamorous, attractive","quyến rũ, hấp dẫn","glamorous, attractive"
+928,main,1409419,2195203,テレビ,,noun,1,5,N5,jlpt-n5,"clipping of テレビジョン (terebijon, “television”): a TV",tivi (viết tắt của terebijon),"clipping of テレビジョン (terebijon, “television”): a TV"
+929,main,1538990,2160874,あれ,,verb,1,5,N5,jlpt-n5,"imperative of あり (ari, “to exist”); (modern language) imperative of ある (aru, “to exist”)","hãy có, hãy tồn tại (dạng mệnh lệnh của ある; văn cổ)","imperative of あり (ari, “to exist”); (modern language) imperative of ある (aru, “to exist”)"
+930,main,1539967,2214487,もう,,adverb,1,5,N5,jlpt-n5,already (having reached a certain situation or finished a certain action),"đã, rồi",already (having reached a certain situation or finished a certain action)
+931,main,1540110,2164886,ええ,,adjective,1,5,N5,jlpt-n5,good,"tốt (phương ngữ Kansai, Chūgoku)",good
+932,main,1540275,2201905,バター,,noun,1,5,N5,jlpt-n5,butter (soft foodstuff made from milk),bơ (làm từ sữa),butter (soft foodstuff made from milk)
+933,main,1605167,2219063,レストラン,,noun,1,5,N5,jlpt-n5,a restaurant,nhà hàng,a restaurant
+934,main,1605232,2213818,メートル,,noun,1,5,N5,jlpt-n5,a metre (unit of length),mét (đơn vị độ dài),a metre (unit of length)
+935,main,1605362,2187076,スポーツ,,noun,1,5,N5,jlpt-n5,a sport; sports,môn thể thao; thể thao,a sport; sports
+936,main,1605613,2200261,ノート,,noun,1,5,N5,jlpt-n5,a note:,mẩu giấy nhắn; thư ngắn,a note:
+937,main,1607036,2191818,だんだん,,adjective,1,5,N5,jlpt-n5,"団々: very round of shape, such as the roundness of the full moon; full of dew, covered in dewdrops","tròn đầy (như trăng rằm); đẫm sương, phủ đầy giọt sương","団々: very round of shape, such as the roundness of the full moon; full of dew, covered in dewdrops"
+938,main,1669351,2187291,する,,verb,1,5,N5,jlpt-n5,to do; to perform an action,"làm, thực hiện hành động",to do; to perform an action
+939,main,1671327,2211507,まずい,,adjective,1,5,N5,jlpt-n5,not tasting good,"dở, không ngon",not tasting good
+940,main,1672064,2206261,フォーク,,noun,1,5,N5,jlpt-n5,Faulk (a surname or place name),Faulk (họ hoặc tên địa danh),Faulk (a surname or place name)
+941,main,1672065,2200834,パーティー,,noun,1,5,N5,jlpt-n5,a party (social gathering),"bữa tiệc, buổi liên hoan",a party (social gathering)
+942,main,1735736,2209941,ポケット,,noun,1,5,N5,jlpt-n5,pocket,túi (quần áo),pocket
+943,main,1735890,2211594,また,,adverb,1,5,N5,jlpt-n5,"又, 復: again; as well",lại; nữa; cũng,"又, 復: again; as well"
+944,main,1736363,2199873,ネクタイ,,noun,1,5,N5,jlpt-n5,necktie,cà vạt,necktie
+945,main,1801186,2198590,なる,,verb,1,5,N5,jlpt-n5,"adnominal of なり (nari, “to be”)",dạng định ngữ của なり (là),"adnominal of なり (nari, “to be”)"
+946,main,1801206,2210336,ホテル,,noun,1,5,N5,jlpt-n5,a hotel (establishment providing accommodation),khách sạn (cơ sở cung cấp chỗ ở),a hotel (establishment providing accommodation)
+947,main,1801829,2211756,マッチ,,noun,1,5,N5,jlpt-n5,match (device),que diêm,match (device)
+948,main,1802055,2194750,テスト,,noun,1,5,N5,jlpt-n5,test,bài kiểm tra,test
+949,main,1866291,2198235,など,,adverb,1,5,N5,jlpt-n5,"how, in what way",như thế nào,"how, in what way"
+950,main,1866315,2174860,グラム,,noun,1,5,N5,jlpt-n5,glam (fashion associated with glam rock),phong cách glam (thời trang gắn với glam rock),glam (fashion associated with glam rock)
+951,main,1866389,2171010,カレンダー,,noun,1,5,N5,jlpt-n5,calendar,lịch,calendar
+952,main,1866870,2183329,シャツ,,noun,1,5,N5,jlpt-n5,a shirt,áo sơ mi,a shirt
+953,main,1930695,2196773,とても,,adverb,1,5,N5,jlpt-n5,"very, exceedingly, awfully","rất, cực kỳ, vô cùng","very, exceedingly, awfully"
+954,main,1931092,2187270,スリッパ,,noun,1,5,N5,jlpt-n5,a slipper (low shoe usually worn indoors),dép lê (giày thấp thường đi trong nhà),a slipper (low shoe usually worn indoors)
+955,main,1931155,2178365,コップ,,noun,1,5,N5,jlpt-n5,"a drinking glass, a tumbler",cốc (ly uống nước),"a drinking glass, a tumbler"
+956,main,1931156,2203307,ハンカチ,,noun,1,5,N5,jlpt-n5,handkerchief,khăn tay,handkerchief
+957,main,1931272,2186760,ストーブ,,noun,1,5,N5,jlpt-n5,heater; stove,lò sưởi; bếp,heater; stove
+958,main,1996167,2199368,ニュース,,noun,1,5,N5,jlpt-n5,news (reports of current events),tin tức (bản tin về sự kiện hiện tại),news (reports of current events)
+959,main,1996382,2194158,テーブル,,noun,1,5,N5,jlpt-n5,table (furniture),bàn,table (furniture)
+960,main,1996965,2205806,プール,,verb,1,5,N5,jlpt-n5,"pool, put together","gộp chung, tập hợp lại","pool, put together"
+961,main,1996982,2208736,ペット,,noun,1,5,N5,jlpt-n5,a pet (an animal kept as a companion),thú cưng,a pet (an animal kept as a companion)
+962,main,2061339,2203277,パン,,noun,1,5,N5,jlpt-n5,Pan,thần Pan (thần thoại Hy Lạp),Pan
+963,main,2061453,2159915,アパート,,noun,1,5,N5,jlpt-n5,apartment,căn hộ,apartment
+964,main,2061517,2211596,また,,noun,1,5,N5,jlpt-n5,又: another (one); also; again,lại nữa; cũng; nữa,又: another (one); also; again
+965,main,2061619,2174859,グラム,,noun,1,5,N5,jlpt-n5,gram (unit of mass),gam (đơn vị khối lượng),gram (unit of mass)
+966,main,2062373,2208737,ペット,,noun,1,5,N5,jlpt-n5,clipping of トランペット (“trumpet”),từ rút gọn của トランペット (kèn trumpet),clipping of トランペット (“trumpet”)
+967,main,2062445,2194751,テスト,,verb,1,5,N5,jlpt-n5,to test,"kiểm tra, thử nghiệm",to test
+968,main,2062686,2209092,ペン,,noun,1,5,N5,jlpt-n5,a pen (writing instrument),bút (dụng cụ viết),a pen (writing instrument)
+969,main,2063245,2206259,フォーク,,noun,1,5,N5,jlpt-n5,fork (utensil),cái nĩa (dụng cụ ăn),fork (utensil)
+970,main,2126422,2214779,もっと,,adverb,1,5,N5,jlpt-n5,more,"hơn nữa, thêm",more
+971,main,2126634,2195957,どうぞ,,adverb,1,5,N5,jlpt-n5,used to express one's strong desire for something; no matter how; by all means; seriously,"dù thế nào cũng, nhất định, xin hãy",used to express one's strong desire for something; no matter how; by all means; seriously
+972,main,2126927,2219856,ワイシャツ,,noun,1,5,N5,jlpt-n5,a dress shirt,áo sơ mi mặc với lễ phục,a dress shirt
+973,main,2127045,2183491,シャワー,,noun,1,5,N5,jlpt-n5,shower (a device for bathing),vòi hoa sen (thiết bị tắm),shower (a device for bathing)
+974,main,2190868,2189590,それ,,adverb,1,5,N5,jlpt-n5,其れ: probably,có lẽ (cổ ngữ),其れ: probably
+975,main,2192689,2211757,マッチ,,noun,1,5,N5,jlpt-n5,match,trận đấu,match
+976,main,2257649,2190563,タクシー,,noun,1,5,N5,jlpt-n5,"a taxi, a taxicab, a cab",Xe taxi,"a taxi, a taxicab, a cab"
+977,main,2257987,2200262,ノート,,verb,1,5,N5,jlpt-n5,"to take a note, to write something down","ghi chép, viết lại","to take a note, to write something down"
+978,main,2258266,2211758,マッチ,,verb,1,5,N5,jlpt-n5,to go well with; to suit well,"hợp, phù hợp (với nhau)",to go well with; to suit well
+979,main,2258423,2208738,ペット,,noun,1,5,N5,jlpt-n5,PET (polyethylene terephthalate),PET (polyethylene terephthalate),PET (polyethylene terephthalate)
+980,main,2322744,2165367,エレベーター,,noun,1,5,N5,jlpt-n5,an elevator (US) or lift (UK),thang máy,an elevator (US) or lift (UK)
+981,main,2322925,2176898,コーヒー,,noun,1,5,N5,jlpt-n5,coffee,cà phê,coffee
+982,main,2323500,2209418,ボールペン,,noun,1,5,N5,jlpt-n5,ballpoint pen,bút bi,ballpoint pen
+983,main,2390032,2194952,デパート,,noun,1,5,N5,jlpt-n5,"clipping of デパートメントストア (depātomento sutoa, “department store”)",cửa hàng bách hóa,"clipping of デパートメントストア (depātomento sutoa, “department store”)"
+984,main,2390328,2193009,ちょうど,,adverb,1,5,N5,jlpt-n5,"just, right, exactly, precisely","vừa đúng, chính xác","just, right, exactly, precisely"
+985,main,2453333,2169973,カップ,,noun,1,5,N5,jlpt-n5,"cup or mug, specifically, one with a handle.","cốc, tách (có quai)","cup or mug, specifically, one with a handle."
+986,main,2454168,2210075,ポスト,,noun,1,5,N5,jlpt-n5,"post box or mailbox, especially a red public postbox",hòm thư (đặc biệt hòm thư công cộng màu đỏ),"post box or mailbox, especially a red public postbox"
+987,main,2454910,2206262,フォーク,,noun,1,5,N5,jlpt-n5,Falk (a surname or place name),Falk (họ hoặc tên địa danh),Falk (a surname or place name)
+988,main,2518375,2201785,バス,,noun,1,5,N5,jlpt-n5,bath (tub),bồn tắm,bath (tub)
+989,main,2518752,2197805,ナイフ,,noun,1,5,N5,jlpt-n5,"a Western knife, table knife","dao kiểu phương Tây, dao ăn","a Western knife, table knife"
+990,main,2518988,2170974,カレー,,noun,1,5,N5,jlpt-n5,Indian curry,cà ri Ấn Độ,Indian curry
+991,main,2519112,2196109,どうも,,adverb,1,5,N5,jlpt-n5,"no matter how, not at all","dù thế nào cũng không, hoàn toàn không","no matter how, not at all"
+992,main,2583366,2195682,ドア,,noun,1,5,N5,jlpt-n5,door (especially Western-style),cửa (kiểu phương Tây),door (especially Western-style)
+993,main,2583479,2172080,ギター,,noun,1,5,N5,jlpt-n5,guitar,Đàn guitar,guitar
+994,main,2648147,2194616,できる,,verb,1,5,N5,jlpt-n5,to be able to do,có thể làm được,to be able to do
+995,main,2648152,2203275,パン,,noun,1,5,N5,jlpt-n5,"bread, pastries, any baked good with a crust (a type of food)",bánh mì (các loại bánh nướng có vỏ),"bread, pastries, any baked good with a crust (a type of food)"
+996,main,2712760,2160712,ある,,verb,1,5,N5,jlpt-n5,"to exist, to be, to have","tồn tại, có (vật vô tri)","to exist, to be, to have"
+997,main,2712784,2160870,あれ,,adjective,1,5,N5,jlpt-n5,"あれ, アレ: (informal, euphemistic) ""you know what I mean""","cái đó ấy (ám chỉ, bạn hiểu ý mà)","あれ, アレ: (informal, euphemistic) ""you know what I mean"""
+998,main,2713882,2198589,なる,,verb,1,5,N5,jlpt-n5,to be achieved; to be completed,được hoàn thành; đạt được,to be achieved; to be completed
+999,main,2714014,2213332,みんな,,verb,1,5,N5,jlpt-n5,alternative form of みるな (miru na),dạng khác của みるな (miru na) (không trang trọng),alternative form of みるな (miru na)
+1000,main,2714126,2193139,ちょっと,,adverb,1,5,N5,jlpt-n5,"slightly, a little, a bit, somewhat (of a span of time, or an amount or degree)","một chút, hơi","slightly, a little, a bit, somewhat (of a span of time, or an amount or degree)"
