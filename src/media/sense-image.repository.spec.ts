@@ -20,12 +20,13 @@ describe('SenseImageRepository', () => {
   });
 
   it('có tier 0 đọc ảnh sense-level trước ảnh concept', async () => {
-    const queryRaw = mockPrisma.$queryRaw as jest.Mock;
+    const queryRaw = jest.spyOn(mockPrisma, '$queryRaw');
     queryRaw.mockResolvedValueOnce([]);
 
     await repo.findSourcesWithDirectImages(mockPrisma, [100n]);
 
-    const sql = queryRaw.mock.calls[0][0] as { strings: string[] };
+    const calls = queryRaw.mock.calls as unknown as Array<[unknown]>;
+    const sql = calls[0][0] as { strings: string[] };
     const text = sql.strings.join('?');
     expect(text).toContain('serve.sense_image');
     expect(text).toContain('0 AS tier');
