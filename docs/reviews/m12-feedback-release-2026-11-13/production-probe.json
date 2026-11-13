@@ -1,0 +1,42 @@
+{
+  "node": "v22.23.3",
+  "read_only": true,
+  "production_database": true,
+  "pool_max": 2,
+  "sources": {
+    "process_cache": "cold isolated instance; database buffer cache not flushed",
+    "concurrent_callers": 10,
+    "cold_ms": 4577,
+    "warm_ms": 0.33,
+    "repository_calls": {
+      "listSources": 1,
+      "countLexemes": 1,
+      "countSenses": 1,
+      "countGlosses": 1,
+      "countConcepts": 1,
+      "countConceptGlosses": 1,
+      "countKanji": 1,
+      "countExamples": 1
+    },
+    "per_method_elapsed_ms_including_pool_wait": {
+      "listSources": 54,
+      "countLexemes": 2223,
+      "countSenses": 2785,
+      "countConcepts": 3012,
+      "countConceptGlosses": 3254,
+      "countKanji": 3368,
+      "countGlosses": 3801,
+      "countExamples": 4562
+    },
+    "source_groups": 32
+  },
+  "integration": {
+    "http_authenticated": false,
+    "reason": "No supplied login credentials; readonly service/DB checks below, HTTP auth covered by CI",
+    "membership_matches_actual_face": true,
+    "other_owner_rejected": true,
+    "projection_rows": 12,
+    "projection_enriched_rows": 12,
+    "meaning_preserved": true
+  }
+}

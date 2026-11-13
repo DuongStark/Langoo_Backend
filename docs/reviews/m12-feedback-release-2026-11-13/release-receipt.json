@@ -1,0 +1,57 @@
+{
+  "date": "2026-11-13",
+  "task": "M12 — Deploy BE và đồng bộ handoff FE",
+  "code_commit": "4df8655f395640bb4ba425e98bdac48784e0a263",
+  "environment": "VPS production",
+  "ci": {
+    "run": 43365114780,
+    "conclusion": "success",
+    "unit": 653,
+    "e2e": 289,
+    "db3_regression": 31
+  },
+  "deploy": {
+    "run": 43365414363,
+    "conclusion": "success",
+    "node": "22.23.3",
+    "pm2": "online",
+    "tracked_source_clean_at_verification": true
+  },
+  "deployed_source_sha256_verified_local": {
+    "src/dictionary/dictionary.service.ts": "0706314d2bd2875aeb65be405d7aa9370abb33ffba16b65a464f4d6b9fc6b957",
+    "src/collections/saved-senses.service.ts": "382d3c9917822f78ad34fd76490cb60a63269977002bb8416cb8997e725f14bc",
+    "src/collections/items.service.ts": "4ba02d275dba1055957b69c0c3d163fca1a7043b69dede2b9e76e12404b8e374",
+    "src/common/http-security.middleware.ts": "3dd220761bbfdfea43fd2e434dcf5606a8b58b7f7f7766398d28cd6346578a3e",
+    "src/sources/sources.service.ts": "ab18fda2271d8fa2f1db78096cb24734ea2ccd4134643376b723e6894752ea35"
+  },
+  "caddy": {
+    "version": "2.11.4",
+    "final_config_matches_candidate": true,
+    "temporary_probe_logging_removed": true,
+    "hsts": "max-age=86400"
+  },
+  "other_hosts": [
+    {
+      "host": "study.pixpress.art",
+      "status": 200,
+      "tls_verified": true
+    },
+    {
+      "host": "studyledger.163-223-210-135.sslip.io",
+      "status": 200,
+      "tls_verified": true
+    },
+    {
+      "host": "langoo-api.pixpress.art",
+      "error": "<urlopen error [Errno -2] Name or service not known>"
+    }
+  ],
+  "production_data_mutated": false,
+  "fe_source_modified": false,
+  "limitations": [
+    "of → nước assertion216799 unchanged",
+    "sources cold sample is not P95 or HTTP benchmark",
+    "no authenticated production HTTP/browser test credentials",
+    "Cloudflare Workers/PseudoIPv4 zone settings not inspected"
+  ]
+}

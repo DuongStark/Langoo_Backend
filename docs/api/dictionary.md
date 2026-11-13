@@ -1,6 +1,6 @@
 # API: Dictionary (đọc)
 
-## M12-A06.1/A12/A17 — Code local ngày 13/11/2026, chưa deploy
+## M12-A06.1/A12/A17 — Đã deploy production ngày 13/11/2026 (`4df8655`)
 
 - Reverse và suggestions/reverse có canonical snake_case đúng Swagger, giữ
   aliases camelCase deprecated: lexeme_id/lexemeId, frequency_rank/frequencyRank,

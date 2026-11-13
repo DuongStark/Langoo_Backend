@@ -8,6 +8,14 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-13 — M12 — Deploy BE và đồng bộ handoff FE
+
+- Thay đổi / lý do: Theo yêu cầu push Git/VPS, đã push code4df8655 lên main, CI/deploy thành công; áp Caddy CF trust/client IP và HSTS86400, backup/validate/reload, gỡ log probe tạm. Handoff chuyển sang contract production, liệt kê FE cần sửa và việc BE còn mở.
+- File / phạm vi: [Handoff FE](docs/handoff/m12-fe-feedback-sync-2026-11-13.md), [report triển khai](docs/reviews/m12-fe-feedback-remediation-2026-11-13.md), [ops/rollback](docs/ops/m12-feedback-sync-2026-11-13/README.md), API docs/plan và [receipt](docs/reviews/m12-feedback-release-2026-11-13/release-receipt.json). Không sửa source FE/schema/ENV hoặc ghi dữ liệu production.
+- Kiểm tra / kết quả: CI43365114780 PASS653unit/289E2E/31DB3; Deploy43365414363 success.8HTTP smoke checks PASS; CF/direct origin IP spoof guard/HSTS PASS,2host study TLS200. Sources READ ONLY pool2 cold4.577ms/warm0,33ms,10caller→8repoqueries;12item/12display giữ meaning_vi, membership đúng face và owner guard. Source hash5file khớp local/VPS; PM2 onlineNode22.23.3, config final khớp candidate. Kiểm staged55link/13JSON PASS, fences/diff/status PASS;2JSON fragment cũ giữ nguyên. Commit riêng13file docs/PROGRESS/artifact, giữ WIP khác.
+- Gate còn thiếu / việc tiếp theo: assertion216799 “of → nước” chưa correction; sources cold chưa tối ưu SQL/P95; CF Workers/PseudoIPv4 settings chưa đọc; chưa auth HTTP production/browser/PWA vì không có credentials test, FE cần QA và tích hợp theo handoff. Không đóng feedback hoặc toàn M12 chỉ vì deploy.
+- Git / triển khai: Code4df8655 đã commit/push/deploy VPS production. Docs/receipt sau rollout chốt commit riêng; không cần build lại code cho commit chỉ tài liệu. Giữ toàn bộ WIP khác ngoài commit.
+
 ### 2026-11-13 — M12 — Sửa BE và đồng bộ FE sau rà soát 12/11
 
 - Thay đổi / lý do: Đã thực hiện phần app của plan: M12-A11 coalesce sources/TTL/settle; A06.1 canonical reverse+aliases; A12 representative trước dedup; A17 VI không dấu/romaji một query/filter metadata romanization/cursorv6; A18 batch saved-senses theo user/profile; A19 include=display batch với cờ glossmáy; A20 private cache/nosniff/Express signature/404. A03 giữ loopback, thêm candidate Caddy+CF CIDRs+harness, chưa apply ops.

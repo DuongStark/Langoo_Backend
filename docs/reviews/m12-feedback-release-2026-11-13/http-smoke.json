@@ -1,0 +1,85 @@
+{
+  "base_url": "https://api.langoo.org",
+  "code_commit": "4df8655f395640bb4ba425e98bdac48784e0a263",
+  "checks": [
+    {
+      "check": "health",
+      "status": 200,
+      "elapsed_ms": 578,
+      "cache_control": "private, no-store",
+      "hsts": "max-age=86400",
+      "db": "ok",
+      "timezone": "UTC"
+    },
+    {
+      "check": "swagger",
+      "status": 200,
+      "elapsed_ms": 377,
+      "cache_control": null,
+      "hsts": "max-age=86400",
+      "membership_route": true,
+      "canonical_and_legacy_schema": true,
+      "kanji_quality_flags": true
+    },
+    {
+      "check": "romaji",
+      "status": 200,
+      "elapsed_ms": 706,
+      "cache_control": "private, no-store",
+      "hsts": "max-age=86400",
+      "result_count": 5,
+      "lemmas": [
+        "翻訳",
+        "本厄",
+        "翻訳学",
+        "翻訳官",
+        "翻訳家"
+      ]
+    },
+    {
+      "check": "romanization_filter",
+      "status": 200,
+      "elapsed_ms": 550,
+      "cache_control": "private, no-store",
+      "hsts": "max-age=86400",
+      "awateru_absent": true,
+      "result_count": 0
+    },
+    {
+      "check": "reverse_no_accent",
+      "status": 200,
+      "elapsed_ms": 1263,
+      "cache_control": "private, no-store",
+      "hsts": "max-age=86400",
+      "matched": true,
+      "water_present": true,
+      "first_en_lemma": "of",
+      "aliases_equal": true,
+      "known_data_issue_of_still_present": true
+    },
+    {
+      "check": "sources",
+      "status": 200,
+      "elapsed_ms": 216,
+      "cache_control": "public, max-age=300",
+      "hsts": "max-age=86400",
+      "source_groups": 32
+    },
+    {
+      "check": "membership_auth",
+      "status": 401,
+      "elapsed_ms": 379,
+      "cache_control": "private, no-store",
+      "hsts": "max-age=86400",
+      "code": "AUTH_TOKEN_MISSING"
+    },
+    {
+      "check": "not_found",
+      "status": 404,
+      "elapsed_ms": 338,
+      "cache_control": "private, no-store",
+      "hsts": "max-age=86400",
+      "code": "NOT_FOUND"
+    }
+  ]
+}

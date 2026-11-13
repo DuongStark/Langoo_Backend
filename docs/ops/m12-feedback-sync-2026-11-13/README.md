@@ -1,9 +1,9 @@
 # M12-A03/A20 — Candidate proxy và gate triển khai
 
-Ngày 13/11/2026: **cấu hình local đã validate và chạy harness, chưa áp lên VPS**.
-App Express tiếp tục trust loopback; không đọc CF-Connecting-IP trực tiếp.
-Đọc VPS chỉ xác nhận Caddy2.11.4 và4host block; chưa kiểm zone settings,
-Pseudo IPv4/Workers, mọi đường vào origin và firewallIPv6 trong lượt này.
+Ngày 13/11/2026: **đã áp cấu hình lên VPS, validate/reload và kiểm tra live PASS**.
+App `4df8655` qua CI/deploy workflow thành công. Express tiếp tục trust loopback,
+không đọc CF-Connecting-IP trực tiếp. Candidate giữ comment lịch sử “Not deployed”
+của bản trước rollout; nội dung snapshot này đã áp, không sửa byte cấu hình sau nghiệm thu.
 
 - [Caddyfile.candidate](Caddyfile.candidate) giữ4host đã đọc, thêm trust CF CIDRs,
   lấy resolved client_ip rồi ghi đè XFF cho API, xóa header CF trước Node.
@@ -39,7 +39,7 @@ header dạng comma-list và duplicate-lines bị400. Harness đầu phát hiệ
 chấp nhận phần tử cuối trong header nhiều giá trị, nên đã thêm guard và chạy lại.
 Không thêm debug-IP endpoint vào production. Harness tự dọn container/files tạm.
 
-## Khi được giao deploy
+## Quy trình rollout / rollback
 
 1. Kiểm mode zone/Workers/PseudoIPv4 và đường truy cập3000/IPv6. Kiểm CIDR mới
    từ nguồn chính thức; nếu retrieval/parse/checksum fail thì dừng, giữ bản cũ.
@@ -52,5 +52,30 @@ Không thêm debug-IP endpoint vào production. Harness tự dọn container/fil
 5. Rollback Caddyfile backup nếu health/TLS lỗi, validate rồi reload. Rollback
    có thể làm rate limit lại gộp edge; không tăng quota để che việc đó.
 
-App middleware A20 xử lý no-store/nosniff và bỏ Express signature ở code local;
-Caddy candidate không tự chứng minh code app đã chạy trên production.
+## Kết quả rollout thực tế
+
+- Backup `/opt/langoo/storage/ops/m12-feedback-20261113/` root-private gồm
+  Caddyfile.before, source-before.tar.gz (baseline3bc6388), dist-before.tar.gz.
+  Không commit artifact server hoặc secrets. Candidate khớp4host trước áp,
+  validate bằng Caddy2.11.4 thực tế, install/reload PASS, final khớp snapshot.
+- CF CIDR đã đối chiếu lại nguồn chính thức trước áp. Không sửa CF zone settings.
+  Request thật qua CF: peer thuộc CIDR, resolved IP là client; XFF giả không đổi
+  client. Direct origin dùng peer, bỏ qua CF header giả. Duplicate header400;
+  CF edge tự chặn header CF giả403. Harness local đã kiểm tách bucket/quota.
+- Log tạm chỉ match nonce, không lưu request headers;6record đã xác minh, gỡ
+  config logging ngay sau probe và reload final. Không có public debug endpoint.
+  [Bằng chứng sanitize](../../reviews/m12-feedback-release-2026-11-13/proxy-verification.json).
+- HTTP health DB OK, TLS/HSTS86400/nosniff/no Express. Hai host study TLS200.
+  Domain API cũ langoo-api.pixpress.art đã bỏ DNS public từ trước; dùng api.langoo.org.
+- Firewall default deny, allow22/80/443 cả IPv4/IPv6, không mở3000; không sửa firewall.
+- Zone Workers/PseudoIPv4 chưa đọc qua CF API, chỉ xác nhận flow hiện tại thực tế.
+  Không kết luận mọi Worker mode đều đã kiểm.
+- App middleware đã chạy production: private/no-store, sources public300s,
+  unknownroute404 NOT_FOUND, manifest vẫn no-store; SVG giữ policy riêng.
+- [Receipt release](../../reviews/m12-feedback-release-2026-11-13/release-receipt.json)
+  và [report](../../reviews/m12-fe-feedback-remediation-2026-11-13.md).
+
+Rollback proxy: khôi phục Caddyfile.before về /etc/caddy/Caddyfile, validate rồi
+reload; kiểm health/TLS lại. Không rollback DB vì release này không migration/data.
+Nếu rollback app, dùng bản build/source đã backup và quy trình PM2 hiện hành;
+rollback có thể làm mất contract A18/A19 nên phải báo FE trước khi chuyển consumer.

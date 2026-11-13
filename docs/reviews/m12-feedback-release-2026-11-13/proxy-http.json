@@ -1,0 +1,30 @@
+[
+  {
+    "case": "cloudflare-a",
+    "status": 200,
+    "HSTS": "max-age=86400",
+    "nosniff": "nosniff",
+    "rate_remaining": "117"
+  },
+  {
+    "case": "cloudflare-b",
+    "status": 200,
+    "HSTS": "max-age=86400",
+    "nosniff": "nosniff",
+    "rate_remaining": "116"
+  },
+  {
+    "case": "direct-origin",
+    "status": 200,
+    "HSTS": "max-age=86400",
+    "nosniff": "nosniff",
+    "rate_remaining": "119"
+  },
+  {
+    "case": "direct-duplicate",
+    "status": 400,
+    "HSTS": "max-age=86400",
+    "nosniff": "nosniff",
+    "rate_remaining": null
+  }
+]

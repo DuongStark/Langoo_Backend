@@ -1,6 +1,6 @@
 # API: Collections (sổ tay)
 
-## M12-A18/A19 — Bổ sung local ngày 13/11/2026, chưa deploy
+## M12-A18/A19 — Đã deploy production ngày 13/11/2026 (`4df8655`)
 
 **Membership:** `GET /v1/me/saved-senses?profile_id=<uuid>&sense_ids=1,2`.
 Bearer bắt buộc; profile phải thuộc user. 1–50 bigint ID dương, tối đa19 chữ

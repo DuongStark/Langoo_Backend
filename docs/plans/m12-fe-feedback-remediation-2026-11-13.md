@@ -1,6 +1,6 @@
 # M12 — Kế hoạch sửa BE và đồng bộ FE sau rà soát 12/11
 
-Ngày: 2026-11-13. Trạng thái: **đã code local các phần app; A03 có candidate/harness; chưa deploy**.
+Ngày: 2026-11-13. Trạng thái: **đã push/deploy code `4df8655`; proxy/HSTS đã áp; còn gate dữ liệu và FE QA**.
 [Report triển khai và gate](../reviews/m12-fe-feedback-remediation-2026-11-13.md).
 
 Đầu vào: `docs/fe/ra-soat-2026-11-12.md` (bản FE cung cấp, giữ local),
@@ -21,7 +21,7 @@ FE checkout có WIP; chỉ đọc snapshot, không chỉnh sửa FE trong kế h
 Làm trực tiếp checkout BE `main`; giữ WIP khác. Không migration, dependency mới,
 đổi provider hoặc ENV trong thiết kế ưu tiên. Nếu EXPLAIN chứng minh cần index,
 lập migration mới qua workflow DB trước khi áp dụng; không sửa migration cũ.
-Không dùng plan này để tự push/deploy hoặc sửa trạng thái feedback production.
+Push/deploy đã được chủ dự án yêu cầu ở lượt tiếp theo; không tự sửa trạng thái feedback production.
 
 ## 2. Danh mục, thứ tự và mã công việc
 
@@ -261,13 +261,14 @@ khác được restart có giới hạn. Không rollback header sang public cho 
   Không chạy lại unit/build/DB trong lượt docs; 94 unit pass là kết quả review trước.
 - Gate: triển khai và kiểm chứng từng mục, DB/HTTP/browser/ops, chốt sản phẩm ngoài
   phạm vi nếu muốn mở scope hoặc dịch trả phí. Đợt này không đóng milestone M12.
-- Git/triển khai: tài liệu local chưa commit/push/deploy; giữ WIP khác.
+- Git/triển khai tại thời điểm lập plan: tài liệu local; đã được thay bởi trạng thái rollout ở mục11. Giữ WIP khác.
 
 ## 11. Theo dõi triển khai 13/11
 
-Chủ dự án đã yêu cầu thực hiện plan. A11/A06.1/A12/A17/A18/A19/A20 đã có code
-local; projection bổ sung cờ meanings_vi_machine/meanings_vi_reviewed để không
-làm mất quality gate gloss máy khi làm phẳng JSON Kanji. A03 giữ Express loopback, có candidate Caddy và harness. Không sửa FE,
-provider, quota, schema hoặc apply dữ liệu production. Chưa commit/push/deploy.
-A12 assertion nước→of, cold latency production, A03 zone/ops/HSTS và FE browser
-vẫn là gate riêng. Xem report triển khai và ledger handoff cho kiểm tra thực tế.
+Đã triển khai A11/A06.1/A12/A17/A18/A19/A20 và proxy A03/HSTS lên VPS tại
+`4df8655`. CI653unit/289E2E/31DB3 PASS, deploy workflow success, health DB OK.
+Nguồn FE chỉ đọc, không sửa. Không đổi schema/ENV hoặc ghi dữ liệu production.
+Sources đo READ ONLY cold4.577ms/warm0,33ms,10caller→8queries; không phải P95.
+A12 assertion nước→of còn mở; cold query optimization, CF zone settings và FE
+browser/PWA/authenticated QA còn gate. Xem report và ledger handoff đã cập nhật.
+Các trạng thái local ở mục10 là nhật ký trước khi được yêu cầu rollout.

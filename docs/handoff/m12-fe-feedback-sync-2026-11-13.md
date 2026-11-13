@@ -2,11 +2,11 @@
 
 Ngày: 2026-11-13. Nguồn FE đã đọc: main `00f674d`.
 
-**Trạng thái hiện tại: BE đã sửa code local, chưa commit/push/deploy.**
-Mục 1 là contract đã có; mục 3 là thay đổi mới đã code local. A03 có candidate
-proxy/harness đã kiểm, chưa áp ops. Xem [report triển khai](../reviews/m12-fe-feedback-remediation-2026-11-13.md)
-để phân biệt gate local và production.
-FE không bật endpoint mới ở production hoặc xóa adapter trước khi ledger xác nhận deploy.
+**BE đã push và deploy VPS ngày 13/11/2026, code `4df8655`.**
+API production: `https://api.langoo.org`. Proxy/HSTS đã áp dụng và kiểm tra live.
+FE có thể tích hợp contract dưới đây; vẫn cần QA giao diện/PWA sau khi FE sửa.
+[Report triển khai](../reviews/m12-fe-feedback-remediation-2026-11-13.md) ghi bằng chứng,
+giới hạn kiểm tra và các lỗi dữ liệu còn mở. Không có thay đổi source FE trong đợt này.
 
 [Plan BE](../plans/m12-fe-feedback-remediation-2026-11-13.md) ·
 [Đối chiếu đủ 18 feedback](../reviews/m12-feedback-crosscheck-2026-11-13.md) ·
@@ -86,14 +86,14 @@ Các contract đã đọc: [quiz](../api/quizzes.md), [activity](../api/gamifica
   kiểm UI phải chặn ghi nếu không cố ý tạo/xóa dữ liệu; không chạy thử lên tài
   khoản thật rồi coi rác trong sổ là dữ liệu test có thể bỏ qua.
 
-## 3. BE đã code local; FE đổi sau khi xác nhận rollout
+## 3. BE đã deploy; FE cần đồng bộ
 
-Các thay đổi dưới đã có code local, **chưa được triển khai production**.
-API/schema A18/A19 đã có ở local; FE có thể thử môi trường local đã chạy bản sửa.
-A12 sửa thuật toán, nhưng assertion nước→of chưa apply correction. Sources đã gộp
-refresh, chưa xác nhận thời gian cold trên DB production. A03/HSTS chỉ có candidate.
+Các thay đổi dưới đang chạy trên production tại `4df8655`.
+A12 đã sửa thuật toán nhưng dữ liệu “of → nước” vẫn sai và còn xuất hiện ở đầu EN.
+Sources đã gộp refresh: probe production READ ONLY, pool2, 10 caller cùng lúc chỉ
+8 query; cold 4.577ms, warm 0,33ms. Đây là một mẫu service, chưa phải P95 HTTP.
 
-| Mã | BE đã code/chuẩn bị local | FE cần đổi khi BE đã deploy | Trước deploy |
+| Mã | BE đã deploy | FE cần đồng bộ | Lưu ý khi chuyển đổi |
 |---|---|---|---|
 | M12-A11 — Sources | Gộp refresh đồng thời và đo cold query, giữ payload | Không đổi API; kiểm lần đầu, lần sau, lỗi và retry | Giữ snapshot UI; không coi snapshot đã sửa tốc độ BE |
 | M12-A06.1 — Reverse contract | Thêm snake_case chuẩn, giữ aliases camelCase cũ | Đọc canonical, kiểm badge/link; regenerate types theo schema đúng | Giữ snakeKeys adapter, không xóa sớm |
@@ -103,7 +103,7 @@ refresh, chưa xác nhận thời gian cold trên DB production. A03/HSTS chỉ 
 | M12-A19 — Items projection | Items list opt-in include=display, batch sense/Kanji trong trang | Dùng display cho dòng sổ tay; bỏ fetch sense/Kanji từng dòng; chi tiết chỉ tải khi mở | Giảm gọi trùng/lazy load, không tăng rate limit |
 | M12-A03/A20 — IP, cache, headers, lỗi | Xác minh IP thực, bảo vệ cache riêng, chuẩn hóa 404/header | FE vẫn sửa SW và map lỗi; xử lý 429 thân thiện | Không chờ BE để sửa lỗi FE-01/04 |
 
-### Contract đã có local để FE chuẩn bị
+### Contract production để FE tích hợp
 
 **M12-A18:** `GET /v1/me/saved-senses?profile_id=<uuid>&sense_ids=1,2`
 Bearer bắt buộc, tối đa 50 sense ID. Không gửi user_id.
@@ -140,7 +140,7 @@ Giữ `data/next_cursor` và mọi field item cũ, thêm `display` khi opt-in:
 }
 ```
 
-Đây là object `item.display`, ví dụ minh họa contract local mới, chưa có trên production.
+Đây là object `item.display`, ví dụ minh họa contract đang có trên production.
 `display=null` khi không có dữ liệu đọc phù hợp; giữ nghĩa user từ meaning_vi.
 Không tự tạo thêm request detail cho mọi dòng khi display đã đủ; bấm mở thẻ mới
 lấy examples/links/SVG. Hai cờ meanings_vi_machine/meanings_vi_reviewed giữ
@@ -162,42 +162,46 @@ reviewed=false. Mục tiêu mỗi lần tải trang chỉ một items request ch
 | Mở history/report cho khách để hết 401 | Không bỏ auth | FE đã có chặn/hướng dẫn login; backend guard đúng chức năng |
 | Logo/model/cache asset/login UX/copy AI | FE phụ trách, không tạo BE task trùng | FE main mới đã có triển khai; cần QA và xác minh deploy, không báo thiếu toàn bộ |
 
-Những mục chưa triển khai vì mới lập plan vẫn được giữ trong ledger, không gọi
-là đã bác bỏ hoặc hoàn thành. Không có quyền push/deploy chỉ từ tài liệu handoff.
+Các mục ngoài phạm vi release vẫn còn mở. Rollout này không tự đóng toàn bộ audit hoặc feedback.
 
-## 5. Ledger BE — chỉ cập nhật bằng bằng chứng thật
+## 5. Ledger BE — bằng chứng triển khai ngày 13/11
 
-| Mã | Code local | Kiểm tra | Commit/push | Deploy/môi trường/SHA | FE được bỏ workaround |
-|---|---|---|---|---|---|
-| M12-A03 | Candidate + harness | Caddy validate/proxy local PASS; ops gate mở | Chưa | Chưa | Không áp dụng |
-| M12-A11 | Đã code | Xem report kiểm tra local | Chưa | Chưa | Chưa |
-| M12-A06.1 | Đã code | Xem report kiểm tra local | Chưa | Chưa | Chưa xóa adapter |
-| M12-A12 | Đã code | Xem report kiểm tra local | Chưa | Chưa | Chưa |
-| M12-A17 | Đã code | Xem report kiểm tra local | Chưa | Chưa | Chưa |
-| M12-A18 | Đã code | Xem report kiểm tra local | Chưa | Chưa | Chưa |
-| M12-A19 | Đã code | Xem report kiểm tra local | Chưa | Chưa | Chưa |
-| M12-A20 | Đã code | Xem report kiểm tra local | Chưa | Chưa | Chưa |
+Tất cả dòng dưới đã commit/push và deploy code `4df8655` lên VPS production.
+[CI thành công](https://github.com/DuongStark/Langoo_Backend/actions/runs/43365114780):
+653 unit, 289 E2E và 31 DB3 regression PASS.
+[Deploy thành công](https://github.com/DuongStark/Langoo_Backend/actions/runs/43365414363):
+build, PM2 reload, health DB OK.
 
-Khi BE triển khai xong từng mục, cập nhật đúng dòng: commit, test, environment,
-SHA thực chạy và sample HTTP đã sanitize. Lúc đó mới gửi thông báo “BE đã sửa
-M12-Axx, FE có thể dùng contract ...”. Chưa deploy thì FE chỉ thử môi trường đã
-xác nhận, không bật production dựa vào chữ “code xong local”.
+| Mã | Kiểm tra bổ sung trên production | FE có thể chuyển sang |
+|---|---|---|
+| M12-A03 | Peer Cloudflare thuộc CIDR; IP client không phải edge; XFF giả không đổi client; direct origin bỏ qua CF header giả; duplicate400 | Giữ xử lý429; không tăng quota để che request thừa |
+| M12-A11 | Cold4,58s/warm0,33ms service; HTTP sources200, public max-age300 | API giữ nguyên; snapshot UI không thay thế đo cold |
+| M12-A06.1 | OpenAPI và reverse HTTP: canonical/aliases bằng nhau | Canonical snake_case; bỏ adapter sau regenerate types và QA FE |
+| M12-A12 | Reverse không dấu200, water có trong kết quả; of vẫn đứng trước do dữ liệu | Giữ thứ tự server; chưa thông báo lỗi nước/of đã hết |
+| M12-A17 | honyaku trả 翻訳; awateru bị lọc đúng metadata | Một request có Bearer; bỏ query phụ romaji/merge, reset cursor cũ một lần |
+| M12-A18 | Route/schema live; không token401; service READ ONLY đúng face và chặn owner khác | Batch membership theo profile, invalidate theo mutations |
+| M12-A19 | Đọc12item thật:12display, meaning_vi không đổi; Swagger đủ quality flags | include=display, bỏ N+1 detail từng dòng, giữ badge máy/chưa duyệt |
+| M12-A20 | HSTS86400/nosniff/no Express;404 chuẩn/no-store; sources public300s | FE vẫn phải dọn SW/cache cá nhân và map code lỗi |
+
+Production chưa kiểm HTTP có đăng nhập vì chưa có credentials test; membership/
+projection đã kiểm HTTP/DB trong CI và đọc service/DB production. Không tạo account,
+JWT giả hoặc sửa dữ liệu người dùng để test. Cần FE QA end-to-end trên phiên đăng nhập
+hợp lệ, gồm hai account/profile, PWA/offline, save/delete/clone và request đang chạy.
 
 FE gửi lại commit/build môi trường + kết quả QA tương ứng. Kiểm lại các feedback
-đã đóng còn sót, nhưng không tự đổi trạng thái production trong đợt lập tài liệu.
+đã đóng còn sót, không đóng feedback chỉ vì deploy thành công.
 DB đọc ngày 13/11 có 27 resolved, không có in_progress; 18 nội dung cụ thể chưa
 có admin_note nghiệm thu. Đóng việc cần cả contract và hành vi, không chỉ nhãn.
 
-## 6. Trạng thái tài liệu
+## 6. Phần còn mở và phạm vi bàn giao
 
-- Đã sửa BE local theo mục3; không sửa source FE, DB/ENV/VPS hoặc feedback.
-- Cursor search mới v6: cursor v5 và cũ hơn trả400 VALIDATION_FAILED. FE phải
-  bỏ cursor/cache pagination cũ, restart một lần; không xóa aliases reverse ở BE.
-- Framework404 và lỗi API no-store; private no-store mặc định, sources public300s.
-  Manifest vẫn no-store chờ gate notice version, SVG giữ policy riêng.
-- Đã kiểm local:72suite/653unit,33suite/289E2E PASS; module flags28test PASS,
-  buildNode22/lint0warning PASS. Chi tiết và gate ở report triển khai.
-- Kết quả unit/HTTP/DB/build/lint ở report triển khai, không dùng số74link/94unit
-  của lượt lập plan để thay nghiệm thu code mới. Browser/PWA, rollout và curation
-  dữ liệu thật còn thiếu như ledger.
-- Git: tài liệu local chưa commit/push/deploy. Không gửi tin/email cho FE trong lượt này.
+- Dữ liệu assertion216799 “of → nước” chưa correction: cần đối chiếu nguồn,
+  bản vá dữ liệu có backup/rollback và kiểm lại reverse. Không giao FE hardcode né lỗi này.
+- Sources đã đo trên production; cold4,58s vẫn cần tối ưu nếu muốn nhanh hơn.
+  Chưa EXPLAIN rộng, P95 hoặc load test; không kết luận đã giải quyết toàn bộ độ trễ.
+- Proxy/HSTS đã áp và kiểm flow hiện tại; chưa truy cập settings Workers/PseudoIPv4
+  của zone Cloudflare. Hai host study TLS200; domain API cũ đã bỏ DNS, không dùng làm gate public.
+- Cursor search v6: v5 trở xuống trả400 VALIDATION_FAILED; reset pagination một lần.
+- Manifest giữ no-store; SVG giữ policy riêng. FE vẫn xử lý legacy SW cache.
+- Source FE, schema, ENV và dữ liệu production giữ nguyên. Không tự đổi trạng thái feedback.
+- File này là tài liệu để chuyển cho FE; chưa gửi tin/email đến người khác.

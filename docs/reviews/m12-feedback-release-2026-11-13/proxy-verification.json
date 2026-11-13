@@ -1,0 +1,9 @@
+{
+  "probe_rows": 6,
+  "trusted_cf_peer_verified": true,
+  "resolved_client_is_not_cf_edge": true,
+  "spoofed_xff_does_not_change_client": true,
+  "direct_origin_ignores_cf_spoof": true,
+  "probe_logs_exclude_headers": true,
+  "no_public_debug_endpoint": true
+}

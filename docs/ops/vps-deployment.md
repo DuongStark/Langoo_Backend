@@ -1,5 +1,10 @@
 # Vận hành VPS — Langoo API + PostgreSQL
 
+> M12 ngày13/11/2026: code `4df8655` đã deploy; proxy Cloudflare client IP và
+> HSTS86400 đã áp, validate/reload/live smoke PASS. Xem [runbook và rollback M12](m12-feedback-sync-2026-11-13/README.md)
+> trước khi thay proxy; giữ cấu hình riêng của các host study.
+
+
 > Tài liệu cho **mọi phiên LLM/dev tiếp nhận dự án**. Cập nhật: 2026-10-27 (M12 — domain `api.langoo.org`, CORS allowlist).
 > IP VPS: **163.223.210.135** · Domain API: **https://api.langoo.org** (domain cũ `langoo-api.pixpress.art` đã bỏ DNS)
 > ⚠️ Bí mật (mật khẩu DB, key, `.env`) **KHÔNG** nằm trong repo — xem mục 8.
