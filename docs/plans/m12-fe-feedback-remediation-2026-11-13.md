@@ -295,3 +295,7 @@ Theo yêu cầu FE gửi lại, tiếp tục cùng M12; không sửa source FE.
    AI_DAILY_REQUEST_LIMIT/AI_QUIZ_DAILY_LIMIT là ENV, không phải code response.
 4. Lưu phản hồi/QA FE tự báo vào handoff, phân biệt với kiểm chứng BE; không
    đóng feedback. Kết quả commit/push/deploy bổ sung được ghi sau kiểm tra thực tế.
+
+Kết quả mục12: codec77be0a đã push/deploy, CI654unit/290E2E/31DB3 PASS;
+backfill production240/240verified,2user giữ nguyên. Display live12/12khớp,
+OpenAPI/health PASS. Xem ledger handoff tiếp nối cho giới hạn và gate FE còn mở.

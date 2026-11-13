@@ -19,8 +19,8 @@ machine=true/reviewed=false. Chỉ mở chi tiết mới lấy examples/links/me
 Không đổi query `include=display`, pagination hoặc auth. Gloss nằm trong query
 projection theo trang, vẫn tối đa2reads cho sense+Kanji, không N+1 roundtrip.
 
-**Trạng thái bổ sung này:** code local đang kiểm, chưa nằm trong production4df8655.
-Ledger cuối file cập nhật sau test/deploy thực tế; FE không bật trước rollout.
+**Đã deploy production `c77be0a`**, FE có thể dùng gloss mới ngay.
+Swagger production đã có đủ4field; probe READ ONLY12/12display khớp sense_card.
 
 ## 2. Backfill meaning_vi — BE xử lý, không chuyển PATCH mỗi dòng lại cho FE
 
@@ -73,7 +73,20 @@ không có kế hoạch gỡ trong release này. Báo trước nếu có đợt 
 
 ## 5. Ledger triển khai tiếp nối
 
-- A19 gloss: đang kiểm local, chưa commit/push/deploy bổ sung.
-- A19 meaning_vi: đã apply VPS240mục, verified240/240; backup private và rollback guard đã có,2user giữ nguyên.
-- A20 bảng lỗi: đã đối chiếu source; không đổi runtime status.
-- Kiểm tra, Git và môi trường cuối cùng được cập nhật trước khi bàn giao.
+- Code `c77be0a9af84d97d2c6b11ac9354701706cbda5d` đã commit/push/deploy VPS.
+  [CI43381237801](https://github.com/DuongStark/Langoo_Backend/actions/runs/43381237801)
+  PASS72suite/654unit,33suite/290E2E và31DB3 regression; lint/build PASS.
+  [Deploy43381534499](https://github.com/DuongStark/Langoo_Backend/actions/runs/43381534499)
+  success, PM2 reload/health OK.
+- A19 gloss: OpenAPI production đủ nullable gloss EN/VI và boolean flags;
+  probe service/DB READ ONLY12/12display khớp sense_card,65ms cho mẫu12sense.
+  Đây không phải HTTP P95 hoặc browser/authenticated HTTP test.
+  [Receipt](../reviews/m12-fe-followup-2026-11-13/display-verification.json).
+- A19 meaning_vi: đã apply VPS240mục, verified240/240; backup private và
+  rollback guard đã có,2user giữ nguyên. Không chạy rollback thử production.
+- A20 bảng lỗi đã đối chiếu source; không đổi runtime status.
+- Local4suite/32HTTPDB gồm backfill skip/stale/hash/apply/rollback PASS;
+  fullCI ở trên đã chạy lại toàn bộ source chính xác commit deploy.
+- Source FE không sửa. FE cần gửi commit/build sau tích hợp gloss+mapping mới,
+  QA EN và các gate mục4; chưa đóng feedback. Aliases reverse vẫn giữ nguyên.
+- Docs/receipt sau deploy chốt bằng commit tài liệu riêng, không build lại code.

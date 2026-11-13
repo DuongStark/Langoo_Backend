@@ -2,8 +2,8 @@
 
 ## M12-A18/A19 — Đã deploy production ngày 13/11/2026 (`4df8655`)
 
-> Bổ sung A19 sau phản hồi FE: gloss_en/gloss_vi và cờ gloss VI dưới đây đang
-> kiểm local, chưa có ở4df8655; trạng thái rollout ở [handoff tiếp nối](../handoff/m12-fe-followup-2026-11-13.md).
+> Bổ sung A19 sau phản hồi FE: gloss_en/gloss_vi và cờ gloss VI dưới đây đã
+> deploy production `c77be0a`; trạng thái rollout ở [handoff tiếp nối](../handoff/m12-fe-followup-2026-11-13.md).
 
 **Membership:** `GET /v1/me/saved-senses?profile_id=<uuid>&sense_ids=1,2`.
 Bearer bắt buộc; profile phải thuộc user. 1–50 bigint ID dương, tối đa19 chữ

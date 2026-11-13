@@ -182,3 +182,9 @@ có cảnh báo query queue deprecated; runtime Prisma dùng pool như trước.
   không rollback thử production. Receipt sanitize đã lưu, không chứa item/user ID.
 - Lint lượt đầu13lỗi Prettier trong spec; đã sửa format, full lint --max-warnings0 PASS exit0.
 - Docs49link/fences/JSON/diff/status PASS; giữ WIP khác ngoài commit.
+
+- Chốt rollout bổ sung: codec77be0a đã push/deploy VPS; CI43381237801 PASS
+  654unit/290E2E/31DB3; Deploy43381534499 success. OpenAPI live đủ4field mới,
+  health DB OK; service READ ONLY12/12display khớp sense_card (65ms mẫu12sense).
+  Chưa browser/HTTP auth live cho contract bổ sung; FE cần QA EN theo handoff.
+  Backfill240verified,2user giữ nguyên; assertion216799 vẫn mở. Source FE không sửa.

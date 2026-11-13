@@ -1,0 +1,9 @@
+{
+  "task": "M12-A19",
+  "production_read_only": true,
+  "rows": 12,
+  "display_matches_sense_card": 12,
+  "elapsed_ms": 65,
+  "has_english_gloss": true,
+  "user_ids_or_text_exported": false
+}

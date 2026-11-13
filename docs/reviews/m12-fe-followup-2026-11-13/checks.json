@@ -31,5 +31,24 @@
     "links": 49,
     "fences": "PASS",
     "diff_check": "PASS"
+  },
+  "code_commit": "c77be0a9af84d97d2c6b11ac9354701706cbda5d",
+  "ci": {
+    "run": 43381237801,
+    "conclusion": "success",
+    "unit": 654,
+    "e2e": 290,
+    "db3": 31
+  },
+  "deploy": {
+    "run": 43381534499,
+    "conclusion": "success",
+    "environment": "VPS production"
+  },
+  "production_http": {
+    "health_db": "ok",
+    "swagger_gloss_en_vi_nullable": true,
+    "swagger_quality_flags_boolean": true,
+    "authenticated_http_new_fields": false
   }
 }
