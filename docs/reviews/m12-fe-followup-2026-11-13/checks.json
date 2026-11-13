@@ -1,0 +1,35 @@
+{
+  "task": "M12-A19/A20",
+  "date": "2026-11-13",
+  "node": "22.23.3",
+  "unit": {
+    "suites": 72,
+    "tests": 654,
+    "status": "PASS",
+    "seconds": 155.774
+  },
+  "http_db_regressions": {
+    "suites": 4,
+    "tests": 32,
+    "status": "PASS",
+    "seconds": 110.835,
+    "files": [
+      "test/m12-feedback-sync.e2e-spec.ts",
+      "test/collections.e2e-spec.ts",
+      "test/sense-card.e2e-spec.ts",
+      "test/collections-m51.e2e-spec.ts"
+    ]
+  },
+  "build": "PASS",
+  "lint": "PASS (ESLint --max-warnings 0, exit0)",
+  "database": "isolated loopback langoo_m12_feedback_test; stopped after tests",
+  "first_http_db_attempt": "11/12; wrong test envelope detail.body corrected to detail.body.card; runtime response unchanged",
+  "first_lint_attempt": "13 Prettier errors in spec; fixed formatting",
+  "production_backfill": "240 committed and verified; 2 user-provenance candidates kept",
+  "fe_source_modified": false,
+  "documentation": {
+    "links": 49,
+    "fences": "PASS",
+    "diff_check": "PASS"
+  }
+}

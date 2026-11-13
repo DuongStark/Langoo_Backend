@@ -13,6 +13,10 @@ describe('M12-A19 page display projection', () => {
           reading: 'がくせい',
           romanization: null,
           pos: 'noun',
+          gloss_en: 'student',
+          gloss_vi: 'học sinh',
+          gloss_vi_machine: true,
+          gloss_vi_reviewed: false,
         })),
       )
       .mockResolvedValueOnce([
@@ -51,6 +55,12 @@ describe('M12-A19 page display projection', () => {
     );
     expect(query).toHaveBeenCalledTimes(2);
     expect(result.size).toBe(100);
+    expect(result.get('1')).toMatchObject({
+      gloss_en: 'student',
+      gloss_vi: 'học sinh',
+      gloss_vi_machine: true,
+      gloss_vi_reviewed: false,
+    });
     expect(result.get('1')?.kanji).toEqual([
       {
         literal: '学',
@@ -73,6 +83,32 @@ describe('M12-A19 page display projection', () => {
       ...calls[0].slice(1),
     );
     expect(sql.values.at(-1)).toBe(2);
+  });
+
+  it('keeps absent dictionary glosses null and flags false without falling back to user text', async () => {
+    const query = jest.fn().mockResolvedValueOnce([
+      {
+        sense_id: 1n,
+        lemma: 'word',
+        reading: null,
+        romanization: null,
+        pos: 'noun',
+        gloss_en: null,
+        gloss_vi: null,
+        gloss_vi_machine: null,
+        gloss_vi_reviewed: null,
+      },
+    ]);
+    const repo = new SenseLookupRepository({
+      $queryRaw: query,
+    } as unknown as PrismaService);
+    expect((await repo.findDisplays([1n], [1])).get('1')).toMatchObject({
+      gloss_en: null,
+      gloss_vi: null,
+      gloss_vi_machine: false,
+      gloss_vi_reviewed: false,
+    });
+    expect(query).toHaveBeenCalledTimes(1);
   });
 
   it('does not query empty or invisible pages', async () => {

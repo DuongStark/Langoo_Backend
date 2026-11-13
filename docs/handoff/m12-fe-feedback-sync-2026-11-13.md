@@ -2,6 +2,11 @@
 
 Ngày: 2026-11-13. Nguồn FE đã đọc: main `00f674d`.
 
+> FE đã gửi kết quả tích hợp dev + API production; chưa deploy FE.
+> Xem [phản hồi tiếp nối A19/A20](m12-fe-followup-2026-11-13.md) cho gloss display,
+> backfill nghĩa legacy và [bảng mã lỗi/status](m12-error-status-fe-2026-11-13.md).
+> Phân biệt bổ sung tiếp nối với release4df8655 đã deploy dưới đây.
+
 **BE đã push và deploy VPS ngày 13/11/2026, code `4df8655`.**
 API production: `https://api.langoo.org`. Proxy/HSTS đã áp dụng và kiểm tra live.
 FE có thể tích hợp contract dưới đây; vẫn cần QA giao diện/PWA sau khi FE sửa.

@@ -157,3 +157,28 @@ có cảnh báo query queue deprecated; runtime Prisma dùng pool như trước.
 - M12-A01/A02/A07 và audit cũ khác không tự hoàn tất do release này.
 - Git/triển khai: code đã commit/push/deploy như trên; bộ docs/receipt cập nhật
   sau rollout được chốt bằng commit tài liệu riêng. WIP khác giữ ngoài commit.
+
+## 7. M12-A19/A20 — Tiếp nhận phản hồi FE sau tích hợp 13/11
+
+- FE báo dev+production QA A17/A18/A19 localeVI và sửa FE-01/02/03,394unit/build
+  pass; chưa commit SHA/deploy FE. Đây là kết quả FE tự báo, không dùng thay QA BE.
+- A19 bổ sung gloss_en/gloss_vi+VI quality flags trong cùng projection query,
+  dùng serve.sense_card như API detail; không thay meaning_vi item. A20 bổ sung
+  [bảng lỗi/status cho FE](../handoff/m12-error-status-fe-2026-11-13.md), không đổi runtime code/status.
+- A19 backfill script plan/apply/rollback, pin database/hash/count, row lock/recheck,
+  backup private fsync trước commit. Chỉ untouched source exact gloss_en, không
+  user/edited/custom; máy/chưa duyệt giữ meaning_source=machine. Production
+  scan chỉ đọc240safe candidate,2user không thể phân biệt autofill/tự nhập.
+- Lượt integration đầu11/12pass: test so gloss với sai cấp detail.body thay vì
+  detail.body.card; sửa assertion envelope, không sửa response API để khớp test.
+  Backfill test đã pass ngay lượt đầu, kiểm stale/hash/skip/apply/rollback.
+- Trạng thái runtime/tests/Git bổ sung ở handoff tiếp nối sau nghiệm thu.
+
+- Kiểm tra tiếp nối: Node22.23.3 full72suite/654unit PASS (155,774s),
+  4suite/32HTTPDB PASS (110,835s), build PASS. DB test riêng đã giữ nguyên
+  guard loopback/name_test; không reset DB production.
+- Production backfill đã COMMIT240mục, verify READ ONLY240/240 khớp, nguồn
+  machine;2user giữ nguyên. Backup private fsync trước commit, hash+count pin,
+  không rollback thử production. Receipt sanitize đã lưu, không chứa item/user ID.
+- Lint lượt đầu13lỗi Prettier trong spec; đã sửa format, full lint --max-warnings0 PASS exit0.
+- Docs49link/fences/JSON/diff/status PASS; giữ WIP khác ngoài commit.

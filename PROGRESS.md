@@ -8,6 +8,14 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-13 — M12 — Bổ sung gloss display, backfill nghĩa legacy và bảng lỗi cho FE
+
+- Thay đổi / lý do: Theo phản hồi FE, A19 thêm gloss_en/gloss_vi+VI quality flags từ serve.sense_card vào display theo trang để localeEN hết N+1; không đổi meaning_vi trong API read. Script backfill có plan/hash/count/row-lock/CAS, backup fsync và rollback guard. A20 lập bảng code/status, đính chính SRS quota409 và hai tên ENV AI không phải response code.
+- File / phạm vi: DTO/repository/spec, M12 HTTPDB test, scripts/review/m12-meaning-vi-backfill.cjs; [handoff tiếp nối](docs/handoff/m12-fe-followup-2026-11-13.md), [bảng lỗi FE](docs/handoff/m12-error-status-fe-2026-11-13.md), [runbook backfill](docs/ops/m12-feedback-sync-2026-11-13/meaning-vi-backfill.md), plan/report/API docs, [receipt sanitize](docs/reviews/m12-fe-followup-2026-11-13/meaning-vi-verification.json). Không sửa source FE/schema/ENV.
+- Kiểm tra / kết quả: Node22 full72suite/654unit PASS,4suite/32HTTPDB PASS gồm Swagger/gloss=detail.card và skip/stale/hash/apply/rollback backfill; build PASS, full lint0warning PASS sau sửa format;49link/docs/diff/status PASS. Production đã apply240source chưa sửa có meaning_vi byte-exact gloss_en; verify240/240 khớp VI/nguồn/timestamp, giữ machine provenance và backup private.2user trùngEN giữ nguyên vì không phân biệt autofill với tự nhập.
+- Gate còn thiếu / việc tiếp theo: Code gloss đang chờ commit/push/deploy; FE cần QA EN và các gate browser/PWA/account/timezone/save-delete-clone chưa kiểm. Assertion216799 of→nước và cold sources optimization còn mở. Không đóng feedback theo QA tự báo.
+- Git / triển khai: Code/docs bổ sung đang chốt local; backfill dữ liệu VPS đã apply240mục, không migration. Quyền push/deploy tiếp tục phạm vi M12 đã giao; commit/hash/deploy ghi ở ledger sau rollout. Giữ WIP khác ngoài commit.
+
 ### 2026-11-13 — M12 — Deploy BE và đồng bộ handoff FE
 
 - Thay đổi / lý do: Theo yêu cầu push Git/VPS, đã push code4df8655 lên main, CI/deploy thành công; áp Caddy CF trust/client IP và HSTS86400, backup/validate/reload, gỡ log probe tạm. Handoff chuyển sang contract production, liệt kê FE cần sửa và việc BE còn mở.

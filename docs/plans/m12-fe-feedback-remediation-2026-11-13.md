@@ -272,3 +272,26 @@ Sources đo READ ONLY cold4.577ms/warm0,33ms,10caller→8queries; không phải 
 A12 assertion nước→of còn mở; cold query optimization, CF zone settings và FE
 browser/PWA/authenticated QA còn gate. Xem report và ledger handoff đã cập nhật.
 Các trạng thái local ở mục10 là nhật ký trước khi được yêu cầu rollout.
+
+## 12. M12-A19/A20 — Phản hồi FE sau tích hợp ngày 13/11
+
+Theo yêu cầu FE gửi lại, tiếp tục cùng M12; không sửa source FE.
+
+1. A19 bổ sung gloss_en/gloss_vi nullable và cờ gloss_vi_machine/reviewed vào
+   display. Đọc cùng serve.sense_card như API sense detail; giữ scope/face,
+   nghĩa user và tối đa hai query projection mỗi trang. Kiểm unit, HTTP/DB,
+   OpenAPI, build/lint và hồi quy collections.
+2. A19 backfill meaning_vi bằng gloss_vi của anchor sense chỉ khi byte-exact
+   meaning_vi=gloss_en, VI không rỗng/khác nghĩa cũ, meaning_source='source'
+   và created_at=updated_at. Không suy luận auto-fill khi nguồn='user'; POST cũ
+   gán user cho cả autofill nên không phân biệt chắc chắn được. READ ONLY scan
+   production:240candidate source chưa sửa (134archived),2candidate user chưa sửa;
+   cả242VI là máy/chưa duyệt. Chỉ apply240source, giữ2user để kiểm riêng.
+   Dùng dry-run mặc định, manifest private có hash, khóa/recheck compare-and-swap,
+   backup trước apply, rollback có guard; không đổi face/SRS/quiz/meaning user.
+   Sau apply nguồn nghĩa phải là machine khi VI máy chưa duyệt.
+3. A20 inventory mã lỗi từ source: status, hành vi UI, retry/details và lưu ý
+   SSE. Không đổi status đang có. SRS_DAILY_LIMIT_REACHED=409; hai tên
+   AI_DAILY_REQUEST_LIMIT/AI_QUIZ_DAILY_LIMIT là ENV, không phải code response.
+4. Lưu phản hồi/QA FE tự báo vào handoff, phân biệt với kiểm chứng BE; không
+   đóng feedback. Kết quả commit/push/deploy bổ sung được ghi sau kiểm tra thực tế.

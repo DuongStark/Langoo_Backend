@@ -1,3 +1,8 @@
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { INestApplication } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -77,6 +82,10 @@ describe('M12 feedback sync (HTTP + PostgreSQL)', () => {
       if (lexeme.language_id === 2) ja = sense.id.toString();
       else en = sense.id.toString();
     }
+    await db.$executeRaw`
+      INSERT INTO core.sense_gloss(sense_id,language_id,rank,text,is_machine)
+      VALUES (${BigInt(ja)},1,1,'translation',false),(${BigInt(ja)},3,1,'biên dịch',true)
+    `;
     await db.$executeRaw`
       INSERT INTO core.translation_assertion(source_lexeme_id,target_language_id,target_text,sense_hint,scope,source_ordinal,source_key)
       VALUES (${lexemes.find((l) => l.language_id === 1)!.id},3,${`m12nước${runId}`},'water','entry',1,${`m12vi${runId}`}),
@@ -167,7 +176,24 @@ describe('M12 feedback sync (HTTP + PostgreSQL)', () => {
       sense_id: ja,
       lemma: `翻訳M12${runId}`,
       reading: 'ほんやく',
+      gloss_en: 'translation',
+      gloss_vi: 'biên dịch',
+      gloss_vi_machine: true,
+      gloss_vi_reviewed: false,
     });
+    const detail = await request(server)
+      .get(`/v1/senses/${ja}`)
+      .auth(token, { type: 'bearer' })
+      .expect(200);
+    for (const key of [
+      'gloss_en',
+      'gloss_vi',
+      'gloss_vi_machine',
+      'gloss_vi_reviewed',
+    ])
+      expect((b.display as Record<string, unknown>)[key]).toBe(
+        (detail.body as { card: Record<string, unknown> }).card[key],
+      );
     expect((b.display as { kanji: unknown[] }).kanji).toContainEqual({
       literal: '翻',
       readings_vi: ['phiên'],
@@ -185,6 +211,142 @@ describe('M12 feedback sync (HTTP + PostgreSQL)', () => {
       .auth(token, { type: 'bearer' })
       .query({ include: 'everything' })
       .expect(400);
+  });
+
+  it('backfills only untouched source gloss copies, aborts drift atomically and supports guarded rollback', async () => {
+    const directory = await mkdtemp(join(tmpdir(), 'm12-meaning-test-'));
+    const run = async (args: string[]) => {
+      const { stdout } = await promisify(execFile)(
+        process.execPath,
+        ['scripts/review/m12-meaning-vi-backfill.cjs', ...args],
+        { env: process.env },
+      );
+      return JSON.parse(stdout) as {
+        candidates?: number;
+        rows?: number;
+        sha256?: string;
+        receipt_sha256?: string;
+      };
+    };
+    const [target] = await db.$queryRaw<
+      { name: string }[]
+    >`SELECT current_database() AS name`;
+    const ids: string[] = [];
+    try {
+      for (let n = 0; n < 5; n++) {
+        const [lexeme] = await db.$queryRaw<
+          { id: bigint }[]
+        >`INSERT INTO core.lexeme(language_id,lemma,pos) VALUES(1,${`m12backfill${runId}-${n}`},'noun') RETURNING id`;
+        const [sense] = await db.$queryRaw<
+          { id: bigint }[]
+        >`INSERT INTO core.sense(lexeme_id,sense_no,definition) VALUES(${lexeme.id},1,'legacy meaning') RETURNING id`;
+        await db.$executeRaw`INSERT INTO core.sense_gloss(sense_id,language_id,rank,text,is_machine) VALUES(${sense.id},1,1,'legacy meaning',false),(${sense.id},3,1,'nghĩa Việt',true)`;
+        const [item] = await db.$queryRaw<
+          { id: string }[]
+        >`INSERT INTO app.collection_item(collection_id,anchor_sense_id,meaning_vi,meaning_source,created_at,updated_at) VALUES(${collectionId}::uuid,${sense.id},${n === 3 ? 'custom meaning' : n === 4 ? ' legacy meaning' : 'legacy meaning'},${n === 1 ? 'user' : 'source'},'2026-01-01'::timestamptz,${n === 2 ? '2026-01-02' : '2026-01-01'}::timestamptz) RETURNING id`;
+        ids.push(item.id);
+      }
+      const base = ['--database', target.name];
+      const plan = join(directory, 'plan.json');
+      const planned = await run(['plan', ...base, '--output', plan]);
+      const manifest = JSON.parse(await readFile(plan, 'utf8')) as {
+        rows: { id: string }[];
+      };
+      expect(manifest.rows.map((r) => r.id)).toContain(ids[0]);
+      for (const id of ids.slice(1))
+        expect(manifest.rows.map((r) => r.id)).not.toContain(id);
+      const applyArgs = [
+        'apply',
+        ...base,
+        '--manifest',
+        plan,
+        '--sha256',
+        planned.sha256!,
+        '--expected-count',
+        String(planned.candidates),
+      ];
+      await expect(
+        run([
+          ...applyArgs,
+          '--sha256',
+          'invalid',
+          '--output',
+          join(directory, 'bad-hash.json'),
+        ]),
+      ).rejects.toThrow();
+      await db.$executeRaw`UPDATE app.collection_item SET note='touched after planning' WHERE id=${ids[0]}::uuid`;
+      await expect(
+        run([...applyArgs, '--output', join(directory, 'stale.json')]),
+      ).rejects.toThrow();
+      expect(
+        (await db.collectionItem.findUniqueOrThrow({ where: { id: ids[0] } }))
+          .meaningVi,
+      ).toBe('legacy meaning');
+      // A new plan excludes the touched row. Add a fresh untouched candidate to exercise apply/rollback.
+      const [fresh] = await db.$queryRaw<
+        { id: string }[]
+      >`INSERT INTO app.collection_item(collection_id,anchor_sense_id,meaning_vi,meaning_source) SELECT ${secondCollectionId}::uuid,anchor_sense_id,'legacy meaning','source' FROM app.collection_item WHERE id=${ids[0]}::uuid RETURNING id`;
+      const newPlan = join(directory, 'plan2.json');
+      const newPlanned = await run(['plan', ...base, '--output', newPlan]);
+      const receipt = join(directory, 'receipt.json');
+      const applied = await run([
+        'apply',
+        ...base,
+        '--manifest',
+        newPlan,
+        '--sha256',
+        newPlanned.sha256!,
+        '--expected-count',
+        String(newPlanned.candidates),
+        '--output',
+        receipt,
+      ]);
+      expect(
+        await db.collectionItem.findUniqueOrThrow({ where: { id: fresh.id } }),
+      ).toMatchObject({ meaningVi: 'nghĩa Việt', meaningSource: 'machine' });
+      await run([
+        'rollback',
+        ...base,
+        '--manifest',
+        receipt,
+        '--sha256',
+        applied.receipt_sha256!,
+        '--expected-count',
+        String(applied.rows),
+        '--output',
+        join(directory, 'rollback.json'),
+      ]);
+      expect(
+        await db.collectionItem.findUniqueOrThrow({ where: { id: fresh.id } }),
+      ).toMatchObject({ meaningVi: 'legacy meaning', meaningSource: 'source' });
+      await expect(
+        run([
+          'rollback',
+          ...base,
+          '--manifest',
+          receipt,
+          '--sha256',
+          applied.receipt_sha256!,
+          '--expected-count',
+          String(applied.rows),
+          '--output',
+          join(directory, 'rollback-twice.json'),
+        ]),
+      ).rejects.toThrow();
+      for (const id of ids.slice(1))
+        expect(
+          (await db.collectionItem.findUniqueOrThrow({ where: { id } }))
+            .meaningVi,
+        ).toBe(
+          id === ids[3]
+            ? 'custom meaning'
+            : id === ids[4]
+              ? ' legacy meaning'
+              : 'legacy meaning',
+        );
+    } finally {
+      await rm(directory, { recursive: true, force: true });
+    }
   });
 
   it('uses both romaji readings in one scoped request and records one original history', async () => {
@@ -334,6 +496,10 @@ describe('M12 feedback sync (HTTP + PostgreSQL)', () => {
     expect(schemas.ItemDisplayDto).toMatchObject({
       properties: {
         reading: { type: 'string', nullable: true },
+        gloss_en: { type: 'string', nullable: true },
+        gloss_vi: { type: 'string', nullable: true },
+        gloss_vi_machine: { type: 'boolean' },
+        gloss_vi_reviewed: { type: 'boolean' },
         kanji: { type: 'array' },
       },
     });

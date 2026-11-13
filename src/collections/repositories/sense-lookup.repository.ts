@@ -61,11 +61,16 @@ export class SenseLookupRepository {
         reading: string | null;
         romanization: string | null;
         pos: string | null;
+        gloss_en: string | null;
+        gloss_vi: string | null;
+        gloss_vi_machine: boolean | null;
+        gloss_vi_reviewed: boolean | null;
       }[]
     >`
-      SELECT s.id AS sense_id, l.lemma, l.reading, l.romanization, l.pos
-      FROM core.sense s JOIN core.lexeme l ON l.id = s.lexeme_id
-      WHERE s.id IN (${Prisma.join(ids)}) AND l.language_id IN (${Prisma.join(allowedLanguageIds)})
+      SELECT sc.sense_id, sc.lemma, sc.reading, sc.romanization, sc.pos,
+             sc.gloss_en, sc.gloss_vi, sc.gloss_vi_machine, sc.gloss_vi_reviewed
+      FROM serve.sense_card sc
+      WHERE sc.sense_id IN (${Prisma.join(ids)}) AND sc.language_id IN (${Prisma.join(allowedLanguageIds)})
     `;
     const chars = [
       ...new Set(
@@ -104,6 +109,10 @@ export class SenseLookupRepository {
           reading: row.reading,
           romanization: row.romanization,
           pos: row.pos,
+          gloss_en: row.gloss_en ?? null,
+          gloss_vi: row.gloss_vi ?? null,
+          gloss_vi_machine: row.gloss_vi_machine === true,
+          gloss_vi_reviewed: row.gloss_vi_reviewed === true,
           kanji: [
             ...new Set(
               Array.from(row.lemma).filter((char) =>

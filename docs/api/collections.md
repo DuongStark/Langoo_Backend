@@ -2,6 +2,9 @@
 
 ## M12-A18/A19 — Đã deploy production ngày 13/11/2026 (`4df8655`)
 
+> Bổ sung A19 sau phản hồi FE: gloss_en/gloss_vi và cờ gloss VI dưới đây đang
+> kiểm local, chưa có ở4df8655; trạng thái rollout ở [handoff tiếp nối](../handoff/m12-fe-followup-2026-11-13.md).
+
 **Membership:** `GET /v1/me/saved-senses?profile_id=<uuid>&sense_ids=1,2`.
 Bearer bắt buộc; profile phải thuộc user. 1–50 bigint ID dương, tối đa19 chữ
 số/ID, không vượt9223372036854775807; giữ ID dưới dạng string, loại trùng.
@@ -37,10 +40,19 @@ display. Khi opt-in, mỗi item thêm display=null hoặc object:
   "reading": "がくせい",
   "romanization": "gakusei",
   "pos": "noun",
+  "gloss_en": "student",
+  "gloss_vi": "học sinh",
+  "gloss_vi_machine": true,
+  "gloss_vi_reviewed": false,
   "kanji": [{"literal": "学", "readings_vi": ["học"], "meanings_vi": [], "meanings_vi_machine": false, "meanings_vi_reviewed": false}]
 }
 ```
 
+Ví dụ trên là item.display sau bổ sung A19. Gloss_en/gloss_vi string|null,
+flags boolean (false khi không có VI); cùng policy serve.sense_card như detail,
+không fallback từ meaning_vi người dùng. FE dùng gloss_en cho dòng locale EN,
+không gọi detail từng dòng; thiếu gloss hiển thị fallback locale. Gloss VI máy
+chưa duyệt phải giữ badge; meaning_vi item không bị thay bởi projection.
 Ví dụ trên là item.display. Chọn display_sense_id của face còn thấy được;
 không lộ anchor ngoài language profile. Batch sense và Kanji của cả trang,
 không gọi service detail từng dòng. Meaning_vi người dùng giữ nguyên. Các

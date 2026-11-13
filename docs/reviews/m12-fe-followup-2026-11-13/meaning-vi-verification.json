@@ -1,0 +1,17 @@
+{
+  "task": "M12-A19",
+  "database": "langoo",
+  "read_only_verification": true,
+  "applied": 240,
+  "verified": 240,
+  "all_machine": true,
+  "pending": [
+    {
+      "meaning_source": "user",
+      "count": 2
+    }
+  ],
+  "private_backup": "meaning-vi-followup/apply-backup.json",
+  "backup_sha256": "e408f212ab28b807d788daba86ba23c0f3adbb4030eab5a13468833fa6dd33b6",
+  "production_rollback_tested": false
+}
