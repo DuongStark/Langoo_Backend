@@ -1,5 +1,60 @@
 # API: Collections (sổ tay)
 
+## M12-A18/A19 — Bổ sung local ngày 13/11/2026, chưa deploy
+
+**Membership:** `GET /v1/me/saved-senses?profile_id=<uuid>&sense_ids=1,2`.
+Bearer bắt buộc; profile phải thuộc user. 1–50 bigint ID dương, tối đa19 chữ
+số/ID, không vượt9223372036854775807; giữ ID dưới dạng string, loại trùng.
+
+```json
+{
+  "profile_id": "<uuid>",
+  "data": [
+    {"sense_id": "1", "saved_collection_ids": ["<collection uuid>"]},
+    {"sense_id": "2", "saved_collection_ids": []}
+  ]
+}
+```
+
+Membership dựa trên face thực, gồm mặt phụ/clone; chỉ sổ chưa archive của
+profile và ngôn ngữ profile hiện tại. Paused/known vẫn tính đã lưu. Sense
+không tồn tại/ngoài scope không có membership. Không lộ danh sách sổ user khác.
+Query/profile và membership đọc trong một transaction RepeatableRead.
+400 VALIDATION_FAILED cho query sai;401 auth;404 PROFILE_NOT_FOUND khi không
+có quyền profile;503 COLLECTION_READ_UNAVAILABLE cho lỗi đọc DB, không trả
+mảng rỗng thay lỗi. AUTH_SERVICE_UNAVAILABLE503 vẫn thuộc auth guard.
+Cache-Control private,no-store. FE key theo user+profile+IDs; invalidate sau
+add/delete/clone/append/archive và đổi tài khoản/profile, không chỉ nhớ local.
+
+**Projection:** `GET /v1/collections/:id/items?include=display&limit=12`.
+Giữ data/next_cursor và tất cả field cũ. Không gửi include thì không có field
+display. Khi opt-in, mỗi item thêm display=null hoặc object:
+
+```json
+{
+  "sense_id": "1",
+  "lemma": "学生",
+  "reading": "がくせい",
+  "romanization": "gakusei",
+  "pos": "noun",
+  "kanji": [{"literal": "学", "readings_vi": ["học"], "meanings_vi": [], "meanings_vi_machine": false, "meanings_vi_reviewed": false}]
+}
+```
+
+Ví dụ trên là item.display. Chọn display_sense_id của face còn thấy được;
+không lộ anchor ngoài language profile. Batch sense và Kanji của cả trang,
+không gọi service detail từng dòng. Meaning_vi người dùng giữ nguyên. Các
+array luôn là array, chuỗi thiếu là null; Kanji chỉ lấy readings type=vietnam
+và meanings lang=vi, không gọi AI. Mỗi Kanji có meanings_vi_machine và
+meanings_vi_reviewed; FE phải hiện badge chưa kiểm duyệt nếu machine=true và
+reviewed=false, không coi bản dịch máy là nghĩa đã duyệt. Thiếu dữ liệu đọc trả display=null, lỗi
+enrich trả503 COLLECTION_READ_UNAVAILABLE. Lỗi DB của bước list cũ vẫn theo
+error handler hiện có, không coi mọi lỗi list là cùng503 mới này.
+Ownership/order/cursor/max100 như cũ; scope theo profile của collection.
+FE dùng projection cho dòng, chỉ tải examples/links/SVG khi mở chi tiết.
+
+[Handoff và trạng thái release](../handoff/m12-fe-feedback-sync-2026-11-13.md).
+
 Tất cả endpoint cần **Bearer token**; dữ liệu giới hạn theo user (lấy từ JWT).
 Bộ sưu tập gắn với một hồ sơ học (`study_profile`); nếu không gửi `profile_id`
 thì dùng `user_settings.active_profile_id` → hồ sơ mặc định → nếu chưa có hồ sơ nào

@@ -1,3 +1,5 @@
+import { SavedSensesController } from './saved-senses.controller';
+import { SavedSensesService } from './saved-senses.service';
 import { Module } from '@nestjs/common';
 import { AuthModule } from '../auth/auth.module';
 import { CollectionsController } from './collections.controller';
@@ -15,8 +17,14 @@ import { TagsService } from './tags.service';
  */
 @Module({
   imports: [AuthModule],
-  controllers: [CollectionsController, ItemsController, TagsController],
+  controllers: [
+    SavedSensesController,
+    CollectionsController,
+    ItemsController,
+    TagsController,
+  ],
   providers: [
+    SavedSensesService,
     CollectionsService,
     ItemsService,
     TagsService,

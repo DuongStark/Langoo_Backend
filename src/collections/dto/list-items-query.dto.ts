@@ -12,6 +12,14 @@ import {
 
 export class ListItemsQueryDto {
   @ApiPropertyOptional({
+    enum: ['display'],
+    description: 'Batch lemma/reading/Kanji for list rows; omitted by default',
+  })
+  @ValidateIf((_, value: unknown) => value !== undefined)
+  @IsIn(['display'])
+  include?: 'display';
+
+  @ApiPropertyOptional({
     example: 2,
     description: 'Lọc item có mặt (face) ngôn ngữ này',
   })

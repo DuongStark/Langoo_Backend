@@ -7,6 +7,7 @@ import { AllExceptionsFilter } from './all-exceptions.filter';
 import { DomainException } from '../errors/domain.exception';
 
 interface ResponseMock {
+  setHeader: jest.Mock;
   status: jest.Mock;
   json: jest.Mock;
 }
@@ -31,7 +32,11 @@ function createFilter(): {
 }
 
 function createContext(): { host: ArgumentsHost; response: ResponseMock } {
-  const response: ResponseMock = { status: jest.fn(), json: jest.fn() };
+  const response: ResponseMock = {
+    setHeader: jest.fn(),
+    status: jest.fn(),
+    json: jest.fn(),
+  };
   response.status.mockReturnValue(response);
   const request = { method: 'GET', originalUrl: '/v1/test' };
   const host = {

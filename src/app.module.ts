@@ -1,5 +1,11 @@
 import { PrivacyModule } from './privacy/privacy.module';
-import { Module, ValidationPipe } from '@nestjs/common';
+import {
+  Module,
+  ValidationPipe,
+  MiddlewareConsumer,
+  NestModule,
+} from '@nestjs/common';
+import { HttpSecurityMiddleware } from './common/http-security.middleware';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -91,4 +97,8 @@ import { MediaModule } from './media/media.module';
     { provide: APP_FILTER, useClass: AllExceptionsFilter },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(HttpSecurityMiddleware).forRoutes('{*path}');
+  }
+}

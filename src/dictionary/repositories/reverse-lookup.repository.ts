@@ -46,7 +46,17 @@ export class ReverseLookupRepository {
       JOIN core.lexeme l ON l.id = a.source_lexeme_id
       WHERE a.target_language_id = ${LANGUAGE_ID_VI}
         AND l.language_id = ${LANGUAGE_ID_EN}
-        AND (a.target_text = ${query} OR lower(a.target_text) = ${lowered})
+        AND (
+          (a.target_text = ${query} OR lower(a.target_text) = ${lowered})
+          OR (public.f_unaccent(lower(a.target_text)) = public.f_unaccent(${lowered})
+            AND NOT EXISTS (
+              SELECT 1 FROM core.translation_assertion exact_a
+              JOIN core.lexeme exact_l ON exact_l.id = exact_a.source_lexeme_id
+              WHERE exact_a.target_language_id = ${LANGUAGE_ID_VI}
+                AND exact_l.language_id = ${LANGUAGE_ID_EN}
+                AND lower(exact_a.target_text) = ${lowered}
+            ))
+        )
       ORDER BY l.frequency_rank ASC NULLS LAST, a.source_lexeme_id ASC, a.source_ordinal ASC
       LIMIT 50
     `;
@@ -60,6 +70,7 @@ export class ReverseLookupRepository {
     query: string,
     limit = 200,
   ): Promise<ViSourceRow[]> {
+    const pattern = query.replace(/[\\%_]/g, '\\$&') + '%';
     return this.prisma.$queryRaw<ViSourceRow[]>`
       SELECT
         a.source_lexeme_id,
@@ -73,10 +84,10 @@ export class ReverseLookupRepository {
       JOIN core.lexeme l ON l.id = a.source_lexeme_id
       WHERE a.target_language_id = ${LANGUAGE_ID_VI}
         AND l.language_id = ${LANGUAGE_ID_EN}
-        AND public.f_unaccent(lower(a.target_text)) LIKE public.f_unaccent(lower(${query})) || '%'
+        AND public.f_unaccent(lower(a.target_text)) LIKE public.f_unaccent(lower(${pattern})) ESCAPE '\\'
       ORDER BY
         (lower(a.target_text) = lower(${query})) DESC,
-        (lower(a.target_text) LIKE lower(${query}) || '%') DESC,
+        (lower(a.target_text) LIKE lower(${pattern}) ESCAPE '\\') DESC,
         length(a.target_text) ASC,
         l.frequency_rank ASC NULLS LAST,
         a.source_lexeme_id ASC,

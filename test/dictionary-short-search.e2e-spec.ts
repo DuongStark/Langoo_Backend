@@ -194,7 +194,7 @@ describe('M4.2 short dictionary search', () => {
       const row = rows[0];
       ids.push(row.lexeme_id);
       cursor = {
-        version: 5,
+        version: 6,
         query: 'z',
         lang: 'en',
         exactRank: row.exact_rank,
@@ -248,7 +248,7 @@ describe('M4.2 short dictionary search', () => {
       const row = rows[0];
       ids.push(row.lexeme_id);
       cursor = {
-        version: 5,
+        version: 6,
         query: '猫',
         lang: 'ja',
         exactRank: row.exact_rank,

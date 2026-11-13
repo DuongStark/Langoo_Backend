@@ -172,6 +172,7 @@ export class DictionarySearchRepository {
           JOIN core.lexeme cl2 ON cl2.id = ds.lexeme_id
           LEFT JOIN public.source src ON src.id = cl2.source_id
           WHERE ds.lang_code = r.lang_code AND lower(ds.surface) = lower(r.surface)
+            AND NOT (ds.lang_code='ja' AND coalesce(cl2.attributes->>'wikt_pos','')='romanization')
             AND (src.code='jmdict' OR (ds.lang_code='en' AND EXISTS (
               SELECT 1 FROM core.sense cs
               JOIN core.sense_learner_priority cp ON cp.sense_id=cs.id
@@ -346,6 +347,7 @@ export class DictionarySearchRepository {
           WHERE p.lexeme_id=cl.id AND hit_ids.lang_code='ja'
           LIMIT 1
         ) jp ON true
+        WHERE NOT (hit_ids.lang_code='ja' AND coalesce(cl.attributes->>'wikt_pos','')='romanization')
       ),
       ranked AS (
         SELECT h.lexeme_id,h.language_id,h.lang_code,cl.lemma,h.surface,h.reading,h.pos,

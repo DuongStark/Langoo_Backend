@@ -14,6 +14,7 @@ async function bootstrap(): Promise<void> {
   });
   configureChatImageBodyParser(app);
   configureHttpProxy(app);
+  app.disable('x-powered-by');
   app.useLogger(app.get(Logger));
   app.setGlobalPrefix('v1');
   app.enableShutdownHooks();

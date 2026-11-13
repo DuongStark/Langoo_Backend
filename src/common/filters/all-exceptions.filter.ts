@@ -66,6 +66,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       this.logger.warn(logPayload, 'Yêu cầu bị từ chối');
     }
 
+    response.setHeader('Cache-Control', 'private, no-store');
     response.status(status).json(body);
   }
 
@@ -107,6 +108,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
     }
 
     const rawMessage = record.message;
+    if (
+      status === 404 &&
+      typeof rawMessage === 'string' &&
+      /^Cannot (GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS) /.test(rawMessage)
+    ) {
+      return {
+        status,
+        body: { code: 'NOT_FOUND', message: 'Không tìm thấy tài nguyên' },
+      };
+    }
     if (Array.isArray(rawMessage)) {
       return {
         status,

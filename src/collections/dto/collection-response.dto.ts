@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ItemDisplayDto } from './item-display.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CollectionResponseDto {
   @ApiProperty({ example: '01a0dc8a-7191-7e18-93b0-32e8378986fe' })
@@ -112,6 +113,13 @@ export class ItemFaceResponseDto {
 }
 
 export class ItemResponseDto {
+  @ApiPropertyOptional({
+    type: () => ItemDisplayDto,
+    nullable: true,
+    description: 'Only when include=display',
+  })
+  display?: ItemDisplayDto | null;
+
   @ApiProperty()
   id!: string;
 

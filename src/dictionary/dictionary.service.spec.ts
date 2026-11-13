@@ -145,7 +145,7 @@ describe('DictionaryService', () => {
       key: 'profile-1:2',
     });
     const cursor = encodeDictionarySearchCursor({
-      version: 5,
+      version: 6,
       query: 'run',
       lang: null,
       scopeKey: 'profile-1:1,2',
@@ -263,7 +263,7 @@ describe('DictionaryService', () => {
     const result = await service.suggestReverse({ q: 'truong', to: 'ja' });
 
     expect(result.en).toEqual([]);
-    expect(result.ja).toEqual([
+    expect(result.ja).toMatchObject([
       {
         text: '学校',
         senseHint: null,
@@ -1121,6 +1121,47 @@ describe('DictionaryService', () => {
   });
 
   describe('reverseLookup', () => {
+    it('selects the exact representative before dedup and serializes canonical aliases', async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([
+        {
+          source_lexeme_id: 1n,
+          target_text: 'nước',
+          sense_hint: 'water',
+          source_ordinal: 1,
+          en_lemma: 'water',
+          en_pos: 'noun',
+          frequency_rank: 100,
+        },
+      ]);
+      repos.reverse.findJaTargets.mockResolvedValue([
+        {
+          source_lexeme_id: 1n,
+          target_text: '水',
+          sense_hint: 'wrong',
+          source_ordinal: 1,
+        },
+        {
+          source_lexeme_id: 1n,
+          target_text: '水',
+          sense_hint: 'water',
+          source_ordinal: 2,
+        },
+      ]);
+      const result = await service.reverseLookup('nước');
+      expect(result.en[0]).toMatchObject({
+        lexeme_id: '1',
+        frequency_rank: 100,
+        sense_hint: 'water',
+      });
+      expect(result.ja[0]).toMatchObject({
+        exact_sense: true,
+        exactSense: true,
+        sense_hint: 'water',
+        via_lexeme_id: '1',
+      });
+    });
+
     it('VI → EN + JA: exact_sense lên trước, dedupe, gọi repo đúng tham số', async () => {
       const { service, repos } = createSetup();
       repos.reverse.findViSources.mockResolvedValue([
@@ -1196,6 +1237,15 @@ describe('DictionaryService', () => {
   });
 });
 describe('escapeLike / normalizeQuery', () => {
+  it('keeps original readings and adds bounded n-separated romaji variants', () => {
+    expect(getSearchQueryVariants('honyaku', 'ja')).toEqual(
+      expect.arrayContaining(['honyaku', "hon'yaku", 'ほんやく', 'ほにゃく']),
+    );
+    expect(getSearchQueryVariants('genin', 'ja')).toEqual(
+      expect.arrayContaining(['げにん', 'げんいん']),
+    );
+    expect(getSearchQueryVariants('honyaku', 'en')).toEqual(['honyaku']);
+  });
   it('escape đúng %, _, \\', () => {
     expect(escapeLike('100%_run\\')).toBe('100\\%\\_run\\\\');
     expect(escapeLike('bình thường')).toBe('bình thường');

@@ -5,7 +5,7 @@ const MAX_SIGNED_BIGINT = 9223372036854775807n;
 const MAX_CURSOR_TEXT = 1000;
 
 export interface DictionarySearchCursor {
-  version: 5;
+  version: 6;
   query: string;
   lang: string | null;
   scopeKey?: string;
@@ -58,7 +58,7 @@ export function decodeDictionarySearchCursor(
     ) as Record<string, unknown>;
 
     if (
-      parsed.v !== 5 ||
+      parsed.v !== 6 ||
       (parsed.h !== undefined &&
         (typeof parsed.h !== 'string' || parsed.h.length > 100)) ||
       typeof parsed.q !== 'string' ||
@@ -88,7 +88,7 @@ export function decodeDictionarySearchCursor(
     }
 
     return {
-      version: 5,
+      version: 6,
       query: parsed.q,
       lang: parsed.l,
       ...(parsed.h === undefined ? {} : { scopeKey: parsed.h }),

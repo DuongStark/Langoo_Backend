@@ -160,7 +160,7 @@ export class DictionaryService {
       next_cursor:
         hasNext && lastRow
           ? encodeDictionarySearchCursor({
-              version: 5,
+              version: 6,
               query,
               lang: languageCode,
               ...(scope ? { scopeKey: scope.key } : {}),
@@ -281,14 +281,16 @@ export class DictionaryService {
       seenLexeme.add(key);
       sourceIds.push(row.source_lexeme_id);
       viByLexeme.set(key, row.target_text);
-      en.push({
-        lexemeId: key,
-        lemma: row.en_lemma,
-        pos: row.en_pos,
-        frequencyRank: row.frequency_rank,
-        senseHint: row.sense_hint,
-        vi: row.target_text,
-      });
+      en.push(
+        serializeReverseEn({
+          lexemeId: key,
+          lemma: row.en_lemma,
+          pos: row.en_pos,
+          frequencyRank: row.frequency_rank,
+          senseHint: row.sense_hint,
+          vi: row.target_text,
+        }),
+      );
       if (en.length >= enLimit) break;
     }
     let ja: ReverseLookupJaHit[] = [];
@@ -311,6 +313,7 @@ export class DictionaryService {
         .map((row) => {
           const hint = hintByLexeme.get(String(row.source_lexeme_id)) ?? null;
           return {
+            sourceOrdinal: row.source_ordinal ?? 0,
             text: row.target_text,
             senseHint: row.sense_hint,
             viaLexemeId: String(row.source_lexeme_id),
@@ -324,6 +327,16 @@ export class DictionaryService {
             vi: viByLexeme.get(String(row.source_lexeme_id)) ?? null,
           };
         })
+        // Choose a winner within each text BEFORE discarding duplicates.
+        .sort(
+          (a, b) =>
+            Number(b.exactSense) - Number(a.exactSense) ||
+            (enOrder.get(a.viaLexemeId) ?? 0) -
+              (enOrder.get(b.viaLexemeId) ?? 0) ||
+            a.sourceOrdinal - b.sourceOrdinal ||
+            compareText(a.viaLexemeId, b.viaLexemeId) ||
+            compareText(a.senseHint ?? '', b.senseHint ?? ''),
+        )
         .filter((hit) => {
           if (seenJa.has(hit.text)) return false;
           seenJa.add(hit.text);
@@ -335,9 +348,16 @@ export class DictionaryService {
             const bi = enOrder.get(b.viaLexemeId) ?? Number.MAX_SAFE_INTEGER;
             if (ai !== bi) return ai - bi;
           }
-          return Number(b.exactSense) - Number(a.exactSense);
+          return (
+            Number(b.exactSense) - Number(a.exactSense) ||
+            (enOrder.get(a.viaLexemeId) ?? 0) -
+              (enOrder.get(b.viaLexemeId) ?? 0) ||
+            a.sourceOrdinal - b.sourceOrdinal ||
+            compareText(a.text, b.text)
+          );
         })
-        .slice(0, jaLimit);
+        .slice(0, jaLimit)
+        .map((hit) => serializeReverseJa(hit));
     }
     return {
       en: targets.has('en') ? en : [],
@@ -723,11 +743,14 @@ export function getSearchQueryVariants(
     (languageCode === null || languageCode === 'ja') &&
     /^[A-Za-z][A-Za-z\s'-]*$/.test(query)
   ) {
-    const kana = toHiragana(query);
-    // Biến thể kana 1 ký tự (vd "ca" → "か") quá rộng và làm vô hiệu bigram filter
-    // → quét toàn bộ reading (sự cố search 10/10). Chỉ thêm khi từ 2 ký tự.
-    if (kana !== query && kana.length >= 2) {
-      variants.push(kana);
+    const separated = query.replace(/([aeiou])(n)(?=[aeiouy])/gi, "$1$2'");
+    const candidates = separated === query ? [query] : [query, separated];
+    for (const candidate of candidates) {
+      if (candidate !== query) variants.push(candidate);
+      const kana = toHiragana(candidate);
+      // Do not derive broad single-kana substring searches from Latin input.
+      if (kana !== candidate && Array.from(kana).length >= 2)
+        variants.push(kana);
     }
   }
   return [...new Set(variants)];
@@ -997,4 +1020,37 @@ function toStringRecord(value: unknown): Record<string, string> {
     }
   }
   return result;
+}
+
+function compareText(a: string, b: string): number {
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+function serializeReverseEn(
+  hit: Omit<ReverseLookupEnHit, 'lexeme_id' | 'frequency_rank' | 'sense_hint'>,
+): ReverseLookupEnHit {
+  return {
+    ...hit,
+    lexeme_id: hit.lexemeId,
+    frequency_rank: hit.frequencyRank,
+    sense_hint: hit.senseHint,
+  };
+}
+function serializeReverseJa(
+  hit: Omit<
+    ReverseLookupJaHit,
+    'via_lexeme_id' | 'via_lemma' | 'sense_hint' | 'exact_sense'
+  >,
+): ReverseLookupJaHit {
+  return {
+    text: hit.text,
+    senseHint: hit.senseHint,
+    viaLexemeId: hit.viaLexemeId,
+    viaLemma: hit.viaLemma,
+    exactSense: hit.exactSense,
+    vi: hit.vi,
+    via_lexeme_id: hit.viaLexemeId,
+    via_lemma: hit.viaLemma,
+    sense_hint: hit.senseHint,
+    exact_sense: hit.exactSense,
+  };
 }

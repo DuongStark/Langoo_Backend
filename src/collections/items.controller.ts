@@ -17,6 +17,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiServiceUnavailableResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
@@ -49,6 +50,10 @@ export class ItemsController {
   constructor(private readonly itemsService: ItemsService) {}
 
   @Get()
+  @ApiServiceUnavailableResponse({
+    type: ErrorResponseDto,
+    description: 'COLLECTION_READ_UNAVAILABLE / AUTH_SERVICE_UNAVAILABLE',
+  })
   @ApiOperation({
     summary: 'Danh sách từ trong bộ (lọc, order asc/desc, cursor keyset)',
     description:

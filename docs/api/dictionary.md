@@ -1,5 +1,33 @@
 # API: Dictionary (đọc)
 
+## M12-A06.1/A12/A17 — Code local ngày 13/11/2026, chưa deploy
+
+- Reverse và suggestions/reverse có canonical snake_case đúng Swagger, giữ
+  aliases camelCase deprecated: lexeme_id/lexemeId, frequency_rank/frequencyRank,
+  sense_hint/senseHint, via_lexeme_id/viaLexemeId, via_lemma/viaLemma,
+  exact_sense/exactSense. Cả hai bộ giá trị bằng nhau, không mất null/false.
+- JA chọn representative exactSense tốt nhất trước dedup text, rồi xếp nhóm;
+  suggestions giữ ưu tiên nguồn. Chưa sửa assertion dữ liệu nước→of, không
+  bảo đảm ví dụ nước/水 đã được giải quyết toàn bộ chỉ bằng thay comparator.
+- Reverse exact ưu tiên kết quả case-insensitive có dấu. Chỉ khi không có exact
+  trên tập source EN mới fallback f_unaccent, vẫn exact sau bỏ dấu, không prefix.
+  Suggestions reverse escape %, _, backslash như literal.
+- Search/suggestions sinh thêm romaji n-separated trong cùng query pipeline:
+  honyaku có hon'yaku/ほんやく và cách đọc gốc; genin giữげにん, thêmげんいん.
+  Giữ Bearer/profile, ghi một history query gốc ở trang đầu, không gọi AI.
+- Entry JA có metadata wikt_pos=romanization không xuất hiện độc lập trong
+  search/suggestions. Không lọc mọi chữ Latin hoặc pos unknown, không xóa core;
+  alias/reading của entry chuẩn vẫn tìm được theo pipeline hiện có.
+- Cursor search mới **v6** do semantics tập variants thay đổi. Cursor v5 trở
+  xuống trả400 VALIDATION_FAILED; FE bỏ cursor/cache trang cũ, tải lại trang đầu
+  một lần. Cursor vẫn opaque; không ghép trang của hai profile/phiên bản.
+- JSON API mặc định private,no-store, kể cả dictionary; riêng public sources
+  có max-age300. Policy SVG vẫn theo controller (guest public/auth private +
+  Vary Authorization). Header không thay việc FE dọn SW/cache account.
+
+FE giữ snakeKeys adapter cho đến rollout được xác nhận; bỏ romaji query phụ
+chỉ sau deploy A17. [Ledger release](../handoff/m12-fe-feedback-sync-2026-11-13.md).
+
 Tra từ điển **công khai** (không bắt buộc đăng nhập). Riêng lịch sử tra từ và báo lỗi gloss
 cần Bearer token. Tầng đọc dùng `serve.*`/`core.*` (chỉ đọc); ghi duy nhất `app.search_history`
 và `app.gloss_report`.
@@ -18,7 +46,7 @@ và `app.gloss_report`.
   Quy tắc áp dụng cả kana được sinh từ input đó khi tra JA/không truyền `lang`.
 - Một ký tự khác (Kanji/kana/ký tự đặc biệt) vẫn substring; `猫` tìm cả
   `猫`, `山猫`, `猫舌`. Đếm ký tự Unicode, hỗ trợ Kanji ngoài BMP.
-- Từ >=2 ký tự giữ substring. Ranking/source visibility, scope, cursor v5 và
+- Từ >=2 ký tự giữ substring. Ranking/source visibility, scope và
   shape success response giữ nguyên. Search và suggestions dùng cùng quy tắc.
 - Query dùng custom plan theo parameters; JIT tắt trong transaction search.
   Statement timeout 20 giây; không chuyển timeout thành `data: []`.
@@ -37,7 +65,7 @@ giữ catalog công khai để tra cứu/onboarding.
 
 - Search/suggestions áp scope vào cả ba nhánh SQL **trước** ranking/LIMIT.
   `lang` chỉ thu hẹp; yêu cầu language khác hồ sơ không trả entry bị ẩn.
-- Cursor search v5 thêm scope key opaque; đổi ngôn ngữ/profile dùng lại cursor
+- Cursor search có scope key opaque (v6 trong bản M12 local, v5 trước rollout); đổi ngôn ngữ/profile dùng lại cursor
   cũ trả `400 VALIDATION_FAILED`, tải lại trang đầu.
 - Truy cập trực tiếp sense/lexeme của ngôn ngữ bị ẩn trả `404 SENSE_NOT_FOUND` /
   `LEXEME_NOT_FOUND`. Sense links chỉ chứa ngôn ngữ đang học.

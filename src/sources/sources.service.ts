@@ -33,6 +33,7 @@ function creditLine(row: SourceRow): string {
 export class SourcesService implements OnModuleInit {
   private readonly logger = new Logger(SourcesService.name);
   private cache: { expiresAt: number; data: DataSourceDto[] } | null = null;
+  private refreshInFlight: Promise<DataSourceDto[]> | null = null;
 
   constructor(private readonly repo: SourcesRepository) {}
 
@@ -47,18 +48,22 @@ export class SourcesService implements OnModuleInit {
 
   async list(): Promise<DataSourceDto[]> {
     const now = Date.now();
-    if (this.cache && this.cache.expiresAt > now) return this.cache.data;
+    if (this.cache && this.cache.expiresAt > now)
+      return structuredClone(this.cache.data);
+    if (this.refreshInFlight)
+      return structuredClone(await this.refreshInFlight);
+    const pending = this.refresh();
+    this.refreshInFlight = pending;
+    try {
+      return structuredClone(await pending);
+    } finally {
+      if (this.refreshInFlight === pending) this.refreshInFlight = null;
+    }
+  }
 
-    const [
-      sources,
-      lexemes,
-      senses,
-      glosses,
-      concepts,
-      conceptGlosses,
-      kanji,
-      examples,
-    ] = await Promise.all([
+  private async refresh(): Promise<DataSourceDto[]> {
+    // A failed query must not release the shared refresh while its siblings still run.
+    const results = await Promise.allSettled([
       this.repo.listSources(),
       this.repo.countLexemes(),
       this.repo.countSenses(),
@@ -67,7 +72,15 @@ export class SourcesService implements OnModuleInit {
       this.repo.countConceptGlosses(),
       this.repo.countKanji(),
       this.repo.countExamples(),
-    ]);
+    ] as const);
+    const sources = settledValue(results[0]);
+    const lexemes = settledValue(results[1]);
+    const senses = settledValue(results[2]);
+    const glosses = settledValue(results[3]);
+    const concepts = settledValue(results[4]);
+    const conceptGlosses = settledValue(results[5]);
+    const kanji = settledValue(results[6]);
+    const examples = settledValue(results[7]);
 
     const lexemeCounts = toCountMap(lexemes);
     const senseCounts = toCountMap(senses);
@@ -109,7 +122,7 @@ export class SourcesService implements OnModuleInit {
             machineRows,
           );
 
-    this.cache = { expiresAt: now + CACHE_TTL_MS, data: grouped };
+    this.cache = { expiresAt: Date.now() + CACHE_TTL_MS, data: grouped };
     return grouped;
   }
 }
@@ -155,4 +168,9 @@ function mergeMachineSources(
       },
     },
   ];
+}
+
+function settledValue<T>(result: PromiseSettledResult<T>): T {
+  if (result.status === 'rejected') throw result.reason;
+  return result.value;
 }

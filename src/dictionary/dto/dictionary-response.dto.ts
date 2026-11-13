@@ -521,22 +521,43 @@ export class GlossReportResponseDto {
 }
 
 export class ReverseLookupEnHitDto {
+  @ApiProperty({
+    type: String,
+    deprecated: true,
+    description: 'Alias of lexeme_id',
+  })
+  lexemeId!: string;
+  @ApiProperty({
+    type: Number,
+    nullable: true,
+    deprecated: true,
+    description: 'Alias of frequency_rank',
+  })
+  frequencyRank!: number | null;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    deprecated: true,
+    description: 'Alias of sense_hint',
+  })
+  senseHint!: string | null;
   @ApiProperty({ example: '1775198' })
   lexeme_id!: string;
 
   @ApiProperty({ example: 'sand' })
   lemma!: string;
 
-  @ApiProperty({ nullable: true, example: 'noun' })
+  @ApiProperty({ type: String, nullable: true, example: 'noun' })
   pos!: string | null;
 
-  @ApiProperty({ nullable: true, example: 3409 })
+  @ApiProperty({ type: Number, nullable: true, example: 3409 })
   frequency_rank!: number | null;
 
-  @ApiProperty({ nullable: true, example: 'finely ground rock' })
+  @ApiProperty({ type: String, nullable: true, example: 'finely ground rock' })
   sense_hint!: string | null;
 
   @ApiPropertyOptional({
+    type: String,
     nullable: true,
     example: 'trường',
     description: 'Từ tiếng Việt khớp (autocomplete)',
@@ -545,10 +566,35 @@ export class ReverseLookupEnHitDto {
 }
 
 export class ReverseLookupJaHitDto {
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    deprecated: true,
+    description: 'Alias of sense_hint',
+  })
+  senseHint!: string | null;
+  @ApiProperty({
+    type: String,
+    deprecated: true,
+    description: 'Alias of via_lexeme_id',
+  })
+  viaLexemeId!: string;
+  @ApiProperty({
+    type: String,
+    deprecated: true,
+    description: 'Alias of via_lemma',
+  })
+  viaLemma!: string;
+  @ApiProperty({
+    type: Boolean,
+    deprecated: true,
+    description: 'Alias of exact_sense',
+  })
+  exactSense!: boolean;
   @ApiProperty({ example: '砂' })
   text!: string;
 
-  @ApiProperty({ nullable: true, example: 'finely ground rock' })
+  @ApiProperty({ type: String, nullable: true, example: 'finely ground rock' })
   sense_hint!: string | null;
 
   @ApiProperty({ example: '1775198' })
@@ -565,6 +611,7 @@ export class ReverseLookupJaHitDto {
   exact_sense!: boolean;
 
   @ApiPropertyOptional({
+    type: String,
     nullable: true,
     example: 'trường',
     description: 'Từ tiếng Việt khớp (autocomplete)',

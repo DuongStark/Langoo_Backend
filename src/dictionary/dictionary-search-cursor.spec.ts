@@ -5,7 +5,7 @@ import {
 } from './dictionary-search-cursor';
 
 const cursor = {
-  version: 5 as const,
+  version: 6 as const,
   query: '走',
   lang: 'ja',
   exactRank: 1 as const,
@@ -28,7 +28,7 @@ describe('dictionary search cursor', () => {
     ).toEqual(scoped);
   });
 
-  it.each([1, 2, 3, 4])(
+  it.each([1, 2, 3, 4, 5])(
     'rejects a valid legacy v%s cursor after ranking changes',
     (version) => {
       const old = JSON.parse(

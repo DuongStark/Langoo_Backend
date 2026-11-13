@@ -48,6 +48,67 @@ function createService(): {
 }
 
 describe('SourcesService', () => {
+  it('keeps failed refresh in-flight until delayed sibling queries settle, then retries', async () => {
+    let release!: () => void;
+    const delayed = new Promise<never[]>((resolve) => {
+      release = () => resolve([]);
+    });
+    const repo = {
+      listSources: jest
+        .fn()
+        .mockRejectedValueOnce(new Error('query failed'))
+        .mockResolvedValue([]),
+      countLexemes: jest
+        .fn()
+        .mockReturnValueOnce(delayed)
+        .mockResolvedValue([]),
+      countSenses: jest.fn().mockResolvedValue([]),
+      countGlosses: jest.fn().mockResolvedValue([]),
+      countConcepts: jest.fn().mockResolvedValue([]),
+      countConceptGlosses: jest.fn().mockResolvedValue([]),
+      countKanji: jest.fn().mockResolvedValue([]),
+      countExamples: jest.fn().mockResolvedValue([]),
+    };
+    const service = new SourcesService(repo as unknown as SourcesRepository);
+    const first = service.list();
+    const observed = first.catch((error: unknown) => error);
+    await Promise.resolve();
+    const second = service.list();
+    const observedSecond = second.catch((error: unknown) => error);
+    expect(repo.listSources).toHaveBeenCalledTimes(1);
+    release();
+    expect(await observed).toBeInstanceOf(Error);
+    expect(await observedSecond).toBeInstanceOf(Error);
+    expect(await service.list()).toEqual([]);
+    expect(repo.listSources).toHaveBeenCalledTimes(2);
+  });
+
+  it('starts TTL on completion and protects cached data from consumer mutation', async () => {
+    const clock = jest.spyOn(Date, 'now').mockReturnValue(0);
+    try {
+      const { service, listSources } = createService();
+      const pending = service.list();
+      clock.mockReturnValue(600_001);
+      const data = await pending;
+      data[0].usage.lexemes = -1;
+      clock.mockReturnValue(600_002);
+      expect((await service.list())[0].usage.lexemes).toBe(218794);
+      expect(listSources).toHaveBeenCalledTimes(1);
+      clock.mockReturnValue(1_200_002);
+      await service.list();
+      expect(listSources).toHaveBeenCalledTimes(2);
+    } finally {
+      clock.mockRestore();
+    }
+  });
+
+  it('shares cold refresh across concurrent requests and warmup', async () => {
+    const { service, listSources } = createService();
+    service.onModuleInit();
+    await Promise.all(Array.from({ length: 10 }, () => service.list()));
+    expect(listSources).toHaveBeenCalledTimes(1);
+  });
+
   it('ghép credit_line và số liệu usage theo từng nguồn', async () => {
     const { service } = createService();
 

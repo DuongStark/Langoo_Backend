@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Header } from '@nestjs/common';
 import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SourceListResponseDto } from './dto/source-response.dto';
 import { SourcesService } from './sources.service';
@@ -10,6 +10,7 @@ export class SourcesController {
   constructor(private readonly sourcesService: SourcesService) {}
 
   @Get()
+  @Header('Cache-Control', 'public, max-age=300')
   @ApiOperation({
     summary:
       'Danh sách nguồn dữ liệu (license/attribution/url) + số liệu đóng góp',

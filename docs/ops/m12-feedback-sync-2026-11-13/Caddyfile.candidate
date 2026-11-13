@@ -1,0 +1,43 @@
+# M12-A03/A20 candidate. Not deployed. Merge and validate before reload.
+{
+	servers {
+		trusted_proxies static 173.245.48.0/20 103.21.244.0/22 103.22.200.0/22 103.31.4.0/22 141.101.64.0/18 108.162.192.0/18 190.93.240.0/20 188.114.96.0/20 197.234.240.0/22 198.41.128.0/17 162.158.0.0/15 104.16.0.0/13 104.24.0.0/14 172.64.0.0/13 131.0.72.0/22 2400:cb00::/32 2606:4700::/32 2803:f800::/32 2405:b500::/32 2405:8100::/32 2a06:98c0::/29 2c0f:f248::/32
+		trusted_proxies_strict
+		client_ip_headers CF-Connecting-IP
+	}
+}
+(api_proxy) {
+	# The placeholder joins repeated values; reject lists and duplicate field lines.
+	@ambiguous_cf expression {http.request.header.CF-Connecting-IP}.contains(",")
+	respond @ambiguous_cf "Ambiguous proxy client IP" 400
+
+	header {
+		X-Content-Type-Options nosniff
+		-X-Powered-By
+		Strict-Transport-Security "max-age=86400"
+	}
+	reverse_proxy 127.0.0.1:3000 {
+		header_up X-Forwarded-For {client_ip}
+		header_up -CF-Connecting-IP
+	}
+}
+langoo-api.pixpress.art {
+	encode gzip
+	import api_proxy
+}
+api.langoo.org {
+	encode gzip
+	import api_proxy
+}
+studyledger.163-223-210-135.sslip.io {
+	reverse_proxy 127.0.0.1:3100 {
+		# Preserve the pre-change peer-IP policy for services outside Langoo API.
+		header_up X-Forwarded-For {remote_host}
+	}
+}
+study.pixpress.art {
+	reverse_proxy 127.0.0.1:3100 {
+		# Preserve the pre-change peer-IP policy for services outside Langoo API.
+		header_up X-Forwarded-For {remote_host}
+	}
+}

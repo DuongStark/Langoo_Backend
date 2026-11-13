@@ -131,8 +131,32 @@ export class ItemsService {
     const hasMore = rows.length > limit;
     const page = hasMore ? rows.slice(0, limit) : rows;
     const last = page[page.length - 1];
+    const data = page.map(toItemResponse);
+    if (query.include === 'display') {
+      try {
+        const ids = [
+          ...new Set(
+            data.flatMap((item) =>
+              item.display_sense_id ? [item.display_sense_id] : [],
+            ),
+          ),
+        ].map(BigInt);
+        const displays = await this.senseLookup.findDisplays(
+          ids,
+          visibleLanguages,
+        );
+        for (const item of data)
+          item.display = displays.get(item.display_sense_id ?? '') ?? null;
+      } catch {
+        throw new DomainException(
+          'COLLECTION_READ_UNAVAILABLE',
+          'Chưa đọc được dữ liệu hiển thị, hãy thử lại',
+          HttpStatus.SERVICE_UNAVAILABLE,
+        );
+      }
+    }
     return {
-      data: page.map(toItemResponse),
+      data,
       next_cursor:
         hasMore && last !== undefined
           ? encodeCursor({

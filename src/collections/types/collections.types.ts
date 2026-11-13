@@ -1,3 +1,4 @@
+import type { ItemDisplayDto } from '../dto/item-display.dto';
 export interface CollectionResponse {
   id: string;
   profile_id: string;
@@ -86,6 +87,7 @@ export interface ItemFaceResponse {
 }
 
 export interface ItemResponse {
+  display?: ItemDisplayDto | null;
   id: string;
   collection_id: string;
   concept_id: string | null;

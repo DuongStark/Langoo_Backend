@@ -8,6 +8,31 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-13 — M12 — Sửa BE và đồng bộ FE sau rà soát 12/11
+
+- Thay đổi / lý do: Đã thực hiện phần app của plan: M12-A11 coalesce sources/TTL/settle; A06.1 canonical reverse+aliases; A12 representative trước dedup; A17 VI không dấu/romaji một query/filter metadata romanization/cursorv6; A18 batch saved-senses theo user/profile; A19 include=display batch với cờ glossmáy; A20 private cache/nosniff/Express signature/404. A03 giữ loopback, thêm candidate Caddy+CF CIDRs+harness, chưa apply ops.
+- File / phạm vi: src/sources, dictionary, collections, common/config/bootstrap, unit/HTTP tests; [report triển khai](docs/reviews/m12-fe-feedback-remediation-2026-11-13.md), [handoff FE cập nhật](docs/handoff/m12-fe-feedback-sync-2026-11-13.md), [plan](docs/plans/m12-fe-feedback-remediation-2026-11-13.md), [ops candidate/runbook](docs/ops/m12-feedback-sync-2026-11-13/README.md), docs/api collections/dictionary. Không sửa source FE/schema/provider/quota/ENV hoặc trạng thái feedback.
+- Kiểm tra / kết quả: Node22.23.3 full72suite/653unit PASS;3suite/28unit kiểm lại flags/collections PASS; full33suite/289E2E PASS trên PostgreSQL17 riêng, target3suite/32HTTP PASS sau sửa alias SQL; buildNode22 và ESLint maxwarnings0 exit0. Caddy2.11.4 validate+harness thật PASS; two-client bucket/spoof/invalid/IPv6/multi/duplicate. Probe READONLY testfixture10cold→8repoqueries, cold19,81ms/warm0,48ms, không đại diện production; link/JSON/diff/status ở bàn giao. Report ghi cả RED và lỗi alias SQL/testhelper đã sửa.
+- Gate còn thiếu / việc tiếp theo: Chưa deploy app/FE/ops; A03 zone/Workers/PseudoIPv4/IP live/HSTS còn mở. Đã xác minh readonly assertion216799 of→nước sai nghĩa, chưa apply correction; A12 data/rankingsemantic nước/水 chưa đóng. Chưa benchmark sources quy mô production/P95, chưa browser/PWA2account/onboarding. Không đóng các finding M12 cũ ngoài phạm vi; FE dùng API mới chỉ sau xác nhận môi trường rollout.
+- Git / triển khai: Code/test/docs đã lưu local, chưa commit/push/deploy; checkout main, giữ WIP khác. DB test Docker có label/marker/loopback riêng, reset/migrate049 chỉ DB test và đã dừng sau kiểm tra; không sửa VPS/DB thật. Handoff ledger ghi local đã kiểm, production chưa có bản mới. Bàn giao37link local/4JSON/22CIDR+checksum và34file source/test whitespace/Prettier PASS; git diff --check exit0, đã kiểm working tree.
+
+### 2026-11-13 — M12 — Kế hoạch sửa BE và handoff đồng bộ FE sau rà soát 12/11
+
+- Thay đổi / lý do: Theo yêu cầu lập plan/handoff, gom 12 mục report và 18 feedback cụ thể từ FE main00f674d/DB production chỉ đọc; tách BE đã có, BE sẽ sửa, FE làm ngay, FE chờ rollout và việc chưa/không đổi có lý do. Đăng ký M12-A17 tìm không dấu/romaji/mục phiên âm, A18 saved membership, A19 items display projection, A20 cache riêng/header/404; tiếp tục A03/A06.1/A11/A12, không đóng audit cũ.
+- File / phạm vi: [Plan M12](docs/plans/m12-fe-feedback-remediation-2026-11-13.md), [handoff FE](docs/handoff/m12-fe-feedback-sync-2026-11-13.md), [review đủ18feedback](docs/reviews/m12-feedback-crosscheck-2026-11-13.md); liên kết từ review/plan index cũ. Không sửa source FE/BE, không thay trạng thái27feedback resolved.
+- Kiểm tra / kết quả: Đối chiếu contract/source/plan cũ; 74link local/2JSON ví dụ/fence/whitespace PASS trên5file tài liệu, đủ18rowfeedback; git diff --check exit0 và đã kiểm working tree. 7suite/94unit PASS và probe2item→2MC thuộc lượt review trước, không chạy lại build/unit/E2E/DB trong lượt docs-only; endpoint/projection đề xuất chưa tồn tại, ledger chưa triển khai.
+- Gate còn thiếu / việc tiếp theo: Thực hiện từng mục rồi unit/DB/HTTP/OpenAPI/browser/ops; xác nhận commit/push/deploy theo từng dòng ledger trước thông báo “BE đã sửa”. Scope mở rộng, API dịch trả phí, metric SRS theo profile/quiz eligibility là đợt riêng; vẫn giữ gate M12 cũ.
+- Git / triển khai: Tài liệu local chưa commit/push/deploy; làm main checkout hiện có, giữ WIP khác. Không gửi message/email FE; file handoff là bản để chuyển cho FE.
+
+### 2026-11-13 — M12 — Đối chiếu trách nhiệm BE trong rà soát FE ngày 12/11
+
+- Thay đổi / lý do: Đối chiếu đủ 12 mục gửi BE với source/contract/plan; phân biệt bug BE, hỗ trợ FE, thay đổi sản phẩm và việc đã có. Đính chính cache sources đã có 10 phút/warmup, scope M6.2 là contract, quiz precheck đã có và không có luật tối thiểu 3 từ; giải thích reviews_today/items_learned.
+- File / phạm vi: [Review M12](docs/reviews/m12-fe-audit-crosscheck-2026-11-13.md), entry này; không sửa runtime hoặc báo cáo FE gốc.
+- Kiểm tra / kết quả: Node24.22.2, 7 suite/94 unit PASS. Probe service thật + repo mock: 10 sources cold requests →80 calls, warm thêm request không tăng calls; probe wanakana xác nhận honyaku/genin khác hon'yaku/gen'in. Kiểm link local/diff/status ở bàn giao.
+- Gate còn thiếu / việc tiếp theo: Chưa kiểm lại live/DB/browser/edge headers/IP, cold query plan, assertion nước/of/水 và metadata awateru. Không đóng bug từ unit xanh; ưu tiên A1 cache cá nhân, M12-A03/A11/A12 và chất lượng search; scope/translation cần chốt sản phẩm trước sửa.
+- Git / triển khai: Docs local chưa commit/push/deploy; giữ WIP có sẵn, không đổi FE/BE/ENV/DB.
+
+
 ### 2026-11-06 — M11.1 — Tách model quiz GLM và sửa lỗi tạo quiz
 
 - Thay đổi / lý do: theo yêu cầu chủ dự án, đã đổi ENV production riêng quiz generator+validator sang GLM5.3Flash/low/context60s, chat DeepSeeknone giữ nguyên. Sửa local mismatch FE45s/BE300s; tối ưu source Nhật bỏ lookup sense_card lặp để lấy machineflag; prepareP2028 trả503 theo contract có sẵn, không retry/gọiAI/cleanup sau rollback.

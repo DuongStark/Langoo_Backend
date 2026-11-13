@@ -66,6 +66,7 @@ function createSetup(): {
   };
   tx: TxMock;
   senseLookup: {
+    findDisplays: jest.Mock;
     findManyByIds: jest.Mock;
     findCuratedPair: jest.Mock;
     hasCuratedConceptMapping: jest.Mock;
@@ -101,6 +102,7 @@ function createSetup(): {
     $transaction: jest.fn((fn: (client: TxMock) => Promise<unknown>) => fn(tx)),
   };
   const senseLookup = {
+    findDisplays: jest.fn().mockResolvedValue(new Map()),
     findManyByIds: jest.fn(),
     findCuratedPair: jest.fn().mockResolvedValue({
       concept_id: 1n,
@@ -310,8 +312,20 @@ describe('ItemsService', () => {
   });
 
   describe('list', () => {
+    it('does not hide projection dependency errors as missing data', async () => {
+      const { service, prisma, senseLookup } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      prisma.collectionItem.findMany.mockResolvedValue([itemRow()]);
+      senseLookup.findDisplays.mockRejectedValue(
+        new Error('database unavailable'),
+      );
+      await expect(
+        service.list(1n, COLLECTION_ID, { include: 'display' }),
+      ).rejects.toMatchObject({ code: 'COLLECTION_READ_UNAVAILABLE' });
+    });
+
     it('JA-only projects the secondary JA face when the preserved anchor is EN', async () => {
-      const { service, prisma, tx } = createSetup();
+      const { service, prisma, tx, senseLookup } = createSetup();
       prisma.collection.findFirst.mockResolvedValue(collectionRow());
       tx.studyProfile.findFirst.mockResolvedValue({
         primaryLanguageId: 2,
@@ -325,7 +339,12 @@ describe('ItemsService', () => {
           ],
         }),
       ]);
-      const result = await service.list(1n, COLLECTION_ID, { limit: 1 });
+      const result = await service.list(1n, COLLECTION_ID, {
+        limit: 1,
+        include: 'display',
+      });
+      expect(senseLookup.findDisplays).toHaveBeenCalledWith([1n], [2]);
+      expect(result.data[0].display).toBeNull();
       expect(prisma.collectionItem.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: {
