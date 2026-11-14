@@ -86,8 +86,9 @@ curl -fsSL https://media.langoo.org/pilot-assets/tools/bootstrap_vm.sh | bash
 ```
 
 Then recreate the Muse scheduled task (`langoo-ja-vi-queue`, every 10 min) that runs
-`queue_ja_vi.sh`. Images generated but not yet uploaded exist only on the old VM; let the
-uploader drain (`meta.json` → `pending_upload`) before dropping an account.
+`queue_ja_vi.sh`. Only phase `all` (the JA/VI pipeline) matters for switching accounts: at
+2026-11-14 it was 142,534/142,558 uploaded. `pending_upload` in `meta.json` counts every phase,
+including legacy batches already bound in the DB, so it is not a "work left" number.
 
 ## Known limits
 
