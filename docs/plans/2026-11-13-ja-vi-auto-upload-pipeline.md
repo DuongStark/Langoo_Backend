@@ -60,6 +60,35 @@ python vm_upload_worker.py --once --limit 100 --workers 4
 python vm_upload_worker.py --prune                      # delete 512/ + raw/ for uploaded rows only
 ```
 
+## Portable checkpoint (account / VM migration)
+
+Everything needed to resume on a different Muse account lives outside the VM:
+
+| Artifact | Location |
+| --- | --- |
+| Images + manifests | R2 `illustrations/…`, `pilot-manifests/…` |
+| Progress checkpoint | R2 `pilot-state/progress.sqlite3.gz` (+ `meta.json`) |
+| Scripts | R2 `pilot-assets/tools/{driver,vm_upload_worker,publish_state,bootstrap_vm}` |
+| Queue script | R2 `pilot-state/queue_ja_vi.sh` |
+| Chunk lists | R2 `pilot-assets/ja-vi/chunk-01..11.json` |
+| Bind state | VPS Postgres (watcher keeps working, account-independent) |
+
+`publish_state.py` runs on every queue tick: it marks uploaded rows whose local file is gone as
+`status='published'`, snapshots `progress.sqlite3` with the sqlite backup API, and uploads it
+gzipped. `driver.py` skips `published`/`r2_ok` rows without needing the image on disk, so a new
+VM never regenerates work that is already on R2.
+
+Bootstrap on a new VM/account:
+
+```bash
+export LANGOO_R2_ENV_B64='<base64 R2 env>'
+curl -fsSL https://media.langoo.org/pilot-assets/tools/bootstrap_vm.sh | bash
+```
+
+Then recreate the Muse scheduled task (`langoo-ja-vi-queue`, every 10 min) that runs
+`queue_ja_vi.sh`. Images generated but not yet uploaded exist only on the old VM; let the
+uploader drain (`meta.json` → `pending_upload`) before dropping an account.
+
 ## Known limits
 
 - Manifest keys are sense ids, so upload order is not monotonic. Incremental listing misses

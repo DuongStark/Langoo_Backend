@@ -162,7 +162,10 @@ def run_one(item: dict, ordinal: int, args, store: Store, summary: dict):
     raw_dir.mkdir(parents=True, exist_ok=True)
     final_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if row and row[0] == "compressed" and row[2] and Path(row[2]).exists():
+    if row and (
+        (row[0] == "compressed" and row[2] and Path(row[2]).exists())
+        or row[0] in ("published", "r2_ok")
+    ):
         summary["skipped"] += 1
         return {"sense_id": sid, "status": "skipped"}
 
