@@ -1,0 +1,38 @@
+{
+  "task": "M12-A06.1/A12",
+  "feedback": "A3F0C7",
+  "date": "2026-11-17",
+  "code_commit": "ac5dccfb1706c59b5cd9a76e971d865f091e6478",
+  "ci": {
+    "run": 43994798246,
+    "conclusion": "success",
+    "unit_suites": 77,
+    "unit_tests": 686,
+    "e2e_suites": 35,
+    "e2e_tests": 306,
+    "db3_tests": 31
+  },
+  "deploy": {
+    "run": 43995190301,
+    "conclusion": "success",
+    "environment": "VPS production",
+    "verified_head": "ac5dccfb1706c59b5cd9a76e971d865f091e6478",
+    "tracked_clean": true,
+    "pm2": "online",
+    "node": "22.23.3"
+  },
+  "source_sha256_verified_local_and_vps": {
+    "src/dictionary/dictionary.service.ts": "2e2f542d4fc8158f007e77382154bae1434547a4ee844bd308713a2ad2994fb9",
+    "src/dictionary/repositories/reverse-lookup.repository.ts": "70727887dcdc479c216a78d719fb6262d0bd8d0ea407db542b1e379270c56081",
+    "src/dictionary/dto/dictionary-response.dto.ts": "4cc228484785f776acde47158290852f89de73f2319ed63bca56f9386409029d",
+    "src/dictionary/types/dictionary.types.ts": "1401b50a1e5759d470659aefcc7ff90c0d74e60f65daadb686acec44c87c00a5"
+  },
+  "fe_source_modified": false,
+  "production_dictionary_or_user_data_modified": false,
+  "feedback_status_modified": false,
+  "remaining": [
+    "FE integrate preview and Japanese IDs then QA",
+    "nullable unresolved identity/sense intentionally preserved",
+    "unrelated of → nước data issue unchanged"
+  ]
+}

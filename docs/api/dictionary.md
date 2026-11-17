@@ -2,7 +2,7 @@
 
 ## M12-A06.1/A12 — Bổ sung A3F0C7 ngày17/11/2026
 
-**Đang kiểm local, chưa xác nhận rollout.** Reverse và suggestions/reverse cùng
+**Đã deploy production `ac5dccf` ngày17/11/2026.** Reverse và suggestions/reverse cùng
 thêm preview:SenseCardDto|null ở từng en[]/ja[]; schema/cờ machine/reviewed như
 search.preview. JA thêm lexeme_id:string|null và sense_id:string|null của mục
 Nhật, không phải via_lexeme_id EN. Không đủ bằng chứng nghĩa trảnull; chỉ có

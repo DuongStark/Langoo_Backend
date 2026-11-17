@@ -1,6 +1,6 @@
 # M12-A06.1/A12 — Xử lý feedback A3F0C7: preview và định danh Nhật khi tra ngược
 
-Ngày17/11/2026. Trạng thái: code và kiểm tra local, đang chốt release.
+Ngày17/11/2026. Trạng thái: **đã push/deploy production `ac5dccf`, kiểm live PASS**.
 
 ## Vấn đề và thay đổi
 
@@ -49,8 +49,26 @@ commit phát hành là gate cho đúng source đã đóng gói.
 
 - [Handoff FE](../handoff/m12-a3f0c7-reverse-preview-fe-2026-11-17.md),
   [plan](../plans/m12-a3f0c7-reverse-preview-2026-11-17.md).
-- Chốt Git/CI/deploy và public HTTP smoke trước khi nói contract mới có trên live.
+- Git/CI/deploy và public HTTP smoke đã PASS như ledger dưới; FE cần tích hợp và QA UI.
 - Không sửa assertion sai nước/of hoặc đóng mọi lỗi dữ liệu bằng thay đổi này.
 - Không dùng tài khoản/JWT giả hoặc tạo dữ liệu thử ở production.
 - Không tự đổi feedback thành resolved khi chưa có QA FE sử dụng ID/preview mới.
-- Git lúc ghi: code/docs mới chưa commit/push; không gom WIP khác.
+- Git code đã commit/push/deploy; docs/receipt sau rollout chốt riêng, không gom WIP khác.
+
+## Ledger production17/11/2026
+
+- Code ac5dccfb1706c59b5cd9a76e971d865f091e6478 đã push/deploy, CI43994798246
+  PASS77suite/686unit,35suite/306E2E,31DB3; lint/build PASS. Deploy43995190301
+  success, Git server đúngSHA và trackedclean, PM2 onlineNode22.23.3.
+- 4 file dictionary sourcehash khớp local/VPS. Không lẫn2file quiz WIP vào commit.
+- Public reverse và suggestions/reverse q=cây200: 植物 có lexeme140202/sense148381,
+  VI đúng “cây, thực vật; thảm thực vật”; plant previewEN sense2722346. Aliases
+  JA khớp, tất cả hit có preview field, no-store, Swagger nullable/shared schema,
+  healthDB OK. HTTP mẫu1.650/671ms gồmnetwork, không phải P95.
+- [HTTP smoke](m12-a3f0c7-2026-11-17/http-smoke.json),
+  [release receipt](m12-a3f0c7-2026-11-17/release-receipt.json).
+- Feedback chưa đổi status hoặc ghi admin_note; FE cần tích hợp các trường mới
+  và QA trước khi resolved. Không ghi dữ liệu hoặc dùng tài khoản giả ở production.
+- Docker test container của lượt này đã dừng sau kiểm tra; DB test có tên riêng,
+  không dừng/reset dịch vụ của công việc khác. Docs/link/JSON/diff/status kiểm
+  trước chốt commit tài liệu sau rollout.

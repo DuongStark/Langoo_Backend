@@ -20,3 +20,7 @@ Baseline đọc production17/11: cây→plant assertion251219 source sense272234
 植物 assertion251216 cùng source sense. Nhật có nhiều nguồn; JMdict lexeme140202
 có một sense148381 và VI “cây, thực vật; thảm thực vật”. Candidate hiện có chỉ
 pending nên không dùng nó như accepted. Các ID ở đây là dictionary công khai.
+
+Kết quả: Code **`ac5dccf` đã push/deploy**, CI686unit/306E2E/31DB3 PASS;
+publicHTTP hai route/OpenAPI/health PASS. FE chưa tích hợp trong lượt này,
+feedback chưa resolved; xem handoff/report và receipt release.

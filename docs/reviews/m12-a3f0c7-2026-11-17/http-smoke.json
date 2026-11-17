@@ -1,0 +1,36 @@
+{
+  "task": "M12-A06.1/A12",
+  "feedback": "A3F0C7",
+  "code_commit": "ac5dccf",
+  "checks": [
+    {
+      "route": "/v1/dictionary/reverse",
+      "status": 200,
+      "elapsed_ms": 1650,
+      "plant_preview_sense": "2722346",
+      "japanese_lexeme": "140202",
+      "japanese_sense": "148381",
+      "gloss_vi": "cây, thực vật; thảm thực vật",
+      "old_aliases_equal": true,
+      "no_store": true,
+      "en_count": 2,
+      "ja_count": 9
+    },
+    {
+      "route": "/v1/dictionary/suggestions/reverse",
+      "status": 200,
+      "elapsed_ms": 671,
+      "plant_preview_sense": "2722346",
+      "japanese_lexeme": "140202",
+      "japanese_sense": "148381",
+      "gloss_vi": "cây, thực vật; thảm thực vật",
+      "old_aliases_equal": true,
+      "no_store": true,
+      "en_count": 8,
+      "ja_count": 8
+    }
+  ],
+  "swagger": "PASS",
+  "health_db": "ok",
+  "production_mutated": false
+}

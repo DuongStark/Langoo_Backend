@@ -1,6 +1,6 @@
 # M12-A06.1/A12 — Handoff FE: tra ngược có preview và mã Nhật (A3F0C7)
 
-Ngày17/11/2026. FeedbackA3F0C7. **Code đã kiểm local, chưa xác nhận deploy bản bổ sung.**
+Ngày17/11/2026. FeedbackA3F0C7. **Đã push/deploy production `ac5dccf`; FE có thể dùng trường mới.**
 
 Áp dụng đồng thời:
 - GET /v1/dictionary/reverse
@@ -65,11 +65,21 @@ Ví dụ rút gọn của một phần tử ja[] (preview thực có đầy đ�
 [Plan](../plans/m12-a3f0c7-reverse-preview-2026-11-17.md) ·
 [Report/test/deploy](../reviews/m12-a3f0c7-reverse-preview-2026-11-17.md).
 
-## Ledger
+## Ledger — đã deploy và kiểm live17/11
 
-- Unit local77suite/689test PASS trên working tree đang có WIP quiz ngoài phạm vi;
-  testdictionary52pass. HTTPDB3suite/43test PASS, mở rộng8test semantic/form PASS.
-- Build/lint local PASS; CI của commit phát hành sẽ xác nhận đúng source đã đóng gói.
-- Phép đọc repo mới trên production READ ONLY: cây/plant/植物 xác định đúng ID,
-  resolver98ms cho2reference mẫu; không phải HTTP P95 hoặc benchmark rộng.
-- Chưa sửa source FE; không tự đóng feedback chỉ từ testlocal.
+- Code `ac5dccfb1706c59b5cd9a76e971d865f091e6478` đã commit/push/deploy.
+- [CI43994798246](https://github.com/DuongStark/Langoo_Backend/actions/runs/43994798246)
+  PASS77suite/686unit,35suite/306E2E và31DB3 regression, lint/build PASS.
+  [Deploy43995190301](https://github.com/DuongStark/Langoo_Backend/actions/runs/43995190301)
+  success; VPS đúng SHA, PM2 onlineNode22.23.3,4sourcehash khớp local/VPS.
+- Hai publicAPI q=cây đều200, trả 植物 lexeme140202/sense148381 và nghĩa Việt;
+  previewEN đúngsense2722346. Aliases cũ khớp, Cache-Control no-store;
+  OpenAPI có schema mới, health DB OK.
+- HTTP mẫu reverse1.650ms/suggestions671ms, gồm mạng; không phải P95/load test.
+  [HTTP receipt](../reviews/m12-a3f0c7-2026-11-17/http-smoke.json),
+  [release receipt](../reviews/m12-a3f0c7-2026-11-17/release-receipt.json).
+- Local trước commit:52dictionaryunit;3suite/43HTTPDB và8test semantic/form PASS.
+  Fulllocal689test có WIP quiz khác; CI686test ở đúng commit release là số nghiệm thu.
+- Không sửa FE, dictionary/user data hoặc trạng thái feedback. FE tích hợp và QA
+  các mục trên trước đóng góp ý; không coi deployBE là UI đã tự đổi.
+- Docs/receipt sau rollout chốt commit riêng, không build lại code ứng dụng.
