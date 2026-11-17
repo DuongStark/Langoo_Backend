@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AiModelDispatch } from './ai-model-dispatch';
 import {
   AiChatDeltaHandler,
   AiChatProvider,
@@ -47,12 +48,18 @@ export class OpenAiChatProvider implements AiChatProvider {
   async chat(request: AiChatRequest): Promise<AiChatResult> {
     const { signal, cleanup } = withTimeout(request.timeoutMs, request.signal);
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: this.headers(),
-        body: JSON.stringify(this.body(request)),
+      const response = await AiModelDispatch.run(
+        AiModelDispatch.scope(this.baseUrl, this.options.apiKey, request.model),
         signal,
-      });
+        request.beforeDispatch,
+        () =>
+          fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: this.headers(),
+            body: JSON.stringify(this.body(request)),
+            signal,
+          }),
+      );
 
       if (!response.ok) {
         throw await httpError(response);
@@ -77,18 +84,24 @@ export class OpenAiChatProvider implements AiChatProvider {
     const { signal, cleanup } = withTimeout(request.timeoutMs, request.signal);
     let reader: ReadableStreamDefaultReader<Uint8Array> | undefined;
     try {
-      const response = await fetch(`${this.baseUrl}/chat/completions`, {
-        method: 'POST',
-        headers: this.headers(),
-        body: JSON.stringify({
-          ...this.body(request),
-          stream: true,
-          ...(request.messages.some((m) => m.images?.length)
-            ? { stream_options: { include_usage: true } }
-            : {}),
-        }),
+      const response = await AiModelDispatch.run(
+        AiModelDispatch.scope(this.baseUrl, this.options.apiKey, request.model),
         signal,
-      });
+        request.beforeDispatch,
+        () =>
+          fetch(`${this.baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: this.headers(),
+            body: JSON.stringify({
+              ...this.body(request),
+              stream: true,
+              ...(request.messages.some((m) => m.images?.length)
+                ? { stream_options: { include_usage: true } }
+                : {}),
+            }),
+            signal,
+          }),
+      );
 
       if (!response.ok) {
         throw await httpError(response);

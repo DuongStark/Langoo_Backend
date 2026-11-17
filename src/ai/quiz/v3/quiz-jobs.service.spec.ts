@@ -1,10 +1,11 @@
 import { ConfigService } from '@nestjs/config';
+import type { QuizSourceItem } from '../../providers/ai-quiz.provider';
 import { PrismaService } from '../../../db/prisma.service';
 import { SrsService } from '../../../srs/srs.service';
 import { PrivacyService } from '../../../privacy/privacy.service';
 import { AiUsageService } from '../../usage/ai-usage.service';
 import { QuizSourceRepository } from '../repositories/quiz-source.repository';
-import { QuizBatchEngine } from './quiz-batch-engine';
+import { QuizBatchEngine, ValidatedQuestion } from './quiz-batch-engine';
 import { QuizJobsService, QuizJobMetadata } from './quiz-jobs.service';
 import { CreateQuizJobDto } from './quiz-v3.dto';
 
@@ -19,7 +20,7 @@ type Row = {
 function setup(enabled = true) {
   let row: Row | null = null;
   const copy = <T>(v: T): T => structuredClone(v);
-  const items = Array.from({ length: 10 }, (_, i) => ({
+  const items: QuizSourceItem[] = Array.from({ length: 10 }, (_, i) => ({
     itemId: `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
     senseId: String(i + 1),
     conceptId: null,
@@ -92,6 +93,10 @@ function setup(enabled = true) {
   const db = {
     quiz,
     quizQuestion: { createMany: jest.fn(() => Promise.resolve({ count: 1 })) },
+    studySession: {
+      findMany: jest.fn(() => Promise.resolve([])),
+      updateMany: jest.fn(() => Promise.resolve({ count: 0 })),
+    },
     collection: { findFirst: jest.fn(() => Promise.resolve({ id: 'c' })) },
     $queryRaw: jest.fn(() => Promise.resolve([])),
     $transaction: jest.fn(),
@@ -196,7 +201,7 @@ describe('M11.3 durable quiz lifecycle', () => {
       x.service.create(1n, { ...x.dto, question_count: 2 }),
     ).rejects.toMatchObject({ code: 'QUIZ_IDEMPOTENCY_CONFLICT' });
   });
-  it('does not publish before final audit or leak source/content through progress', async () => {
+  it('publishes locally verified content without leaking source/content through progress', async () => {
     const x = setup();
     const created = await x.service.create(1n, x.dto);
     const m = x.row()!.generator;
@@ -230,11 +235,73 @@ describe('M11.3 durable quiz lifecycle', () => {
     expect((await x.service.get(1n, created.quiz_id)).state).toBe('ready');
     expect(x.db.quizQuestion.createMany).toHaveBeenCalledTimes(1);
     expect(x.row()!.generator.content[0].targets).toHaveLength(1);
-    expect(x.sources.findSourceItems.mock.calls.length).toBe(3);
+    expect(x.sources.findSourceItems.mock.calls.length).toBe(4);
     await expect(
       x.service.action(1n, created.quiz_id, 'cancel'),
     ).rejects.toMatchObject({ code: 'QUIZ_ACTION_NOT_ALLOWED' });
   });
+  it('keeps an already published slot immutable when cross-audit rejects the old question', async () => {
+    const x = setup();
+    jest.spyOn(x.engine, 'available').mockReturnValue(true);
+    const original = x.engine.generate.bind(x.engine);
+    let local!: ValidatedQuestion;
+    jest.spyOn(x.engine, 'generate').mockImplementation(async (...args) => {
+      if (args[0].every((slot) => slot.skill === 'meaning')) {
+        const result = await original(...args);
+        local = result[0];
+        return result;
+      }
+      return args[0].map((slot) => ({
+        ...local,
+        ordinal: slot.ordinal,
+        skill: slot.skill,
+      }));
+    });
+    jest
+      .spyOn(x.engine, 'audit')
+      .mockImplementation(() => Promise.resolve([local.ordinal]));
+    const created = await x.service.create(1n, {
+      ...x.dto,
+      question_count: 2,
+      skills: ['context_cloze', 'meaning'],
+    });
+    await x.service.tick();
+    expect(await x.service.get(1n, created.quiz_id)).toMatchObject({
+      state: 'needs_action',
+      published_count: 1,
+      can_start: true,
+    });
+    expect(x.db.quizQuestion.createMany).toHaveBeenCalledTimes(1);
+    expect(x.row()!.generator.publication).toEqual([
+      { ordinal: 1, slotOrdinal: local.ordinal },
+    ]);
+    expect(x.row()!.generator.content.map((q) => q.ordinal)).toEqual([
+      local.ordinal,
+    ]);
+    await x.service.action(1n, created.quiz_id, 'accept_shorter');
+    expect(x.row()!.status).toBe('ready');
+    expect(x.db.quizQuestion.createMany).toHaveBeenCalledTimes(1);
+  });
+
+  it('keeps recovery exhaustion terminal when no question was published', async () => {
+    const x = setup();
+    const created = await x.service.create(1n, x.dto);
+    const m = x.row()!.generator;
+    m.job.state = 'running';
+    m.job.round = 3;
+    m.job.lease = 'stale-lease';
+    m.job.leaseUntil = Date.now() - 1;
+    await x.service.tick();
+    expect(await x.service.get(1n, created.quiz_id)).toMatchObject({
+      state: 'failed',
+      reason: 'QUIZ_RECOVERY_EXHAUSTED',
+      published_count: 0,
+      allowed_actions: [],
+    });
+    expect(x.row()!.generator.job.lease).toBeNull();
+    expect(x.db.quizQuestion.createMany).not.toHaveBeenCalled();
+  });
+
   it('source deletion before publish invalidates content instead of creating an obsolete quiz', async () => {
     const x = setup();
     jest.spyOn(x.engine, 'audit').mockResolvedValue([]);
@@ -245,5 +312,167 @@ describe('M11.3 durable quiz lifecycle', () => {
     expect(state.reason).toBe('QUIZ_SOURCE_CHANGED');
     expect(state.allowed_actions).toEqual(['cancel']);
     expect(x.db.quizQuestion.createMany).not.toHaveBeenCalled();
+  });
+});
+
+describe('M11.3 single mode worker checkpoints', () => {
+  const usageResult = (tokensOut: number) => ({
+    content: '',
+    model: 'single',
+    tokensIn: 1,
+    tokensOut,
+    costUsd: 0,
+  });
+  it('declares AI distractors for both Kanji skills without changing legacy policies', async () => {
+    const x = setup();
+    const items = ['学校', '病院', '電車', '図書館'].map((lemma, i) => ({
+      itemId: `ja${i}`,
+      senseId: `${i}`,
+      conceptId: null,
+      languageId: 2,
+      languageCode: 'ja',
+      lemma,
+      reading: ['がっこう', 'びょういん', 'でんしゃ', 'としょかん'][i],
+      romanization: null,
+      meaningVi: `nghĩa${i}`,
+      pos: 'noun',
+      kanjiPairs: [
+        {
+          written: lemma,
+          reading: ['がっこう', 'びょういん', 'でんしゃ', 'としょかん'][i],
+          eligible: true,
+        },
+      ],
+    }));
+    x.sources.findSourceItems.mockResolvedValue(items);
+    const mode = jest
+      .spyOn(x.engine, 'singleQuestionMode')
+      .mockReturnValue(true);
+    const input = {
+      language_id: 2,
+      skills: ['kanji_reading', 'kanji_orthography'] as (
+        'kanji_reading' | 'kanji_orthography'
+      )[],
+      question_count: 2,
+    };
+    const current = await x.service.eligibility(1n, input);
+    expect(current.by_skill.map((s) => s.source_policy)).toEqual([
+      'ai_distractors',
+      'ai_distractors',
+    ]);
+    mode.mockReturnValue(false);
+    const legacy = await x.service.eligibility(1n, input);
+    expect(legacy.by_skill.map((s) => s.source_policy)).toEqual([
+      'reading_rule',
+      'collection_only',
+    ]);
+    expect(x.usage.reserveDailyRequest).not.toHaveBeenCalled();
+  });
+
+  it('publishes before the slow tail, and records out-of-order receipts without duplicate usage', async () => {
+    const x = setup();
+    jest.spyOn(x.engine, 'singleQuestionMode').mockReturnValue(true);
+    const created = await x.service.create(1n, {
+      ...x.dto,
+      skills: ['context_cloze'],
+      question_count: 2,
+    });
+    let release!: () => void;
+    const held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    let published!: () => void;
+    const first = new Promise<void>((resolve) => {
+      published = resolve;
+    });
+    jest
+      .spyOn(x.engine, 'generateProgressively')
+      .mockImplementation(
+        async (slots, items, before, usage, _remaining, accept) => {
+          if (!slots.length) return;
+          const seeds = await new QuizBatchEngine({}).generate(
+            slots.map((s) => ({ ...s, skill: 'meaning' })),
+            items,
+            () => Promise.resolve(undefined),
+          );
+          seeds.forEach((q, i) => {
+            q.skill = slots[i].skill;
+            q.verification = 'generated_self_checked';
+          });
+          const a = await before();
+          const b = await before();
+          await usage(usageResult(22), b || undefined);
+          await accept(seeds[1]);
+          published();
+          await held;
+          await usage(usageResult(11), a || undefined);
+          await accept(seeds[0]);
+        },
+      );
+    const running = x.service.tick();
+    await first;
+    expect(await x.service.get(1n, created.quiz_id)).toMatchObject({
+      state: 'running',
+      published_count: 1,
+      can_start: true,
+    });
+    const prefix = structuredClone(x.row()!.generator.publication);
+    release();
+    await running;
+    expect(await x.service.get(1n, created.quiz_id)).toMatchObject({
+      state: 'ready',
+      published_count: 2,
+    });
+    expect(x.row()!.generator.publication![0]).toEqual(prefix![0]);
+    expect(x.row()!.generator.job.calls.map((c) => c.state)).toEqual([
+      'recorded',
+      'recorded',
+    ]);
+    expect(new Set(x.row()!.generator.job.calls.map((c) => c.id)).size).toBe(2);
+    expect(x.usage.addUsage.mock.calls).toHaveLength(2);
+    expect(x.row()!.generator.questions[0].qualityFlags).toContain(
+      'generated_self_checked',
+    );
+  });
+
+  it('retries only missing slots once and keeps successfully published questions unchanged', async () => {
+    const x = setup();
+    jest.spyOn(x.engine, 'singleQuestionMode').mockReturnValue(true);
+    const created = await x.service.create(1n, {
+      ...x.dto,
+      skills: ['context_cloze'],
+      question_count: 2,
+    });
+    let pass = 0;
+    const attempts: number[][] = [];
+    jest
+      .spyOn(x.engine, 'generateProgressively')
+      .mockImplementation(
+        async (slots, items, _before, _usage, _remaining, accept) => {
+          if (!slots.length) return;
+          attempts.push(slots.map((s) => s.ordinal));
+          const selected = pass++ === 0 ? slots.slice(0, 1) : slots;
+          const seeds = await new QuizBatchEngine({}).generate(
+            selected.map((s) => ({ ...s, skill: 'meaning' })),
+            items,
+            () => Promise.resolve(undefined),
+          );
+          for (const q of seeds) {
+            q.skill = 'context_cloze';
+            await accept(q);
+          }
+        },
+      );
+    await x.service.tick();
+    expect(attempts).toEqual([[1, 2], [2]]);
+    expect(await x.service.get(1n, created.quiz_id)).toMatchObject({
+      state: 'ready',
+      published_count: 2,
+    });
+    expect(x.row()!.generator.publication).toEqual([
+      { ordinal: 1, slotOrdinal: 1 },
+      { ordinal: 2, slotOrdinal: 2 },
+    ]);
+    expect(x.usage.reserveDailyRequest).toHaveBeenCalledTimes(1);
   });
 });

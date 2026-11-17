@@ -132,6 +132,12 @@ describe('M11.3 quiz jobs (PostgreSQL local)', () => {
         validated_count: { type: 'number' },
       },
     });
+    expect(
+      spec.components?.schemas?.QuizSkillEligibilityResponse,
+    ).toHaveProperty(
+      'properties.source_policy.enum',
+      expect.arrayContaining(['ai_distractors']),
+    );
     expect(spec.components?.schemas?.QuizEligibilityResponse).toMatchObject({
       properties: { suggested_count: { type: 'number', nullable: true } },
     });
@@ -523,5 +529,488 @@ describe('M11.3 quiz jobs (PostgreSQL local)', () => {
       (detail.body as { questions: { quality_flags: string[] }[] }).questions[0]
         .quality_flags,
     ).toContain('reported_pending');
+  });
+  async function withPublishedPrefix(
+    key: string,
+    inspect: (
+      id: string,
+      sessionId: string,
+      meta: QuizJobMetadata,
+    ) => Promise<void>,
+    singleMode = false,
+  ) {
+    const created = await request(server)
+      .post('/v1/quizzes/jobs')
+      .set(auth())
+      .send({ ...payload(), question_count: 4, idempotency_key: key });
+    if (created.status !== 202) throw new Error(JSON.stringify(created.body));
+    const id = (created.body as QuizJobResponse).quiz_id;
+    const seedEngine = new QuizBatchEngine({});
+    const original = seedEngine.generate.bind(seedEngine);
+    let reached!: () => void, release!: () => void;
+    const blocked = new Promise<void>((resolve) => {
+      reached = resolve;
+    });
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const reuse = jest.spyOn(engine, 'reuse').mockReturnValue([]);
+    let batchCall = 0;
+    const generate = jest
+      .spyOn(engine, 'generate')
+      .mockImplementation(async (...args) => {
+        batchCall++;
+        if (batchCall === 2) {
+          reached();
+          await gate;
+        }
+        const questions = await original(...args);
+        // Out-of-order publication deliberately differs from the internal slot order.
+        return batchCall === 1 ? questions.slice(0, 2).reverse() : questions;
+      });
+    const mode = singleMode
+      ? jest.spyOn(engine, 'singleQuestionMode').mockReturnValue(true)
+      : undefined;
+    const progressive = singleMode
+      ? jest
+          .spyOn(engine, 'generateProgressively')
+          .mockImplementation(
+            async (slots, items, before, usage, remaining, accept) => {
+              const questions = await original(
+                slots,
+                items,
+                before,
+                usage,
+                remaining,
+              );
+              for (const q of questions.slice(0, 2).reverse()) await accept(q);
+              reached();
+              await gate;
+              for (const q of questions.slice(2)) await accept(q);
+            },
+          )
+      : undefined;
+    const working = jobs.tick();
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        blocked,
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(
+            () => reject(new Error('Prefix worker was not reached')),
+            5000,
+          );
+        }),
+      ]);
+      const row = await db.quiz.findUniqueOrThrow({ where: { id } });
+      const meta = row.generator as unknown as QuizJobMetadata;
+      expect(row.status).toBe('generating');
+      expect(meta.publication).toEqual([
+        { ordinal: 1, slotOrdinal: 2 },
+        { ordinal: 2, slotOrdinal: 1 },
+      ]);
+      const started = await request(server)
+        .post(`/v1/quizzes/${id}/start`)
+        .set(auth())
+        .send({})
+        .expect(201);
+      const sessionId = (started.body as { session: { id: string } }).session
+        .id;
+      expect(started.body).toMatchObject({
+        session: { item_count: 4, settings: { generation_pending: true } },
+      });
+      expect((started.body as { items: unknown[] }).items).toHaveLength(2);
+      await inspect(id, sessionId, meta);
+      return { id, sessionId };
+    } finally {
+      if (timer) clearTimeout(timer);
+      release();
+      await working;
+      generate.mockRestore();
+      progressive?.mockRestore();
+      mode?.mockRestore();
+      reuse.mockRestore();
+    }
+  }
+  async function answerPublished(id: string, sessionId: string) {
+    const questions = await db.quizQuestion.findMany({
+      where: { quizId: id },
+      orderBy: { ordinal: 'asc' },
+    });
+    for (const q of questions) {
+      const response = await request(server)
+        .post(`/v1/sessions/${sessionId}/answers`)
+        .set(auth())
+        .send({
+          ordinal: q.ordinal,
+          option_index: (q.correctAnswer as { index: number }).index,
+        })
+        .expect(200);
+      expect(response.body).toMatchObject({
+        session: { status: 'in_progress' },
+        item: { is_correct: null },
+        xp: { amount: 0 },
+      });
+      expect((response.body as { item: object }).item).not.toHaveProperty(
+        'correct_answer',
+      );
+    }
+  }
+  it('plays an immutable prefix, returns pending next, appends snapshots, and finalizes the requested total', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      '00000000-0000-4000-8000-000000000021',
+      async (id, sessionId) => {
+        const status = await request(server)
+          .get(`/v1/quizzes/jobs/${id}`)
+          .set(auth())
+          .expect(200);
+        expect(status.body).toMatchObject({
+          state: 'running',
+          published_count: 2,
+          can_start: true,
+        });
+        await answerPublished(id, sessionId);
+        const pending = await request(server)
+          .post(`/v1/sessions/${sessionId}/answers`)
+          .set(auth())
+          .send({ ordinal: 3, option_index: 0 })
+          .expect(409);
+        expect(pending.body).toHaveProperty('code', 'QUIZ_QUESTION_PENDING');
+        const finish = await request(server)
+          .post(`/v1/sessions/${sessionId}/finish`)
+          .set(auth())
+          .send({})
+          .expect(409);
+        expect(finish.body).toHaveProperty('code', 'QUIZ_GENERATION_PENDING');
+        const first = await db.studySessionItem.findFirstOrThrow({
+          where: { sessionId, ordinal: 1 },
+        });
+        expect(first.answeredAt).not.toBeNull();
+      },
+    );
+    const complete = await request(server)
+      .get(`/v1/sessions/${sessionId}`)
+      .set(auth())
+      .expect(200);
+    expect(complete.body).toMatchObject({
+      session: {
+        status: 'in_progress',
+        item_count: 4,
+        settings: { generation_pending: false, target_count: 4 },
+      },
+    });
+    expect((complete.body as { items: unknown[] }).items).toHaveLength(4);
+    const questions = await db.quizQuestion.findMany({
+      where: { quizId: id, ordinal: { gt: 2 } },
+      orderBy: { ordinal: 'asc' },
+    });
+    for (const q of questions)
+      await request(server)
+        .post(`/v1/sessions/${sessionId}/answers`)
+        .set(auth())
+        .send({
+          ordinal: q.ordinal,
+          option_index: (q.correctAnswer as { index: number }).index,
+        })
+        .expect(200);
+    const done = await request(server)
+      .get(`/v1/sessions/${sessionId}`)
+      .set(auth())
+      .expect(200);
+    expect(done.body).toMatchObject({
+      session: {
+        status: 'completed',
+        score: 100,
+        settings: { generation_pending: false },
+      },
+    });
+  });
+  it('single-mode worker publishes an immutable prefix and appends into a live HTTP session', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      uuidv7(),
+      async (id, sessionId) => {
+        await answerPublished(id, sessionId);
+        const state = await request(server)
+          .get(`/v1/quizzes/jobs/${id}`)
+          .set(auth())
+          .expect(200);
+        expect(state.body).toMatchObject({
+          state: 'running',
+          published_count: 2,
+          can_start: true,
+        });
+        const missing = await request(server)
+          .post(`/v1/sessions/${sessionId}/answers`)
+          .set(auth())
+          .send({ ordinal: 3, option_index: 0 })
+          .expect(409);
+        expect(missing.body).toHaveProperty('code', 'QUIZ_QUESTION_PENDING');
+      },
+      true,
+    );
+    const detail = await request(server)
+      .get(`/v1/sessions/${sessionId}`)
+      .set(auth())
+      .expect(200);
+    expect(detail.body).toMatchObject({
+      session: { item_count: 4, settings: { generation_pending: false } },
+    });
+    expect((detail.body as { items: unknown[] }).items).toHaveLength(4);
+    expect(await db.quizQuestion.count({ where: { quizId: id } })).toBe(4);
+    await request(server)
+      .post(`/v1/sessions/${sessionId}/finish`)
+      .set(auth())
+      .send({})
+      .expect(200);
+  });
+
+  it('single-mode worker cannot append late results after cancellation', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      uuidv7(),
+      async (id) => {
+        await request(server)
+          .post(`/v1/quizzes/jobs/${id}/actions`)
+          .set(auth())
+          .send({ action: 'cancel' })
+          .expect(200);
+      },
+      true,
+    );
+    expect(await db.quizQuestion.count({ where: { quizId: id } })).toBe(2);
+    expect(await db.studySessionItem.count({ where: { sessionId } })).toBe(2);
+    expect(
+      (await db.studySession.findUniqueOrThrow({ where: { id: sessionId } }))
+        .status,
+    ).toBe('abandoned');
+  });
+
+  it('accepts the published prefix while running and finalizes answered rows without awarding XP', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      '00000000-0000-4000-8000-000000000022',
+      async (id, sessionId) => {
+        await answerPublished(id, sessionId);
+        const before = await db.studySessionItem.findMany({
+          where: { sessionId },
+          orderBy: { ordinal: 'asc' },
+        });
+        const accepted = await request(server)
+          .post(`/v1/quizzes/jobs/${id}/actions`)
+          .set(auth())
+          .send({ action: 'accept_shorter' })
+          .expect(200);
+        expect(accepted.body).toMatchObject({
+          state: 'ready',
+          published_count: 2,
+        });
+        const session = await db.studySession.findUniqueOrThrow({
+          where: { id: sessionId },
+        });
+        expect(session).toMatchObject({
+          status: 'completed',
+          itemCount: 2,
+          score: 100,
+          xpAwarded: 0,
+        });
+        expect(session.settings).toMatchObject({
+          generation_pending: false,
+          target_count: 2,
+          skill_summary: [{ skill: 'meaning', score: 100 }],
+        });
+        expect(
+          await db.studySessionItem.findMany({
+            where: { sessionId },
+            orderBy: { ordinal: 'asc' },
+          }),
+        ).toEqual(before);
+      },
+    );
+    expect(await db.quizQuestion.count({ where: { quizId: id } })).toBe(2);
+    expect(await db.studySessionItem.count({ where: { sessionId } })).toBe(2);
+  });
+  it('cancel abandons the active prefix and a late worker cannot append or resurrect it', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      '00000000-0000-4000-8000-000000000023',
+      async (id, sessionId) => {
+        await answerPublished(id, sessionId);
+        await request(server)
+          .post(`/v1/quizzes/jobs/${id}/actions`)
+          .set(auth())
+          .send({ action: 'cancel' })
+          .expect(200);
+      },
+    );
+    expect(await db.quizQuestion.count({ where: { quizId: id } })).toBe(2);
+    const session = await db.studySession.findUniqueOrThrow({
+      where: { id: sessionId },
+    });
+    expect(session.status).toBe('abandoned');
+    expect(
+      await db.studySessionItem.count({
+        where: { sessionId, answeredAt: { not: null } },
+      }),
+    ).toBe(2);
+    await request(server)
+      .post(`/v1/quizzes/${id}/start`)
+      .set(auth())
+      .send({})
+      .expect(409);
+  });
+  it('source edits after a playable prefix halt new publication and allow an explicit verified finish', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      '00000000-0000-4000-8000-000000000024',
+      async (_id, _sessionId, meta) => {
+        await db.collectionItem.update({
+          where: { id: meta.source[0].itemId },
+          data: { meaningVi: 'nghĩa mới sau phần đã phát hành' },
+        });
+      },
+    );
+    const status = await request(server)
+      .get(`/v1/quizzes/jobs/${id}`)
+      .set(auth())
+      .expect(200);
+    expect(status.body).toMatchObject({
+      state: 'needs_action',
+      reason: 'QUIZ_SOURCE_CHANGED',
+      published_count: 2,
+      can_start: true,
+    });
+    expect((status.body as QuizJobResponse).allowed_actions).toEqual([
+      'accept_shorter',
+      'cancel',
+    ]);
+    await request(server)
+      .post(`/v1/quizzes/jobs/${id}/actions`)
+      .set(auth())
+      .send({ action: 'accept_shorter' })
+      .expect(200);
+    expect(await db.quizQuestion.count({ where: { quizId: id } })).toBe(2);
+    expect(
+      await db.studySession.findUniqueOrThrow({ where: { id: sessionId } }),
+    ).toMatchObject({ itemCount: 2, settings: { generation_pending: false } });
+  });
+  it('allows verified shorter completion after recovery exhaustion with a pending attempt', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      '00000000-0000-4000-8000-000000000027',
+      async (id, sessionId) => {
+        await answerPublished(id, sessionId);
+        const row = await db.quiz.findUniqueOrThrow({ where: { id } });
+        const m = row.generator as unknown as QuizJobMetadata;
+        m.job.round = 3;
+        m.job.leaseUntil = Date.now() - 1;
+        await db.quiz.update({
+          where: { id },
+          data: {
+            generator: JSON.parse(JSON.stringify(m)) as Prisma.InputJsonValue,
+          },
+        });
+        const peer = new QuizJobsService(
+          db,
+          app.get(ConfigService),
+          app.get(SrsService),
+          app.get(PrivacyService),
+          app.get(AiUsageService),
+          app.get(QuizSourceRepository),
+          engine,
+        );
+        await peer.tick();
+        const status = await request(server)
+          .get(`/v1/quizzes/jobs/${id}`)
+          .set(auth())
+          .expect(200);
+        expect(status.body).toMatchObject({
+          state: 'needs_action',
+          reason: 'QUIZ_RECOVERY_EXHAUSTED',
+          published_count: 2,
+        });
+        expect((status.body as QuizJobResponse).allowed_actions).toEqual([
+          'accept_shorter',
+          'cancel',
+        ]);
+        const stopped = await db.quiz.findUniqueOrThrow({ where: { id } });
+        expect(
+          (stopped.generator as unknown as QuizJobMetadata).job.lease,
+        ).toBeNull();
+        await request(server)
+          .post(`/v1/quizzes/jobs/${id}/actions`)
+          .set(auth())
+          .send({ action: 'retry' })
+          .expect(409);
+        await request(server)
+          .post(`/v1/quizzes/jobs/${id}/actions`)
+          .set(auth())
+          .send({ action: 'accept_shorter' })
+          .expect(200);
+      },
+    );
+    expect(await db.quizQuestion.count({ where: { quizId: id } })).toBe(2);
+    expect(
+      await db.studySession.findUniqueOrThrow({ where: { id: sessionId } }),
+    ).toMatchObject({
+      status: 'completed',
+      itemCount: 2,
+      score: 100,
+      settings: { generation_pending: false },
+    });
+  });
+  it('keeps an expired playable prefix available for explicit finish', async () => {
+    const { id, sessionId } = await withPublishedPrefix(
+      '00000000-0000-4000-8000-000000000026',
+      async (id) => {
+        await db.quiz.update({
+          where: { id },
+          data: { expiresAt: new Date(Date.now() - 1000) },
+        });
+        const status = await request(server)
+          .get(`/v1/quizzes/jobs/${id}`)
+          .set(auth())
+          .expect(200);
+        expect(status.body).toMatchObject({
+          state: 'needs_action',
+          reason: 'QUIZ_EXPIRED',
+          published_count: 2,
+          can_start: false,
+        });
+        expect((status.body as QuizJobResponse).allowed_actions).toEqual([
+          'accept_shorter',
+          'cancel',
+        ]);
+        await request(server)
+          .post(`/v1/quizzes/jobs/${id}/actions`)
+          .set(auth())
+          .send({ action: 'accept_shorter' })
+          .expect(200);
+      },
+    );
+    expect(await db.quizQuestion.count({ where: { quizId: id } })).toBe(2);
+    expect(
+      await db.studySession.findUniqueOrThrow({ where: { id: sessionId } }),
+    ).toMatchObject({ itemCount: 2, settings: { generation_pending: false } });
+  });
+  it('reports public ordinals against the correct internal slot before generation finishes', async () => {
+    await withPublishedPrefix(
+      '00000000-0000-4000-8000-000000000025',
+      async (id, _sessionId, meta) => {
+        const question = meta.content.find((q) => q.ordinal === 2)!;
+        const report = await request(server)
+          .post(`/v1/quizzes/${id}/questions/1/report`)
+          .set(auth())
+          .send({
+            reason: 'wrong_meaning',
+            idempotency_key: '00000000-0000-4000-8000-000000000125',
+          })
+          .expect(202);
+        expect(report.body).toMatchObject({
+          status: 'pending',
+          cache_excluded: true,
+        });
+        const row = await db.quiz.findUniqueOrThrow({ where: { id } });
+        const metadata = row.generator as unknown as QuizJobMetadata;
+        expect(metadata.reports![0]).toMatchObject({
+          ordinal: 1,
+          cacheKey: question.cacheKey,
+        });
+      },
+    );
   });
 });

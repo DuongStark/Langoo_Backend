@@ -1,0 +1,1681 @@
+{
+  "profile": "paced-refined",
+  "launchIntervalMs": 300,
+  "task": "M11.3",
+  "date": "2026-11-17",
+  "model": "deepseek-ai/deepseek-v4.1-flash",
+  "policy": "JA, DeepSeek low, refined prompts, one launch per300ms, no retry; review excluded from generation timing",
+  "requests": [
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the exact written target in 【】, then explicitly ask its kana reading. The correct option must be exactly canonicalAnswer. Distractors must be plausible but incorrect kana readings, not corrupted characters or other valid readings.\",\"dictionary\":{\"lemma\":\"学校\",\"reading\":\"がっこう\",\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"がっこう\",\"correctPosition\":0,\"outputTemplate\":{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":0}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the target kana reading in 【】, explicitly ask which kanji spelling represents that marked reading. Never expose the written answer elsewhere in the prompt. Correct option must be exactly canonicalAnswer. Exclude any other legitimate spelling of the same word: 入口 and 入り口 are both valid, so never use them as competing choices. No simplified Chinese lookalikes.\",\"dictionary\":{\"lemma\":\"病院\",\"reading\":\"びょういん\",\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"病院\",\"correctPosition\":1,\"outputTemplate\":{\"id\":2,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":1}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence with exactly one ____ replacing the target noun. Supply concrete semantic clues that make only canonicalAnswer possible. All options must fit the grammatical slot but only one fits the stated situation. Avoid vague contexts like going somewhere in the morning, or a person being kind. Do not use synonyms or another word that could reasonably fit. Correct option must equal canonicalAnswer.\",\"dictionary\":{\"lemma\":\"学校\",\"reading\":\"がっこう\",\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"学校\",\"correctPosition\":2,\"outputTemplate\":{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":2}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the exact written target in 【】, then explicitly ask its kana reading. The correct option must be exactly canonicalAnswer. Distractors must be plausible but incorrect kana readings, not corrupted characters or other valid readings.\",\"dictionary\":{\"lemma\":\"学生\",\"reading\":\"がくせい\",\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"がくせい\",\"correctPosition\":3,\"outputTemplate\":{\"id\":4,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":3}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the target kana reading in 【】, explicitly ask which kanji spelling represents that marked reading. Never expose the written answer elsewhere in the prompt. Correct option must be exactly canonicalAnswer. Exclude any other legitimate spelling of the same word: 入口 and 入り口 are both valid, so never use them as competing choices. No simplified Chinese lookalikes.\",\"dictionary\":{\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"電車\",\"correctPosition\":0,\"outputTemplate\":{\"id\":5,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":0}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence with exactly one ____ replacing the target noun. Supply concrete semantic clues that make only canonicalAnswer possible. All options must fit the grammatical slot but only one fits the stated situation. Avoid vague contexts like going somewhere in the morning, or a person being kind. Do not use synonyms or another word that could reasonably fit. Correct option must equal canonicalAnswer.\",\"dictionary\":{\"lemma\":\"学生\",\"reading\":\"がくせい\",\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"学生\",\"correctPosition\":1,\"outputTemplate\":{\"id\":6,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-1\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":1}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the exact written target in 【】, then explicitly ask its kana reading. The correct option must be exactly canonicalAnswer. Distractors must be plausible but incorrect kana readings, not corrupted characters or other valid readings.\",\"dictionary\":{\"lemma\":\"先生\",\"reading\":\"せんせい\",\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"せんせい\",\"correctPosition\":2,\"outputTemplate\":{\"id\":7,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-2\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":2}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the target kana reading in 【】, explicitly ask which kanji spelling represents that marked reading. Never expose the written answer elsewhere in the prompt. Correct option must be exactly canonicalAnswer. Exclude any other legitimate spelling of the same word: 入口 and 入り口 are both valid, so never use them as competing choices. No simplified Chinese lookalikes.\",\"dictionary\":{\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"切符\",\"correctPosition\":3,\"outputTemplate\":{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":3}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence with exactly one ____ replacing the target noun. Supply concrete semantic clues that make only canonicalAnswer possible. All options must fit the grammatical slot but only one fits the stated situation. Avoid vague contexts like going somewhere in the morning, or a person being kind. Do not use synonyms or another word that could reasonably fit. Correct option must equal canonicalAnswer.\",\"dictionary\":{\"lemma\":\"先生\",\"reading\":\"せんせい\",\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"先生\",\"correctPosition\":0,\"outputTemplate\":{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":0}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the exact written target in 【】, then explicitly ask its kana reading. The correct option must be exactly canonicalAnswer. Distractors must be plausible but incorrect kana readings, not corrupted characters or other valid readings.\",\"dictionary\":{\"lemma\":\"大学\",\"reading\":\"だいがく\",\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"だいがく\",\"correctPosition\":1,\"outputTemplate\":{\"id\":10,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":1}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the target kana reading in 【】, explicitly ask which kanji spelling represents that marked reading. Never expose the written answer elsewhere in the prompt. Correct option must be exactly canonicalAnswer. Exclude any other legitimate spelling of the same word: 入口 and 入り口 are both valid, so never use them as competing choices. No simplified Chinese lookalikes.\",\"dictionary\":{\"lemma\":\"乗客\",\"reading\":\"じょうきゃく\",\"meaningVi\":\"hành khách\",\"glossEn\":[\"passenger\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"乗客\",\"correctPosition\":2,\"outputTemplate\":{\"id\":11,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":2}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence with exactly one ____ replacing the target noun. Supply concrete semantic clues that make only canonicalAnswer possible. All options must fit the grammatical slot but only one fits the stated situation. Avoid vague contexts like going somewhere in the morning, or a person being kind. Do not use synonyms or another word that could reasonably fit. Correct option must equal canonicalAnswer.\",\"dictionary\":{\"lemma\":\"大学\",\"reading\":\"だいがく\",\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"大学\",\"correctPosition\":3,\"outputTemplate\":{\"id\":12,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-3\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":3}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the exact written target in 【】, then explicitly ask its kana reading. The correct option must be exactly canonicalAnswer. Distractors must be plausible but incorrect kana readings, not corrupted characters or other valid readings.\",\"dictionary\":{\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"としょかん\",\"correctPosition\":0,\"outputTemplate\":{\"id\":13,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-4\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":0}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the target kana reading in 【】, explicitly ask which kanji spelling represents that marked reading. Never expose the written answer elsewhere in the prompt. Correct option must be exactly canonicalAnswer. Exclude any other legitimate spelling of the same word: 入口 and 入り口 are both valid, so never use them as competing choices. No simplified Chinese lookalikes.\",\"dictionary\":{\"lemma\":\"荷物\",\"reading\":\"にもつ\",\"meaningVi\":\"hành lý\",\"glossEn\":[\"luggage\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"荷物\",\"correctPosition\":1,\"outputTemplate\":{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":1}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence with exactly one ____ replacing the target noun. Supply concrete semantic clues that make only canonicalAnswer possible. All options must fit the grammatical slot but only one fits the stated situation. Avoid vague contexts like going somewhere in the morning, or a person being kind. Do not use synonyms or another word that could reasonably fit. Correct option must equal canonicalAnswer.\",\"dictionary\":{\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"図書館\",\"correctPosition\":2,\"outputTemplate\":{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":2}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the exact written target in 【】, then explicitly ask its kana reading. The correct option must be exactly canonicalAnswer. Distractors must be plausible but incorrect kana readings, not corrupted characters or other valid readings.\",\"dictionary\":{\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"でんしゃ\",\"correctPosition\":3,\"outputTemplate\":{\"id\":16,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":3}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the target kana reading in 【】, explicitly ask which kanji spelling represents that marked reading. Never expose the written answer elsewhere in the prompt. Correct option must be exactly canonicalAnswer. Exclude any other legitimate spelling of the same word: 入口 and 入り口 are both valid, so never use them as competing choices. No simplified Chinese lookalikes.\",\"dictionary\":{\"lemma\":\"入口\",\"reading\":\"いりぐち\",\"meaningVi\":\"lối vào\",\"glossEn\":[\"entrance\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"入口\",\"correctPosition\":0,\"outputTemplate\":{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":0}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence with exactly one ____ replacing the target noun. Supply concrete semantic clues that make only canonicalAnswer possible. All options must fit the grammatical slot but only one fits the stated situation. Avoid vague contexts like going somewhere in the morning, or a person being kind. Do not use synonyms or another word that could reasonably fit. Correct option must equal canonicalAnswer.\",\"dictionary\":{\"lemma\":\"病院\",\"reading\":\"びょういん\",\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"病院\",\"correctPosition\":1,\"outputTemplate\":{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":1}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the exact written target in 【】, then explicitly ask its kana reading. The correct option must be exactly canonicalAnswer. Distractors must be plausible but incorrect kana readings, not corrupted characters or other valid readings.\",\"dictionary\":{\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"きっぷ\",\"correctPosition\":2,\"outputTemplate\":{\"id\":19,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":2}}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are a careful Japanese exercise author for Vietnamese learners. Generate exactly ONE practice question. Follow the supplied task and dictionary truth, without inventing a different sense. Return a single JSON object matching outputTemplate: retain the exact id, skill and targetId and replace the empty prompt/options with your content. Exactly four nonempty distinct options, Unicode Japanese text without replacement characters. Correct answer index is zero-based and must equal correctPosition; first build the correct option from canonicalAnswer, put it at that position, then fill the other positions with three incorrect distractors. Privately check the final array and solve every option again: exactly one must be defensible. Check grammar, particles, spelling variants, no answer leakage. If a check fails, revise before output. Output only the JSON question, no reasoning, explanations or Markdown. Do not claim official exam status."
+        },
+        {
+          "role": "user",
+          "content": "{\"task\":\"Write one natural Japanese sentence containing the target kana reading in 【】, explicitly ask which kanji spelling represents that marked reading. Never expose the written answer elsewhere in the prompt. Correct option must be exactly canonicalAnswer. Exclude any other legitimate spelling of the same word: 入口 and 入り口 are both valid, so never use them as competing choices. No simplified Chinese lookalikes.\",\"dictionary\":{\"lemma\":\"出口\",\"reading\":\"でぐち\",\"meaningVi\":\"lối ra\",\"glossEn\":[\"exit\"],\"pos\":\"noun\"},\"canonicalAnswer\":\"出口\",\"correctPosition\":3,\"outputTemplate\":{\"id\":20,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"prompt\":\"\",\"options\":[\"\",\"\",\"\",\"\"],\"answer_index\":3}}"
+        }
+      ]
+    }
+  ],
+  "progress": [
+    {
+      "kind": "result",
+      "index": 2,
+      "dispatchedMs": 600,
+      "completedMs": 6583,
+      "latencyMs": 5983,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"prompt\":\"子どもたちは毎朝、先生の話を聞いたり給食を食べたりするために、八時に____へ行きます。\",\"options\":[\"図書館\",\"公園\",\"学校\",\"病院\"],\"answer_index\":2}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 367,
+          "tokensOut": 551,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 9,
+      "dispatchedMs": 2701,
+      "completedMs": 7242,
+      "latencyMs": 4541,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":10,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"prompt\":\"次の文の「大学」の読み方をひらがなで答えてください。\\n兄は大学で経済を勉強しています。\",\"options\":[\"たいがく\",\"だいがく\",\"だいかく\",\"おおがく\"],\"answer_index\":1}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 351,
+          "tokensOut": 276,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 5,
+      "dispatchedMs": 1500,
+      "completedMs": 7809,
+      "latencyMs": 6309,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":6,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-1\",\"prompt\":\"大学で単位を取得するために講義に出席し、ノートを取っているのは____です。\",\"options\":[\"先生\",\"学生\",\"会社員\",\"主婦\"],\"answer_index\":1}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 372,
+          "tokensOut": 556,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 7,
+      "dispatchedMs": 2101,
+      "completedMs": 7869,
+      "latencyMs": 5768,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"prompt\":\"駅の窓口で【きっぷ】を買いました。【きっぷ】を漢字で書くとどれですか。\",\"options\":[\"切府\",\"切付\",\"切布\",\"切符\"],\"answer_index\":3}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 376,
+          "tokensOut": 472,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 0,
+      "dispatchedMs": 2,
+      "completedMs": 8434,
+      "latencyMs": 8432,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"prompt\":\"毎日、学校に通っています。この文の「学校」の読み方をひらがなで答えてください。\",\"options\":[\"がっこう\",\"がこう\",\"がっこ\",\"かっこう\"],\"answer_index\":0}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 346,
+          "tokensOut": 419,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 3,
+      "dispatchedMs": 901,
+      "completedMs": 8491,
+      "latencyMs": 7590,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":4,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"prompt\":\"「あの学生は日本語を勉強しています。」この文の「学生」の読み方は何ですか。\",\"options\":[\"がくしょう\",\"がっせい\",\"がくせん\",\"がくせい\"],\"answer_index\":3}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 352,
+          "tokensOut": 362,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 6,
+      "dispatchedMs": 1800,
+      "completedMs": 8548,
+      "latencyMs": 6748,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":7,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-2\",\"prompt\":\"李さんは日本語の先生です。この文の「先生」の読み方をひらがなで答えてください。\",\"options\":[\"せんしょう\",\"せんこう\",\"せんせい\",\"せんじょう\"],\"answer_index\":2}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 349,
+          "tokensOut": 526,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 1,
+      "dispatchedMs": 301,
+      "completedMs": 9029,
+      "latencyMs": 8728,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":2,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"prompt\":\"母は体調が悪いので【びょういん】へ行きました。【びょういん】に当たる漢字はどれですか。\",\"options\":[\"病円\",\"病院\",\"病員\",\"病園\"],\"answer_index\":1}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 380,
+          "tokensOut": 556,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 4,
+      "dispatchedMs": 1201,
+      "completedMs": 9535,
+      "latencyMs": 8334,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":5,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"prompt\":\"次の文の【でんしゃ】を漢字で書くとどれですか。毎朝、【でんしゃ】に乗って学校へ行きます。\",\"options\":[\"電車\",\"汽車\",\"自転車\",\"地下鉄\"],\"answer_index\":0}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 380,
+          "tokensOut": 842,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 15,
+      "dispatchedMs": 4501,
+      "completedMs": 9568,
+      "latencyMs": 5067,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":16,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"prompt\":\"次の文の【電車】の読み方をひらがなで答えてください：毎朝、【電車】で学校へ行きます。\",\"options\":[\"でんしゅ\",\"てんしゃ\",\"でんじゃ\",\"でんしゃ\"],\"answer_index\":3}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 351,
+          "tokensOut": 447,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 12,
+      "dispatchedMs": 3601,
+      "completedMs": 10377,
+      "latencyMs": 6776,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":13,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-4\",\"prompt\":\"私は毎日、本を借りに【図書館】へ行きます。この言葉の読み方をひらがなで答えてください。\",\"options\":[\"としょかん\",\"ずしょかん\",\"としょうかん\",\"とうしょかん\"],\"answer_index\":0}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 352,
+          "tokensOut": 587,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 8,
+      "dispatchedMs": 2402,
+      "completedMs": 10903,
+      "latencyMs": 8501,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"prompt\":\"鈴木さんの職業は、教室で子どもたちに漢字を教える____です。\",\"options\":[\"先生\",\"医者\",\"料理人\",\"運転手\"],\"answer_index\":0}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 369,
+          "tokensOut": 851,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 18,
+      "dispatchedMs": 5402,
+      "completedMs": 11315,
+      "latencyMs": 5913,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":19,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"prompt\":\"次の文の【切符】の読み方をひらがなで答えてください。\\n駅で【切符】を買います。\",\"options\":[\"きふ\",\"きっふ\",\"きっぷ\",\"きぶ\"],\"answer_index\":2}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 346,
+          "tokensOut": 498,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 10,
+      "dispatchedMs": 3002,
+      "completedMs": 11737,
+      "latencyMs": 8735,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":11,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"prompt\":\"電車の中で【じょうきゃく】が静かに新聞を読んでいた。\\n【じょうきゃく】を漢字で書くとどれですか。\",\"options\":[\"乗各\",\"城客\",\"乗客\",\"乗格\"],\"answer_index\":2}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 381,
+          "tokensOut": 702,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 16,
+      "dispatchedMs": 4801,
+      "completedMs": 12319,
+      "latencyMs": 7518,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"prompt\":\"次の文の【いりぐち】を漢字で書くとどれですか。「この建物の【いりぐち】はどこですか。」\",\"options\":[\"入口\",\"出口\",\"人口\",\"入場\"],\"answer_index\":0}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 377,
+          "tokensOut": 738,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 14,
+      "dispatchedMs": 4201,
+      "completedMs": 12690,
+      "latencyMs": 8489,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"prompt\":\"私は毎週土曜日に、読み終わった本を返し、また新しい本を三冊借りるために____へ通っています。\",\"options\":[\"本屋\",\"郵便局\",\"図書館\",\"銀行\"],\"answer_index\":2}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 372,
+          "tokensOut": 483,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 17,
+      "dispatchedMs": 5101,
+      "completedMs": 13574,
+      "latencyMs": 8473,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"prompt\":\"交通事故で救急車に運ばれ、そのまま____で三日間入院して手術を受けた。\",\"options\":[\"銀行\",\"病院\",\"映画館\",\"公園\"],\"answer_index\":1}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 372,
+          "tokensOut": 475,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 19,
+      "dispatchedMs": 5701,
+      "completedMs": 14444,
+      "latencyMs": 8743,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":20,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"prompt\":\"次の文の【でぐち】を漢字で書くとき、正しい表記はどれですか。「駅の【でぐち】は南側にあります。」\",\"options\":[\"出目\",\"出田\",\"出日\",\"出口\"],\"answer_index\":3}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 375,
+          "tokensOut": 654,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 13,
+      "dispatchedMs": 3902,
+      "completedMs": 16041,
+      "latencyMs": 12139,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"prompt\":\"次の文の【にもつ】を漢字で書いたとき、正しいものはどれですか。旅行の【にもつ】をホテルに送った。\",\"options\":[\"荷持\",\"荷物\",\"何物\",\"荷茂\"],\"answer_index\":1}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 378,
+          "tokensOut": 656,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 11,
+      "dispatchedMs": 3301,
+      "completedMs": 63314,
+      "latencyMs": 60013,
+      "response": {
+        "ok": false,
+        "name": "TimeoutError",
+        "status": null
+      }
+    },
+    {
+      "kind": "done",
+      "totalMs": 63315
+    }
+  ],
+  "generation": {
+    "wallMs": 66981,
+    "exitCode": 0,
+    "error": null,
+    "entries": [
+      {
+        "kind": "result",
+        "index": 2,
+        "dispatchedMs": 600,
+        "completedMs": 6583,
+        "latencyMs": 5983,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"prompt\":\"子どもたちは毎朝、先生の話を聞いたり給食を食べたりするために、八時に____へ行きます。\",\"options\":[\"図書館\",\"公園\",\"学校\",\"病院\"],\"answer_index\":2}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 367,
+            "tokensOut": 551,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 9,
+        "dispatchedMs": 2701,
+        "completedMs": 7242,
+        "latencyMs": 4541,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":10,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"prompt\":\"次の文の「大学」の読み方をひらがなで答えてください。\\n兄は大学で経済を勉強しています。\",\"options\":[\"たいがく\",\"だいがく\",\"だいかく\",\"おおがく\"],\"answer_index\":1}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 351,
+            "tokensOut": 276,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 5,
+        "dispatchedMs": 1500,
+        "completedMs": 7809,
+        "latencyMs": 6309,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":6,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-1\",\"prompt\":\"大学で単位を取得するために講義に出席し、ノートを取っているのは____です。\",\"options\":[\"先生\",\"学生\",\"会社員\",\"主婦\"],\"answer_index\":1}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 372,
+            "tokensOut": 556,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 7,
+        "dispatchedMs": 2101,
+        "completedMs": 7869,
+        "latencyMs": 5768,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"prompt\":\"駅の窓口で【きっぷ】を買いました。【きっぷ】を漢字で書くとどれですか。\",\"options\":[\"切府\",\"切付\",\"切布\",\"切符\"],\"answer_index\":3}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 376,
+            "tokensOut": 472,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 0,
+        "dispatchedMs": 2,
+        "completedMs": 8434,
+        "latencyMs": 8432,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"prompt\":\"毎日、学校に通っています。この文の「学校」の読み方をひらがなで答えてください。\",\"options\":[\"がっこう\",\"がこう\",\"がっこ\",\"かっこう\"],\"answer_index\":0}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 346,
+            "tokensOut": 419,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 3,
+        "dispatchedMs": 901,
+        "completedMs": 8491,
+        "latencyMs": 7590,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":4,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"prompt\":\"「あの学生は日本語を勉強しています。」この文の「学生」の読み方は何ですか。\",\"options\":[\"がくしょう\",\"がっせい\",\"がくせん\",\"がくせい\"],\"answer_index\":3}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 352,
+            "tokensOut": 362,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 6,
+        "dispatchedMs": 1800,
+        "completedMs": 8548,
+        "latencyMs": 6748,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":7,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-2\",\"prompt\":\"李さんは日本語の先生です。この文の「先生」の読み方をひらがなで答えてください。\",\"options\":[\"せんしょう\",\"せんこう\",\"せんせい\",\"せんじょう\"],\"answer_index\":2}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 349,
+            "tokensOut": 526,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 1,
+        "dispatchedMs": 301,
+        "completedMs": 9029,
+        "latencyMs": 8728,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":2,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"prompt\":\"母は体調が悪いので【びょういん】へ行きました。【びょういん】に当たる漢字はどれですか。\",\"options\":[\"病円\",\"病院\",\"病員\",\"病園\"],\"answer_index\":1}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 380,
+            "tokensOut": 556,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 4,
+        "dispatchedMs": 1201,
+        "completedMs": 9535,
+        "latencyMs": 8334,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":5,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"prompt\":\"次の文の【でんしゃ】を漢字で書くとどれですか。毎朝、【でんしゃ】に乗って学校へ行きます。\",\"options\":[\"電車\",\"汽車\",\"自転車\",\"地下鉄\"],\"answer_index\":0}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 380,
+            "tokensOut": 842,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 15,
+        "dispatchedMs": 4501,
+        "completedMs": 9568,
+        "latencyMs": 5067,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":16,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"prompt\":\"次の文の【電車】の読み方をひらがなで答えてください：毎朝、【電車】で学校へ行きます。\",\"options\":[\"でんしゅ\",\"てんしゃ\",\"でんじゃ\",\"でんしゃ\"],\"answer_index\":3}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 351,
+            "tokensOut": 447,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 12,
+        "dispatchedMs": 3601,
+        "completedMs": 10377,
+        "latencyMs": 6776,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":13,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-4\",\"prompt\":\"私は毎日、本を借りに【図書館】へ行きます。この言葉の読み方をひらがなで答えてください。\",\"options\":[\"としょかん\",\"ずしょかん\",\"としょうかん\",\"とうしょかん\"],\"answer_index\":0}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 352,
+            "tokensOut": 587,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 8,
+        "dispatchedMs": 2402,
+        "completedMs": 10903,
+        "latencyMs": 8501,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"prompt\":\"鈴木さんの職業は、教室で子どもたちに漢字を教える____です。\",\"options\":[\"先生\",\"医者\",\"料理人\",\"運転手\"],\"answer_index\":0}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 369,
+            "tokensOut": 851,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 18,
+        "dispatchedMs": 5402,
+        "completedMs": 11315,
+        "latencyMs": 5913,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":19,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"prompt\":\"次の文の【切符】の読み方をひらがなで答えてください。\\n駅で【切符】を買います。\",\"options\":[\"きふ\",\"きっふ\",\"きっぷ\",\"きぶ\"],\"answer_index\":2}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 346,
+            "tokensOut": 498,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 10,
+        "dispatchedMs": 3002,
+        "completedMs": 11737,
+        "latencyMs": 8735,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":11,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"prompt\":\"電車の中で【じょうきゃく】が静かに新聞を読んでいた。\\n【じょうきゃく】を漢字で書くとどれですか。\",\"options\":[\"乗各\",\"城客\",\"乗客\",\"乗格\"],\"answer_index\":2}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 381,
+            "tokensOut": 702,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 16,
+        "dispatchedMs": 4801,
+        "completedMs": 12319,
+        "latencyMs": 7518,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"prompt\":\"次の文の【いりぐち】を漢字で書くとどれですか。「この建物の【いりぐち】はどこですか。」\",\"options\":[\"入口\",\"出口\",\"人口\",\"入場\"],\"answer_index\":0}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 377,
+            "tokensOut": 738,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 14,
+        "dispatchedMs": 4201,
+        "completedMs": 12690,
+        "latencyMs": 8489,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"prompt\":\"私は毎週土曜日に、読み終わった本を返し、また新しい本を三冊借りるために____へ通っています。\",\"options\":[\"本屋\",\"郵便局\",\"図書館\",\"銀行\"],\"answer_index\":2}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 372,
+            "tokensOut": 483,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 17,
+        "dispatchedMs": 5101,
+        "completedMs": 13574,
+        "latencyMs": 8473,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"prompt\":\"交通事故で救急車に運ばれ、そのまま____で三日間入院して手術を受けた。\",\"options\":[\"銀行\",\"病院\",\"映画館\",\"公園\"],\"answer_index\":1}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 372,
+            "tokensOut": 475,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 19,
+        "dispatchedMs": 5701,
+        "completedMs": 14444,
+        "latencyMs": 8743,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":20,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"prompt\":\"次の文の【でぐち】を漢字で書くとき、正しい表記はどれですか。「駅の【でぐち】は南側にあります。」\",\"options\":[\"出目\",\"出田\",\"出日\",\"出口\"],\"answer_index\":3}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 375,
+            "tokensOut": 654,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 13,
+        "dispatchedMs": 3902,
+        "completedMs": 16041,
+        "latencyMs": 12139,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"prompt\":\"次の文の【にもつ】を漢字で書いたとき、正しいものはどれですか。旅行の【にもつ】をホテルに送った。\",\"options\":[\"荷持\",\"荷物\",\"何物\",\"荷茂\"],\"answer_index\":1}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 378,
+            "tokensOut": 656,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 11,
+        "dispatchedMs": 3301,
+        "completedMs": 63314,
+        "latencyMs": 60013,
+        "response": {
+          "ok": false,
+          "name": "TimeoutError",
+          "status": null
+        }
+      },
+      {
+        "kind": "done",
+        "totalMs": 63315
+      }
+    ]
+  },
+  "questions": [
+    {
+      "index": 0,
+      "question": {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-0",
+        "prompt": "毎日、学校に通っています。この文の「学校」の読み方をひらがなで答えてください。",
+        "options": [
+          "がっこう",
+          "がこう",
+          "がっこ",
+          "かっこう"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 1,
+      "question": {
+        "id": 2,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-5",
+        "prompt": "母は体調が悪いので【びょういん】へ行きました。【びょういん】に当たる漢字はどれですか。",
+        "options": [
+          "病円",
+          "病院",
+          "病員",
+          "病園"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 2,
+      "question": {
+        "id": 3,
+        "skill": "context_cloze",
+        "targetId": "public-ja-0",
+        "prompt": "子どもたちは毎朝、先生の話を聞いたり給食を食べたりするために、八時に____へ行きます。",
+        "options": [
+          "図書館",
+          "公園",
+          "学校",
+          "病院"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 3,
+      "question": {
+        "id": 4,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-1",
+        "prompt": "「あの学生は日本語を勉強しています。」この文の「学生」の読み方は何ですか。",
+        "options": [
+          "がくしょう",
+          "がっせい",
+          "がくせん",
+          "がくせい"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 4,
+      "question": {
+        "id": 5,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-6",
+        "prompt": "次の文の【でんしゃ】を漢字で書くとどれですか。毎朝、【でんしゃ】に乗って学校へ行きます。",
+        "options": [
+          "電車",
+          "汽車",
+          "自転車",
+          "地下鉄"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 5,
+      "question": {
+        "id": 6,
+        "skill": "context_cloze",
+        "targetId": "public-ja-1",
+        "prompt": "大学で単位を取得するために講義に出席し、ノートを取っているのは____です。",
+        "options": [
+          "先生",
+          "学生",
+          "会社員",
+          "主婦"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 6,
+      "question": {
+        "id": 7,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-2",
+        "prompt": "李さんは日本語の先生です。この文の「先生」の読み方をひらがなで答えてください。",
+        "options": [
+          "せんしょう",
+          "せんこう",
+          "せんせい",
+          "せんじょう"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 7,
+      "question": {
+        "id": 8,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-7",
+        "prompt": "駅の窓口で【きっぷ】を買いました。【きっぷ】を漢字で書くとどれですか。",
+        "options": [
+          "切府",
+          "切付",
+          "切布",
+          "切符"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 8,
+      "question": {
+        "id": 9,
+        "skill": "context_cloze",
+        "targetId": "public-ja-2",
+        "prompt": "鈴木さんの職業は、教室で子どもたちに漢字を教える____です。",
+        "options": [
+          "先生",
+          "医者",
+          "料理人",
+          "運転手"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 9,
+      "question": {
+        "id": 10,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-3",
+        "prompt": "次の文の「大学」の読み方をひらがなで答えてください。\n兄は大学で経済を勉強しています。",
+        "options": [
+          "たいがく",
+          "だいがく",
+          "だいかく",
+          "おおがく"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 10,
+      "question": {
+        "id": 11,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-8",
+        "prompt": "電車の中で【じょうきゃく】が静かに新聞を読んでいた。\n【じょうきゃく】を漢字で書くとどれですか。",
+        "options": [
+          "乗各",
+          "城客",
+          "乗客",
+          "乗格"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 11,
+      "question": null,
+      "structuralValid": false
+    },
+    {
+      "index": 12,
+      "question": {
+        "id": 13,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-4",
+        "prompt": "私は毎日、本を借りに【図書館】へ行きます。この言葉の読み方をひらがなで答えてください。",
+        "options": [
+          "としょかん",
+          "ずしょかん",
+          "としょうかん",
+          "とうしょかん"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 13,
+      "question": {
+        "id": 14,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-9",
+        "prompt": "次の文の【にもつ】を漢字で書いたとき、正しいものはどれですか。旅行の【にもつ】をホテルに送った。",
+        "options": [
+          "荷持",
+          "荷物",
+          "何物",
+          "荷茂"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 14,
+      "question": {
+        "id": 15,
+        "skill": "context_cloze",
+        "targetId": "public-ja-4",
+        "prompt": "私は毎週土曜日に、読み終わった本を返し、また新しい本を三冊借りるために____へ通っています。",
+        "options": [
+          "本屋",
+          "郵便局",
+          "図書館",
+          "銀行"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 15,
+      "question": {
+        "id": 16,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-6",
+        "prompt": "次の文の【電車】の読み方をひらがなで答えてください：毎朝、【電車】で学校へ行きます。",
+        "options": [
+          "でんしゅ",
+          "てんしゃ",
+          "でんじゃ",
+          "でんしゃ"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 16,
+      "question": {
+        "id": 17,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-10",
+        "prompt": "次の文の【いりぐち】を漢字で書くとどれですか。「この建物の【いりぐち】はどこですか。」",
+        "options": [
+          "入口",
+          "出口",
+          "人口",
+          "入場"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 17,
+      "question": {
+        "id": 18,
+        "skill": "context_cloze",
+        "targetId": "public-ja-5",
+        "prompt": "交通事故で救急車に運ばれ、そのまま____で三日間入院して手術を受けた。",
+        "options": [
+          "銀行",
+          "病院",
+          "映画館",
+          "公園"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 18,
+      "question": {
+        "id": 19,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-7",
+        "prompt": "次の文の【切符】の読み方をひらがなで答えてください。\n駅で【切符】を買います。",
+        "options": [
+          "きふ",
+          "きっふ",
+          "きっぷ",
+          "きぶ"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 19,
+      "question": {
+        "id": 20,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-11",
+        "prompt": "次の文の【でぐち】を漢字で書くとき、正しい表記はどれですか。「駅の【でぐち】は南側にあります。」",
+        "options": [
+          "出目",
+          "出田",
+          "出日",
+          "出口"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": true
+    }
+  ],
+  "summary": {
+    "received": 20,
+    "successful": 19,
+    "structuralValid": 19,
+    "firstValidMs": 6583,
+    "allCompletedMs": 63315,
+    "wallMs": 66981,
+    "tokensIn": 6946,
+    "tokensOut": 10651,
+    "returnedIdMismatches": 0,
+    "contentShapeValid": 19,
+    "maxDispatchesInRollingSecond": 4,
+    "unicodeReplacementQuestions": 0,
+    "sourceAnswerMismatches": 0,
+    "reviewComplete": true,
+    "answerAgreement": 19,
+    "flags": [],
+    "skillFormatMismatches": [
+      1,
+      4,
+      7,
+      10
+    ],
+    "lastSuccessfulMs": 16041
+  },
+  "sourceAnswerChecks": [
+    {
+      "requestId": 1,
+      "skill": "kanji_reading",
+      "selected": "がっこう",
+      "expected": [
+        "がっこう"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 2,
+      "skill": "kanji_orthography",
+      "selected": "病院",
+      "expected": [
+        "病院"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 4,
+      "skill": "kanji_reading",
+      "selected": "がくせい",
+      "expected": [
+        "がくせい"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 5,
+      "skill": "kanji_orthography",
+      "selected": "電車",
+      "expected": [
+        "電車"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 7,
+      "skill": "kanji_reading",
+      "selected": "せんせい",
+      "expected": [
+        "せんせい"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 8,
+      "skill": "kanji_orthography",
+      "selected": "切符",
+      "expected": [
+        "切符"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 10,
+      "skill": "kanji_reading",
+      "selected": "だいがく",
+      "expected": [
+        "だいがく"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 11,
+      "skill": "kanji_orthography",
+      "selected": "乗客",
+      "expected": [
+        "乗客"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 13,
+      "skill": "kanji_reading",
+      "selected": "としょかん",
+      "expected": [
+        "としょかん"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 14,
+      "skill": "kanji_orthography",
+      "selected": "荷物",
+      "expected": [
+        "荷物"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 16,
+      "skill": "kanji_reading",
+      "selected": "でんしゃ",
+      "expected": [
+        "でんしゃ"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 17,
+      "skill": "kanji_orthography",
+      "selected": "入口",
+      "expected": [
+        "入口"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 19,
+      "skill": "kanji_reading",
+      "selected": "きっぷ",
+      "expected": [
+        "きっぷ"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 20,
+      "skill": "kanji_orthography",
+      "selected": "出口",
+      "expected": [
+        "出口"
+      ],
+      "matchesSource": true
+    }
+  ],
+  "reviewRequest": {
+    "model": "deepseek-ai/deepseek-v4.1-flash",
+    "reasoningEffort": "none",
+    "timeoutMs": 60000,
+    "maxTokens": 6000,
+    "messages": [
+      {
+        "role": "system",
+        "content": "Independently solve and review language quiz questions. The answer key is hidden. Return JSON only: {\"reviews\":[{\"id\":1,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"}]}. Zero-based indices. quality is good, ambiguous, invalid, or unnatural. Flag answer leaks, multiple plausible choices, incorrect readings, wrong sense, unnatural sentences. Include every id exactly once; issue briefly explains non-good quality."
+      },
+      {
+        "role": "user",
+        "content": "[{\"id\":1,\"prompt\":\"毎日、学校に通っています。この文の「学校」の読み方をひらがなで答えてください。\",\"options\":[\"がっこう\",\"がこう\",\"がっこ\",\"かっこう\"]},{\"id\":2,\"prompt\":\"母は体調が悪いので【びょういん】へ行きました。【びょういん】に当たる漢字はどれですか。\",\"options\":[\"病円\",\"病院\",\"病員\",\"病園\"]},{\"id\":3,\"prompt\":\"子どもたちは毎朝、先生の話を聞いたり給食を食べたりするために、八時に____へ行きます。\",\"options\":[\"図書館\",\"公園\",\"学校\",\"病院\"]},{\"id\":4,\"prompt\":\"「あの学生は日本語を勉強しています。」この文の「学生」の読み方は何ですか。\",\"options\":[\"がくしょう\",\"がっせい\",\"がくせん\",\"がくせい\"]},{\"id\":5,\"prompt\":\"次の文の【でんしゃ】を漢字で書くとどれですか。毎朝、【でんしゃ】に乗って学校へ行きます。\",\"options\":[\"電車\",\"汽車\",\"自転車\",\"地下鉄\"]},{\"id\":6,\"prompt\":\"大学で単位を取得するために講義に出席し、ノートを取っているのは____です。\",\"options\":[\"先生\",\"学生\",\"会社員\",\"主婦\"]},{\"id\":7,\"prompt\":\"李さんは日本語の先生です。この文の「先生」の読み方をひらがなで答えてください。\",\"options\":[\"せんしょう\",\"せんこう\",\"せんせい\",\"せんじょう\"]},{\"id\":8,\"prompt\":\"駅の窓口で【きっぷ】を買いました。【きっぷ】を漢字で書くとどれですか。\",\"options\":[\"切府\",\"切付\",\"切布\",\"切符\"]},{\"id\":9,\"prompt\":\"鈴木さんの職業は、教室で子どもたちに漢字を教える____です。\",\"options\":[\"先生\",\"医者\",\"料理人\",\"運転手\"]},{\"id\":10,\"prompt\":\"次の文の「大学」の読み方をひらがなで答えてください。\\n兄は大学で経済を勉強しています。\",\"options\":[\"たいがく\",\"だいがく\",\"だいかく\",\"おおがく\"]},{\"id\":11,\"prompt\":\"電車の中で【じょうきゃく】が静かに新聞を読んでいた。\\n【じょうきゃく】を漢字で書くとどれですか。\",\"options\":[\"乗各\",\"城客\",\"乗客\",\"乗格\"]},{\"id\":13,\"prompt\":\"私は毎日、本を借りに【図書館】へ行きます。この言葉の読み方をひらがなで答えてください。\",\"options\":[\"としょかん\",\"ずしょかん\",\"としょうかん\",\"とうしょかん\"]},{\"id\":14,\"prompt\":\"次の文の【にもつ】を漢字で書いたとき、正しいものはどれですか。旅行の【にもつ】をホテルに送った。\",\"options\":[\"荷持\",\"荷物\",\"何物\",\"荷茂\"]},{\"id\":15,\"prompt\":\"私は毎週土曜日に、読み終わった本を返し、また新しい本を三冊借りるために____へ通っています。\",\"options\":[\"本屋\",\"郵便局\",\"図書館\",\"銀行\"]},{\"id\":16,\"prompt\":\"次の文の【電車】の読み方をひらがなで答えてください：毎朝、【電車】で学校へ行きます。\",\"options\":[\"でんしゅ\",\"てんしゃ\",\"でんじゃ\",\"でんしゃ\"]},{\"id\":17,\"prompt\":\"次の文の【いりぐち】を漢字で書くとどれですか。「この建物の【いりぐち】はどこですか。」\",\"options\":[\"入口\",\"出口\",\"人口\",\"入場\"]},{\"id\":18,\"prompt\":\"交通事故で救急車に運ばれ、そのまま____で三日間入院して手術を受けた。\",\"options\":[\"銀行\",\"病院\",\"映画館\",\"公園\"]},{\"id\":19,\"prompt\":\"次の文の【切符】の読み方をひらがなで答えてください。\\n駅で【切符】を買います。\",\"options\":[\"きふ\",\"きっふ\",\"きっぷ\",\"きぶ\"]},{\"id\":20,\"prompt\":\"次の文の【でぐち】を漢字で書くとき、正しい表記はどれですか。「駅の【でぐち】は南側にあります。」\",\"options\":[\"出目\",\"出田\",\"出日\",\"出口\"]}]"
+      }
+    ]
+  },
+  "review": {
+    "wallMs": 8491,
+    "exitCode": 0,
+    "error": null,
+    "entries": [
+      {
+        "kind": "result",
+        "index": 0,
+        "dispatchedMs": 4,
+        "completedMs": 6520,
+        "latencyMs": 6516,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"reviews\":[{\"id\":1,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":2,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":3,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":4,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":5,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":6,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":7,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":8,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":9,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":10,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":11,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":13,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":14,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":15,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":16,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":17,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":18,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":19,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":20,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"}]}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 1152,
+            "tokensOut": 482,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "done",
+        "totalMs": 6531
+      }
+    ]
+  },
+  "parsedReview": {
+    "reviews": [
+      {
+        "id": 1,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 2,
+        "chosenIndex": 1,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 3,
+        "chosenIndex": 2,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 4,
+        "chosenIndex": 3,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 5,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 6,
+        "chosenIndex": 1,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 7,
+        "chosenIndex": 2,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 8,
+        "chosenIndex": 3,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 9,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 10,
+        "chosenIndex": 1,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 11,
+        "chosenIndex": 2,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 13,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 14,
+        "chosenIndex": 1,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 15,
+        "chosenIndex": 2,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 16,
+        "chosenIndex": 3,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 17,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 18,
+        "chosenIndex": 1,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 19,
+        "chosenIndex": 2,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 20,
+        "chosenIndex": 3,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      }
+    ]
+  }
+}

@@ -317,25 +317,27 @@ Create body = eligibility body + `idempotency_key` UUID. Một ý định tạo 
   "phase":"generate",
   "requested_count":20,
   "validated_count":8,
+  "published_count":8,
+  "can_start":true,
   "by_skill":[
     {"skill":"meaning","requested":10,"validated":4},
     {"skill":"context_cloze","requested":10,"validated":4}
   ],
-  "allowed_actions":["cancel"],
+  "allowed_actions":["accept_shorter","cancel"],
   "reason":null,
   "usage_uncertain":false
 }
 ```
 
-State queued/running/needs_action/ready/failed/cancelled; phase queued/prepare/generate/audit/complete/waiting/terminal. Không có source/câu hỏi/đáp án trong progress. validated_count có thể giảm sau audit toàn đề; không suy ready từ count. Needs_action có thể còn nội dung chưa audit, chỉ cho nhận đề ngắn nếu allowed_actions có accept_shorter.
+State queued/running/needs_action/ready/failed/cancelled; phase queued/prepare/generate/audit/complete/waiting/terminal. Không có source/câu hỏi/đáp án trong progress. V3 mới dùng DeepSeek sinh từng câu; validated_count là số câu qua kiểm code, không có nghĩa chuyên gia/AI độc lập đã duyệt. published_count là số câu đã công bố; can_start quyết định mở làm ngay cả khi state=running. Chỉ nhận đề ngắn nếu allowed_actions có accept_shorter. Không suy ready từ count.
 
 Một job active trong cùng user/profile/ngôn ngữ;409`QUIZ_JOB_ALREADY_ACTIVE` kèm `details.quiz_id` để tiếp tục/hủy. Reserve một lượt daily quota khi claim tạo job, không thêm lượt cho retry/recovery; token/cost vẫn ghi từng call. Không hoàn lượt tự động khi cancel/fail. Tối đa ba round, mỗi round theo `AI_QUIZ_V3_BUDGET_MS`, và90call intents/job; không phải SLA thời gian tạo đủ câu. Job TTL7ngày.
 
 ### Hành động — POST /quizzes/jobs/:quiz_id/actions → 200
 
-Body `{"action":"retry"}` hoặc accept_shorter/cancel; trả cùng QuizJobResponse. Cancel/replay accept_shorter/retry đã được nhận xử lý theo trạng thái/idempotency, không hứa trạng thái có thể đảo ngược. Backend CAS và xác minh lại precondition. Chỉ nhận đề ngắn đã audit, có ít nhất một câu và nguồn còn hợp lệ. Ready thì dùng GET quiz/detail và start hiện có; không cắt câu client-side.
+Body `{"action":"retry"}` hoặc accept_shorter/cancel; trả cùng QuizJobResponse. Cancel/replay accept_shorter/retry đã được nhận xử lý theo trạng thái/idempotency, không hứa trạng thái có thể đảo ngược. Backend CAS và xác minh lại precondition. Chỉ nhận prefix đã công bố, có ít nhất một câu, theo allowed_actions. Khi can_start=true, dùng GET quiz/detail và start hiện có ngay trong lúc running; không cắt câu client-side.
 
-`QUIZ_SOURCE_CHANGED` khiến nội dung không còn được dùng; chỉ cancel rồi kiểm điều kiện mới. Không tự thay số câu, dạng, ngôn ngữ hoặc mở rộng sang bộ mẫu. Lỗi hết hạn/action không hợp lệ dùng domain error; flag tắt trả503`QUIZ_V3_DISABLED`. Privacy guard trước mỗi external call; lỗi privacy không được biến thành câu local.
+`QUIZ_SOURCE_CHANGED` dừng sinh/công bố mới và giữ prefix đã công bố bất biến; allowed_actions có thể cho accept_shorter hoặc cancel. Nếu chưa có prefix thì cancel rồi kiểm điều kiện mới. Không tự thay số câu, dạng, ngôn ngữ hoặc mở rộng sang bộ mẫu. Lỗi hết hạn/action không hợp lệ dùng domain error; flag tắt trả503`QUIZ_V3_DISABLED`. Privacy guard trước mỗi external call; lỗi privacy không được biến thành câu local.
 
 ### Làm bài và feedback V3
 
@@ -351,6 +353,62 @@ Triển khai/kiểm chứng: xem report M11.3; chưa có pilot model thật, ch�
 
 ### Báo câu hỏi V3 — POST /quizzes/:id/questions/:ordinal/report → 202
 
-Body `{reason,note?,idempotency_key}`; reason ambiguous/wrong_meaning/wrong_reading/unnatural/other, note tối đa500ký tự và không nhận null; ordinal1–50 phải tồn tại trong đề ready của user/profile hiện tại. Response `{report_id,status:'pending',cache_excluded:true}`.
+Body `{reason,note?,idempotency_key}`; reason ambiguous/wrong_meaning/wrong_reading/unnatural/other, note tối đa500ký tự và không nhận null; ordinal1–50 phải tồn tại trong phần đề đã công bố của user/profile hiện tại, kể cả khi vẫn đang tạo câu sau. Response `{report_id,status:'pending',cache_excluded:true}`.
 
 Một pending/câu. Replay key/payload cùng receipt; đổi payload với key cũ409`QUIZ_IDEMPOTENCY_CONFLICT`; câu đã pending với key khác409`QUIZ_REPORT_NOT_AVAILABLE`. Không gọi model hoặc thêm usage/quota. Cách ly cache key trong cùng user/profile/language, kể cả bản copy ở các quiz khác; không sửa lịch sử/điểm. Question metadata có quality flag reported_pending. Pending là phản hồi chưa thẩm định, không phải kết luận câu sai. Chưa có API tự sửa/moderation UI.
+
+
+### M11.3 — 17/11: sinh từng câu và làm ngay khi có prefix
+
+Đã code local hướng mới, chưa deploy/bật feature. `AI_QUIZ_V3_MODEL` mặc định
+DeepSeek4.1Flash, low; model legacy không đổi. Không có call AIvalidator/audit
+bắt buộc trong đườngV3mới. BE cố định ID/nguồn/answerkey, AI sinh context hoặc
+bốn câu usage theo key giao; kiểm JSON,Unicode,span,choices,trùng/lộ câu xác định
+bằng code. Chưa chứng minh không còn mơ hồ ngữ nghĩa. CâuAI có qualityflag
+`generated_self_checked`; không mô tả là chuyên gia đã kiểm định.
+
+- Poll job khoảng2s; nếu `can_start:true` thì mở detail/start, không đợi ready.
+  `published_count` tăng theo câu đã lưu; ordinal là thứ tự công bố bất biến,
+  có thể khác thứ tự requestAI. FE không reorder theo skill/target.
+- Session đang tạo thêm có `settings.generation_pending:true` và item_count là
+  số dự kiến; items hiện có là prefix. Đọc lại cùng session để nhận phần append,
+  không gọi new_attempt mỗi lần poll. Khi false, item_count là số chốt thực tế.
+- Trả lời ordinal chưa có:409`QUIZ_QUESTION_PENDING`; giữ đáp án đã lưu và chờ
+  refetch. Finish khi còn tạo:409`QUIZ_GENERATION_PENDING`; dùng actions theo
+  allowed_actions nếu muốn nhận phần đã có hoặc hủy.
+- Đủ câu thì chốt; thiếu thì needs_action. Retry chỉ slot thiếu trong tối đa2pass/
+  round, không sửa câu đã công bố. Userretry/recovery giữ giới hạn3round/90intent.
+- Feedback/đáp án vẫn ẩn đến completion; report map theo publicordinal.
+- Request model phát giãn300ms, tối đa20in-flight mỗi lượt; timeout mặc định20s
+  gồm cả chờ gate. Gate dùng chung model/baseURL/credential giữa các transport
+  trong mộtprocess, gồm chat thường/SSE nếu cùng scope. Không khóa DB quaAI.
+  Không phải distributedrate limiter; nhiều replica cần gateway giữ5req/s hoặc
+  điều phối tập trung. Các client khác ngoàiprocess không nằm trong bộ đếm này.
+- ENV mới: `AI_QUIZ_V3_MODEL`, `AI_QUIZ_V3_CALL_TIMEOUT_MS`(1000–60000,default20000).
+  `AI_QUIZ_V3_ENABLED` vẫn false mặc định. AI_QUIZ_MODEL/VALIDATOR legacy giữ nguyên.
+
+[Handoff FE mới](../handoff/m11.3-single-question-progressive-fe-2026-11-17.md)
+và [báo cáo implementation](../reviews/m11.3-single-question-implementation-2026-11-17.md).
+
+
+### M11.3 — 17/11: AI đề xuất đáp án nhiễu Kanji
+
+Ở singlemode, `kanji_reading` và `kanji_orthography` nhận `source_policy:
+"ai_distractors"` trong preflight và metadata nội bộ. Từ đang kiểm tra và đáp
+án đúng vẫn thuộc bộ/snapshot; chỉ ba phương án sai được AI đề xuất, có thể là
+cách đọc hoặc dạng viết không có trong bộ. Không thêm các phương án sai vào từ
+điển, collection hay liên kết nghĩa. Đây là cập nhật cho mô tả orthography chỉ
+lấy lựa chọn trong bộ ở các mục trước.
+
+Cùng một call trả context+3distractors; BE tự chèn đáp án chuẩn và giữ thứ tự/
+index, không nhận answerkey hoặc ID từ AI. Marker/span/publicschema giữ nguyên.
+Code loại trùng sauNFKC/kanafold, đọc đúng khác/cách viết tương đương và homophone
+đã biết từ snapshot, cách ghi cùngphátâm trườngâm, Unicodehỏng, sai script hoặc
+nhiễu quáxa (đọc tối đa2edit, viết1edit, chênh độdài tốiđa1). Không fallback sang
+nhiễu dễ cũ nếu thiếu hoặc bị loại; slot đó đi qua retry hữu hạn đã có.
+
+Giữ capacityplanning bảo thủ và model/rate/timeout hiện tại. Không cam kết nhiễu
+đều khó hoặc đã loại mọi alias ngoài snapshot. Qualityflaggenerated_self_checked
+và quyền report vẫn giữ; không gọi nội dung này là đã chuyên gia thẩm định.
+FE chỉ cần chấp nhận source_policy enum mới khi dùng generatedclient, không tự
+chọn/reorder/thêm đáp án nhiễu. Thay đổi local, chưa deploy/bậtV3.

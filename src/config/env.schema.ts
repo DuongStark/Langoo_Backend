@@ -42,6 +42,16 @@ function isValidMediaBaseUrl(val: string): boolean {
  *   siết chặt dần khi milestone đó bắt đầu (không đổi ngoài phạm vi M0).
  */
 export const envSchema = z.object({
+  AI_QUIZ_V3_MODEL: z.preprocess(
+    emptyToUndefined,
+    z.string().default('deepseek-ai/deepseek-v4.1-flash'),
+  ),
+  AI_QUIZ_V3_CALL_TIMEOUT_MS: z.coerce
+    .number()
+    .int()
+    .min(1000)
+    .max(60000)
+    .default(20000),
   AI_QUIZ_V3_ENABLED: z.preprocess(booleanEnv, z.boolean().default(false)),
   AI_QUIZ_V3_BUDGET_MS: z.coerce
     .number()

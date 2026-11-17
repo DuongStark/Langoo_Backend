@@ -1,0 +1,349 @@
+{
+  "task": "M11.3",
+  "date": "2026-11-17",
+  "model": "deepseek-ai/deepseek-v4.1-flash",
+  "policy": "JA, low, 20 one-question prompts, 5 launches/sec, no retry; review after generation excluded from timing",
+  "requests": [
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"target\":{\"itemId\":\"public-ja-0\",\"senseId\":\"public-ja-sense-0\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学校\",\"reading\":\"がっこう\",\"romanization\":null,\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学校\",\"reading\":\"がっこう\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":2,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"target\":{\"itemId\":\"public-ja-5\",\"senseId\":\"public-ja-sense-5\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"病院\",\"reading\":\"びょういん\",\"romanization\":null,\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"病院\",\"reading\":\"びょういん\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"target\":{\"itemId\":\"public-ja-0\",\"senseId\":\"public-ja-sense-0\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学校\",\"reading\":\"がっこう\",\"romanization\":null,\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学校\",\"reading\":\"がっこう\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":4,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"target\":{\"itemId\":\"public-ja-1\",\"senseId\":\"public-ja-sense-1\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学生\",\"reading\":\"がくせい\",\"romanization\":null,\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学生\",\"reading\":\"がくせい\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":5,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"target\":{\"itemId\":\"public-ja-6\",\"senseId\":\"public-ja-sense-6\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"romanization\":null,\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"電車\",\"reading\":\"でんしゃ\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":6,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-1\",\"target\":{\"itemId\":\"public-ja-1\",\"senseId\":\"public-ja-sense-1\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学生\",\"reading\":\"がくせい\",\"romanization\":null,\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学生\",\"reading\":\"がくせい\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":7,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-2\",\"target\":{\"itemId\":\"public-ja-2\",\"senseId\":\"public-ja-sense-2\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"先生\",\"reading\":\"せんせい\",\"romanization\":null,\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"先生\",\"reading\":\"せんせい\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"target\":{\"itemId\":\"public-ja-7\",\"senseId\":\"public-ja-sense-7\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"切符\",\"reading\":\"きっぷ\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"target\":{\"itemId\":\"public-ja-2\",\"senseId\":\"public-ja-sense-2\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"先生\",\"reading\":\"せんせい\",\"romanization\":null,\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"先生\",\"reading\":\"せんせい\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":10,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"target\":{\"itemId\":\"public-ja-3\",\"senseId\":\"public-ja-sense-3\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"大学\",\"reading\":\"だいがく\",\"romanization\":null,\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"大学\",\"reading\":\"だいがく\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":11,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"target\":{\"itemId\":\"public-ja-8\",\"senseId\":\"public-ja-sense-8\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"乗客\",\"reading\":\"じょうきゃく\",\"romanization\":null,\"meaningVi\":\"hành khách\",\"glossEn\":[\"passenger\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"乗客\",\"reading\":\"じょうきゃく\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":12,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-3\",\"target\":{\"itemId\":\"public-ja-3\",\"senseId\":\"public-ja-sense-3\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"大学\",\"reading\":\"だいがく\",\"romanization\":null,\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"大学\",\"reading\":\"だいがく\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":13,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-4\",\"target\":{\"itemId\":\"public-ja-4\",\"senseId\":\"public-ja-sense-4\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"romanization\":null,\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"図書館\",\"reading\":\"としょかん\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"target\":{\"itemId\":\"public-ja-9\",\"senseId\":\"public-ja-sense-9\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"荷物\",\"reading\":\"にもつ\",\"romanization\":null,\"meaningVi\":\"hành lý\",\"glossEn\":[\"luggage\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"荷物\",\"reading\":\"にもつ\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"target\":{\"itemId\":\"public-ja-4\",\"senseId\":\"public-ja-sense-4\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"romanization\":null,\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"図書館\",\"reading\":\"としょかん\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":16,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"target\":{\"itemId\":\"public-ja-6\",\"senseId\":\"public-ja-sense-6\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"romanization\":null,\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"電車\",\"reading\":\"でんしゃ\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"target\":{\"itemId\":\"public-ja-10\",\"senseId\":\"public-ja-sense-10\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"入口\",\"reading\":\"いりぐち\",\"romanization\":null,\"meaningVi\":\"lối vào\",\"glossEn\":[\"entrance\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"入口\",\"reading\":\"いりぐち\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"target\":{\"itemId\":\"public-ja-5\",\"senseId\":\"public-ja-sense-5\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"病院\",\"reading\":\"びょういん\",\"romanization\":null,\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"病院\",\"reading\":\"びょういん\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":19,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"target\":{\"itemId\":\"public-ja-7\",\"senseId\":\"public-ja-sense-7\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"切符\",\"reading\":\"きっぷ\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":20,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"target\":{\"itemId\":\"public-ja-11\",\"senseId\":\"public-ja-sense-11\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"出口\",\"reading\":\"でぐち\",\"romanization\":null,\"meaningVi\":\"lối ra\",\"glossEn\":[\"exit\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"出口\",\"reading\":\"でぐち\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    }
+  ],
+  "progress": [],
+  "generation": {
+    "wallMs": 12626,
+    "exitCode": 255,
+    "error": null,
+    "entries": []
+  },
+  "questions": [],
+  "summary": {
+    "received": 0,
+    "successful": 0,
+    "structuralValid": 0,
+    "firstValidMs": null,
+    "wallMs": 12626,
+    "tokensIn": 0,
+    "tokensOut": 0,
+    "returnedIdMismatches": 0,
+    "contentShapeValid": 0,
+    "sourceAnswerMismatches": 0
+  },
+  "sourceAnswerChecks": []
+}

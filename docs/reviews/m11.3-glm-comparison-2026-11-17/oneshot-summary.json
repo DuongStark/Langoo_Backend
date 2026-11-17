@@ -1,0 +1,80 @@
+[
+  {
+    "case": "en-daily-travel-20",
+    "wallMs": 122583,
+    "ok": false,
+    "count": 0,
+    "structuralErrors": [
+      "Expected exactly 20 questions",
+      "Missing/duplicate id 1",
+      "Missing/duplicate id 2",
+      "Missing/duplicate id 3",
+      "Missing/duplicate id 4",
+      "Missing/duplicate id 5",
+      "Missing/duplicate id 6",
+      "Missing/duplicate id 7",
+      "Missing/duplicate id 8",
+      "Missing/duplicate id 9",
+      "Missing/duplicate id 10",
+      "Missing/duplicate id 11",
+      "Missing/duplicate id 12",
+      "Missing/duplicate id 13",
+      "Missing/duplicate id 14",
+      "Missing/duplicate id 15",
+      "Missing/duplicate id 16",
+      "Missing/duplicate id 17",
+      "Missing/duplicate id 18",
+      "Missing/duplicate id 19",
+      "Missing/duplicate id 20"
+    ],
+    "answerAgreement": null
+  },
+  {
+    "case": "ja-kanji-daily-20",
+    "wallMs": 58476,
+    "providerMs": 56020,
+    "ok": true,
+    "count": 20,
+    "structuralErrors": [],
+    "reviewCount": 20,
+    "answerAgreement": 19,
+    "flags": [
+      {
+        "id": 3,
+        "chosenIndex": 0,
+        "alternateIndices": [
+          2
+        ],
+        "quality": "ambiguous",
+        "issue": "Children go to school every morning, but going to the library is also plausible without more context."
+      },
+      {
+        "id": 6,
+        "chosenIndex": 1,
+        "alternateIndices": [
+          0
+        ],
+        "quality": "ambiguous",
+        "issue": "Sister studies Japanese at school (学校) is more natural than with 学生/先生; options lack the intended noun and 先生で is odd."
+      },
+      {
+        "id": 9,
+        "chosenIndex": 0,
+        "alternateIndices": [
+          1
+        ],
+        "quality": "ambiguous",
+        "issue": "私の先生 is natural, but 私の学生 is also possible though less common; both grammatically plausible."
+      },
+      {
+        "id": 17,
+        "chosenIndex": 0,
+        "alternateIndices": [
+          2
+        ],
+        "quality": "ambiguous",
+        "issue": "Both 入口 and 入り口 are valid spellings for 'いりぐち'; two correct choices."
+      }
+    ]
+  }
+]

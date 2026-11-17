@@ -13,6 +13,7 @@ import { Prisma } from '../../generated/prisma/client';
 import { mathRng } from '../../srs/scheduler/fuzz';
 import { SrsService } from '../../srs/srs.service';
 import { QuizQuestionType } from '../../sessions/quiz-content';
+import { buildItemPrompt } from './quiz-session-snapshot';
 import { SessionsService } from '../../sessions/sessions.service';
 import { SessionDetailResponse } from '../../sessions/types/sessions.types';
 import { profileLanguageScopeKey } from '../../users/profile-languages';
@@ -29,8 +30,8 @@ import { buildQuizQuestions } from './quiz-generator';
 import {
   canonicalQuestionTypes,
   metadataSchema,
-  QUIZ_VERSION,
   readQuestionMetadata,
+  QUIZ_VERSION,
   QuizQuestionMetadata,
 } from './quiz-contract';
 import { QuizSourceRepository } from './repositories/quiz-source.repository';
@@ -487,91 +488,107 @@ export class QuizService {
     intent: 'resume' | 'new_attempt' = 'resume',
     attemptKey?: string,
   ): Promise<SessionDetailResponse> {
-    const quiz = await this.prisma.quiz.findFirst({
-      where: { id: quizId, userId },
-    });
-    if (!quiz) {
-      throw quizNotFound();
-    }
-
-    const now = new Date();
-    if (
-      quiz.status === 'expired' ||
-      (quiz.expiresAt !== null && quiz.expiresAt <= now)
-    ) {
-      if (quiz.status !== 'expired') {
-        await this.prisma.quiz.update({
-          where: { id: quiz.id },
-          data: { status: 'expired' },
-        });
-      }
-      throw new DomainException(
-        'QUIZ_EXPIRED',
-        'Quiz đã hết hạn, hãy tạo quiz mới',
-        HttpStatus.CONFLICT,
-      );
-    }
-    if (quiz.status !== 'ready') {
-      throw new DomainException(
-        'QUIZ_NOT_READY',
-        'Quiz chưa sẵn sàng để làm bài',
-        HttpStatus.CONFLICT,
-      );
-    }
-
-    const questions = await this.prisma.quizQuestion.findMany({
-      where: { quizId },
-      orderBy: { ordinal: 'asc' },
-    });
-    if (questions.length === 0) {
-      throw new DomainException(
-        'QUIZ_NOT_READY',
-        'Quiz chưa có câu hỏi',
-        HttpStatus.CONFLICT,
-      );
-    }
-
-    const sessionId = uuidv7();
-    const mode = sessionModeFor(
-      quiz.quizType,
-      questions[0].questionType as QuizQuestionType,
-    );
-    const isV3 =
-      typeof quiz.generator === 'object' &&
-      quiz.generator !== null &&
-      'version' in quiz.generator &&
-      quiz.generator.version === 'm11.3-v3';
-    const targetKeys = new Set<string>();
-    if (
-      isV3 &&
-      typeof quiz.generator === 'object' &&
-      quiz.generator !== null &&
-      'content' in quiz.generator &&
-      Array.isArray(quiz.generator.content)
-    ) {
-      for (const entry of quiz.generator.content as unknown[]) {
-        if (
-          typeof entry !== 'object' ||
-          entry === null ||
-          !('targets' in entry) ||
-          !Array.isArray(entry.targets)
-        )
-          continue;
-        for (const target of entry.targets as unknown[])
-          if (
-            typeof target === 'object' &&
-            target !== null &&
-            'senseId' in target &&
-            'languageId' in target
-          )
-            targetKeys.add(
-              `${String(target.languageId)}:${String(target.senseId)}`,
-            );
-      }
-    }
     const actualSessionId = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const quiz = await tx.quiz.findFirst({
+        where: { id: quizId, userId },
+      });
+      if (!quiz) {
+        throw quizNotFound();
+      }
+
+      const isV3 =
+        typeof quiz.generator === 'object' &&
+        quiz.generator !== null &&
+        'version' in quiz.generator &&
+        quiz.generator.version === 'm11.3-v3';
+      const now = new Date();
+      if (
+        quiz.status === 'expired' ||
+        (quiz.expiresAt !== null && quiz.expiresAt <= now)
+      ) {
+        if (quiz.status !== 'expired') {
+          await tx.quiz.update({
+            where: { id: quiz.id },
+            data: { status: 'expired' },
+          });
+        }
+        throw new DomainException(
+          'QUIZ_EXPIRED',
+          'Quiz đã hết hạn, hãy tạo quiz mới',
+          HttpStatus.CONFLICT,
+        );
+      }
+      if (quiz.status !== 'ready' && !(isV3 && quiz.status === 'generating')) {
+        throw new DomainException(
+          'QUIZ_NOT_READY',
+          'Quiz chưa sẵn sàng để làm bài',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const questions = await tx.quizQuestion.findMany({
+        where: { quizId },
+        orderBy: { ordinal: 'asc' },
+      });
+      if (questions.length === 0) {
+        throw new DomainException(
+          'QUIZ_NOT_READY',
+          'Quiz chưa có câu hỏi',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      const sessionId = uuidv7();
+      const mode = sessionModeFor(
+        quiz.quizType,
+        questions[0].questionType as QuizQuestionType,
+      );
+      const targetKeys = new Set<string>();
+      if (
+        isV3 &&
+        typeof quiz.generator === 'object' &&
+        quiz.generator !== null &&
+        'content' in quiz.generator &&
+        Array.isArray(quiz.generator.content)
+      ) {
+        const publication =
+          'publication' in quiz.generator &&
+          Array.isArray(quiz.generator.publication)
+            ? (quiz.generator.publication as { slotOrdinal: number }[])
+            : null;
+        const publishedSlots = publication
+          ? new Set(publication.map((p) => p.slotOrdinal))
+          : null;
+        for (const entry of quiz.generator.content as unknown[]) {
+          if (
+            publishedSlots &&
+            (typeof entry !== 'object' ||
+              entry === null ||
+              !('ordinal' in entry) ||
+              !publishedSlots.has(Number(entry.ordinal)))
+          )
+            continue;
+          if (
+            typeof entry !== 'object' ||
+            entry === null ||
+            !('targets' in entry) ||
+            !Array.isArray(entry.targets)
+          )
+            continue;
+          for (const target of entry.targets as unknown[])
+            if (
+              typeof target === 'object' &&
+              target !== null &&
+              'senseId' in target &&
+              'languageId' in target
+            )
+              targetKeys.add(
+                `${String(target.languageId)}:${String(target.senseId)}`,
+              );
+        }
+      }
       if (isV3) {
-        await lockUser(tx, userId);
         const currentProfile = await this.srs.getProfileContextInTransaction(
           tx,
           userId,
@@ -633,17 +650,21 @@ export class QuizService {
                   quiz_version: 'm11.3-v3',
                   target_count: targetKeys.size,
                   feedback_policy: 'after_completion',
+                  generation_pending: quiz.status === 'generating',
                   attempt_key: attemptKey ?? null,
                 }
               : {}),
           },
-          itemCount: questions.length,
+          itemCount:
+            isV3 && quiz.status === 'generating'
+              ? quiz.questionCount
+              : questions.length,
         },
       });
       await tx.studySessionItem.createMany({
-        data: questions.map((question, index) => ({
+        data: questions.map((question) => ({
           sessionId,
-          ordinal: index + 1,
+          ordinal: question.ordinal,
           quizQuestionId: question.id,
           prompt: buildItemPrompt(
             question,
@@ -829,49 +850,6 @@ function sessionModeFor(
     default:
       return 'multiple_choice';
   }
-}
-
-function promptKind(questionType: string): string {
-  switch (questionType) {
-    case 'fill_blank':
-      return 'typing';
-    case 'matching':
-      return 'matching';
-    default:
-      return 'multiple_choice';
-  }
-}
-
-function buildItemPrompt(
-  question: QuizQuestionRow,
-  metadata: QuizQuestionMetadata,
-): Record<string, unknown> {
-  const prompt: Record<string, unknown> = {
-    kind: promptKind(question.questionType),
-    text: question.prompt,
-    question_style: metadata.style,
-    context: metadata.context,
-    ...(metadata.skill
-      ? { skill: metadata.skill, quality_flags: metadata.qualityFlags ?? [] }
-      : {}),
-  };
-  const options = question.options;
-  if (question.questionType === 'multiple_choice' && Array.isArray(options)) {
-    prompt.options = options;
-  }
-  if (question.questionType === 'matching' && Array.isArray(options)) {
-    const entries = options.filter(
-      (entry): entry is { index: number; text: string; side?: string } =>
-        typeof entry === 'object' && entry !== null,
-    );
-    const pick = (side: string): { index: number; text: string }[] =>
-      entries
-        .filter((entry) => entry.side === side)
-        .map((entry) => ({ index: entry.index, text: entry.text }));
-    prompt.left = pick('left');
-    prompt.right = pick('right');
-  }
-  return prompt;
 }
 
 function toQuizResponse(row: QuizRow): QuizResponse {

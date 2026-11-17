@@ -8,6 +8,54 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-17 — M11.3 — Đóng gói quiz từng câu và nhiễu Kanji để push
+
+- Thay đổi / lý do: Chủ dự án yêu cầu push, không chạy lại test local. Gom toàn bộ dependency progressive/session của M11.3 cùng singlemodeDeepSeek/nhiễuKanji, test và docs đã kiểm; không gom DB3/M12/docs việc khác.
+- File / phạm vi: Quiz/session/transportgate/config, helper/script/fixture và tài liệu M11.3; [handoffFE](docs/handoff/m11.3-single-question-progressive-fe-2026-11-17.md), [report](docs/reviews/m11.3-single-question-implementation-2026-11-17.md).
+- Kiểm tra / kết quả: Dùng kết quả đã chạy (48unit liên quan,17HTTP,build/lint PASS), không chạy lại theo yêu cầu; chỉ kiểm diff/stage và Gitremote. CI tự động của repo vẫn giữ nguyên, không sửa workflow.
+- Gate còn thiếu / việc tiếp theo: CI/deploy tự động sau push, FE chưa nghiệm thu; V3live vẫn tắt, không đổi ENVVPS hoặc hứa luồng mới đã mở.
+- Git / triển khai: Chuẩn bị commit/push main theo yêu cầu; receipt hash/remote được ghi sau khi push thành công. Không forcepush, không sửa FE hoặc WIP ngoài phạm vi.
+
+### 2026-11-17 — M11.3 — AI đề xuất nhiễu Kanji gần và dễ nhầm
+
+- Thay đổi / lý do: Theo yêu cầu choAI chọnnhiễu, singlemodeKanji mộtcalltrảcontext+3distractors; BE tự chèn đápán chuẩn, không nhận key/ID từmodel. Prompt ưu tiên âm/chữdễnhầm; codechặntrùng/kana-width/phonetictrườngâm/alias-homophoneđãbiết/okurigana/Unicode/nhiễuquáxa; khôngfallbacknhiễucũ. CacheKanji đổi policy để không lấy lại câu dễ.
+- File / phạm vi: Engine,testsKanji/single/worker; preflight+DTO/OpenAPI thêm source_policy ai_distractors (nhiễucóthểngoàibộ, target/answer vẫntrongbộ); smokehelper; [plan](docs/plans/m11.3-progressive-quiz-2026-11-17.md), [report](docs/reviews/m11.3-single-question-implementation-2026-11-17.md), [handoffFE](docs/handoff/m11.3-single-question-progressive-fe-2026-11-17.md), API. Không sửaFE/legacy/DB/ENV/rate.
+- Kiểm tra / kết quả:4suite/48unitPASS cuối; HTTPPostgreSQL17/17PASS, gồmOpenAPIenum; buildPASS và ESLint8fileảnhhưởngPASS. Smoke6response:5quaparserbanđầu,1JSONcắt1800token; xemthủcông phát hiện2câu cùngphátâm nênbổsunggate. Replaylocal0externalcall qua gatehiệntại chỉgiữ3/6, loại2phonetic+1JSONhỏng; khôngnhầmvớibenchmarklive.
+- Gate còn thiếu / việc tiếp theo:3callsmokepromptmới khôngnhậnresponsequaSSH, chưaxácnhậnlive sauchỉnhtrườngâm. Chưapilotlặp20câu/độkhó/ngườidùng/aliasngoàisnapshot; editdistancekhôngchứngminhđộkhó. Giữselfchecked/report vàretryhữuhạn; khôngnhãnchuyêngiaduyệt. Capacityplanningvẫnbảothủ.
+- Git / triển khai: Code/docs/3artifactlocal,chưacommit/push/deploy/bậtV3. Khôngthay cấu hìnhVPS, giữWIPkhác.
+
+### 2026-11-17 — M11.3 — DeepSeek sinh từng câu và làm bài trong lúc tạo tiếp
+
+- Thay đổi / lý do: Đã tích hợp hướng chủ dự án chốt: V3DeepSeeklow,1request/câu,300msgiữa dispatch,tối đa20task song song. BỏAIvalidator/audit bắt buộc trong nhánhV3mới; server giữ mã/nguồn/answerkey, kiểmcode/marker/Unicode/trùng-lộ câu và flaggenerated_self_checked. Publish ngay từng câu vào prefix bất biến, giữ lifecycle/sessionprogressive đang làm.
+- File / phạm vi: SharedgateOpenAi thường/SSE, engine/factory/workerV3, ENVschema/.env.example, unit/E2E và smokehelper; [plan](docs/plans/m11.3-progressive-quiz-2026-11-17.md), [report](docs/reviews/m11.3-single-question-implementation-2026-11-17.md), [handoffFE](docs/handoff/m11.3-single-question-progressive-fe-2026-11-17.md), [API](docs/api/quizzes.md). Không sửaFE/schemaDB hoặc modellegacy/chat.
+- Kiểm tra / kết quả: Fullunit80suite/708testPASS tại đợt tích hợp; sau chỉnhfacade/fixture,3suite/21test liên quan PASS. HTTPPostgreSQL17/17PASS lần cuối trênDBtest riêng (DBmặc định tắt, đã ghi lỗi ban đầu). BuildPASS; ESLint14file ảnh hưởngPASS và diffcheckPASS. Smokeprovider thật: EN2/3,JA3/3 (6callkhôngretry), không dùng làm SLA20câu.
+- Gate còn thiếu / việc tiếp theo: Chưapilotlặp20câu bằng appthật/ENJA nângcao/nguồn500item/nhiềujob/FEbrowser. Selfcheckkhông bảo đảm hếtmơhồ. Gatechia sẻtrong1process,cần gateway5req/s khi nhiều replica. Timeout20s gồmqueue,2pass tựđộng/chỉslotthiếu; giữ3round/90intent. Receipt riêng theo call và uncertainty nếutimeout, không làm mất chi phí khi vềngược thứtự.
+- Git / triển khai: Code/docs/artifactlocal,chưacommit/push/deploy hoặc bậtV3live. ENVV3model/timeout riêng,không đụng cấu hìnhlegacy. Giữ WIP khác ngoài phạmvi; không tự gộp commit hoặc sửaFE.
+
+### 2026-11-17 — M11.3 — DeepSeek prompt theo kỹ năng và gửi đều300ms
+
+- Thay đổi / lý do: Theo thông tin model giới hạn5req/s, thử prompt cụ thể từng slot/đáp án chuẩn, phát300ms/request.19/20câu về trong16,041s;slot12timeout60s,tổng63,315sremote. Không429,không sai id/đáp án đọc-viết; chưa đủ20câu.
+- File / phạm vi: Profilepaced-refined trong scripts/review/m11.3-glm-parallel.cjs; [plan](docs/plans/m11.3-glm-comparison-2026-11-17.md), [report](docs/reviews/m11.3-glm-comparison-2026-11-17.md),rawparallel-deepseek-ja-paced-refined.json. Không sửa app/ENV/FE/DB.
+- Kiểm tra / kết quả:19JSON/metadata hợp lệ,19/19đáp án đồng ý trong blindreview,0cờ;max4dispatch/rolling1s;0Unicodehỏng. Xem thủ công và audit thấy4câu thiếu dấu【】theoformat(slot1,4,7,10),đã ghi hạn chế. node --check/JSONparse/diffcheck PASS.
+- Gate còn thiếu / việc tiếp theo:1câuthiếu doTimeoutError không cóHTTPstatus,chưa chứng minhrate limit. Cần xử lý câu lỗi hữu hạn/định dạng và rate chung mọi job trước khi tích hợp; chưarepeat/EN/advanced/E2E. Không coi prompt tự kiểm làbảo đảm đúng.
+- Git / triển khai: Localchưacommit/push/deploy,không đổi modelproduction/bậtV3; giữ WIP khác.
+
+### 2026-11-17 — M11.3 — Thử sinh từng câu song song bằng GLM và DeepSeek
+
+- Thay đổi / lý do: Theo yêu cầu5request/giây, thử20promptJA ởt=0,1,2,3s. GLM17/20call thành công trong8,499sremote,3lỗi429 và3answerkey sai nguồn. DeepSeek19/20 trong23,009sremote (25,874sgồmSSH),1providererror; nội dung19câu khớp khi review riêng, chưa khẳng định ổn định từ1mẫu.
+- File / phạm vi: scripts/review/m11.3-glm-parallel.cjs, m11.3-parallel-content-review.cjs; [plan](docs/plans/m11.3-glm-comparison-2026-11-17.md), [report](docs/reviews/m11.3-glm-comparison-2026-11-17.md), rawparallel*.json. Không sửa engine/FE/DB/ENV.
+- Kiểm tra / kết quả: node --check PASS,JSONparse/diffcheck PASS;20request hai model giống nhau trừmodel. DeepSeek trả18id sai vì sao chép ví dụid1; tách metadata khỏi chất lượng, server gắn mã theo request khi review19câu. Blindjudge đồng ý19/19khôngcờ; cùng họmodel nên có bias. Kiểm nguồn đọc/viết không có sai đáp án ởDeepSeek.
+- Gate còn thiếu / việc tiếp theo: Chưa đủ20câu vìcalllỗi, chưa đo lặp/tải/EN/độkhó. Không bỏ kiểm nội dung từ chỉ dẫn tự kiểm. Cần sửa promptidentity, điều phối và retry hữu hạn trước khi tích hợp; không chốt giới hạnrate từ1lượt429.
+- Git / triển khai: Script/docs/artifactlocal chưacommit/push/deploy; không đổi modelproduction hoặc bậtV3, giữWIPkhác.
+
+### 2026-11-17 — M11.3 — Đối chứng GLM và DeepSeek trên cùng bộ quiz
+
+- Thay đổi / lý do: Đo cùng nguồn/prompt/low, GLM đủ 20/20 EN+JA trong 28,50/61,75s; DeepSeek 20/20 EN 61,25s, JA 15/20 79,12s. GLM sinh đầu 20 câu chỉ 9,20/9,44s provider; kiểm/audit/sửa làm tăng tổng thời gian. Runtime quiz vốn dùng GLM, không đổi ENV.
+- File / phạm vi: Ba script riêng scripts/review/m11.3-glm-{compare,review,oneshot}.cjs; [plan](docs/plans/m11.3-glm-comparison-2026-11-17.md), [report](docs/reviews/m11.3-glm-comparison-2026-11-17.md), artifact cùng tên. Giữ nguồn đóng băng, không sửa engine/pilot WIP khác.
+- Kiểm tra / kết quả: Hai model/hai ngôn ngữ có raw và review bổ sung đủ mã câu; GLM đồng ý đáp án 40/40 nhưng còn cờ mơ hồ. node --check ba script, JSON parse và git diff --check PASS. Kiểm unit quiz trước đó 3 suite/32 test PASS.
+- Gate còn thiếu / việc tiếp theo: Một call sinh trọn đề: JA20/20 trong58,48s, blindjudge19/20 đồng ý nhưng4câu có cờ; xem trực tiếp xác nhận 入口/入り口 hai đáp án đúng và câu 学生で không ổn. EN TypeError122,58s không có đề; chưa biết nguyên nhân. Chưa P95/DB/FE/E2E/progressive hoặc chuyên gia thẩm định; không suy ra hết lỗi từ blind review.
+- Git / triển khai: Local chưa commit/push/deploy; không bật V3, không đổi FE/API/DB/model production. Prototype one-shot đã đo JA; EN lỗi transport, chưa đủ cơ sở bỏ bước kiểm.
+
 ### 2026-11-17 — M12 — A3F0C7: nghĩa xem trước và mã Nhật cho tra ngược
 
 - Thay đổi / lý do: Theo yêu cầu xử lý feedbackA3F0C7, A06.1/A12 thêm preview cùng SenseCardDto của search vào en/ja; JA lexeme_id/sense_id nullable để mở trực tiếp, chọn đúng bằng chứng nghĩa và bảo toàn ambiguity. Cả reverse và suggestions/reverse, giữ aliases/order/scope; không gọi search/AI từng dòng.

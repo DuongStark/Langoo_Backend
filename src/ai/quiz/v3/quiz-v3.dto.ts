@@ -78,6 +78,7 @@ export class QuizSkillEligibilityResponse {
     enum: [
       'collection_only',
       'reading_rule',
+      'ai_distractors',
       'same_word_sentences',
       'unavailable',
     ],
@@ -133,6 +134,8 @@ export class QuizJobResponse {
   phase!: string;
   @ApiProperty() requested_count!: number;
   @ApiProperty() validated_count!: number;
+  @ApiProperty() published_count!: number;
+  @ApiProperty() can_start!: boolean;
   @ApiProperty({ type: [QuizJobSkillProgressResponse] })
   by_skill!: QuizJobSkillProgressResponse[];
   @ApiProperty({ type: [String] }) allowed_actions!: string[];

@@ -255,7 +255,25 @@ export class SessionsService {
           HttpStatus.NOT_FOUND,
         );
       }
+      const generationPending =
+        isV3Quiz(session.settings) &&
+        typeof session.settings === 'object' &&
+        session.settings !== null &&
+        'generation_pending' in session.settings &&
+        session.settings.generation_pending === true;
       const item = session.items.find((entry) => entry.ordinal === dto.ordinal);
+      if (
+        !item &&
+        generationPending &&
+        session.status === 'in_progress' &&
+        dto.ordinal <= session.itemCount
+      ) {
+        throw new DomainException(
+          'QUIZ_QUESTION_PENDING',
+          'Câu tiếp theo đang được tạo, vui lòng thử lại.',
+          HttpStatus.CONFLICT,
+        );
+      }
       if (!item) {
         throw new DomainException(
           'SESSION_ITEM_NOT_FOUND',
@@ -391,7 +409,10 @@ export class SessionsService {
         const answeredQuiz = await tx.studySessionItem.count({
           where: { sessionId: session.id, answeredAt: { not: null } },
         });
-        if (answeredQuiz >= updatedQuizSession.itemCount) {
+        if (
+          !generationPending &&
+          answeredQuiz >= updatedQuizSession.itemCount
+        ) {
           const partialScore = isV3Quiz(session.settings)
             ? quizCreditScore(
                 await tx.studySessionItem.findMany({
@@ -676,6 +697,19 @@ export class SessionsService {
       ).length;
       if (session.status !== 'in_progress') {
         return toSessionResponse(session, answered);
+      }
+      if (
+        isV3Quiz(session.settings) &&
+        typeof session.settings === 'object' &&
+        session.settings !== null &&
+        'generation_pending' in session.settings &&
+        session.settings.generation_pending === true
+      ) {
+        throw new DomainException(
+          'QUIZ_GENERATION_PENDING',
+          'Hãy chấp nhận phần đã tạo hoặc hủy đề trước khi kết thúc.',
+          HttpStatus.CONFLICT,
+        );
       }
       const completed = answered >= session.itemCount;
       const updated = await tx.studySession.update({

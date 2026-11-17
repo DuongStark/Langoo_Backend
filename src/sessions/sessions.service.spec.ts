@@ -94,6 +94,39 @@ function createSetup() {
 }
 
 describe('SessionsService — removeWord (M7.3)', () => {
+  it('M11.3 returns a pending conflict for the next unpublished ordinal', async () => {
+    const { service, tx } = createSetup();
+    tx.studySession.findFirst.mockResolvedValue({
+      id: SESSION_ID,
+      userId: USER_ID,
+      kind: 'quiz',
+      status: 'in_progress',
+      itemCount: 3,
+      settings: { quiz_version: 'm11.3-v3', generation_pending: true },
+      items: [],
+    });
+    await expect(
+      service.answer(USER_ID, SESSION_ID, { ordinal: 2, option_index: 0 }),
+    ).rejects.toMatchObject({ code: 'QUIZ_QUESTION_PENDING' });
+  });
+
+  it('M11.3 blocks manual completion while generation is pending', async () => {
+    const { service, tx } = createSetup();
+    tx.studySession.findFirst.mockResolvedValue({
+      id: SESSION_ID,
+      userId: USER_ID,
+      kind: 'quiz',
+      status: 'in_progress',
+      itemCount: 3,
+      settings: { quiz_version: 'm11.3-v3', generation_pending: true },
+      items: [],
+    });
+    await expect(service.finish(USER_ID, SESSION_ID)).rejects.toMatchObject({
+      code: 'QUIZ_GENERATION_PENDING',
+    });
+    expect(tx.studySession.update).not.toHaveBeenCalled();
+  });
+
   it('M11.3 hides answer, correctness, partial credit and totals until the attempt ends', async () => {
     const { service, prisma } = createSetup();
     prisma.studySession.findFirst.mockResolvedValue({

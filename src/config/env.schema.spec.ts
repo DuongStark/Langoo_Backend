@@ -9,6 +9,9 @@ const base = {
 describe('validateEnv', () => {
   it('nhận cấu hình tối thiểu và áp giá trị mặc định', () => {
     const env = validateEnv(base);
+    expect(env.AI_QUIZ_V3_MODEL).toBe('deepseek-ai/deepseek-v4.1-flash');
+    expect(env.AI_QUIZ_V3_CALL_TIMEOUT_MS).toBe(20000);
+    expect(env.AI_QUIZ_V3_ENABLED).toBe(false);
     expect(env.NODE_ENV).toBe('development');
     expect(env.PORT).toBe(3000);
     expect(env.LOG_LEVEL).toBe('info');

@@ -1,0 +1,38 @@
+[
+  {
+    "model": "glm",
+    "case": "en-daily-travel-basic-single-20",
+    "count": 20,
+    "complete": true,
+    "agreement": 20,
+    "qualityFlags": 2,
+    "alternativeFlags": 3
+  },
+  {
+    "model": "glm",
+    "case": "ja-kanji-daily-basic-single-20",
+    "count": 20,
+    "complete": true,
+    "agreement": 20,
+    "qualityFlags": 0,
+    "alternativeFlags": 1
+  },
+  {
+    "model": "deepseek",
+    "case": "en-daily-travel-basic-single-20",
+    "count": 20,
+    "complete": true,
+    "agreement": 19,
+    "qualityFlags": 3,
+    "alternativeFlags": 3
+  },
+  {
+    "model": "deepseek",
+    "case": "ja-kanji-daily-basic-single-20",
+    "count": 15,
+    "complete": true,
+    "agreement": 15,
+    "qualityFlags": 6,
+    "alternativeFlags": 2
+  }
+]

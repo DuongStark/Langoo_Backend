@@ -101,4 +101,126 @@ describe('M11.3 batch engine', () => {
     ).rejects.toThrow('privacy');
     expect(chat).not.toHaveBeenCalled();
   });
+  it('ignores model-added answer fields but never lets them replace the server answer key', async () => {
+    const { engine, chat } = setup([
+      JSON.stringify({
+        results: [{ id: 'q1', valid: true, explanation: 'extra diagnostic' }],
+      }),
+    ]);
+    let assigned = -1;
+    chat.mockImplementationOnce((request) => {
+      const payload = JSON.parse(request.messages[1].content) as {
+        correctIndex: number;
+      }[];
+      assigned = payload[0].correctIndex;
+      return Promise.resolve({
+        content: JSON.stringify({
+          questions: [
+            {
+              id: 'q1',
+              options: [
+                'word0 option A',
+                'word0 option B',
+                'word0 option C',
+                'word0 option D',
+              ],
+              correctIndex: (assigned + 1) % 4,
+              id_note: 'untrusted-source-id',
+              valid: true,
+            },
+          ],
+        }),
+        tokensIn: 1,
+        tokensOut: 1,
+        costUsd: 0,
+        model: 'gen',
+      });
+    });
+    const questions = await engine.generate(
+      planQuiz(items, 1, ['usage'], 1).slots,
+      items,
+      jest.fn(),
+    );
+    expect(questions[0].question.correctAnswer.index).toBe(assigned);
+    expect(JSON.stringify(questions)).not.toContain('untrusted-source-id');
+    expect(chat).toHaveBeenCalledTimes(2);
+  });
+  it('keeps local and other valid questions when one known generated item has malformed fields', async () => {
+    const slots = planQuiz(
+      items,
+      1,
+      ['meaning', 'context_cloze', 'usage'],
+      3,
+    ).slots;
+    const target = slots[1].targets[0].lemma;
+    const { engine } = setup([
+      JSON.stringify({
+        questions: [
+          { id: 'q2', sentence: `Please choose 【${target}】 today.` },
+          { id: 'q3', options: ['only one choice'] },
+        ],
+      }),
+      JSON.stringify({ results: [{ id: 'q2', valid: true }] }),
+    ]);
+    expect(
+      (await engine.generate(slots, items, jest.fn())).map((q) => q.ordinal),
+    ).toEqual([1, 2]);
+  });
+  it('does not coerce a validator string into a trusted boolean', async () => {
+    const { engine } = setup([
+      generate,
+      JSON.stringify({ results: [{ id: 'q1', valid: 'true' }] }),
+    ]);
+    await expect(engine.generate(slot(), items, jest.fn())).rejects.toThrow();
+  });
+  it('rejects generated context that cannot be read by the public quiz contract', async () => {
+    const { engine, chat } = setup([
+      JSON.stringify({
+        questions: [
+          { id: 'q1', sentence: `${'Long context '.repeat(25)}【word0】.` },
+        ],
+      }),
+    ]);
+    const result = await engine.generate(
+      planQuiz(items, 1, ['context_meaning'], 1).slots,
+      items,
+      jest.fn(),
+    );
+    expect(result).toEqual([]);
+    expect(chat).toHaveBeenCalledTimes(1);
+  });
+  it('reuses the already certified options even when a fresh random draw would choose other distractors', async () => {
+    const source = [
+      ...items,
+      ...items.slice(1).map((item, i) => ({
+        ...item,
+        itemId: `more-${i}`,
+        senseId: `more-${i}`,
+        lemma: `more${i}`,
+        meaningVi: `nghĩa khác ${i}`,
+      })),
+    ];
+    let reverse = false;
+    const { chat } = setup([generate, valid]);
+    const engine = new QuizBatchEngine({
+      transport: { chat } as unknown as AiChatProvider,
+      generatorModel: 'gen',
+      validatorModel: 'val',
+      randomIndex: (max) => (reverse ? 0 : max - 1),
+    });
+    const slots = planQuiz(source, 1, ['context_cloze'], 1).slots;
+    const certified = await engine.generate(slots, source, jest.fn());
+    reverse = true;
+    const reused = engine.reuse(
+      [{ ...slots[0], ordinal: 9 }],
+      source,
+      certified,
+    );
+    expect(reused).toHaveLength(1);
+    expect(reused[0].question.options).toEqual(certified[0].question.options);
+    expect(reused[0].question.correctAnswer).toEqual(
+      certified[0].question.correctAnswer,
+    );
+    expect(chat).toHaveBeenCalledTimes(2);
+  });
 });

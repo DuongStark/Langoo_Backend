@@ -1,0 +1,165 @@
+[
+  {
+    "evaluated_model": "glm",
+    "case": "en-daily-travel-basic-single-20",
+    "judge": "deepseek-ai/deepseek-v4.1-flash",
+    "reasoningEffort": "none",
+    "wallMs": 11765,
+    "blind_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "response": {
+      "ok": true,
+      "elapsedMs": 9423,
+      "finishReason": "stop",
+      "reasoningTokens": 0,
+      "result": {
+        "content": "{\"reviews\":[{\"id\":1,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":2,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":3,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":4,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":5,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":6,\"chosenIndex\":1,\"alternateIndices\":[2],\"quality\":\"awkward\",\"difficulty\":\"appropriate\",\"issue\":\"station can mean nhà ga or sân ga; ambiguity\"},{\"id\":7,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":8,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":9,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":10,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":11,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":12,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":13,\"chosenIndex\":0,\"alternateIndices\":[1],\"quality\":\"awkward\",\"difficulty\":\"appropriate\",\"issue\":\"station loosely possible but platform is precise; slight ambiguity\"},{\"id\":14,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":15,\"chosenIndex\":1,\"alternateIndices\":[3],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"borrow could be defensible in some dialects but lend is correct\"},{\"id\":16,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":17,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":18,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":19,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":20,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"}]}",
+        "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+        "tokensIn": 2328,
+        "tokensOut": 660,
+        "costUsd": 0
+      }
+    }
+  },
+  {
+    "evaluated_model": "glm",
+    "case": "ja-kanji-daily-basic-single-20",
+    "judge": "deepseek-ai/deepseek-v4.1-flash",
+    "reasoningEffort": "none",
+    "wallMs": 6381,
+    "blind_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      6
+    ],
+    "response": {
+      "ok": true,
+      "elapsedMs": 4525,
+      "finishReason": "stop",
+      "reasoningTokens": 0,
+      "result": {
+        "content": "{\"reviews\":[{\"id\":1,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":2,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":3,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":4,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":5,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":7,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":8,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":9,\"chosenIndex\":0,\"alternateIndices\":[3],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"学生 could also teach a new word grammatically, though 先生 is more natural\"},{\"id\":10,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":11,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":12,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":13,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":14,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":15,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":16,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":17,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":18,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":19,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":20,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":6,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"}]}",
+        "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+        "tokensIn": 2347,
+        "tokensOut": 623,
+        "costUsd": 0
+      }
+    }
+  },
+  {
+    "evaluated_model": "deepseek",
+    "case": "en-daily-travel-basic-single-20",
+    "judge": "deepseek-ai/deepseek-v4.1-flash",
+    "reasoningEffort": "none",
+    "wallMs": 11372,
+    "blind_ids": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      14,
+      16,
+      17,
+      18,
+      19,
+      20,
+      13,
+      15
+    ],
+    "response": {
+      "ok": true,
+      "elapsedMs": 8870,
+      "finishReason": "stop",
+      "reasoningTokens": 0,
+      "result": {
+        "content": "{\"reviews\":[{\"id\":1,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":2,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"\"},{\"id\":3,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":4,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":5,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":6,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"distractors sân ga/station overlap semantically\"},{\"id\":7,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":8,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":9,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":10,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":11,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":12,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"distractor cho mượn (lend) is the classic opposite and leaks method\"},{\"id\":14,\"chosenIndex\":0,\"alternateIndices\":[1],\"quality\":\"awkward\",\"difficulty\":\"appropriate\",\"issue\":\"platform may be sân ga or nhà ga both defensible in Vietnamese\"},{\"id\":16,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":17,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":18,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":19,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":20,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"too_easy\",\"issue\":\"target word buy appears in prompt meaning options trivially\"},{\"id\":13,\"chosenIndex\":2,\"alternateIndices\":[0],\"quality\":\"awkward\",\"difficulty\":\"appropriate\",\"issue\":\"both platform and station plausible; platform more specific\"},{\"id\":15,\"chosenIndex\":3,\"alternateIndices\":[2],\"quality\":\"awkward\",\"difficulty\":\"too_hard\",\"issue\":\"borrow/lend ambiguity depends on perspective, instruction unclear\"}]}",
+        "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+        "tokensIn": 2224,
+        "tokensOut": 693,
+        "costUsd": 0
+      }
+    }
+  },
+  {
+    "evaluated_model": "deepseek",
+    "case": "ja-kanji-daily-basic-single-20",
+    "judge": "deepseek-ai/deepseek-v4.1-flash",
+    "reasoningEffort": "none",
+    "wallMs": 8083,
+    "blind_ids": [
+      1,
+      2,
+      3,
+      4,
+      6,
+      7,
+      10,
+      11,
+      12,
+      13,
+      14,
+      17,
+      20,
+      9,
+      15
+    ],
+    "response": {
+      "ok": true,
+      "elapsedMs": 5771,
+      "finishReason": "stop",
+      "reasoningTokens": 0,
+      "result": {
+        "content": "{\"reviews\":[{\"id\":1,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":2,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":3,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":4,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":6,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":7,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":10,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":11,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"awkward\",\"difficulty\":\"too_easy\",\"issue\":\"all distractors are from unrelated semantic domains, so guessing is trivial\"},{\"id\":12,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"awkward\",\"difficulty\":\"too_easy\",\"issue\":\"'学校' would also be a natural answer but is absent; only 大学 fits a place with へ行きます\"},{\"id\":13,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":14,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"difficulty\":\"appropriate\",\"issue\":\"\"},{\"id\":17,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"awkward\",\"difficulty\":\"too_easy\",\"issue\":\"distractors are unrelated vocabulary; guessing is trivial\"},{\"id\":20,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"awkward\",\"difficulty\":\"too_easy\",\"issue\":\"distractors unrelated; 出口 is obvious\"},{\"id\":9,\"chosenIndex\":0,\"alternateIndices\":[3],\"quality\":\"invalid\",\"difficulty\":\"too_easy\",\"issue\":\"both 先生 and 学生 are grammatical/defensible ('that person is a Japanese teacher/student'), making the item ambiguous\"},{\"id\":15,\"chosenIndex\":0,\"alternateIndices\":[1],\"quality\":\"invalid\",\"difficulty\":\"too_easy\",\"issue\":\"both 図書館 and 学校 are defensible places to read books; ambiguous\"}]}",
+        "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+        "tokensIn": 1739,
+        "tokensOut": 570,
+        "costUsd": 0
+      }
+    }
+  }
+]

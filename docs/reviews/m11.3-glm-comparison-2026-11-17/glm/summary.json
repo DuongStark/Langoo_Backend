@@ -1,0 +1,74 @@
+{
+  "results": [
+    {
+      "name": "en-daily-travel-basic-single-20",
+      "warm": false,
+      "ready": true,
+      "audited": true,
+      "requested": 20,
+      "approved": 20,
+      "reused": 0,
+      "firstValidatedMs": 17753,
+      "wallMs": 28499,
+      "providerMs": 24549,
+      "calls": 3,
+      "tokensIn": 8711,
+      "tokensOut": 1075,
+      "bySkill": [
+        {
+          "skill": "context_cloze",
+          "requested": 10,
+          "approved": 10
+        },
+        {
+          "skill": "context_meaning",
+          "requested": 10,
+          "approved": 10
+        }
+      ],
+      "errors": [],
+      "sourceHash": "177ece1ee6621ffa33ffdb38cfc81d91adeaa0f3a9bc51260c9f7ec25e6761b7"
+    },
+    {
+      "name": "ja-kanji-daily-basic-single-20",
+      "warm": false,
+      "ready": true,
+      "audited": true,
+      "requested": 20,
+      "approved": 20,
+      "reused": 0,
+      "firstValidatedMs": 35786,
+      "wallMs": 61746,
+      "providerMs": 55429,
+      "calls": 5,
+      "tokensIn": 9334,
+      "tokensOut": 1016,
+      "bySkill": [
+        {
+          "skill": "kanji_reading",
+          "requested": 7,
+          "approved": 7
+        },
+        {
+          "skill": "kanji_orthography",
+          "requested": 7,
+          "approved": 7
+        },
+        {
+          "skill": "context_cloze",
+          "requested": 6,
+          "approved": 6
+        }
+      ],
+      "errors": [],
+      "sourceHash": "6bf6e2d6d26f766e0d875c771ae16197f4ceb4aeae16d309dec6810a6a992447"
+    }
+  ],
+  "calls": 10,
+  "limitations": [
+    "Small pilot, not p95/p99",
+    "SSH adds latency; providerMs separately logged",
+    "No production DB/FE latency measured",
+    "Blind reviewer may share the generator model; not human certification"
+  ]
+}

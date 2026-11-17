@@ -1,0 +1,26 @@
+{
+  "utc": "2026-11-17T02:26:09.305Z",
+  "localCommit": "505e1fbb0d3c5533b9cceace4a86d2dc03a78dae",
+  "engineHash": "6a3c69cdd293cd4733fd36cc77538a48c358d4f3",
+  "metadata": {
+    "ok": true,
+    "configured": true,
+    "provider": "openai",
+    "generatorModel": "zai-org/glm-5.3-flash",
+    "validatorModel": "zai-org/glm-5.3-flash",
+    "reasoningEffort": "low",
+    "providerOrigin": "https://api-cdn.deploy.com",
+    "serverCommit": null,
+    "v3Enabled": false
+  },
+  "effectiveGeneratorModel": "deepseek-ai/deepseek-v4.1-flash",
+  "effectiveValidatorModel": "deepseek-ai/deepseek-v4.1-flash",
+  "snapshotSource": "/tmp/langoo-m113-compare-CwmTM3",
+  "fixtureKind": "authored public vocabulary with synthetic IDs; no DB or learner records",
+  "scope": "real AI generation/validation/audit; excludes DB, queue and FE",
+  "maxCalls": 16,
+  "budgetPerCaseMs": 120000,
+  "mode": "single",
+  "preset": "basic",
+  "effectiveReasoningEffort": "low"
+}

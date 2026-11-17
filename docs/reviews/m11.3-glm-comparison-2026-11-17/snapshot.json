@@ -1,0 +1,19 @@
+{
+  "task": "M11.3",
+  "date": "2026-11-17",
+  "head": "505e1fbb0d3c5533b9cceace4a86d2dc03a78dae",
+  "frozen": "/tmp/langoo-m113-compare-CwmTM3",
+  "source_sha256": {
+    "scripts/ops/m11.3-quiz-pilot.ts": "da9977dd666c61b45fe62e67751ed332e81fad4a02c0f0e5574814ceeee18c61",
+    "src/ai/quiz/v3/quiz-batch-engine.ts": "4825246b1136a1d3bda883986b84ac956d7b1aebb47327e82740f60ba2dc4983",
+    "src/ai/quiz/kanji-generator.ts": "71fdb51d493855a52287bbd3ad12f33370728876dde92ee0b6009a156f33b2cb",
+    "src/common/errors/domain.exception.ts": "1d81b28ad365f6fea2bf3c49c26ae1d95830e3d3073b3bf59838bf553fbe8676",
+    "src/ai/quiz/quiz-contract.ts": "ccbea10f2dd82f80b3f6de6b04a79e06f942801ac68ac1189874b6f51a4a10b3",
+    "src/ai/quiz/v3/quiz-blueprint.ts": "5ed67dd235e62ce81ce82d2b62bea35205568918c67f3995d413de4378e945a6",
+    "scripts/ops/m11.3-quiz-fixtures.ts": "fe5d2a40cb6187ded9d626bce2f28e267635316664d7634db96c0396cbba9d49",
+    "scripts/ops/m11.3-quiz-provider-bridge.cjs": "8019de7198b0ca344d29cc7dc0772d8db349fa0aca24cade72fe788122017afb"
+  },
+  "policy": "same source/basic/single/cold/reasoning low; no production writes",
+  "seed_en": 17317,
+  "seed_ja": 27117
+}

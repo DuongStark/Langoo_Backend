@@ -164,7 +164,7 @@ function createSetup(cooldownMs = '15000') {
   };
   const prisma = {
     quiz: tx.quiz,
-    quizQuestion: { findMany: jest.fn() },
+    quizQuestion: tx.quizQuestion,
     collection: tx.collection,
     userSettings: { findUnique: jest.fn() },
     studySession: { findMany: jest.fn() },

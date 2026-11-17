@@ -35,6 +35,8 @@ export interface AiChatRequest {
   reasoningEffort?: string;
   /** Huỷ khi client ngắt kết nối. */
   signal?: AbortSignal;
+  /** Internal hook: recheck consent/lease and reserve receipt immediately before dispatch. */
+  beforeDispatch?: () => Promise<void>;
 }
 
 export interface AiChatResult {

@@ -1,0 +1,1542 @@
+{
+  "task": "M11.3",
+  "date": "2026-11-17",
+  "policy": "JA, GLM low, 20 one-question prompts, 5 launches/sec, no retry; review after generation excluded from timing",
+  "requests": [
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"target\":{\"itemId\":\"public-ja-0\",\"senseId\":\"public-ja-sense-0\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学校\",\"reading\":\"がっこう\",\"romanization\":null,\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学校\",\"reading\":\"がっこう\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":2,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"target\":{\"itemId\":\"public-ja-5\",\"senseId\":\"public-ja-sense-5\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"病院\",\"reading\":\"びょういん\",\"romanization\":null,\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"病院\",\"reading\":\"びょういん\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"target\":{\"itemId\":\"public-ja-0\",\"senseId\":\"public-ja-sense-0\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学校\",\"reading\":\"がっこう\",\"romanization\":null,\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学校\",\"reading\":\"がっこう\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":4,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"target\":{\"itemId\":\"public-ja-1\",\"senseId\":\"public-ja-sense-1\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学生\",\"reading\":\"がくせい\",\"romanization\":null,\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学生\",\"reading\":\"がくせい\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":5,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"target\":{\"itemId\":\"public-ja-6\",\"senseId\":\"public-ja-sense-6\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"romanization\":null,\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"電車\",\"reading\":\"でんしゃ\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":6,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-1\",\"target\":{\"itemId\":\"public-ja-1\",\"senseId\":\"public-ja-sense-1\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学生\",\"reading\":\"がくせい\",\"romanization\":null,\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学生\",\"reading\":\"がくせい\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":7,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-2\",\"target\":{\"itemId\":\"public-ja-2\",\"senseId\":\"public-ja-sense-2\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"先生\",\"reading\":\"せんせい\",\"romanization\":null,\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"先生\",\"reading\":\"せんせい\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"target\":{\"itemId\":\"public-ja-7\",\"senseId\":\"public-ja-sense-7\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"切符\",\"reading\":\"きっぷ\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"target\":{\"itemId\":\"public-ja-2\",\"senseId\":\"public-ja-sense-2\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"先生\",\"reading\":\"せんせい\",\"romanization\":null,\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"先生\",\"reading\":\"せんせい\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":10,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"target\":{\"itemId\":\"public-ja-3\",\"senseId\":\"public-ja-sense-3\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"大学\",\"reading\":\"だいがく\",\"romanization\":null,\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"大学\",\"reading\":\"だいがく\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":11,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"target\":{\"itemId\":\"public-ja-8\",\"senseId\":\"public-ja-sense-8\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"乗客\",\"reading\":\"じょうきゃく\",\"romanization\":null,\"meaningVi\":\"hành khách\",\"glossEn\":[\"passenger\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"乗客\",\"reading\":\"じょうきゃく\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":12,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-3\",\"target\":{\"itemId\":\"public-ja-3\",\"senseId\":\"public-ja-sense-3\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"大学\",\"reading\":\"だいがく\",\"romanization\":null,\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"大学\",\"reading\":\"だいがく\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":13,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-4\",\"target\":{\"itemId\":\"public-ja-4\",\"senseId\":\"public-ja-sense-4\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"romanization\":null,\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"図書館\",\"reading\":\"としょかん\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"target\":{\"itemId\":\"public-ja-9\",\"senseId\":\"public-ja-sense-9\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"荷物\",\"reading\":\"にもつ\",\"romanization\":null,\"meaningVi\":\"hành lý\",\"glossEn\":[\"luggage\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"荷物\",\"reading\":\"にもつ\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"target\":{\"itemId\":\"public-ja-4\",\"senseId\":\"public-ja-sense-4\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"romanization\":null,\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"図書館\",\"reading\":\"としょかん\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":16,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"target\":{\"itemId\":\"public-ja-6\",\"senseId\":\"public-ja-sense-6\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"romanization\":null,\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"電車\",\"reading\":\"でんしゃ\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"target\":{\"itemId\":\"public-ja-10\",\"senseId\":\"public-ja-sense-10\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"入口\",\"reading\":\"いりぐち\",\"romanization\":null,\"meaningVi\":\"lối vào\",\"glossEn\":[\"entrance\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"入口\",\"reading\":\"いりぐち\",\"eligible\":true}]}},\"correctPosition\":0}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"target\":{\"itemId\":\"public-ja-5\",\"senseId\":\"public-ja-sense-5\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"病院\",\"reading\":\"びょういん\",\"romanization\":null,\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"病院\",\"reading\":\"びょういん\",\"eligible\":true}]}},\"correctPosition\":1}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":19,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"target\":{\"itemId\":\"public-ja-7\",\"senseId\":\"public-ja-sense-7\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"切符\",\"reading\":\"きっぷ\",\"eligible\":true}]}},\"correctPosition\":2}"
+        }
+      ]
+    },
+    {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 60000,
+      "maxTokens": 1800,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create ONE excellent Japanese multiple-choice practice question for a Vietnamese learner. Return only a JSON object: {\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}. Follow the slot and supplied sense exactly. Exactly four options and one defensible correct answer. Think carefully and privately solve EVERY option before responding. If any distractor could reasonably fit, rewrite the context/options first. Check Japanese grammar, particles, naturalness, dictionary meaning, spelling aliases and kana variants. Do not use two valid spellings such as 入口 and 入り口 as competing answers. context_cloze: use ____ in a natural sentence with enough specific clues to rule out all other options; respect the target part of speech. kanji_reading: use 【written target】 inside a natural sentence and ask for kana reading. kanji_orthography: use 【kana target】 inside a sentence and ask for written form, without exposing it elsewhere. No explanations or answer hints. Do not expose your private checking. Place the correct answer at the requested zero-based correctPosition."
+        },
+        {
+          "role": "user",
+          "content": "{\"slot\":{\"id\":20,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"target\":{\"itemId\":\"public-ja-11\",\"senseId\":\"public-ja-sense-11\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"出口\",\"reading\":\"でぐち\",\"romanization\":null,\"meaningVi\":\"lối ra\",\"glossEn\":[\"exit\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"出口\",\"reading\":\"でぐち\",\"eligible\":true}]}},\"correctPosition\":3}"
+        }
+      ]
+    }
+  ],
+  "progress": [
+    {
+      "kind": "result",
+      "index": 2,
+      "dispatchedMs": 119,
+      "completedMs": 1851,
+      "latencyMs": 1732,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"prompt\":\"妹は毎朝____へ歩いて行きます。\",\"options\":[\"病院\",\"会社\",\"学校\",\"駅\"],\"answer_index\":2}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 368,
+          "tokensOut": 53,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 6,
+      "dispatchedMs": 1018,
+      "completedMs": 2001,
+      "latencyMs": 983,
+      "response": {
+        "ok": false,
+        "name": "AiProviderError",
+        "status": 429
+      }
+    },
+    {
+      "kind": "result",
+      "index": 5,
+      "dispatchedMs": 1001,
+      "completedMs": 2030,
+      "latencyMs": 1029,
+      "response": {
+        "ok": false,
+        "name": "AiProviderError",
+        "status": 429
+      }
+    },
+    {
+      "kind": "result",
+      "index": 3,
+      "dispatchedMs": 125,
+      "completedMs": 2124,
+      "latencyMs": 1999,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"prompt\":\"兄は大学の【学生】です。下線の言葉の読み方として正しいものを選んでください。\",\"options\":[\"がくもう\",\"がくせいかい\",\"せいがく\",\"がくせい\"],\"answer_index\":3}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 372,
+          "tokensOut": 77,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 4,
+      "dispatchedMs": 127,
+      "completedMs": 2265,
+      "latencyMs": 2138,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"prompt\":\"【　】で会社に通っています。空欄に入る正しい書き方はどれですか。\",\"options\":[\"電車\",\"电車\",\"電沙\",\"田車\"],\"answer_index\":0}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 372,
+          "tokensOut": 70,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 0,
+      "dispatchedMs": 2,
+      "completedMs": 2306,
+      "latencyMs": 2304,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"prompt\":\"「【学校】」の読み方として正しいものを一つ選んでください。妹は毎日【学校】へ行きます。\",\"options\":[\"がっこう\",\"がっく�う\",\"がこう\",\"がくっこう\"],\"answer_index\":0}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 367,
+          "tokensOut": 80,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 1,
+      "dispatchedMs": 116,
+      "completedMs": 2722,
+      "latencyMs": 2606,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"prompt\":\"かぜをひいたので、近くの【びょういん】に行きました。「びょういん」の正しい漢字はどれですか。\",\"options\":[\"疾院\",\"病院\",\"病宛\",\"病員\"],\"answer_index\":1}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 375,
+          "tokensOut": 143,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 12,
+      "dispatchedMs": 2003,
+      "completedMs": 2963,
+      "latencyMs": 960,
+      "response": {
+        "ok": false,
+        "name": "AiProviderError",
+        "status": 429
+      }
+    },
+    {
+      "kind": "result",
+      "index": 7,
+      "dispatchedMs": 1032,
+      "completedMs": 3567,
+      "latencyMs": 2535,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"prompt\":\"駅で電車の【きっぷ】を買いました。下線部の正しい漢字表記はどれですか。\",\"options\":[\"切布\",\"切袍\",\"切幅\",\"切符\"],\"answer_index\":3}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 369,
+          "tokensOut": 77,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 8,
+      "dispatchedMs": 1044,
+      "completedMs": 3596,
+      "latencyMs": 2552,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"prompt\":\"山田さんは学校で数学を教えている____です。\",\"options\":[\"先生\",\"医者\",\"運転手\",\"店員\"],\"answer_index\":0}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 370,
+          "tokensOut": 73,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 9,
+      "dispatchedMs": 1051,
+      "completedMs": 7042,
+      "latencyMs": 5991,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"prompt\":\"次の文の【　】の読み方として正しいものを選びなさい。\\n姉は東京の【大学】で日本語を勉強しています。\",\"options\":[\"たいがく\",\"だいがく\",\"だいかく\",\"たいかく\"],\"answer_index\":1}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 371,
+          "tokensOut": 86,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 16,
+      "dispatchedMs": 3002,
+      "completedMs": 7512,
+      "latencyMs": 4510,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"prompt\":\"スーパーの【いりぐち】はどちらに書きますか。\",\"options\":[\"入口\",\"入く口\",\"入り口\",\"入ぐ口\"],\"answer_index\":0}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 372,
+          "tokensOut": 64,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 10,
+      "dispatchedMs": 2002,
+      "completedMs": 7519,
+      "latencyMs": 5517,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"prompt\":\"バスの【じょうきゃく】がたくさん降りた。空欄に入る正しい漢字を選びなさい。\",\"options\":[\"乗客\",\"剩客\",\"乗賓\",\"承客\"],\"answer_index\":2}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 378,
+          "tokensOut": 80,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 18,
+      "dispatchedMs": 3003,
+      "completedMs": 7527,
+      "latencyMs": 4524,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"prompt\":\"次の文の【切符】の読み方として正しいものはどれですか。「駅で新幹線の【切符】を買いました。」\",\"options\":[\"きふ\",\"きっぷう\",\"きっぷ\",\"きっふ\"],\"answer_index\":2}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 367,
+          "tokensOut": 85,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 14,
+      "dispatchedMs": 2016,
+      "completedMs": 7665,
+      "latencyMs": 5649,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"prompt\":\"毎週土曜日に____で本を借りて、家でゆっくり読みます。\",\"options\":[\"コンビニ\",\"レストラン\",\"図書館\",\"郵便局\"],\"answer_index\":2}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 376,
+          "tokensOut": 84,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 11,
+      "dispatchedMs": 2003,
+      "completedMs": 7677,
+      "latencyMs": 5674,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-3\",\"prompt\":\"姉は18歳なので、今年春から____に入学しました。\",\"options\":[\"小学校\",\"幼稚園\",\"中学校\",\"大学\"],\"answer_index\":3}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 372,
+          "tokensOut": 84,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 15,
+      "dispatchedMs": 3001,
+      "completedMs": 7737,
+      "latencyMs": 4736,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"prompt\":\"次の文の【電車】の読み方として正しいものを、ひらがなで選んでください。毎朝、駅から会社まで【電車】で通っています。\",\"options\":[\"でんき\",\"でんしゃ\",\"きてい\",\"でんせん\"],\"answer_index\":3}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 370,
+          "tokensOut": 90,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 13,
+      "dispatchedMs": 2013,
+      "completedMs": 8316,
+      "latencyMs": 6303,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"prompt\":\"空港で重い【にもつ】を預けました。下線部【にもつ】の正しい漢字はどれですか。\",\"options\":[\"荷無つ\",\"荷物\",\"荷勿\",\"加物\"],\"answer_index\":1}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 370,
+          "tokensOut": 121,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 19,
+      "dispatchedMs": 3006,
+      "completedMs": 8466,
+      "latencyMs": 5460,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"prompt\":\"「________はあちらです」と案内された。下線の語を漢字で書くとどれですか。（【でぐち】＝建物の外に出る場所）\",\"options\":[\"出工\",\"出口\",\"出日\",\"出口口\"],\"answer_index\":3}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 369,
+          "tokensOut": 102,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "result",
+      "index": 17,
+      "dispatchedMs": 3003,
+      "completedMs": 8499,
+      "latencyMs": 5496,
+      "response": {
+        "ok": true,
+        "result": {
+          "content": "{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"prompt\":\"熱が高くなかなか下がらないので、____で診てもらった。\",\"options\":[\"郵便局\",\"病院\",\"銀行\",\"図書館\"],\"answer_index\":1}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 374,
+          "tokensOut": 118,
+          "costUsd": 0
+        }
+      }
+    },
+    {
+      "kind": "done",
+      "totalMs": 8499
+    }
+  ],
+  "generation": {
+    "wallMs": 11470,
+    "exitCode": 0,
+    "error": null,
+    "entries": [
+      {
+        "kind": "result",
+        "index": 2,
+        "dispatchedMs": 119,
+        "completedMs": 1851,
+        "latencyMs": 1732,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"prompt\":\"妹は毎朝____へ歩いて行きます。\",\"options\":[\"病院\",\"会社\",\"学校\",\"駅\"],\"answer_index\":2}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 368,
+            "tokensOut": 53,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 6,
+        "dispatchedMs": 1018,
+        "completedMs": 2001,
+        "latencyMs": 983,
+        "response": {
+          "ok": false,
+          "name": "AiProviderError",
+          "status": 429
+        }
+      },
+      {
+        "kind": "result",
+        "index": 5,
+        "dispatchedMs": 1001,
+        "completedMs": 2030,
+        "latencyMs": 1029,
+        "response": {
+          "ok": false,
+          "name": "AiProviderError",
+          "status": 429
+        }
+      },
+      {
+        "kind": "result",
+        "index": 3,
+        "dispatchedMs": 125,
+        "completedMs": 2124,
+        "latencyMs": 1999,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"prompt\":\"兄は大学の【学生】です。下線の言葉の読み方として正しいものを選んでください。\",\"options\":[\"がくもう\",\"がくせいかい\",\"せいがく\",\"がくせい\"],\"answer_index\":3}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 372,
+            "tokensOut": 77,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 4,
+        "dispatchedMs": 127,
+        "completedMs": 2265,
+        "latencyMs": 2138,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"prompt\":\"【　】で会社に通っています。空欄に入る正しい書き方はどれですか。\",\"options\":[\"電車\",\"电車\",\"電沙\",\"田車\"],\"answer_index\":0}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 372,
+            "tokensOut": 70,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 0,
+        "dispatchedMs": 2,
+        "completedMs": 2306,
+        "latencyMs": 2304,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"prompt\":\"「【学校】」の読み方として正しいものを一つ選んでください。妹は毎日【学校】へ行きます。\",\"options\":[\"がっこう\",\"がっく�う\",\"がこう\",\"がくっこう\"],\"answer_index\":0}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 367,
+            "tokensOut": 80,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 1,
+        "dispatchedMs": 116,
+        "completedMs": 2722,
+        "latencyMs": 2606,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"prompt\":\"かぜをひいたので、近くの【びょういん】に行きました。「びょういん」の正しい漢字はどれですか。\",\"options\":[\"疾院\",\"病院\",\"病宛\",\"病員\"],\"answer_index\":1}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 375,
+            "tokensOut": 143,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 12,
+        "dispatchedMs": 2003,
+        "completedMs": 2963,
+        "latencyMs": 960,
+        "response": {
+          "ok": false,
+          "name": "AiProviderError",
+          "status": 429
+        }
+      },
+      {
+        "kind": "result",
+        "index": 7,
+        "dispatchedMs": 1032,
+        "completedMs": 3567,
+        "latencyMs": 2535,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"prompt\":\"駅で電車の【きっぷ】を買いました。下線部の正しい漢字表記はどれですか。\",\"options\":[\"切布\",\"切袍\",\"切幅\",\"切符\"],\"answer_index\":3}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 369,
+            "tokensOut": 77,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 8,
+        "dispatchedMs": 1044,
+        "completedMs": 3596,
+        "latencyMs": 2552,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"prompt\":\"山田さんは学校で数学を教えている____です。\",\"options\":[\"先生\",\"医者\",\"運転手\",\"店員\"],\"answer_index\":0}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 370,
+            "tokensOut": 73,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 9,
+        "dispatchedMs": 1051,
+        "completedMs": 7042,
+        "latencyMs": 5991,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"prompt\":\"次の文の【　】の読み方として正しいものを選びなさい。\\n姉は東京の【大学】で日本語を勉強しています。\",\"options\":[\"たいがく\",\"だいがく\",\"だいかく\",\"たいかく\"],\"answer_index\":1}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 371,
+            "tokensOut": 86,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 16,
+        "dispatchedMs": 3002,
+        "completedMs": 7512,
+        "latencyMs": 4510,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"prompt\":\"スーパーの【いりぐち】はどちらに書きますか。\",\"options\":[\"入口\",\"入く口\",\"入り口\",\"入ぐ口\"],\"answer_index\":0}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 372,
+            "tokensOut": 64,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 10,
+        "dispatchedMs": 2002,
+        "completedMs": 7519,
+        "latencyMs": 5517,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"prompt\":\"バスの【じょうきゃく】がたくさん降りた。空欄に入る正しい漢字を選びなさい。\",\"options\":[\"乗客\",\"剩客\",\"乗賓\",\"承客\"],\"answer_index\":2}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 378,
+            "tokensOut": 80,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 18,
+        "dispatchedMs": 3003,
+        "completedMs": 7527,
+        "latencyMs": 4524,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"prompt\":\"次の文の【切符】の読み方として正しいものはどれですか。「駅で新幹線の【切符】を買いました。」\",\"options\":[\"きふ\",\"きっぷう\",\"きっぷ\",\"きっふ\"],\"answer_index\":2}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 367,
+            "tokensOut": 85,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 14,
+        "dispatchedMs": 2016,
+        "completedMs": 7665,
+        "latencyMs": 5649,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"prompt\":\"毎週土曜日に____で本を借りて、家でゆっくり読みます。\",\"options\":[\"コンビニ\",\"レストラン\",\"図書館\",\"郵便局\"],\"answer_index\":2}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 376,
+            "tokensOut": 84,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 11,
+        "dispatchedMs": 2003,
+        "completedMs": 7677,
+        "latencyMs": 5674,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-3\",\"prompt\":\"姉は18歳なので、今年春から____に入学しました。\",\"options\":[\"小学校\",\"幼稚園\",\"中学校\",\"大学\"],\"answer_index\":3}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 372,
+            "tokensOut": 84,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 15,
+        "dispatchedMs": 3001,
+        "completedMs": 7737,
+        "latencyMs": 4736,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"prompt\":\"次の文の【電車】の読み方として正しいものを、ひらがなで選んでください。毎朝、駅から会社まで【電車】で通っています。\",\"options\":[\"でんき\",\"でんしゃ\",\"きてい\",\"でんせん\"],\"answer_index\":3}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 370,
+            "tokensOut": 90,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 13,
+        "dispatchedMs": 2013,
+        "completedMs": 8316,
+        "latencyMs": 6303,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"prompt\":\"空港で重い【にもつ】を預けました。下線部【にもつ】の正しい漢字はどれですか。\",\"options\":[\"荷無つ\",\"荷物\",\"荷勿\",\"加物\"],\"answer_index\":1}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 370,
+            "tokensOut": 121,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 19,
+        "dispatchedMs": 3006,
+        "completedMs": 8466,
+        "latencyMs": 5460,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":1,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"prompt\":\"「________はあちらです」と案内された。下線の語を漢字で書くとどれですか。（【でぐち】＝建物の外に出る場所）\",\"options\":[\"出工\",\"出口\",\"出日\",\"出口口\"],\"answer_index\":3}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 369,
+            "tokensOut": 102,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "result",
+        "index": 17,
+        "dispatchedMs": 3003,
+        "completedMs": 8499,
+        "latencyMs": 5496,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"prompt\":\"熱が高くなかなか下がらないので、____で診てもらった。\",\"options\":[\"郵便局\",\"病院\",\"銀行\",\"図書館\"],\"answer_index\":1}",
+            "model": "zai-org/glm-5.3-flash",
+            "tokensIn": 374,
+            "tokensOut": 118,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "done",
+        "totalMs": 8499
+      }
+    ]
+  },
+  "questions": [
+    {
+      "index": 0,
+      "question": {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-0",
+        "prompt": "「【学校】」の読み方として正しいものを一つ選んでください。妹は毎日【学校】へ行きます。",
+        "options": [
+          "がっこう",
+          "がっく�う",
+          "がこう",
+          "がくっこう"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 1,
+      "question": {
+        "id": 1,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-5",
+        "prompt": "かぜをひいたので、近くの【びょういん】に行きました。「びょういん」の正しい漢字はどれですか。",
+        "options": [
+          "疾院",
+          "病院",
+          "病宛",
+          "病員"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 2,
+      "question": {
+        "id": 1,
+        "skill": "context_cloze",
+        "targetId": "public-ja-0",
+        "prompt": "妹は毎朝____へ歩いて行きます。",
+        "options": [
+          "病院",
+          "会社",
+          "学校",
+          "駅"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 3,
+      "question": {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-1",
+        "prompt": "兄は大学の【学生】です。下線の言葉の読み方として正しいものを選んでください。",
+        "options": [
+          "がくもう",
+          "がくせいかい",
+          "せいがく",
+          "がくせい"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 4,
+      "question": {
+        "id": 1,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-6",
+        "prompt": "【　】で会社に通っています。空欄に入る正しい書き方はどれですか。",
+        "options": [
+          "電車",
+          "电車",
+          "電沙",
+          "田車"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 5,
+      "question": null,
+      "structuralValid": false
+    },
+    {
+      "index": 6,
+      "question": null,
+      "structuralValid": false
+    },
+    {
+      "index": 7,
+      "question": {
+        "id": 8,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-7",
+        "prompt": "駅で電車の【きっぷ】を買いました。下線部の正しい漢字表記はどれですか。",
+        "options": [
+          "切布",
+          "切袍",
+          "切幅",
+          "切符"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 8,
+      "question": {
+        "id": 9,
+        "skill": "context_cloze",
+        "targetId": "public-ja-2",
+        "prompt": "山田さんは学校で数学を教えている____です。",
+        "options": [
+          "先生",
+          "医者",
+          "運転手",
+          "店員"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 9,
+      "question": {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-3",
+        "prompt": "次の文の【　】の読み方として正しいものを選びなさい。\n姉は東京の【大学】で日本語を勉強しています。",
+        "options": [
+          "たいがく",
+          "だいがく",
+          "だいかく",
+          "たいかく"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 10,
+      "question": {
+        "id": 1,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-8",
+        "prompt": "バスの【じょうきゃく】がたくさん降りた。空欄に入る正しい漢字を選びなさい。",
+        "options": [
+          "乗客",
+          "剩客",
+          "乗賓",
+          "承客"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 11,
+      "question": {
+        "id": 1,
+        "skill": "context_cloze",
+        "targetId": "public-ja-3",
+        "prompt": "姉は18歳なので、今年春から____に入学しました。",
+        "options": [
+          "小学校",
+          "幼稚園",
+          "中学校",
+          "大学"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 12,
+      "question": null,
+      "structuralValid": false
+    },
+    {
+      "index": 13,
+      "question": {
+        "id": 14,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-9",
+        "prompt": "空港で重い【にもつ】を預けました。下線部【にもつ】の正しい漢字はどれですか。",
+        "options": [
+          "荷無つ",
+          "荷物",
+          "荷勿",
+          "加物"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 14,
+      "question": {
+        "id": 15,
+        "skill": "context_cloze",
+        "targetId": "public-ja-4",
+        "prompt": "毎週土曜日に____で本を借りて、家でゆっくり読みます。",
+        "options": [
+          "コンビニ",
+          "レストラン",
+          "図書館",
+          "郵便局"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 15,
+      "question": {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-6",
+        "prompt": "次の文の【電車】の読み方として正しいものを、ひらがなで選んでください。毎朝、駅から会社まで【電車】で通っています。",
+        "options": [
+          "でんき",
+          "でんしゃ",
+          "きてい",
+          "でんせん"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 16,
+      "question": {
+        "id": 17,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-10",
+        "prompt": "スーパーの【いりぐち】はどちらに書きますか。",
+        "options": [
+          "入口",
+          "入く口",
+          "入り口",
+          "入ぐ口"
+        ],
+        "answer_index": 0
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 17,
+      "question": {
+        "id": 18,
+        "skill": "context_cloze",
+        "targetId": "public-ja-5",
+        "prompt": "熱が高くなかなか下がらないので、____で診てもらった。",
+        "options": [
+          "郵便局",
+          "病院",
+          "銀行",
+          "図書館"
+        ],
+        "answer_index": 1
+      },
+      "structuralValid": true
+    },
+    {
+      "index": 18,
+      "question": {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-7",
+        "prompt": "次の文の【切符】の読み方として正しいものはどれですか。「駅で新幹線の【切符】を買いました。」",
+        "options": [
+          "きふ",
+          "きっぷう",
+          "きっぷ",
+          "きっふ"
+        ],
+        "answer_index": 2
+      },
+      "structuralValid": false
+    },
+    {
+      "index": 19,
+      "question": {
+        "id": 1,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-11",
+        "prompt": "「________はあちらです」と案内された。下線の語を漢字で書くとどれですか。（【でぐち】＝建物の外に出る場所）",
+        "options": [
+          "出工",
+          "出口",
+          "出日",
+          "出口口"
+        ],
+        "answer_index": 3
+      },
+      "structuralValid": false
+    }
+  ],
+  "summary": {
+    "received": 20,
+    "successful": 17,
+    "structuralValid": 7,
+    "firstValidMs": 2306,
+    "allCompletedMs": 8499,
+    "wallMs": 11470,
+    "tokensIn": 6312,
+    "tokensOut": 1487,
+    "reviewComplete": true,
+    "answerAgreement": 6,
+    "flags": [
+      {
+        "id": 1,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "invalid",
+        "issue": "Option 2 contains corrupted text 'がっく�う'; option 1 correct."
+      },
+      {
+        "id": 17,
+        "chosenIndex": 2,
+        "alternateIndices": [
+          0
+        ],
+        "quality": "ambiguous",
+        "issue": "Both 入口 and 入り口 are standard correct spellings; prompt asks 書き方 but both plausible."
+      }
+    ],
+    "returnedIdMismatches": 10,
+    "contentShapeValid": 17,
+    "sourceAnswerMismatches": 3
+  },
+  "reviewRequest": {
+    "model": "deepseek-ai/deepseek-v4.1-flash",
+    "reasoningEffort": "none",
+    "timeoutMs": 60000,
+    "maxTokens": 6000,
+    "messages": [
+      {
+        "role": "system",
+        "content": "Independently solve and review language quiz questions. The answer key is hidden. Return JSON only: {\"reviews\":[{\"id\":1,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"}]}. Zero-based indices. quality is good, ambiguous, invalid, or unnatural. Flag answer leaks, multiple plausible choices, incorrect readings, wrong sense, unnatural sentences. Include every id exactly once; issue briefly explains non-good quality."
+      },
+      {
+        "role": "user",
+        "content": "[{\"id\":1,\"prompt\":\"「【学校】」の読み方として正しいものを一つ選んでください。妹は毎日【学校】へ行きます。\",\"options\":[\"がっこう\",\"がっく�う\",\"がこう\",\"がくっこう\"]},{\"id\":8,\"prompt\":\"駅で電車の【きっぷ】を買いました。下線部の正しい漢字表記はどれですか。\",\"options\":[\"切布\",\"切袍\",\"切幅\",\"切符\"]},{\"id\":9,\"prompt\":\"山田さんは学校で数学を教えている____です。\",\"options\":[\"先生\",\"医者\",\"運転手\",\"店員\"]},{\"id\":14,\"prompt\":\"空港で重い【にもつ】を預けました。下線部【にもつ】の正しい漢字はどれですか。\",\"options\":[\"荷無つ\",\"荷物\",\"荷勿\",\"加物\"]},{\"id\":15,\"prompt\":\"毎週土曜日に____で本を借りて、家でゆっくり読みます。\",\"options\":[\"コンビニ\",\"レストラン\",\"図書館\",\"郵便局\"]},{\"id\":17,\"prompt\":\"スーパーの【いりぐち】はどちらに書きますか。\",\"options\":[\"入口\",\"入く口\",\"入り口\",\"入ぐ口\"]},{\"id\":18,\"prompt\":\"熱が高くなかなか下がらないので、____で診てもらった。\",\"options\":[\"郵便局\",\"病院\",\"銀行\",\"図書館\"]}]"
+      }
+    ]
+  },
+  "review": {
+    "wallMs": 7946,
+    "exitCode": 0,
+    "error": null,
+    "entries": [
+      {
+        "kind": "result",
+        "index": 0,
+        "dispatchedMs": 1,
+        "completedMs": 5926,
+        "latencyMs": 5925,
+        "response": {
+          "ok": true,
+          "result": {
+            "content": "{\"reviews\":[{\"id\":1,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"invalid\",\"issue\":\"Option 2 contains corrupted text 'がっく�う'; option 1 correct.\"},{\"id\":8,\"chosenIndex\":3,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":9,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":14,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":15,\"chosenIndex\":2,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":17,\"chosenIndex\":2,\"alternateIndices\":[0],\"quality\":\"ambiguous\",\"issue\":\"Both 入口 and 入り口 are standard correct spellings; prompt asks 書き方 but both plausible.\"},{\"id\":18,\"chosenIndex\":1,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"}]}",
+            "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+            "tokensIn": 442,
+            "tokensOut": 221,
+            "costUsd": 0
+          }
+        }
+      },
+      {
+        "kind": "done",
+        "totalMs": 5927
+      }
+    ]
+  },
+  "parsedReview": {
+    "reviews": [
+      {
+        "id": 1,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "invalid",
+        "issue": "Option 2 contains corrupted text 'がっく�う'; option 1 correct."
+      },
+      {
+        "id": 8,
+        "chosenIndex": 3,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 9,
+        "chosenIndex": 0,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 14,
+        "chosenIndex": 1,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 15,
+        "chosenIndex": 2,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      },
+      {
+        "id": 17,
+        "chosenIndex": 2,
+        "alternateIndices": [
+          0
+        ],
+        "quality": "ambiguous",
+        "issue": "Both 入口 and 入り口 are standard correct spellings; prompt asks 書き方 but both plausible."
+      },
+      {
+        "id": 18,
+        "chosenIndex": 1,
+        "alternateIndices": [],
+        "quality": "good",
+        "issue": ""
+      }
+    ]
+  },
+  "sourceAnswerChecks": [
+    {
+      "requestId": 1,
+      "skill": "kanji_reading",
+      "selected": "がっこう",
+      "expected": [
+        "がっこう"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 2,
+      "skill": "kanji_orthography",
+      "selected": "病院",
+      "expected": [
+        "病院"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 4,
+      "skill": "kanji_reading",
+      "selected": "がくせい",
+      "expected": [
+        "がくせい"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 5,
+      "skill": "kanji_orthography",
+      "selected": "電車",
+      "expected": [
+        "電車"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 8,
+      "skill": "kanji_orthography",
+      "selected": "切符",
+      "expected": [
+        "切符"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 10,
+      "skill": "kanji_reading",
+      "selected": "だいがく",
+      "expected": [
+        "だいがく"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 11,
+      "skill": "kanji_orthography",
+      "selected": "乗賓",
+      "expected": [
+        "乗客"
+      ],
+      "matchesSource": false
+    },
+    {
+      "requestId": 14,
+      "skill": "kanji_orthography",
+      "selected": "荷物",
+      "expected": [
+        "荷物"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 16,
+      "skill": "kanji_reading",
+      "selected": "でんせん",
+      "expected": [
+        "でんしゃ"
+      ],
+      "matchesSource": false
+    },
+    {
+      "requestId": 17,
+      "skill": "kanji_orthography",
+      "selected": "入口",
+      "expected": [
+        "入口"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 19,
+      "skill": "kanji_reading",
+      "selected": "きっぷ",
+      "expected": [
+        "きっぷ"
+      ],
+      "matchesSource": true
+    },
+    {
+      "requestId": 20,
+      "skill": "kanji_orthography",
+      "selected": "出口口",
+      "expected": [
+        "出口"
+      ],
+      "matchesSource": false
+    }
+  ]
+}

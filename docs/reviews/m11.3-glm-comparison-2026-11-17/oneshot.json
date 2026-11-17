@@ -1,0 +1,1521 @@
+[
+  {
+    "case": "en-daily-travel-20",
+    "request": {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 120000,
+      "maxTokens": 10000,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create a complete language-learning multiple-choice quiz for Vietnamese learners in ONE response. Return JSON only: {\"questions\":[{\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}]}. Exactly 20 questions, following every supplied slot id, skill and targetId. Four distinct options per question, exactly one defensible answer, zero-based answer_index. Natural simple sentences in the target language. context_cloze: sentence with ____ and four words fitting the same grammatical category, only one fitting context; context_meaning: mark target with 【】 in a sentence, ask its Vietnamese meaning, four Vietnamese options. kanji_reading: mark written target with 【】 in a Japanese sentence, four kana readings; kanji_orthography: mark kana target with 【】, four written forms, no written answer elsewhere in prompt. Avoid answer leaks, ambiguous distractors, invented meanings. Match supplied dictionary senses. Vary answer positions. No explanations, no Markdown. These are practice questions, not official exam material."
+        },
+        {
+          "role": "user",
+          "content": "{\"language\":\"English\",\"slots\":[{\"id\":1,\"skill\":\"context_cloze\",\"targetId\":\"public-en-0\",\"target\":{\"itemId\":\"public-en-0\",\"senseId\":\"public-en-sense-0\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"train\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"tàu hỏa\",\"glossEn\":[\"a railway vehicle for carrying passengers\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":2,\"skill\":\"context_meaning\",\"targetId\":\"public-en-0\",\"target\":{\"itemId\":\"public-en-0\",\"senseId\":\"public-en-sense-0\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"train\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"tàu hỏa\",\"glossEn\":[\"a railway vehicle for carrying passengers\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-en-1\",\"target\":{\"itemId\":\"public-en-1\",\"senseId\":\"public-en-sense-1\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"accept\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"chấp nhận\",\"glossEn\":[\"to agree to receive or do something\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":4,\"skill\":\"context_meaning\",\"targetId\":\"public-en-1\",\"target\":{\"itemId\":\"public-en-1\",\"senseId\":\"public-en-sense-1\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"accept\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"chấp nhận\",\"glossEn\":[\"to agree to receive or do something\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":5,\"skill\":\"context_cloze\",\"targetId\":\"public-en-2\",\"target\":{\"itemId\":\"public-en-2\",\"senseId\":\"public-en-sense-2\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"station\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"nhà ga\",\"glossEn\":[\"a place where trains stop for passengers\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":6,\"skill\":\"context_meaning\",\"targetId\":\"public-en-2\",\"target\":{\"itemId\":\"public-en-2\",\"senseId\":\"public-en-sense-2\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"station\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"nhà ga\",\"glossEn\":[\"a place where trains stop for passengers\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":7,\"skill\":\"context_cloze\",\"targetId\":\"public-en-3\",\"target\":{\"itemId\":\"public-en-3\",\"senseId\":\"public-en-sense-3\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"refuse\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"từ chối\",\"glossEn\":[\"to say that one will not accept or do something\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":8,\"skill\":\"context_meaning\",\"targetId\":\"public-en-3\",\"target\":{\"itemId\":\"public-en-3\",\"senseId\":\"public-en-sense-3\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"refuse\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"từ chối\",\"glossEn\":[\"to say that one will not accept or do something\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-en-4\",\"target\":{\"itemId\":\"public-en-4\",\"senseId\":\"public-en-sense-4\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"ticket\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"a document that permits travel or entry\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":10,\"skill\":\"context_meaning\",\"targetId\":\"public-en-4\",\"target\":{\"itemId\":\"public-en-4\",\"senseId\":\"public-en-sense-4\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"ticket\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"a document that permits travel or entry\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":11,\"skill\":\"context_cloze\",\"targetId\":\"public-en-5\",\"target\":{\"itemId\":\"public-en-5\",\"senseId\":\"public-en-sense-5\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"borrow\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"mượn\",\"glossEn\":[\"to receive something temporarily and return it later\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":12,\"skill\":\"context_meaning\",\"targetId\":\"public-en-5\",\"target\":{\"itemId\":\"public-en-5\",\"senseId\":\"public-en-sense-5\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"borrow\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"mượn\",\"glossEn\":[\"to receive something temporarily and return it later\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":13,\"skill\":\"context_cloze\",\"targetId\":\"public-en-6\",\"target\":{\"itemId\":\"public-en-6\",\"senseId\":\"public-en-sense-6\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"platform\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"sân ga\",\"glossEn\":[\"the raised area beside a railway track\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":14,\"skill\":\"context_meaning\",\"targetId\":\"public-en-6\",\"target\":{\"itemId\":\"public-en-6\",\"senseId\":\"public-en-sense-6\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"platform\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"sân ga\",\"glossEn\":[\"the raised area beside a railway track\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-en-7\",\"target\":{\"itemId\":\"public-en-7\",\"senseId\":\"public-en-sense-7\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"lend\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"cho mượn\",\"glossEn\":[\"to give something temporarily and receive it back later\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":16,\"skill\":\"context_meaning\",\"targetId\":\"public-en-7\",\"target\":{\"itemId\":\"public-en-7\",\"senseId\":\"public-en-sense-7\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"lend\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"cho mượn\",\"glossEn\":[\"to give something temporarily and receive it back later\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":17,\"skill\":\"context_cloze\",\"targetId\":\"public-en-8\",\"target\":{\"itemId\":\"public-en-8\",\"senseId\":\"public-en-sense-8\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"passenger\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"hành khách\",\"glossEn\":[\"a person travelling in a vehicle without driving it\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":18,\"skill\":\"context_meaning\",\"targetId\":\"public-en-8\",\"target\":{\"itemId\":\"public-en-8\",\"senseId\":\"public-en-sense-8\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"passenger\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"hành khách\",\"glossEn\":[\"a person travelling in a vehicle without driving it\"],\"glossViMachine\":false,\"pos\":\"noun\"}},{\"id\":19,\"skill\":\"context_cloze\",\"targetId\":\"public-en-9\",\"target\":{\"itemId\":\"public-en-9\",\"senseId\":\"public-en-sense-9\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"buy\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"mua\",\"glossEn\":[\"to obtain something by paying money\"],\"glossViMachine\":false,\"pos\":\"verb\"}},{\"id\":20,\"skill\":\"context_meaning\",\"targetId\":\"public-en-9\",\"target\":{\"itemId\":\"public-en-9\",\"senseId\":\"public-en-sense-9\",\"conceptId\":null,\"languageId\":1,\"languageCode\":\"en\",\"lemma\":\"buy\",\"reading\":null,\"romanization\":null,\"meaningVi\":\"mua\",\"glossEn\":[\"to obtain something by paying money\"],\"glossViMachine\":false,\"pos\":\"verb\"}}]}"
+        }
+      ]
+    },
+    "slots": [
+      {
+        "id": 1,
+        "skill": "context_cloze",
+        "targetId": "public-en-0",
+        "target": {
+          "itemId": "public-en-0",
+          "senseId": "public-en-sense-0",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "train",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "tàu hỏa",
+          "glossEn": [
+            "a railway vehicle for carrying passengers"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 2,
+        "skill": "context_meaning",
+        "targetId": "public-en-0",
+        "target": {
+          "itemId": "public-en-0",
+          "senseId": "public-en-sense-0",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "train",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "tàu hỏa",
+          "glossEn": [
+            "a railway vehicle for carrying passengers"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 3,
+        "skill": "context_cloze",
+        "targetId": "public-en-1",
+        "target": {
+          "itemId": "public-en-1",
+          "senseId": "public-en-sense-1",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "accept",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "chấp nhận",
+          "glossEn": [
+            "to agree to receive or do something"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 4,
+        "skill": "context_meaning",
+        "targetId": "public-en-1",
+        "target": {
+          "itemId": "public-en-1",
+          "senseId": "public-en-sense-1",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "accept",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "chấp nhận",
+          "glossEn": [
+            "to agree to receive or do something"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 5,
+        "skill": "context_cloze",
+        "targetId": "public-en-2",
+        "target": {
+          "itemId": "public-en-2",
+          "senseId": "public-en-sense-2",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "station",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "nhà ga",
+          "glossEn": [
+            "a place where trains stop for passengers"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 6,
+        "skill": "context_meaning",
+        "targetId": "public-en-2",
+        "target": {
+          "itemId": "public-en-2",
+          "senseId": "public-en-sense-2",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "station",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "nhà ga",
+          "glossEn": [
+            "a place where trains stop for passengers"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 7,
+        "skill": "context_cloze",
+        "targetId": "public-en-3",
+        "target": {
+          "itemId": "public-en-3",
+          "senseId": "public-en-sense-3",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "refuse",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "từ chối",
+          "glossEn": [
+            "to say that one will not accept or do something"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 8,
+        "skill": "context_meaning",
+        "targetId": "public-en-3",
+        "target": {
+          "itemId": "public-en-3",
+          "senseId": "public-en-sense-3",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "refuse",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "từ chối",
+          "glossEn": [
+            "to say that one will not accept or do something"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 9,
+        "skill": "context_cloze",
+        "targetId": "public-en-4",
+        "target": {
+          "itemId": "public-en-4",
+          "senseId": "public-en-sense-4",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "ticket",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "vé",
+          "glossEn": [
+            "a document that permits travel or entry"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 10,
+        "skill": "context_meaning",
+        "targetId": "public-en-4",
+        "target": {
+          "itemId": "public-en-4",
+          "senseId": "public-en-sense-4",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "ticket",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "vé",
+          "glossEn": [
+            "a document that permits travel or entry"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 11,
+        "skill": "context_cloze",
+        "targetId": "public-en-5",
+        "target": {
+          "itemId": "public-en-5",
+          "senseId": "public-en-sense-5",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "borrow",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "mượn",
+          "glossEn": [
+            "to receive something temporarily and return it later"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 12,
+        "skill": "context_meaning",
+        "targetId": "public-en-5",
+        "target": {
+          "itemId": "public-en-5",
+          "senseId": "public-en-sense-5",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "borrow",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "mượn",
+          "glossEn": [
+            "to receive something temporarily and return it later"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 13,
+        "skill": "context_cloze",
+        "targetId": "public-en-6",
+        "target": {
+          "itemId": "public-en-6",
+          "senseId": "public-en-sense-6",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "platform",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "sân ga",
+          "glossEn": [
+            "the raised area beside a railway track"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 14,
+        "skill": "context_meaning",
+        "targetId": "public-en-6",
+        "target": {
+          "itemId": "public-en-6",
+          "senseId": "public-en-sense-6",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "platform",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "sân ga",
+          "glossEn": [
+            "the raised area beside a railway track"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 15,
+        "skill": "context_cloze",
+        "targetId": "public-en-7",
+        "target": {
+          "itemId": "public-en-7",
+          "senseId": "public-en-sense-7",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "lend",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "cho mượn",
+          "glossEn": [
+            "to give something temporarily and receive it back later"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 16,
+        "skill": "context_meaning",
+        "targetId": "public-en-7",
+        "target": {
+          "itemId": "public-en-7",
+          "senseId": "public-en-sense-7",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "lend",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "cho mượn",
+          "glossEn": [
+            "to give something temporarily and receive it back later"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 17,
+        "skill": "context_cloze",
+        "targetId": "public-en-8",
+        "target": {
+          "itemId": "public-en-8",
+          "senseId": "public-en-sense-8",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "passenger",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "hành khách",
+          "glossEn": [
+            "a person travelling in a vehicle without driving it"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 18,
+        "skill": "context_meaning",
+        "targetId": "public-en-8",
+        "target": {
+          "itemId": "public-en-8",
+          "senseId": "public-en-sense-8",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "passenger",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "hành khách",
+          "glossEn": [
+            "a person travelling in a vehicle without driving it"
+          ],
+          "glossViMachine": false,
+          "pos": "noun"
+        }
+      },
+      {
+        "id": 19,
+        "skill": "context_cloze",
+        "targetId": "public-en-9",
+        "target": {
+          "itemId": "public-en-9",
+          "senseId": "public-en-sense-9",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "buy",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "mua",
+          "glossEn": [
+            "to obtain something by paying money"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      },
+      {
+        "id": 20,
+        "skill": "context_meaning",
+        "targetId": "public-en-9",
+        "target": {
+          "itemId": "public-en-9",
+          "senseId": "public-en-sense-9",
+          "conceptId": null,
+          "languageId": 1,
+          "languageCode": "en",
+          "lemma": "buy",
+          "reading": null,
+          "romanization": null,
+          "meaningVi": "mua",
+          "glossEn": [
+            "to obtain something by paying money"
+          ],
+          "glossViMachine": false,
+          "pos": "verb"
+        }
+      }
+    ],
+    "generation": {
+      "wallMs": 122583,
+      "response": {
+        "ok": false,
+        "name": "TypeError",
+        "status": null
+      }
+    },
+    "structuralErrors": [
+      "Expected exactly 20 questions",
+      "Missing/duplicate id 1",
+      "Missing/duplicate id 2",
+      "Missing/duplicate id 3",
+      "Missing/duplicate id 4",
+      "Missing/duplicate id 5",
+      "Missing/duplicate id 6",
+      "Missing/duplicate id 7",
+      "Missing/duplicate id 8",
+      "Missing/duplicate id 9",
+      "Missing/duplicate id 10",
+      "Missing/duplicate id 11",
+      "Missing/duplicate id 12",
+      "Missing/duplicate id 13",
+      "Missing/duplicate id 14",
+      "Missing/duplicate id 15",
+      "Missing/duplicate id 16",
+      "Missing/duplicate id 17",
+      "Missing/duplicate id 18",
+      "Missing/duplicate id 19",
+      "Missing/duplicate id 20"
+    ],
+    "count": 0,
+    "questions": []
+  },
+  {
+    "case": "ja-kanji-daily-20",
+    "request": {
+      "model": "zai-org/glm-5.3-flash",
+      "reasoningEffort": "low",
+      "timeoutMs": 120000,
+      "maxTokens": 10000,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Create a complete language-learning multiple-choice quiz for Vietnamese learners in ONE response. Return JSON only: {\"questions\":[{\"id\":1,\"skill\":\"...\",\"targetId\":\"...\",\"prompt\":\"...\",\"options\":[\"...\",\"...\",\"...\",\"...\"],\"answer_index\":0}]}. Exactly 20 questions, following every supplied slot id, skill and targetId. Four distinct options per question, exactly one defensible answer, zero-based answer_index. Natural simple sentences in the target language. context_cloze: sentence with ____ and four words fitting the same grammatical category, only one fitting context; context_meaning: mark target with 【】 in a sentence, ask its Vietnamese meaning, four Vietnamese options. kanji_reading: mark written target with 【】 in a Japanese sentence, four kana readings; kanji_orthography: mark kana target with 【】, four written forms, no written answer elsewhere in prompt. Avoid answer leaks, ambiguous distractors, invented meanings. Match supplied dictionary senses. Vary answer positions. No explanations, no Markdown. These are practice questions, not official exam material."
+        },
+        {
+          "role": "user",
+          "content": "{\"language\":\"Japanese\",\"slots\":[{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"target\":{\"itemId\":\"public-ja-0\",\"senseId\":\"public-ja-sense-0\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学校\",\"reading\":\"がっこう\",\"romanization\":null,\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学校\",\"reading\":\"がっこう\",\"eligible\":true}]}},{\"id\":2,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"target\":{\"itemId\":\"public-ja-5\",\"senseId\":\"public-ja-sense-5\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"病院\",\"reading\":\"びょういん\",\"romanization\":null,\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"病院\",\"reading\":\"びょういん\",\"eligible\":true}]}},{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"target\":{\"itemId\":\"public-ja-0\",\"senseId\":\"public-ja-sense-0\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学校\",\"reading\":\"がっこう\",\"romanization\":null,\"meaningVi\":\"trường học\",\"glossEn\":[\"school\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学校\",\"reading\":\"がっこう\",\"eligible\":true}]}},{\"id\":4,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"target\":{\"itemId\":\"public-ja-1\",\"senseId\":\"public-ja-sense-1\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学生\",\"reading\":\"がくせい\",\"romanization\":null,\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学生\",\"reading\":\"がくせい\",\"eligible\":true}]}},{\"id\":5,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"target\":{\"itemId\":\"public-ja-6\",\"senseId\":\"public-ja-sense-6\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"romanization\":null,\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"電車\",\"reading\":\"でんしゃ\",\"eligible\":true}]}},{\"id\":6,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-1\",\"target\":{\"itemId\":\"public-ja-1\",\"senseId\":\"public-ja-sense-1\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"学生\",\"reading\":\"がくせい\",\"romanization\":null,\"meaningVi\":\"học sinh, sinh viên\",\"glossEn\":[\"student\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"学生\",\"reading\":\"がくせい\",\"eligible\":true}]}},{\"id\":7,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-2\",\"target\":{\"itemId\":\"public-ja-2\",\"senseId\":\"public-ja-sense-2\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"先生\",\"reading\":\"せんせい\",\"romanization\":null,\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"先生\",\"reading\":\"せんせい\",\"eligible\":true}]}},{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"target\":{\"itemId\":\"public-ja-7\",\"senseId\":\"public-ja-sense-7\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"切符\",\"reading\":\"きっぷ\",\"eligible\":true}]}},{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"target\":{\"itemId\":\"public-ja-2\",\"senseId\":\"public-ja-sense-2\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"先生\",\"reading\":\"せんせい\",\"romanization\":null,\"meaningVi\":\"giáo viên\",\"glossEn\":[\"teacher\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"先生\",\"reading\":\"せんせい\",\"eligible\":true}]}},{\"id\":10,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"target\":{\"itemId\":\"public-ja-3\",\"senseId\":\"public-ja-sense-3\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"大学\",\"reading\":\"だいがく\",\"romanization\":null,\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"大学\",\"reading\":\"だいがく\",\"eligible\":true}]}},{\"id\":11,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"target\":{\"itemId\":\"public-ja-8\",\"senseId\":\"public-ja-sense-8\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"乗客\",\"reading\":\"じょうきゃく\",\"romanization\":null,\"meaningVi\":\"hành khách\",\"glossEn\":[\"passenger\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"乗客\",\"reading\":\"じょうきゃく\",\"eligible\":true}]}},{\"id\":12,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-3\",\"target\":{\"itemId\":\"public-ja-3\",\"senseId\":\"public-ja-sense-3\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"大学\",\"reading\":\"だいがく\",\"romanization\":null,\"meaningVi\":\"trường đại học\",\"glossEn\":[\"university\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"大学\",\"reading\":\"だいがく\",\"eligible\":true}]}},{\"id\":13,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-4\",\"target\":{\"itemId\":\"public-ja-4\",\"senseId\":\"public-ja-sense-4\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"romanization\":null,\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"図書館\",\"reading\":\"としょかん\",\"eligible\":true}]}},{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"target\":{\"itemId\":\"public-ja-9\",\"senseId\":\"public-ja-sense-9\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"荷物\",\"reading\":\"にもつ\",\"romanization\":null,\"meaningVi\":\"hành lý\",\"glossEn\":[\"luggage\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"荷物\",\"reading\":\"にもつ\",\"eligible\":true}]}},{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"target\":{\"itemId\":\"public-ja-4\",\"senseId\":\"public-ja-sense-4\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"図書館\",\"reading\":\"としょかん\",\"romanization\":null,\"meaningVi\":\"thư viện\",\"glossEn\":[\"library\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"図書館\",\"reading\":\"としょかん\",\"eligible\":true}]}},{\"id\":16,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"target\":{\"itemId\":\"public-ja-6\",\"senseId\":\"public-ja-sense-6\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"電車\",\"reading\":\"でんしゃ\",\"romanization\":null,\"meaningVi\":\"tàu điện\",\"glossEn\":[\"electric train\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"電車\",\"reading\":\"でんしゃ\",\"eligible\":true}]}},{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"target\":{\"itemId\":\"public-ja-10\",\"senseId\":\"public-ja-sense-10\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"入口\",\"reading\":\"いりぐち\",\"romanization\":null,\"meaningVi\":\"lối vào\",\"glossEn\":[\"entrance\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"入口\",\"reading\":\"いりぐち\",\"eligible\":true}]}},{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"target\":{\"itemId\":\"public-ja-5\",\"senseId\":\"public-ja-sense-5\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"病院\",\"reading\":\"びょういん\",\"romanization\":null,\"meaningVi\":\"bệnh viện\",\"glossEn\":[\"hospital\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"病院\",\"reading\":\"びょういん\",\"eligible\":true}]}},{\"id\":19,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"target\":{\"itemId\":\"public-ja-7\",\"senseId\":\"public-ja-sense-7\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"切符\",\"reading\":\"きっぷ\",\"romanization\":null,\"meaningVi\":\"vé\",\"glossEn\":[\"ticket\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"切符\",\"reading\":\"きっぷ\",\"eligible\":true}]}},{\"id\":20,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"target\":{\"itemId\":\"public-ja-11\",\"senseId\":\"public-ja-sense-11\",\"conceptId\":null,\"languageId\":2,\"languageCode\":\"ja\",\"lemma\":\"出口\",\"reading\":\"でぐち\",\"romanization\":null,\"meaningVi\":\"lối ra\",\"glossEn\":[\"exit\"],\"glossViMachine\":false,\"pos\":\"noun\",\"kanjiPairs\":[{\"written\":\"出口\",\"reading\":\"でぐち\",\"eligible\":true}]}}]}"
+        }
+      ]
+    },
+    "slots": [
+      {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-0",
+        "target": {
+          "itemId": "public-ja-0",
+          "senseId": "public-ja-sense-0",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "学校",
+          "reading": "がっこう",
+          "romanization": null,
+          "meaningVi": "trường học",
+          "glossEn": [
+            "school"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "学校",
+              "reading": "がっこう",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 2,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-5",
+        "target": {
+          "itemId": "public-ja-5",
+          "senseId": "public-ja-sense-5",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "病院",
+          "reading": "びょういん",
+          "romanization": null,
+          "meaningVi": "bệnh viện",
+          "glossEn": [
+            "hospital"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "病院",
+              "reading": "びょういん",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 3,
+        "skill": "context_cloze",
+        "targetId": "public-ja-0",
+        "target": {
+          "itemId": "public-ja-0",
+          "senseId": "public-ja-sense-0",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "学校",
+          "reading": "がっこう",
+          "romanization": null,
+          "meaningVi": "trường học",
+          "glossEn": [
+            "school"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "学校",
+              "reading": "がっこう",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 4,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-1",
+        "target": {
+          "itemId": "public-ja-1",
+          "senseId": "public-ja-sense-1",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "学生",
+          "reading": "がくせい",
+          "romanization": null,
+          "meaningVi": "học sinh, sinh viên",
+          "glossEn": [
+            "student"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "学生",
+              "reading": "がくせい",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 5,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-6",
+        "target": {
+          "itemId": "public-ja-6",
+          "senseId": "public-ja-sense-6",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "電車",
+          "reading": "でんしゃ",
+          "romanization": null,
+          "meaningVi": "tàu điện",
+          "glossEn": [
+            "electric train"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "電車",
+              "reading": "でんしゃ",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 6,
+        "skill": "context_cloze",
+        "targetId": "public-ja-1",
+        "target": {
+          "itemId": "public-ja-1",
+          "senseId": "public-ja-sense-1",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "学生",
+          "reading": "がくせい",
+          "romanization": null,
+          "meaningVi": "học sinh, sinh viên",
+          "glossEn": [
+            "student"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "学生",
+              "reading": "がくせい",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 7,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-2",
+        "target": {
+          "itemId": "public-ja-2",
+          "senseId": "public-ja-sense-2",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "先生",
+          "reading": "せんせい",
+          "romanization": null,
+          "meaningVi": "giáo viên",
+          "glossEn": [
+            "teacher"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "先生",
+              "reading": "せんせい",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 8,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-7",
+        "target": {
+          "itemId": "public-ja-7",
+          "senseId": "public-ja-sense-7",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "切符",
+          "reading": "きっぷ",
+          "romanization": null,
+          "meaningVi": "vé",
+          "glossEn": [
+            "ticket"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "切符",
+              "reading": "きっぷ",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 9,
+        "skill": "context_cloze",
+        "targetId": "public-ja-2",
+        "target": {
+          "itemId": "public-ja-2",
+          "senseId": "public-ja-sense-2",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "先生",
+          "reading": "せんせい",
+          "romanization": null,
+          "meaningVi": "giáo viên",
+          "glossEn": [
+            "teacher"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "先生",
+              "reading": "せんせい",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 10,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-3",
+        "target": {
+          "itemId": "public-ja-3",
+          "senseId": "public-ja-sense-3",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "大学",
+          "reading": "だいがく",
+          "romanization": null,
+          "meaningVi": "trường đại học",
+          "glossEn": [
+            "university"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "大学",
+              "reading": "だいがく",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 11,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-8",
+        "target": {
+          "itemId": "public-ja-8",
+          "senseId": "public-ja-sense-8",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "乗客",
+          "reading": "じょうきゃく",
+          "romanization": null,
+          "meaningVi": "hành khách",
+          "glossEn": [
+            "passenger"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "乗客",
+              "reading": "じょうきゃく",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 12,
+        "skill": "context_cloze",
+        "targetId": "public-ja-3",
+        "target": {
+          "itemId": "public-ja-3",
+          "senseId": "public-ja-sense-3",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "大学",
+          "reading": "だいがく",
+          "romanization": null,
+          "meaningVi": "trường đại học",
+          "glossEn": [
+            "university"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "大学",
+              "reading": "だいがく",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 13,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-4",
+        "target": {
+          "itemId": "public-ja-4",
+          "senseId": "public-ja-sense-4",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "図書館",
+          "reading": "としょかん",
+          "romanization": null,
+          "meaningVi": "thư viện",
+          "glossEn": [
+            "library"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "図書館",
+              "reading": "としょかん",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 14,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-9",
+        "target": {
+          "itemId": "public-ja-9",
+          "senseId": "public-ja-sense-9",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "荷物",
+          "reading": "にもつ",
+          "romanization": null,
+          "meaningVi": "hành lý",
+          "glossEn": [
+            "luggage"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "荷物",
+              "reading": "にもつ",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 15,
+        "skill": "context_cloze",
+        "targetId": "public-ja-4",
+        "target": {
+          "itemId": "public-ja-4",
+          "senseId": "public-ja-sense-4",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "図書館",
+          "reading": "としょかん",
+          "romanization": null,
+          "meaningVi": "thư viện",
+          "glossEn": [
+            "library"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "図書館",
+              "reading": "としょかん",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 16,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-6",
+        "target": {
+          "itemId": "public-ja-6",
+          "senseId": "public-ja-sense-6",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "電車",
+          "reading": "でんしゃ",
+          "romanization": null,
+          "meaningVi": "tàu điện",
+          "glossEn": [
+            "electric train"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "電車",
+              "reading": "でんしゃ",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 17,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-10",
+        "target": {
+          "itemId": "public-ja-10",
+          "senseId": "public-ja-sense-10",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "入口",
+          "reading": "いりぐち",
+          "romanization": null,
+          "meaningVi": "lối vào",
+          "glossEn": [
+            "entrance"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "入口",
+              "reading": "いりぐち",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 18,
+        "skill": "context_cloze",
+        "targetId": "public-ja-5",
+        "target": {
+          "itemId": "public-ja-5",
+          "senseId": "public-ja-sense-5",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "病院",
+          "reading": "びょういん",
+          "romanization": null,
+          "meaningVi": "bệnh viện",
+          "glossEn": [
+            "hospital"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "病院",
+              "reading": "びょういん",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 19,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-7",
+        "target": {
+          "itemId": "public-ja-7",
+          "senseId": "public-ja-sense-7",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "切符",
+          "reading": "きっぷ",
+          "romanization": null,
+          "meaningVi": "vé",
+          "glossEn": [
+            "ticket"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "切符",
+              "reading": "きっぷ",
+              "eligible": true
+            }
+          ]
+        }
+      },
+      {
+        "id": 20,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-11",
+        "target": {
+          "itemId": "public-ja-11",
+          "senseId": "public-ja-sense-11",
+          "conceptId": null,
+          "languageId": 2,
+          "languageCode": "ja",
+          "lemma": "出口",
+          "reading": "でぐち",
+          "romanization": null,
+          "meaningVi": "lối ra",
+          "glossEn": [
+            "exit"
+          ],
+          "glossViMachine": false,
+          "pos": "noun",
+          "kanjiPairs": [
+            {
+              "written": "出口",
+              "reading": "でぐち",
+              "eligible": true
+            }
+          ]
+        }
+      }
+    ],
+    "generation": {
+      "wallMs": 58476,
+      "response": {
+        "ok": true,
+        "elapsedMs": 56020,
+        "finishReason": "stop",
+        "reasoningTokens": 0,
+        "result": {
+          "content": "{\"questions\":[{\"id\":1,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-0\",\"prompt\":\"私は毎日【学校】に行きます。\",\"options\":[\"がっこう\",\"がくせい\",\"だいがく\",\"せんせい\"],\"answer_index\":0},{\"id\":2,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-5\",\"prompt\":\"これは「びょういん」という意味の言葉です。\",\"options\":[\"病院\",\"病員\",\"氷院\",\"病屋\"],\"answer_index\":0},{\"id\":3,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-0\",\"prompt\":\"子どもたちは朝、____へ行きます。\",\"options\":[\"学校\",\"病院\",\"図書館\",\"大学\"],\"answer_index\":0},{\"id\":4,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-1\",\"prompt\":\"あの人は【学生】です。\",\"options\":[\"がくせい\",\"がっこう\",\"せんせい\",\"だいがく\"],\"answer_index\":0},{\"id\":5,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-6\",\"prompt\":\"これは「でんしゃ」という意味の言葉です。\",\"options\":[\"電車\",\"電気\",\"電荷\",\"転車\"],\"answer_index\":0},{\"id\":6,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-1\",\"prompt\":\"姉は____で日本語を勉強しています。\",\"options\":[\"学生\",\"先生\",\"乗客\",\"電車\"],\"answer_index\":0},{\"id\":7,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-2\",\"prompt\":\"山田さんは【先生】です。\",\"options\":[\"せんせい\",\"がくせい\",\"だいがく\",\"がっこう\"],\"answer_index\":0},{\"id\":8,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-7\",\"prompt\":\"これは「きっぷ」という意味の言葉です。\",\"options\":[\"切符\",\"切部\",\"切扶\",\"切計\"],\"answer_index\":0},{\"id\":9,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-2\",\"prompt\":\"私の____はとてもやさしいです。\",\"options\":[\"先生\",\"学生\",\"学校\",\"病院\"],\"answer_index\":0},{\"id\":10,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-3\",\"prompt\":\"兄は【大学】で勉強しています。\",\"options\":[\"だいがく\",\"がっこう\",\"がくせい\",\"としょかん\"],\"answer_index\":0},{\"id\":11,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-8\",\"prompt\":\"これは「じょうきゃく」という意味の言葉です。\",\"options\":[\"乗客\",\"乘客\",\"乗客車\",\"乗屋\"],\"answer_index\":0},{\"id\":12,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-3\",\"prompt\":\"妹は来年____に入ります。\",\"options\":[\"大学\",\"病院\",\"電車\",\"入口\"],\"answer_index\":0},{\"id\":13,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-4\",\"prompt\":\"図書館で本を借りました。\",\"options\":[\"としょかん\",\"としよかん\",\"どしょかん\",\"としょこん\"],\"answer_index\":0},{\"id\":14,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-9\",\"prompt\":\"これは「にもつ」という意味の言葉です。\",\"options\":[\"荷物\",\"何物\",\"荷物箱\",\"荷物置\"],\"answer_index\":0},{\"id\":15,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-4\",\"prompt\":\"私は毎週____で本を読みます。\",\"options\":[\"図書館\",\"大学\",\"病院\",\"切符\"],\"answer_index\":0},{\"id\":16,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-6\",\"prompt\":\"毎朝【電車】で会社に行きます。\",\"options\":[\"でんしゃ\",\"でんき\",\"てんしゃ\",\"でんせん\"],\"answer_index\":0},{\"id\":17,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-10\",\"prompt\":\"これは「いりぐち」という意味の言葉です。\",\"options\":[\"入口\",\"出口\",\"入り口\",\"入工\"],\"answer_index\":0},{\"id\":18,\"skill\":\"context_cloze\",\"targetId\":\"public-ja-5\",\"prompt\":\"体の具合が悪いので、____へ行きます。\",\"options\":[\"病院\",\"学校\",\"図書館\",\"大学\"],\"answer_index\":0},{\"id\":19,\"skill\":\"kanji_reading\",\"targetId\":\"public-ja-7\",\"prompt\":\"駅で【切符】を買いました。\",\"options\":[\"きっぷ\",\"きふ\",\"きつふ\",\"けいふ\"],\"answer_index\":0},{\"id\":20,\"skill\":\"kanji_orthography\",\"targetId\":\"public-ja-11\",\"prompt\":\"これは「でぐち」という意味の言葉です。\",\"options\":[\"出口\",\"入口\",\"出荷\",\"出江\"],\"answer_index\":0}]}",
+          "model": "zai-org/glm-5.3-flash",
+          "tokensIn": 2611,
+          "tokensOut": 1104,
+          "costUsd": 0
+        }
+      }
+    },
+    "structuralErrors": [],
+    "count": 20,
+    "questions": [
+      {
+        "id": 1,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-0",
+        "prompt": "私は毎日【学校】に行きます。",
+        "options": [
+          "がっこう",
+          "がくせい",
+          "だいがく",
+          "せんせい"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 2,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-5",
+        "prompt": "これは「びょういん」という意味の言葉です。",
+        "options": [
+          "病院",
+          "病員",
+          "氷院",
+          "病屋"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 3,
+        "skill": "context_cloze",
+        "targetId": "public-ja-0",
+        "prompt": "子どもたちは朝、____へ行きます。",
+        "options": [
+          "学校",
+          "病院",
+          "図書館",
+          "大学"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 4,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-1",
+        "prompt": "あの人は【学生】です。",
+        "options": [
+          "がくせい",
+          "がっこう",
+          "せんせい",
+          "だいがく"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 5,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-6",
+        "prompt": "これは「でんしゃ」という意味の言葉です。",
+        "options": [
+          "電車",
+          "電気",
+          "電荷",
+          "転車"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 6,
+        "skill": "context_cloze",
+        "targetId": "public-ja-1",
+        "prompt": "姉は____で日本語を勉強しています。",
+        "options": [
+          "学生",
+          "先生",
+          "乗客",
+          "電車"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 7,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-2",
+        "prompt": "山田さんは【先生】です。",
+        "options": [
+          "せんせい",
+          "がくせい",
+          "だいがく",
+          "がっこう"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 8,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-7",
+        "prompt": "これは「きっぷ」という意味の言葉です。",
+        "options": [
+          "切符",
+          "切部",
+          "切扶",
+          "切計"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 9,
+        "skill": "context_cloze",
+        "targetId": "public-ja-2",
+        "prompt": "私の____はとてもやさしいです。",
+        "options": [
+          "先生",
+          "学生",
+          "学校",
+          "病院"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 10,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-3",
+        "prompt": "兄は【大学】で勉強しています。",
+        "options": [
+          "だいがく",
+          "がっこう",
+          "がくせい",
+          "としょかん"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 11,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-8",
+        "prompt": "これは「じょうきゃく」という意味の言葉です。",
+        "options": [
+          "乗客",
+          "乘客",
+          "乗客車",
+          "乗屋"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 12,
+        "skill": "context_cloze",
+        "targetId": "public-ja-3",
+        "prompt": "妹は来年____に入ります。",
+        "options": [
+          "大学",
+          "病院",
+          "電車",
+          "入口"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 13,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-4",
+        "prompt": "図書館で本を借りました。",
+        "options": [
+          "としょかん",
+          "としよかん",
+          "どしょかん",
+          "としょこん"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 14,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-9",
+        "prompt": "これは「にもつ」という意味の言葉です。",
+        "options": [
+          "荷物",
+          "何物",
+          "荷物箱",
+          "荷物置"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 15,
+        "skill": "context_cloze",
+        "targetId": "public-ja-4",
+        "prompt": "私は毎週____で本を読みます。",
+        "options": [
+          "図書館",
+          "大学",
+          "病院",
+          "切符"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 16,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-6",
+        "prompt": "毎朝【電車】で会社に行きます。",
+        "options": [
+          "でんしゃ",
+          "でんき",
+          "てんしゃ",
+          "でんせん"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 17,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-10",
+        "prompt": "これは「いりぐち」という意味の言葉です。",
+        "options": [
+          "入口",
+          "出口",
+          "入り口",
+          "入工"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 18,
+        "skill": "context_cloze",
+        "targetId": "public-ja-5",
+        "prompt": "体の具合が悪いので、____へ行きます。",
+        "options": [
+          "病院",
+          "学校",
+          "図書館",
+          "大学"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 19,
+        "skill": "kanji_reading",
+        "targetId": "public-ja-7",
+        "prompt": "駅で【切符】を買いました。",
+        "options": [
+          "きっぷ",
+          "きふ",
+          "きつふ",
+          "けいふ"
+        ],
+        "answer_index": 0
+      },
+      {
+        "id": 20,
+        "skill": "kanji_orthography",
+        "targetId": "public-ja-11",
+        "prompt": "これは「でぐち」という意味の言葉です。",
+        "options": [
+          "出口",
+          "入口",
+          "出荷",
+          "出江"
+        ],
+        "answer_index": 0
+      }
+    ],
+    "review": {
+      "wallMs": 10962,
+      "response": {
+        "ok": true,
+        "elapsedMs": 7054,
+        "finishReason": "stop",
+        "reasoningTokens": 0,
+        "result": {
+          "content": "{\"reviews\":[{\"id\":1,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":2,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":3,\"chosenIndex\":0,\"alternateIndices\":[2],\"quality\":\"ambiguous\",\"issue\":\"Children go to school every morning, but going to the library is also plausible without more context.\"},{\"id\":4,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":5,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":6,\"chosenIndex\":1,\"alternateIndices\":[0],\"quality\":\"ambiguous\",\"issue\":\"Sister studies Japanese at school (学校) is more natural than with 学生/先生; options lack the intended noun and 先生で is odd.\"},{\"id\":7,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":8,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":9,\"chosenIndex\":0,\"alternateIndices\":[1],\"quality\":\"ambiguous\",\"issue\":\"私の先生 is natural, but 私の学生 is also possible though less common; both grammatically plausible.\"},{\"id\":10,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":11,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":12,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":13,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":14,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":15,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":16,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":17,\"chosenIndex\":0,\"alternateIndices\":[2],\"quality\":\"ambiguous\",\"issue\":\"Both 入口 and 入り口 are valid spellings for 'いりぐち'; two correct choices.\"},{\"id\":18,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":19,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"},{\"id\":20,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"}]}",
+          "model": "deepseek-ai/deepseek-v4.1-flash-1017",
+          "tokensIn": 835,
+          "tokensOut": 599,
+          "costUsd": 0
+        }
+      }
+    },
+    "reviewRequest": {
+      "model": "deepseek-ai/deepseek-v4.1-flash",
+      "reasoningEffort": "none",
+      "timeoutMs": 60000,
+      "maxTokens": 6000,
+      "messages": [
+        {
+          "role": "system",
+          "content": "Independently solve and review language quiz questions. The answer key is hidden. Return JSON only: {\"reviews\":[{\"id\":1,\"chosenIndex\":0,\"alternateIndices\":[],\"quality\":\"good\",\"issue\":\"\"}]}. Zero-based indices. quality is good, ambiguous, invalid, or unnatural. Flag answer leaks, multiple plausible choices, incorrect readings, wrong sense, unnatural sentences. Include every id exactly once; issue briefly explains non-good quality."
+        },
+        {
+          "role": "user",
+          "content": "[{\"id\":1,\"prompt\":\"私は毎日【学校】に行きます。\",\"options\":[\"がっこう\",\"がくせい\",\"だいがく\",\"せんせい\"]},{\"id\":2,\"prompt\":\"これは「びょういん」という意味の言葉です。\",\"options\":[\"病院\",\"病員\",\"氷院\",\"病屋\"]},{\"id\":3,\"prompt\":\"子どもたちは朝、____へ行きます。\",\"options\":[\"学校\",\"病院\",\"図書館\",\"大学\"]},{\"id\":4,\"prompt\":\"あの人は【学生】です。\",\"options\":[\"がくせい\",\"がっこう\",\"せんせい\",\"だいがく\"]},{\"id\":5,\"prompt\":\"これは「でんしゃ」という意味の言葉です。\",\"options\":[\"電車\",\"電気\",\"電荷\",\"転車\"]},{\"id\":6,\"prompt\":\"姉は____で日本語を勉強しています。\",\"options\":[\"学生\",\"先生\",\"乗客\",\"電車\"]},{\"id\":7,\"prompt\":\"山田さんは【先生】です。\",\"options\":[\"せんせい\",\"がくせい\",\"だいがく\",\"がっこう\"]},{\"id\":8,\"prompt\":\"これは「きっぷ」という意味の言葉です。\",\"options\":[\"切符\",\"切部\",\"切扶\",\"切計\"]},{\"id\":9,\"prompt\":\"私の____はとてもやさしいです。\",\"options\":[\"先生\",\"学生\",\"学校\",\"病院\"]},{\"id\":10,\"prompt\":\"兄は【大学】で勉強しています。\",\"options\":[\"だいがく\",\"がっこう\",\"がくせい\",\"としょかん\"]},{\"id\":11,\"prompt\":\"これは「じょうきゃく」という意味の言葉です。\",\"options\":[\"乗客\",\"乘客\",\"乗客車\",\"乗屋\"]},{\"id\":12,\"prompt\":\"妹は来年____に入ります。\",\"options\":[\"大学\",\"病院\",\"電車\",\"入口\"]},{\"id\":13,\"prompt\":\"図書館で本を借りました。\",\"options\":[\"としょかん\",\"としよかん\",\"どしょかん\",\"としょこん\"]},{\"id\":14,\"prompt\":\"これは「にもつ」という意味の言葉です。\",\"options\":[\"荷物\",\"何物\",\"荷物箱\",\"荷物置\"]},{\"id\":15,\"prompt\":\"私は毎週____で本を読みます。\",\"options\":[\"図書館\",\"大学\",\"病院\",\"切符\"]},{\"id\":16,\"prompt\":\"毎朝【電車】で会社に行きます。\",\"options\":[\"でんしゃ\",\"でんき\",\"てんしゃ\",\"でんせん\"]},{\"id\":17,\"prompt\":\"これは「いりぐち」という意味の言葉です。\",\"options\":[\"入口\",\"出口\",\"入り口\",\"入工\"]},{\"id\":18,\"prompt\":\"体の具合が悪いので、____へ行きます。\",\"options\":[\"病院\",\"学校\",\"図書館\",\"大学\"]},{\"id\":19,\"prompt\":\"駅で【切符】を買いました。\",\"options\":[\"きっぷ\",\"きふ\",\"きつふ\",\"けいふ\"]},{\"id\":20,\"prompt\":\"これは「でぐち」という意味の言葉です。\",\"options\":[\"出口\",\"入口\",\"出荷\",\"出江\"]}]"
+        }
+      ]
+    },
+    "parsedReview": {
+      "reviews": [
+        {
+          "id": 1,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 2,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 3,
+          "chosenIndex": 0,
+          "alternateIndices": [
+            2
+          ],
+          "quality": "ambiguous",
+          "issue": "Children go to school every morning, but going to the library is also plausible without more context."
+        },
+        {
+          "id": 4,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 5,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 6,
+          "chosenIndex": 1,
+          "alternateIndices": [
+            0
+          ],
+          "quality": "ambiguous",
+          "issue": "Sister studies Japanese at school (学校) is more natural than with 学生/先生; options lack the intended noun and 先生で is odd."
+        },
+        {
+          "id": 7,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 8,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 9,
+          "chosenIndex": 0,
+          "alternateIndices": [
+            1
+          ],
+          "quality": "ambiguous",
+          "issue": "私の先生 is natural, but 私の学生 is also possible though less common; both grammatically plausible."
+        },
+        {
+          "id": 10,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 11,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 12,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 13,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 14,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 15,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 16,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 17,
+          "chosenIndex": 0,
+          "alternateIndices": [
+            2
+          ],
+          "quality": "ambiguous",
+          "issue": "Both 入口 and 入り口 are valid spellings for 'いりぐち'; two correct choices."
+        },
+        {
+          "id": 18,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 19,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        },
+        {
+          "id": 20,
+          "chosenIndex": 0,
+          "alternateIndices": [],
+          "quality": "good",
+          "issue": ""
+        }
+      ]
+    }
+  }
+]

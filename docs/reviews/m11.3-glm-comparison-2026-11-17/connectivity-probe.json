@@ -1,0 +1,8 @@
+{
+  "task": "M11.3",
+  "date": "2026-11-17",
+  "probe": "Unauthenticated HTTP request to provider origin after one-shot EN transport failure",
+  "elapsedMs": 1055,
+  "httpStatus": 404,
+  "interpretation": "Origin responded at probe time; this does not verify authenticated chat completions, model health, or explain the previous TypeError. No credentials sent by this probe."
+}

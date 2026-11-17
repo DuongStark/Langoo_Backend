@@ -1,0 +1,1201 @@
+{
+  "name": "en-daily-travel-basic-single-20",
+  "warm": false,
+  "ready": true,
+  "audited": true,
+  "requested": 20,
+  "approved": 20,
+  "reused": 0,
+  "firstValidatedMs": 35326,
+  "wallMs": 61254,
+  "providerMs": 55444,
+  "calls": 5,
+  "tokensIn": 10498,
+  "tokensOut": 6449,
+  "bySkill": [
+    {
+      "skill": "context_cloze",
+      "requested": 10,
+      "approved": 10
+    },
+    {
+      "skill": "context_meaning",
+      "requested": 10,
+      "approved": 10
+    }
+  ],
+  "errors": [],
+  "questions": [
+    {
+      "ordinal": 1,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-0",
+          "senseId": "public-en-sense-0",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "f608f2c4500045f1bc14d66632baa7151eb7aa08afa05b8d4d0cb5e0599ec132",
+      "cacheKey": "ef74edb537a4b4f5468ab70664283b5d1b77dc41d985004f6e750b8837fcd596",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nWe waited for the （　） at the station.",
+        "options": [
+          {
+            "index": 0,
+            "text": "ticket"
+          },
+          {
+            "index": 1,
+            "text": "schedule"
+          },
+          {
+            "index": 2,
+            "text": "train"
+          },
+          {
+            "index": 3,
+            "text": "seat"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "train",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-0",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 2,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "The train arrived at the station on time.",
+        "target": {
+          "start": 4,
+          "end": 9,
+          "text": "train"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-0",
+          "senseId": "public-en-sense-0",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "6bd7215b5430b8e05c3a88e32451719466809c1ce1e1ef36cab75eb5a7772282",
+      "cacheKey": "8ed4a36f1fec76b9e0cdfd177027f0aa590373626cf4c0ed9776fadbf15aab20",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "nhà ga"
+          },
+          {
+            "index": 1,
+            "text": "chấp nhận"
+          },
+          {
+            "index": 2,
+            "text": "mượn"
+          },
+          {
+            "index": 3,
+            "text": "tàu hỏa"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "tàu hỏa",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-0",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "The train arrived at the station on time.",
+          "target": {
+            "start": 4,
+            "end": 9,
+            "text": "train"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 3,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-1",
+          "senseId": "public-en-sense-1",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "954f471e6064f1e8cb223e59876814cde350cbfa4342620acbb3c49ecd4dc8eb",
+      "cacheKey": "47678f3980e15e970402dd70c7a9352f042aa909186bbdd3366691343012890f",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nShe decided to （　） the offer.",
+        "options": [
+          {
+            "index": 0,
+            "text": "sell"
+          },
+          {
+            "index": 1,
+            "text": "borrow"
+          },
+          {
+            "index": 2,
+            "text": "leave"
+          },
+          {
+            "index": 3,
+            "text": "accept"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "accept",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-1",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 4,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "He agreed to accept the invitation.",
+        "target": {
+          "start": 13,
+          "end": 19,
+          "text": "accept"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-1",
+          "senseId": "public-en-sense-1",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "b694e0b8a1c34d40684635d6c2c0c15ab09d21c0e752dc977a175f0882b6d959",
+      "cacheKey": "479267d5ca6f7564358056975d1f8dd66f4aceb434e5875c820d2acd8dd14e21",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "chấp nhận"
+          },
+          {
+            "index": 1,
+            "text": "tàu hỏa"
+          },
+          {
+            "index": 2,
+            "text": "cho mượn"
+          },
+          {
+            "index": 3,
+            "text": "nhà ga"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "chấp nhận",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-1",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "He agreed to accept the invitation.",
+          "target": {
+            "start": 13,
+            "end": 19,
+            "text": "accept"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 5,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-2",
+          "senseId": "public-en-sense-2",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "c2d7af74d821c082c0690a960cd84091a8df277fe2add6a6bd6ed82759beecab",
+      "cacheKey": "43002170a5bb61248499027e828ca2d1349e1aba8b0c476371fa76f93495cd0e",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nWe met outside the （　）.",
+        "options": [
+          {
+            "index": 0,
+            "text": "station"
+          },
+          {
+            "index": 1,
+            "text": "seat"
+          },
+          {
+            "index": 2,
+            "text": "luggage"
+          },
+          {
+            "index": 3,
+            "text": "passenger"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "station",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-2",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 6,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "The station was crowded with passengers.",
+        "target": {
+          "start": 4,
+          "end": 11,
+          "text": "station"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-2",
+          "senseId": "public-en-sense-2",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "8edfa33f64255c63c0496a74da80d7b35d7fbb40a1e9bd429f36debd2db97018",
+      "cacheKey": "1cdebd2ab7c48a292e85bf3485935fb6c30a7babe2e87e354d28c13452d49219",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "từ chối"
+          },
+          {
+            "index": 1,
+            "text": "nhà ga"
+          },
+          {
+            "index": 2,
+            "text": "sân ga"
+          },
+          {
+            "index": 3,
+            "text": "mua"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "nhà ga",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-2",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "The station was crowded with passengers.",
+          "target": {
+            "start": 4,
+            "end": 11,
+            "text": "station"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 7,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-3",
+          "senseId": "public-en-sense-3",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "3ca8c755c34b6b4bbefaf3610f889642d7f62f186e9c7f5197fabac5d1bbe4c9",
+      "cacheKey": "c436aa88f6ce8c1211e8f5fce4ee3613850a43523bcea85d236165207714c69c",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nHe decided to （　） the invitation.",
+        "options": [
+          {
+            "index": 0,
+            "text": "lend"
+          },
+          {
+            "index": 1,
+            "text": "refuse"
+          },
+          {
+            "index": 2,
+            "text": "buy"
+          },
+          {
+            "index": 3,
+            "text": "take"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "refuse",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-3",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 8,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "She had to refuse the offer politely.",
+        "target": {
+          "start": 11,
+          "end": 17,
+          "text": "refuse"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-3",
+          "senseId": "public-en-sense-3",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "ed7d97d45b5ef69b362f97dc418801b7bbe7f059b1d72bd957469d7e8e3e89a3",
+      "cacheKey": "d096a39911eaf179ba46125a3611e165a313758a3dd93a578e35a48a754cde68",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "nhà ga"
+          },
+          {
+            "index": 1,
+            "text": "vé"
+          },
+          {
+            "index": 2,
+            "text": "từ chối"
+          },
+          {
+            "index": 3,
+            "text": "tàu hỏa"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "từ chối",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-3",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "She had to refuse the offer politely.",
+          "target": {
+            "start": 11,
+            "end": 17,
+            "text": "refuse"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 9,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-4",
+          "senseId": "public-en-sense-4",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "4aa1e3c49b805fccbc8953e23a9162904878b0bfd9175f76ea8e031dd4296320",
+      "cacheKey": "7e4bc2d07cc93e7cb62b5325bb66d5692676db8c197625b2a1e521394823aec4",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nI bought a （　） for the train.",
+        "options": [
+          {
+            "index": 0,
+            "text": "station"
+          },
+          {
+            "index": 1,
+            "text": "schedule"
+          },
+          {
+            "index": 2,
+            "text": "ticket"
+          },
+          {
+            "index": 3,
+            "text": "entrance"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "ticket",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-4",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 10,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "Please show your ticket at the entrance.",
+        "target": {
+          "start": 17,
+          "end": 23,
+          "text": "ticket"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-4",
+          "senseId": "public-en-sense-4",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "4992cd71fc34f271fd41ce71fb04f1b35e8830ca10761181e9aa483a83639797",
+      "cacheKey": "edc12b3243618e3510a0337393bd6dc14862bf8ed8ede90ab58b4765607eecf4",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "từ chối"
+          },
+          {
+            "index": 1,
+            "text": "mua"
+          },
+          {
+            "index": 2,
+            "text": "lối vào"
+          },
+          {
+            "index": 3,
+            "text": "vé"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "vé",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-4",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "Please show your ticket at the entrance.",
+          "target": {
+            "start": 17,
+            "end": 23,
+            "text": "ticket"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 11,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-5",
+          "senseId": "public-en-sense-5",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "2a7bb71186ea07ed59e18a535b61ab637690f69998d10ecb4b782e1b8214dd04",
+      "cacheKey": "f4f497d8e7a044d5042096413e5ac06be29d01e950bf2c3eac5c0d7cc3cb729f",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nMay I （　） your pen for a moment?",
+        "options": [
+          {
+            "index": 0,
+            "text": "sell"
+          },
+          {
+            "index": 1,
+            "text": "forget"
+          },
+          {
+            "index": 2,
+            "text": "accept"
+          },
+          {
+            "index": 3,
+            "text": "borrow"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "borrow",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-5",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 12,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "I need to borrow some money from my friend.",
+        "target": {
+          "start": 10,
+          "end": 16,
+          "text": "borrow"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-5",
+          "senseId": "public-en-sense-5",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "67d61aa17e6604175ff200859b5ea6438c99374dad1217485fc0291f2b93af6d",
+      "cacheKey": "077d85604db66dfa3b4f320ee8b5400544509a29d18c32c60d534c54fd8b296e",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "mượn"
+          },
+          {
+            "index": 1,
+            "text": "tàu hỏa"
+          },
+          {
+            "index": 2,
+            "text": "cho mượn"
+          },
+          {
+            "index": 3,
+            "text": "chấp nhận"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "mượn",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-5",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "I need to borrow some money from my friend.",
+          "target": {
+            "start": 10,
+            "end": 16,
+            "text": "borrow"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 14,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "Passengers stood on the platform waiting for the train.",
+        "target": {
+          "start": 24,
+          "end": 32,
+          "text": "platform"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-6",
+          "senseId": "public-en-sense-6",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "952fce705653937b5aa865165f8e58c2d53d204ed7f33bb0ce6450fa8cd55d5c",
+      "cacheKey": "d5255ff2f47f544ccf901081279b0f287d3327ee6307844179855c95ff4bf702",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "mượn"
+          },
+          {
+            "index": 1,
+            "text": "sân ga"
+          },
+          {
+            "index": 2,
+            "text": "từ chối"
+          },
+          {
+            "index": 3,
+            "text": "mua"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "sân ga",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-6",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "Passengers stood on the platform waiting for the train.",
+          "target": {
+            "start": 24,
+            "end": 32,
+            "text": "platform"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 16,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "She agreed to lend me her car.",
+        "target": {
+          "start": 14,
+          "end": 18,
+          "text": "lend"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-7",
+          "senseId": "public-en-sense-7",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "2f838eeb1e2f9c809f2f8257a6022aa5dfa597bc5771e124514c0f3d3084d90e",
+      "cacheKey": "00cff7aed0ab97de95f2a924e0a1064b158f29999e16237e691118e24cd1d140",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "bán"
+          },
+          {
+            "index": 1,
+            "text": "vé"
+          },
+          {
+            "index": 2,
+            "text": "cho mượn"
+          },
+          {
+            "index": 3,
+            "text": "sân ga"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "cho mượn",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-7",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "She agreed to lend me her car.",
+          "target": {
+            "start": 14,
+            "end": 18,
+            "text": "lend"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 17,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-8",
+          "senseId": "public-en-sense-8",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "cae55d90d9320df0425b88ccce7c638392f7b0206a303e10a81906aa76d32a7d",
+      "cacheKey": "c82f0b380d5b01b577fe8801a472bf385cdb88146b26ff262486392148a30be5",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nThe （　） showed his ticket to the driver.",
+        "options": [
+          {
+            "index": 0,
+            "text": "station"
+          },
+          {
+            "index": 1,
+            "text": "entrance"
+          },
+          {
+            "index": 2,
+            "text": "passenger"
+          },
+          {
+            "index": 3,
+            "text": "delay"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "passenger",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-8",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 18,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "Each passenger must wear a seat belt.",
+        "target": {
+          "start": 5,
+          "end": 14,
+          "text": "passenger"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-8",
+          "senseId": "public-en-sense-8",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "7a973e9f7648de477249994c6f287c2e3ee0cf48f7cbbe1cd38407af37a7a66c",
+      "cacheKey": "aec8b8399a1a8ad4b28c0d91354e71e6eae2515edf9c38129699c9f2f8f890aa",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "chấp nhận"
+          },
+          {
+            "index": 1,
+            "text": "tàu hỏa"
+          },
+          {
+            "index": 2,
+            "text": "từ chối"
+          },
+          {
+            "index": 3,
+            "text": "hành khách"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "hành khách",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-8",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "Each passenger must wear a seat belt.",
+          "target": {
+            "start": 5,
+            "end": 14,
+            "text": "passenger"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 19,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-9",
+          "senseId": "public-en-sense-9",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "45b0608cf0816b2936cca6c29869749e56a5ad61ebd134e53844aca1760329d9",
+      "cacheKey": "d6c1dcc2981a44a188250d14c3d8a2754ea4df6d71790f5924413330f7fa0b21",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nI want to （　） a new book.",
+        "options": [
+          {
+            "index": 0,
+            "text": "forget"
+          },
+          {
+            "index": 1,
+            "text": "refuse"
+          },
+          {
+            "index": 2,
+            "text": "take"
+          },
+          {
+            "index": 3,
+            "text": "buy"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "buy",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-9",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 20,
+      "skill": "context_meaning",
+      "style": "meaning",
+      "context": {
+        "sentence": "We need to buy tickets before the trip.",
+        "target": {
+          "start": 11,
+          "end": 14,
+          "text": "buy"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-en-9",
+          "senseId": "public-en-sense-9",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "83d977b18c0de91eda5af90570322bc856bf1a26239e534ec83de983207791df",
+      "cacheKey": "7fbedcb47524ab526e35b768b1b785f87fd774aeae826dbcd7f2e2acd3ba2110",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa của từ được đánh dấu trong câu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "mua"
+          },
+          {
+            "index": 1,
+            "text": "nhà ga"
+          },
+          {
+            "index": 2,
+            "text": "chấp nhận"
+          },
+          {
+            "index": 3,
+            "text": "tàu hỏa"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "mua",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-9",
+        "questionStyle": "meaning",
+        "context": {
+          "sentence": "We need to buy tickets before the trip.",
+          "target": {
+            "start": 11,
+            "end": 14,
+            "text": "buy"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 13,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-6",
+          "senseId": "public-en-sense-6",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "c1b08d48431b8011900545a92b9f1c05a8f6e2cc5c4c066e6a8eaaf5366208ab",
+      "cacheKey": "ecd9102b76aa5feb4402dd3f1ca17eed91787cb04e425d2f88b656bc7e6aa6c4",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nWe waited on the （　） for the train to arrive.",
+        "options": [
+          {
+            "index": 0,
+            "text": "station"
+          },
+          {
+            "index": 1,
+            "text": "journey"
+          },
+          {
+            "index": 2,
+            "text": "platform"
+          },
+          {
+            "index": 3,
+            "text": "delay"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "platform",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-6",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 15,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-en-7",
+          "senseId": "public-en-sense-7",
+          "languageId": 1
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "reuseKey": "da8efb75e7e6757e82797b96bb6246c1a03b8d6e70c56ff74b917724b4f9c6da",
+      "cacheKey": "d75b090c2ea7860e7350acfc503a5472bf56ee17290e1c93255543f72948b214",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nCan you （　） me your pen for a minute?",
+        "options": [
+          {
+            "index": 0,
+            "text": "take"
+          },
+          {
+            "index": 1,
+            "text": "sell"
+          },
+          {
+            "index": 2,
+            "text": "borrow"
+          },
+          {
+            "index": 3,
+            "text": "lend"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "lend",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 1,
+        "conceptId": null,
+        "itemId": "public-en-7",
+        "questionStyle": "meaning"
+      }
+    }
+  ],
+  "sourceHash": "177ece1ee6621ffa33ffdb38cfc81d91adeaa0f3a9bc51260c9f7ec25e6761b7"
+}
