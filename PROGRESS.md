@@ -8,6 +8,14 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-17 — M11.3 — Xác nhận push quiz từng câu và nhiễu Kanji
+
+- Thay đổi / lý do: Đã commit/push main codeM11.3 và dependencyprogressive/session cùngtest/docs; giữ WIP ngoài phạmvi. Không chạy lại testlocal theo yêu cầu.
+- File / phạm vi: [report](docs/reviews/m11.3-single-question-implementation-2026-11-17.md), [handoffFE](docs/handoff/m11.3-single-question-progressive-fe-2026-11-17.md), [receipt](docs/reviews/m11.3-push-2026-11-17.json).
+- Kiểm tra / kết quả: gitdiffcheck/stagecheck PASS; gitls-remote xác nhận main=dfe2f7412a8a8595e2c12c42f9c26d43df447f25. [CI](https://github.com/DuongStark/Langoo_Backend/actions/runs/44014130652) đang chạy, không báo pass khi chưa xong.
+- Gate còn thiếu / việc tiếp theo: Deploy tự động sauCI; chưa xác nhận VPSdeploy hoặc bậtV3, chưa QA FE; các gate ngữ nghĩa/pilot mới giữ nguyên.
+- Git / triển khai: Code dfe2f74 đã commit/push; receipt docs lưu trong commit kế tiếp. Không forcepush, không đổiENVVPS/FE và không gom DB3/M12 hoặc tài liệu ngoài phạmvi.
+
 ### 2026-11-17 — M11.3 — Đóng gói quiz từng câu và nhiễu Kanji để push
 
 - Thay đổi / lý do: Chủ dự án yêu cầu push, không chạy lại test local. Gom toàn bộ dependency progressive/session của M11.3 cùng singlemodeDeepSeek/nhiễuKanji, test và docs đã kiểm; không gom DB3/M12/docs việc khác.

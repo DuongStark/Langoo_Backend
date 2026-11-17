@@ -1,0 +1,16 @@
+{
+  "task": "M11.3",
+  "recorded_at": "2026-11-17T04:02:12.992Z",
+  "code_commit": "dfe2f7412a8a8595e2c12c42f9c26d43df447f25",
+  "branch": "main",
+  "remote_main_verified": "dfe2f7412a8a8595e2c12c42f9c26d43df447f25",
+  "ci": {
+    "run_id": 44014130652,
+    "status": "in_progress",
+    "url": "https://github.com/DuongStark/Langoo_Backend/actions/runs/44014130652"
+  },
+  "local_tests_rerun": false,
+  "deploy": "not_yet_verified",
+  "v3_rollout": "not_enabled_by_this_push",
+  "scope": "M11.3 quiz/progressive sessions and dependent docs only; unrelated WIP preserved"
+}
