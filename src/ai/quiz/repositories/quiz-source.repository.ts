@@ -9,6 +9,7 @@ import {
 import { fingerprint } from '../quiz-contract';
 
 interface SourceRow {
+  face_id?: string;
   item_id: string;
   sense_id: bigint;
   concept_id: bigint | null;
@@ -36,6 +37,9 @@ export class QuizSourceRepository {
       collectionId: string | null;
       enrichKanji?: boolean;
       withExamples?: boolean;
+      /** V3 pins the face language before enrichment; legacy callers unchanged. */
+      languageId?: number;
+      maxItems?: number;
     },
     client: Prisma.TransactionClient = this.prisma,
   ): Promise<QuizSourceItem[]> {
@@ -44,6 +48,7 @@ export class QuizSourceRepository {
       SELECT
         i.id AS item_id,
         visible_face.sense_id AS sense_id,
+        visible_face.id AS face_id,
         i.concept_id,
         sc.language_id,
         sc.lemma,
@@ -58,6 +63,7 @@ export class QuizSourceRepository {
         SELECT f.id, f.sense_id
         FROM app.collection_item_face f
         WHERE f.item_id=i.id AND f.language_id IN (p.primary_language_id, p.secondary_language_id)
+          AND (${params.languageId ?? null}::smallint IS NULL OR f.language_id = ${params.languageId ?? null}::smallint)
         ORDER BY CASE WHEN f.sense_id=i.anchor_sense_id THEN 0 ELSE 1 END, f.id
         LIMIT 1
       ) visible_face ON true
@@ -98,9 +104,11 @@ export class QuizSourceRepository {
         END,
         i.position,
         i.id
+      ${params.maxItems === undefined ? Prisma.empty : Prisma.sql`LIMIT ${Math.max(1, Math.min(501, params.maxItems))}`}
     `);
 
     const items: QuizSourceItem[] = rows.map((row) => ({
+      ...(row.face_id ? { faceId: row.face_id } : {}),
       itemId: row.item_id,
       senseId: row.sense_id.toString(),
       conceptId: row.concept_id?.toString() ?? null,

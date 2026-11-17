@@ -1,6 +1,7 @@
 import { PublicQuizContext } from '../quiz-contract';
 
 export interface QuizResponse {
+  content_version?: 'm11.3-v3';
   id: string;
   collection_id: string | null;
   quiz_type: string;
@@ -16,6 +17,8 @@ export interface CreateQuizResponse extends QuizResponse {
 }
 
 export interface QuizQuestionResponse {
+  skill?: string;
+  quality_flags?: string[];
   ordinal: number;
   question_type: string;
   prompt: string;

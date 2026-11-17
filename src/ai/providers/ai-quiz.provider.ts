@@ -31,6 +31,7 @@ export const AI_QUIZ_PROVIDER = 'AI_QUIZ_PROVIDER';
 
 /** Một từ nguồn để sinh câu hỏi (đã join sẵn lemma/nghĩa từ serve.sense_card). */
 export interface QuizSourceItem {
+  faceId?: string;
   itemId: string;
   senseId: string;
   conceptId: string | null;

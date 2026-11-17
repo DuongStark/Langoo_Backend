@@ -95,7 +95,10 @@ const questionMetaSchema = z
     evidence: evidenceSchema.nullable(),
   })
   .strict();
-export type QuizQuestionMetadata = z.infer<typeof questionMetaSchema>;
+export type QuizQuestionMetadata = z.infer<typeof questionMetaSchema> & {
+  skill?: string;
+  qualityFlags?: string[];
+};
 export const metadataSchema = z
   .object({
     version: z.literal(QUIZ_VERSION),
@@ -120,6 +123,40 @@ export function readQuestionMetadata(
   ordinal: number,
   type: string,
 ): QuizQuestionMetadata {
+  if (
+    typeof generator === 'object' &&
+    generator !== null &&
+    'version' in generator &&
+    generator.version === 'm11.3-v3' &&
+    'questions' in generator &&
+    Array.isArray(generator.questions)
+  ) {
+    const raw = generator.questions.find(
+      (q: unknown) =>
+        typeof q === 'object' &&
+        q !== null &&
+        'ordinal' in q &&
+        q.ordinal === ordinal,
+    ) as Record<string, unknown> | undefined;
+    if (!raw)
+      throw new DomainException(
+        'QUIZ_METADATA_INVALID',
+        'Thiếu metadata câu hỏi',
+        HttpStatus.CONFLICT,
+      );
+    return {
+      ...questionMetaSchema.parse({
+        ordinal: raw.ordinal,
+        style: raw.style,
+        context: raw.context,
+        evidence: null,
+      }),
+      skill: typeof raw.skill === 'string' ? raw.skill : undefined,
+      qualityFlags: Array.isArray(raw.qualityFlags)
+        ? raw.qualityFlags.filter((v): v is string => typeof v === 'string')
+        : [],
+    };
+  }
   if (
     typeof generator === 'object' &&
     generator !== null &&

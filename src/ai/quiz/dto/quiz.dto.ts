@@ -65,3 +65,27 @@ export class QuizListQueryDto {
   @MaxLength(2000)
   cursor?: string;
 }
+
+export class StartQuizDto {
+  @ApiPropertyOptional({
+    enum: ['resume', 'new_attempt'],
+    default: 'resume',
+    description:
+      'V3: làm tiếp lượt đang dở hoặc tạo lượt mới. Legacy giữ hành vi cũ.',
+  })
+  @IsOptional()
+  @IsIn(['resume', 'new_attempt'])
+  intent?: 'resume' | 'new_attempt';
+
+  @ApiPropertyOptional({
+    format: 'uuid',
+    description:
+      'Bắt buộc với new_attempt; giữ key khi retry để không tạo lượt thứ hai.',
+  })
+  @ValidateIf(
+    (object: StartQuizDto, value: unknown) =>
+      object.intent === 'new_attempt' || value !== undefined,
+  )
+  @IsUUID()
+  idempotency_key?: string;
+}

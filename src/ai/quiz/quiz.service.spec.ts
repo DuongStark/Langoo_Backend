@@ -14,6 +14,67 @@ import { CONTEXT_POLICY, QUIZ_VERSION } from './quiz-contract';
 
 const QUIZ_ID = '01900000-0000-7000-8000-000000000001';
 
+describe('M11.3 attempts', () => {
+  it('does not leak in-progress v3 correctness through quiz list or detail summaries', async () => {
+    const { service, prisma } = createSetup();
+    const quiz = quizRow({ generator: { version: 'm11.3-v3', questions: [] } });
+    const session = {
+      id: 'attempt',
+      quizId: QUIZ_ID,
+      status: 'in_progress',
+      itemCount: 20,
+      correctCount: 7,
+      score: 100,
+      settings: { quiz_version: 'm11.3-v3' },
+      startedAt: new Date(),
+      finishedAt: null,
+    };
+    prisma.quiz.findMany.mockResolvedValue([quiz]);
+    prisma.quiz.findFirst.mockResolvedValue(quiz);
+    prisma.quizQuestion.findMany.mockResolvedValue([]);
+    prisma.studySession.findMany.mockResolvedValue([session]);
+    expect((await service.list(1n, {})).data[0].latest_session).toMatchObject({
+      correct_count: 0,
+      score: null,
+    });
+    expect((await service.get(1n, QUIZ_ID)).sessions[0]).toMatchObject({
+      correct_count: 0,
+      score: null,
+    });
+  });
+  it('resumes an active v3 attempt instead of creating a duplicate on repeated start', async () => {
+    const { service, prisma, tx, sessions } = createSetup();
+    prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({ generator: { version: 'm11.3-v3', questions: [] } }),
+    );
+    prisma.quizQuestion.findMany.mockResolvedValue([
+      { id: 1n, ordinal: 1, questionType: 'multiple_choice' },
+    ]);
+    tx.studySession.findFirst.mockResolvedValue({ id: 'already-running' });
+    await service.start(1n, QUIZ_ID);
+    expect(sessions.get).toHaveBeenCalledWith(1n, 'already-running');
+    expect(tx.studySession.create).not.toHaveBeenCalled();
+  });
+  it('replays an explicit new-attempt key before allocating another attempt', async () => {
+    const { service, prisma, tx, sessions } = createSetup();
+    prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({ generator: { version: 'm11.3-v3', questions: [] } }),
+    );
+    prisma.quizQuestion.findMany.mockResolvedValue([
+      { id: 1n, ordinal: 1, questionType: 'multiple_choice' },
+    ]);
+    tx.studySession.findFirst.mockResolvedValue({ id: 'already-completed' });
+    await service.start(
+      1n,
+      QUIZ_ID,
+      'new_attempt',
+      '00000000-0000-4000-8000-000000000001',
+    );
+    expect(sessions.get).toHaveBeenCalledWith(1n, 'already-completed');
+    expect(tx.studySession.create).not.toHaveBeenCalled();
+  });
+});
+
 function quizRow(overrides: Record<string, unknown> = {}) {
   return {
     id: QUIZ_ID,
@@ -98,7 +159,7 @@ function createSetup(cooldownMs = '15000') {
     },
     collection: { findFirst: jest.fn() },
     $queryRaw: jest.fn().mockResolvedValue([]),
-    studySession: { create: jest.fn() },
+    studySession: { create: jest.fn(), findFirst: jest.fn() },
     studySessionItem: { createMany: jest.fn() },
   };
   const prisma = {

@@ -1,4 +1,5 @@
 export interface SessionResponse {
+  unique_target_count?: number;
   id: string;
   kind: string;
   mode: string;
@@ -15,6 +16,7 @@ export interface SessionResponse {
 }
 
 export interface SessionItemResponse {
+  credit?: { earned: number; possible: number };
   id: string;
   ordinal: number;
   srs_id: string | null;
@@ -29,6 +31,12 @@ export interface SessionItemResponse {
 }
 
 export interface SessionDetailResponse {
+  skill_summary?: {
+    skill: string;
+    question_count: number;
+    correct_count: number;
+    score: number;
+  }[];
   session: SessionResponse;
   items: SessionItemResponse[];
 }

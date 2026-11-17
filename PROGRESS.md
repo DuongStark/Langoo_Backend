@@ -8,6 +8,55 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-17 — M11.3 — Push backend V3 và chuẩn bị pilot hiệu năng/chất lượng
+
+- Thay đổi / lý do: Theo yêu cầu chủ dự án, đóng gói riêng code/test/docs M11.3 để commit/push trước khi chạy pilot provider thật; không gom WIP khác.
+- File / phạm vi: Backend V3, quiz/session contract + tests, ENV example, API/design/plan/review/handoff M11.3; chỉ entry M11.3 được đưa vào commit PROGRESS.
+- Kiểm tra / kết quả: Fresh full unit PASS77suites/682tests (100,317s); npm run build PASS. Lượt triển khai trước đã PASS33PostgreSQL E2E và lint; không gọi đó là benchmark model thật. git diff --check sạch trước commit.
+- Gate còn thiếu / việc tiếp theo: Chạy pilot Anh/Nhật trên provider runtime với fixture công khai và lưu raw/result/nhận xét; chưa kết luận tốc độ/chất lượng model. V3/bộ mẫu/paraphrase/level filter vẫn chưa bật; FE integration còn gate.
+- Git / triển khai: Chuẩn bị commit/push theo yêu cầu; hash/CI/pilot receipt cập nhật ở báo cáo17/11. Pipeline main có tự deploy sau CI; không đổi ENV live hoặc tự bật V3.
+
+### 2026-11-16 — M11.3 — Backend quiz Anh–Nhật V3 và handoff FE theo phần triển khai
+
+- Thay đổi / lý do: Triển khai BE opt-in cho source đúng ngôn ngữ, eligibility/max-flow và target lặp qua kỹ năng, batch tối đa4câu + validator/audit độc lập, repair/cache đúng scope, job CAS/lease/checkpoint/usage, source revalidation trong transaction. V3 resume/partial matching/feedback cuối lượt/skill summary; report pending và cách ly cache xuyên bản copy không gọi AI. Hoãn giải thích dài; không triển khai XP.
+- File / phạm vi: `src/ai/quiz/v3/`, source/provider types/quiz contract/service/controller/module, env schema + `.env.example`, quiz/session grading/feedback/types/tests, `test/quiz-v3.e2e-spec.ts`; [report triển khai và biên bản](docs/reviews/m11.3-implementation-2026-11-16.md), [plan](docs/plans/m11.3-en-ai-ja-latency-2026-11-16.md), [design](docs/design/m11.3-quiz-en-ja-content-and-sources.md), [handoff FE mục10–10.6](docs/handoff/m11.3-quiz-en-ja-fe-2026-11-16.md), [API consumer](docs/api/quizzes.md). Không sửa repo FE, migration hoặc dependency.
+- Kiểm tra / kết quả: PASS13unit suites/136tests; PASS4PostgreSQL E2E suites/33tests (8V3+25legacy), gồm hai worker/expired lease, cancel/source-edit race, matching4target/partial score, report receipt/blacklist xuyên copy/quota không đổi và OpenAPI. `npm run build` PASS; ESLint toàn phạm vi thay đổi `--max-warnings 0` PASS. Link/bảng5tài liệu và git diff --check sạch, đã kiểm working tree/branch main. Review độc lập không còn finding quan trọng. Chi tiết lệnh/giới hạn trong report.
+- Gate còn thiếu / việc tiếp theo: Flag V3 mặc định false; factory local báo provider batch chưa khả dụng nên chưa gọi model thật/benchmark20câu, chưa thẩm định EN/JA/JLPT hoặc FE/browser. Bộ mẫu/paraphrase/level filter còn tắt; chưa có UI moderation/tự sửa câu bằng AI. Còn gate query plan/payload history lớn và chaos restart thật. Không coi toàn M11.3 hoàn tất hoặc production đã nhanh hơn chỉ từ các test này.
+- Git / triển khai: Code + docs lưu local trên main, chưa commit/push/deploy; giữ WIP khác. Chỉ fixture/migrations hiện có vào PostgreSQL17 local mới ở55441; container test riêng đã dừng, không đổi DB/cloud/container khác hoặc ENV runtime. Không ghi credentials trong docs.
+
+### 2026-11-16 — M11.3 — Rà soát toàn luồng quiz và bổ sung gate triển khai
+
+- Thay đổi / lý do: Rà soát tạo đề→làm/chấm→feedback/lưu trạng thái, bổ sung9nhóm gate R01–R09: scope ngôn ngữ/cache, schema/version, grading, provenance matching, explanation/report, attempt/rubric, durable job/quota, snapshot nguồn và retrieval performance. Phân biệt hành vi cũ với yêu cầu mới, chưa coi tất cả là bug.
+- File / phạm vi: [Review và bằng chứng](docs/reviews/m11.3-quiz-flow-audit-2026-11-16.md), [plan cập nhật](docs/plans/m11.3-en-ai-ja-latency-2026-11-16.md), [design](docs/design/m11.3-quiz-en-ja-content-and-sources.md), [handoff FE](docs/handoff/m11.3-quiz-en-ja-fe-2026-11-16.md). Chỉ docs; BE/FE chỉ đọc để audit.
+- Kiểm tra / kết quả: Unit/regression PASS6suites/89tests;3probe runtime hàm thật với fixture giả lập xác minh generator không lọc language pool, fill JA nhận romaji, matching2/4cặp đúng chấm sai toàn câu. Probe đầu sai interface RNG đã sửa harness; không phải lỗi app. PASS14link/5bảng của4tài liệu, R01–R09 đồng bộ review/plan/handoff; git diff --check sạch và đã kiểm working tree.
+- Gate còn thiếu / việc tiếp theo: Chưa sửa code/API/DB/ENV/FE; chưa browser/E2E/production benchmark/query plan/restart thật hoặc thẩm định ngôn ngữ. Các checkbox R01–R09 chưa hoàn thành; thứ tự thực hiện trong review/plan.
+- Git / triển khai: Chưa commit/push/deploy; giữ WIP khác trên main.
+
+### 2026-11-16 — M11.3 — Điều kiện tạo đề, lặp từ theo kỹ năng và handoff FE
+
+- Thay đổi / lý do: Bổ sung plan/design về preflight theo dạng/blueprint, tách số từ khỏi số câu, cho target lặp có giới hạn qua kỹ năng khác nhau và chống lộ đáp án/chấm trùng. Viết handoff FE về số câu, nguồn nhiễu, job/progress thật, thiếu câu và compatibility; contract mới vẫn là thiết kế.
+- File / phạm vi: [Plan M11.3](docs/plans/m11.3-en-ai-ja-latency-2026-11-16.md), [design M11.3](docs/design/m11.3-quiz-en-ja-content-and-sources.md), [handoff FE M11.3](docs/handoff/m11.3-quiz-en-ja-fe-2026-11-16.md), entry này. Chỉ docs; repo FE chỉ đọc tham chiếu.
+- Kiểm tra / kết quả: Đối chiếu generator/DTO và StartStudyDialog hiện tại; PASS8link tương đối/5bảng của3tài liệu, tham chiếu file FE tồn tại, git diff --check sạch và đã kiểm working tree. Không chạy test/build hoặc gọi API production vì chưa sửa code.
+- Gate còn thiếu / việc tiếp theo: Chưa có endpoint/schema mới, BE/FE/job hoặc browser/E2E; cần chốt contract, policy lặp/feedback/chấm, dữ liệu thực và benchmark. Không coi preflight là bảo đảm AI đủ câu.
+- Git / triển khai: Chưa commit/push/deploy; giữ WIP khác trên main.
+
+### 2026-11-16 — M11.3 — Thiết kế quiz Anh–Nhật và nguồn từ theo dạng câu
+
+- Thay đổi / lý do: Lưu thiết kế mới theo trao đổi: từ mục tiêu luôn từ bộ đang chọn; ghi rõ dạng chỉ dùng nội bộ, dạng được bổ sung bộ mẫu và dạng tạo nhiễu theo quy tắc/AI. Thay đề xuất20s/hạ dạng tự động bằng blueprint, sinh nhóm nhỏ, job có tiến độ và chủ động nhận đề ngắn khi thiếu.
+- File / phạm vi: [Thiết kế và bảng nguồn EN/JA](docs/design/m11.3-quiz-en-ja-content-and-sources.md), [plan M11.3 cập nhật](docs/plans/m11.3-en-ai-ja-latency-2026-11-16.md), entry này. Bộ mẫu định nghĩa là deck hệ thống xuất bản, còn phải qua gate chất lượng; không mở DB cho AI.
+- Kiểm tra / kết quả: PASS kiểm link tương đối của hai tài liệu, cấu trúc3bảng Markdown và các mục policy nguồn EN/JA; git diff --check sạch, đã kiểm working tree. Không chạy lại test/build vì docs-only;57tests trong entry khảo sát trước không phải kiểm luồng mới.
+- Gate còn thiếu / việc tiếp theo: Chưa code/API/job/FE/DB/ENV; cần kiểm dữ liệu bộ mẫu, thẩm định nội dung EN/JA/đối chiếu JLPT và benchmark trước triển khai. Không cam kết các dạng mở rộng đã có sẵn.
+- Git / triển khai: Chưa commit/push/deploy; giữ WIP khác trên main.
+
+### 2026-11-16 — M11.3 — AI ngữ cảnh tiếng Anh và giảm thời gian tạo quiz Nhật
+
+- Thay đổi / lý do: Rà soát EN hiện sinh local, JA gọi sinh/kiểm định tuần tự với budget mặc định60s; người dùng chọn AI tạo câu ngữ cảnh và điền từ từ bộ từ đã lưu. Lưu thiết kế EN và đề xuất JA concurrency2/budget mặc định20s, giữ quality/privacy/cache gates.
+- File / phạm vi: [Rà soát và thiết kế M11.3](docs/plans/m11.3-en-ai-ja-latency-2026-11-16.md); entry này. Chưa sửa code nghiệp vụ/DB/ENV/FE.
+- Kiểm tra / kết quả: Unit quiz/provider PASS4suites/57tests; đối chiếu benchmark lịch sử06/11 (10câu,6AIcontext,12calls,34,54–35,74s). Không coi đây là benchmark live hiện tại.
+- Gate còn thiếu / việc tiếp theo: Chờ duyệt thiết kế triển khai; chưa đo request production cụ thể, chưa kiểm FE live, chưa pilot EN/model thật hoặc triển khai tối ưu.
+- Git / triển khai: Chưa commit/push/deploy; giữ WIP khác trong checkout main.
+
+
 ### 2026-11-13 — M12 — Bổ sung gloss display, backfill nghĩa legacy và bảng lỗi cho FE
 
 - Thay đổi / lý do: Theo phản hồi FE, A19 thêm gloss_en/gloss_vi+VI quality flags từ serve.sense_card vào display theo trang để localeEN hết N+1; không đổi meaning_vi trong API read. Script backfill có plan/hash/count/row-lock/CAS, backup fsync và rollback guard. A20 lập bảng code/status, đính chính SRS quota409 và hai tên ENV AI không phải response code.

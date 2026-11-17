@@ -36,6 +36,7 @@ export interface QuizGradedAnswer {
   isCorrect: boolean;
   rating: 1 | 3;
   userAnswer: Record<string, unknown>;
+  credit?: { earned: number; possible: number };
 }
 
 /** Chấm 1 câu quiz; null khi thiếu/sai kiểu dữ liệu cần thiết. */
@@ -48,7 +49,13 @@ export function gradeQuizAnswer(
     const graded = gradeAnswer('multiple_choice', correctAnswer, {
       optionIndex: submission.optionIndex,
     });
-    return graded ? toQuizGraded(graded) : null;
+    if (!graded) return null;
+    return {
+      ...toQuizGraded(graded),
+      ...(correctAnswer.rubric === 'm11.3-v3'
+        ? { credit: { earned: graded.isCorrect ? 1 : 0, possible: 1 } }
+        : {}),
+    };
   }
 
   if (questionType === 'fill_blank') {
@@ -94,6 +101,7 @@ function gradeMatching(
   const seenRight = new Set<number>();
   const rightIndices = new Set(expected.values());
   let isCorrect = true;
+  let correctPairs = 0;
   for (const pair of pairs) {
     if (
       typeof pair !== 'object' ||
@@ -113,13 +121,16 @@ function gradeMatching(
     seenRight.add(pair.right_index);
     if (expected.get(pair.left_index) !== pair.right_index) {
       isCorrect = false;
-    }
+    } else correctPairs++;
   }
 
   return {
     isCorrect,
     rating: isCorrect ? 3 : 1,
     userAnswer: { pairs },
+    ...(correctAnswer.rubric === 'm11.3-v3'
+      ? { credit: { earned: correctPairs, possible: expected.size } }
+      : {}),
   };
 }
 

@@ -1,3 +1,11 @@
+import {
+  hideQuizFeedback,
+  isV3Quiz,
+  publicQuizAnswer,
+  quizCredit,
+  quizCreditScore,
+  quizSkillSummary,
+} from './quiz-v3-feedback';
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
@@ -184,12 +192,23 @@ export class SessionsService {
     const session = await this.findOwned(userId, sessionId);
     const items = session.items ?? [];
     return {
+      ...(isV3Quiz(session.settings)
+        ? {
+            skill_summary: hideQuizFeedback(session.settings, session.status)
+              ? []
+              : quizSkillSummary(session.items ?? []),
+          }
+        : {}),
       session: toSessionResponse(
         session,
         items.filter((item) => item.answeredAt !== null).length,
       ),
       items: items.map((item) =>
-        toItemResponse(item, item.answeredAt !== null),
+        toItemResponse(
+          item,
+          item.answeredAt !== null,
+          hideQuizFeedback(session.settings, session.status),
+        ),
       ),
     };
   }
@@ -200,13 +219,20 @@ export class SessionsService {
     filter: { isCorrect?: boolean },
   ): Promise<SessionItemResponse[]> {
     const session = await this.findOwned(userId, sessionId);
+    const hidden = hideQuizFeedback(session.settings, session.status);
+    if (hidden && filter.isCorrect !== undefined)
+      throw new DomainException(
+        'QUIZ_FEEDBACK_DEFERRED',
+        'Kết quả chỉ hiện khi hoàn thành đề',
+        HttpStatus.CONFLICT,
+      );
     return (session.items ?? [])
       .filter((item) => item.answeredAt !== null)
       .filter(
         (item) =>
           filter.isCorrect === undefined || item.isCorrect === filter.isCorrect,
       )
-      .map((item) => toItemResponse(item, true));
+      .map((item) => toItemResponse(item, true, hidden));
   }
 
   // ---------------------------------------------------------------- answer
@@ -330,25 +356,30 @@ export class SessionsService {
         const updatedQuizItem = await tx.studySessionItem.update({
           where: { id: freshItem.id },
           data: {
-            userAnswer: gradedQuiz.userAnswer as Prisma.InputJsonValue,
+            userAnswer: {
+              ...gradedQuiz.userAnswer,
+              ...(gradedQuiz.credit ? { _quiz_credit: gradedQuiz.credit } : {}),
+            },
             isCorrect: gradedQuiz.isCorrect,
             rating: gradedQuiz.rating,
             elapsedMs: dto.elapsed_ms ?? null,
             answeredAt: nowInTransaction,
           },
         });
-        const activity = await this.gamification.applyActivity(tx, {
-          userId,
-          timezone: profile.timezone,
-          now: nowInTransaction,
-          ruleCode: 'quiz_correct',
-          source: 'quiz',
-          refKind: 'quiz',
-          refId: session.quizId,
-          idempotencyKey: `quiz:${session.id}:${item.ordinal}`,
-          xpEligible: gradedQuiz.isCorrect,
-          countsAsReview: false,
-        });
+        const activity = isV3Quiz(session.settings)
+          ? { xp_amount: 0 }
+          : await this.gamification.applyActivity(tx, {
+              userId,
+              timezone: profile.timezone,
+              now: nowInTransaction,
+              ruleCode: 'quiz_correct',
+              source: 'quiz',
+              refKind: 'quiz',
+              refId: session.quizId,
+              idempotencyKey: `quiz:${session.id}:${item.ordinal}`,
+              xpEligible: gradedQuiz.isCorrect,
+              countsAsReview: false,
+            });
 
         let updatedQuizSession = await tx.studySession.update({
           where: { id: session.id },
@@ -361,22 +392,39 @@ export class SessionsService {
           where: { sessionId: session.id, answeredAt: { not: null } },
         });
         if (answeredQuiz >= updatedQuizSession.itemCount) {
+          const partialScore = isV3Quiz(session.settings)
+            ? quizCreditScore(
+                await tx.studySessionItem.findMany({
+                  where: { sessionId: session.id },
+                  select: { userAnswer: true, isCorrect: true },
+                }),
+              )
+            : null;
           updatedQuizSession = await tx.studySession.update({
             where: { id: session.id },
             data: {
               status: 'completed',
               finishedAt: nowInTransaction,
-              score: Math.round(
-                (updatedQuizSession.correctCount /
-                  updatedQuizSession.itemCount) *
-                  100,
-              ),
+              score:
+                partialScore ??
+                Math.round(
+                  (updatedQuizSession.correctCount /
+                    updatedQuizSession.itemCount) *
+                    100,
+                ),
             },
           });
         }
 
         const response: AnswerResultResponse = {
-          item: toItemResponse(updatedQuizItem, true),
+          item: toItemResponse(
+            updatedQuizItem,
+            true,
+            hideQuizFeedback(
+              updatedQuizSession.settings,
+              updatedQuizSession.status,
+            ),
+          ),
           srs: null,
           xp: { amount: activity.xp_amount },
           session: toSessionResponse(updatedQuizSession, answeredQuiz),
@@ -1090,10 +1138,19 @@ function toSessionResponse(
     status: session.status,
     item_count: session.itemCount,
     answered_count: answeredCount,
-    correct_count: session.correctCount,
-    score: session.score,
+    correct_count: hideQuizFeedback(session.settings, session.status)
+      ? 0
+      : session.correctCount,
+    score: hideQuizFeedback(session.settings, session.status)
+      ? null
+      : session.score,
     xp_awarded: session.xpAwarded,
     settings: (session.settings ?? {}) as Record<string, unknown>,
+    ...(isV3Quiz(session.settings) &&
+    isRecord(session.settings) &&
+    typeof session.settings.target_count === 'number'
+      ? { unique_target_count: session.settings.target_count }
+      : {}),
     started_at: session.startedAt.toISOString(),
     finished_at: session.finishedAt?.toISOString() ?? null,
   };
@@ -1102,6 +1159,7 @@ function toSessionResponse(
 function toItemResponse(
   item: ItemRow,
   revealAnswer: boolean,
+  hideGrading = false,
 ): SessionItemResponse {
   const response: SessionItemResponse = {
     id: item.id.toString(),
@@ -1109,14 +1167,16 @@ function toItemResponse(
     srs_id: item.srsId?.toString() ?? null,
     face_id: item.faceId,
     prompt: item.prompt,
-    user_answer: item.userAnswer ?? null,
-    is_correct: item.isCorrect,
-    rating: item.rating,
+    user_answer: publicQuizAnswer(item.userAnswer) ?? null,
+    is_correct: hideGrading ? null : item.isCorrect,
+    rating: hideGrading ? null : item.rating,
     elapsed_ms: item.elapsedMs,
     answered_at: item.answeredAt?.toISOString() ?? null,
   };
-  if (revealAnswer) {
+  if (revealAnswer && !hideGrading) {
     response.correct_answer = item.correctAnswer;
+    const credit = quizCredit(item.userAnswer);
+    if (credit) response.credit = credit;
   }
   return response;
 }

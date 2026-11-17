@@ -94,6 +94,54 @@ function createSetup() {
 }
 
 describe('SessionsService — removeWord (M7.3)', () => {
+  it('M11.3 hides answer, correctness, partial credit and totals until the attempt ends', async () => {
+    const { service, prisma } = createSetup();
+    prisma.studySession.findFirst.mockResolvedValue({
+      id: SESSION_ID,
+      userId: USER_ID,
+      kind: 'quiz',
+      mode: 'multiple_choice',
+      profileId: 'profile-1',
+      collectionId: COLLECTION_ID,
+      quizId: 'q',
+      status: 'in_progress',
+      itemCount: 2,
+      correctCount: 1,
+      score: 100,
+      xpAwarded: 0,
+      settings: { quiz_version: 'm11.3-v3' },
+      startedAt: NOW,
+      finishedAt: null,
+      items: [
+        {
+          id: 10n,
+          ordinal: 1,
+          srsId: null,
+          faceId: null,
+          prompt: { skill: 'context_cloze' },
+          userAnswer: {
+            option_index: 0,
+            _quiz_credit: { earned: 1, possible: 1 },
+          },
+          correctAnswer: { index: 0, text: 'secret' },
+          isCorrect: true,
+          rating: 3,
+          elapsedMs: 1,
+          answeredAt: NOW,
+        },
+      ],
+    });
+    const response = await service.get(USER_ID, SESSION_ID);
+    expect(response.session.correct_count).toBe(0);
+    expect(response.session.score).toBeNull();
+    expect(response.items[0].is_correct).toBeNull();
+    expect(response.items[0].rating).toBeNull();
+    expect(response.items[0]).not.toHaveProperty('correct_answer');
+    expect(JSON.stringify(response)).not.toContain('_quiz_credit');
+    await expect(
+      service.listItems(USER_ID, SESSION_ID, { isCorrect: true }),
+    ).rejects.toMatchObject({ code: 'QUIZ_FEEDBACK_DEFERRED' });
+  });
   it('xoá từ và 1 thẻ thành công khỏi phiên flashcard đang học', async () => {
     const { service, tx } = createSetup();
 

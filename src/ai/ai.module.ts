@@ -15,6 +15,10 @@ import { QuizController } from './quiz/quiz.controller';
 import { QuizService } from './quiz/quiz.service';
 import { QuizSourceRepository } from './quiz/repositories/quiz-source.repository';
 import { AiUsageService } from './usage/ai-usage.service';
+import { QuizJobsController } from './quiz/v3/quiz-jobs.controller';
+import { QuizJobsService } from './quiz/v3/quiz-jobs.service';
+import { QuizBatchEngine } from './quiz/v3/quiz-batch-engine';
+import { createQuizBatchEngine } from './quiz/v3/quiz-batch.factory';
 
 /**
  * Module AI (M10 chat + M11 quiz): phiên chat/quiz, quota/usage dùng chung.
@@ -28,12 +32,18 @@ import { AiUsageService } from './usage/ai-usage.service';
     SrsModule,
     SessionsModule,
   ],
-  controllers: [ChatController, QuizController],
+  controllers: [ChatController, QuizController, QuizJobsController],
   providers: [
     ChatService,
     QuizService,
     QuizSourceRepository,
     AiUsageService,
+    QuizJobsService,
+    {
+      provide: QuizBatchEngine,
+      inject: [ConfigService],
+      useFactory: createQuizBatchEngine,
+    },
     {
       provide: AI_CHAT_PROVIDER,
       inject: [ConfigService],

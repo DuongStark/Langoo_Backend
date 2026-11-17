@@ -16,6 +16,7 @@ import { QuizQuestionType } from '../../sessions/quiz-content';
 import { SessionsService } from '../../sessions/sessions.service';
 import { SessionDetailResponse } from '../../sessions/types/sessions.types';
 import { profileLanguageScopeKey } from '../../users/profile-languages';
+import { hideQuizFeedback } from '../../sessions/quiz-v3-feedback';
 import { lockUser } from '../../users/user-lock';
 import {
   AI_QUIZ_PROVIDER,
@@ -77,6 +78,7 @@ interface QuizQuestionRow {
 }
 
 interface SessionRow {
+  settings?: unknown;
   id: string;
   quizId: string | null;
   status: string;
@@ -479,7 +481,12 @@ export class QuizService {
   }
 
   // ----------------------------------------------------------------- start
-  async start(userId: bigint, quizId: string): Promise<SessionDetailResponse> {
+  async start(
+    userId: bigint,
+    quizId: string,
+    intent: 'resume' | 'new_attempt' = 'resume',
+    attemptKey?: string,
+  ): Promise<SessionDetailResponse> {
     const quiz = await this.prisma.quiz.findFirst({
       where: { id: quizId, userId },
     });
@@ -529,7 +536,86 @@ export class QuizService {
       quiz.quizType,
       questions[0].questionType as QuizQuestionType,
     );
-    await this.prisma.$transaction(async (tx) => {
+    const isV3 =
+      typeof quiz.generator === 'object' &&
+      quiz.generator !== null &&
+      'version' in quiz.generator &&
+      quiz.generator.version === 'm11.3-v3';
+    const targetKeys = new Set<string>();
+    if (
+      isV3 &&
+      typeof quiz.generator === 'object' &&
+      quiz.generator !== null &&
+      'content' in quiz.generator &&
+      Array.isArray(quiz.generator.content)
+    ) {
+      for (const entry of quiz.generator.content as unknown[]) {
+        if (
+          typeof entry !== 'object' ||
+          entry === null ||
+          !('targets' in entry) ||
+          !Array.isArray(entry.targets)
+        )
+          continue;
+        for (const target of entry.targets as unknown[])
+          if (
+            typeof target === 'object' &&
+            target !== null &&
+            'senseId' in target &&
+            'languageId' in target
+          )
+            targetKeys.add(
+              `${String(target.languageId)}:${String(target.senseId)}`,
+            );
+      }
+    }
+    const actualSessionId = await this.prisma.$transaction(async (tx) => {
+      if (isV3) {
+        await lockUser(tx, userId);
+        const currentProfile = await this.srs.getProfileContextInTransaction(
+          tx,
+          userId,
+        );
+        if (currentProfile.id !== quiz.profileId)
+          throw new DomainException(
+            'QUIZ_SOURCE_CHANGED',
+            'Hãy chuyển về hồ sơ của đề trước khi làm bài',
+            HttpStatus.CONFLICT,
+          );
+        if (attemptKey) {
+          const replay = await tx.studySession.findFirst({
+            where: {
+              userId,
+              profileId: quiz.profileId,
+              quizId,
+              settings: { path: ['attempt_key'], equals: attemptKey },
+            },
+          });
+          if (replay) return replay.id;
+        }
+        const active = await tx.studySession.findFirst({
+          where: {
+            userId,
+            profileId: quiz.profileId,
+            quizId,
+            status: 'in_progress',
+          },
+          orderBy: { startedAt: 'desc' },
+        });
+        if (active && intent === 'resume') return active.id;
+        if (active)
+          throw new DomainException(
+            'QUIZ_ATTEMPT_IN_PROGRESS',
+            'Hãy làm tiếp hoặc kết thúc lượt hiện tại trước',
+            HttpStatus.CONFLICT,
+          );
+        if (intent === 'new_attempt' && !attemptKey)
+          throw new DomainException(
+            'QUIZ_ATTEMPT_KEY_REQUIRED',
+            'Cần key cho lượt làm mới',
+            HttpStatus.BAD_REQUEST,
+          );
+      }
       await tx.studySession.create({
         data: {
           id: sessionId,
@@ -542,6 +628,14 @@ export class QuizService {
           settings: {
             quiz_type: quiz.quizType,
             difficulty: quiz.difficulty,
+            ...(isV3
+              ? {
+                  quiz_version: 'm11.3-v3',
+                  target_count: targetKeys.size,
+                  feedback_policy: 'after_completion',
+                  attempt_key: attemptKey ?? null,
+                }
+              : {}),
           },
           itemCount: questions.length,
         },
@@ -562,9 +656,10 @@ export class QuizService {
           correctAnswer: question.correctAnswer as Prisma.InputJsonValue,
         })),
       });
+      return sessionId;
     });
 
-    return this.sessions.get(userId, sessionId);
+    return this.sessions.get(userId, actualSessionId);
   }
 
   // ----------------------------------------------------------------- utils
@@ -756,6 +851,9 @@ function buildItemPrompt(
     text: question.prompt,
     question_style: metadata.style,
     context: metadata.context,
+    ...(metadata.skill
+      ? { skill: metadata.skill, quality_flags: metadata.qualityFlags ?? [] }
+      : {}),
   };
   const options = question.options;
   if (question.questionType === 'multiple_choice' && Array.isArray(options)) {
@@ -778,6 +876,12 @@ function buildItemPrompt(
 
 function toQuizResponse(row: QuizRow): QuizResponse {
   return {
+    ...(typeof row.generator === 'object' &&
+    row.generator !== null &&
+    'version' in row.generator &&
+    row.generator.version === 'm11.3-v3'
+      ? { content_version: 'm11.3-v3' as const }
+      : {}),
     id: row.id,
     collection_id: row.collectionId,
     quiz_type: row.quizType,
@@ -800,6 +904,9 @@ function toQuestionResponse(
     language_id: row.languageId,
     question_style: metadata.style,
     context: metadata.context,
+    ...(metadata.skill
+      ? { skill: metadata.skill, quality_flags: metadata.qualityFlags ?? [] }
+      : {}),
   };
 }
 
@@ -811,8 +918,10 @@ function toSessionSummary(row: SessionRow | null): QuizSessionSummary | null {
     id: row.id,
     status: row.status,
     item_count: row.itemCount,
-    correct_count: row.correctCount,
-    score: row.score,
+    correct_count: hideQuizFeedback(row.settings, row.status)
+      ? 0
+      : row.correctCount,
+    score: hideQuizFeedback(row.settings, row.status) ? null : row.score,
     started_at: row.startedAt.toISOString(),
     finished_at: row.finishedAt?.toISOString() ?? null,
   };

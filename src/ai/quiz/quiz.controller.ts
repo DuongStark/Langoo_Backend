@@ -24,7 +24,7 @@ import { JwtPayload } from '../../auth/types/auth.types';
 import { parseUuidParam } from '../../common/ids/postgres-id';
 import { ErrorResponseDto } from '../../common/swagger/error-response.dto';
 import { SessionDetailResponse } from '../../sessions/types/sessions.types';
-import { CreateQuizDto, QuizListQueryDto } from './dto/quiz.dto';
+import { CreateQuizDto, QuizListQueryDto, StartQuizDto } from './dto/quiz.dto';
 import { QuizService } from './quiz.service';
 import {
   CreateQuizResponse,
@@ -105,10 +105,13 @@ export class QuizController {
   start(
     @CurrentUser() payload: JwtPayload,
     @Param('id') id: string,
+    @Body() dto?: StartQuizDto,
   ): Promise<SessionDetailResponse> {
     return this.quizService.start(
       BigInt(payload.sub),
       parseUuidParam(id, 'ID quiz'),
+      dto?.intent,
+      dto?.idempotency_key,
     );
   }
 }

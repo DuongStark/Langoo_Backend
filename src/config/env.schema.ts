@@ -42,6 +42,13 @@ function isValidMediaBaseUrl(val: string): boolean {
  *   siết chặt dần khi milestone đó bắt đầu (không đổi ngoài phạm vi M0).
  */
 export const envSchema = z.object({
+  AI_QUIZ_V3_ENABLED: z.preprocess(booleanEnv, z.boolean().default(false)),
+  AI_QUIZ_V3_BUDGET_MS: z.coerce
+    .number()
+    .int()
+    .min(10_000)
+    .max(300_000)
+    .default(120_000),
   NODE_ENV: z
     .enum(['development', 'test', 'production'])
     .default('development'),
