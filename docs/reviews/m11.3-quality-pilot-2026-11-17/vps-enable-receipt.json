@@ -1,0 +1,51 @@
+{
+  "task": "M11.3",
+  "action": "enable V3 flag on VPS",
+  "utc": "2026-11-17T04:31:46Z",
+  "host": "langoo-vps",
+  "appDir": "/opt/langoo/app",
+  "commit": "9a66fb4c034460eb26f7b52f92265036aae4a077",
+  "envAdded": {
+    "AI_QUIZ_V3_ENABLED": "true",
+    "AI_QUIZ_V3_MODEL": "deepseek-ai/deepseek-v4.1-flash",
+    "AI_QUIZ_V3_CALL_TIMEOUT_MS": "20000",
+    "AI_QUIZ_V3_BUDGET_MS": "120000"
+  },
+  "backup": "/opt/langoo/storage/ops/m11.3-v3-before-20261117T043129Z.env",
+  "backupMode": "600",
+  "restart": {
+    "pm2App": "langoo-api",
+    "status": "online",
+    "restarts": 244
+  },
+  "health": {
+    "status": "ok",
+    "db": "ok",
+    "db_latency_ms": 271,
+    "db_timezone": "UTC"
+  },
+  "metadataProbe": {
+    "ok": true,
+    "configured": true,
+    "provider": "openai",
+    "providerOrigin": "https://api-cdn.deploy.com",
+    "generatorModel": "zai-org/glm-5.3-flash",
+    "validatorModel": "zai-org/glm-5.3-flash",
+    "v3Model": "deepseek-ai/deepseek-v4.1-flash",
+    "v3CallTimeoutMs": 20000,
+    "v3Enabled": true,
+    "serverCommit": "9a66fb4c034460eb26f7b52f92265036aae4a077"
+  },
+  "unauthenticatedProbe": {
+    "path": "POST /v1/quizzes/eligibility",
+    "http": 401,
+    "code": "AUTH_TOKEN_MISSING",
+    "meaning": "Route is live and auth runs before the V3 flag; flag is confirmed by runtime metadata."
+  },
+  "notTested": [
+    "Authenticated POST /v1/quizzes/jobs against production",
+    "FE browser/start/resume/pending flow",
+    "Multi-job and multi-replica rate limiting"
+  ],
+  "rollback": "Set AI_QUIZ_V3_ENABLED=false and restart langoo-api; legacy quiz path stays available. Restore the backup env only if other V3 values must also be reverted."
+}

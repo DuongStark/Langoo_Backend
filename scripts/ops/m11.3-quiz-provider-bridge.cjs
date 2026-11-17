@@ -22,10 +22,19 @@ process.stdin.on('end', async () => {
       try {
         sha = execFileSync(
           'git',
-          ['-c', `safe.directory=${root}`, '-C', root, 'rev-parse', 'HEAD'],
+          ['-c', 'safe.directory=*', '-C', root, 'rev-parse', 'HEAD'],
           { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] },
         ).trim();
-      } catch {}
+      } catch {
+        // Root may not see the repository as safe; read the ref directly.
+        try {
+          const head = fs.readFileSync(`${root}/.git/HEAD`, 'utf8').trim();
+          if (head.startsWith('ref: ')) {
+            const ref = head.slice(5);
+            sha = fs.readFileSync(`${root}/.git/${ref}`, 'utf8').trim();
+          } else sha = head;
+        } catch {}
+      }
       console.log(
         JSON.stringify({
           ok: true,
@@ -33,6 +42,8 @@ process.stdin.on('end', async () => {
           provider: cfg.AI_PROVIDER,
           generatorModel: cfg.AI_QUIZ_MODEL,
           validatorModel: cfg.AI_QUIZ_VALIDATOR_MODEL,
+          v3Model: cfg.AI_QUIZ_V3_MODEL || 'deepseek-ai/deepseek-v4.1-flash',
+          v3CallTimeoutMs: Number(cfg.AI_QUIZ_V3_CALL_TIMEOUT_MS || 20000),
           reasoningEffort: cfg.AI_QUIZ_REASONING_EFFORT || undefined,
           providerOrigin: new URL(baseUrl).origin,
           serverCommit: sha,

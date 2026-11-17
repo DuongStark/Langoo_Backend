@@ -1,0 +1,20 @@
+{
+  "utc": "2026-11-17T01:04:56.709Z",
+  "localCommit": "7a1ffc3ee1b8b50f350c830b891717532d554399",
+  "engineHash": "b7bfccdc039f3a2934a88babc494a34630666ef7",
+  "metadata": {
+    "ok": true,
+    "configured": true,
+    "provider": "openai",
+    "generatorModel": "zai-org/glm-5.3-flash",
+    "validatorModel": "zai-org/glm-5.3-flash",
+    "reasoningEffort": "low",
+    "providerOrigin": "https://api-cdn.deploy.com",
+    "serverCommit": null,
+    "v3Enabled": false
+  },
+  "fixtureKind": "authored public vocabulary with synthetic IDs; no DB or learner records",
+  "scope": "real AI generation/validation/audit; excludes DB, queue and FE",
+  "maxCalls": 80,
+  "budgetPerCaseMs": 120000
+}

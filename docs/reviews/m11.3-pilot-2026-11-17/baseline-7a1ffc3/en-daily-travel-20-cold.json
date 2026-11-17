@@ -1,0 +1,41 @@
+{
+  "name": "en-daily-travel-20",
+  "warm": false,
+  "ready": false,
+  "audited": false,
+  "requested": 20,
+  "approved": 0,
+  "reused": 0,
+  "wallMs": 2865,
+  "providerMs": 1639,
+  "calls": 1,
+  "tokensIn": 461,
+  "tokensOut": 121,
+  "bySkill": [
+    {
+      "skill": "meaning",
+      "requested": 5,
+      "approved": 0
+    },
+    {
+      "skill": "context_cloze",
+      "requested": 5,
+      "approved": 0
+    },
+    {
+      "skill": "context_meaning",
+      "requested": 5,
+      "approved": 0
+    },
+    {
+      "skill": "usage",
+      "requested": 5,
+      "approved": 0
+    }
+  ],
+  "errors": [
+    "[\n  {\n    \"code\": \"unrecognized_keys\",\n    \"keys\": [\n      \"correctIndex\",\n      \"id_note\"\n    ],\n    \"path\": [\n      \"questions\",\n      2\n    ],\n    \"message\": \"Unrecognized key(s) in object: 'correctIndex', 'id_note'\"\n  }\n]"
+  ],
+  "questions": [],
+  "sourceHash": "177ece1ee6621ffa33ffdb38cfc81d91adeaa0f3a9bc51260c9f7ec25e6761b7"
+}

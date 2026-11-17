@@ -1,0 +1,31 @@
+{
+  "utc": "2026-11-17T04:29:43.710Z",
+  "localCommit": "9a66fb4c034460eb26f7b52f92265036aae4a077",
+  "engineHash": "440cf17c7a14badda57b6d1a6948b92eb10a42f7",
+  "metadata": {
+    "ok": true,
+    "configured": true,
+    "provider": "openai",
+    "generatorModel": "zai-org/glm-5.3-flash",
+    "validatorModel": "zai-org/glm-5.3-flash",
+    "v3Model": "deepseek-ai/deepseek-v4.1-flash",
+    "v3CallTimeoutMs": 20000,
+    "reasoningEffort": "low",
+    "providerOrigin": "https://api-cdn.deploy.com",
+    "serverCommit": null,
+    "v3Enabled": false
+  },
+  "model": "deepseek-ai/deepseek-v4.1-flash",
+  "reviewerModel": "zai-org/glm-5.3-flash",
+  "pacingMs": 500,
+  "callTimeoutMs": 20000,
+  "maxCalls": 80,
+  "fixtureKind": "authored public vocabulary with synthetic IDs; no DB or learner records",
+  "scope": "real AI generation through production single-question engine; no DB/queue/FE",
+  "limitations": [
+    "Small pilot, not p95/p99",
+    "SSH adds transport latency; providerMs is logged separately",
+    "Blind reviewer may share vocabulary model family; not human certification",
+    "Public fixture is not a production collection or JLPT sample"
+  ]
+}

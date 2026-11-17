@@ -1,0 +1,94 @@
+{
+  "results": [
+    {
+      "name": "en-daily-travel-20",
+      "warm": false,
+      "ready": false,
+      "audited": false,
+      "requested": 20,
+      "approved": 0,
+      "reused": 0,
+      "wallMs": 23575,
+      "providerMs": 1492,
+      "calls": 2,
+      "tokensIn": 481,
+      "tokensOut": 83,
+      "bySkill": [
+        {
+          "skill": "meaning",
+          "requested": 5,
+          "approved": 0
+        },
+        {
+          "skill": "context_cloze",
+          "requested": 5,
+          "approved": 0
+        },
+        {
+          "skill": "context_meaning",
+          "requested": 5,
+          "approved": 0
+        },
+        {
+          "skill": "usage",
+          "requested": 5,
+          "approved": 0
+        }
+      ],
+      "errors": [
+        "ProviderFailure:TimeoutError:unknown"
+      ],
+      "sourceHash": "177ece1ee6621ffa33ffdb38cfc81d91adeaa0f3a9bc51260c9f7ec25e6761b7"
+    },
+    {
+      "name": "ja-kanji-daily-20",
+      "warm": false,
+      "ready": false,
+      "audited": true,
+      "requested": 20,
+      "approved": 17,
+      "reused": 0,
+      "wallMs": 54077,
+      "providerMs": 35054,
+      "calls": 16,
+      "tokensIn": 9706,
+      "tokensOut": 2271,
+      "bySkill": [
+        {
+          "skill": "meaning",
+          "requested": 4,
+          "approved": 4
+        },
+        {
+          "skill": "kanji_reading",
+          "requested": 4,
+          "approved": 4
+        },
+        {
+          "skill": "kanji_orthography",
+          "requested": 4,
+          "approved": 4
+        },
+        {
+          "skill": "context_cloze",
+          "requested": 4,
+          "approved": 4
+        },
+        {
+          "skill": "usage",
+          "requested": 4,
+          "approved": 1
+        }
+      ],
+      "errors": [],
+      "sourceHash": "6bf6e2d6d26f766e0d875c771ae16197f4ceb4aeae16d309dec6810a6a992447"
+    }
+  ],
+  "calls": 19,
+  "limitations": [
+    "Small pilot, not p95/p99",
+    "SSH adds latency; providerMs separately logged",
+    "No production DB/FE latency measured",
+    "Blind reviewer may share the generator model; not human certification"
+  ]
+}

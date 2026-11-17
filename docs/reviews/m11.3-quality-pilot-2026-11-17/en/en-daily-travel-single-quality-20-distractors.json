@@ -1,0 +1,482 @@
+[
+  {
+    "ordinal": 1,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "train",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "exit",
+      "station",
+      "schedule"
+    ],
+    "edits": [
+      4,
+      4,
+      8
+    ],
+    "lengthDiffs": [
+      -1,
+      2,
+      3
+    ]
+  },
+  {
+    "ordinal": 2,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "tàu hỏa",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "từ chối",
+      "mượn",
+      "vé"
+    ],
+    "edits": [
+      5,
+      7,
+      7
+    ],
+    "lengthDiffs": [
+      0,
+      -3,
+      -5
+    ]
+  },
+  {
+    "ordinal": 6,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "nhà ga",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "cho mượn",
+      "từ chối",
+      "chấp nhận"
+    ],
+    "edits": [
+      6,
+      7,
+      7
+    ],
+    "lengthDiffs": [
+      2,
+      1,
+      3
+    ]
+  },
+  {
+    "ordinal": 10,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "vé",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "nhà ga",
+      "hành khách",
+      "cho mượn"
+    ],
+    "edits": [
+      6,
+      10,
+      8
+    ],
+    "lengthDiffs": [
+      4,
+      8,
+      6
+    ]
+  },
+  {
+    "ordinal": 9,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "ticket",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "exit",
+      "platform",
+      "passenger"
+    ],
+    "edits": [
+      5,
+      8,
+      8
+    ],
+    "lengthDiffs": [
+      -2,
+      2,
+      3
+    ]
+  },
+  {
+    "ordinal": 14,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "sân ga",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "vé",
+      "cho mượn",
+      "chấp nhận"
+    ],
+    "edits": [
+      6,
+      7,
+      8
+    ],
+    "lengthDiffs": [
+      -4,
+      2,
+      3
+    ]
+  },
+  {
+    "ordinal": 4,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "chấp nhận",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "lối vào",
+      "mua",
+      "hành lý"
+    ],
+    "edits": [
+      8,
+      9,
+      7
+    ],
+    "lengthDiffs": [
+      -2,
+      -6,
+      -2
+    ]
+  },
+  {
+    "ordinal": 12,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "mượn",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "bán",
+      "hành khách",
+      "hành lý"
+    ],
+    "edits": [
+      3,
+      10,
+      7
+    ],
+    "lengthDiffs": [
+      -1,
+      6,
+      3
+    ]
+  },
+  {
+    "ordinal": 15,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "lend",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "leave",
+      "buy",
+      "remember"
+    ],
+    "edits": [
+      3,
+      4,
+      7
+    ],
+    "lengthDiffs": [
+      1,
+      -1,
+      4
+    ]
+  },
+  {
+    "ordinal": 20,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "mua",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "hành khách",
+      "cho mượn",
+      "lối vào"
+    ],
+    "edits": [
+      10,
+      7,
+      7
+    ],
+    "lengthDiffs": [
+      7,
+      5,
+      4
+    ]
+  },
+  {
+    "ordinal": 16,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "cho mượn",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "từ chối",
+      "bán",
+      "hành lý"
+    ],
+    "edits": [
+      7,
+      7,
+      7
+    ],
+    "lengthDiffs": [
+      -1,
+      -5,
+      -1
+    ]
+  },
+  {
+    "ordinal": 17,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "passenger",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "station",
+      "ticket",
+      "journey"
+    ],
+    "edits": [
+      8,
+      8,
+      7
+    ],
+    "lengthDiffs": [
+      -2,
+      -3,
+      -2
+    ]
+  },
+  {
+    "ordinal": 18,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "hành khách",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "hành lý",
+      "sân ga",
+      "tàu hỏa"
+    ],
+    "edits": [
+      5,
+      8,
+      7
+    ],
+    "lengthDiffs": [
+      -3,
+      -4,
+      -3
+    ]
+  },
+  {
+    "ordinal": 19,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "buy",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "arrive",
+      "take",
+      "forget"
+    ],
+    "edits": [
+      6,
+      4,
+      6
+    ],
+    "lengthDiffs": [
+      3,
+      1,
+      3
+    ]
+  },
+  {
+    "ordinal": 3,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "accept",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "lend",
+      "leave",
+      "take"
+    ],
+    "edits": [
+      5,
+      6,
+      5
+    ],
+    "lengthDiffs": [
+      -2,
+      -1,
+      -2
+    ]
+  },
+  {
+    "ordinal": 13,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "platform",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "journey",
+      "exit",
+      "luggage"
+    ],
+    "edits": [
+      8,
+      7,
+      7
+    ],
+    "lengthDiffs": [
+      -1,
+      -4,
+      -1
+    ]
+  },
+  {
+    "ordinal": 11,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "borrow",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "forget",
+      "remember",
+      "lend"
+    ],
+    "edits": [
+      4,
+      8,
+      6
+    ],
+    "lengthDiffs": [
+      0,
+      2,
+      -2
+    ]
+  },
+  {
+    "ordinal": 8,
+    "skill": "context_meaning",
+    "sourcePolicy": "collection_only",
+    "target": "từ chối",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "bán",
+      "vé",
+      "mượn"
+    ],
+    "edits": [
+      7,
+      7,
+      7
+    ],
+    "lengthDiffs": [
+      -4,
+      -5,
+      -3
+    ]
+  },
+  {
+    "ordinal": 7,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "refuse",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "leave",
+      "borrow",
+      "buy"
+    ],
+    "edits": [
+      4,
+      6,
+      5
+    ],
+    "lengthDiffs": [
+      -1,
+      0,
+      -3
+    ]
+  },
+  {
+    "ordinal": 5,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "station",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "journey",
+      "train",
+      "ticket"
+    ],
+    "edits": [
+      7,
+      4,
+      6
+    ],
+    "lengthDiffs": [
+      0,
+      -2,
+      -1
+    ]
+  }
+]

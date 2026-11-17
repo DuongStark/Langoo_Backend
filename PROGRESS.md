@@ -8,6 +8,23 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-17 — M11.3 — Push đầy đủ handoff FE và bằng chứng pilot còn lại
+
+- Thay đổi / lý do: Chủ dự án yêu cầu push toàn bộ phần quiz sau rà soát. Đồng bộ handoff đầu mối17/11, API/status rollout, report và artifact/helper pilot; đánh dấu ghi nhận pre-rollout trong handoff là lịch sử.
+- File / phạm vi: [Handoff FE duy nhất](docs/handoff/m11.3-single-question-progressive-fe-2026-11-17.md), [API](docs/api/quizzes.md), [report](docs/reviews/m11.3-single-question-implementation-2026-11-17.md), hai thư mục pilot M11.3 và ba helper ops. Chỉ stage entry M11.3 trong PROGRESS; giữ hạng mục khác riêng.
+- Kiểm tra / kết quả: Node syntax2CJS PASS, ESLint scriptTS PASS0warning, parse59JSON và link PASS; quét63file theo mẫu credential không phát hiện; git diff --check sạch. Không chạy lại fullunit/E2E hoặc gọi model trong lượt đóng gói.
+- Gate còn thiếu / việc tiếp theo: FE tích hợp và browser/job thật cóauth; pilot nhỏ chưa làP95/P99/SLA hoặc chứng nhận mọi câu đạtJLPT.
+- Git / triển khai: Commit/push tài liệu và helper M11.3 theo yêu cầu trênmain; không thay codeAPI/ENV/DB/PM2, không chạy deploy thủ công. Hash xác nhận ở báo cáo cuối và lịch sửGit.
+
+### 2026-11-17 — M11.3 — Pilot chất lượng và bật V3 trên VPS
+
+- Thay đổi / lý do: Chủ dự án yêu cầu kiểm lại nhiễu Kanji khó hơn và thời gian tạo, nếu ổn thì chốt handoff FE và bật V3. Đã chạy engine single-question thật qua worker VPS với fixture công khai, model DeepSeek4.1Flash/low, rồi bật `AI_QUIZ_V3_ENABLED=true` và các biến V3 trên production.
+- File / phạm vi: [pilot và artifact](docs/reviews/m11.3-quality-pilot-2026-11-17/README.md), [quality summary](docs/reviews/m11.3-quality-pilot-2026-11-17/quality-summary.json), [receipt VPS](docs/reviews/m11.3-quality-pilot-2026-11-17/vps-enable-receipt.json); harness `scripts/ops/m11.3-single-quality-pilot.ts`, worker/bridge ops; [handoff FE](docs/handoff/m11.3-single-question-progressive-fe-2026-11-17.md), [report](docs/reviews/m11.3-single-question-implementation-2026-11-17.md), [API](docs/api/quizzes.md), runbook VPS. Không sửa DB/schema/FE/model legacy.
+- Kiểm tra / kết quả: EN20/20 trong18,5s; JA19/20 trong39,3s (300ms) và37,0s (500ms); blind GLM đồng ý20/20 EN,19/19 JA, toàn bộ câu mẫu `good`; 13/13 câu Kanji đủ4lựa chọn, không trùng, nhiễu gần1kýtự. JA thiếu1câu do timeout/lỗi provider, không do gate nhiễu. VPS commit`9a66fb4`, PM2 online, health/db UTC ok, metadata `v3Enabled=true`, `v3Model=deepseek-ai/deepseek-v4.1-flash`; route V3 trả401 khi chưa auth.
+- Gate còn thiếu / việc tiếp theo: Chưa kiểm job có auth/browser FE trên production, chưa lặp p95/p99 hoặc nhiềujob; JA chưa chắc đủ20/20, cần pending/`accept_shorter`; 2–3 câu cloze dễ và một nhiễu typography đã ghi. FE vẫn phải QA các mục trong handoff.
+- Git / triển khai: Code/docs/artifact local chưa commit; VPS đã bật V3 và restart PM2. Backup env tại `/opt/langoo/storage/ops/m11.3-v3-before-20261117T043129Z.env`; rollback bằng `AI_QUIZ_V3_ENABLED=false` + restart. Không forcepush, không đổi model chat/quiz legacy.
+
+
 ### 2026-11-17 — M11.3 — Xác nhận push quiz từng câu và nhiễu Kanji
 
 - Thay đổi / lý do: Đã commit/push main codeM11.3 và dependencyprogressive/session cùngtest/docs; giữ WIP ngoài phạmvi. Không chạy lại testlocal theo yêu cầu.
@@ -64,6 +81,7 @@
 - Gate còn thiếu / việc tiếp theo: Một call sinh trọn đề: JA20/20 trong58,48s, blindjudge19/20 đồng ý nhưng4câu có cờ; xem trực tiếp xác nhận 入口/入り口 hai đáp án đúng và câu 学生で không ổn. EN TypeError122,58s không có đề; chưa biết nguyên nhân. Chưa P95/DB/FE/E2E/progressive hoặc chuyên gia thẩm định; không suy ra hết lỗi từ blind review.
 - Git / triển khai: Local chưa commit/push/deploy; không bật V3, không đổi FE/API/DB/model production. Prototype one-shot đã đo JA; EN lỗi transport, chưa đủ cơ sở bỏ bước kiểm.
 
+
 ### 2026-11-17 — M12 — A3F0C7: nghĩa xem trước và mã Nhật cho tra ngược
 
 - Thay đổi / lý do: Theo yêu cầu xử lý feedbackA3F0C7, A06.1/A12 thêm preview cùng SenseCardDto của search vào en/ja; JA lexeme_id/sense_id nullable để mở trực tiếp, chọn đúng bằng chứng nghĩa và bảo toàn ambiguity. Cả reverse và suggestions/reverse, giữ aliases/order/scope; không gọi search/AI từng dòng.
@@ -80,6 +98,8 @@
 - Gate còn thiếu / việc tiếp theo: Chạy pilot Anh/Nhật trên provider runtime với fixture công khai và lưu raw/result/nhận xét; chưa kết luận tốc độ/chất lượng model. V3/bộ mẫu/paraphrase/level filter vẫn chưa bật; FE integration còn gate.
 - Git / triển khai: Chuẩn bị commit/push theo yêu cầu; hash/CI/pilot receipt cập nhật ở báo cáo17/11. Pipeline main có tự deploy sau CI; không đổi ENV live hoặc tự bật V3.
 
+
+
 ### 2026-11-16 — M11.3 — Backend quiz Anh–Nhật V3 và handoff FE theo phần triển khai
 
 - Thay đổi / lý do: Triển khai BE opt-in cho source đúng ngôn ngữ, eligibility/max-flow và target lặp qua kỹ năng, batch tối đa4câu + validator/audit độc lập, repair/cache đúng scope, job CAS/lease/checkpoint/usage, source revalidation trong transaction. V3 resume/partial matching/feedback cuối lượt/skill summary; report pending và cách ly cache xuyên bản copy không gọi AI. Hoãn giải thích dài; không triển khai XP.
@@ -87,6 +107,8 @@
 - Kiểm tra / kết quả: PASS13unit suites/136tests; PASS4PostgreSQL E2E suites/33tests (8V3+25legacy), gồm hai worker/expired lease, cancel/source-edit race, matching4target/partial score, report receipt/blacklist xuyên copy/quota không đổi và OpenAPI. `npm run build` PASS; ESLint toàn phạm vi thay đổi `--max-warnings 0` PASS. Link/bảng5tài liệu và git diff --check sạch, đã kiểm working tree/branch main. Review độc lập không còn finding quan trọng. Chi tiết lệnh/giới hạn trong report.
 - Gate còn thiếu / việc tiếp theo: Flag V3 mặc định false; factory local báo provider batch chưa khả dụng nên chưa gọi model thật/benchmark20câu, chưa thẩm định EN/JA/JLPT hoặc FE/browser. Bộ mẫu/paraphrase/level filter còn tắt; chưa có UI moderation/tự sửa câu bằng AI. Còn gate query plan/payload history lớn và chaos restart thật. Không coi toàn M11.3 hoàn tất hoặc production đã nhanh hơn chỉ từ các test này.
 - Git / triển khai: Code + docs lưu local trên main, chưa commit/push/deploy; giữ WIP khác. Chỉ fixture/migrations hiện có vào PostgreSQL17 local mới ở55441; container test riêng đã dừng, không đổi DB/cloud/container khác hoặc ENV runtime. Không ghi credentials trong docs.
+
+
 
 ### 2026-11-16 — M11.3 — Rà soát toàn luồng quiz và bổ sung gate triển khai
 
@@ -96,6 +118,8 @@
 - Gate còn thiếu / việc tiếp theo: Chưa sửa code/API/DB/ENV/FE; chưa browser/E2E/production benchmark/query plan/restart thật hoặc thẩm định ngôn ngữ. Các checkbox R01–R09 chưa hoàn thành; thứ tự thực hiện trong review/plan.
 - Git / triển khai: Chưa commit/push/deploy; giữ WIP khác trên main.
 
+
+
 ### 2026-11-16 — M11.3 — Điều kiện tạo đề, lặp từ theo kỹ năng và handoff FE
 
 - Thay đổi / lý do: Bổ sung plan/design về preflight theo dạng/blueprint, tách số từ khỏi số câu, cho target lặp có giới hạn qua kỹ năng khác nhau và chống lộ đáp án/chấm trùng. Viết handoff FE về số câu, nguồn nhiễu, job/progress thật, thiếu câu và compatibility; contract mới vẫn là thiết kế.
@@ -104,6 +128,8 @@
 - Gate còn thiếu / việc tiếp theo: Chưa có endpoint/schema mới, BE/FE/job hoặc browser/E2E; cần chốt contract, policy lặp/feedback/chấm, dữ liệu thực và benchmark. Không coi preflight là bảo đảm AI đủ câu.
 - Git / triển khai: Chưa commit/push/deploy; giữ WIP khác trên main.
 
+
+
 ### 2026-11-16 — M11.3 — Thiết kế quiz Anh–Nhật và nguồn từ theo dạng câu
 
 - Thay đổi / lý do: Lưu thiết kế mới theo trao đổi: từ mục tiêu luôn từ bộ đang chọn; ghi rõ dạng chỉ dùng nội bộ, dạng được bổ sung bộ mẫu và dạng tạo nhiễu theo quy tắc/AI. Thay đề xuất20s/hạ dạng tự động bằng blueprint, sinh nhóm nhỏ, job có tiến độ và chủ động nhận đề ngắn khi thiếu.
@@ -111,6 +137,8 @@
 - Kiểm tra / kết quả: PASS kiểm link tương đối của hai tài liệu, cấu trúc3bảng Markdown và các mục policy nguồn EN/JA; git diff --check sạch, đã kiểm working tree. Không chạy lại test/build vì docs-only;57tests trong entry khảo sát trước không phải kiểm luồng mới.
 - Gate còn thiếu / việc tiếp theo: Chưa code/API/job/FE/DB/ENV; cần kiểm dữ liệu bộ mẫu, thẩm định nội dung EN/JA/đối chiếu JLPT và benchmark trước triển khai. Không cam kết các dạng mở rộng đã có sẵn.
 - Git / triển khai: Chưa commit/push/deploy; giữ WIP khác trên main.
+
+
 
 ### 2026-11-16 — M11.3 — AI ngữ cảnh tiếng Anh và giảm thời gian tạo quiz Nhật
 

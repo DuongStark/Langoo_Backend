@@ -1,0 +1,262 @@
+{
+  "reviewerModel": "zai-org/glm-5.3-flash",
+  "reviewerCalls": 1,
+  "count": 20,
+  "agrees": 20,
+  "quality": {
+    "good": 20,
+    "awkward": 0,
+    "invalid": 0,
+    "unknown": 0
+  },
+  "difficulty": {
+    "too_easy": 2,
+    "appropriate": 18,
+    "too_hard": 0,
+    "unknown": 0
+  },
+  "items": [
+    {
+      "id": 1,
+      "skill": "context_cloze",
+      "target": "train",
+      "chosen": 3,
+      "correct": 3,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": "1 train would be better than 3 station"
+    },
+    {
+      "id": 2,
+      "skill": "context_meaning",
+      "target": "tàu hỏa",
+      "chosen": 3,
+      "correct": 3,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 6,
+      "skill": "context_meaning",
+      "target": "nhà ga",
+      "chosen": 1,
+      "correct": 1,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 10,
+      "skill": "context_meaning",
+      "target": "vé",
+      "chosen": 2,
+      "correct": 2,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 9,
+      "skill": "context_cloze",
+      "target": "ticket",
+      "chosen": 3,
+      "correct": 3,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 14,
+      "skill": "context_meaning",
+      "target": "sân ga",
+      "chosen": 1,
+      "correct": 1,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 4,
+      "skill": "context_meaning",
+      "target": "chấp nhận",
+      "chosen": 0,
+      "correct": 0,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 12,
+      "skill": "context_meaning",
+      "target": "mượn",
+      "chosen": 2,
+      "correct": 2,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 15,
+      "skill": "context_cloze",
+      "target": "lend",
+      "chosen": 2,
+      "correct": 2,
+      "agrees": true,
+      "alternates": [
+        1
+      ],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 20,
+      "skill": "context_meaning",
+      "target": "mua",
+      "chosen": 1,
+      "correct": 1,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "too_easy",
+      "issue": ""
+    },
+    {
+      "id": 16,
+      "skill": "context_meaning",
+      "target": "cho mượn",
+      "chosen": 2,
+      "correct": 2,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 17,
+      "skill": "context_cloze",
+      "target": "passenger",
+      "chosen": 0,
+      "correct": 0,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 18,
+      "skill": "context_meaning",
+      "target": "hành khách",
+      "chosen": 3,
+      "correct": 3,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 19,
+      "skill": "context_cloze",
+      "target": "buy",
+      "chosen": 0,
+      "correct": 0,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "too_easy",
+      "issue": ""
+    },
+    {
+      "id": 3,
+      "skill": "context_cloze",
+      "target": "accept",
+      "chosen": 3,
+      "correct": 3,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 13,
+      "skill": "context_cloze",
+      "target": "platform",
+      "chosen": 0,
+      "correct": 0,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 11,
+      "skill": "context_cloze",
+      "target": "borrow",
+      "chosen": 2,
+      "correct": 2,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 8,
+      "skill": "context_meaning",
+      "target": "từ chối",
+      "chosen": 3,
+      "correct": 3,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 7,
+      "skill": "context_cloze",
+      "target": "refuse",
+      "chosen": 0,
+      "correct": 0,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    },
+    {
+      "id": 5,
+      "skill": "context_cloze",
+      "target": "station",
+      "chosen": 2,
+      "correct": 2,
+      "agrees": true,
+      "alternates": [],
+      "quality": "good",
+      "difficulty": "appropriate",
+      "issue": ""
+    }
+  ]
+}

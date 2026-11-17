@@ -1,0 +1,113 @@
+{
+  "task": "M11.3",
+  "date": "2026-11-17",
+  "commit": "9a66fb4c034460eb26f7b52f92265036aae4a077",
+  "engineHash": "440cf17c7a14badda57b6d1a6948b92eb10a42f7",
+  "generatorModel": "deepseek-ai/deepseek-v4.1-flash",
+  "reviewerModel": "zai-org/glm-5.3-flash",
+  "reasoningEffort": "low",
+  "runs": [
+    {
+      "language": "en",
+      "pacingMs": 300,
+      "utc": "2026-11-17T04:28:55.254Z",
+      "approved": 20,
+      "requested": 20,
+      "firstPublishedMs": 6125,
+      "lastPublishedMs": 18481,
+      "wallMs": 18507,
+      "calls": 23,
+      "providerLatencyMs": {
+        "min": 2460,
+        "median": 4487,
+        "p90": 8435,
+        "max": 9688,
+        "average": 5047
+      },
+      "errors": { "429": 3 },
+      "blindReview": {
+        "count": 20,
+        "agrees": 20,
+        "quality": { "good": 20, "awkward": 0, "invalid": 0 },
+        "difficulty": { "too_easy": 2, "appropriate": 18, "too_hard": 0 }
+      }
+    },
+    {
+      "language": "ja",
+      "pacingMs": 300,
+      "utc": "2026-11-17T04:27:20.309Z",
+      "approved": 19,
+      "requested": 20,
+      "firstPublishedMs": 9907,
+      "lastPublishedMs": 39266,
+      "wallMs": 39269,
+      "calls": 28,
+      "providerLatencyMs": {
+        "min": 6291,
+        "median": 8651,
+        "p90": 12793,
+        "max": 17118,
+        "average": 9632
+      },
+      "errors": {
+        "429": 5,
+        "timeout": 2,
+        "unknownStatus": 2
+      },
+      "blindReview": {
+        "count": 19,
+        "agrees": 19,
+        "quality": { "good": 19, "awkward": 0, "invalid": 0 },
+        "difficulty": { "too_easy": 2, "appropriate": 17, "too_hard": 0 }
+      },
+      "missing": [20]
+    },
+    {
+      "language": "ja",
+      "pacingMs": 500,
+      "utc": "2026-11-17T04:29:43.710Z",
+      "approved": 19,
+      "requested": 20,
+      "firstPublishedMs": 6833,
+      "lastPublishedMs": 35608,
+      "wallMs": 37047,
+      "calls": 25,
+      "providerLatencyMs": {
+        "min": 3773,
+        "median": 7998,
+        "p90": 13309,
+        "max": 14937,
+        "average": 8153
+      },
+      "errors": {
+        "typeError": 1,
+        "timeout": 4
+      },
+      "blindReview": {
+        "count": 19,
+        "agrees": 19,
+        "quality": { "good": 19, "awkward": 0, "invalid": 0 },
+        "difficulty": { "too_easy": 1, "appropriate": 18, "too_hard": 0 }
+      },
+      "missing": [17]
+    }
+  ],
+  "kanjiDistractors": {
+    "questions": 13,
+    "allFourUniqueOptions": true,
+    "sourcePolicy": "ai_distractors",
+    "gateViolations": 0,
+    "caveats": [
+      "でんしや uses small/large や: a kana typo rather than a phonetic confusion",
+      "Some context_cloze items are rated too_easy because the clue is explicit",
+      "No valid alternative spelling or long-vowel homophone passed the gate in this sample"
+    ]
+  },
+  "decision": "Quality is acceptable for opt-in V3 and FE handoff, but it is not a 20-question-in-20s SLA. JA may publish 19/20 and FE must use pending/accept_shorter.",
+  "limitations": [
+    "Small pilot, not p95/p99",
+    "Public authored fixture, not a production collection or JLPT sample",
+    "Blind reviewer may share model-family bias; not human certification",
+    "No browser/FE, authenticated job, DB queue or multi-job load measured"
+  ]
+}

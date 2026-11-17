@@ -264,9 +264,15 @@ không render kết quả cũ.
 - Hai transaction có timeout 15s và maxWait 10s mỗi lần; cộng provider 60s là budget danh nghĩa 110s. Cleanup/usage, tải hệ thống, mạng/proxy có thể ảnh hưởng tổng; 120s không là SLA. Nếu chờ dài vẫn tái diễn, cân nhắc job async/poll riêng.
 - Trạng thái triển khai và gate thực tế: [report M11.1](../reviews/m11.1-quiz-reliability-2026-11-06.md).
 
-## M11.3 — Contract V3 opt-in (local, 2026-11-16)
+## M11.3 — Contract V3 opt-in (bật trên VPS 17/11/2026)
 
-Chưa deploy; `AI_QUIZ_V3_ENABLED=false` mặc định. Legacy `POST /quizzes` không đổi. [Handoff FE mục10](../handoff/m11.3-quiz-en-ja-fe-2026-11-16.md) là hướng dẫn consumer đầy đủ, [report](../reviews/m11.3-implementation-2026-11-16.md) ghi trạng thái kiểm chứng/gate. Không gửi các skill sau vào enum create legacy.
+`AI_QUIZ_V3_ENABLED=true` trên VPS từ 04:31 UTC ngày17/11; mặc định trong code
+vẫn là `false` cho môi trường mới. Legacy `POST /quizzes` không đổi.
+[Handoff FE mục10](../handoff/m11.3-quiz-en-ja-fe-2026-11-16.md) là hướng dẫn
+consumer đầy đủ, [handoff single-question](../handoff/m11.3-single-question-progressive-fe-2026-11-17.md)
+là contract đang chạy, [report](../reviews/m11.3-single-question-implementation-2026-11-17.md)
+và [pilot chất lượng](../reviews/m11.3-quality-pilot-2026-11-17/README.md) ghi
+kiểm chứng/gate. Không gửi các skill sau vào enum create legacy.
 
 ### Eligibility — POST /quizzes/eligibility → 200
 
@@ -349,7 +355,11 @@ Settings có quiz_version/feedback_policy/target_count/attempt_key. Trong lượ
 
 Matching V3 có credit earned/possible sau completion; correct_count vẫn câu đúng toàn bộ, score trung bình phần credit từng câu. Session detail có skill_summary theo kỹ năng và unique_target_count trên session; chưa hoàn thành summary rỗng. V3 không gọi gamification/SRS, trường XP compat bằng0, không cần UI XP. Không thêm giải thích dài; report lưu pending/cách ly cache qua route bên dưới, không gọi AI.
 
-Triển khai/kiểm chứng: xem report M11.3; chưa có pilot model thật, chưa browser FE/độ khó JLPT/bộ mẫu, chưa commit/push/deploy. Không coi schema Swagger đã có code local là API production đã bật.
+Triển khai/kiểm chứng: code `9a66fb4` đã deploy, V3 bật trên VPS ngày17/11. Pilot
+model thật: EN20/20 trong18,5s, JA19/20 trong37–39s; blind review đồng ý
+20/20 EN và19/19 JA. Chưa kiểm browser FE/độ khó JLPT/bộ mẫu hoặc job có auth
+trên production; không coi kết quả mẫu nhỏ là SLA. Xem
+[pilot](../reviews/m11.3-quality-pilot-2026-11-17/README.md).
 
 ### Báo câu hỏi V3 — POST /quizzes/:id/questions/:ordinal/report → 202
 
@@ -360,7 +370,7 @@ Một pending/câu. Replay key/payload cùng receipt; đổi payload với key c
 
 ### M11.3 — 17/11: sinh từng câu và làm ngay khi có prefix
 
-Đã code local hướng mới, chưa deploy/bật feature. `AI_QUIZ_V3_MODEL` mặc định
+Đã deploy và bật feature trên VPS ngày17/11. `AI_QUIZ_V3_MODEL` mặc định
 DeepSeek4.1Flash, low; model legacy không đổi. Không có call AIvalidator/audit
 bắt buộc trong đườngV3mới. BE cố định ID/nguồn/answerkey, AI sinh context hoặc
 bốn câu usage theo key giao; kiểm JSON,Unicode,span,choices,trùng/lộ câu xác định
@@ -385,7 +395,8 @@ bằng code. Chưa chứng minh không còn mơ hồ ngữ nghĩa. CâuAI có qu
   Không phải distributedrate limiter; nhiều replica cần gateway giữ5req/s hoặc
   điều phối tập trung. Các client khác ngoàiprocess không nằm trong bộ đếm này.
 - ENV mới: `AI_QUIZ_V3_MODEL`, `AI_QUIZ_V3_CALL_TIMEOUT_MS`(1000–60000,default20000).
-  `AI_QUIZ_V3_ENABLED` vẫn false mặc định. AI_QUIZ_MODEL/VALIDATOR legacy giữ nguyên.
+  `AI_QUIZ_V3_ENABLED` vẫn false mặc định trong code, nhưng VPS production đã
+  đặt true từ17/11. AI_QUIZ_MODEL/VALIDATOR legacy giữ nguyên.
 
 [Handoff FE mới](../handoff/m11.3-single-question-progressive-fe-2026-11-17.md)
 và [báo cáo implementation](../reviews/m11.3-single-question-implementation-2026-11-17.md).
@@ -411,4 +422,6 @@ Giữ capacityplanning bảo thủ và model/rate/timeout hiện tại. Không c
 đều khó hoặc đã loại mọi alias ngoài snapshot. Qualityflaggenerated_self_checked
 và quyền report vẫn giữ; không gọi nội dung này là đã chuyên gia thẩm định.
 FE chỉ cần chấp nhận source_policy enum mới khi dùng generatedclient, không tự
-chọn/reorder/thêm đáp án nhiễu. Thay đổi local, chưa deploy/bậtV3.
+chọn/reorder/thêm đáp án nhiễu. Đã deploy cùng V3 và bật trênVPS ngày17/11; pilot
+xác nhận nhiễu gần/không trùng, còn giới hạn độ khó và typography đã ghi trong
+[pilot](../reviews/m11.3-quality-pilot-2026-11-17/README.md).

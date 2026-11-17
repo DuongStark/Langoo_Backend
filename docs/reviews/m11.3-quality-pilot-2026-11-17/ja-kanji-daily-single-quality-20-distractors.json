@@ -1,0 +1,458 @@
+[
+  {
+    "ordinal": 10,
+    "skill": "kanji_reading",
+    "sourcePolicy": "ai_distractors",
+    "target": "だいがく",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "たいがく",
+      "だいかく",
+      "だいがっく"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      1
+    ]
+  },
+  {
+    "ordinal": 15,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "図書館",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "切符",
+      "入口",
+      "学校"
+    ],
+    "edits": [
+      3,
+      3,
+      3
+    ],
+    "lengthDiffs": [
+      -1,
+      -1,
+      -1
+    ]
+  },
+  {
+    "ordinal": 1,
+    "skill": "kanji_reading",
+    "sourcePolicy": "ai_distractors",
+    "target": "がっこう",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "がっこ",
+      "かっこう",
+      "がくこう"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      -1,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 9,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "先生",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "切符",
+      "学校",
+      "図書館"
+    ],
+    "edits": [
+      2,
+      2,
+      3
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      1
+    ]
+  },
+  {
+    "ordinal": 3,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "学校",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "図書館",
+      "学生",
+      "入口"
+    ],
+    "edits": [
+      3,
+      1,
+      2
+    ],
+    "lengthDiffs": [
+      1,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 7,
+    "skill": "kanji_reading",
+    "sourcePolicy": "ai_distractors",
+    "target": "せんせい",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "せんぜい",
+      "せんせ",
+      "せいせい"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      -1,
+      0
+    ]
+  },
+  {
+    "ordinal": 8,
+    "skill": "kanji_orthography",
+    "sourcePolicy": "ai_distractors",
+    "target": "切符",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "切付",
+      "切附",
+      "切府"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 16,
+    "skill": "kanji_reading",
+    "sourcePolicy": "ai_distractors",
+    "target": "でんしゃ",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "てんしゃ",
+      "でんしや",
+      "でんしゅ"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 18,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "病院",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "大学",
+      "乗客",
+      "図書館"
+    ],
+    "edits": [
+      2,
+      2,
+      3
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      1
+    ]
+  },
+  {
+    "ordinal": 17,
+    "skill": "kanji_orthography",
+    "sourcePolicy": "ai_distractors",
+    "target": "入口",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "人口",
+      "入田",
+      "入回"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 6,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "学生",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "先生",
+      "大学",
+      "出口"
+    ],
+    "edits": [
+      1,
+      2,
+      2
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 19,
+    "skill": "kanji_reading",
+    "sourcePolicy": "ai_distractors",
+    "target": "きっぷ",
+    "answerIndex": 0,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "きっぶ",
+      "きふ",
+      "きぶ"
+    ],
+    "edits": [
+      1,
+      2,
+      2
+    ],
+    "lengthDiffs": [
+      0,
+      -1,
+      -1
+    ]
+  },
+  {
+    "ordinal": 12,
+    "skill": "context_cloze",
+    "sourcePolicy": "collection_only",
+    "target": "大学",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "病院",
+      "旅行",
+      "入口"
+    ],
+    "edits": [
+      2,
+      2,
+      2
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 2,
+    "skill": "kanji_orthography",
+    "sourcePolicy": "ai_distractors",
+    "target": "病院",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "疲院",
+      "痛院",
+      "病完"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 4,
+    "skill": "kanji_reading",
+    "sourcePolicy": "ai_distractors",
+    "target": "がくせい",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "がっせい",
+      "がくぜい",
+      "かくせい"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 13,
+    "skill": "kanji_reading",
+    "sourcePolicy": "ai_distractors",
+    "target": "としょかん",
+    "answerIndex": 1,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "どしょかん",
+      "としょがん",
+      "としよかん"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 11,
+    "skill": "kanji_orthography",
+    "sourcePolicy": "ai_distractors",
+    "target": "乗客",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "乗各",
+      "乗容",
+      "剰客"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 5,
+    "skill": "kanji_orthography",
+    "sourcePolicy": "ai_distractors",
+    "target": "電車",
+    "answerIndex": 3,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "雷車",
+      "電東",
+      "電軍"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  },
+  {
+    "ordinal": 14,
+    "skill": "kanji_orthography",
+    "sourcePolicy": "ai_distractors",
+    "target": "荷物",
+    "answerIndex": 2,
+    "optionCount": 4,
+    "uniqueOptions": 4,
+    "distractors": [
+      "何物",
+      "苛物",
+      "荷牛"
+    ],
+    "edits": [
+      1,
+      1,
+      1
+    ],
+    "lengthDiffs": [
+      0,
+      0,
+      0
+    ]
+  }
+]

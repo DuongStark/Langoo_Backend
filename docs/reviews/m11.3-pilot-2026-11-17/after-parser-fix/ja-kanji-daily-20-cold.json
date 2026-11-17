@@ -1,0 +1,1013 @@
+{
+  "name": "ja-kanji-daily-20",
+  "warm": false,
+  "ready": false,
+  "audited": true,
+  "requested": 20,
+  "approved": 17,
+  "reused": 0,
+  "wallMs": 54077,
+  "providerMs": 35054,
+  "calls": 16,
+  "tokensIn": 9706,
+  "tokensOut": 2271,
+  "bySkill": [
+    {
+      "skill": "meaning",
+      "requested": 4,
+      "approved": 4
+    },
+    {
+      "skill": "kanji_reading",
+      "requested": 4,
+      "approved": 4
+    },
+    {
+      "skill": "kanji_orthography",
+      "requested": 4,
+      "approved": 4
+    },
+    {
+      "skill": "context_cloze",
+      "requested": 4,
+      "approved": 4
+    },
+    {
+      "skill": "usage",
+      "requested": 4,
+      "approved": 1
+    }
+  ],
+  "errors": [],
+  "questions": [
+    {
+      "ordinal": 1,
+      "skill": "meaning",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-0",
+          "senseId": "public-ja-sense-0",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "98798c5ab57397cd13a814cbc62dad077b4772ca8127ae0bfb9916589ea92be4",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa phù hợp của “学校”.",
+        "options": [
+          {
+            "index": 0,
+            "text": "học sinh, sinh viên"
+          },
+          {
+            "index": 1,
+            "text": "giáo viên"
+          },
+          {
+            "index": 2,
+            "text": "trường đại học"
+          },
+          {
+            "index": 3,
+            "text": "trường học"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "trường học",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-0",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 2,
+      "skill": "kanji_reading",
+      "style": "kanji_reading",
+      "context": {
+        "sentence": "姉は毎日大学へ行きます。",
+        "target": {
+          "start": 4,
+          "end": 6,
+          "text": "大学"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-3",
+          "senseId": "public-ja-sense-3",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "reading_rule",
+      "machineGloss": false,
+      "cacheKey": "cdf71814f657fd047252afaaddd2ce081ea3a36c8d41c1c2e63ccc404c025710",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách đọc của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "たいがく"
+          },
+          {
+            "index": 1,
+            "text": "だいがく"
+          },
+          {
+            "index": 2,
+            "text": "だがく"
+          },
+          {
+            "index": 3,
+            "text": "だいかく"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "だいがく",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-3",
+        "questionStyle": "kanji_reading",
+        "context": {
+          "sentence": "姉は毎日大学へ行きます。",
+          "target": {
+            "start": 4,
+            "end": 6,
+            "text": "大学"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 3,
+      "skill": "kanji_orthography",
+      "style": "kanji_orthography",
+      "context": {
+        "sentence": "電車に乗るとき、きっぷを買いました。",
+        "target": {
+          "start": 8,
+          "end": 11,
+          "text": "きっぷ"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-7",
+          "senseId": "public-ja-sense-7",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "f0b5dbe534646ccc72540a84b0f528447b86badcb44ee6b75792d59f6a808104",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách viết của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "切符"
+          },
+          {
+            "index": 1,
+            "text": "学校"
+          },
+          {
+            "index": 2,
+            "text": "学生"
+          },
+          {
+            "index": 3,
+            "text": "先生"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "切符",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-7",
+        "questionStyle": "kanji_orthography",
+        "context": {
+          "sentence": "電車に乗るとき、きっぷを買いました。",
+          "target": {
+            "start": 8,
+            "end": 11,
+            "text": "きっぷ"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 4,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-4",
+          "senseId": "public-ja-sense-4",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "d5630119c6686b2b442fe4e7847c82f7b1a3587624b483c70f7a8114349e67d5",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\n静かに本を読みたいので、（　）へ行きます。",
+        "options": [
+          {
+            "index": 0,
+            "text": "図書館"
+          },
+          {
+            "index": 1,
+            "text": "切符"
+          },
+          {
+            "index": 2,
+            "text": "旅行"
+          },
+          {
+            "index": 3,
+            "text": "入口"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "図書館",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-4",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 6,
+      "skill": "meaning",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-1",
+          "senseId": "public-ja-sense-1",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "bd625be8077db0be6e4dcaa44f090c793c7f3becaff377a27a297e4a4a7a93a8",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa phù hợp của “学生”.",
+        "options": [
+          {
+            "index": 0,
+            "text": "trường học"
+          },
+          {
+            "index": 1,
+            "text": "học sinh, sinh viên"
+          },
+          {
+            "index": 2,
+            "text": "giáo viên"
+          },
+          {
+            "index": 3,
+            "text": "trường đại học"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "học sinh, sinh viên",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-1",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 9,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-5",
+          "senseId": "public-ja-sense-5",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "790cb9a1ba252673efc72753cca5e5402269a5fb5e856c653c6c93144e3e8beb",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\nかぜをひいたので、きのう（　）へいきました。",
+        "options": [
+          {
+            "index": 0,
+            "text": "大学"
+          },
+          {
+            "index": 1,
+            "text": "荷物"
+          },
+          {
+            "index": 2,
+            "text": "病院"
+          },
+          {
+            "index": 3,
+            "text": "切符"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "病院",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-5",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 10,
+      "skill": "usage",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-1",
+          "senseId": "public-ja-sense-1",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "same_word_sentences",
+      "machineGloss": false,
+      "cacheKey": "8e3947c4159dce6cbcb0fd6e27ab9b1d8d67490130d69973daa17dd30d767bd1",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn câu sử dụng đúng từ “学生”.",
+        "options": [
+          {
+            "index": 0,
+            "text": "私は大学の学生です。"
+          },
+          {
+            "index": 1,
+            "text": "私は毎朝学生を飲みます。"
+          },
+          {
+            "index": 2,
+            "text": "この学生はとてもあついですね。"
+          },
+          {
+            "index": 3,
+            "text": "駅で学生を買いました。"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "私は大学の学生です。",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-1",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 11,
+      "skill": "meaning",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-2",
+          "senseId": "public-ja-sense-2",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "65d4d23e5c416a420494b6702b6fca96d474cd9f9cd610834a2b5531219eb35a",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa phù hợp của “先生”.",
+        "options": [
+          {
+            "index": 0,
+            "text": "trường học"
+          },
+          {
+            "index": 1,
+            "text": "giáo viên"
+          },
+          {
+            "index": 2,
+            "text": "học sinh, sinh viên"
+          },
+          {
+            "index": 3,
+            "text": "trường đại học"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "giáo viên",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-2",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 12,
+      "skill": "kanji_reading",
+      "style": "kanji_reading",
+      "context": {
+        "sentence": "まいにち電車でかいしゃへ行きます。",
+        "target": {
+          "start": 4,
+          "end": 6,
+          "text": "電車"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-6",
+          "senseId": "public-ja-sense-6",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "reading_rule",
+      "machineGloss": false,
+      "cacheKey": "b18562d680e24a6a7d83027a936d9b60163826098722185dfcee97bd6e2b1220",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách đọc của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "てんしゃ"
+          },
+          {
+            "index": 1,
+            "text": "でんじゃ"
+          },
+          {
+            "index": 2,
+            "text": "でんしや"
+          },
+          {
+            "index": 3,
+            "text": "でんしゃ"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "でんしゃ",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-6",
+        "questionStyle": "kanji_reading",
+        "context": {
+          "sentence": "まいにち電車でかいしゃへ行きます。",
+          "target": {
+            "start": 4,
+            "end": 6,
+            "text": "電車"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 13,
+      "skill": "kanji_orthography",
+      "style": "kanji_orthography",
+      "context": {
+        "sentence": "このにもつはとても重いです。",
+        "target": {
+          "start": 2,
+          "end": 5,
+          "text": "にもつ"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-9",
+          "senseId": "public-ja-sense-9",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "a988562c30a8c19de6549472243e15faa89df1fdc68cf61dff786faed14e42de",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách viết của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "荷物"
+          },
+          {
+            "index": 1,
+            "text": "学校"
+          },
+          {
+            "index": 2,
+            "text": "学生"
+          },
+          {
+            "index": 3,
+            "text": "先生"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "荷物",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-9",
+        "questionStyle": "kanji_orthography",
+        "context": {
+          "sentence": "このにもつはとても重いです。",
+          "target": {
+            "start": 2,
+            "end": 5,
+            "text": "にもつ"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 14,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-6",
+          "senseId": "public-ja-sense-6",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "ec9256ef5216899ecadbf1505e474dc8b9abdac07fedb31ddcab391484ec7cc4",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\n毎朝、駅で（　）を待ちます。",
+        "options": [
+          {
+            "index": 0,
+            "text": "先生"
+          },
+          {
+            "index": 1,
+            "text": "病院"
+          },
+          {
+            "index": 2,
+            "text": "電車"
+          },
+          {
+            "index": 3,
+            "text": "切符"
+          }
+        ],
+        "correctAnswer": {
+          "index": 2,
+          "text": "電車",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-6",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 16,
+      "skill": "meaning",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-4",
+          "senseId": "public-ja-sense-4",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "c83a1fabc066f97d663f39d08124c7d0fb7a19a480cacce7a5c7f8061e5decfe",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn nghĩa phù hợp của “図書館”.",
+        "options": [
+          {
+            "index": 0,
+            "text": "trường học"
+          },
+          {
+            "index": 1,
+            "text": "thư viện"
+          },
+          {
+            "index": 2,
+            "text": "học sinh, sinh viên"
+          },
+          {
+            "index": 3,
+            "text": "giáo viên"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "thư viện",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-4",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 17,
+      "skill": "kanji_reading",
+      "style": "kanji_reading",
+      "context": {
+        "sentence": "この電車には乗客がたくさんいました。",
+        "target": {
+          "start": 6,
+          "end": 8,
+          "text": "乗客"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-8",
+          "senseId": "public-ja-sense-8",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "reading_rule",
+      "machineGloss": false,
+      "cacheKey": "a55b107618254c8736d16785e454d51a19f7217193cc9432281e3e38907fc618",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách đọc của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "しょうきゃく"
+          },
+          {
+            "index": 1,
+            "text": "じようきゃく"
+          },
+          {
+            "index": 2,
+            "text": "じょきゃく"
+          },
+          {
+            "index": 3,
+            "text": "じょうきゃく"
+          }
+        ],
+        "correctAnswer": {
+          "index": 3,
+          "text": "じょうきゃく",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-8",
+        "questionStyle": "kanji_reading",
+        "context": {
+          "sentence": "この電車には乗客がたくさんいました。",
+          "target": {
+            "start": 6,
+            "end": 8,
+            "text": "乗客"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 18,
+      "skill": "kanji_orthography",
+      "style": "kanji_orthography",
+      "context": {
+        "sentence": "駅のいりぐちはあちらです。",
+        "target": {
+          "start": 2,
+          "end": 6,
+          "text": "いりぐち"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-10",
+          "senseId": "public-ja-sense-10",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "aebfedc4fa42e150e0d22d6c158230ac582fc9d884231e4d65ddaa21463f23b4",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách viết của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "学校"
+          },
+          {
+            "index": 1,
+            "text": "入口"
+          },
+          {
+            "index": 2,
+            "text": "学生"
+          },
+          {
+            "index": 3,
+            "text": "先生"
+          }
+        ],
+        "correctAnswer": {
+          "index": 1,
+          "text": "入口",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-10",
+        "questionStyle": "kanji_orthography",
+        "context": {
+          "sentence": "駅のいりぐちはあちらです。",
+          "target": {
+            "start": 2,
+            "end": 6,
+            "text": "いりぐち"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 19,
+      "skill": "context_cloze",
+      "style": "meaning",
+      "context": null,
+      "targets": [
+        {
+          "itemId": "public-ja-7",
+          "senseId": "public-ja-sense-7",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "0cf61d1be54122e9b0cf3a889c1e19c1e9f979ea51252e6f9df320a1c79bd2ce",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn từ phù hợp điền vào chỗ trống:\n電車に乗る前に、（　）を買いました。",
+        "options": [
+          {
+            "index": 0,
+            "text": "切符"
+          },
+          {
+            "index": 1,
+            "text": "荷物"
+          },
+          {
+            "index": 2,
+            "text": "出口"
+          },
+          {
+            "index": 3,
+            "text": "病院"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "切符",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-7",
+        "questionStyle": "meaning"
+      }
+    },
+    {
+      "ordinal": 7,
+      "skill": "kanji_reading",
+      "style": "kanji_reading",
+      "context": {
+        "sentence": "おばあさんは今日病院に行きました。",
+        "target": {
+          "start": 8,
+          "end": 10,
+          "text": "病院"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-5",
+          "senseId": "public-ja-sense-5",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "reading_rule",
+      "machineGloss": false,
+      "cacheKey": "51812d9822f4a9bf6e183a1fcc88a7c81a42f7fb004f749ca1e7bc58bd9145de",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách đọc của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "びょういん"
+          },
+          {
+            "index": 1,
+            "text": "ひょういん"
+          },
+          {
+            "index": 2,
+            "text": "ぴょういん"
+          },
+          {
+            "index": 3,
+            "text": "びよういん"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "びょういん",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-5",
+        "questionStyle": "kanji_reading",
+        "context": {
+          "sentence": "おばあさんは今日病院に行きました。",
+          "target": {
+            "start": 8,
+            "end": 10,
+            "text": "病院"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    },
+    {
+      "ordinal": 8,
+      "skill": "kanji_orthography",
+      "style": "kanji_orthography",
+      "context": {
+        "sentence": "電車の中にたくさんのじょうきゃくがいました。",
+        "target": {
+          "start": 10,
+          "end": 16,
+          "text": "じょうきゃく"
+        },
+        "origin": "generated",
+        "attribution": null
+      },
+      "targets": [
+        {
+          "itemId": "public-ja-8",
+          "senseId": "public-ja-sense-8",
+          "languageId": 2
+        }
+      ],
+      "sourcePolicy": "collection_only",
+      "machineGloss": false,
+      "cacheKey": "c01ce49095bc78dde65ec6ec066dfd4a52e8886e955cab4b082b614553f6c7d4",
+      "question": {
+        "questionType": "multiple_choice",
+        "prompt": "Chọn cách viết của từ được đánh dấu.",
+        "options": [
+          {
+            "index": 0,
+            "text": "乗客"
+          },
+          {
+            "index": 1,
+            "text": "学校"
+          },
+          {
+            "index": 2,
+            "text": "学生"
+          },
+          {
+            "index": 3,
+            "text": "先生"
+          }
+        ],
+        "correctAnswer": {
+          "index": 0,
+          "text": "乗客",
+          "rubric": "m11.3-v3"
+        },
+        "explanation": null,
+        "languageId": 2,
+        "conceptId": null,
+        "itemId": "public-ja-8",
+        "questionStyle": "kanji_orthography",
+        "context": {
+          "sentence": "電車の中にたくさんのじょうきゃくがいました。",
+          "target": {
+            "start": 10,
+            "end": 16,
+            "text": "じょうきゃく"
+          },
+          "origin": "generated",
+          "attribution": null
+        }
+      }
+    }
+  ],
+  "sourceHash": "6bf6e2d6d26f766e0d875c771ae16197f4ceb4aeae16d309dec6810a6a992447"
+}
