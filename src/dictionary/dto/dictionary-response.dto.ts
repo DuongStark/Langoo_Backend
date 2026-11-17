@@ -522,6 +522,12 @@ export class GlossReportResponseDto {
 
 export class ReverseLookupEnHitDto {
   @ApiProperty({
+    type: () => SenseCardDto,
+    nullable: true,
+    description: 'Preview of the matched English sense; null when unresolved',
+  })
+  preview!: SenseCardDto | null;
+  @ApiProperty({
     type: String,
     deprecated: true,
     description: 'Alias of lexeme_id',
@@ -566,6 +572,25 @@ export class ReverseLookupEnHitDto {
 }
 
 export class ReverseLookupJaHitDto {
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Japanese lexeme ID; never the English intermediary ID',
+  })
+  lexeme_id!: string | null;
+  @ApiProperty({
+    type: String,
+    nullable: true,
+    description: 'Matched Japanese sense, null when ambiguous',
+  })
+  sense_id!: string | null;
+  @ApiProperty({
+    type: () => SenseCardDto,
+    nullable: true,
+    description:
+      'Matched sense preview, including Vietnamese machine/reviewed flags',
+  })
+  preview!: SenseCardDto | null;
   @ApiProperty({
     type: String,
     nullable: true,

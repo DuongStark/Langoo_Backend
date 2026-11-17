@@ -39,7 +39,10 @@ import {
 } from './repositories/kanji.repository';
 import {
   ReverseLookupRepository,
+  ReverseReferenceRequest,
+  ReverseReferenceCandidate,
   ViSourceRow,
+  JaTargetRow,
 } from './repositories/reverse-lookup.repository';
 import { EnglishPriorityRepository } from './repositories/english-priority.repository';
 import { SearchHistoryRepository } from './repositories/search-history.repository';
@@ -284,6 +287,7 @@ export class DictionaryService {
       en.push(
         serializeReverseEn({
           lexemeId: key,
+          preview: null,
           lemma: row.en_lemma,
           pos: row.en_pos,
           frequencyRank: row.frequency_rank,
@@ -294,6 +298,7 @@ export class DictionaryService {
       if (en.length >= enLimit) break;
     }
     let ja: ReverseLookupJaHit[] = [];
+    const jaReferences = new Map<string, JaTargetRow>();
     if (targets.has('ja') && en.length > 0) {
       const hintByLexeme = new Map(
         en.map((hit) => [
@@ -313,6 +318,10 @@ export class DictionaryService {
         .map((row) => {
           const hint = hintByLexeme.get(String(row.source_lexeme_id)) ?? null;
           return {
+            referenceSource: row,
+            lexeme_id: null,
+            sense_id: null,
+            preview: null,
             sourceOrdinal: row.source_ordinal ?? 0,
             text: row.target_text,
             senseHint: row.sense_hint,
@@ -340,6 +349,7 @@ export class DictionaryService {
         .filter((hit) => {
           if (seenJa.has(hit.text)) return false;
           seenJa.add(hit.text);
+          jaReferences.set(hit.text, hit.referenceSource);
           return true;
         })
         .sort((a, b) => {
@@ -358,6 +368,72 @@ export class DictionaryService {
         })
         .slice(0, jaLimit)
         .map((hit) => serializeReverseJa(hit));
+    }
+    const references: ReverseReferenceRequest[] = [];
+    if (targets.has('en'))
+      for (const hit of en) {
+        const row = sources.find(
+          (source) => source.source_lexeme_id.toString() === hit.lexeme_id,
+        )!;
+        references.push({
+          key: `en:${hit.lexeme_id}`,
+          kind: 'en',
+          source_lexeme_id: hit.lexeme_id,
+          source_sense_id: row.source_sense_id?.toString() ?? null,
+          assertion_id: row.assertion_id?.toString() ?? null,
+          text: hit.lemma,
+          hint: hit.sense_hint,
+        });
+      }
+    for (const hit of ja) {
+      const row = jaReferences.get(hit.text)!;
+      references.push({
+        key: `ja:${hit.text}`,
+        kind: 'ja',
+        source_lexeme_id: hit.via_lexeme_id,
+        source_sense_id: row.source_sense_id?.toString() ?? null,
+        assertion_id: row.assertion_id?.toString() ?? null,
+        text: hit.text,
+        hint: hit.sense_hint,
+      });
+    }
+    const candidates =
+      await this.reverseRepo.findReferenceCandidates(references);
+    const selected = new Map<
+      string,
+      { lexemeId: bigint; senseId: bigint | null }
+    >();
+    for (const reference of references) {
+      const pick = selectReverseReference(
+        candidates.filter((row) => row.key === reference.key),
+      );
+      if (pick) selected.set(reference.key, pick);
+    }
+    const ids = [
+      ...new Set(
+        [...selected.values()].flatMap((ref) =>
+          ref.senseId === null ? [] : [ref.senseId],
+        ),
+      ),
+    ];
+    const cards = ids.length ? await this.senseCardRepo.getBySenseIds(ids) : [];
+    const bySense = new Map(cards.map((card) => [card.senseId, card]));
+    const previewFor = (key: string, languageId: number) => {
+      const ref = selected.get(key);
+      const card = ref?.senseId ? bySense.get(ref.senseId) : undefined;
+      return card &&
+        card.lexemeId === ref!.lexemeId &&
+        card.languageId === languageId
+        ? toSenseCardResponse(card)
+        : null;
+    };
+    if (targets.has('en'))
+      for (const hit of en) hit.preview = previewFor(`en:${hit.lexeme_id}`, 1);
+    for (const hit of ja) {
+      const ref = selected.get(`ja:${hit.text}`);
+      hit.lexeme_id = ref?.lexemeId.toString() ?? null;
+      hit.sense_id = ref?.senseId?.toString() ?? null;
+      hit.preview = previewFor(`ja:${hit.text}`, 2);
     }
     return {
       en: targets.has('en') ? en : [],
@@ -1043,6 +1119,9 @@ function serializeReverseJa(
 ): ReverseLookupJaHit {
   return {
     text: hit.text,
+    lexeme_id: hit.lexeme_id,
+    sense_id: hit.sense_id,
+    preview: hit.preview,
     senseHint: hit.senseHint,
     viaLexemeId: hit.viaLexemeId,
     viaLemma: hit.viaLemma,
@@ -1052,5 +1131,35 @@ function serializeReverseJa(
     via_lemma: hit.viaLemma,
     sense_hint: hit.senseHint,
     exact_sense: hit.exactSense,
+  };
+}
+
+/** Preserve ambiguity: no arbitrary first sense or first homograph. */
+function selectReverseReference(
+  rows: ReverseReferenceCandidate[],
+): { lexemeId: bigint; senseId: bigint | null } | null {
+  if (!rows.length) return null;
+  const semantic = rows.filter((row) => row.evidence_priority < 3);
+  let pool = semantic;
+  if (!semantic.length) {
+    const preferredSource = Math.min(...rows.map((row) => row.source_priority));
+    pool = rows.filter((row) => row.source_priority === preferredSource);
+    // A singleton sense in another homograph is not evidence to choose that word.
+    if (new Set(pool.map((row) => row.lexeme_id)).size !== 1) return null;
+  }
+  const evidence = Math.min(...pool.map((row) => row.evidence_priority));
+  const proven = pool.filter((row) => row.evidence_priority === evidence);
+  const source = Math.min(...proven.map((row) => row.source_priority));
+  const best = proven.filter((row) => row.source_priority === source);
+  const lexemes = [...new Set(best.map((row) => row.lexeme_id))];
+  if (lexemes.length !== 1) return null;
+  const senses = [
+    ...new Set(
+      best.flatMap((row) => (row.sense_id === null ? [] : [row.sense_id])),
+    ),
+  ];
+  return {
+    lexemeId: lexemes[0],
+    senseId: evidence < 100 && senses.length === 1 ? senses[0] : null,
   };
 }

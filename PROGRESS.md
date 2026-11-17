@@ -8,6 +8,14 @@
 
 ## Quy trình và tài liệu
 
+### 2026-11-17 — M12 — A3F0C7: nghĩa xem trước và mã Nhật cho tra ngược
+
+- Thay đổi / lý do: Theo yêu cầu xử lý feedbackA3F0C7, A06.1/A12 thêm preview cùng SenseCardDto của search vào en/ja; JA lexeme_id/sense_id nullable để mở trực tiếp, chọn đúng bằng chứng nghĩa và bảo toàn ambiguity. Cả reverse và suggestions/reverse, giữ aliases/order/scope; không gọi search/AI từng dòng.
+- File / phạm vi: dictionary repository/service/types/DTO/unit, HTTPDB test mới; [plan](docs/plans/m12-a3f0c7-reverse-preview-2026-11-17.md), [handoff FE](docs/handoff/m12-a3f0c7-reverse-preview-fe-2026-11-17.md), [report](docs/reviews/m12-a3f0c7-reverse-preview-2026-11-17.md), API docs. Không sửa FE/schema/data/ENV hoặc WIP quiz.
+- Kiểm tra / kết quả: dictionary52unit PASS; fullworkingtree77suite/689unit PASS có WIP ngoài phạm vi. Build/lint PASS;3suite/43HTTPDB PASS sau sửa SQL form_text,8test mở rộng semantic/form PASS. Probe repo production READ ONLY2reference98ms xác định cây→plant→植物 đúng140202/148381, không phải P95.
+- Gate còn thiếu / việc tiếp theo: Commit/CI/deploy, HTTP smoke và QA FE; null khi không có bằng chứng, không sửa dữ liệu nước/of. Không gọi feedback resolved chỉ từ testlocal.
+- Git / triển khai: Code/docs đang chốt local; giữ WIP khác ngoài commit, không đổi app production trong probe.
+
 ### 2026-11-17 — M11.3 — Push backend V3 và chuẩn bị pilot hiệu năng/chất lượng
 
 - Thay đổi / lý do: Theo yêu cầu chủ dự án, đóng gói riêng code/test/docs M11.3 để commit/push trước khi chạy pilot provider thật; không gom WIP khác.

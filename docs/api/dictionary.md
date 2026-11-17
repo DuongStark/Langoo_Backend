@@ -1,5 +1,15 @@
 # API: Dictionary (đọc)
 
+## M12-A06.1/A12 — Bổ sung A3F0C7 ngày17/11/2026
+
+**Đang kiểm local, chưa xác nhận rollout.** Reverse và suggestions/reverse cùng
+thêm preview:SenseCardDto|null ở từng en[]/ja[]; schema/cờ machine/reviewed như
+search.preview. JA thêm lexeme_id:string|null và sense_id:string|null của mục
+Nhật, không phải via_lexeme_id EN. Không đủ bằng chứng nghĩa trảnull; chỉ có
+lexeme_id thì mở danh sách nghĩa, không tự chọn nghĩa đầu. Mọi alias/trường cũ,
+order và scope giữ nguyên. [Handoff A3F0C7](../handoff/m12-a3f0c7-reverse-preview-fe-2026-11-17.md).
+
+
 ## M12-A06.1/A12/A17 — Đã deploy production ngày 13/11/2026 (`4df8655`)
 
 - Reverse và suggestions/reverse có canonical snake_case đúng Swagger, giữ

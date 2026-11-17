@@ -56,6 +56,7 @@ function createSetup(): {
       findViSources: jest.Mock;
       findViSourcesByPrefix: jest.Mock;
       findJaTargets: jest.Mock;
+      findReferenceCandidates: jest.Mock;
     };
     priority: { getByLexemes: jest.Mock };
     senseCard: {
@@ -93,6 +94,7 @@ function createSetup(): {
       findViSources: jest.fn(),
       findViSourcesByPrefix: jest.fn(),
       findJaTargets: jest.fn(),
+      findReferenceCandidates: jest.fn().mockResolvedValue([]),
     },
     priority: { getByLexemes: jest.fn().mockResolvedValue([]) },
     senseCard: {
@@ -1121,6 +1123,188 @@ describe('DictionaryService', () => {
   });
 
   describe('reverseLookup', () => {
+    it('A3F0C7 adds matched-sense previews and real JA IDs in one page batch', async () => {
+      const { service, repos } = createSetup();
+      repos.reverse.findViSources.mockResolvedValue([
+        {
+          source_lexeme_id: 10n,
+          assertion_id: 70n,
+          source_sense_id: 12n,
+          target_text: 'cây',
+          sense_hint: 'plant',
+          source_ordinal: 1,
+          en_lemma: 'plant',
+          en_pos: 'noun',
+          frequency_rank: 100,
+        },
+      ]);
+      repos.reverse.findJaTargets.mockResolvedValue([
+        {
+          source_lexeme_id: 10n,
+          assertion_id: 71n,
+          source_sense_id: 12n,
+          target_text: '植物',
+          sense_hint: 'plant',
+          source_ordinal: 1,
+        },
+      ]);
+      repos.reverse.findReferenceCandidates.mockResolvedValue([
+        {
+          key: 'en:10',
+          lexeme_id: 10n,
+          sense_id: 12n,
+          evidence_priority: 0,
+          source_priority: 0,
+        },
+        {
+          key: 'ja:植物',
+          lexeme_id: 20n,
+          sense_id: 22n,
+          evidence_priority: 1,
+          source_priority: 0,
+        },
+        {
+          key: 'ja:植物',
+          lexeme_id: 20n,
+          sense_id: 21n,
+          evidence_priority: 100,
+          source_priority: 0,
+        },
+      ]);
+      repos.senseCard.getBySenseIds.mockResolvedValue([
+        {
+          ...senseCard,
+          senseId: 12n,
+          lexemeId: 10n,
+          languageId: 1,
+          glossVi: 'thực vật',
+        },
+        {
+          ...senseCard,
+          senseId: 22n,
+          lexemeId: 20n,
+          languageId: 2,
+          lemma: '植物',
+          glossVi: 'cây, thực vật',
+          glossViMachine: true,
+          glossViReviewed: false,
+        },
+      ]);
+      const result = await service.reverseLookup('cây');
+      expect(result.en[0].preview).toMatchObject({
+        sense_id: '12',
+        gloss_vi: 'thực vật',
+      });
+      expect(result.ja[0]).toMatchObject({
+        lexeme_id: '20',
+        sense_id: '22',
+        via_lexeme_id: '10',
+        preview: {
+          sense_id: '22',
+          gloss_vi: 'cây, thực vật',
+          gloss_vi_machine: true,
+          gloss_vi_reviewed: false,
+        },
+      });
+      expect(result.ja[0]).not.toHaveProperty('referenceSource');
+      expect(repos.reverse.findReferenceCandidates).toHaveBeenCalledTimes(1);
+      expect(repos.senseCard.getBySenseIds).toHaveBeenCalledTimes(1);
+      expect(repos.senseCard.getByLexemeId).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      {
+        name: 'ambiguous senses',
+        rows: [
+          {
+            lexeme_id: 20n,
+            sense_id: 21n,
+            evidence_priority: 1,
+            source_priority: 0,
+          },
+          {
+            lexeme_id: 20n,
+            sense_id: 22n,
+            evidence_priority: 1,
+            source_priority: 0,
+          },
+        ],
+        lexeme: '20',
+      },
+      {
+        name: 'ambiguous homographs',
+        rows: [
+          {
+            lexeme_id: 20n,
+            sense_id: 21n,
+            evidence_priority: 3,
+            source_priority: 0,
+          },
+          {
+            lexeme_id: 30n,
+            sense_id: 31n,
+            evidence_priority: 100,
+            source_priority: 0,
+          },
+        ],
+        lexeme: null,
+      },
+      {
+        name: 'canonical ambiguity vs other-source singleton',
+        rows: [
+          {
+            lexeme_id: 20n,
+            sense_id: 21n,
+            evidence_priority: 100,
+            source_priority: 0,
+          },
+          {
+            lexeme_id: 30n,
+            sense_id: 31n,
+            evidence_priority: 3,
+            source_priority: 1,
+          },
+        ],
+        lexeme: '20',
+      },
+    ])(
+      'A3F0C7 preserves $name instead of choosing the first sense',
+      async ({ rows, lexeme }) => {
+        const { service, repos } = createSetup();
+        repos.reverse.findViSources.mockResolvedValue([
+          {
+            source_lexeme_id: 10n,
+            target_text: 'cây',
+            sense_hint: 'plant',
+            source_ordinal: 1,
+            en_lemma: 'plant',
+            en_pos: 'noun',
+            frequency_rank: 100,
+          },
+        ]);
+        repos.reverse.findJaTargets.mockResolvedValue([
+          {
+            source_lexeme_id: 10n,
+            target_text: '植物',
+            sense_hint: 'plant',
+            source_ordinal: 1,
+          },
+        ]);
+        repos.reverse.findReferenceCandidates.mockResolvedValue(
+          rows.map((r) => ({ ...r, key: 'ja:植物' })),
+        );
+        const result = await service.reverseLookup('cây', 'ja');
+        expect(result.en).toEqual([]);
+        expect(result.ja[0]).toMatchObject({
+          lexeme_id: lexeme,
+          sense_id: null,
+          preview: null,
+          via_lemma: '',
+        });
+        expect(repos.senseCard.getBySenseIds).not.toHaveBeenCalled();
+      },
+    );
+
     it('selects the exact representative before dedup and serializes canonical aliases', async () => {
       const { service, repos } = createSetup();
       repos.reverse.findViSources.mockResolvedValue([

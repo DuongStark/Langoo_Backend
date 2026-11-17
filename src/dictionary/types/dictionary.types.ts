@@ -193,6 +193,7 @@ export interface GlossReportResponse {
 }
 
 export interface ReverseLookupEnHit {
+  preview: SenseCardResponse | null;
   lexeme_id: string;
   frequency_rank: number | null;
   sense_hint: string | null;
@@ -206,6 +207,9 @@ export interface ReverseLookupEnHit {
 }
 
 export interface ReverseLookupJaHit {
+  lexeme_id: string | null;
+  sense_id: string | null;
+  preview: SenseCardResponse | null;
   sense_hint: string | null;
   via_lexeme_id: string;
   via_lemma: string;

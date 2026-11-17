@@ -1,0 +1,41 @@
+{
+  "read_only": true,
+  "resolve_ms": 98,
+  "rows": [
+    {
+      "key": "en:plant",
+      "lexeme_id": "1628685",
+      "sense_id": "2722346",
+      "evidence_priority": 0,
+      "source_priority": 0
+    },
+    {
+      "key": "ja:植物",
+      "lexeme_id": "140202",
+      "sense_id": "148381",
+      "evidence_priority": 3,
+      "source_priority": 0
+    },
+    {
+      "key": "ja:植物",
+      "lexeme_id": "598478",
+      "sense_id": "774227",
+      "evidence_priority": 3,
+      "source_priority": 1
+    },
+    {
+      "key": "ja:植物",
+      "lexeme_id": "2271165",
+      "sense_id": "1279206",
+      "evidence_priority": 3,
+      "source_priority": 1
+    },
+    {
+      "key": "ja:植物",
+      "lexeme_id": "2271166",
+      "sense_id": "2322729",
+      "evidence_priority": 3,
+      "source_priority": 1
+    }
+  ]
+}
