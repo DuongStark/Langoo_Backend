@@ -1,12 +1,12 @@
 # DOCS5 — Bàn giao FE cho Quiz, tra từ và ôn tập SRS
 
-Ngày 18/11/2026. Dành cho LanGoo-User và consumer Admin có dùng thống kê học.
+Ngày 18/11/2026. Dành cho LanGoo-User và consumer Admin có dùng thống kê học. BE production đang chạy `dcd1830` tại `https://api.langoo.org` và sẵn sàng để FE tích hợp.
 
 | Phần | Trạng thái và thời điểm tích hợp |
 | --- | --- |
-| **M11.5 — Quiz** | BE ở `main` commit `54a14d5`. DB production đã áp migration `050` và có 96.155 câu hoạt động. Runtime VPS đang ở bản cũ. Phối hợp rollout FE với BE M11.5 vì bản mới đã gỡ luồng jobs V3. |
-| **M10.5 / M4.8 — Tra từ** | BE đã push lên `main` ở `3a995c4`. FE có thể tích hợp preview ngay. Xếp hạng đồng dạng, cursor v7 và tìm một kana có hiệu lực sau rollout BE. |
-| **M6.3 — SRS** | BE và migration `051` đã push lên `main` ở `08fc574`. Production chưa áp `051`. Phối hợp BE, FE User và FE Admin trong cùng đợt rollout. |
+| **M11.5 — Quiz** | BE đã deploy. DB production có migration `050` và 96.155 câu hoạt động. FE bỏ luồng jobs V3. |
+| **M10.5 / M4.8 — Tra từ** | BE đã deploy. Xếp hạng đồng dạng, cursor v7 và tìm một kana có hiệu lực. Đã kiểm tra `bank`, `go` và `う` trên API production. |
+| **M6.3 — SRS** | BE đã deploy và production đã áp `051`. FE User và FE Admin dùng contract SRS nhận diện và bỏ các trường XP. |
 
 ## M11.5 — Quiz
 
@@ -24,7 +24,7 @@ Ngày 18/11/2026. Dành cho LanGoo-User và consumer Admin có dùng thống kê
 - Quay lại hoặc đóng tab giữ phiên `in_progress`. Bản FE test đọc lại đúng phiên khi mở URL cũ, nhưng chưa có đường quay lại lượt dang dở từ danh sách. FE cần giữ đường dẫn phiên theo người dùng và hồ sơ, hiển thị **Tiếp tục lượt đang làm** khi phiên còn mở. Nếu đang có `quizId` và đề còn hạn, gọi `start` với `intent: "resume"` cũng trả lại phiên đang làm của chính đề đó.
 - **Kết thúc sớm** gọi `POST /v1/sessions/:sessionId/finish`. Phiên còn câu chưa nộp chuyển sang `abandoned`. Khi kết thúc lượt, bỏ đường dẫn **Tiếp tục**. **Làm lại đề này** gọi `start` với `{ intent: "new_attempt", idempotency_key: crypto.randomUUID() }` và mở session mới.
 - Báo lỗi qua `POST /v1/quizzes/:quizId/questions/:ordinal/report` với `{ reason, note?, idempotency_key }`. `reason` gồm `ambiguous`, `wrong_meaning`, `wrong_reading`, `unnatural` và `other`. Câu từ kho bị loại khỏi đề tiếp theo của người báo và bị khóa toàn cục sau hai báo cáo từ hai người. Dùng `status` và `cache_excluded` để hiển thị phản hồi.
-- Quiz M11.5 trả `srs: null` và không cộng streak. Các trường `xp.amount` và `session.xp_awarded` có thể xuất hiện khi kết nối bản Quiz trước M6.3. BE sau migration `051` bỏ cả hai trường, nên FE không yêu cầu chúng.
+- Quiz M11.5 trả `srs: null` và không cộng streak. API production đã bỏ `xp.amount` và `session.xp_awarded` theo M6.3.
 
 **Nghiệm thu** — Đề mở được ngay, hiện đáp án sau câu đầu và câu cuối. Câu chưa nộp giữ kín đáp án. Rời rồi mở lại cùng phiên tiếp tục đúng câu. Kết thúc sớm đóng lượt. Làm lại giữ cùng đề và có phiên mới. Kiểm tra cả câu ghép cặp, báo lỗi và lỗi hết hạn khi làm lại.
 
@@ -46,20 +46,20 @@ Trong `SearchResultsPanel.tsx`, khi mở hit đã hiện preview, truyền `hit.
 
 ### Search và phân trang
 
-Sau rollout BE, các mục EN cùng lemma, mặt chữ và hạng tần suất dùng thứ hạng M10.5 còn hiệu lực. Suggestions chọn mục đại diện theo thứ tự này. FE giữ thứ tự API. `next_cursor` vẫn là chuỗi opaque. Bản BE mới trả cursor v7; nếu phân trang bằng token cũ và nhận `400 VALIDATION_FAILED`, bỏ các trang đã cache của truy vấn và tải lại trang đầu một lần. Giữ các lỗi khác theo luồng lỗi hiện có.
+Trên production, các mục EN cùng lemma, mặt chữ và hạng tần suất dùng thứ hạng M10.5 còn hiệu lực. Suggestions chọn mục đại diện theo thứ tự này. FE giữ thứ tự API. `next_cursor` vẫn là chuỗi opaque. Bản BE mới trả cursor v7; nếu phân trang bằng token cũ và nhận `400 VALIDATION_FAILED`, bỏ các trang đã cache của truy vấn và tải lại trang đầu một lần. Giữ các lỗi khác theo luồng lỗi hiện có.
 
 M4.8 giới hạn full search của một ký tự kana ở kết quả khớp chính xác. Suggestions vẫn có thể trả kết quả rộng hơn.
 
 ### Nghiệm thu
 
 - `bank`: gợi ý, kết quả, tooltip và nghĩa mở đầu phải thống nhất “Nhà ngân hàng.” ở sense `283716`. Nghĩa nghiêng cánh máy bay vẫn có trong danh sách nghĩa.
-- `go`: sau khi cập nhật BE, động từ `1154670` đứng trước danh từ `1154668`, với preview “Đi, đi đến, đi tới.”. Mở riêng danh từ vẫn hiện “Sự thử (làm gì).”.
+- `go`: động từ `1154670` đứng trước danh từ `1154668`, với preview “Đi, đi đến, đi tới.”. Mở riêng danh từ vẫn hiện “Sự thử (làm gì).”.
 - Hit thiếu preview vẫn hiện nghĩa từ grouped. Kiểm `book`, `water` và ít nhất một hit JA. So request trong Network tab để xác nhận hit có preview không gọi `/senses` chỉ để vẽ dòng kết quả.
 - Kiểm tra bấm thẳng nghĩa phụ, mở từ tooltip sau deinflection, thêm vào sổ tay đúng ID, tải thêm trang và hồi phục khi dùng cursor v6 cũ.
 
 ## M6.3 — SRS nhận diện, chỉ giữ streak và thống kê học
 
-Code và migration đã push. Runtime VPS chờ rollout.
+Code và migration đã áp trên VPS production.
 
 - Thẻ luôn từ Nhật/Anh → nghĩa Việt; `direction` response cố định `recognize`.
 - Request review/suspend bỏ `direction` được; nếu gửi phải là `recognize` (null/recall bị từ chối).
@@ -73,16 +73,9 @@ Code và migration đã push. Runtime VPS chờ rollout.
 - Streak/lịch hoạt động/số lượt/số từ/mục tiêu ngày giữ lại; idempotency vẫn dùng receipt.
 - FE User local chỉ sửa để kiểm thử contract; không đại diện cho trạng thái tích hợp hoặc triển khai FE thật.
 
-### Áp dụng sau này
+### Trạng thái production
 
-Triển khai backend tương ứng cùng migration `051`; binary cũ truy vấn direction/XP/huy hiệu
-sẽ không tương thích schema mới. Đồng bộ consumer trước rollout; không rollback binary cũ
-trực tiếp lên schema mới. Migration xóa dữ liệu dev theo quyết định chủ dự án; khi triển khai
-thật cần bản sao lưu trước migration. Migration chạy nguyên tử qua runner hiện có.
-
-DB test chạy `050` trước `051`. DB production đã có `050`, và cần đánh giá phạm vi dữ liệu trước khi áp `051`. Runner áp các file migration còn thiếu trong checkout theo thứ tự tên.
-
-Quyết định xóa mọi review mồ côi, kể cả recognize, chỉ áp dụng cho dữ liệu dev. Trước khi dùng 051 trên môi trường có dữ liệu người dùng thật, cần đánh giá lại phạm vi xóa và xác nhận chính sách giữ lịch sử. [Contract SRS](../api/srs.md) · [Phiên học](../api/sessions.md) · [Streak và thống kê](../api/gamification.md) · [Admin](../api/admin.md).
+Migration `051` đã áp sau khi sao lưu DB theo phê duyệt của chủ dự án. App cũ cần schema trước `051` nếu phải rollback. FE có thể tích hợp contract mới trên production. [Contract SRS](../api/srs.md) · [Phiên học](../api/sessions.md) · [Streak và thống kê](../api/gamification.md) · [Admin](../api/admin.md).
 
 ### Bàn giao cho FE thật — bắt buộc tích hợp riêng
 

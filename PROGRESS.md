@@ -1,5 +1,11 @@
 # PROGRESS — Langoo Backend
 
+### 2026-11-18 — M6.3, M11.5, M10.5 và M4.8 — Triển khai backend production
+
+- Triển khai VPS ở `dcd1830`. Áp migration `051` sau khi sao lưu theo phê duyệt. DB có `050`, `051` và 96.155 câu Quiz active.
+- Health HTTPS 200, DB UTC. Smoke `bank`, `go`, suggestions, một kana và OpenAPI Quiz/SRS pass. FE có thể tích hợp với BE production. Phần kiểm thử có đăng nhập trên production còn chờ.
+- [Báo cáo rollout](docs/reviews/m6.3-recognize-only-no-xp-2026-11-18.md#2026-11-18--m63-m115-m105-và-m48--rollout-production) · [Handoff FE](docs/handoff/docs5-fe-quiz-search-srs-2026-11-18.md).
+
 ### 2026-11-18 — M10.5, M4.8 và M6.3 — Push BE tra từ, SRS và cập nhật handoff FE
 
 - Đã push xếp hạng mục từ, cursor v7 và tìm một kana ở `3a995c4`. Đã push SRS nhận diện, contract phiên học/XP/streak và migration `051` ở `08fc574`. Đồng bộ hai test Quiz theo contract M11.5 ở `39faebe`.
