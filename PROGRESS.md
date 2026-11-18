@@ -1,10 +1,16 @@
 # PROGRESS — Langoo Backend
 
+### 2026-11-18 — M10.5, M4.8 và M6.3 — Push BE tra từ, SRS và cập nhật handoff FE
+
+- Đã push xếp hạng mục từ, cursor v7 và tìm một kana ở `3a995c4`. Đã push SRS nhận diện, contract phiên học/XP/streak và migration `051` ở `08fc574`. Đồng bộ hai test Quiz theo contract M11.5 ở `39faebe`.
+- Build, Prisma validate/generate, ESLint, 685 unit test, 300 E2E PostgreSQL, regression migration `051` và diff check PASS. E2E phân trang dùng tiền tố nhiều ký tự theo hành vi M4.8.
+- [Handoff FE DOCS5](docs/handoff/docs5-fe-quiz-search-srs-2026-11-18.md) đã cập nhật trạng thái các commit. Push dùng `[skip ci]` để tách deploy. VPS giữ migration `050` và kho Quiz đã nạp. Migration `051` chờ phối hợp rollout.
+
 ### 2026-11-18 — DOCS5 — Bàn giao FE cho Quiz, tra từ và ôn tập SRS
 
 - Gộp M11.5, M10.5 và M6.3 vào [một file gửi FE](docs/handoff/docs5-fe-quiz-search-srs-2026-11-18.md). Bổ sung cách thoát giữa phiên Quiz, mở lại đúng lượt và kết thúc sớm.
 - Đối chiếu handoff với route/DTO và code FE local. Kiểm tra link, Markdown và `git diff --check`. Thay đổi handoff lần này chỉ gồm tài liệu.
-- Quiz BE đã push và kho production đã nạp; runtime chờ rollout. Search BE và SRS BE đang ở local. FE thật tích hợp theo các điều kiện trong handoff.
+- Quiz BE, Search BE và SRS BE đã push. Kho production đã nạp. Runtime VPS chờ rollout. FE thật tích hợp theo các điều kiện trong handoff.
 
 ### 2026-11-18 — M11.5 — Bàn giao ngân hàng câu hỏi Quiz và phát hành mã backend
 
