@@ -1,11 +1,17 @@
 # PROGRESS — Langoo Backend
 
+### 2026-11-18 — DOCS5 — Bàn giao FE cho Quiz, tra từ và ôn tập SRS
+
+- Gộp M11.5, M10.5 và M6.3 vào [một file gửi FE](docs/handoff/docs5-fe-quiz-search-srs-2026-11-18.md). Bổ sung cách thoát giữa phiên Quiz, mở lại đúng lượt và kết thúc sớm.
+- Đối chiếu handoff với route/DTO và code FE local. Kiểm tra link, Markdown và `git diff --check`. Thay đổi handoff lần này chỉ gồm tài liệu.
+- Quiz BE đã push và kho production đã nạp; runtime chờ rollout. Search BE và SRS BE đang ở local. FE thật tích hợp theo các điều kiện trong handoff.
+
 ### 2026-11-18 — M11.5 — Bàn giao ngân hàng câu hỏi Quiz và phát hành mã backend
 
 - Thay đổi / lý do: Tạo đề đồng bộ từ kho dùng chung, trả đáp án sau từng câu đã nộp, hỗ trợ làm lại và báo lỗi. Gỡ luồng jobs V3. Giữ các trường XP tương thích với backend trước migration 051.
 - Phạm vi: Migration `050`, Prisma, Quiz, phiên học, pre-warm khi lưu từ và bộ sinh/chấm offline. [Handoff FE](docs/handoff/m11.5-quiz-shared-bank-fe-2026-11-18.md) · [Báo cáo](docs/reviews/m11.5-implementation-2026-11-18.md).
 - Kiểm tra: Prisma generate và backend build PASS. Unit 132/132, E2E PostgreSQL 36/36, pipeline 9/9 và `git diff --check` PASS trên bản phát hành.
-- Triển khai: Production VPS có migration `050`; kho chờ nạp sau khi đối chiếu vòng chấm cuối. Commit backend dùng `[skip ci]` để giữ đợt phát hành mã độc lập với deploy runtime. FE thật tích hợp theo handoff.
+- Git / triển khai: Backend và handoff FE đã push `54a14d5`. DB production VPS đã áp migration `050` và xác nhận **96.155 câu active trên 9.873 sense**. Runtime VPS vẫn ở `9a66fb4`; FE thật chờ tích hợp và rollout. Hai vòng sửa cứu 1.859 câu, còn 214 câu bị loại. Bộ lọc cách đọc production giữ ngoài kho 369 câu đã duyệt.
 - Góp ý đã ghi nhận: Tái dùng câu `context_meaning` cho `context_cloze` sau khi kiểm tra câu che từ và các lựa chọn trong bộ của người học. Xem [tiêu chí](docs/design/m11.5-quiz-shared-question-bank-2026-11-18.md).
 
 > Cập nhật lần cuối: 2026-10-28 — M2.4: Bổ sung identities, has_password, has_google vào GET /v1/auth/me, đã deploy VPS thành công tại `486de5f`. M12: CORS allowlist đã bổ sung https://admin.langoo.org (cùng localhost, langoo.org, www.langoo.org). M7.3: API xoá từ khỏi bộ sưu tập trong phiên học Flashcard (DELETE /v1/sessions/:id/items/:ordinal) đã hoàn thành, có unit test coverage đầy đủ và tài liệu handoff cho FE. M4.6: 20 bộ từ mẫu tiếng Anh (2.910 từ) đã seed vào DB VPS; API language filter và chuẩn hóa 100% nghĩa tiếng Việt đã commit/push `41a6ff2` và deploy VPS thành công. M8.3 streak và lịch hoạt động đã deploy VPS tại `7a33958`. API `https://api.langoo.org`. M10.1 chat dùng provider Groq.
