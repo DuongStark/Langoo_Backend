@@ -9,7 +9,7 @@ import { ConfigService } from '@nestjs/config';
 import { createAiQuizProvider } from './ai-quiz-provider.factory';
 import { OpenAiChatProvider } from './openai-chat.provider';
 
-function setup(options: { timeoutMs?: number } = {}) {
+function setup(options: { timeoutMs?: number; reasoningEffort?: string } = {}) {
   const chat = jest.fn<
     Promise<{
       content: string;
@@ -25,6 +25,7 @@ function setup(options: { timeoutMs?: number } = {}) {
     generatorModel: 'generator',
     validatorModel: 'validator',
     timeoutMs: options.timeoutMs ?? 1000,
+    reasoningEffort: options.reasoningEffort,
   });
   const response = (content: unknown) => ({
     content: JSON.stringify(content),
@@ -356,7 +357,7 @@ describe('ContextQuizProvider routing and quality', () => {
     expect(result[KANJI_SLOT].context?.sentence).toContain('銀行');
   });
 
-  it('blank timeout uses a real deadline rather than failing immediately', async () => {
+  it('blank quiz timeout leaves production generation in local mode', async () => {
     const { chat } = setup();
     const spy = jest
       .spyOn(OpenAiChatProvider.prototype, 'chat')
@@ -371,8 +372,10 @@ describe('ContextQuizProvider routing and quality', () => {
           AI_QUIZ_TIMEOUT_MS: '',
         }),
       );
-      await provider.generate(kanjiInput({ questionCount: 2 }));
-      expect(chat.mock.calls[0][0].timeoutMs).toBeGreaterThan(1000);
+      await expect(
+        provider.generate(kanjiInput({ questionCount: 2 })),
+      ).resolves.toHaveLength(2);
+      expect(chat).not.toHaveBeenCalled();
     } finally {
       spy.mockRestore();
     }
@@ -400,8 +403,11 @@ describe('ContextQuizProvider routing and quality', () => {
       }),
     ).toBe(true);
   });
-  it('forwards configured thinking-off to generation, validation and retry', async () => {
-    const { chat } = setup();
+  it('forwards thinking-off to an injected transport for generation, validation and retry', async () => {
+    const { provider, chat } = setup({
+      timeoutMs: 60_000,
+      reasoningEffort: 'none',
+    });
     const original = chat.getMockImplementation()!;
     let failedOnce = false;
     chat.mockImplementation((request) => {
@@ -411,29 +417,10 @@ describe('ContextQuizProvider routing and quality', () => {
       }
       return original(request);
     });
-    const spy = jest
-      .spyOn(OpenAiChatProvider.prototype, 'chat')
-      .mockImplementation(chat);
-    try {
-      const provider = createAiQuizProvider(
-        new ConfigService({
-          AI_PROVIDER: 'openai',
-          AI_API_KEY: 'fixture',
-          AI_QUIZ_MODEL: 'generator',
-          AI_QUIZ_VALIDATOR_MODEL: 'validator',
-          AI_QUIZ_TIMEOUT_MS: '60000',
-          AI_QUIZ_REASONING_EFFORT: 'none',
-        }),
-      );
-      await provider.generate(kanjiInput({ questionCount: 2 }));
-      expect(chat.mock.calls.length).toBeGreaterThanOrEqual(3);
-      expect(
-        chat.mock.calls.every(
-          ([request]) => request.reasoningEffort === 'none',
-        ),
-      ).toBe(true);
-    } finally {
-      spy.mockRestore();
-    }
+    await provider.generate(kanjiInput({ questionCount: 2 }));
+    expect(chat.mock.calls.length).toBeGreaterThanOrEqual(3);
+    expect(
+      chat.mock.calls.every(([request]) => request.reasoningEffort === 'none'),
+    ).toBe(true);
   });
 });
