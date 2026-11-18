@@ -5,7 +5,7 @@ const MAX_SIGNED_BIGINT = 9223372036854775807n;
 const MAX_CURSOR_TEXT = 1000;
 
 export interface DictionarySearchCursor {
-  version: 6;
+  version: 7;
   query: string;
   lang: string | null;
   scopeKey?: string;
@@ -16,6 +16,8 @@ export interface DictionarySearchCursor {
   frequencyNullRank: 0 | 1;
   frequencyRank: number;
   surfaceLength: number;
+  surfaceGroupId: string;
+  learnerSort: number;
   lexemeId: string;
   surfaceKind: string;
   surface: string;
@@ -37,6 +39,8 @@ export function encodeDictionarySearchCursor(
       n: cursor.frequencyNullRank,
       f: cursor.frequencyRank,
       z: cursor.surfaceLength,
+      g: cursor.surfaceGroupId,
+      o: cursor.learnerSort,
       i: cursor.lexemeId,
       k: cursor.surfaceKind,
       s: cursor.surface,
@@ -58,7 +62,7 @@ export function decodeDictionarySearchCursor(
     ) as Record<string, unknown>;
 
     if (
-      parsed.v !== 6 ||
+      parsed.v !== 7 ||
       (parsed.h !== undefined &&
         (typeof parsed.h !== 'string' || parsed.h.length > 100)) ||
       typeof parsed.q !== 'string' ||
@@ -73,10 +77,9 @@ export function decodeDictionarySearchCursor(
       !isBinaryRank(parsed.n) ||
       !isPositiveInt(parsed.f) ||
       !isPositiveInt(parsed.z) ||
-      typeof parsed.i !== 'string' ||
-      !/^\d+$/.test(parsed.i) ||
-      BigInt(parsed.i) <= 0n ||
-      BigInt(parsed.i) > MAX_SIGNED_BIGINT ||
+      !isPositiveBigintString(parsed.g) ||
+      !isPositiveInt(parsed.o) ||
+      !isPositiveBigintString(parsed.i) ||
       typeof parsed.k !== 'string' ||
       parsed.k.length === 0 ||
       parsed.k.length > MAX_CURSOR_TEXT ||
@@ -88,7 +91,7 @@ export function decodeDictionarySearchCursor(
     }
 
     return {
-      version: 6,
+      version: 7,
       query: parsed.q,
       lang: parsed.l,
       ...(parsed.h === undefined ? {} : { scopeKey: parsed.h }),
@@ -99,6 +102,8 @@ export function decodeDictionarySearchCursor(
       frequencyNullRank: parsed.n,
       frequencyRank: parsed.f,
       surfaceLength: parsed.z,
+      surfaceGroupId: parsed.g,
+      learnerSort: parsed.o,
       lexemeId: parsed.i,
       surfaceKind: parsed.k,
       surface: parsed.s,
@@ -118,4 +123,10 @@ function isBinaryRank(value: unknown): value is 0 | 1 {
 
 function isPositiveInt(value: unknown): value is number {
   return typeof value === 'number' && Number.isSafeInteger(value) && value > 0;
+}
+
+function isPositiveBigintString(value: unknown): value is string {
+  if (typeof value !== 'string' || !/^\d{1,19}$/.test(value)) return false;
+  const id = BigInt(value);
+  return id > 0n && id <= MAX_SIGNED_BIGINT;
 }

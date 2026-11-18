@@ -133,6 +133,12 @@ export class DictionaryService {
     }
 
     const queryVariants = getSearchQueryVariants(query, languageCode);
+    // A single kana is a dictionary entry (あ, う, ア…) and also a very common
+    // substring/reading. Keep search on the exact tier so う/あ do not scan
+    // every word containing that kana; typing more characters unlocks prefixes.
+    const singleKana = /^[\p{Script=Hiragana}\p{Script=Katakana}ー]$/u.test(
+      query,
+    );
     const rows = await this.searchRepo.search({
       queries: queryVariants,
       patterns: queryVariants.map(escapeLike),
@@ -140,6 +146,7 @@ export class DictionaryService {
       ...(scope ? { allowedLanguageIds: scope.languageIds } : {}),
       limit: limit + 1,
       cursor,
+      singleKanaExactOnly: singleKana,
     });
     const hasNext = rows.length > limit;
     const pageRows = hasNext ? rows.slice(0, limit) : rows;
@@ -163,7 +170,7 @@ export class DictionaryService {
       next_cursor:
         hasNext && lastRow
           ? encodeDictionarySearchCursor({
-              version: 6,
+              version: 7,
               query,
               lang: languageCode,
               ...(scope ? { scopeKey: scope.key } : {}),
@@ -174,6 +181,8 @@ export class DictionaryService {
               frequencyNullRank: lastRow.frequency_null_rank,
               frequencyRank: lastRow.frequency_sort,
               surfaceLength: lastRow.surface_length,
+              surfaceGroupId: lastRow.surface_group_id.toString(),
+              learnerSort: lastRow.learner_sort,
               lexemeId: lastRow.lexeme_id.toString(),
               surfaceKind: lastRow.surface_kind,
               surface: lastRow.surface,

@@ -340,6 +340,20 @@ Khi đếm toàn bộ: tổng `1 + sub_senses.length` mỗi nhóm. Khi mở nhó
 sense_no/ID; không dùng nhóm để tuyên bố equivalent hoặc gộp dữ liệu nguồn.
 Giữ nội dung nguồn/badge gloss máy. Chưa có triển khai FE trong release backend này.
 
+## M10.5 — Thứ tự mục từ EN cùng mặt chữ
+
+Trong bản BE M10.5 mới, thứ tự tìm kiếm giữ các nhóm khớp chính xác/prefix,
+tần suất và độ dài hiện có. Khi các mục EN cùng lemma, mặt chữ và hạng tần suất,
+hạng `display_order` tốt nhất còn hiệu lực trong M10.5 phân thứ tự giữa chúng.
+Mục thiếu hạng dùng thứ tự ID sau các mục đã xếp hạng trong nhóm. Suggestions
+dùng tiêu chí này khi chọn mục đại diện. `frequency_rank` vẫn phản ánh tần suất
+từ; thứ hạng M10.5 chưa có trường public riêng.
+
+Search cursor chuyển sang **v7**. Khi dùng token cũ và nhận
+`400 VALIDATION_FAILED`, FE tải lại trang đầu với cùng truy vấn và bộ lọc.
+Các trường `preview`, `recommended_sense_ids`, `is_primary` và thứ tự
+`view=flat` giữ contract hiện tại. Xem [handoff FE M10.5](../handoff/docs5-fe-quiz-search-srs-2026-11-18.md#m105--handoff-fe-cho-mục-từ-và-nghĩa-mặc-định).
+
 ## M4.5 — JA learner priority / BCCWJ (deploy 08/10/2026)
 
 Migration `040_japanese_learner_priority.sql` và run `ja-bccwj-v1` bổ sung:

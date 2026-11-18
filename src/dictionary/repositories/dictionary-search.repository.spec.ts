@@ -98,6 +98,40 @@ describe('DictionarySearchRepository', () => {
     expect(query.sql).toContain("r.lang_code <> 'en' OR r.vi_rank = 0");
     expect(query.sql).toContain("vi_l.code='vi'");
   });
+
+  it('một kana dừng ở exact tier dù trang ngắn, không quét cả từ điển', async () => {
+    const { repository, queryRaw } = createRepository();
+    queryRaw.mockResolvedValue([{ lexeme_id: 1n }]);
+
+    const rows = await repository.search({
+      queries: ['う'],
+      patterns: ['う'],
+      lang: null,
+      limit: 21,
+      cursor: null,
+      singleKanaExactOnly: true,
+    });
+
+    expect(rows).toHaveLength(1);
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+  });
+
+  it('một kana không có exact match trả rỗng thay vì fallback contains', async () => {
+    const { repository, queryRaw } = createRepository();
+    queryRaw.mockResolvedValue([]);
+
+    const rows = await repository.search({
+      queries: ['ゖ'],
+      patterns: ['ゖ'],
+      lang: null,
+      limit: 21,
+      cursor: null,
+      singleKanaExactOnly: true,
+    });
+
+    expect(rows).toEqual([]);
+    expect(queryRaw).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe('M4.2 dictionary search failures', () => {

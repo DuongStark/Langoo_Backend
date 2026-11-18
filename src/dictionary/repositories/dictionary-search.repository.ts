@@ -24,6 +24,8 @@ export interface SearchRow {
   frequency_null_rank: 0 | 1;
   frequency_sort: number;
   surface_length: number;
+  surface_group_id: bigint;
+  learner_sort: number;
 }
 
 export interface ExactSearchHit {
@@ -53,6 +55,13 @@ export interface SearchParams {
   cursor: DictionarySearchCursor | null;
   /** Collapse source-level duplicates that display the same language/surface/reading. */
   deduplicateSurface?: boolean;
+  /**
+   * Full search only: a single kana is a word by itself, not a substring.
+   * Return the exact tier even when it is shorter than the page so common
+   * kana do not fall through to a `%kana%` scan over the whole dictionary.
+   * Suggestions keep the broader prefix/contains behaviour.
+   */
+  singleKanaExactOnly?: boolean;
 }
 
 @Injectable()
@@ -68,7 +77,8 @@ export class DictionarySearchRepository {
       (params.cursor === null || params.cursor.exactRank === 0)
     ) {
       const exact = await this.searchRows(params, true);
-      if (exact.length === params.limit) return exact;
+      if (exact.length === params.limit || params.singleKanaExactOnly)
+        return exact;
     }
     // EN prefix suggestions have constant source/VI/prefix ranks. Every exact
     // match plus the frequent prefix tier can therefore supply a correct top
@@ -231,6 +241,8 @@ export class DictionarySearchRepository {
             frequency_null_rank,
             frequency_sort,
             surface_length,
+            surface_group_id,
+            learner_sort,
             lexeme_id,
             surface_kind,
             surface
@@ -242,6 +254,8 @@ export class DictionarySearchRepository {
             ${cursor.frequencyNullRank},
             ${cursor.frequencyRank},
             ${cursor.surfaceLength},
+            ${BigInt(cursor.surfaceGroupId)},
+            ${cursor.learnerSort},
             ${BigInt(cursor.lexemeId)},
             ${cursor.surfaceKind},
             ${cursor.surface}
@@ -253,8 +267,45 @@ export class DictionarySearchRepository {
       ? Prisma.sql`lang_code, lower(surface), coalesce(lower(reading), '')`
       : Prisma.sql`lexeme_id`;
     const resultOrder = deduplicateSurface
-      ? Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, lexeme_id`
+      ? Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, frequency_null_rank, frequency_sort, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface, surface_group_id, learner_sort, lexeme_id`
       : Prisma.sql`exact_rank, prefix_rank, ja_source_rank, vi_translation_rank, surface_exact_rank, canonical_face_rank, surface_length, surface_kind, surface`;
+
+    // M10.5 ranks senses across entries of the same spelling. Anchor each
+    // competing surface at its first old ID; the rank is local to that group.
+    const learnerRanked =
+      lang === null || lang === 'en'
+        ? Prisma.sql`
+          english_peers AS (
+            SELECT lower(surface) AS surface_key, lower(lemma) AS lemma_key, exact_rank, prefix_rank,
+              frequency_sort, surface_length, min(lexeme_id) AS group_id
+            FROM visible
+            WHERE lang_code = 'en' AND frequency_null_rank = 0
+            GROUP BY lower(surface), lower(lemma), exact_rank, prefix_rank, frequency_sort, surface_length
+            HAVING min(lexeme_id) <> max(lexeme_id)
+          ),
+          learner_ranked AS (
+            SELECT v.*, coalesce(peer.group_id, v.lexeme_id) AS surface_group_id,
+              coalesce(lp.best_order, 2147483647) AS learner_sort
+            FROM visible v
+            LEFT JOIN english_peers peer
+              ON v.lang_code = 'en' AND v.frequency_null_rank = 0
+              AND peer.surface_key = lower(v.surface)
+              AND peer.lemma_key = lower(v.lemma)
+              AND peer.exact_rank = v.exact_rank AND peer.prefix_rank = v.prefix_rank
+              AND peer.frequency_sort = v.frequency_sort AND peer.surface_length = v.surface_length
+            LEFT JOIN LATERAL (
+              SELECT min(p.display_order)::int AS best_order
+              FROM serve.english_sense_priority p
+              WHERE peer.group_id IS NOT NULL AND p.lexeme_id = v.lexeme_id
+            ) lp ON true
+          ),
+        `
+        : Prisma.sql`
+          learner_ranked AS (
+            SELECT v.*, v.lexeme_id AS surface_group_id, 2147483647 AS learner_sort
+            FROM visible v
+          ),
+        `;
 
     const query = Prisma.sql`
       WITH hits AS (
@@ -373,13 +424,14 @@ export class DictionarySearchRepository {
             OR r.reading IS NOT NULL
             OR NOT ${canonicalExists})
       ),
+      ${learnerRanked}
       per_result AS (
-        SELECT visible.*,
+        SELECT learner_ranked.*,
           row_number() OVER (
             PARTITION BY ${resultPartition}
             ORDER BY ${resultOrder}
           ) AS face_no
-        FROM visible
+        FROM learner_ranked
       )
       SELECT
         lexeme_id,
@@ -400,7 +452,9 @@ export class DictionarySearchRepository {
         prefix_rank,
         frequency_null_rank,
         frequency_sort,
-        surface_length
+        surface_length,
+        surface_group_id,
+        learner_sort
       FROM per_result
       WHERE face_no = 1
         ${cursorCondition}
@@ -412,6 +466,8 @@ export class DictionarySearchRepository {
         frequency_null_rank ASC,
         frequency_sort ASC,
         surface_length ASC,
+        surface_group_id ASC,
+        learner_sort ASC,
         lexeme_id ASC,
         surface_kind ASC,
         surface ASC

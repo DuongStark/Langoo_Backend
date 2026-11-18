@@ -25,7 +25,7 @@ describe('M4.2 short dictionary search', () => {
              (780009,1,'%mark',NULL,'noun',8,60,'{}',99),
              (780010,2,'a','あ','noun',1,70,'{}',99),
              (780011,1,'z',NULL,'noun',8,1,'{}',99),
-             (780012,1,'z',NULL,'verb',8,2,'{}',99),
+             (780012,1,'z',NULL,'verb',8,1,'{}',99),
              (780013,1,'zebra',NULL,'noun',8,3,'{}',99),
              (780014,1,'zero',NULL,'noun',8,4,'{}',99),
              (780015,2,'am42-canonical',NULL,'noun',8,1,'{}',99),
@@ -33,7 +33,8 @@ describe('M4.2 short dictionary search', () => {
              (780017,1,'acorn',NULL,'noun',8,40,'{}',99),
              (780018,1,'apricot',NULL,'noun',8,50,'{}',99),
              (780019,1,'arrow',NULL,'noun',8,60,'{}',99),
-             (780020,1,'alpha',NULL,'noun',8,NULL,'{}',99);
+             (780020,1,'alpha',NULL,'noun',8,NULL,'{}',99),
+             (780022,1,'z',NULL,'interjection',8,1,'{}',99);
       INSERT INTO core.lexeme_form(lexeme_id,kind,form_text,form_order)
       VALUES (780004,'kanji','猫',1),(780005,'kanji','山猫',1),
              (780005,'kanji','猫山',2);
@@ -50,11 +51,27 @@ describe('M4.2 short dictionary search', () => {
       WHERE id BETWEEN 780001 AND 780200 OR id BETWEEN 790001 AND 795000;
       INSERT INTO core.lexeme(id,language_id,lemma,pos,source_id,frequency_rank,homograph_no)
       VALUES (780021,1,'a-hidden-untranslated','noun',8,1,99);
+      INSERT INTO core.dictionary_priority_run(
+        id, policy, language_id, source_code, source_version, source_sha256,
+        artifact_sha256, target_identity, active
+      ) VALUES ('00000000-0000-0000-0000-000000780012','en-m10.5-v1',1,
+        'm105-test','1',repeat('a',64),repeat('b',64),'test',true);
+      INSERT INTO core.sense_learner_priority(
+        run_id, sense_id, lexeme_id, input_hash, display_order, reason, reviewer_kind
+      )
+      SELECT '00000000-0000-0000-0000-000000780012', id, id,
+        CASE WHEN id = 780022 THEN 'stale' ELSE core.english_sense_input_hash(id) END,
+        CASE WHEN id = 780011 THEN 3 ELSE 1 END, 'test', 'llm'
+      FROM core.sense WHERE id IN (780011, 780012, 780022);
       ANALYZE core.lexeme;
     `);
   });
   afterAll(async () => {
     if (db) {
+      await db.$executeRawUnsafe(`
+        DELETE FROM core.sense_learner_priority WHERE run_id='00000000-0000-0000-0000-000000780012';
+        DELETE FROM core.dictionary_priority_run WHERE id='00000000-0000-0000-0000-000000780012';
+      `);
       await db.$executeRawUnsafe(
         'DELETE FROM core.sense_gloss WHERE sense_id BETWEEN 780001 AND 780200 OR sense_id BETWEEN 790001 AND 795000',
       );
@@ -186,6 +203,17 @@ describe('M4.2 short dictionary search', () => {
 
   it('pagination crosses the exact/prefix boundary without skipping a lexeme', async () => {
     const expected = await search('z', 'en');
+    expect(expected.slice(0, 3).map((row) => row.lexeme_id)).toEqual([
+      780012n,
+      780011n,
+      780022n,
+    ]);
+    const suggestions = await search('z', 'en', { deduplicateSurface: true });
+    expect(
+      suggestions
+        .filter((row) => row.surface === 'z')
+        .map((row) => row.lexeme_id),
+    ).toEqual([780012n]);
     const ids: bigint[] = [];
     let cursor: DictionarySearchCursor | null = null;
     for (let page = 0; page < 10; page++) {
@@ -194,7 +222,7 @@ describe('M4.2 short dictionary search', () => {
       const row = rows[0];
       ids.push(row.lexeme_id);
       cursor = {
-        version: 6,
+        version: 7,
         query: 'z',
         lang: 'en',
         exactRank: row.exact_rank,
@@ -204,6 +232,8 @@ describe('M4.2 short dictionary search', () => {
         frequencyNullRank: row.frequency_null_rank,
         frequencyRank: row.frequency_sort,
         surfaceLength: row.surface_length,
+        surfaceGroupId: row.surface_group_id.toString(),
+        learnerSort: row.learner_sort,
         lexemeId: String(row.lexeme_id),
         surfaceKind: row.surface_kind,
         surface: row.surface,
@@ -248,7 +278,7 @@ describe('M4.2 short dictionary search', () => {
       const row = rows[0];
       ids.push(row.lexeme_id);
       cursor = {
-        version: 6,
+        version: 7,
         query: '猫',
         lang: 'ja',
         exactRank: row.exact_rank,
@@ -258,6 +288,8 @@ describe('M4.2 short dictionary search', () => {
         frequencyNullRank: row.frequency_null_rank,
         frequencyRank: row.frequency_sort,
         surfaceLength: row.surface_length,
+        surfaceGroupId: row.surface_group_id.toString(),
+        learnerSort: row.learner_sort,
         lexemeId: String(row.lexeme_id),
         surfaceKind: row.surface_kind,
         surface: row.surface,

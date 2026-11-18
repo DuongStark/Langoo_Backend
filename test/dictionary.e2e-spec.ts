@@ -160,7 +160,7 @@ describe('Dictionary (e2e — langoo_test)', () => {
     it('search dùng cursor không lặp ID và không bỏ lexeme', async () => {
       const all = await request(server)
         .get('/v1/dictionary/search')
-        .query({ q: 'る', lang: 'ja', limit: 100 })
+        .query({ q: 'st', lang: 'en', limit: 100 })
         .expect(200);
       const expected = (all.body as { data: SearchHitBody[] }).data.map(
         (h) => h.lexeme_id,
@@ -173,8 +173,8 @@ describe('Dictionary (e2e — langoo_test)', () => {
         const result = await request(server)
           .get('/v1/dictionary/search')
           .query({
-            q: 'る',
-            lang: 'ja',
+            q: 'st',
+            lang: 'en',
             limit: 1,
             ...(cursor ? { cursor } : {}),
           })

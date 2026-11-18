@@ -5,7 +5,7 @@ import {
 } from './dictionary-search-cursor';
 
 const cursor = {
-  version: 6 as const,
+  version: 7 as const,
   query: '走',
   lang: 'ja',
   exactRank: 1 as const,
@@ -15,6 +15,8 @@ const cursor = {
   frequencyNullRank: 0 as const,
   frequencyRank: 100,
   surfaceLength: 2,
+  surfaceGroupId: '1',
+  learnerSort: 2147483647,
   lexemeId: '1',
   surfaceKind: 'kanji',
   surface: '走る',
@@ -28,7 +30,7 @@ describe('dictionary search cursor', () => {
     ).toEqual(scoped);
   });
 
-  it.each([1, 2, 3, 4, 5])(
+  it.each([1, 2, 3, 4, 5, 6])(
     'rejects a valid legacy v%s cursor after ranking changes',
     (version) => {
       const old = JSON.parse(

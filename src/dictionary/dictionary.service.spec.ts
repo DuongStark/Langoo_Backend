@@ -147,7 +147,7 @@ describe('DictionaryService', () => {
       key: 'profile-1:2',
     });
     const cursor = encodeDictionarySearchCursor({
-      version: 6,
+      version: 7,
       query: 'run',
       lang: null,
       scopeKey: 'profile-1:1,2',
@@ -158,6 +158,8 @@ describe('DictionaryService', () => {
       frequencyNullRank: 0,
       frequencyRank: 100,
       surfaceLength: 3,
+      surfaceGroupId: '1',
+      learnerSort: 2147483647,
       lexemeId: '1',
       surfaceKind: 'lemma',
       surface: 'run',
@@ -394,6 +396,22 @@ describe('DictionaryService', () => {
       expect(repos.history.create).not.toHaveBeenCalled();
     });
 
+    it('một kana bật exact-only, nhiều ký tự vẫn tìm đầy đủ', async () => {
+      const { service, repos } = createSetup();
+      repos.search.search.mockResolvedValue([]);
+
+      await service.search({ q: 'う' });
+      expect(
+        firstArg<{ singleKanaExactOnly?: boolean }>(repos.search.search),
+      ).toMatchObject({ singleKanaExactOnly: true });
+
+      repos.search.search.mockClear();
+      await service.search({ q: '走る' });
+      expect(
+        firstArg<{ singleKanaExactOnly?: boolean }>(repos.search.search),
+      ).toMatchObject({ singleKanaExactOnly: false });
+    });
+
     it('có user → ghi history với normalized + language_id + result_count', async () => {
       const { service, repos } = createSetup();
       repos.search.search.mockResolvedValue([hitRow]);
@@ -499,6 +517,8 @@ describe('DictionaryService', () => {
           frequency_null_rank: 0,
           frequency_sort: 110,
           surface_length: 3,
+          surface_group_id: 2n,
+          learner_sort: 1,
         },
         {
           ...hitRow,
@@ -509,6 +529,8 @@ describe('DictionaryService', () => {
           frequency_null_rank: 0,
           frequency_sort: 120,
           surface_length: 6,
+          surface_group_id: 3n,
+          learner_sort: 2147483647,
         },
       ]);
 
