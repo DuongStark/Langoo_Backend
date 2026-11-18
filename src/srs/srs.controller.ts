@@ -61,7 +61,7 @@ export class SrsController {
   @Post('reviews')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Trả lời 1 thẻ (transaction: log + state + burying + XP)',
+    summary: 'Trả lời 1 thẻ (transaction: log + state + burying + streak)',
   })
   @ApiOkResponse({ type: ReviewResultDto })
   @ApiNotFoundResponse({
@@ -93,7 +93,7 @@ export class SrsController {
   }
 
   @Patch('cards')
-  @ApiOperation({ summary: 'Suspend/unsuspend một thẻ (face + direction)' })
+  @ApiOperation({ summary: 'Suspend/unsuspend một thẻ theo face' })
   @ApiOkResponse({
     schema: {
       example: { srs_id: '7', state: 'review', suspended: true },
@@ -110,7 +110,6 @@ export class SrsController {
     return this.srsService.setSuspended(
       BigInt(payload.sub),
       dto.face_id,
-      dto.direction,
       dto.suspended,
     );
   }

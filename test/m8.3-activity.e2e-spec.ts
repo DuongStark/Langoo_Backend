@@ -94,35 +94,18 @@ describe('M8.3 daily activity (e2e)', () => {
     };
   }
 
-  it('dừng cộng XP mới nhưng giữ XP cũ, streak và receipt khi ôn', async () => {
+  it('M6.3: bỏ XP, giữ streak và receipt khi ôn', async () => {
     const u = await learner();
-    await prisma.userStats.upsert({
-      where: { userId: u.userId },
-      create: { userId: u.userId, xpTotal: 17n, level: 1 },
-      update: { xpTotal: 17n, level: 1 },
-    });
-    await prisma.xpEvent.create({
-      data: {
-        userId: u.userId,
-        amount: 17,
-        source: 'manual',
-        idempotencyKey: 'legacy-m83',
-      },
-    });
     const localToday = localDateString(new Date(), 'Asia/Ho_Chi_Minh');
     await prisma.streakDay.create({
       data: {
         userId: u.userId,
         day: new Date(`${localToday}T00:00:00.000Z`),
-        xp: 9,
       },
-    });
-    const card = await prisma.srsState.findFirstOrThrow({
-      where: { userId: u.userId, faceId: u.face },
     });
     const payload = {
       face_id: u.face,
-      direction: card.direction,
+      direction: 'recognize',
       rating: 3,
       client_review_id: randomUUID(),
     };
@@ -136,18 +119,16 @@ describe('M8.3 daily activity (e2e)', () => {
       .set('Authorization', `Bearer ${u.token}`)
       .send(payload)
       .expect(200);
-    expect((first.body as { xp: { amount: number } }).xp.amount).toBe(0);
+    expect(first.body).not.toHaveProperty('xp');
     expect(again.body).toEqual(first.body);
     const stats = await prisma.userStats.findUniqueOrThrow({
       where: { userId: u.userId },
     });
-    expect(stats.xpTotal).toBe(17n);
     expect(stats.streakCurrent).toBe(1);
     expect(stats.reviewsTotal).toBe(1);
-    expect(await prisma.xpEvent.count({ where: { userId: u.userId } })).toBe(1);
     expect(
       await prisma.streakDay.findFirstOrThrow({ where: { userId: u.userId } }),
-    ).toMatchObject({ reviewCount: 1, xp: 9 });
+    ).toMatchObject({ reviewCount: 1 });
   });
 
   it('lịch theo timezone, giữ lượt không nối được từ và cách ly user', async () => {

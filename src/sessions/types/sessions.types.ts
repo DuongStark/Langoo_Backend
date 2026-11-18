@@ -9,7 +9,6 @@ export interface SessionResponse {
   answered_count: number;
   correct_count: number;
   score: number | null;
-  xp_awarded: number;
   settings: Record<string, unknown>;
   started_at: string;
   finished_at: string | null;
@@ -51,7 +50,6 @@ export interface AnswerResultResponse {
     ease_factor: number;
     learning_step: number | null;
   } | null;
-  xp: { amount: number };
   session: SessionResponse;
 }
 

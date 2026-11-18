@@ -1,14 +1,15 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsIn, IsUUID } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsBoolean, IsIn, IsUUID, ValidateIf } from 'class-validator';
 
 export class SuspendCardDto {
   @ApiProperty({ format: 'uuid' })
   @IsUUID()
   face_id!: string;
 
-  @ApiProperty({ enum: ['recognize', 'recall'] })
-  @IsIn(['recognize', 'recall'])
-  direction!: string;
+  @ApiPropertyOptional({ enum: ['recognize'] })
+  @ValidateIf((_, value) => value !== undefined)
+  @IsIn(['recognize'])
+  direction?: 'recognize';
 
   @ApiProperty({ example: true })
   @IsBoolean()

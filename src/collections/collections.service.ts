@@ -418,24 +418,13 @@ export class CollectionsService {
             data: rows.map((row) => row.face),
           });
           await tx.srsState.createMany({
-            data: rows.flatMap((row) => [
-              {
-                faceId: row.face.id,
-                userId,
-                profileId,
-                direction: 'recognize',
-                state: 'new',
-                dueAt: now,
-              },
-              {
-                faceId: row.face.id,
-                userId,
-                profileId,
-                direction: 'recall',
-                state: 'new',
-                dueAt: now,
-              },
-            ]),
+            data: rows.map((row) => ({
+              faceId: row.face.id,
+              userId,
+              profileId,
+              state: 'new',
+              dueAt: now,
+            })),
           });
         }
         return created;
@@ -564,24 +553,13 @@ export class CollectionsService {
           data: rows.map((row) => row.face),
         });
         await tx.srsState.createMany({
-          data: rows.flatMap((row) => [
-            {
-              faceId: row.face.id,
-              userId,
-              profileId: collection.profileId,
-              direction: 'recognize',
-              state: 'new',
-              dueAt: now,
-            },
-            {
-              faceId: row.face.id,
-              userId,
-              profileId: collection.profileId,
-              direction: 'recall',
-              state: 'new',
-              dueAt: now,
-            },
-          ]),
+          data: rows.map((row) => ({
+            faceId: row.face.id,
+            userId,
+            profileId: collection.profileId,
+            state: 'new',
+            dueAt: now,
+          })),
         });
         const updated = await tx.collection.update({
           where: { id: collectionId },

@@ -218,7 +218,7 @@ export class SrsService {
         : canonicalUuid(dto.collection_id);
     const requestPayload = {
       face_id: faceId,
-      direction: dto.direction,
+      direction: 'recognize',
       rating: dto.rating,
       mode,
       elapsed_ms: elapsedMs,
@@ -226,7 +226,7 @@ export class SrsService {
     };
 
     return this.prisma.$transaction(async (tx) => {
-      // One user lock is the common lock root for direct reviews, sessions and XP.
+      // One user lock is the common lock root for direct reviews, sessions and activity.
       await tx.$queryRaw`SELECT id FROM app.users WHERE id = ${userId} FOR UPDATE`;
       const profile = await this.resolveProfileFrom(tx, userId);
       const receipt =
@@ -276,7 +276,6 @@ export class SrsService {
       const locked = await tx.srsState.findFirst({
         where: {
           faceId,
-          direction: dto.direction,
           userId,
           profileId: profile.id,
         },
@@ -288,7 +287,6 @@ export class SrsService {
       const current = await tx.srsState.findFirst({
         where: {
           faceId,
-          direction: dto.direction,
           userId,
           profileId: profile.id,
         },
@@ -387,8 +385,6 @@ export class SrsService {
         mode,
         elapsedMs,
         clientReviewId: clientReviewId ?? null,
-        xpIdempotencyKey:
-          clientReviewId === undefined ? null : `review:${clientReviewId}`,
         timezone: profile.timezone,
         now,
       });
@@ -568,13 +564,12 @@ export class SrsService {
   async setSuspended(
     userId: bigint,
     faceId: string,
-    direction: string,
     suspended: boolean,
   ): Promise<{ srs_id: string; state: string; suspended: boolean }> {
     const updated = await this.prisma.$transaction(async (tx) => {
       await lockUser(tx, userId);
       const srs = await tx.srsState.findFirst({
-        where: { faceId, direction, userId },
+        where: { faceId, userId },
         select: { id: true },
       });
       if (!srs) {
@@ -911,25 +906,22 @@ function toDueCard(row: DueRow, image: ImageContract | null = null): DueCard {
     is_machine_generated:
       row.meaning_source === 'machine' || row.meaning_source === 'llm',
   };
-  const recognize = row.direction === 'recognize';
 
   return {
     srs_id: row.srs_id.toString(),
     face_id: row.face_id,
     item_id: row.item_id,
     collection_id: row.collection_id,
-    direction: row.direction,
+    direction: 'recognize',
     state: row.state,
     language: {
       id: row.language_id,
       code: row.lang_code,
       name_vi: row.lang_name_vi,
     },
-    instruction: recognize
-      ? 'Nhớ nghĩa tiếng Việt'
-      : `Nhớ lại từ ${row.lang_name_vi}`,
-    prompt: recognize ? word : meaning,
-    answer: recognize ? meaning : word,
+    instruction: 'Nhớ nghĩa tiếng Việt',
+    prompt: word,
+    answer: meaning,
     due_at: row.due_at.toISOString(),
     meaning_source: row.meaning_source,
     is_machine_generated:
@@ -962,7 +954,6 @@ function toReviewResult(outcome: {
     easeFactor: number;
     learningStep: number | null;
   };
-  xpAmount: number;
 }): ReviewResult {
   return {
     review_log: {
@@ -979,6 +970,5 @@ function toReviewResult(outcome: {
       ease_factor: outcome.state.easeFactor,
       learning_step: outcome.state.learningStep,
     },
-    xp: { amount: outcome.xpAmount },
   };
 }

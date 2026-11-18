@@ -5,7 +5,7 @@ Phiên ôn là **snapshot**: khi tạo phiên, server chọn thẻ, dựng đề
 bao giờ gửi `is_correct`/điểm (gửi lên sẽ bị `400 VALIDATION_FAILED` do whitelist DTO).
 
 Mọi lượt trả lời đi qua **cùng một engine với `POST /v1/srs/reviews`** (`ReviewEngine`):
-scheduler Anki → `review_log` → `srs_state` → burying sibling → streak. M8.3 tạm dừng cộng XP. Khác biệt:
+scheduler Anki → `review_log` → `srs_state` → burying sibling → streak. M6.3 xóa hoàn toàn XP. Khác biệt:
 `practice` được ôn trước và miễn due/daily cap; `review` áp due, learn-ahead và quota như
 `/srs/due`. Cả hai loại vẫn kiểm tra lại ownership, profile, ngôn ngữ, archive/paused,
 suspend và bury trong transaction khi trả lời.
@@ -19,8 +19,7 @@ suspend và bury trong transaction khi trả lời.
 | `matching`        | `option_index`             | như MCQ (FE bày dạng ghép cặp)                       | đúng → 3, sai → 1 |
 | `typing`          | `answer_text`              | chuẩn hoá `trim + lowercase`, so danh sách chấp nhận | đúng → 3, sai → 1 |
 
-- `typing` theo chiều thẻ: **recognize** hỏi từ → gõ nghĩa; **recall** hỏi nghĩa → gõ từ
-  (chấp nhận lemma, reading kana, romaji, mọi form của lexeme).
+- `typing`: hỏi từ Nhật/Anh → gõ nghĩa Việt; chỉ có chiều `recognize`.
 - MCQ/matching sinh `option_count` lựa chọn (mặc định 4) từ sổ tay **cùng profile đang học**
   và cùng ngôn ngữ; ưu tiên cùng collection (áp trong SQL trước `LIMIT`); thiếu câu nhiễu thì
   giảm số lựa chọn (tối thiểu 1).
@@ -58,7 +57,6 @@ curl -s -X POST http://localhost:3000/v1/sessions \
     "answered_count": 0,
     "correct_count": 0,
     "score": null,
-    "xp_awarded": 0,
     "settings": { "option_count": 4 },
     "started_at": "…",
     "finished_at": null
@@ -87,7 +85,7 @@ curl -s -X POST http://localhost:3000/v1/sessions \
 }
 ```
 
-- **`correct_answer` bị ẩn** với câu chưa trả lời; chỉ hiện trong item đã trả lời. Nếu câu hỏi
+- **`correct_answer` bị ẩn** với câu chưa trả lời; chỉ hiện trong item đã trả lời. Quiz M11.5 trả đáp án và đúng/sai sau mỗi câu (`feedback_policy: "after_answer"`). Nếu câu hỏi
   nghĩa được dùng, snapshot giữ `meaning_source` và `is_machine_generated`.
 - Lỗi: `409 SESSION_NO_CARDS` (không có thẻ phù hợp) · `409 PROFILE_REQUIRED`.
 
@@ -107,7 +105,7 @@ Mỗi câu trả lời được chấm và ghi cùng transaction: khóa user →
 eligibility/quota (đối với `review`), áp scheduler, ghi `review_log`, cập nhật tiến độ phiên
 và lưu response gốc. Retry cùng `ordinal` với payload tương đương sau chuẩn hoá (typing
 không phân biệt hoa thường; thứ tự cặp matching không quan trọng) → **trả đúng response của
-lần đầu**, kể cả khi session/SRS đã tiến thêm; không áp lần hai, không cộng XP lần hai.
+lần đầu**, kể cả khi session/SRS đã tiến thêm; không áp lần hai, không tính hoạt động lần hai.
 Payload khác, kể cả `elapsed_ms` khác, trả `409 SESSION_IDEMPOTENCY_CONFLICT`. Câu trả lời
 đã ghi trước migration nhưng chưa có response gốc trả `409 SESSION_REPLAY_UNAVAILABLE`;
 lịch sử câu trả lời vẫn đọc được.
@@ -148,7 +146,6 @@ Response `200`:
     "ease_factor": 2.5,
     "learning_step": 1
   },
-  "xp": { "amount": 0 },
   "session": {
     "answered_count": 1,
     "correct_count": 1,
@@ -159,7 +156,7 @@ Response `200`:
 
 - Trả lời **câu cuối** → phiên tự `completed`, ghi `finished_at` + `score` (% đúng).
 - `option_index` phải trùng một `index` có trong `prompt.options` của snapshot; index ngoài
-  danh sách bị từ chối trước khi ghi câu trả lời/SRS/XP.
+  danh sách bị từ chối trước khi ghi câu trả lời/SRS/streak.
 - Lỗi: `400 SESSION_ANSWER_INVALID` (thiếu/sai trường theo mode hoặc index không có trong
   snapshot) ·
   `404 SESSION_ITEM_NOT_FOUND` (ordinal không có) · `409 SESSION_CLOSED` (phiên đã đóng;
@@ -186,7 +183,3 @@ Thẻ suspended biến khỏi `/srs/due` **và** khỏi mọi phiên mới; unsu
 trở lại đúng lịch cũ. `404 SRS_ITEM_NOT_FOUND` nếu không thuộc user.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **sessions**, **srs**).
-
-## Phản hồi Quiz M11.5
-
-Phiên có `settings.quiz_version: "m11.5-v1"` trả `settings.feedback_policy: "after_answer"`. Khi chấm xong một câu, API trả `item.correct_answer` và `item.is_correct`. Các lần đọc phiên hiện lại đáp án đã chấm. Câu chưa trả lời vẫn ẩn đáp án. Xem [handoff FE M11.5](../handoff/m11.5-quiz-shared-bank-fe-2026-11-18.md) để tích hợp.

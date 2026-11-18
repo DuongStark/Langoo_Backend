@@ -33,8 +33,6 @@ export interface ApplyRatingParams {
   mode: string;
   elapsedMs: number | null;
   clientReviewId: string | null;
-  /** Khoá chống cộng trùng XP; null → dùng `review:<log id>`. */
-  xpIdempotencyKey: string | null;
   timezone: string;
   now: Date;
   burySiblings?: boolean;
@@ -42,7 +40,7 @@ export interface ApplyRatingParams {
 
 /**
  * Một lượt trả lời trong transaction: scheduler Anki + review_log + srs_state
- * + burying nội bộ + XP thô. Dùng chung cho `POST /srs/reviews` (M6) và
+ * + burying nội bộ + hoạt động học tập. Dùng chung cho `POST /srs/reviews` (M6) và
  * `POST /sessions/:id/answers` (M7) — xem docs/srs.md.
  */
 @Injectable()
@@ -72,7 +70,6 @@ export class ReviewEngine {
       learningStep: number | null;
       scheduledDays: number | null;
     };
-    xpAmount: number;
   }> {
     const { rating, now } = params;
     const schedulerState: SchedulerState = {
@@ -146,24 +143,18 @@ export class ReviewEngine {
       });
     }
 
-    // M8.3: streak_day, user_stats và thành tích trong cùng transaction;
-    // caller đã giữ lock/receipt và XP mới được tạm dừng.
-    const activity = await this.gamification.applyActivity(tx, {
+    // M8.3: streak_day và user_stats trong cùng transaction;
+    // caller đã giữ lock/receipt trước khi cập nhật hoạt động.
+    await this.gamification.applyActivity(tx, {
       userId: params.userId,
       timezone: params.timezone,
       now,
-      ruleCode: 'review',
-      source: 'review',
-      refKind: 'review_log',
-      refId: log.id.toString(),
-      idempotencyKey: params.xpIdempotencyKey ?? `review:${log.id.toString()}`,
       countsAsReview: true,
     });
 
     return {
       log: { ...log, profileId: log.profileId, queueKindBefore },
       state: updated,
-      xpAmount: activity.xp_amount,
     };
   }
 }

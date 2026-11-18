@@ -337,16 +337,13 @@ export class ItemsService {
           ...(secondaryFaceId ? [secondaryFaceId] : []),
         ];
         await tx.srsState.createMany({
-          data: faceIds.flatMap((faceId) =>
-            (['recognize', 'recall'] as const).map((direction) => ({
-              faceId,
-              userId,
-              profileId: collection.profileId,
-              direction,
-              state: 'new',
-              dueAt: now,
-            })),
-          ),
+          data: faceIds.map((faceId) => ({
+            faceId,
+            userId,
+            profileId: collection.profileId,
+            state: 'new',
+            dueAt: now,
+          })),
         });
 
         if (tagIds.length > 0) {

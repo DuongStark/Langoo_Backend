@@ -39,8 +39,8 @@ model User {
 
   termsAcceptances   TermsAcceptance[]
   privacyEvents      PrivacyEvent[]
-  privacyRequests    PrivacyRequest[]       @relation("PrivacyRequestOwner")
-  privacyAssignments PrivacyRequest[]       @relation("PrivacyRequestOperator")
+  privacyRequests    PrivacyRequest[]         @relation("PrivacyRequestOwner")
+  privacyAssignments PrivacyRequest[]         @relation("PrivacyRequestOperator")
   identities         UserIdentity[]
   googleChallenges   GoogleOAuthChallenge[]
   userSessions       UserSession[]
@@ -56,11 +56,8 @@ model User {
   srsReviewReceipts  SrsReviewReceipt[]
   studySessions      StudySession[]
   quizzes            Quiz[]
-  xpEvents           XpEvent[]
   streakDays         StreakDay[]
   stats              UserStats?
-  userAchievements   UserAchievement[]
-  leaderboardEntries LeaderboardSnapshot[]
   reminders          Reminder[]
   notifications      NotificationLog[]
   chatSessions       ChatSession[]
@@ -68,8 +65,7 @@ model User {
   tags               Tag[]
   feedbacks          Feedback[]
   adminAuditLogs     AdminAuditLog[]
-
-  quizBankReports QuizQuestionBankReport[]
+  quizBankReports    QuizQuestionBankReport[]
 
   @@map("users")
   @@schema("app")
@@ -94,15 +90,15 @@ model UserIdentity {
 // One-time backend challenge for Google login/link. Raw nonce and binding
 // secret are returned only at creation time; PostgreSQL stores SHA-256 hashes.
 model GoogleOAuthChallenge {
-  id           String    @id @db.Uuid
-  purpose      String    // login | link
-  userId       BigInt?   @map("user_id")
-  sessionId    String?   @map("session_id") @db.Uuid
-  nonceHash    String    @map("nonce_hash")
-  bindingHash  String    @map("binding_hash")
-  expiresAt    DateTime  @map("expires_at") @db.Timestamptz(6)
-  consumedAt   DateTime? @map("consumed_at") @db.Timestamptz(6)
-  createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  id          String    @id @db.Uuid
+  purpose     String // login | link
+  userId      BigInt?   @map("user_id")
+  sessionId   String?   @map("session_id") @db.Uuid
+  nonceHash   String    @map("nonce_hash")
+  bindingHash String    @map("binding_hash")
+  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt  DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
   user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -238,10 +234,10 @@ model Collection {
   updatedAt              DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
   archivedAt             DateTime? @map("archived_at") @db.Timestamptz(6)
 
-  profile       StudyProfile    @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  owner         User            @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  clonedFrom    Collection?     @relation("CollectionClone", fields: [clonedFromCollectionId], references: [id], onDelete: SetNull)
-  clones        Collection[]    @relation("CollectionClone")
+  profile       StudyProfile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  owner         User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  clonedFrom    Collection?       @relation("CollectionClone", fields: [clonedFromCollectionId], references: [id], onDelete: SetNull)
+  clones        Collection[]      @relation("CollectionClone")
   items         CollectionItem[]
   shares        CollectionShare[]
   studySessions StudySession[]
@@ -283,7 +279,7 @@ model CollectionItemFace {
   role       String   @default("primary") // primary | secondary
   createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  item         CollectionItem      @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  item         CollectionItem     @relation(fields: [itemId], references: [id], onDelete: Cascade)
   srsStates    SrsState[]
   sessionItems StudySessionItem[]
 
@@ -300,7 +296,7 @@ model Tag {
   color     String?
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  user     User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user     User                @relation(fields: [userId], references: [id], onDelete: Cascade)
   itemTags CollectionItemTag[]
 
   @@map("tag")
@@ -339,29 +335,28 @@ model CollectionShare {
 // ------------------------------------------------------------------ SRS
 
 model SrsState {
-  id            BigInt    @id @default(autoincrement())
-  faceId        String    @map("face_id") @db.Uuid
-  userId        BigInt    @map("user_id")
-  profileId     String    @map("profile_id") @db.Uuid
-  direction     String // recognize | recall
-  state         String    @default("new") // new | learning | review | relearning
-  dueAt         DateTime  @default(now()) @map("due_at") @db.Timestamptz(6)
-  stability     Float?    @db.Real
-  difficulty    Float?    @db.Real
-  reps          Int       @default(0)
-  lapses        Int       @default(0)
-  scheduledDays Int?      @map("scheduled_days")
-  elapsedDays   Int?      @map("elapsed_days")
-  lastReviewAt  DateTime? @map("last_review_at") @db.Timestamptz(6)
-  suspended     Boolean   @default(false)
+  id                 BigInt    @id @default(autoincrement())
+  faceId             String    @map("face_id") @db.Uuid
+  userId             BigInt    @map("user_id")
+  profileId          String    @map("profile_id") @db.Uuid
+  state              String    @default("new") // new | learning | review | relearning
+  dueAt              DateTime  @default(now()) @map("due_at") @db.Timestamptz(6)
+  stability          Float?    @db.Real
+  difficulty         Float?    @db.Real
+  reps               Int       @default(0)
+  lapses             Int       @default(0)
+  scheduledDays      Int?      @map("scheduled_days")
+  elapsedDays        Int?      @map("elapsed_days")
+  lastReviewAt       DateTime? @map("last_review_at") @db.Timestamptz(6)
+  suspended          Boolean   @default(false)
   // Scheduler Anki (migration 026) — xem docs/srs.md
-  easeFactor    Float     @default(2.5) @map("ease_factor") @db.DoublePrecision
-  learningStep  Int?      @map("learning_step") @db.SmallInt
-  introducedAt  DateTime? @map("introduced_at") @db.Timestamptz(6)
-  buriedUntil   DateTime? @map("buried_until") @db.Timestamptz(6)
-  learningIsInterday Boolean @default(false) @map("learning_is_interday")
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  easeFactor         Float     @default(2.5) @map("ease_factor") @db.DoublePrecision
+  learningStep       Int?      @map("learning_step") @db.SmallInt
+  introducedAt       DateTime? @map("introduced_at") @db.Timestamptz(6)
+  buriedUntil        DateTime? @map("buried_until") @db.Timestamptz(6)
+  learningIsInterday Boolean   @default(false) @map("learning_is_interday")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   face         CollectionItemFace @relation(fields: [faceId], references: [id], onDelete: Cascade)
   user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -369,25 +364,25 @@ model SrsState {
   reviewLogs   ReviewLog[]
   sessionItems StudySessionItem[]
 
-  @@unique([faceId, direction])
+  @@unique([faceId])
   @@map("srs_state")
   @@schema("app")
 }
 
 model ReviewLog {
-  id         BigInt   @default(autoincrement())
-  srsId      BigInt?  @map("srs_id")
-  userId     BigInt   @map("user_id")
-  faceId     String   @map("face_id") @db.Uuid
-  rating     Int      @db.SmallInt // 1..4
-  mode       String   @default("flashcard") // flashcard | multiple_choice | matching | typing | listening
-  elapsedMs  Int?     @map("elapsed_ms")
-  reviewedAt DateTime @default(now()) @map("reviewed_at") @db.Timestamptz(6)
+  id              BigInt   @default(autoincrement())
+  srsId           BigInt?  @map("srs_id")
+  userId          BigInt   @map("user_id")
+  faceId          String   @map("face_id") @db.Uuid
+  rating          Int      @db.SmallInt // 1..4
+  mode            String   @default("flashcard") // flashcard | multiple_choice | matching | typing | listening
+  elapsedMs       Int?     @map("elapsed_ms")
+  reviewedAt      DateTime @default(now()) @map("reviewed_at") @db.Timestamptz(6)
   // M6: idempotency + trạng thái trước khi trả lời (partition nên không unique được)
-  clientReviewId String? @map("client_review_id") @db.Uuid
-  prevState      String? @map("prev_state") // new | learning | review | relearning
-  profileId      String? @map("profile_id") @db.Uuid
-  queueKindBefore String? @map("queue_kind_before")
+  clientReviewId  String?  @map("client_review_id") @db.Uuid
+  prevState       String?  @map("prev_state") // new | learning | review | relearning
+  profileId       String?  @map("profile_id") @db.Uuid
+  queueKindBefore String?  @map("queue_kind_before")
 
   srs  SrsState? @relation(fields: [srsId], references: [id], onDelete: SetNull)
   user User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -427,14 +422,13 @@ model StudySession {
   itemCount    Int       @default(0) @map("item_count")
   correctCount Int       @default(0) @map("correct_count")
   score        Int? // 0..100
-  xpAwarded    Int       @default(0) @map("xp_awarded")
   startedAt    DateTime  @default(now()) @map("started_at") @db.Timestamptz(6)
   finishedAt   DateTime? @map("finished_at") @db.Timestamptz(6)
 
-  user       User              @relation(fields: [userId], references: [id], onDelete: Cascade)
-  profile    StudyProfile      @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  collection Collection?       @relation(fields: [collectionId], references: [id], onDelete: SetNull)
-  quiz       Quiz?             @relation(fields: [quizId], references: [id], onDelete: SetNull)
+  user       User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile    StudyProfile       @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  collection Collection?        @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  quiz       Quiz?              @relation(fields: [quizId], references: [id], onDelete: SetNull)
   items      StudySessionItem[]
 
   @@map("study_session")
@@ -457,10 +451,10 @@ model StudySessionItem {
   elapsedMs      Int?      @map("elapsed_ms")
   answeredAt     DateTime? @map("answered_at") @db.Timestamptz(6)
 
-  session      StudySession       @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  srs          SrsState?          @relation(fields: [srsId], references: [id], onDelete: SetNull)
+  session      StudySession        @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  srs          SrsState?           @relation(fields: [srsId], references: [id], onDelete: SetNull)
   face         CollectionItemFace? @relation(fields: [faceId], references: [id], onDelete: SetNull)
-  quizQuestion QuizQuestion?      @relation(fields: [quizQuestionId], references: [id], onDelete: SetNull)
+  quizQuestion QuizQuestion?       @relation(fields: [quizQuestionId], references: [id], onDelete: SetNull)
 
   @@unique([sessionId, ordinal])
   @@map("study_session_item")
@@ -480,13 +474,12 @@ model Quiz {
   createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   expiresAt     DateTime? @map("expires_at") @db.Timestamptz(6)
 
-  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  profile       StudyProfile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
-  collection    Collection?   @relation(fields: [collectionId], references: [id], onDelete: SetNull)
+  user          User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  profile       StudyProfile             @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  collection    Collection?              @relation(fields: [collectionId], references: [id], onDelete: SetNull)
   questions     QuizQuestion[]
   studySessions StudySession[]
-
-  bankReports QuizQuestionBankReport[]
+  bankReports   QuizQuestionBankReport[]
 
   @@map("quiz")
   @@schema("app")
@@ -516,40 +509,10 @@ model QuizQuestion {
 
 // ------------------------------------------------------------------ gamification
 
-model XpRule {
-  code        String   @id // review | quiz_correct | streak_day
-  description String
-  amount      Int
-  dailyCap    Int?     @map("daily_cap")
-  isActive    Boolean  @default(true) @map("is_active")
-  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
-
-  @@map("xp_rule")
-  @@schema("app")
-}
-
-model XpEvent {
-  id             BigInt   @id @default(autoincrement())
-  userId         BigInt   @map("user_id")
-  amount         Int
-  source         String // review | quiz | streak | achievement | correction | manual
-  refKind        String?  @map("ref_kind")
-  refId          String?  @map("ref_id")
-  idempotencyKey String?  @map("idempotency_key")
-  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([userId, idempotencyKey])
-  @@map("xp_event")
-  @@schema("app")
-}
-
 model StreakDay {
   userId      BigInt   @map("user_id")
   day         DateTime @db.Date
   reviewCount Int      @default(0) @map("review_count")
-  xp          Int      @default(0)
   metGoal     Boolean  @default(false) @map("met_goal")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -561,8 +524,6 @@ model StreakDay {
 
 model UserStats {
   userId        BigInt    @id @map("user_id")
-  xpTotal       BigInt    @default(0) @map("xp_total")
-  level         Int       @default(1)
   streakCurrent Int       @default(0) @map("streak_current")
   streakLongest Int       @default(0) @map("streak_longest")
   lastStudyDate DateTime? @map("last_study_date") @db.Date
@@ -573,52 +534,6 @@ model UserStats {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_stats")
-  @@schema("app")
-}
-
-model Achievement {
-  code        String  @id
-  nameVi      String  @map("name_vi")
-  description String?
-  icon        String?
-  category    String // milestone | streak | quiz | social
-  rule        Json
-  xpReward    Int     @default(0) @map("xp_reward")
-  isActive    Boolean @default(true) @map("is_active")
-
-  userAchievements UserAchievement[]
-
-  @@map("achievement")
-  @@schema("app")
-}
-
-model UserAchievement {
-  userId          BigInt    @map("user_id")
-  achievementCode String    @map("achievement_code")
-  progress        Decimal   @default(0) @db.Decimal(10, 2)
-  unlockedAt      DateTime? @map("unlocked_at") @db.Timestamptz(6)
-  seenAt          DateTime? @map("seen_at") @db.Timestamptz(6)
-
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement Achievement @relation(fields: [achievementCode], references: [code], onDelete: Cascade)
-
-  @@id([userId, achievementCode])
-  @@map("user_achievement")
-  @@schema("app")
-}
-
-model LeaderboardSnapshot {
-  periodStart DateTime @map("period_start") @db.Date
-  scope       String   @default("global")
-  userId      BigInt   @map("user_id")
-  xp          Int
-  rank        Int
-  computedAt  DateTime @default(now()) @map("computed_at") @db.Timestamptz(6)
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@id([periodStart, scope, userId])
-  @@map("leaderboard_snapshot")
   @@schema("app")
 }
 
@@ -672,19 +587,19 @@ model NotificationLog {
 // ------------------------------------------------------------------ AI
 
 model ChatSession {
-  id            String    @id @db.Uuid
-  userId        BigInt    @map("user_id")
-  profileId     String?   @map("profile_id") @db.Uuid
-  languageId    Int       @map("language_id") @db.SmallInt
-  scenario      String?
-  title         String?
-  model         String?
-  promptVersion String?   @map("prompt_version")
-  summary       String?
-  messageCount  Int       @default(0) @map("message_count")
-  lastMessageAt DateTime? @map("last_message_at") @db.Timestamptz(6)
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  archivedAt    DateTime? @map("archived_at") @db.Timestamptz(6)
+  id                      String    @id @db.Uuid
+  userId                  BigInt    @map("user_id")
+  profileId               String?   @map("profile_id") @db.Uuid
+  languageId              Int       @map("language_id") @db.SmallInt
+  scenario                String?
+  title                   String?
+  model                   String?
+  promptVersion           String?   @map("prompt_version")
+  summary                 String?
+  messageCount            Int       @default(0) @map("message_count")
+  lastMessageAt           DateTime? @map("last_message_at") @db.Timestamptz(6)
+  createdAt               DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  archivedAt              DateTime? @map("archived_at") @db.Timestamptz(6)
   pendingRequestId        String?   @map("pending_request_id") @db.Uuid
   pendingRequestExpiresAt DateTime? @map("pending_request_expires_at") @db.Timestamptz(6)
 
@@ -734,14 +649,14 @@ model AiUsage {
 // ------------------------------------------------------------------ Admin & Feedback (M13)
 
 model Feedback {
-  id          String   @id @db.Uuid
-  userId      BigInt   @map("user_id")
-  category    String // bug | feature | content | other
-  content     String
-  status      String   @default("new") // new | in_progress | resolved
-  adminNote   String?  @map("admin_note")
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  id        String   @id @db.Uuid
+  userId    BigInt   @map("user_id")
+  category  String // bug | feature | content | other
+  content   String
+  status    String   @default("new") // new | in_progress | resolved
+  adminNote String?  @map("admin_note")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
   user        User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
   attachments FeedbackAttachment[]
@@ -832,6 +747,8 @@ model TermsAcceptance {
   @@map("terms_acceptance")
   @@schema("app")
 }
+
+// ------------------------------------------------------------------ M11.5 Quiz Question Bank
 
 model QuizQuestionBank {
   id               BigInt    @id @default(autoincrement())

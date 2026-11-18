@@ -8,12 +8,10 @@ import { SenseImageService } from '../media/sense-image.service';
 describe('SrsService flashcard word metadata', () => {
   it.each([
     { direction: 'recognize', pos: 'verb', wordSide: 'prompt' },
-    { direction: 'recall', pos: 'verb', wordSide: 'answer' },
     { direction: 'recognize', pos: null, wordSide: 'prompt' },
-    { direction: 'recall', pos: null, wordSide: 'answer' },
   ] as const)(
     'returns pos=$pos on $wordSide for $direction',
-    async ({ direction, pos, wordSide }) => {
+    async ({ pos, wordSide }) => {
       const prisma = {
         userSettings: {
           findUnique: jest.fn().mockResolvedValue({
@@ -47,7 +45,6 @@ describe('SrsService flashcard word metadata', () => {
         romanization: 'hashiru',
         pos,
         forms: [],
-        direction,
         state: 'review',
         learning_is_interday: false,
         due_at: new Date('2020-01-01T00:00:00.000Z'),
@@ -127,7 +124,6 @@ describe('SrsService flashcard word metadata', () => {
       romanization: null,
       pos: 'verb',
       forms: [],
-      direction: 'recognize',
       state: 'review',
       learning_is_interday: false,
       due_at: new Date('2020-01-01T00:00:00.000Z'),

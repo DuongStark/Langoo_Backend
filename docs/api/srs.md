@@ -25,22 +25,17 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
       "face_id": "…",
       "item_id": "…",
       "collection_id": "…",
-      "direction": "recall",
+      "direction": "recognize",
       "state": "learning",
       "language": { "id": 2, "code": "ja", "name_vi": "Tiếng Nhật" },
-      "instruction": "Nhớ lại từ Tiếng Nhật",
+      "instruction": "Nhớ nghĩa tiếng Việt",
       "prompt": {
-        "kind": "meaning",
-        "text": "chạy",
-        "meaning_source": "machine",
-        "is_machine_generated": true
+        "kind": "word", "text": "走る", "reading": "はしる",
+        "romanization": null, "pos": "verb"
       },
       "answer": {
-        "kind": "word",
-        "text": "走る",
-        "reading": "はしる",
-        "romanization": null,
-        "pos": "verb"
+        "kind": "meaning", "text": "chạy",
+        "meaning_source": "machine", "is_machine_generated": true
       },
       "due_at": "2026-09-27T02:10:00.000Z"
     }
@@ -50,12 +45,9 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
 }
 ```
 
-- `prompt.kind`: `word` khi **recognize** (nhìn từ → nhớ nghĩa) / `meaning` khi **recall**
-  (nhìn nghĩa → nhớ từ; FE hiện nhãn ngôn ngữ đích từ `language` + `instruction`).
-- Nội dung `kind: "word"` luôn có `pos: string | null` (từ loại gốc từ DB,
-  không chuẩn hoá/phiên dịch; `null` khi thiếu). Recognize dùng `prompt.pos`,
-  recall dùng `answer.pos`; nội dung `kind: "meaning"` không có trường này.
-  FE ẩn nhãn khi null và chấp nhận mã chưa biết. Xem [handoff M6](../handoff/m6-flashcard-pos-2026-10-28.md).
+- M6.3: `direction` trong response luôn là `recognize`; `prompt.kind = word` (Nhật/Anh),
+  `answer.kind = meaning` (Việt). Mỗi `face_id` có đúng một SRS state.
+- Nội dung `word` có `pos: string | null`; FE ẩn nhãn nếu null.
 - Nghĩa luôn có `meaning_source` (`user`, `source`, `machine`, `llm`) và
   `is_machine_generated`; cờ chỉ phản ánh nguồn dữ liệu, không hàm ý đã kiểm duyệt.
 - Phân trang: `?limit` (mặc định 50, tối đa 100) + cursor version 1 bind với profile,
@@ -69,18 +61,19 @@ curl -s "http://localhost:3000/v1/srs/due?limit=20" -H "Authorization: Bearer <t
 ```bash
 curl -s -X POST http://localhost:3000/v1/srs/reviews \
   -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
-  -d '{"face_id":"<uuid>","direction":"recall","rating":3,"elapsed_ms":3200,"client_review_id":"<uuid-v7>"}'
+  -d '{"face_id":"<uuid>","direction":"recognize","rating":3,"elapsed_ms":3200,"client_review_id":"<uuid-v7>"}'
 ```
 
+- `direction` tùy chọn; nếu gửi chỉ chấp nhận `recognize` (`recall`/null bị từ chối).
 - `rating`: `1=Again, 2=Hard, 3=Good, 4=Easy`.
 - `client_review_id` (khuyến nghị): cùng key + payload chuẩn hóa sẽ **trả snapshot cũ**, không cộng
-  log/XP lần hai; cùng key + payload khác trả `409 SRS_IDEMPOTENCY_CONFLICT`. `null` bị từ chối 400.
+  log/hoạt động lần hai; cùng key + payload khác trả `409 SRS_IDEMPOTENCY_CONFLICT`. `null` bị từ chối 400.
 - UUID được canonicalize trước khi lưu/so sánh; retry chỉ có log legacy nhưng không có receipt trả
   `409 SRS_REPLAY_UNAVAILABLE` và không tạo lượt ôn mới.
 - `collection_id` tùy chọn giữ cùng phạm vi với GET `/srs/due`; bỏ qua nghĩa là toàn profile.
 - Không nhận `reviewed_at`; server luôn lấy thời điểm sau khi giữ lock user.
 - Một transaction: `review_log` + cập nhật `srs_state` (Anki: steps/EF/interval) + **burying nội bộ**
-  sibling new/review của cùng item + streak, `user_stats`, thành tích. M8.3 tạm dừng XP mới
+  sibling new/review của cùng item + streak, `user_stats`. M6.3 xóa hoàn toàn XP
   — xem [API gamification](gamification.md).
 
 Response `200`:
@@ -100,8 +93,7 @@ Response `200`:
     "interval_days": 0,
     "ease_factor": 2.5,
     "learning_step": 1
-  },
-  "xp": { "amount": 0 }
+  }
 }
 ```
 
@@ -121,7 +113,7 @@ curl -s http://localhost:3000/v1/srs/stats -H "Authorization: Bearer <token>"
 
 ## PATCH /v1/srs/cards
 
-Bật/tắt **suspend** một thẻ (face + direction). Thẻ suspended bị loại khỏi `/srs/due`
+Bật/tắt **suspend** một thẻ (face_id). Thẻ suspended bị loại khỏi `/srs/due`
 và khỏi thẻ nguồn của phiên ôn; unsuspend không đổi `due_at`.
 
 ```bash
@@ -142,4 +134,4 @@ Swagger UI: `http://localhost:3000/docs` (nhóm **srs**).
 counts, thứ tự hoặc cursor, không nhân bản thẻ khi một nghĩa có nhiều ảnh/mapping.
 Width/height nullable; ảnh không hợp lệ hoặc fallback chưa rõ nghĩa trả null.
 Field này không được thêm vào `/sessions` snapshot. FE kiểm thời điểm reveal ảnh để
-không gợi đáp án sớm ở chiều recall. [Handoff M14.3](../handoff/m14.3-image-delivery-api-2026-11-01.md).
+hiện ảnh cùng nghĩa Việt ở mặt sau. [Handoff M14.3](../handoff/m14.3-image-delivery-api-2026-11-01.md).

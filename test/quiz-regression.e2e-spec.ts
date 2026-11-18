@@ -304,7 +304,6 @@ describe('M11 regressions (e2e — local *_test only)', () => {
     expect(await prisma.streakDay.count({ where: { userId: f.userId } })).toBe(
       0,
     );
-    expect(await prisma.xpEvent.count({ where: { userId: f.userId } })).toBe(0);
     const answered = await request(server)
       .post(`/v1/sessions/${started.session.id}/answers`)
       .set(auth(f.token))
@@ -312,7 +311,7 @@ describe('M11 regressions (e2e — local *_test only)', () => {
       .expect(200);
     expect(answered.body).toMatchObject({
       item: { is_correct: true },
-      xp: { amount: 0 },
+
       session: { status: 'completed' },
     });
   });
@@ -364,7 +363,6 @@ describe('M11 regressions (e2e — local *_test only)', () => {
         faceId: face.id,
         userId: f.userId,
         profileId: (other.body as { id: string }).id,
-        direction: 'recognize',
         state: 'new',
         dueAt: new Date(),
       })),

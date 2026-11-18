@@ -78,7 +78,7 @@ export function nextDayStartUtc(now: Date, timezone: string): Date {
   );
 }
 
-/** Ngày địa phương dạng YYYY-MM-DD (dùng cho streak_day, daily cap XP). */
+/** Ngày địa phương dạng YYYY-MM-DD (dùng cho streak_day và lịch hoạt động). */
 export function localDateString(now: Date, timezone: string): string {
   const dtf = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,

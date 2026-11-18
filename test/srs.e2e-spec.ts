@@ -44,7 +44,6 @@ interface ReviewBody {
     ease_factor: number;
     learning_step: number | null;
   };
-  xp: { amount: number };
 }
 
 interface StatsBody {
@@ -72,7 +71,6 @@ describe('SRS (e2e — langoo_test)', () => {
   let faceJa = '';
   let faceEn = '';
   let faceJaC = '';
-  let faceEnC = '';
 
   async function registerUser(
     email: string,
@@ -192,7 +190,6 @@ describe('SRS (e2e — langoo_test)', () => {
     await createProfile(tokenC);
     const queueFirst = await createCollectionWithItem(tokenC);
     faceJaC = queueFirst.faceJa;
-    faceEnC = queueFirst.faceEn;
     await createCollectionWithItem(tokenC, '5', '6', 'ăn');
     await createCollectionWithItem(tokenC, '7', '8', 'đi');
     await createCollectionWithItem(tokenC, '9', '10', 'nước');
@@ -214,54 +211,21 @@ describe('SRS (e2e — langoo_test)', () => {
       });
     });
 
-    it('mỗi item một đại diện: 4 thẻ mới vào queue; thẻ recall có nhãn ngôn ngữ đích', async () => {
-      // M6.2: sibling new/review của cùng item sẽ bị bury sau lượt trả lời đầu,
-      // queue chỉ giữ một đại diện mỗi item (learning giữ độc lập). 4 item cho
-      // 4 thẻ, không còn 4 mục × 2 mặt × 2 chiều = 16.
+    it('mỗi item một đại diện và chỉ có chiều nhận diện', async () => {
       const body = await getDue(tokenC);
       expect(body.data).toHaveLength(4);
       expect(body.counts).toEqual({ learning: 0, review: 0, new: 4 });
-
-      const jaRecognize = body.data.find(
-        (card) => card.face_id === faceJaC && card.direction === 'recognize',
-      )!;
-      expect(jaRecognize.prompt).toMatchObject({ kind: 'word', text: '走る' });
-      expect(jaRecognize.answer).toMatchObject({
-        kind: 'meaning',
-        text: 'chạy',
-      });
-
-      // Đưa chiều recall của item đầu lên làm đại diện bằng cách tạm bury 3
-      // sibling còn lại (đúng cơ chế bury sau lượt trả lời đầu), rồi kiểm tra
-      // thẻ recall mang nhãn ngôn ngữ đích.
-      await prisma.srsState.updateMany({
-        where: {
-          userId: userIdC,
-          OR: [
-            { faceId: faceJaC, direction: 'recognize' },
-            { faceId: faceEnC },
-          ],
-        },
-        data: { buriedUntil: new Date(Date.now() + 12 * 60 * 60 * 1000) },
-      });
-      try {
-        const withRecall = await getDue(tokenC);
-        expect(withRecall.data).toHaveLength(4);
-        const jaRecall = withRecall.data.find(
-          (card) => card.face_id === faceJaC && card.direction === 'recall',
-        )!;
-        expect(jaRecall.language).toMatchObject({ id: 2, code: 'ja' });
-        expect(jaRecall.instruction).toContain('Nhật');
-        expect(jaRecall.prompt).toMatchObject({
-          kind: 'meaning',
-          text: 'chạy',
-        });
-        expect(typeof jaRecall.prompt.meaning_source).toBe('string');
-        expect(typeof jaRecall.prompt.is_machine_generated).toBe('boolean');
-        expect(jaRecall.answer).toMatchObject({ kind: 'word', text: '走る' });
-      } finally {
-        await clearBury(userIdC);
-      }
+      expect(body.data.every((card) => card.direction === 'recognize')).toBe(
+        true,
+      );
+      const ja = body.data.find((card) => card.face_id === faceJaC)!;
+      expect(ja.prompt).toMatchObject({ kind: 'word', text: '走る' });
+      expect(ja.answer).toMatchObject({ kind: 'meaning', text: 'chạy' });
+      expect(
+        await prisma.srsState.count({
+          where: { userId: userIdC, faceId: faceJaC },
+        }),
+      ).toBe(1);
     });
 
     it('phân trang cursor: 2 + 2 đại diện, không trùng thẻ', async () => {
@@ -285,7 +249,7 @@ describe('SRS (e2e — langoo_test)', () => {
     const clientReviewId = uuidv7();
     let firstResult: ReviewBody;
 
-    it('Good lần đầu → learning bước 1 (+10..15 phút), có log và không cộng XP', async () => {
+    it('Good lần đầu → learning bước 1 (+10..15 phút), có log và không trả XP', async () => {
       const res = await request(server)
         .post('/v1/srs/reviews')
         .set('Authorization', `Bearer ${tokenA}`)
@@ -302,7 +266,7 @@ describe('SRS (e2e — langoo_test)', () => {
       expect(firstResult.srs.state).toBe('learning');
       expect(firstResult.srs.learning_step).toBe(1);
       expect(firstResult.srs.ease_factor).toBe(2.5);
-      expect(firstResult.xp.amount).toBe(0);
+      expect(firstResult).not.toHaveProperty('xp');
 
       const dueInMinutes =
         (new Date(firstResult.srs.due_at).getTime() - Date.now()) / 60_000;
@@ -313,10 +277,6 @@ describe('SRS (e2e — langoo_test)', () => {
         where: { userId: userIdA },
       });
       expect(logCount).toBe(1);
-      const xpCount = await prisma.xpEvent.count({
-        where: { userId: userIdA, source: 'review' },
-      });
-      expect(xpCount).toBe(0);
 
       reviewedSrsId = (await getDue(tokenA)).data[0].srs_id; // thẻ đang học được trả lại nhờ learn-ahead
       expect((await getDue(tokenA)).data).toHaveLength(1);
@@ -326,7 +286,7 @@ describe('SRS (e2e — langoo_test)', () => {
       const buried = await prisma.srsState.findMany({
         where: { userId: userIdA, buriedUntil: { not: null } },
       });
-      expect(buried).toHaveLength(3);
+      expect(buried).toHaveLength(1);
       const buriedUntil = buried[0].buriedUntil!;
       expect(buriedUntil.getTime()).toBeGreaterThan(Date.now());
     });
@@ -337,7 +297,6 @@ describe('SRS (e2e — langoo_test)', () => {
         .set('Authorization', `Bearer ${tokenA}`)
         .send({
           face_id: faceJa,
-          direction: 'recognize',
           rating: 3,
           client_review_id: clientReviewId,
           elapsed_ms: 3200,
@@ -349,11 +308,6 @@ describe('SRS (e2e — langoo_test)', () => {
       expect(await prisma.reviewLog.count({ where: { userId: userIdA } })).toBe(
         1,
       );
-      expect(
-        await prisma.xpEvent.count({
-          where: { userId: userIdA, source: 'review' },
-        }),
-      ).toBe(0);
     });
 
     it('payload khác cùng client_review_id → 409 SRS_IDEMPOTENCY_CONFLICT', async () => {
@@ -405,7 +359,7 @@ describe('SRS (e2e — langoo_test)', () => {
 
     it('Again trên thẻ review → lapse: relearning, EF −0.20, lapses +1', async () => {
       const row = await prisma.srsState.findFirstOrThrow({
-        where: { userId: userIdA, faceId: faceJa, direction: 'recognize' },
+        where: { userId: userIdA, faceId: faceJa },
       });
       await prisma.srsState.update({
         where: { id: row.id },
@@ -463,7 +417,7 @@ describe('SRS (e2e — langoo_test)', () => {
         .set('Authorization', `Bearer ${tokenA}`)
         .send({
           face_id: faceEn,
-          direction: 'recall',
+          direction: 'recognize',
           rating: 1,
           client_review_id: uuidv7(),
         })

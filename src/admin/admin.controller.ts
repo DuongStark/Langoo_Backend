@@ -62,7 +62,7 @@ export class AdminStatsController {
 
   @Get('timeseries')
   @ApiOperation({
-    summary: 'Chuỗi theo ngày cho metric: signups|reviews|xp|ai_requests',
+    summary: 'Chuỗi theo ngày cho metric: signups|reviews|ai_requests',
   })
   timeseries(@Query() query: TimeseriesQueryDto) {
     return this.statsService.timeseries(query.metric, query.days ?? 30);

@@ -8,8 +8,8 @@
 
 ## 1. Trạng thái thẻ và cột dữ liệu
 
-Mỗi thẻ ôn = 1 dòng `app.srs_state` = **(face, direction)**. Một `collection_item` 2 face
-có tối đa **4 thẻ** (2 face × 2 chiều `recognize`/`recall`); các thẻ này là **sibling** của nhau.
+M6.3: mỗi thẻ ôn = một dòng `app.srs_state` = **face_id** (UNIQUE). Một item hai face
+có hai thẻ sibling. Mặt trước luôn từ Nhật/Anh, mặt sau nghĩa Việt.
 
 | Cột                               | Ý nghĩa                                                                      |
 | --------------------------------- | ---------------------------------------------------------------------------- |
@@ -116,17 +116,12 @@ thẻ learning không bị bury; ngược lại, đang học 1 thẻ learning c�
       "face_id": "…",
       "item_id": "…",
       "collection_id": "…",
-      "direction": "recall",
+      "direction": "recognize",
       "state": "learning",
       "language": { "id": 2, "code": "ja" },
-      "instruction": "Nhớ lại từ tiếng Nhật",
-      "prompt": { "kind": "meaning", "text": "chạy" },
-      "answer": {
-        "kind": "word",
-        "text": "走る",
-        "reading": "はしる",
-        "romanization": null
-      },
+      "instruction": "Nhớ nghĩa tiếng Việt",
+      "prompt": { "kind": "word", "text": "走る", "reading": "はしる", "romanization": null, "pos": "verb" },
+      "answer": { "kind": "meaning", "text": "chạy", "meaning_source": "machine", "is_machine_generated": true },
       "due_at": "2026-09-27T02:10:00.000Z"
     }
   ],
@@ -140,9 +135,9 @@ và `is_machine_generated`; cờ chỉ phản ánh nguồn dữ liệu, không h
 
 ### `POST /v1/srs/reviews`
 
-Body: `{ face_id, direction, rating (1..4), elapsed_ms?, mode? (mặc định "flashcard"), client_review_id?, collection_id? }`
+Body: `{ face_id, direction? (recognize), rating (1..4), elapsed_ms?, mode? (mặc định "flashcard"), client_review_id?, collection_id? }`
 
-- `client_review_id`: cùng key + payload chuẩn hóa trả kết quả cũ, không cộng log/XP lần hai;
+- `client_review_id`: cùng key + payload chuẩn hóa trả kết quả cũ, không cộng log/hoạt động lần hai;
   cùng key + payload khác → `409 SRS_IDEMPOTENCY_CONFLICT`.
 - `collection_id` giữ cùng scope với GET `/srs/due`; bỏ qua nghĩa là toàn profile.
 - Thẻ chưa đến hạn (`due_at > now`) → `422 SRS_ITEM_NOT_DUE`, trừ learning/relearning intraday
@@ -150,10 +145,9 @@ Body: `{ face_id, direction, rating (1..4), elapsed_ms?, mode? (mặc định "f
 - Thẻ suspended/buried/paused/archive/profile khác → `409 SRS_ITEM_UNAVAILABLE`;
   `client_review_id: null` và `reviewed_at` đều bị từ chối `400 VALIDATION_FAILED`.
 - Một transaction: `review_log` + cập nhật `srs_state` (theo bảng §2.2) + burying sibling
-  - `xp_event` (+1 XP, `idempotency_key = "review:<review_log_id>"`).
-    _Cap/streak/level/thành tựu thuộc M8 — M6 chỉ ghi XP thô theo nghiệm thu._
+  - Cập nhật streak và thống kê học trong cùng transaction, không có XP.
 - Server luôn ghi `reviewed_at`; client không được gửi thời điểm để backdate.
-- Response: `{ review_log: {…}, srs: { state, due_at, interval_days, ease_factor, learning_step }, xp: { amount } }`.
+- Response: `{ review_log: {…}, srs: { state, due_at, interval_days, ease_factor, learning_step } }`.
 
 ### `GET /v1/srs/stats`
 
@@ -194,30 +188,28 @@ Migration **027_srs_review_integrity.sql** bổ sung cho M6.1:
 8. Fuzz: với seed cố định, interval nằm trong các biên ba khoảng Anki và không vượt
    `[1, 36500]`; learning cộng 0–5 phút.
 9. Learn-ahead: thẻ learning `due_at = now+19m` được trả; `now+21m` không.
-10. Bury: trả lời ja.recognize → ja.recall/en.* (new/review) bị bury tới 00:00 kế tiếp; thẻ learning không bị bury; 00:01 hôm sau tự quay lại.
+10. Bury: trả lời ja → en (new/review) bị bury tới 00:00 kế tiếp; thẻ learning không bị bury; 00:01 hôm sau tự quay lại.
 11. Daily limits: chạm `srs_new_per_day` → queue không còn new; chạm `srs_review_per_day` → không còn review/interday nhưng intraday learning vẫn hiện.
 12. Múi giờ: user VN 23:59 vs 00:01 — mốc ngày/`introduced_at`/bury đổi đúng lúc.
-13. Idempotency: 2 request cùng `client_review_id` → 1 review_log, 1 XP, lần hai trả kết quả cũ.
+13. Idempotency: 2 request cùng `client_review_id` → 1 review_log, 1 hoạt động, lần hai trả kết quả cũ.
 14. Lọc hồ sơ: face ngôn ngữ không thuộc primary/secondary → không vào queue.
 
-**E2E (theo nghiệm thu prompt):** ôn 1 thẻ → `due_at` đổi, `review_log +1`, XP +1; review sớm
+**E2E (theo nghiệm thu prompt):** ôn 1 thẻ → `due_at` đổi, `review_log +1`, hoạt động +1; review sớm
 ngoài learn-ahead hoặc còn queue thường → `422`, còn intraday trong 20 phút khi queue cạn được
-nhận; retry cùng payload không cộng đôi và khác payload trả 409; hai chiều cùng face độc lập;
+nhận; retry cùng payload không cộng đôi và khác payload trả 409; mỗi face đúng một trạng thái;
 stats khớp số liệu DB.
 
 ## 8. Phiên ôn dùng chung engine (M7)
 
 `POST /v1/sessions/:id/answers` (đặc tả riêng: [`docs/api/sessions.md`](api/sessions.md)) áp
-đúng luật §2 qua `ReviewEngine` — cùng `review_log`, burying và XP với `/srs/reviews`.
+đúng luật §2 qua `ReviewEngine` — cùng `review_log`, burying và streak với `/srs/reviews`.
 Phiên là snapshot nội dung, còn quyền ôn được kiểm tra lại lúc trả lời:
 
 - `kind=review` lấy đúng queue §3 (daily limit + learn-ahead) và kiểm tra lại due/ahead + quota
   trong transaction; `kind=practice` lấy mọi thẻ trong bộ (ôn trước) và **chỉ** miễn due/cap.
 - Cả hai loại vẫn kiểm tra ownership, profile, ngôn ngữ, archive/paused, suspend và bury tại
   thời điểm trả lời; thay đổi eligibility trả 409 và không đánh dấu câu đã trả lời.
-- Idempotency theo `(session_id, ordinal)`: retry trả kết quả cũ, XP chỉ cộng một lần với
-  khoá `session:<session_id>:<ordinal>`.
+- Idempotency theo `(session_id, ordinal)`: retry trả kết quả cũ, hoạt động chỉ ghi một lần qua receipt.
 - Suspend (`PATCH /v1/srs/cards`) loại thẻ khỏi queue lẫn mọi phiên mới.
-- XP/streak/thành tích (M8) cập nhật trong cùng transaction qua `GamificationService`:
-  XP theo `xp_rule` + daily cap, bonus ngày học, level, achievement — xem
+- Streak/thống kê học cập nhật cùng transaction qua `GamificationService` — xem
   [`docs/api/gamification.md`](api/gamification.md).

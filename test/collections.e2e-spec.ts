@@ -147,7 +147,7 @@ describe('Collections (e2e — langoo_test)', () => {
   });
 
   describe('thêm từ: 走る + chọn thêm run', () => {
-    it('tạo item 2 face và sinh đúng 4 srs_state', async () => {
+    it('tạo item 2 face và sinh đúng 2 srs_state', async () => {
       const res = await request(server)
         .post(`/v1/collections/${collectionA.id}/items`)
         .set('Authorization', `Bearer ${tokenA}`)
@@ -170,12 +170,7 @@ describe('Collections (e2e — langoo_test)', () => {
       const srsCount = await prisma.srsState.count({
         where: { face: { itemId: item1.id } },
       });
-      expect(srsCount).toBe(4);
-
-      const recognize = await prisma.srsState.count({
-        where: { face: { itemId: item1.id }, direction: 'recognize' },
-      });
-      expect(recognize).toBe(2);
+      expect(srsCount).toBe(2);
 
       const collection = await prisma.collection.findUniqueOrThrow({
         where: { id: collectionA.id },
@@ -307,7 +302,7 @@ describe('Collections (e2e — langoo_test)', () => {
   });
 
   describe('clone deck N5', () => {
-    it('clone deck 1 → 11 item, 22 srs_state, nghĩa lấy từ gloss', async () => {
+    it('clone deck 1 → 11 item, 11 srs_state, nghĩa lấy từ gloss', async () => {
       const res = await request(server)
         .post('/v1/collections/from-deck')
         .set('Authorization', `Bearer ${tokenA}`)
@@ -325,7 +320,7 @@ describe('Collections (e2e — langoo_test)', () => {
       const srsCount = await prisma.srsState.count({
         where: { face: { item: { collectionId: cloned.id } }, userId: userIdA },
       });
-      expect(srsCount).toBe(22);
+      expect(srsCount).toBe(11);
 
       const items = await request(server)
         .get(`/v1/collections/${cloned.id}/items`)

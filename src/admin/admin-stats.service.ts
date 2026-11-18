@@ -7,7 +7,6 @@ import { Prisma } from '../generated/prisma/client';
 export const TIMESERIES_METRICS = [
   'signups',
   'reviews',
-  'xp',
   'ai_requests',
 ] as const;
 export type TimeseriesMetric = (typeof TIMESERIES_METRICS)[number];
@@ -28,7 +27,6 @@ export interface AdminStatsOverview {
   learning: {
     reviews_7d: number;
     reviews_30d: number;
-    xp_total: number;
     collections: number;
     items: number;
     quiz_sessions: number;
@@ -139,7 +137,6 @@ export class AdminStatsService {
       {
         reviews_7d: number;
         reviews_30d: number;
-        xp_total: bigint;
         collections: number;
         items: number;
         quiz_sessions: number;
@@ -151,7 +148,6 @@ export class AdminStatsService {
           WHERE reviewed_at >= now() - interval '7 days')::int AS reviews_7d,
         (SELECT count(*) FROM app.review_log
           WHERE reviewed_at >= now() - interval '30 days')::int AS reviews_30d,
-        (SELECT coalesce(sum(amount), 0) FROM app.xp_event)::bigint AS xp_total,
         (SELECT count(*) FROM app.collection WHERE archived_at IS NULL)::int AS collections,
         (SELECT count(*) FROM app.collection_item)::int AS items,
         (SELECT count(*) FROM app.study_session WHERE kind = 'quiz')::int AS quiz_sessions,
@@ -167,8 +163,7 @@ export class AdminStatsService {
             AND (f.language_id = p.primary_language_id OR f.language_id = p.secondary_language_id)
         )::int AS srs_due_now
     `);
-    const row = rows[0];
-    return { ...row, xp_total: Number(row.xp_total) };
+    return rows[0];
   }
 
   private async streakDistribution(): Promise<
@@ -319,24 +314,6 @@ export class AdminStatsService {
           FROM app.review_log
           WHERE reviewed_at >= now() - make_interval(days => ${days})
           GROUP BY reviewed_at::date
-        ) counted ON counted.date = day::date
-        ORDER BY day
-      `);
-    }
-    if (metric === 'xp') {
-      return this.prisma.$queryRaw<TimeseriesPoint[]>(Prisma.sql`
-        SELECT to_char(day, 'YYYY-MM-DD') AS date,
-               coalesce(counted.total, 0)::int AS value
-        FROM generate_series(
-               (now() - make_interval(days => ${days - 1}))::date,
-               now()::date,
-               interval '1 day'
-             ) AS day
-        LEFT JOIN (
-          SELECT created_at::date AS date, sum(amount) AS total
-          FROM app.xp_event
-          WHERE created_at >= now() - make_interval(days => ${days})
-          GROUP BY created_at::date
         ) counted ON counted.date = day::date
         ORDER BY day
       `);

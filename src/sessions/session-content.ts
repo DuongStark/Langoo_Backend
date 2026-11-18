@@ -4,7 +4,7 @@ import { Rng } from '../srs/scheduler/fuzz';
 export type SessionMode =
   'flashcard' | 'multiple_choice' | 'matching' | 'typing';
 
-export type SessionDirection = 'recognize' | 'recall';
+export type SessionDirection = 'recognize';
 
 export interface CardContent {
   direction: SessionDirection;
@@ -70,36 +70,26 @@ export function buildSessionItem(
     meaning_source: card.meaningSource,
     is_machine_generated: card.isMachineGenerated,
   };
-  const question = card.direction === 'recognize' ? word : meaning;
-  const answer = card.direction === 'recognize' ? meaning : word;
+  const question = word;
+  const answer = meaning;
 
   switch (mode) {
     case 'flashcard':
       return {
         prompt: {
           kind: 'flashcard',
-          direction: card.direction,
+          direction: 'recognize',
           language,
           question,
         },
         correctAnswer: answer,
       };
     case 'typing': {
-      // Gõ đáp án theo đúng chiều thẻ: recognize hỏi từ → gõ nghĩa;
-      // recall hỏi nghĩa → gõ từ (chấp nhận lemma/reading/romaji/kanji-kana).
-      const accepted =
-        card.direction === 'recognize'
-          ? uniqueNormalized([card.meaningVi])
-          : uniqueNormalized([
-              card.lemma,
-              card.reading ?? '',
-              card.romanization ?? '',
-              ...card.forms,
-            ]);
+      const accepted = uniqueNormalized([card.meaningVi]);
       return {
         prompt: {
           kind: 'typing',
-          direction: card.direction,
+          direction: 'recognize',
           language,
           question,
         },
@@ -108,10 +98,8 @@ export function buildSessionItem(
     }
     case 'multiple_choice':
     case 'matching': {
-      const answerText =
-        card.direction === 'recognize' ? card.meaningVi : card.lemma;
-      const source =
-        card.direction === 'recognize' ? pool.meanings : pool.words;
+      const answerText = card.meaningVi;
+      const source = pool.meanings;
       const distractors = uniqueTexts(
         source.filter(
           (text) => normalizeAnswer(text) !== normalizeAnswer(answerText),
@@ -124,7 +112,7 @@ export function buildSessionItem(
       return {
         prompt: {
           kind: mode,
-          direction: card.direction,
+          direction: 'recognize',
           language,
           question,
           options,

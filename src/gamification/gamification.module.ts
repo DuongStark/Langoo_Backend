@@ -4,8 +4,8 @@ import { GamificationController } from './gamification.controller';
 import { GamificationService } from './gamification.service';
 
 /**
- * Streak, user_stats và thành tích cập nhật trong transaction của lượt ôn.
- * M8.3 tạm dừng XP mới, giữ dữ liệu lịch sử.
+ * Streak và user_stats cập nhật trong transaction của lượt ôn.
+ * M6.3 chỉ giữ hoạt động học tập, streak và thống kê.
  */
 @Module({
   imports: [AuthModule],

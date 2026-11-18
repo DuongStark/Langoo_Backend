@@ -25,9 +25,10 @@ export class CreateReviewDto {
   @IsUUID()
   face_id!: string;
 
-  @ApiProperty({ enum: ['recognize', 'recall'] })
-  @IsIn(['recognize', 'recall'])
-  direction!: string;
+  @ApiPropertyOptional({ enum: ['recognize'] })
+  @ValidateIf((_, value) => value !== undefined)
+  @IsIn(['recognize'])
+  direction?: 'recognize';
 
   @ApiProperty({
     enum: [1, 2, 3, 4],

@@ -1,3 +1,8 @@
+> **M6.3 — quyết định mới 2026-11-18 (local):** SRS chỉ recognize, một state/face;
+> xóa XP/level/leaderboard/huy hiệu và API achievements; chỉ giữ streak/lịch hoạt động/
+> mục tiêu ngày/thống kê học. Quyết định này thay thế mô tả XP và hai chiều trong
+> đặc tả nền bên dưới. Xem [thiết kế M6.3](docs/design/m6.3-srs-recognize-only-2026-11-18.md).
+
 # Langoo — Ngữ cảnh toàn dự án
 
 > **Mục đích:** một LLM hoặc dev mới, đặt trong thư mục trắng, đọc file này là hiểu sâu toàn bộ dự án:

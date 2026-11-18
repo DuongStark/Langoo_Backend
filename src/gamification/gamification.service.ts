@@ -1,5 +1,4 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
-import { DomainException } from '../common/errors/domain.exception';
+import { Injectable } from '@nestjs/common';
 import { localDateString } from '../common/time/timezone';
 import { Prisma } from '../generated/prisma/client';
 import { PrismaService } from '../db/prisma.service';
@@ -8,43 +7,23 @@ import {
   DEFAULT_DAILY_GOAL,
   DEFAULT_TIMEZONE,
 } from '../users/settings.constants';
+import { diffDays, nextStreak } from './rules';
 import {
-  evaluateAchievement,
-  diffDays,
-  levelFromXp,
-  levelProgress,
-  nextStreak,
-} from './rules';
-import {
-  AchievementList,
   ActivityCalendar,
   ActivityResult,
   GamificationStats,
-  UnlockedAchievement,
 } from './types/gamification.types';
 
 export interface ApplyActivityParams {
   userId: bigint;
   timezone: string;
   now: Date;
-  /** Legacy XP metadata; awards are paused while callers retain the contract. */
-  ruleCode: string;
-  source: string;
-  refKind: string | null;
-  refId: string | null;
-  idempotencyKey: string;
-  xpEligible?: boolean;
-  /**
-   * true = lượt ôn SRS: cộng `user_stats.reviews_total` (metric của achievement
-   * `reviews_1000`). Quiz (M11) vẫn tính streak/mục tiêu ngày nhưng KHÔNG cộng
-   * bộ đếm này — tên "review" chỉ mô tả lượt ôn (chốt 2026-10-03).
-   */
+  /** Only SRS reviews increment reviews_total; quiz activity does not. */
   countsAsReview: boolean;
 }
 
 /**
- * Streak and achievements update in the caller's transaction. XP awards are
- * paused; existing XP history is preserved.
+ * Streak and learning counters update in the caller's transaction.
  */
 @Injectable()
 export class GamificationService {
@@ -64,7 +43,6 @@ export class GamificationService {
     const dailyGoal = settings?.dailyGoal ?? DEFAULT_DAILY_GOAL;
 
     // Callers claim SRS/session receipts and lock the user before this update.
-    // XP is paused; historical XP records and totals remain unchanged.
     const before = await tx.streakDay.findUnique({
       where: { userId_day: { userId, day: dayDate } },
     });
@@ -76,7 +54,6 @@ export class GamificationService {
         userId,
         day: dayDate,
         reviewCount: 1,
-        xp: 0,
         metGoal,
       },
       update: {
@@ -97,84 +74,6 @@ export class GamificationService {
     const itemsLearned = await this.countItemsLearned(tx, userId);
     const reviewsTotal = stats.reviewsTotal + (params.countsAsReview ? 1 : 0);
 
-    // Thành tích theo số liệu mới (progress + mở khoá, không thưởng XP).
-    const metrics = {
-      items_learned: itemsLearned,
-      reviews_total: reviewsTotal,
-      streak_current: streakCurrent,
-      quiz_correct: await this.countQuizCorrect(tx, userId),
-    };
-    const achievements = await tx.achievement.findMany({
-      where: { isActive: true },
-    });
-    const owned = new Map(
-      (await tx.userAchievement.findMany({ where: { userId } })).map((row) => [
-        row.achievementCode,
-        row,
-      ]),
-    );
-    const unlocked: UnlockedAchievement[] = [];
-    for (const achievement of achievements) {
-      const ruleJson = achievement.rule as {
-        metric?: unknown;
-        gte?: unknown;
-      };
-      if (
-        typeof ruleJson.metric !== 'string' ||
-        typeof ruleJson.gte !== 'number'
-      ) {
-        continue;
-      }
-      const evaluation = evaluateAchievement(
-        { metric: ruleJson.metric, gte: ruleJson.gte },
-        metrics,
-      );
-      const prev = owned.get(achievement.code);
-      if (prev?.unlockedAt != null) {
-        continue;
-      }
-      const progressAdvance =
-        prev === undefined || Number(prev.progress) < evaluation.value;
-      if (evaluation.unlocked) {
-        await tx.userAchievement.upsert({
-          where: {
-            userId_achievementCode: {
-              userId,
-              achievementCode: achievement.code,
-            },
-          },
-          create: {
-            userId,
-            achievementCode: achievement.code,
-            progress: evaluation.value,
-            unlockedAt: now,
-          },
-          update: { progress: evaluation.value, unlockedAt: now },
-        });
-        unlocked.push({
-          code: achievement.code,
-          name_vi: achievement.nameVi,
-          xp_reward: 0,
-        });
-      } else if (progressAdvance) {
-        await tx.userAchievement.upsert({
-          where: {
-            userId_achievementCode: {
-              userId,
-              achievementCode: achievement.code,
-            },
-          },
-          create: {
-            userId,
-            achievementCode: achievement.code,
-            progress: evaluation.value,
-          },
-          update: { progress: evaluation.value },
-        });
-      }
-    }
-
-    // Keep historical XP and level unchanged while XP awards are paused.
     await tx.userStats.update({
       where: { userId },
       data: {
@@ -186,13 +85,7 @@ export class GamificationService {
       },
     });
     return {
-      xp_amount: 0,
-      streak_xp: 0,
-      achievement_xp: 0,
-      unlocked,
       streak_current: streakCurrent,
-      xp_total: Number(stats.xpTotal),
-      level: stats.level,
     };
   }
 
@@ -289,11 +182,7 @@ export class GamificationService {
         where: { userId_day: { userId, day: dayDate } },
       }),
     ]);
-    const xpTotal = Number(stats?.xpTotal ?? 0n);
     return {
-      xp_total: xpTotal,
-      level: stats?.level ?? levelFromXp(xpTotal),
-      level_progress: levelProgress(xpTotal),
       streak_current: currentStreak(
         stats?.streakCurrent ?? 0,
         stats?.lastStudyDate ?? null,
@@ -308,74 +197,10 @@ export class GamificationService {
       today: {
         day,
         review_count: today?.reviewCount ?? 0,
-        xp: today?.xp ?? 0,
         met_goal: today?.metGoal ?? false,
         goal,
       },
     };
-  }
-
-  async getAchievements(userId: bigint): Promise<AchievementList> {
-    const [achievements, rows] = await Promise.all([
-      this.prisma.achievement.findMany({
-        where: { isActive: true },
-        orderBy: [{ category: 'asc' }, { code: 'asc' }],
-      }),
-      this.prisma.userAchievement.findMany({ where: { userId } }),
-    ]);
-    const mine = new Map(rows.map((row) => [row.achievementCode, row]));
-    const data = achievements.map((achievement) => {
-      const row = mine.get(achievement.code);
-      return {
-        code: achievement.code,
-        name_vi: achievement.nameVi,
-        description: achievement.description,
-        icon: achievement.icon,
-        category: achievement.category,
-        xp_reward: 0,
-        progress: row ? Number(row.progress) : 0,
-        unlocked_at: row?.unlockedAt?.toISOString() ?? null,
-        seen_at: row?.seenAt?.toISOString() ?? null,
-      };
-    });
-    return {
-      data,
-      unseen_count: rows.filter(
-        (row) => row.unlockedAt !== null && row.seenAt === null,
-      ).length,
-    };
-  }
-
-  async markSeen(
-    userId: bigint,
-    codes?: string[],
-  ): Promise<{ updated: number; unseen_count: number }> {
-    if (
-      codes !== undefined &&
-      (!Array.isArray(codes) || codes.some((code) => typeof code !== 'string'))
-    ) {
-      throw new DomainException(
-        'VALIDATION_FAILED',
-        'codes phải là mảng chuỗi',
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const where: Prisma.UserAchievementWhereInput = {
-      userId,
-      unlockedAt: { not: null },
-      seenAt: null,
-    };
-    if (codes !== undefined && codes.length > 0) {
-      where.achievementCode = { in: codes };
-    }
-    const result = await this.prisma.userAchievement.updateMany({
-      where,
-      data: { seenAt: new Date() },
-    });
-    const unseen = await this.prisma.userAchievement.count({
-      where: { userId, unlockedAt: { not: null }, seenAt: null },
-    });
-    return { updated: result.count, unseen_count: unseen };
   }
 
   // ---------------------------------------------------------------- utils
@@ -389,20 +214,6 @@ export class GamificationService {
       JOIN app.collection_item_face f ON f.id = s.face_id
       WHERE s.user_id = ${userId}
         AND s.introduced_at IS NOT NULL`;
-    return rows[0]?.n ?? 0;
-  }
-
-  private async countQuizCorrect(
-    tx: TxClient,
-    userId: bigint,
-  ): Promise<number> {
-    const rows = await tx.$queryRaw<{ n: number }[]>`
-      SELECT count(*)::int AS n
-      FROM app.study_session_item si
-      JOIN app.study_session ss ON ss.id = si.session_id
-      WHERE ss.user_id = ${userId}
-        AND ss.kind = 'quiz'
-        AND si.is_correct = true`;
     return rows[0]?.n ?? 0;
   }
 }

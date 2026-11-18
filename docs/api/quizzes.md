@@ -323,7 +323,7 @@ Mọi câu hỏi có ngữ cảnh trả trường `segments: { before: string; h
   - `resume` (mặc định): trả lại phiên `in_progress` đang làm dở.
   - `new_attempt`: sau khi phiên trước đã hoàn tất, tạo `StudySession` mới trên cùng `quiz_id` để luyện lại đề cũ (nếu còn phiên `in_progress` trả `409 QUIZ_ATTEMPT_IN_PROGRESS`).
 - M11.5 trả `feedback_policy: "after_answer"`. Ngay khi ghi câu trả lời thành công, `POST /v1/sessions/:id/answers` trả `item.is_correct`, `item.correct_answer` và `item.credit` nếu có. `GET /v1/sessions/:id` cũng hiện phản hồi của các câu đã làm khi mở lại phiên. Câu chưa làm giữ `is_correct: null` và chưa có `correct_answer`.
-- Phiên M11.5 mở trước thay đổi cũng dùng chính sách mới. Khi retry receipt cũ, server đọc kết quả câu đã lưu, giữ nguyên bài làm. Quiz V3 và chính sách feedback trì hoãn đã được gỡ khỏi code local.
+- Phiên M11.5 mở trước thay đổi cũng dùng chính sách mới. Khi retry receipt cũ, server đọc kết quả câu đã lưu, giữ nguyên bài làm. Quiz V3 và chính sách feedback trì hoãn đã được gỡ trong M11.5.
 - **Không cộng Streak (`app.streak_day`) và không cộng XP** trên phiên `m11.5-v1` (XP đã bị xóa ở M6.3).
 
 ### 5. Báo lỗi câu hỏi & Tự cách ly — `POST /v1/quizzes/:quiz_id/questions/:ordinal/report` (`202 Accepted`)
@@ -346,7 +346,3 @@ QUIZ_BANK_VALIDATOR_MODEL=
 
 Khi `QUIZ_BANK_WORKER_ENABLED=true`, `env.schema.ts` bắt buộc khai báo đủ 6 biến trên và
 `QUIZ_BANK_GENERATOR_MODEL !== QUIZ_BANK_VALIDATOR_MODEL` để đảm bảo sinh (`DeepSeek`) và chấm mù (`GLM`) hoàn toàn độc lập. Hook lưu từ ở `ItemsService.add` đẩy `sense_id` mới vào hàng đợi không chặn (tối đa `30` sense `priority = 10`/user/ngày UTC, vượt ngưỡng hạ về `priority = 50`).
-
-### Phản hồi ngay sau từng câu M11.5
-
-Gửi đáp án với `POST /v1/sessions/:id/answers`. Response chứa `item.is_correct`, `item.correct_answer` và `item.credit` nếu có điểm thành phần. `GET /v1/sessions/:id` chỉ có đáp án cho các câu đã nộp. `session.settings.feedback_policy` có giá trị `after_answer`. Các trường tương thích `xp.amount` và `session.xp_awarded` vẫn có trước rollout M6.3, với Quiz M11.5 bằng 0.

@@ -371,7 +371,8 @@ describe('M13 fixes (local *_test)', () => {
       .send({ sense_id: '1', meaning_vi: 'chạy' })
       .expect(201);
     const iid = (item.body as { id: string }).id;
-    expect(await read()).toBe(baseline + 2);
+    // M6.3: một state/face và item không có secondary sense chỉ tạo 1 face.
+    expect(await read()).toBe(baseline + 1);
     await prisma.srsState.updateMany({
       where: { userId: f.id },
       data: { buriedUntil: new Date(Date.now() + 3600000) },
@@ -381,7 +382,7 @@ describe('M13 fixes (local *_test)', () => {
       where: { userId: f.id },
       data: { buriedUntil: new Date(Date.now() - 1000) },
     });
-    expect(await read()).toBe(baseline + 2);
+    expect(await read()).toBe(baseline + 1);
     await request(server)
       .patch(`/v1/collections/${cid}/items/${iid}`)
       .set(auth(f.token))
@@ -393,7 +394,7 @@ describe('M13 fixes (local *_test)', () => {
       .set(auth(f.token))
       .send({ status: 'learning' })
       .expect(200);
-    expect(await read()).toBe(baseline + 2);
+    expect(await read()).toBe(baseline + 1);
     await request(server)
       .delete(`/v1/collections/${cid}`)
       .set(auth(f.token))

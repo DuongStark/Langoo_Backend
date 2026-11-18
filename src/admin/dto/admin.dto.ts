@@ -165,7 +165,6 @@ export class AdminUserListResponseDto {
 export const TIMESERIES_METRIC_NAMES = [
   'signups',
   'reviews',
-  'xp',
   'ai_requests',
 ] as const;
 

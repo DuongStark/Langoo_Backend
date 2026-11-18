@@ -394,6 +394,12 @@ describe('CollectionsService', () => {
       expect(created.map((row) => row.position)).toEqual([5, 6]);
       expect(tx.collectionItemFace.createMany).toHaveBeenCalledTimes(1);
       expect(tx.srsState.createMany).toHaveBeenCalledTimes(1);
+      const states = firstArg<{ data: { faceId: string }[] }>(
+        tx.srsState.createMany,
+      ).data;
+      expect(states).toHaveLength(2);
+      expect(new Set(states.map((row) => row.faceId)).size).toBe(2);
+      expect(states.every((row) => !('direction' in row))).toBe(true);
     });
 
     it('deck không tồn tại/chưa publish → 404 DECK_NOT_FOUND', async () => {
@@ -571,16 +577,11 @@ describe('CollectionsService', () => {
       });
 
       const srsArgs = firstArg<{ data: unknown[] }>(tx.srsState.createMany);
-      expect(srsArgs.data).toHaveLength(4); // 2 item × 1 face × 2 chiều
-      expect(srsArgs.data[0]).toMatchObject({
-        direction: 'recognize',
-        state: 'new',
-      });
+      expect(srsArgs.data).toHaveLength(2);
+      expect(srsArgs.data[0]).toMatchObject({ state: 'new' });
       expect(
-        srsArgs.data.filter(
-          (row) => (row as { direction: string }).direction === 'recall',
-        ),
-      ).toHaveLength(2);
+        srsArgs.data.every((row) => !('direction' in (row as object))),
+      ).toBe(true);
 
       expect(result).toMatchObject({
         kind: 'cloned',

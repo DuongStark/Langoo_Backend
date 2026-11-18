@@ -16,7 +16,7 @@ UPDATE app.users SET role = 'admin' WHERE lower(email) = 'you@example.com';
 ## GET /v1/admin/stats
 
 Snapshot tổng hợp (UTC): user theo status, đăng ký/quay lại 7–30 ngày; học tập
-(lượt ôn, XP, phân bố streak, collection/item, quiz, backlog SRS đến hạn);
+(lượt ôn, phân bố streak, collection/item, quiz, backlog SRS đến hạn);
 nội dung (gloss_report theo status/issue, concept theo status, gloss máy vs đã duyệt,
 độ phủ `sense_pair`); AI 30 ngày (request/token/chi phí theo feature, số user chạm quota hôm nay).
 
@@ -26,7 +26,7 @@ nội dung (gloss_report theo status/issue, concept theo status, gloss máy vs �
   item không paused, state không suspended/buried còn hạn; tổng tất cả profile,
   chưa áp hạn ôn hàng ngày của từng user.
 
-## GET /v1/admin/stats/timeseries?metric=signups|reviews|xp|ai_requests&days=30
+## GET /v1/admin/stats/timeseries?metric=signups|reviews|ai_requests&days=30
 
 `days` 1..180. Response `{ metric, days, points: [{ date, value }] }` (ngày UTC).
 

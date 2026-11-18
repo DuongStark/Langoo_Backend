@@ -27,7 +27,6 @@ import {
   CardContent,
   DistractorPool,
   gradeAnswer,
-  SessionDirection,
   SessionMode,
 } from './session-content';
 import { gradeQuizAnswer, QuizQuestionType } from './quiz-content';
@@ -68,7 +67,6 @@ interface SessionRow {
   itemCount: number;
   correctCount: number;
   score: number | null;
-  xpAwarded: number;
   settings: unknown;
   startedAt: Date;
   finishedAt: Date | null;
@@ -373,27 +371,21 @@ export class SessionsService {
             answeredAt: nowInTransaction,
           },
         });
-        const activity =
+        const usesQuizCredit =
           isImmediateQuiz(session.settings) ||
-          isHistoricalV3Quiz(session.settings)
-            ? { xp_amount: 0 }
-            : await this.gamification.applyActivity(tx, {
-                userId,
-                timezone: profile.timezone,
-                now: nowInTransaction,
-                ruleCode: 'quiz_correct',
-                source: 'quiz',
-                refKind: 'quiz',
-                refId: session.quizId,
-                idempotencyKey: `quiz:${session.id}:${item.ordinal}`,
-                xpEligible: gradedQuiz.isCorrect,
-                countsAsReview: false,
-              });
+          isHistoricalV3Quiz(session.settings);
+        if (!usesQuizCredit) {
+          await this.gamification.applyActivity(tx, {
+            userId,
+            timezone: profile.timezone,
+            now: nowInTransaction,
+            countsAsReview: false,
+          });
+        }
 
         let updatedQuizSession = await tx.studySession.update({
           where: { id: session.id },
           data: {
-            xpAwarded: { increment: activity.xp_amount },
             ...(gradedQuiz.isCorrect ? { correctCount: { increment: 1 } } : {}),
           },
         });
@@ -401,16 +393,14 @@ export class SessionsService {
           where: { sessionId: session.id, answeredAt: { not: null } },
         });
         if (answeredQuiz >= updatedQuizSession.itemCount) {
-          const partialScore =
-            isImmediateQuiz(session.settings) ||
-            isHistoricalV3Quiz(session.settings)
-              ? quizCreditScore(
-                  await tx.studySessionItem.findMany({
-                    where: { sessionId: session.id },
-                    select: { userAnswer: true, isCorrect: true },
-                  }),
-                )
-              : null;
+          const partialScore = usesQuizCredit
+            ? quizCreditScore(
+                await tx.studySessionItem.findMany({
+                  where: { sessionId: session.id },
+                  select: { userAnswer: true, isCorrect: true },
+                }),
+              )
+            : null;
           updatedQuizSession = await tx.studySession.update({
             where: { id: session.id },
             data: {
@@ -430,7 +420,6 @@ export class SessionsService {
         const response: AnswerResultResponse = {
           item: toItemResponse(updatedQuizItem, true),
           srs: null,
-          xp: { amount: activity.xp_amount },
           session: toSessionResponse(updatedQuizSession, answeredQuiz),
         };
         await tx.studySessionItem.update({
@@ -594,7 +583,6 @@ export class SessionsService {
           mode: session.mode,
           elapsedMs: dto.elapsed_ms ?? null,
           clientReviewId: null,
-          xpIdempotencyKey: `session:${session.id}:${item.ordinal}`,
           timezone: profile.timezone,
           now: nowInTransaction,
         },
@@ -614,7 +602,6 @@ export class SessionsService {
       let updatedSession = await tx.studySession.update({
         where: { id: session.id },
         data: {
-          xpAwarded: { increment: engine.xpAmount },
           ...(graded.isCorrect ? { correctCount: { increment: 1 } } : {}),
         },
       });
@@ -643,7 +630,6 @@ export class SessionsService {
           ease_factor: engine.state.easeFactor,
           learning_step: engine.state.learningStep,
         },
-        xp: { amount: engine.xpAmount },
         session: toSessionResponse(updatedSession, answered),
       };
       await tx.studySessionItem.update({
@@ -994,9 +980,6 @@ function parseAnswerReceipt(value: unknown): AnswerReceipt | null {
         !Number.isFinite(request.elapsed_ms))) ||
     !isSessionItemResponse(response.item) ||
     (response.srs !== null && !isSrsResponse(response.srs)) ||
-    !isRecord(response.xp) ||
-    typeof response.xp.amount !== 'number' ||
-    !Number.isFinite(response.xp.amount) ||
     !isSessionResponse(response.session)
   ) {
     return null;
@@ -1084,7 +1067,6 @@ function isSessionResponse(value: unknown): boolean {
     typeof value.answered_count === 'number' &&
     typeof value.correct_count === 'number' &&
     (value.score === null || typeof value.score === 'number') &&
-    typeof value.xp_awarded === 'number' &&
     isRecord(value.settings) &&
     typeof value.started_at === 'string' &&
     (value.finished_at === null || typeof value.finished_at === 'string')
@@ -1117,7 +1099,7 @@ function stableJson(value: unknown): string {
 
 function toCardContent(row: DueRow): CardContent {
   return {
-    direction: row.direction as SessionDirection,
+    direction: 'recognize',
     language: {
       id: row.language_id,
       code: row.lang_code,
@@ -1149,7 +1131,6 @@ function toSessionResponse(
     answered_count: answeredCount,
     correct_count: session.correctCount,
     score: session.score,
-    xp_awarded: session.xpAwarded,
     settings: isImmediateQuiz(settings)
       ? { ...settings, feedback_policy: QUIZ_FEEDBACK_AFTER_ANSWER }
       : settings,

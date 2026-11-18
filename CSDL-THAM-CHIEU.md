@@ -1,3 +1,7 @@
+> M6.3 — schema local sau migration051 (2026-11-18): đã bỏ recall, XP, level,
+> leaderboard và huy hiệu; giữ streak/thống kê học. Chưa áp production.
+> Prisma và migration là nguồn DDL chuẩn; số thứ tự cột snapshot có thể còn khoảng trống.
+
 # CSDL tham chiếu — Langoo
 
 > Sinh tự động bởi `scripts/dump_schema_doc.py` lúc **2026-10-05 08:21** · PostgreSQL 16.2.
@@ -10,7 +14,7 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 - **public** (5) — [`public.language`](#publiclanguage) · [`public.radical`](#publicradical) · [`public.schema_migration`](#publicschema_migration) · [`public.source`](#publicsource) · [`public.tag`](#publictag)
 - **staging** (14) — [`staging.ili_map_pwn30`](#stagingili_map_pwn30) · [`staging.import_batch`](#stagingimport_batch) · [`staging.jlpt_entry`](#stagingjlpt_entry) · [`staging.jmdict_entry`](#stagingjmdict_entry) · [`staging.kanji_data_entry`](#stagingkanji_data_entry) · [`staging.kanji_entry`](#stagingkanji_entry) · [`staging.krad_entry`](#stagingkrad_entry) · [`staging.omw_wikt_vi`](#stagingomw_wikt_vi) · [`staging.tatoeba_link`](#stagingtatoeba_link) · [`staging.tatoeba_sentence`](#stagingtatoeba_sentence) · [`staging.wikt_entry`](#stagingwikt_entry) · [`staging.wn_example`](#stagingwn_example) · [`staging.wn_relation`](#stagingwn_relation) · [`staging.wn_synset`](#stagingwn_synset)
 - **core** (42) — [`core.concept`](#coreconcept) · [`core.concept_media`](#coreconcept_media) · [`core.concept_gloss`](#coreconcept_gloss) · [`core.concept_gloss_history`](#coreconcept_gloss_history) · [`core.concept_label`](#coreconcept_label) · [`core.deck`](#coredeck) · [`core.deck_item`](#coredeck_item) · [`core.example`](#coreexample) · [`core.example_annotation`](#coreexample_annotation) · [`core.example_concept`](#coreexample_concept) · [`core.example_sense`](#coreexample_sense) · [`core.example_translation`](#coreexample_translation) · [`core.jlpt_link`](#corejlpt_link) · [`core.kanji`](#corekanji) · [`core.kanji_media`](#corekanji_media) · [`core.kanji_radical`](#corekanji_radical) · [`core.lexeme`](#corelexeme) · [`core.lexeme_form`](#corelexeme_form) · [`core.lexeme_form_applies_to`](#corelexeme_form_applies_to) · [`core.lexeme_form_char`](#corelexeme_form_char) · [`core.lexeme_form_kanji_char`](#corelexeme_form_kanji_char) · [`core.lexeme_form_tag`](#corelexeme_form_tag) · [`core.lexeme_level`](#corelexeme_level) · [`core.mapping_run`](#coremapping_run) · [`core.media_asset`](#coremedia_asset) · [`core.pronunciation`](#corepronunciation) · [`core.sense`](#coresense) · [`core.sense_concept`](#coresense_concept) · [`core.sense_concept_candidate`](#coresense_concept_candidate) · [`core.sense_concept_candidate_review`](#coresense_concept_candidate_review) · [`core.sense_form`](#coresense_form) · [`core.sense_gloss`](#coresense_gloss) · [`core.sense_gloss_history`](#coresense_gloss_history) · [`core.sense_relation`](#coresense_relation) · [`core.sense_relation_candidate`](#coresense_relation_candidate) · [`core.sense_tag`](#coresense_tag) · [`core.source_entry_identity`](#coresource_entry_identity) · [`core.source_form`](#coresource_form) · [`core.translation_assertion`](#coretranslation_assertion) · [`core.translation_target_candidate`](#coretranslation_target_candidate) · [`core.wordnet_relation`](#corewordnet_relation) · [`core.wordnet_synset`](#corewordnet_synset)
-- **app** (37) — [`app.achievement`](#appachievement) · [`app.admin_audit_log`](#appadmin_audit_log) · [`app.ai_usage`](#appai_usage) · [`app.chat_message`](#appchat_message) · [`app.chat_session`](#appchat_session) · [`app.collection`](#appcollection) · [`app.collection_item`](#appcollection_item) · [`app.collection_item_face`](#appcollection_item_face) · [`app.collection_item_tag`](#appcollection_item_tag) · [`app.collection_share`](#appcollection_share) · [`app.device`](#appdevice) · [`app.feedback`](#appfeedback) · [`app.feedback_attachment`](#appfeedback_attachment) · [`app.gloss_report`](#appgloss_report) · [`app.google_oauth_challenge`](#appgoogle_oauth_challenge) · [`app.leaderboard_snapshot`](#appleaderboard_snapshot) · [`app.notification_log`](#appnotification_log) · [`app.quiz`](#appquiz) · [`app.quiz_question`](#appquiz_question) · [`app.reminder`](#appreminder) · [`app.review_log`](#appreview_log) (partition) · [`app.search_history`](#appsearch_history) · [`app.srs_review_receipt`](#appsrs_review_receipt) · [`app.srs_state`](#appsrs_state) · [`app.streak_day`](#appstreak_day) · [`app.study_profile`](#appstudy_profile) · [`app.study_session`](#appstudy_session) · [`app.study_session_item`](#appstudy_session_item) · [`app.tag`](#apptag) · [`app.user_achievement`](#appuser_achievement) · [`app.user_identity`](#appuser_identity) · [`app.user_session`](#appuser_session) · [`app.user_settings`](#appuser_settings) · [`app.user_stats`](#appuser_stats) · [`app.users`](#appusers) · [`app.xp_event`](#appxp_event) · [`app.xp_rule`](#appxp_rule)
+- **app** (32) — [`app.admin_audit_log`](#appadmin_audit_log) · [`app.ai_usage`](#appai_usage) · [`app.chat_message`](#appchat_message) · [`app.chat_session`](#appchat_session) · [`app.collection`](#appcollection) · [`app.collection_item`](#appcollection_item) · [`app.collection_item_face`](#appcollection_item_face) · [`app.collection_item_tag`](#appcollection_item_tag) · [`app.collection_share`](#appcollection_share) · [`app.device`](#appdevice) · [`app.feedback`](#appfeedback) · [`app.feedback_attachment`](#appfeedback_attachment) · [`app.gloss_report`](#appgloss_report) · [`app.google_oauth_challenge`](#appgoogle_oauth_challenge) · [`app.notification_log`](#appnotification_log) · [`app.quiz`](#appquiz) · [`app.quiz_question`](#appquiz_question) · [`app.reminder`](#appreminder) · [`app.review_log`](#appreview_log) (partition) · [`app.search_history`](#appsearch_history) · [`app.srs_review_receipt`](#appsrs_review_receipt) · [`app.srs_state`](#appsrs_state) · [`app.streak_day`](#appstreak_day) · [`app.study_profile`](#appstudy_profile) · [`app.study_session`](#appstudy_session) · [`app.study_session_item`](#appstudy_session_item) · [`app.tag`](#apptag) · [`app.user_identity`](#appuser_identity) · [`app.user_session`](#appuser_session) · [`app.user_settings`](#appuser_settings) · [`app.user_stats`](#appuser_stats) · [`app.users`](#appusers)
 - **serve** (5) — [`serve.concept_image`](#serveconcept_image) (view) · [`serve.dictionary_search`](#servedictionary_search) (view) · [`serve.kanji_card`](#servekanji_card) (view) · [`serve.sense_card`](#servesense_card) (view) · [`serve.sense_pair`](#servesense_pair) (matview)
 
 ## Schema `public`
@@ -161,7 +165,6 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
-| 1 | `level` | smallint | không |  |  |
 | 2 | `expression` | text | không |  |  |
 | 3 | `reading` | text | có |  |  |
 | 4 | `meaning` | text | có |  |  |
@@ -1079,7 +1082,6 @@ Tổng: **97 bảng** (chưa kể 36 partition) + **4 view/matview**.
 |---|-----|------|------|----------|---------|
 | 1 | `lexeme_id` | bigint | không |  |  |
 | 2 | `scheme` | text | không |  |  |
-| 3 | `level` | smallint | không |  |  |
 | 4 | `match_method` | text | không |  |  |
 | 5 | `source_id` | integer | không |  |  |
 | 6 | `batch_id` | uuid | không |  |  |
@@ -1758,29 +1760,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 
 *Dữ liệu người học (write-heavy): auth, collection, SRS, phiên ôn, AI, gamification.*
 
-<a id="appachievement"></a>
-### `app.achievement`
-
-*table — 5 dòng*
-
-| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
-|---|-----|------|------|----------|---------|
-| 1 | `code` | text | không |  |  |
-| 2 | `name_vi` | text | không |  |  |
-| 3 | `description` | text | có |  |  |
-| 4 | `icon` | text | có |  |  |
-| 5 | `category` | text | không |  |  |
-| 6 | `rule` | jsonb | không |  |  |
-| 7 | `xp_reward` | integer | không | 0 |  |
-| 8 | `is_active` | boolean | không | true |  |
-
-**Khoá chính**: `PRIMARY KEY (code)`
-
-**Ràng buộc khác**:
-- `achievement_category_check` (check): CHECK ((category = ANY (ARRAY['milestone'::text, 'streak'::text, 'quiz'::text, 'social'::text])))
-- `achievement_rule_check` (check): CHECK ((jsonb_typeof(rule) = 'object'::text))
-- `achievement_xp_reward_check` (check): CHECK ((xp_reward >= 0))
-
 <a id="appadmin_audit_log"></a>
 ### `app.admin_audit_log`
 
@@ -2218,31 +2197,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 - `google_oauth_challenge_live`: CREATE INDEX google_oauth_challenge_live ON app.google_oauth_challenge USING btree (purpose, expires_at) WHERE (consumed_at IS NULL)
 - `google_oauth_challenge_user_live`: CREATE INDEX google_oauth_challenge_user_live ON app.google_oauth_challenge USING btree (user_id, expires_at) WHERE ((consumed_at IS NULL) AND (user_id IS NOT NULL))
 
-<a id="appleaderboard_snapshot"></a>
-### `app.leaderboard_snapshot`
-
-*table — 0 dòng*
-
-| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
-|---|-----|------|------|----------|---------|
-| 1 | `period_start` | date | không |  |  |
-| 2 | `scope` | text | không | 'global'::text |  |
-| 3 | `user_id` | bigint | không |  |  |
-| 4 | `xp` | integer | không |  |  |
-| 5 | `rank` | integer | không |  |  |
-| 6 | `computed_at` | timestamp with time zone | không | now() |  |
-
-**Khoá chính**: `PRIMARY KEY (period_start, scope, user_id)`
-
-**Khoá ngoại**:
-- `leaderboard_snapshot_user_id_fkey`: FOREIGN KEY (user_id) REFERENCES app.users(id) ON DELETE CASCADE
-
-**Ràng buộc khác**:
-- `leaderboard_snapshot_rank_check` (check): CHECK ((rank > 0))
-
-**Chỉ mục**:
-- `leaderboard_top`: CREATE INDEX leaderboard_top ON app.leaderboard_snapshot USING btree (period_start, scope, rank)
-
 <a id="appnotification_log"></a>
 ### `app.notification_log`
 
@@ -2490,7 +2444,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 | 2 | `face_id` | uuid | không |  |  |
 | 3 | `user_id` | bigint | không |  |  |
 | 4 | `profile_id` | uuid | không |  |  |
-| 5 | `direction` | text | không |  |  |
 | 6 | `state` | text | không | 'new'::text |  |
 | 7 | `due_at` | timestamp with time zone | không | now() |  |
 | 8 | `stability` | real | có |  |  |
@@ -2518,7 +2471,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 
 **Ràng buộc khác**:
 - `srs_state_difficulty_check` (check): CHECK ((difficulty > (0)::double precision))
-- `srs_state_direction_check` (check): CHECK ((direction = ANY (ARRAY['recognize'::text, 'recall'::text])))
 - `srs_state_ease_factor_check` (check): CHECK ((ease_factor >= (1.3)::double precision))
 - `srs_state_elapsed_days_check` (check): CHECK ((elapsed_days >= 0))
 - `srs_state_lapses_check` (check): CHECK ((lapses >= 0))
@@ -2527,7 +2479,7 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 - `srs_state_scheduled_days_check` (check): CHECK ((scheduled_days >= 0))
 - `srs_state_stability_check` (check): CHECK ((stability > (0)::double precision))
 - `srs_state_state_check` (check): CHECK ((state = ANY (ARRAY['new'::text, 'learning'::text, 'review'::text, 'relearning'::text])))
-- `srs_state_face_id_direction_key` (unique): UNIQUE (face_id, direction)
+- `srs_state_face_id_key` (unique): UNIQUE (face_id)
 
 **Chỉ mục**:
 - `srs_due_by_profile`: CREATE INDEX srs_due_by_profile ON app.srs_state USING btree (profile_id, due_at) WHERE (NOT suspended)
@@ -2543,7 +2495,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 | 1 | `user_id` | bigint | không |  |  |
 | 2 | `day` | date | không |  |  |
 | 3 | `review_count` | integer | không | 0 |  |
-| 4 | `xp` | integer | không | 0 |  |
 | 5 | `met_goal` | boolean | không | false |  |
 
 **Khoá chính**: `PRIMARY KEY (user_id, day)`
@@ -2609,7 +2560,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 | 10 | `item_count` | integer | không | 0 |  |
 | 11 | `correct_count` | integer | không | 0 |  |
 | 12 | `score` | integer | có |  |  |
-| 13 | `xp_awarded` | integer | không | 0 |  |
 | 14 | `started_at` | timestamp with time zone | không | now() |  |
 | 15 | `finished_at` | timestamp with time zone | có |  |  |
 
@@ -2703,31 +2653,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 
 **Chỉ mục**:
 - `tag_user_name_unique`: CREATE UNIQUE INDEX tag_user_name_unique ON app.tag USING btree (user_id, lower(name))
-
-<a id="appuser_achievement"></a>
-### `app.user_achievement`
-
-*table — 3 dòng*
-
-| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
-|---|-----|------|------|----------|---------|
-| 1 | `user_id` | bigint | không |  |  |
-| 2 | `achievement_code` | text | không |  |  |
-| 3 | `progress` | numeric(10,2) | không | 0 |  |
-| 4 | `unlocked_at` | timestamp with time zone | có |  |  |
-| 5 | `seen_at` | timestamp with time zone | có |  |  |
-
-**Khoá chính**: `PRIMARY KEY (user_id, achievement_code)`
-
-**Khoá ngoại**:
-- `user_achievement_achievement_code_fkey`: FOREIGN KEY (achievement_code) REFERENCES app.achievement(code) ON DELETE CASCADE
-- `user_achievement_user_id_fkey`: FOREIGN KEY (user_id) REFERENCES app.users(id) ON DELETE CASCADE
-
-**Ràng buộc khác**:
-- `user_achievement_progress_check` (check): CHECK ((progress >= (0)::numeric))
-
-**Chỉ mục**:
-- `user_achievement_unseen`: CREATE INDEX user_achievement_unseen ON app.user_achievement USING btree (user_id) WHERE ((unlocked_at IS NOT NULL) AND (seen_at IS NULL))
 
 <a id="appuser_identity"></a>
 ### `app.user_identity`
@@ -2825,8 +2750,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 | # | Cột | Kiểu | Null | Mặc định | Ghi chú |
 |---|-----|------|------|----------|---------|
 | 1 | `user_id` | bigint | không |  |  |
-| 2 | `xp_total` | bigint | không | 0 |  |
-| 3 | `level` | integer | không | 1 |  |
 | 4 | `streak_current` | integer | không | 0 |  |
 | 5 | `streak_longest` | integer | không | 0 |  |
 | 6 | `last_study_date` | date | có |  |  |
@@ -2841,11 +2764,9 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 
 **Ràng buộc khác**:
 - `user_stats_items_learned_check` (check): CHECK ((items_learned >= 0))
-- `user_stats_level_check` (check): CHECK ((level > 0))
 - `user_stats_reviews_total_check` (check): CHECK ((reviews_total >= 0))
 - `user_stats_streak_current_check` (check): CHECK ((streak_current >= 0))
 - `user_stats_streak_longest_check` (check): CHECK ((streak_longest >= 0))
-- `user_stats_xp_total_check` (check): CHECK ((xp_total >= 0))
 
 <a id="appusers"></a>
 ### `app.users`
@@ -2875,60 +2796,6 @@ Chi tiết: [M14.1 report](docs/reviews/m14.1-r2-concept-images-2026-10-30.md).
 - `users_admin`: CREATE INDEX users_admin ON app.users USING btree (id) WHERE (role = 'admin'::text)
 - `users_by_status`: CREATE INDEX users_by_status ON app.users USING btree (status) WHERE (status <> 'active'::text)
 - `users_email_unique`: CREATE UNIQUE INDEX users_email_unique ON app.users USING btree (lower(email))
-
-<a id="appxp_event"></a>
-### `app.xp_event`
-
-*table — 6 dòng*
-
-| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
-|---|-----|------|------|----------|---------|
-| 1 | `id` | bigint | không | identity |  |
-| 2 | `user_id` | bigint | không |  |  |
-| 3 | `amount` | integer | không |  |  |
-| 4 | `source` | text | không |  |  |
-| 5 | `ref_kind` | text | có |  |  |
-| 6 | `ref_id` | text | có |  |  |
-| 7 | `idempotency_key` | text | có |  |  |
-| 8 | `created_at` | timestamp with time zone | không | now() |  |
-
-**Khoá chính**: `PRIMARY KEY (id)`
-
-**Khoá ngoại**:
-- `xp_event_user_id_fkey`: FOREIGN KEY (user_id) REFERENCES app.users(id) ON DELETE CASCADE
-
-**Ràng buộc khác**:
-- `xp_event_amount_check` (check): CHECK ((amount <> 0))
-- `xp_event_source_check` (check): CHECK ((source = ANY (ARRAY['review'::text, 'quiz'::text, 'streak'::text, 'achievement'::text, 'correction'::text, 'manual'::text])))
-- `xp_event_user_id_idempotency_key_key` (unique): UNIQUE (user_id, idempotency_key)
-
-**Chỉ mục**:
-- `xp_event_by_source`: CREATE INDEX xp_event_by_source ON app.xp_event USING btree (source, created_at DESC)
-- `xp_event_by_user`: CREATE INDEX xp_event_by_user ON app.xp_event USING btree (user_id, created_at DESC)
-
-<a id="appxp_rule"></a>
-### `app.xp_rule`
-
-*table — 3 dòng*
-
-| # | Cột | Kiểu | Null | Mặc định | Ghi chú |
-|---|-----|------|------|----------|---------|
-| 1 | `code` | text | không |  |  |
-| 2 | `description` | text | không |  |  |
-| 3 | `amount` | integer | không |  |  |
-| 4 | `daily_cap` | integer | có |  |  |
-| 5 | `is_active` | boolean | không | true |  |
-| 6 | `updated_at` | timestamp with time zone | không | now() |  |
-
-**Khoá chính**: `PRIMARY KEY (code)`
-
-**Ràng buộc khác**:
-- `xp_rule_amount_check` (check): CHECK ((amount <> 0))
-- `xp_rule_daily_cap_check` (check): CHECK (((daily_cap IS NULL) OR (daily_cap > 0)))
-
-## Schema `serve`
-
-*Read model cho API: materialized view + view tra cứu/luyện tập.*
 
 <a id="servedictionary_search"></a>
 ### `serve.dictionary_search`

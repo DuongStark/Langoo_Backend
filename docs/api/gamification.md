@@ -45,17 +45,19 @@ Ví dụ rút gọn hai ngày; response thực trả cả năm.
   đã học, số hoạt động và số lượt ôn cũ có thể nằm ở hai ngày khác nhau.
 - HTTP 401 khi thiếu/sai token; 400 khi year sai kiểu hoặc ngoài khoảng.
 
-## XP và API cũ
+## M6.3 — Xóa XP (local, chưa deploy)
 
-Từ M8.3, ôn SRS, quiz, streak và thành tích không cộng XP mới. Dữ liệu XP/level
-cũ vẫn giữ nguyên. Các response cũ vẫn giữ field `xp_total`, `level`,
-`level_progress`, `today.xp`, `xp_awarded` và `xp.amount` để client cũ đọc được;
-lượt mới nhận `xp.amount = 0`, `xp_reward` trả 0. FE ẩn XP và level.
+XP và level được xóa hoàn toàn: không trả `xp_total`, `level`, `level_progress`,
+`today.xp`, `xp_awarded`, `xp.amount`, `xp_reward`. DB bỏ `xp_event`, `xp_rule`,
+`leaderboard_snapshot` và các cột XP/level liên quan. Không giữ field giả bằng 0.
 
-`GET /v1/me/stats` tiếp tục trả streak, số item đã học, `reviews_total`,
-`today.review_count` và mục tiêu. `reviews_total` chỉ tính SRS; `today.review_count`
-tính cả quiz. `GET /v1/me/achievements` và `POST /v1/me/achievements/seen` vẫn
-có contract cũ, phần thưởng XP trả 0. Retry SRS/session dùng receipt tương ứng,
+`GET /v1/me/stats` trả streak, ngày học cuối, số item đã học, `reviews_total`,
+`today: {day, review_count, met_goal, goal}`. `reviews_total` chỉ tính SRS;
+hoạt động quiz legacy còn hợp lệ vẫn tính mục tiêu/streak; Quiz M11.3 V3/M11.5
+không tính streak theo contract riêng. API huy hiệu `GET /me/achievements` và `POST /me/achievements/seen`
+đã bị xóa (404); bảng achievement/user_achievement cũng bị xóa. Retry SRS/session dùng receipt và khóa user,
 không nhân đôi hoạt động khi gửi lại.
 
+Migration M6.3 tính lại lịch/streak/stats sau khi xóa recall,
+nhóm timestamp theo timezone hiện tại của user. Các API hoạt động tiếp tục như trên.
 Swagger: `/docs`, nhóm `gamification`.

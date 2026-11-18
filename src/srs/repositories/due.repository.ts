@@ -20,7 +20,6 @@ export interface DueRow {
   romanization: string | null;
   pos: string | null;
   forms: string[];
-  direction: string;
   state: string;
   learning_is_interday: boolean;
   due_at: Date;
@@ -91,9 +90,9 @@ export class DueRepository {
     // Practice intentionally has a bounded snapshot; regular due retrieval
     // returns the full eligible set so the queue can apply caps and cursors
     // without silently dropping cards at an arbitrary SQL limit.
-    // Mỗi item có tối đa 2 face × 2 chiều. Practice overfetch đủ sibling để
+    // Mỗi item có tối đa 2 face. Practice overfetch đủ sibling để
     // service chọn một đại diện cho mỗi item mà vẫn trả đủ số câu yêu cầu.
-    const practiceLimit = params.limit * 4;
+    const practiceLimit = params.limit * 2;
     const limitClause = dueOnly
       ? Prisma.sql``
       : Prisma.sql`LIMIT ${practiceLimit}`;
@@ -121,7 +120,6 @@ export class DueRepository {
           FROM core.lexeme_form fm
           WHERE fm.lexeme_id = lx.id
         ) AS forms,
-        s.direction,
         s.state,
         s.learning_is_interday,
         s.due_at,

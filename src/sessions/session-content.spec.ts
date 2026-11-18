@@ -21,8 +21,8 @@ const cardJa: CardContent = {
   forms: ['走る', 'はしる'],
 };
 
-const cardEnRecall: CardContent = {
-  direction: 'recall',
+const cardEn: CardContent = {
+  direction: 'recognize',
   language: { id: 1, code: 'en', nameVi: 'Tiếng Anh' },
   lemma: 'run',
   reading: null,
@@ -37,7 +37,7 @@ const pool: DistractorPool = {
 };
 
 describe('buildSessionItem', () => {
-  it('flashcard: recognize hỏi từ → đáp án nghĩa; recall hỏi nghĩa → đáp án từ', () => {
+  it('flashcard: Nhật và Anh đều hỏi từ → đáp án nghĩa', () => {
     const recognize = buildSessionItem(cardJa, 'flashcard', pool, zeroRng);
     expect(recognize.prompt).toMatchObject({
       kind: 'flashcard',
@@ -49,13 +49,16 @@ describe('buildSessionItem', () => {
       text: 'chạy',
     });
 
-    const recall = buildSessionItem(cardEnRecall, 'flashcard', pool, zeroRng);
-    expect(recall.prompt).toMatchObject({
+    const english = buildSessionItem(cardEn, 'flashcard', pool, zeroRng);
+    expect(english.prompt).toMatchObject({
       kind: 'flashcard',
-      direction: 'recall',
-      question: { kind: 'meaning', text: 'chạy' },
+      direction: 'recognize',
+      question: { kind: 'word', text: 'run' },
     });
-    expect(recall.correctAnswer).toMatchObject({ kind: 'word', text: 'run' });
+    expect(english.correctAnswer).toMatchObject({
+      kind: 'meaning',
+      text: 'chạy',
+    });
   });
 
   it('multiple_choice: 4 lựa chọn duy nhất, chứa đáp án đúng, index trỏ đúng', () => {
@@ -75,18 +78,13 @@ describe('buildSessionItem', () => {
     expect(answer.text).toBe('chạy');
   });
 
-  it('recall dùng lựa chọn là TỪ cùng ngôn ngữ, không lẫn nghĩa', () => {
-    const item = buildSessionItem(
-      cardEnRecall,
-      'multiple_choice',
-      pool,
-      halfRng,
-    );
+  it('thẻ tiếng Anh dùng lựa chọn nghĩa tiếng Việt', () => {
+    const item = buildSessionItem(cardEn, 'multiple_choice', pool, halfRng);
     const texts = (item.prompt as { options: { text: string }[] }).options.map(
       (option) => option.text,
     );
-    expect(texts).toContain('run');
-    expect(texts).not.toContain('chạy');
+    expect(texts).toContain('chạy');
+    expect(texts).not.toContain('run');
   });
 
   it('matching: cùng cấu trúc options nhưng kind = matching', () => {
@@ -105,10 +103,10 @@ describe('buildSessionItem', () => {
     ]);
   });
 
-  it('typing recall: hỏi nghĩa → gõ từ, accepted gồm lemma/forms, chuẩn hoá và duy nhất', () => {
-    const item = buildSessionItem(cardEnRecall, 'typing', pool, zeroRng);
+  it('typing tiếng Anh: chỉ chấp nhận nghĩa Việt', () => {
+    const item = buildSessionItem(cardEn, 'typing', pool, zeroRng);
     const accepted = (item.correctAnswer as { accepted: string[] }).accepted;
-    expect(accepted).toEqual(expect.arrayContaining(['run', 'running']));
+    expect(accepted).toEqual(['chạy']);
     expect(new Set(accepted).size).toBe(accepted.length);
   });
 

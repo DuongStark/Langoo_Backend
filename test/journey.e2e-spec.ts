@@ -131,13 +131,12 @@ describe('Journey (e2e — langoo_test)', () => {
       .set(auth())
       .expect(200);
     const finishedBody = finished.body as {
-      session: { status: string; score: number | null; xp_awarded: number };
+      session: { status: string; score: number | null };
     };
     expect(finishedBody.session).toMatchObject({
       status: 'completed',
       score: 100,
     });
-    expect(finishedBody.session.xp_awarded).toBe(0);
 
     // 5) Quiz từ chính bộ sưu tập
     const quiz = await request(server)
@@ -189,13 +188,11 @@ describe('Journey (e2e — langoo_test)', () => {
       .set(auth())
       .expect(200);
     const statsBody = stats.body as {
-      xp_total: number;
       streak_current: number;
       reviews_total: number;
       today: { review_count: number };
     };
     // XP đang tạm dừng; hoạt động vẫn ghi streak và bộ đếm ngày.
-    expect(statsBody.xp_total).toBe(0);
     expect(statsBody.streak_current).toBeGreaterThanOrEqual(1);
     // reviews_total chỉ đếm lượt ôn SRS (1); quiz chỉ tính activity trong ngày.
     expect(statsBody.reviews_total).toBe(1);
@@ -224,12 +221,6 @@ describe('Journey (e2e — langoo_test)', () => {
       unresolved_review_count: 0,
     });
 
-    const achievements = await request(server)
-      .get('/v1/me/achievements')
-      .set(auth())
-      .expect(200);
-    expect(Array.isArray((achievements.body as { data: unknown[] }).data)).toBe(
-      true,
-    );
+    await request(server).get('/v1/me/achievements').set(auth()).expect(404);
   });
 });

@@ -20,7 +20,7 @@ export interface DueCard {
   face_id: string;
   item_id: string;
   collection_id: string;
-  direction: string;
+  direction: 'recognize';
   state: string;
   language: { id: number; code: string; name_vi: string };
   instruction: string;
@@ -53,7 +53,6 @@ export interface ReviewResult {
     ease_factor: number;
     learning_step: number | null;
   };
-  xp: { amount: number };
 }
 
 export interface StatsResult {

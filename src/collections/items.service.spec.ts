@@ -192,19 +192,14 @@ describe('ItemsService', () => {
       const srsArgs = firstArg<{
         data: {
           faceId: string;
-          direction: string;
           state: string;
           userId: bigint;
           profileId: string;
         }[];
       }>(tx.srsState.createMany);
-      expect(srsArgs.data).toHaveLength(4);
-      expect(
-        srsArgs.data.filter((row) => row.direction === 'recognize'),
-      ).toHaveLength(2);
-      expect(
-        srsArgs.data.filter((row) => row.direction === 'recall'),
-      ).toHaveLength(2);
+      expect(srsArgs.data).toHaveLength(2);
+      expect(new Set(srsArgs.data.map((row) => row.faceId)).size).toBe(2);
+      expect(srsArgs.data.every((row) => !('direction' in row))).toBe(true);
       expect(srsArgs.data[0]).toMatchObject({
         state: 'new',
         userId: 1n,

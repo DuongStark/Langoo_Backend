@@ -9,14 +9,6 @@ import { PrismaService } from '../src/db/prisma.service';
 import { safeTestTimezone } from './safe-timezone';
 
 interface StatsBody {
-  xp_total: number;
-  level: number;
-  level_progress: {
-    level: number;
-    xp_in_level: number;
-    xp_for_next: number;
-    percent: number;
-  };
   streak_current: number;
   streak_longest: number;
   last_study_date: string | null;
@@ -25,28 +17,15 @@ interface StatsBody {
   today: {
     day: string;
     review_count: number;
-    xp: number;
+
     met_goal: boolean;
     goal: number;
   };
 }
 
-interface AchievementItemBody {
-  code: string;
-  progress: number;
-  unlocked_at: string | null;
-  seen_at: string | null;
-}
-
-interface AchievementsBody {
-  data: AchievementItemBody[];
-  unseen_count: number;
-}
-
 interface ReviewBody {
   review_log: { id: string };
   srs: { state: string };
-  xp: { amount: number };
 }
 
 describe('Gamification (e2e — langoo_test)', () => {
@@ -147,14 +126,6 @@ describe('Gamification (e2e — langoo_test)', () => {
     return res.body as StatsBody;
   }
 
-  async function getAchievements(token: string): Promise<AchievementsBody> {
-    const res = await request(server)
-      .get('/v1/me/achievements')
-      .set('Authorization', `Bearer ${token}`)
-      .expect(200);
-    return res.body as AchievementsBody;
-  }
-
   beforeAll(async () => {
     const moduleRef = await Test.createTestingModule({
       imports: [AppModule],
@@ -188,152 +159,77 @@ describe('Gamification (e2e — langoo_test)', () => {
     it('user chưa hoạt động → defaults, không tạo rác', async () => {
       const stats = await getStats(token);
       expect(stats).toMatchObject({
-        xp_total: 0,
-        level: 1,
         streak_current: 0,
         streak_longest: 0,
         last_study_date: null,
         items_learned: 0,
         reviews_total: 0,
-        today: { review_count: 0, xp: 0, met_goal: false, goal: 20 },
+        today: { review_count: 0, met_goal: false, goal: 20 },
       });
-      expect(stats.level_progress).toEqual({
-        level: 1,
-        xp_in_level: 0,
-        xp_for_next: 100,
-        percent: 0,
-      });
+      expect(stats).not.toHaveProperty('xp_total');
+      expect(stats).not.toHaveProperty('level');
+      expect(stats).not.toHaveProperty('level_progress');
+      expect(stats.today).not.toHaveProperty('xp');
       expect(await prisma.userStats.count({ where: { userId } })).toBe(0);
-
-      const achievements = await getAchievements(token);
-      expect(achievements.data.length).toBeGreaterThanOrEqual(5);
-      expect(achievements.unseen_count).toBe(0);
-      expect(
-        achievements.data.find((item) => item.code === 'reviews_1000'),
-      ).toMatchObject({ progress: 0, unlocked_at: null });
     });
 
-    it('lượt ôn đầu tiên: streak 1, không cộng XP mới', async () => {
+    it('lượt ôn đầu tiên: streak 1, không có XP', async () => {
       const cards = await cardsOf(userId);
       const first = await review(token, {
         face_id: cards[0].faceId,
-        direction: cards[0].direction,
+        direction: 'recognize',
         rating: 3,
       });
-      expect(first.xp.amount).toBe(0);
 
+      expect(first).not.toHaveProperty('xp');
       const stats = await getStats(token);
-      expect(stats.xp_total).toBe(0);
       expect(stats.streak_current).toBe(1);
       expect(stats.streak_longest).toBe(1);
       expect(stats.reviews_total).toBe(1);
       expect(stats.items_learned).toBe(1);
       expect(stats.today.review_count).toBe(1);
-      expect(stats.today.xp).toBe(0);
       expect(stats.today.met_goal).toBe(false);
       expect(stats.last_study_date).toBe(stats.today.day);
 
       const day = await prisma.streakDay.findFirstOrThrow({
         where: { userId },
       });
-      expect(day).toMatchObject({ reviewCount: 1, xp: 0, metGoal: false });
-      expect(
-        await prisma.xpEvent.count({
-          where: { userId, source: 'streak' },
-        }),
-      ).toBe(0);
+      expect(day).toMatchObject({ reviewCount: 1, metGoal: false });
     });
 
     it('lượt thứ hai cùng ngày: giữ streak, không cộng XP', async () => {
       const cards = await cardsOf(userId);
       const second = await review(token, {
-        face_id: cards[4].faceId,
-        direction: cards[4].direction,
+        face_id: cards[2].faceId,
+        direction: 'recognize',
         rating: 3,
       });
-      expect(second.xp.amount).toBe(0);
 
+      expect(second).not.toHaveProperty('xp');
       const stats = await getStats(token);
-      expect(stats.xp_total).toBe(0);
       expect(stats.streak_current).toBe(1);
       expect(stats.today.review_count).toBe(2);
-      expect(stats.today.xp).toBe(0);
-      expect(
-        await prisma.xpEvent.count({ where: { userId, source: 'streak' } }),
-      ).toBe(0);
     });
 
     it('retry cùng client_review_id → không cộng đôi stats', async () => {
       const cards = await cardsOf(userId);
       const key = randomUUID();
       await review(token, {
-        face_id: cards[8].faceId,
-        direction: cards[8].direction,
+        face_id: cards[4].faceId,
+        direction: 'recognize',
         rating: 3,
         client_review_id: key,
       });
       const before = await getStats(token);
 
       await review(token, {
-        face_id: cards[8].faceId,
-        direction: cards[8].direction,
+        face_id: cards[4].faceId,
+        direction: 'recognize',
         rating: 3,
         client_review_id: key,
       });
       const after = await getStats(token);
       expect(after).toEqual(before);
-      expect(
-        await prisma.xpEvent.count({ where: { userId, source: 'review' } }),
-      ).toBe(0);
-    });
-  });
-
-  describe('daily cap', () => {
-    it('XP đang tạm dừng: ba lượt đều ghi streak, không cộng điểm', async () => {
-      const ctx = await setupUser('cap');
-      await addItem(ctx.token, ctx.collectionId, '1', '2', 'chạy');
-      await addItem(ctx.token, ctx.collectionId, '5', '6', 'ăn');
-      await addItem(ctx.token, ctx.collectionId, '7', '8', 'đi');
-      const cards = await cardsOf(ctx.userId);
-
-      await prisma.xpRule.update({
-        where: { code: 'review' },
-        data: { dailyCap: 2 },
-      });
-      try {
-        const first = await review(ctx.token, {
-          face_id: cards[0].faceId,
-          direction: cards[0].direction,
-          rating: 3,
-        });
-        const second = await review(ctx.token, {
-          face_id: cards[4].faceId,
-          direction: cards[4].direction,
-          rating: 3,
-        });
-        const third = await review(ctx.token, {
-          face_id: cards[8].faceId,
-          direction: cards[8].direction,
-          rating: 3,
-        });
-        expect([first.xp.amount, second.xp.amount, third.xp.amount]).toEqual([
-          0, 0, 0,
-        ]);
-
-        const stats = await getStats(ctx.token);
-        expect(stats.xp_total).toBe(0);
-        expect(stats.reviews_total).toBe(3);
-        const day = await prisma.streakDay.findFirstOrThrow({
-          where: { userId: ctx.userId },
-        });
-        expect(day.reviewCount).toBe(3);
-        expect(day.xp).toBe(0);
-      } finally {
-        await prisma.xpRule.update({
-          where: { code: 'review' },
-          data: { dailyCap: 200 },
-        });
-      }
     });
   });
 
@@ -348,7 +244,7 @@ describe('Gamification (e2e — langoo_test)', () => {
 
       await review(ctx.token, {
         face_id: cards[0].faceId,
-        direction: cards[0].direction,
+        direction: 'recognize',
         rating: 3,
       });
       let stats = await getStats(ctx.token);
@@ -362,8 +258,8 @@ describe('Gamification (e2e — langoo_test)', () => {
         },
       });
       await review(ctx.token, {
-        face_id: cards[4].faceId,
-        direction: cards[4].direction,
+        face_id: cards[2].faceId,
+        direction: 'recognize',
         rating: 3,
       });
       stats = await getStats(ctx.token);
@@ -376,8 +272,8 @@ describe('Gamification (e2e — langoo_test)', () => {
         },
       });
       await review(ctx.token, {
-        face_id: cards[8].faceId,
-        direction: cards[8].direction,
+        face_id: cards[4].faceId,
+        direction: 'recognize',
         rating: 3,
       });
       stats = await getStats(ctx.token);
@@ -390,8 +286,8 @@ describe('Gamification (e2e — langoo_test)', () => {
         .send({ daily_goal: 1 })
         .expect(200);
       await review(ctx.token, {
-        face_id: cards[12].faceId,
-        direction: cards[12].direction,
+        face_id: cards[6].faceId,
+        direction: 'recognize',
         rating: 3,
       });
       stats = await getStats(ctx.token);
@@ -400,99 +296,8 @@ describe('Gamification (e2e — langoo_test)', () => {
     });
   });
 
-  describe('thành tích', () => {
-    const code = `verify_reviews_3_${runId}`;
-    let token = '';
-    let userId = 0n;
-
-    beforeAll(async () => {
-      const ctx = await setupUser('ach');
-      token = ctx.token;
-      userId = ctx.userId;
-      await addItem(token, ctx.collectionId, '1', '2', 'chạy');
-      await addItem(token, ctx.collectionId, '5', '6', 'ăn');
-      await addItem(token, ctx.collectionId, '7', '8', 'đi');
-      await addItem(token, ctx.collectionId, '9', '10', 'nước');
-      await prisma.achievement.create({
-        data: {
-          code,
-          nameVi: 'Thử 3 lượt',
-          category: 'milestone',
-          rule: { metric: 'reviews_total', gte: 3 },
-          xpReward: 7,
-        },
-      });
-    });
-
-    afterAll(async () => {
-      await prisma.achievement.deleteMany({ where: { code } });
-    });
-
-    it('đủ ngưỡng → mở khoá 1 lần, không thưởng XP', async () => {
-      const cards = await cardsOf(userId);
-      for (const card of [cards[0], cards[4], cards[8]]) {
-        await review(token, {
-          face_id: card.faceId,
-          direction: card.direction,
-          rating: 3,
-        });
-      }
-
-      const row = await prisma.userAchievement.findFirstOrThrow({
-        where: { userId, achievementCode: code },
-      });
-      expect(row.unlockedAt).not.toBeNull();
-      expect(Number(row.progress)).toBe(3);
-      expect(
-        await prisma.xpEvent.count({
-          where: { userId, source: 'achievement' },
-        }),
-      ).toBe(0);
-
-      const stats = await getStats(token);
-      expect(stats.xp_total).toBe(0);
-      expect(stats.level).toBe(1);
-      expect(stats.level_progress.percent).toBe(0);
-
-      const achievements = await getAchievements(token);
-      expect(
-        achievements.data.find((item) => item.code === 'reviews_1000'),
-      ).toMatchObject({ progress: 3, unlocked_at: null });
-      expect(
-        achievements.data.find((item) => item.code === code),
-      ).toMatchObject({ progress: 3, xp_reward: 0 });
-      expect(achievements.unseen_count).toBe(1);
-    });
-
-    it('lượt tiếp theo không thưởng lại; seen đánh dấu đã xem', async () => {
-      const cards = await cardsOf(userId);
-      await review(token, {
-        face_id: cards[12].faceId,
-        direction: cards[12].direction,
-        rating: 3,
-      });
-      expect(
-        await prisma.xpEvent.count({
-          where: { userId, source: 'achievement' },
-        }),
-      ).toBe(0);
-      expect((await getStats(token)).xp_total).toBe(0);
-
-      const seen = await request(server)
-        .post('/v1/me/achievements/seen')
-        .set('Authorization', `Bearer ${token}`)
-        .send({})
-        .expect(200);
-      expect(seen.body).toMatchObject({ updated: 1, unseen_count: 0 });
-      const achievements = await getAchievements(token);
-      expect(
-        achievements.data.find((item) => item.code === code)?.seen_at,
-      ).not.toBeNull();
-    });
-  });
-
   describe('phiên ôn (M7) cập nhật gamification', () => {
-    it('hoàn thành phiên 2 câu → stats/streak cập nhật, session.xp_awarded khớp', async () => {
+    it('hoàn thành phiên 2 câu → stats/streak cập nhật', async () => {
       const ctx = await setupUser('session');
       await addItem(ctx.token, ctx.collectionId, '1', '2', 'chạy');
       await addItem(ctx.token, ctx.collectionId, '5', '6', 'ăn');
@@ -502,7 +307,13 @@ describe('Gamification (e2e — langoo_test)', () => {
       // second fixture card.
       const practiceCards = await cardsOf(ctx.userId);
       await prisma.srsState.updateMany({
-        where: { id: { in: practiceCards.slice(1, 4).map((card) => card.id) } },
+        where: {
+          id: {
+            in: practiceCards
+              .filter((_, index) => index % 2 === 1)
+              .map((card) => card.id),
+          },
+        },
         data: { suspended: true },
       });
 
@@ -517,10 +328,11 @@ describe('Gamification (e2e — langoo_test)', () => {
         })
         .expect(201);
       const session = created.body as {
-        session: { id: string; xp_awarded: number };
+        session: { id: string };
         items: { ordinal: number }[];
       };
 
+      expect(session.items).toHaveLength(2);
       for (const item of session.items) {
         const row = await prisma.studySessionItem.findFirstOrThrow({
           where: { sessionId: session.session.id, ordinal: item.ordinal },
@@ -539,57 +351,38 @@ describe('Gamification (e2e — langoo_test)', () => {
         .set('Authorization', `Bearer ${ctx.token}`)
         .expect(200);
       const finished = detail.body as {
-        session: { status: string; xp_awarded: number };
+        session: { status: string };
       };
       expect(finished.session.status).toBe('completed');
-      expect(finished.session.xp_awarded).toBe(0);
 
       const stats = await getStats(ctx.token);
       expect(stats.reviews_total).toBe(2);
-      expect(stats.xp_total).toBe(0);
       expect(stats.streak_current).toBe(1);
       expect(stats.today.review_count).toBe(2);
-      expect(
-        await prisma.xpEvent.count({
-          where: { userId: ctx.userId, source: 'streak' },
-        }),
-      ).toBe(0);
     });
   });
 
   describe('bảo mật & biên', () => {
     it('không token → 401 cho stats/achievements/seen', async () => {
       await request(server).get('/v1/me/stats').expect(401);
-      await request(server).get('/v1/me/achievements').expect(401);
+      await request(server).get('/v1/me/achievements').expect(404);
       await request(server)
         .post('/v1/me/achievements/seen')
         .send({})
-        .expect(401);
+        .expect(404);
     });
 
-    it('seen với code lạ → updated 0, không lỗi', async () => {
-      const { token } = await registerUser('seen-empty');
-      const res = await request(server)
-        .post('/v1/me/achievements/seen')
+    it('M6.3: đã xóa endpoint huy hiệu kể cả khi đăng nhập', async () => {
+      const { token } = await registerUser('removed-badges');
+      await request(server)
+        .get('/v1/me/achievements')
         .set('Authorization', `Bearer ${token}`)
-        .send({ codes: ['khong_ton_tai'] })
-        .expect(200);
-      expect(res.body).toMatchObject({ updated: 0, unseen_count: 0 });
-    });
-
-    it('seen từ chối codes:null và không ghi achievement', async () => {
-      const { token, userId } = await registerUser('seen-null');
-
+        .expect(404);
       await request(server)
         .post('/v1/me/achievements/seen')
         .set('Authorization', `Bearer ${token}`)
-        .send({ codes: null })
-        .expect(400)
-        .expect(({ body }) => {
-          expect(body).toMatchObject({ code: 'VALIDATION_FAILED' });
-        });
-
-      expect(await prisma.userAchievement.count({ where: { userId } })).toBe(0);
+        .send({ codes: [] })
+        .expect(404);
     });
   });
 });

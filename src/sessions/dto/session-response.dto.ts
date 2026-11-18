@@ -10,11 +10,6 @@ export class SessionResponseDto {
   @ApiProperty({ example: 4 }) answered_count!: number;
   @ApiProperty({ example: 3 }) correct_count!: number;
   @ApiProperty({ nullable: true, example: null }) score!: number | null;
-  @ApiProperty({
-    example: 0,
-    description: 'XP phiên lịch sử được giữ; phiên mới không cộng XP',
-  })
-  xp_awarded!: number;
   @ApiProperty({ example: { option_count: 4 } }) settings!: Record<
     string,
     unknown
@@ -74,11 +69,6 @@ export class AnswerResultResponseDto {
     ease_factor: number;
     learning_step: number | null;
   } | null;
-  @ApiProperty({
-    example: { amount: 0 },
-    description: 'XP mới tạm dừng từ M8.3',
-  })
-  xp!: { amount: number };
   @ApiProperty({ type: SessionResponseDto }) session!: SessionResponseDto;
 }
 

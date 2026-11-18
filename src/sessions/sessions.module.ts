@@ -9,7 +9,7 @@ import { SessionsService } from './sessions.service';
 /**
  * Module phiên ôn (M7): flashcard / multiple_choice / matching / typing —
  * đáp án chấm ở server; cập nhật SRS qua ReviewEngine dùng chung với M6.
- * Từ M11 xử lý thêm phiên kind='quiz' (chấm ở server, XP quiz_correct).
+ * Từ M11 xử lý thêm phiên kind='quiz' (chấm ở server).
  */
 @Module({
   imports: [AuthModule, SrsModule, GamificationModule],
