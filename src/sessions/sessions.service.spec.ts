@@ -94,40 +94,7 @@ function createSetup() {
 }
 
 describe('SessionsService — removeWord (M7.3)', () => {
-  it('M11.3 returns a pending conflict for the next unpublished ordinal', async () => {
-    const { service, tx } = createSetup();
-    tx.studySession.findFirst.mockResolvedValue({
-      id: SESSION_ID,
-      userId: USER_ID,
-      kind: 'quiz',
-      status: 'in_progress',
-      itemCount: 3,
-      settings: { quiz_version: 'm11.3-v3', generation_pending: true },
-      items: [],
-    });
-    await expect(
-      service.answer(USER_ID, SESSION_ID, { ordinal: 2, option_index: 0 }),
-    ).rejects.toMatchObject({ code: 'QUIZ_QUESTION_PENDING' });
-  });
-
-  it('M11.3 blocks manual completion while generation is pending', async () => {
-    const { service, tx } = createSetup();
-    tx.studySession.findFirst.mockResolvedValue({
-      id: SESSION_ID,
-      userId: USER_ID,
-      kind: 'quiz',
-      status: 'in_progress',
-      itemCount: 3,
-      settings: { quiz_version: 'm11.3-v3', generation_pending: true },
-      items: [],
-    });
-    await expect(service.finish(USER_ID, SESSION_ID)).rejects.toMatchObject({
-      code: 'QUIZ_GENERATION_PENDING',
-    });
-    expect(tx.studySession.update).not.toHaveBeenCalled();
-  });
-
-  it('M11.3 hides answer, correctness, partial credit and totals until the attempt ends', async () => {
+  it('M11.5 reveals answer and correctness immediately without leaking internal credit', async () => {
     const { service, prisma } = createSetup();
     prisma.studySession.findFirst.mockResolvedValue({
       id: SESSION_ID,
@@ -141,8 +108,7 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 2,
       correctCount: 1,
       score: 100,
-      xpAwarded: 0,
-      settings: { quiz_version: 'm11.3-v3' },
+      settings: { quiz_version: 'm11.5-v1' },
       startedAt: NOW,
       finishedAt: null,
       items: [
@@ -165,15 +131,15 @@ describe('SessionsService — removeWord (M7.3)', () => {
       ],
     });
     const response = await service.get(USER_ID, SESSION_ID);
-    expect(response.session.correct_count).toBe(0);
-    expect(response.session.score).toBeNull();
-    expect(response.items[0].is_correct).toBeNull();
-    expect(response.items[0].rating).toBeNull();
-    expect(response.items[0]).not.toHaveProperty('correct_answer');
+    expect(response.session.correct_count).toBe(1);
+    expect(response.session.score).toBe(100);
+    expect(response.items[0].is_correct).toBe(true);
+    expect(response.items[0].rating).toBe(3);
+    expect(response.items[0]).toHaveProperty('correct_answer');
     expect(JSON.stringify(response)).not.toContain('_quiz_credit');
     await expect(
       service.listItems(USER_ID, SESSION_ID, { isCorrect: true }),
-    ).rejects.toMatchObject({ code: 'QUIZ_FEEDBACK_DEFERRED' });
+    ).resolves.toHaveLength(1);
   });
   it('xoá từ và 1 thẻ thành công khỏi phiên flashcard đang học', async () => {
     const { service, tx } = createSetup();
@@ -190,7 +156,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 2,
       correctCount: 0,
       score: null,
-      xpAwarded: 0,
       settings: {},
       startedAt: NOW,
       finishedAt: null,
@@ -236,7 +201,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 1,
       correctCount: 0,
       score: null,
-      xpAwarded: 0,
       settings: {},
       startedAt: NOW,
       finishedAt: null,
@@ -272,7 +236,7 @@ describe('SessionsService — removeWord (M7.3)', () => {
     });
   });
 
-  it('xoá từ có nhiều thẻ (recognize + recall) trong cùng 1 phiên', async () => {
+  it('xoá từ có nhiều thẻ (nhiều mặt thẻ) trong cùng 1 phiên', async () => {
     const { service, tx } = createSetup();
 
     tx.studySession.findFirst.mockResolvedValue({
@@ -287,7 +251,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 3,
       correctCount: 0,
       score: null,
-      xpAwarded: 0,
       settings: {},
       startedAt: NOW,
       finishedAt: null,
@@ -343,7 +306,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 1,
       correctCount: 0,
       score: null,
-      xpAwarded: 0,
       settings: {},
       startedAt: NOW,
       finishedAt: null,
@@ -377,7 +339,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 1,
       correctCount: 0,
       score: null,
-      xpAwarded: 0,
       settings: {},
       startedAt: NOW,
       finishedAt: null,
@@ -417,7 +378,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
         itemCount: data.itemCount,
         correctCount: data.correctCount,
         score: data.score,
-        xpAwarded: 0,
         settings: {},
         startedAt: NOW,
         finishedAt: data.finishedAt,
@@ -446,7 +406,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 2,
       correctCount: 1,
       score: null,
-      xpAwarded: 10,
       settings: {},
       startedAt: NOW,
       finishedAt: null,
@@ -492,7 +451,6 @@ describe('SessionsService — removeWord (M7.3)', () => {
       itemCount: 1,
       correctCount: 0,
       score: null,
-      xpAwarded: 10,
       settings: {},
       startedAt: NOW,
       finishedAt: null,

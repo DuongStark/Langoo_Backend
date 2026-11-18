@@ -1,5 +1,11 @@
 import { PrivacyService } from '../../privacy/privacy.service';
-import { HttpStatus, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  HttpStatus,
+  Inject,
+  Injectable,
+  Logger,
+  Optional,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../../common/errors/domain.exception';
@@ -17,7 +23,7 @@ import { buildItemPrompt } from './quiz-session-snapshot';
 import { SessionsService } from '../../sessions/sessions.service';
 import { SessionDetailResponse } from '../../sessions/types/sessions.types';
 import { profileLanguageScopeKey } from '../../users/profile-languages';
-import { hideQuizFeedback } from '../../sessions/quiz-v3-feedback';
+import { QUIZ_FEEDBACK_AFTER_ANSWER } from '../../sessions/quiz-feedback';
 import { lockUser } from '../../users/user-lock';
 import {
   AI_QUIZ_PROVIDER,
@@ -43,6 +49,18 @@ import {
   QuizResponse,
   QuizSessionSummary,
 } from './types/quiz.types';
+import { QUIZ_M115_VERSION } from './bank/quiz-bank-gate';
+import { QuizBankRepository } from './bank/quiz-bank.repository';
+import {
+  assembleQuizFromBank,
+  evaluateBankEligibility,
+} from './bank/quiz-bank-assembler';
+import {
+  QuizEligibilityDto,
+  QuizEligibilityResponse,
+  QuizQuestionReportResponse,
+  ReportQuizQuestionDto,
+} from './dto/quiz-bank.dto';
 
 const DEFAULT_QUIZ_DAILY_LIMIT = 15;
 const DEFAULT_COOLDOWN_MS = 15_000;
@@ -51,6 +69,7 @@ const DEFAULT_PAGE = 20;
 const MAX_PAGE = 100;
 const DETAIL_SESSIONS = 5;
 const QUIZ_PROMPT_VERSION = QUIZ_VERSION;
+const QUIZ_TX_OPTIONS = { maxWait: 10_000, timeout: 15_000 };
 
 interface QuizRow {
   id: string;
@@ -90,18 +109,6 @@ interface SessionRow {
   finishedAt: Date | null;
 }
 
-/**
- * AI Quiz (M11): sinh quiz từ collection (stub), start phiên kind='quiz',
- * lịch sử; quota riêng + cooldown/dedup chống lạm dụng token.
- */
-/**
- * Only local work (lock + reads + inserts) runs inside these transactions.
- * Bounded bump over Prisma defaults (5s/2s) so a burst of same-user creates
- * queued on the FOR UPDATE user lock cannot expire mid-transaction — which
- * surfaced as HTTP 500s when a slow query pushed the wait past the limit.
- */
-const QUIZ_TX_OPTIONS = { maxWait: 10_000, timeout: 15_000 };
-
 @Injectable()
 export class QuizService {
   private readonly logger = new Logger(QuizService.name);
@@ -115,15 +122,299 @@ export class QuizService {
     private readonly usage: AiUsageService,
     @Inject(AI_QUIZ_PROVIDER) private readonly quizProvider: AiQuizProvider,
     private readonly privacy: PrivacyService,
+    @Optional() private readonly bankRepo?: QuizBankRepository,
   ) {}
+
+  // ---------------------------------------------------------------- M11.5 eligibility
+  async eligibility(
+    userId: bigint,
+    dto: QuizEligibilityDto,
+  ): Promise<QuizEligibilityResponse> {
+    const profile = await this.srs.getProfileContext(userId);
+    if (
+      ![profile.primaryLanguageId, profile.secondaryLanguageId].includes(
+        dto.language_id,
+      )
+    ) {
+      throw new DomainException(
+        'QUIZ_LANGUAGE_NOT_IN_PROFILE',
+        'Ngôn ngữ không thuộc hồ sơ hiện tại',
+        HttpStatus.CONFLICT,
+      );
+    }
+    if (dto.collection_id) {
+      const owned = await this.prisma.collection.findFirst({
+        where: {
+          id: dto.collection_id,
+          ownerId: userId,
+          profileId: profile.id,
+          archivedAt: null,
+        },
+        select: { id: true },
+      });
+      if (!owned) {
+        throw new DomainException(
+          'COLLECTION_NOT_FOUND',
+          'Không tìm thấy bộ sưu tập',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+    }
+
+    const raw = await this.sourceRepo.findSourceItems({
+      userId,
+      profileId: profile.id,
+      collectionId: dto.collection_id ?? null,
+      languageId: dto.language_id,
+      maxItems: 501,
+      enrichKanji: true,
+      withExamples: false,
+    });
+    const items = raw.slice(0, 500);
+    const senseIds = [...new Set(items.map((i) => BigInt(i.senseId)))];
+    const bankRows =
+      this.bankRepo && senseIds.length > 0
+        ? await this.bankRepo.findActiveForSenses({
+            languageId: dto.language_id,
+            senseIds,
+            excludeUserId: userId,
+          })
+        : [];
+
+    return evaluateBankEligibility({
+      items,
+      bankRows,
+      languageId: dto.language_id,
+      skills: dto.skills,
+      requestedCount: dto.question_count,
+      sourceComplete: raw.length <= 500,
+    });
+  }
 
   // ---------------------------------------------------------------- create
   async create(
     userId: bigint,
     dto: CreateQuizDto,
   ): Promise<CreateQuizResponse> {
-    // Only prepare/claim inside the user lock. Never hold a DB transaction
-    // open while awaiting an external provider (also works across VPS workers).
+    if (dto.skills && dto.skills.length > 0) {
+      return this.createFromBank(userId, dto);
+    }
+    return this.createLegacy(userId, dto);
+  }
+
+  private async createFromBank(
+    userId: bigint,
+    dto: CreateQuizDto,
+  ): Promise<CreateQuizResponse> {
+    if (!this.bankRepo) {
+      throw new DomainException(
+        'AI_PROVIDER_UNAVAILABLE',
+        'Kho câu hỏi chưa được khởi tạo',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+    const bankRepo = this.bankRepo;
+    const skills = dto.skills!;
+
+    const result = await this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const profile = await this.srs.getProfileContextInTransaction(tx, userId);
+      const targetLanguageId = dto.language_id ?? profile.primaryLanguageId;
+      if (
+        ![profile.primaryLanguageId, profile.secondaryLanguageId].includes(
+          targetLanguageId,
+        )
+      ) {
+        throw new DomainException(
+          'QUIZ_LANGUAGE_NOT_IN_PROFILE',
+          'Ngôn ngữ không thuộc hồ sơ hiện tại',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      if (dto.collection_id !== undefined) {
+        await this.assertCollectionOwned(
+          tx,
+          userId,
+          profile.id,
+          dto.collection_id,
+        );
+      }
+
+      if (dto.idempotency_key) {
+        const existing = await tx.$queryRaw<QuizRow[]>(Prisma.sql`
+          SELECT
+            id,
+            user_id AS "userId",
+            profile_id AS "profileId",
+            collection_id AS "collectionId",
+            quiz_type AS "quizType",
+            difficulty,
+            question_count AS "questionCount",
+            status,
+            created_at AS "createdAt",
+            expires_at AS "expiresAt",
+            generator
+          FROM app.quiz
+          WHERE user_id = ${userId}
+            AND profile_id = ${profile.id}::uuid
+            AND status = 'ready'
+            AND (expires_at IS NULL OR expires_at > now())
+            AND generator->>'version' = ${QUIZ_M115_VERSION}
+            AND generator->>'idempotencyKey' = ${dto.idempotency_key}
+          ORDER BY created_at DESC
+          LIMIT 1
+        `);
+        if (existing.length > 0) {
+          return {
+            response: { ...toQuizResponse(existing[0]), reused: true },
+            missingSenseIds: [] as bigint[],
+            targetLanguageId,
+          };
+        }
+      }
+
+      const items = await this.sourceRepo.findSourceItems(
+        {
+          userId,
+          profileId: profile.id,
+          collectionId: dto.collection_id ?? null,
+          languageId: targetLanguageId,
+          maxItems: 500,
+          enrichKanji: true,
+          withExamples: false,
+        },
+        tx,
+      );
+      const senseIds = [...new Set(items.map((i) => BigInt(i.senseId)))];
+      const [bankRows, recentUsage] = await Promise.all([
+        bankRepo.findActiveForSenses(
+          {
+            languageId: targetLanguageId,
+            senseIds,
+            excludeUserId: userId,
+          },
+          tx,
+        ),
+        bankRepo.findRecentQuizUsage
+          ? bankRepo.findRecentQuizUsage(
+              {
+                userId,
+                profileId: profile.id,
+                languageId: targetLanguageId,
+                limitQuizzes: 5,
+              },
+              tx,
+            )
+          : bankRepo
+              .findRecentBankIds(
+                {
+                  userId,
+                  profileId: profile.id,
+                  languageId: targetLanguageId,
+                  limitQuizzes: 5,
+                },
+                tx,
+              )
+              .then((bankIds) => ({ bankIds, senseIds: new Set<string>() })),
+      ]);
+
+      const assembled = assembleQuizFromBank({
+        items,
+        bankRows,
+        recentBankIds: recentUsage.bankIds,
+        recentSenseIds: recentUsage.senseIds,
+        languageId: targetLanguageId,
+        skills,
+        questionCount: dto.question_count,
+        idempotencyKey: dto.idempotency_key,
+      });
+
+      const distinctTypes = [
+        ...new Set(assembled.questions.map((q) => q.questionType)),
+      ];
+      const quizType = distinctTypes.length === 1 ? distinctTypes[0] : 'mixed';
+      const quizId = uuidv7();
+
+      const itemIds = [
+        ...new Set(
+          assembled.questions.flatMap((q) => (q.itemId ? [q.itemId] : [])),
+        ),
+      ];
+      const survivingItems =
+        itemIds.length === 0
+          ? []
+          : await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+              SELECT id FROM app.collection_item
+              WHERE id IN (${Prisma.join(itemIds.map((id) => Prisma.sql`${id}::uuid`))})
+              ORDER BY id FOR KEY SHARE
+            `);
+      const survivingIds = new Set(survivingItems.map((item) => item.id));
+
+      const created = await tx.quiz.create({
+        data: {
+          id: quizId,
+          userId,
+          profileId: profile.id,
+          collectionId: dto.collection_id ?? null,
+          quizType,
+          difficulty: 'medium',
+          questionCount: assembled.questions.length,
+          generator: JSON.parse(
+            JSON.stringify(assembled.metadata),
+          ) as Prisma.InputJsonValue,
+          status: 'ready',
+          expiresAt: new Date(Date.now() + QUIZ_TTL_DAYS * 24 * 60 * 60 * 1000),
+        },
+      });
+
+      await tx.quizQuestion.createMany({
+        data: assembled.questions.map((question, index) => ({
+          quizId,
+          ordinal: index + 1,
+          questionType: question.questionType,
+          prompt: question.prompt,
+          options: question.options as Prisma.InputJsonValue,
+          correctAnswer: question.correctAnswer as Prisma.InputJsonValue,
+          explanation: question.explanation,
+          languageId: question.languageId,
+          conceptId:
+            question.conceptId === null ? null : BigInt(question.conceptId),
+          itemId:
+            question.itemId !== null && survivingIds.has(question.itemId)
+              ? question.itemId
+              : null,
+        })),
+      });
+
+      return {
+        response: { ...toQuizResponse(created), reused: false },
+        missingSenseIds: assembled.missingSenseIds,
+        targetLanguageId,
+      };
+    }, QUIZ_TX_OPTIONS);
+
+    // Fire-and-forget pre-warm for missing senses; never blocks or fails the HTTP response.
+    if (result.missingSenseIds.length > 0) {
+      void Promise.allSettled(
+        result.missingSenseIds.slice(0, 15).map((senseId) =>
+          bankRepo.enqueueSenseGeneration({
+            senseId,
+            languageId: result.targetLanguageId,
+            priority: 20,
+          }),
+        ),
+      );
+    }
+
+    return result.response;
+  }
+
+  private async createLegacy(
+    userId: bigint,
+    dto: CreateQuizDto,
+  ): Promise<CreateQuizResponse> {
+    const rawTypes = dto.question_types ?? [];
     const preparation = this.prisma.$transaction(async (tx) => {
       await lockUser(tx, userId);
       const profile = await this.srs.getProfileContextInTransaction(tx, userId);
@@ -138,21 +429,17 @@ export class QuizService {
       const reusable = await this.resolveCooldown(tx, userId, profile.id, dto);
       if (reusable !== null) return { kind: 'reused' as const, reusable };
 
-      const questionTypes = canonicalQuestionTypes(dto.question_types);
+      const questionTypes = canonicalQuestionTypes(rawTypes);
       const items = await this.sourceRepo.findSourceItems(
         {
           userId,
           profileId: profile.id,
           collectionId: dto.collection_id ?? null,
-          // Kanji là mặc định trong trắc nghiệm; ngữ cảnh cũng chỉ dùng cho
-          // câu hỏi Kanji nên chỉ enrich khi có multiple_choice.
           enrichKanji: questionTypes.includes('multiple_choice'),
           withExamples: questionTypes.includes('multiple_choice'),
         },
         tx,
       );
-      // Lấy từ của tối đa 2 quiz gần nhất: generator chỉ xáo nguồn khi còn đủ
-      // từ chưa hỏi để lấp đầy quiz (bộ nhỏ giữ nguyên, evidence cũ tái dùng).
       const recentQuizzes = await tx.quiz.findMany({
         where: { userId, profileId: profile.id, status: 'ready' },
         orderBy: { createdAt: 'desc' },
@@ -185,7 +472,6 @@ export class QuizService {
         ],
         usage: { tokensIn: 0, tokensOut: 0, calls: 0, local: 0, reused: 0 },
       };
-      // Source validation, quota and claim either all commit or all roll back.
       generatorInput.baseQuestions = buildQuizQuestions(generatorInput);
       if (questionTypes.includes('multiple_choice')) {
         const previous = await tx.quiz.findMany({
@@ -219,8 +505,6 @@ export class QuizService {
           profileId: profile.id,
           collectionId: dto.collection_id ?? null,
           quizType: questionTypes.length > 1 ? 'mixed' : questionTypes[0],
-          // Cột difficulty vẫn NOT NULL trong schema; UX đã bỏ độ khó nên ghi
-          // giá trị trung tính, không dùng cho logic sinh câu hỏi.
           difficulty: 'medium',
           questionCount: dto.question_count,
           generator: {
@@ -245,10 +529,8 @@ export class QuizService {
         ),
       };
     }, QUIZ_TX_OPTIONS);
+
     const prepared = await preparation.catch((error: unknown) => {
-      // Preparation has no external AI calls. Prisma rolls back an expired
-      // interactive transaction, including its quota reservation. Never retry
-      // the entire create flow or clean up a claim that was rolled back.
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
         error.code === 'P2028'
@@ -272,7 +554,7 @@ export class QuizService {
       const metadata = metadataSchema.parse({
         provider: this.quizProvider.name,
         version: QUIZ_PROMPT_VERSION,
-        questionTypes: canonicalQuestionTypes(dto.question_types),
+        questionTypes: canonicalQuestionTypes(rawTypes),
         usage: generatorInput.usage,
         questions: questions.map((q, index) => ({
           ordinal: index + 1,
@@ -317,9 +599,6 @@ export class QuizService {
             ),
           ),
         ];
-        // Keep the generated text/answers even if source items were removed.
-        // Lock surviving references until insert so a concurrent DELETE cannot
-        // remove an item between this lookup and the FK check.
         const survivingItems =
           itemIds.length === 0
             ? []
@@ -358,8 +637,6 @@ export class QuizService {
       }, QUIZ_TX_OPTIONS);
       return { ...toQuizResponse(quiz), reused: false };
     } catch (error) {
-      // Also covers persistence failures. A deleted profile may have already
-      // cascaded away the quiz, so do not let a failed cleanup hide the error.
       try {
         await this.prisma.quiz.updateMany({
           where: { id: quizId, status: 'generating' },
@@ -397,6 +674,113 @@ export class QuizService {
         }
       }
     }
+  }
+
+  // ------------------------------------------------------------------ report
+  async reportQuestion(
+    userId: bigint,
+    quizId: string,
+    ordinal: number,
+    dto: ReportQuizQuestionDto,
+  ): Promise<QuizQuestionReportResponse> {
+    if (!Number.isInteger(ordinal) || ordinal < 1) {
+      throw new DomainException(
+        'VALIDATION_FAILED',
+        'Số thứ tự câu hỏi không hợp lệ',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await lockUser(tx, userId);
+      const quiz = await tx.quiz.findFirst({
+        where: { id: quizId, userId },
+      });
+      if (!quiz) {
+        throw quizNotFound();
+      }
+      const question = await tx.quizQuestion.findFirst({
+        where: { quizId, ordinal },
+        select: { id: true, ordinal: true, questionType: true },
+      });
+      if (!question) {
+        throw new DomainException(
+          'QUIZ_QUESTION_NOT_FOUND',
+          'Không tìm thấy câu hỏi cần báo lỗi',
+          HttpStatus.NOT_FOUND,
+        );
+      }
+
+      const meta = readQuestionMetadata(
+        quiz.generator,
+        question.ordinal,
+        question.questionType,
+      );
+      if (meta.bankQuestionId && this.bankRepo) {
+        const reported = await this.bankRepo.reportBankQuestion(
+          {
+            bankQuestionId: BigInt(meta.bankQuestionId),
+            userId,
+            quizId,
+            ordinal,
+            reason: dto.reason,
+            note: dto.note,
+            idempotencyKey: dto.idempotency_key,
+          },
+          tx,
+        );
+        return {
+          report_id: reported.reportId,
+          status: reported.status,
+          cache_excluded: true,
+        };
+      }
+
+      const rawGen =
+        typeof quiz.generator === 'object' && quiz.generator !== null
+          ? ({ ...(quiz.generator as Record<string, unknown>) } as Record<
+              string,
+              unknown
+            >)
+          : {};
+      const reports = Array.isArray(rawGen.reports)
+        ? [...(rawGen.reports as Record<string, unknown>[])]
+        : [];
+      const existing = reports.find(
+        (r) => r.key === dto.idempotency_key && typeof r.id === 'string',
+      );
+      if (existing) {
+        return {
+          report_id: existing.id as string,
+          status: 'recorded',
+          cache_excluded: true,
+        };
+      }
+      const reportId = uuidv7();
+      reports.push({
+        id: reportId,
+        key: dto.idempotency_key,
+        ordinal,
+        reason: dto.reason,
+        note: dto.note ?? null,
+        status: 'pending',
+        at: new Date().toISOString(),
+      });
+      rawGen.reports = reports;
+      await tx.quiz.update({
+        where: { id: quizId },
+        data: {
+          generator: JSON.parse(
+            JSON.stringify(rawGen),
+          ) as Prisma.InputJsonValue,
+        },
+      });
+      return {
+        report_id: reportId,
+        status: 'recorded',
+        cache_excluded: true,
+      };
+    }, QUIZ_TX_OPTIONS);
   }
 
   // ------------------------------------------------------------------ read
@@ -497,11 +881,15 @@ export class QuizService {
         throw quizNotFound();
       }
 
-      const isV3 =
+      const genVersion =
         typeof quiz.generator === 'object' &&
         quiz.generator !== null &&
         'version' in quiz.generator &&
-        quiz.generator.version === 'm11.3-v3';
+        typeof quiz.generator.version === 'string'
+          ? quiz.generator.version
+          : null;
+      const isM115 = genVersion === QUIZ_M115_VERSION;
+
       const now = new Date();
       if (
         quiz.status === 'expired' ||
@@ -519,7 +907,7 @@ export class QuizService {
           HttpStatus.CONFLICT,
         );
       }
-      if (quiz.status !== 'ready' && !(isV3 && quiz.status === 'generating')) {
+      if (quiz.status !== 'ready') {
         throw new DomainException(
           'QUIZ_NOT_READY',
           'Quiz chưa sẵn sàng để làm bài',
@@ -544,51 +932,18 @@ export class QuizService {
         quiz.quizType,
         questions[0].questionType as QuizQuestionType,
       );
-      const targetKeys = new Set<string>();
+      let targetCount = questions.length;
       if (
-        isV3 &&
+        isM115 &&
         typeof quiz.generator === 'object' &&
         quiz.generator !== null &&
-        'content' in quiz.generator &&
-        Array.isArray(quiz.generator.content)
+        'targetCount' in quiz.generator &&
+        typeof quiz.generator.targetCount === 'number'
       ) {
-        const publication =
-          'publication' in quiz.generator &&
-          Array.isArray(quiz.generator.publication)
-            ? (quiz.generator.publication as { slotOrdinal: number }[])
-            : null;
-        const publishedSlots = publication
-          ? new Set(publication.map((p) => p.slotOrdinal))
-          : null;
-        for (const entry of quiz.generator.content as unknown[]) {
-          if (
-            publishedSlots &&
-            (typeof entry !== 'object' ||
-              entry === null ||
-              !('ordinal' in entry) ||
-              !publishedSlots.has(Number(entry.ordinal)))
-          )
-            continue;
-          if (
-            typeof entry !== 'object' ||
-            entry === null ||
-            !('targets' in entry) ||
-            !Array.isArray(entry.targets)
-          )
-            continue;
-          for (const target of entry.targets as unknown[])
-            if (
-              typeof target === 'object' &&
-              target !== null &&
-              'senseId' in target &&
-              'languageId' in target
-            )
-              targetKeys.add(
-                `${String(target.languageId)}:${String(target.senseId)}`,
-              );
-        }
+        targetCount = quiz.generator.targetCount;
       }
-      if (isV3) {
+
+      if (isM115) {
         const currentProfile = await this.srs.getProfileContextInTransaction(
           tx,
           userId,
@@ -645,20 +1000,16 @@ export class QuizService {
           settings: {
             quiz_type: quiz.quizType,
             difficulty: quiz.difficulty,
-            ...(isV3
+            ...(isM115
               ? {
-                  quiz_version: 'm11.3-v3',
-                  target_count: targetKeys.size,
-                  feedback_policy: 'after_completion',
-                  generation_pending: quiz.status === 'generating',
+                  quiz_version: QUIZ_M115_VERSION,
+                  target_count: targetCount,
+                  feedback_policy: QUIZ_FEEDBACK_AFTER_ANSWER,
                   attempt_key: attemptKey ?? null,
                 }
               : {}),
           },
-          itemCount:
-            isV3 && quiz.status === 'generating'
-              ? quiz.questionCount
-              : questions.length,
+          itemCount: questions.length,
         },
       });
       await tx.studySessionItem.createMany({
@@ -706,7 +1057,7 @@ export class QuizService {
       return null;
     }
 
-    const questionTypes = canonicalQuestionTypes(dto.question_types);
+    const questionTypes = canonicalQuestionTypes(dto.question_types ?? []);
     const sameParams =
       last.profileId === profileId &&
       last.quizType ===
@@ -765,7 +1116,6 @@ export class QuizService {
     profileId: string,
     collectionId: string,
   ): Promise<void> {
-    // A soft archive/update must wait until the claim transaction completes.
     await tx.$queryRaw`SELECT id FROM app.collection
       WHERE id = ${collectionId}::uuid AND owner_id = ${userId} FOR SHARE`;
     const collection = await tx.collection.findFirst({
@@ -853,13 +1203,14 @@ function sessionModeFor(
 }
 
 function toQuizResponse(row: QuizRow): QuizResponse {
-  return {
-    ...(typeof row.generator === 'object' &&
+  const version =
+    typeof row.generator === 'object' &&
     row.generator !== null &&
-    'version' in row.generator &&
-    row.generator.version === 'm11.3-v3'
-      ? { content_version: 'm11.3-v3' as const }
-      : {}),
+    'version' in row.generator
+      ? row.generator.version
+      : undefined;
+  return {
+    ...(version === QUIZ_M115_VERSION ? { content_version: version } : {}),
     id: row.id,
     collection_id: row.collectionId,
     quiz_type: row.quizType,
@@ -882,6 +1233,7 @@ function toQuestionResponse(
     language_id: row.languageId,
     question_style: metadata.style,
     context: metadata.context,
+    segments: metadata.segments ?? null,
     ...(metadata.skill
       ? { skill: metadata.skill, quality_flags: metadata.qualityFlags ?? [] }
       : {}),
@@ -896,10 +1248,8 @@ function toSessionSummary(row: SessionRow | null): QuizSessionSummary | null {
     id: row.id,
     status: row.status,
     item_count: row.itemCount,
-    correct_count: hideQuizFeedback(row.settings, row.status)
-      ? 0
-      : row.correctCount,
-    score: hideQuizFeedback(row.settings, row.status) ? null : row.score,
+    correct_count: row.correctCount,
+    score: row.score,
     started_at: row.startedAt.toISOString(),
     finished_at: row.finishedAt?.toISOString() ?? null,
   };

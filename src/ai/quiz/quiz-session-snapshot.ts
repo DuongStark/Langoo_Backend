@@ -20,6 +20,7 @@ export function buildItemPrompt(
     text: question.prompt,
     question_style: metadata.style,
     context: metadata.context,
+    segments: metadata.segments ?? null,
     ...(metadata.skill
       ? { skill: metadata.skill, quality_flags: metadata.qualityFlags ?? [] }
       : {}),

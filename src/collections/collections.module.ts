@@ -1,6 +1,7 @@
 import { SavedSensesController } from './saved-senses.controller';
 import { SavedSensesService } from './saved-senses.service';
 import { Module } from '@nestjs/common';
+import { AiModule } from '../ai/ai.module';
 import { AuthModule } from '../auth/auth.module';
 import { CollectionsController } from './collections.controller';
 import { CollectionsService } from './collections.service';
@@ -16,7 +17,7 @@ import { TagsService } from './tags.service';
  * Ghi app.* qua Prisma; đọc core.deck/core.sense chỉ để tra cứu.
  */
 @Module({
-  imports: [AuthModule],
+  imports: [AuthModule, AiModule],
   controllers: [
     SavedSensesController,
     CollectionsController,

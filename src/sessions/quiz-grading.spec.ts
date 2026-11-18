@@ -1,8 +1,8 @@
 import { gradeQuizAnswer } from './quiz-content';
 
-it('M11.3 preserves whole-question correctness and separately reports matching pair credit', () => {
+it('M11.5 preserves whole-question correctness and separately reports matching pair credit', () => {
   const answer = {
-    rubric: 'm11.3-v3',
+    rubric: 'm11.5-v1',
     mapping: Array.from({ length: 4 }, (_, i) => ({
       left_index: i,
       right_index: i,

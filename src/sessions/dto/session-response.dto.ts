@@ -23,6 +23,11 @@ export class SessionResponseDto {
   @ApiProperty({ nullable: true }) finished_at!: string | null;
 }
 
+class QuizAnswerCreditDto {
+  @ApiProperty({ example: 3 }) earned!: number;
+  @ApiProperty({ example: 4 }) possible!: number;
+}
+
 export class SessionItemResponseDto {
   @ApiProperty() id!: string;
   @ApiProperty({ example: 1 }) ordinal!: number;
@@ -30,8 +35,12 @@ export class SessionItemResponseDto {
   @ApiProperty({ nullable: true }) face_id!: string | null;
   @ApiProperty({ description: 'Đề bài (ẩn đáp án tới khi trả lời)' })
   prompt!: unknown;
-  @ApiPropertyOptional({ description: 'Chỉ có sau khi đã trả lời' })
+  @ApiPropertyOptional({
+    description: 'Hiện sau khi trả lời câu này với Quiz M11.5',
+  })
   correct_answer?: unknown;
+  @ApiPropertyOptional({ type: QuizAnswerCreditDto })
+  credit?: QuizAnswerCreditDto;
   @ApiPropertyOptional() user_answer?: unknown;
   @ApiProperty({ nullable: true, example: null }) is_correct!: boolean | null;
   @ApiProperty({ nullable: true }) rating!: number | null;
@@ -48,6 +57,8 @@ export class SessionDetailResponseDto {
 export class AnswerResultResponseDto {
   @ApiProperty({ type: SessionItemResponseDto }) item!: SessionItemResponseDto;
   @ApiProperty({
+    nullable: true,
+    description: 'Null với phiên quiz.',
     example: {
       state: 'learning',
       due_at: '…',
@@ -62,7 +73,7 @@ export class AnswerResultResponseDto {
     interval_days: number;
     ease_factor: number;
     learning_step: number | null;
-  };
+  } | null;
   @ApiProperty({
     example: { amount: 0 },
     description: 'XP mới tạm dừng từ M8.3',

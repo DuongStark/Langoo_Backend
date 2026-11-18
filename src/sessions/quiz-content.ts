@@ -52,7 +52,8 @@ export function gradeQuizAnswer(
     if (!graded) return null;
     return {
       ...toQuizGraded(graded),
-      ...(correctAnswer.rubric === 'm11.3-v3'
+      ...(correctAnswer.rubric === 'm11.5-v1' ||
+      correctAnswer.rubric === 'm11.3-v3'
         ? { credit: { earned: graded.isCorrect ? 1 : 0, possible: 1 } }
         : {}),
     };
@@ -128,7 +129,8 @@ function gradeMatching(
     isCorrect,
     rating: isCorrect ? 3 : 1,
     userAnswer: { pairs },
-    ...(correctAnswer.rubric === 'm11.3-v3'
+    ...(correctAnswer.rubric === 'm11.5-v1' ||
+    correctAnswer.rubric === 'm11.3-v3'
       ? { credit: { earned: correctPairs, possible: expected.size } }
       : {}),
   };

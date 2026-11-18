@@ -69,6 +69,8 @@ model User {
   feedbacks          Feedback[]
   adminAuditLogs     AdminAuditLog[]
 
+  quizBankReports QuizQuestionBankReport[]
+
   @@map("users")
   @@schema("app")
 }
@@ -484,6 +486,8 @@ model Quiz {
   questions     QuizQuestion[]
   studySessions StudySession[]
 
+  bankReports QuizQuestionBankReport[]
+
   @@map("quiz")
   @@schema("app")
 }
@@ -826,5 +830,77 @@ model TermsAcceptance {
   @@unique([userId, requestId], map: "terms_acceptance_user_request_key")
   @@index([userId, id(sort: Desc)], map: "terms_acceptance_user_latest_idx")
   @@map("terms_acceptance")
+  @@schema("app")
+}
+
+model QuizQuestionBank {
+  id               BigInt    @id @default(autoincrement())
+  senseId          BigInt    @map("sense_id") // core.sense (không map)
+  languageId       Int       @map("language_id") @db.SmallInt
+  skill            String
+  variantNo        Int       @map("variant_no") @db.SmallInt
+  rubricVersion    String    @map("rubric_version")
+  sentenceBefore   String    @map("sentence_before")
+  targetSurface    String    @map("target_surface")
+  sentenceAfter    String    @map("sentence_after")
+  sentenceHash     String    @map("sentence_hash")
+  canonicalAnswer  String    @map("canonical_answer")
+  fixedDistractors Json      @default("[]") @map("fixed_distractors")
+  posBucket        String?   @map("pos_bucket")
+  excludedWords    Json      @default("[]") @map("excluded_words")
+  origin           String    @default("generated")
+  verification     String    @default("machine_reviewed")
+  generatorModel   String?   @map("generator_model")
+  validatorModel   String?   @map("validator_model")
+  status           String    @default("active")
+  reportCount      Int       @default(0) @map("report_count")
+  quarantinedAt    DateTime? @map("quarantined_at") @db.Timestamptz(6)
+  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  reports QuizQuestionBankReport[]
+
+  @@unique([senseId, skill, rubricVersion, variantNo])
+  @@map("quiz_question_bank")
+  @@schema("app")
+}
+
+model QuizQuestionBankReport {
+  id             String   @id @db.Uuid
+  bankQuestionId BigInt   @map("bank_question_id")
+  userId         BigInt?  @map("user_id")
+  reporterHash   String   @map("reporter_hash")
+  quizId         String?  @map("quiz_id") @db.Uuid
+  ordinal        Int?     @db.SmallInt
+  reason         String
+  note           String?
+  idempotencyKey String   @map("idempotency_key") @db.Uuid
+  status         String   @default("open")
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  bankQuestion QuizQuestionBank @relation(fields: [bankQuestionId], references: [id], onDelete: Cascade)
+  user         User?            @relation(fields: [userId], references: [id], onDelete: SetNull)
+  quiz         Quiz?            @relation(fields: [quizId], references: [id], onDelete: SetNull)
+
+  @@unique([bankQuestionId, reporterHash])
+  @@map("quiz_question_bank_report")
+  @@schema("app")
+}
+
+model QuizBankGenerationJob {
+  senseId         BigInt    @id @map("sense_id") // core.sense (không map)
+  languageId      Int       @map("language_id") @db.SmallInt
+  status          String    @default("queued")
+  priority        Int       @default(10) @db.SmallInt
+  attempts        Int       @default(0) @db.SmallInt
+  replenishCycles Int       @default(0) @map("replenish_cycles") @db.SmallInt
+  leaseOwner      String?   @map("lease_owner")
+  leaseUntil      DateTime? @map("lease_until") @db.Timestamptz(6)
+  nextRunAt       DateTime  @default(now()) @map("next_run_at") @db.Timestamptz(6)
+  lastError       String?   @map("last_error")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("quiz_bank_generation_job")
   @@schema("app")
 }

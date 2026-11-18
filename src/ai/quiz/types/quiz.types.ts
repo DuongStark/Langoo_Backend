@@ -1,7 +1,7 @@
-import { PublicQuizContext } from '../quiz-contract';
+import { PublicQuizContext, PublicQuizSegments } from '../quiz-contract';
 
 export interface QuizResponse {
-  content_version?: 'm11.3-v3';
+  content_version?: 'm11.5-v1';
   id: string;
   collection_id: string | null;
   quiz_type: string;
@@ -12,7 +12,7 @@ export interface QuizResponse {
 }
 
 export interface CreateQuizResponse extends QuizResponse {
-  /** true khi trả lại quiz vừa tạo trong thời gian cooldown (bấm đúp). */
+  /** true khi trả lại quiz vừa tạo trong thời gian cooldown hoặc cùng idempotency_key. */
   reused: boolean;
 }
 
@@ -26,6 +26,7 @@ export interface QuizQuestionResponse {
   language_id: number | null;
   question_style: string;
   context: PublicQuizContext | null;
+  segments?: PublicQuizSegments | null;
 }
 
 export interface QuizSessionSummary {

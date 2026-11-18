@@ -1,6 +1,7 @@
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { PrismaService } from '../db/prisma.service';
 import { encodeCursor } from '../common/pagination/cursor';
+import { QuizBankRepository } from '../ai/quiz/bank/quiz-bank.repository';
 import { ItemsService } from './items.service';
 import { SenseLookupRepository } from './repositories/sense-lookup.repository';
 
@@ -72,6 +73,7 @@ function createSetup(): {
     hasCuratedConceptMapping: jest.Mock;
   };
   languages: { findExistingIds: jest.Mock };
+  quizBankRepo: { enqueueUserSavedSenses: jest.Mock };
 } {
   const tx: TxMock = {
     collectionItem: {
@@ -111,12 +113,16 @@ function createSetup(): {
     hasCuratedConceptMapping: jest.fn().mockResolvedValue(true),
   };
   const languages = { findExistingIds: jest.fn() };
+  const quizBankRepo = {
+    enqueueUserSavedSenses: jest.fn().mockResolvedValue(undefined),
+  };
   const service = new ItemsService(
     prisma as unknown as PrismaService,
     senseLookup as unknown as SenseLookupRepository,
     languages as unknown as LanguageRepository,
+    quizBankRepo as unknown as QuizBankRepository,
   );
-  return { service, prisma, tx, senseLookup, languages };
+  return { service, prisma, tx, senseLookup, languages, quizBankRepo };
 }
 
 describe('ItemsService', () => {
@@ -308,6 +314,36 @@ describe('ItemsService', () => {
       await expect(
         service.add(1n, COLLECTION_ID, { sense_id: '1', meaning_vi: 'chạy' }),
       ).rejects.toMatchObject({ code: 'ITEM_ALREADY_EXISTS' });
+    });
+
+    it('triggers non-blocking quiz bank pre-warm and still succeeds even if pre-warm rejects', async () => {
+      const { service, prisma, tx, senseLookup, quizBankRepo } = createSetup();
+      prisma.collection.findFirst.mockResolvedValue(collectionRow());
+      senseLookup.findManyByIds.mockResolvedValue([
+        { sense_id: 1n, language_id: 2, lemma: '走る', concept_id: 1n },
+        { sense_id: 2n, language_id: 1, lemma: 'run', concept_id: 1n },
+      ]);
+      tx.collectionItem.aggregate.mockResolvedValue({ _max: { position: 0 } });
+      tx.collectionItem.create.mockResolvedValue(itemRow());
+      tx.collectionItemFace.create.mockResolvedValue({ id: 'face-1' });
+      tx.srsState.createMany.mockResolvedValue({ count: 4 });
+      tx.collection.update.mockResolvedValue({ id: COLLECTION_ID });
+      prisma.collectionItem.findFirst.mockResolvedValue(itemRow());
+      quizBankRepo.enqueueUserSavedSenses.mockRejectedValueOnce(
+        new Error('simulated DB hiccup'),
+      );
+
+      const result = await service.add(1n, COLLECTION_ID, {
+        sense_id: '1',
+        secondary_sense_id: '2',
+        meaning_vi: 'chạy',
+      });
+
+      expect(result.id).toBe('01a0dc8a-7191-7e18-93b0-32e8378986fe');
+      expect(quizBankRepo.enqueueUserSavedSenses).toHaveBeenCalledWith(1n, [
+        { senseId: 1n, languageId: 2 },
+        { senseId: 2n, languageId: 1 },
+      ]);
     });
   });
 

@@ -186,3 +186,7 @@ Thẻ suspended biến khỏi `/srs/due` **và** khỏi mọi phiên mới; unsu
 trở lại đúng lịch cũ. `404 SRS_ITEM_NOT_FOUND` nếu không thuộc user.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **sessions**, **srs**).
+
+## Phản hồi Quiz M11.5
+
+Phiên có `settings.quiz_version: "m11.5-v1"` trả `settings.feedback_policy: "after_answer"`. Khi chấm xong một câu, API trả `item.correct_answer` và `item.is_correct`. Các lần đọc phiên hiện lại đáp án đã chấm. Câu chưa trả lời vẫn ẩn đáp án. Xem [handoff FE M11.5](../handoff/m11.5-quiz-shared-bank-fe-2026-11-18.md) để tích hợp.

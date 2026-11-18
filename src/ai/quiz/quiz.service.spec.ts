@@ -14,10 +14,23 @@ import { CONTEXT_POLICY, QUIZ_VERSION } from './quiz-contract';
 
 const QUIZ_ID = '01900000-0000-7000-8000-000000000001';
 
-describe('M11.3 attempts', () => {
-  it('does not leak in-progress v3 correctness through quiz list or detail summaries', async () => {
+describe('M11.5 attempts', () => {
+  it('rejects generating legacy quizzes before allocating an attempt', async () => {
+    const { service, prisma, tx } = createSetup();
+    prisma.quiz.findFirst.mockResolvedValue(
+      quizRow({ status: 'generating', generator: { version: 'm11.3-v3' } }),
+    );
+    prisma.quizQuestion.findMany.mockResolvedValue([
+      { id: 1n, ordinal: 1, questionType: 'multiple_choice' },
+    ]);
+    await expect(service.start(1n, QUIZ_ID)).rejects.toMatchObject({
+      code: 'QUIZ_NOT_READY',
+    });
+    expect(tx.studySession.create).not.toHaveBeenCalled();
+  });
+  it('shows immediate correctness through quiz list and detail summaries', async () => {
     const { service, prisma } = createSetup();
-    const quiz = quizRow({ generator: { version: 'm11.3-v3', questions: [] } });
+    const quiz = quizRow({ generator: { version: 'm11.5-v1', questions: [] } });
     const session = {
       id: 'attempt',
       quizId: QUIZ_ID,
@@ -25,7 +38,7 @@ describe('M11.3 attempts', () => {
       itemCount: 20,
       correctCount: 7,
       score: 100,
-      settings: { quiz_version: 'm11.3-v3' },
+      settings: { quiz_version: 'm11.5-v1' },
       startedAt: new Date(),
       finishedAt: null,
     };
@@ -34,18 +47,18 @@ describe('M11.3 attempts', () => {
     prisma.quizQuestion.findMany.mockResolvedValue([]);
     prisma.studySession.findMany.mockResolvedValue([session]);
     expect((await service.list(1n, {})).data[0].latest_session).toMatchObject({
-      correct_count: 0,
-      score: null,
+      correct_count: 7,
+      score: 100,
     });
     expect((await service.get(1n, QUIZ_ID)).sessions[0]).toMatchObject({
-      correct_count: 0,
-      score: null,
+      correct_count: 7,
+      score: 100,
     });
   });
-  it('resumes an active v3 attempt instead of creating a duplicate on repeated start', async () => {
+  it('resumes an active bank quiz attempt instead of creating a duplicate on repeated start', async () => {
     const { service, prisma, tx, sessions } = createSetup();
     prisma.quiz.findFirst.mockResolvedValue(
-      quizRow({ generator: { version: 'm11.3-v3', questions: [] } }),
+      quizRow({ generator: { version: 'm11.5-v1', questions: [] } }),
     );
     prisma.quizQuestion.findMany.mockResolvedValue([
       { id: 1n, ordinal: 1, questionType: 'multiple_choice' },
@@ -58,7 +71,7 @@ describe('M11.3 attempts', () => {
   it('replays an explicit new-attempt key before allocating another attempt', async () => {
     const { service, prisma, tx, sessions } = createSetup();
     prisma.quiz.findFirst.mockResolvedValue(
-      quizRow({ generator: { version: 'm11.3-v3', questions: [] } }),
+      quizRow({ generator: { version: 'm11.5-v1', questions: [] } }),
     );
     prisma.quizQuestion.findMany.mockResolvedValue([
       { id: 1n, ordinal: 1, questionType: 'multiple_choice' },

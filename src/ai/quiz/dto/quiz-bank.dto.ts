@@ -14,7 +14,7 @@ import {
   ValidateIf,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { QUIZ_SKILLS, QuizSkill } from './quiz-blueprint';
+import { QUIZ_SKILLS, QuizSkill } from '../quiz-skills';
 
 export class QuizEligibilityDto {
   @ApiPropertyOptional({
@@ -57,19 +57,6 @@ export class QuizEligibilityDto {
   @Max(50)
   question_count!: number;
 }
-export class CreateQuizJobDto extends QuizEligibilityDto {
-  @ApiProperty({
-    format: 'uuid',
-    description: 'Một key cho một ý định tạo đề; giữ nguyên khi retry mạng.',
-  })
-  @IsUUID()
-  idempotency_key!: string;
-}
-export class QuizJobActionDto {
-  @ApiProperty({ enum: ['retry', 'accept_shorter', 'cancel'] })
-  @IsIn(['retry', 'accept_shorter', 'cancel'])
-  action!: 'retry' | 'accept_shorter' | 'cancel';
-}
 export class QuizSkillEligibilityResponse {
   @ApiProperty({ enum: QUIZ_SKILLS }) skill!: QuizSkill;
   @ApiProperty() requested!: number;
@@ -109,40 +96,6 @@ export class QuizEligibilityResponse {
   })
   sample_sources_supported!: boolean;
 }
-export class QuizJobSkillProgressResponse {
-  @ApiProperty({ enum: QUIZ_SKILLS }) skill!: QuizSkill;
-  @ApiProperty() requested!: number;
-  @ApiProperty() validated!: number;
-}
-export class QuizJobResponse {
-  @ApiProperty({ format: 'uuid' }) quiz_id!: string;
-  @ApiProperty({
-    enum: ['queued', 'running', 'needs_action', 'ready', 'failed', 'cancelled'],
-  })
-  state!: string;
-  @ApiProperty({
-    enum: [
-      'queued',
-      'prepare',
-      'generate',
-      'audit',
-      'complete',
-      'waiting',
-      'terminal',
-    ],
-  })
-  phase!: string;
-  @ApiProperty() requested_count!: number;
-  @ApiProperty() validated_count!: number;
-  @ApiProperty() published_count!: number;
-  @ApiProperty() can_start!: boolean;
-  @ApiProperty({ type: [QuizJobSkillProgressResponse] })
-  by_skill!: QuizJobSkillProgressResponse[];
-  @ApiProperty({ type: [String] }) allowed_actions!: string[];
-  @ApiProperty({ type: String, nullable: true }) reason!: string | null;
-  @ApiProperty() usage_uncertain!: boolean;
-}
-
 export class ReportQuizQuestionDto {
   @ApiProperty({
     enum: ['ambiguous', 'wrong_meaning', 'wrong_reading', 'unnatural', 'other'],
@@ -158,10 +111,11 @@ export class ReportQuizQuestionDto {
 }
 export class QuizQuestionReportResponse {
   @ApiProperty({ format: 'uuid' }) report_id!: string;
-  @ApiProperty({ enum: ['pending'] }) status!: 'pending';
+  @ApiProperty({ enum: ['pending', 'recorded', 'quarantined'] })
+  status!: 'pending' | 'recorded' | 'quarantined';
   @ApiProperty({
     description:
-      'Câu cùng cache key trong scope này không được tái dùng; chưa kết luận nội dung sai.',
+      'Câu báo lỗi bị loại ngay khỏi đề tiếp theo của người báo; đủ 2 người khác nhau báo lỗi sẽ tự khóa toàn hệ thống.',
   })
   cache_excluded!: boolean;
 }

@@ -1,5 +1,6 @@
-import { HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger, Optional } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
+import { QuizBankRepository } from '../ai/quiz/bank/quiz-bank.repository';
 import { DomainException } from '../common/errors/domain.exception';
 import { parsePositivePostgresBigInt } from '../common/ids/postgres-id';
 import { decodeCursor, encodeCursor } from '../common/pagination/cursor';
@@ -60,10 +61,13 @@ interface ItemRow {
 /** Item trong collection: 1–2 face, mỗi face 2 srs_state (transaction). */
 @Injectable()
 export class ItemsService {
+  private readonly logger = new Logger(ItemsService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly senseLookup: SenseLookupRepository,
     private readonly languages: LanguageRepository,
+    @Optional() private readonly quizBankRepo?: QuizBankRepository,
   ) {}
 
   async list(
@@ -367,7 +371,25 @@ export class ItemsService {
       throw error;
     }
 
-    return this.getItemOrThrow(userId, collectionId, itemId);
+    const response = await this.getItemOrThrow(userId, collectionId, itemId);
+
+    if (this.quizBankRepo) {
+      const sensesToPrewarm = [
+        { senseId: anchorId, languageId: anchor.language_id },
+        ...(secondary
+          ? [{ senseId: secondary.sense_id, languageId: secondary.language_id }]
+          : []),
+      ];
+      try {
+        await this.quizBankRepo.enqueueUserSavedSenses(userId, sensesToPrewarm);
+      } catch (err) {
+        this.logger.warn(
+          `Pre-warm quiz bank skipped for item ${itemId}: ${err instanceof Error ? err.message : 'unknown'}`,
+        );
+      }
+    }
+
+    return response;
   }
 
   async update(

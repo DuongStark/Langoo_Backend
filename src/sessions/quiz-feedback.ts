@@ -1,14 +1,17 @@
-export function isV3Quiz(settings: unknown): boolean {
-  return (
-    typeof settings === 'object' &&
+export const QUIZ_FEEDBACK_AFTER_ANSWER = 'after_answer';
+
+function quizVersion(settings: unknown): unknown {
+  return typeof settings === 'object' &&
     settings !== null &&
-    'quiz_version' in settings &&
-    settings.quiz_version === 'm11.3-v3'
-  );
+    'quiz_version' in settings
+    ? settings.quiz_version
+    : undefined;
 }
-export function hideQuizFeedback(settings: unknown, status: string): boolean {
-  return isV3Quiz(settings) && status === 'in_progress';
+
+export function isImmediateQuiz(settings: unknown): boolean {
+  return quizVersion(settings) === 'm11.5-v1';
 }
+
 export function quizCredit(
   value: unknown,
 ): { earned: number; possible: number } | null {

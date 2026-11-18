@@ -18,6 +18,7 @@ interface SourceRow {
   reading: string | null;
   romanization: string | null;
   meaning_vi: string;
+  dict_gloss_vi: string | null;
   gloss_vi_machine: boolean | null;
 }
 
@@ -55,6 +56,7 @@ export class QuizSourceRepository {
         sc.reading,
         sc.romanization,
         sc.gloss_vi_machine,
+        sc.gloss_vi AS dict_gloss_vi,
         COALESCE(NULLIF(btrim(i.meaning_vi), ''), sc.gloss_vi, sc.gloss_en, sc.lemma) AS meaning_vi
       FROM app.collection_item i
       JOIN app.collection c ON c.id = i.collection_id
@@ -117,6 +119,7 @@ export class QuizSourceRepository {
       reading: row.reading,
       romanization: row.romanization,
       meaningVi: row.meaning_vi,
+      dictGlossVi: row.dict_gloss_vi,
       ...(params.enrichKanji
         ? { glossViMachine: row.gloss_vi_machine ?? false }
         : {}),
@@ -138,9 +141,11 @@ export class QuizSourceRepository {
         code: string;
         pos: string | null;
         gloss_en: string[];
+        lexeme_attributes: unknown;
       }[]
     >(Prisma.sql`
       SELECT s.id AS sense_id, lg.code, x.pos,
+        COALESCE(x.attributes, '{}'::jsonb) || jsonb_build_object('sense_tags', COALESCE(s.attributes, '{}'::jsonb)) AS lexeme_attributes,
         ARRAY(SELECT g.text FROM core.sense_gloss g JOIN public.language gl ON gl.id=g.language_id
           WHERE g.sense_id=s.id AND gl.code='en' ORDER BY g.rank,g.id) AS gloss_en
       FROM core.sense s JOIN core.lexeme x ON x.id=s.lexeme_id
@@ -212,6 +217,7 @@ export class QuizSourceRepository {
       item.languageCode = detail?.code;
       item.pos = detail?.pos ?? null;
       item.glossEn = detail?.gloss_en ?? [];
+      item.lexemeAttributes = detail?.lexeme_attributes ?? null;
       item.kanjiPairs = bySense.get(item.senseId) ?? [];
       const ownSpellings = new Set(item.kanjiPairs.map((p) => p.written));
       for (const alias of [...ownSpellings].flatMap(

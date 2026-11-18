@@ -67,6 +67,9 @@ describe('M14.3 image delivery HTTP and DB', () => {
         'DELETE FROM core.concept WHERE id IN(910021,910022)',
       );
       await db.$executeRawUnsafe(
+        'DELETE FROM app.quiz_bank_generation_job WHERE sense_id BETWEEN 910011 AND 910017',
+      );
+      await db.$executeRawUnsafe(
         'DELETE FROM core.sense WHERE id BETWEEN 910011 AND 910017',
       );
       await db.$executeRawUnsafe(

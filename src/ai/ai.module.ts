@@ -14,15 +14,21 @@ import { createAiQuizProvider } from './providers/ai-quiz-provider.factory';
 import { QuizController } from './quiz/quiz.controller';
 import { QuizService } from './quiz/quiz.service';
 import { QuizSourceRepository } from './quiz/repositories/quiz-source.repository';
+import { QuizBankRepository } from './quiz/bank/quiz-bank.repository';
+import {
+  createQuizBankGeneratorClient,
+  createQuizBankValidatorClient,
+  QUIZ_BANK_GENERATOR_CLIENT,
+  QUIZ_BANK_VALIDATOR_CLIENT,
+  QuizBankWorkerService,
+} from './quiz/bank/quiz-bank-worker.service';
 import { AiUsageService } from './usage/ai-usage.service';
-import { QuizJobsController } from './quiz/v3/quiz-jobs.controller';
-import { QuizJobsService } from './quiz/v3/quiz-jobs.service';
-import { QuizBatchEngine } from './quiz/v3/quiz-batch-engine';
-import { createQuizBatchEngine } from './quiz/v3/quiz-batch.factory';
 
 /**
- * Module AI (M10 chat + M11 quiz): phiên chat/quiz, quota/usage dùng chung.
- * Chat có OpenAI-compatible; quiz dựng từ dữ liệu, model chỉ dùng cho context.
+ * Module AI (M10 chat + M11.5 quiz bank):
+ * - Chat giữ OpenAI-compatible provider + SSE.
+ * - Quiz M11.5 ghép đồng bộ tức thời từ app.quiz_question_bank (<200ms, 0 gọi AI lúc bấm);
+ *   gỡ bỏ QuizJobsController (/v1/quizzes/jobs*) progressive cũ.
  */
 @Module({
   imports: [
@@ -32,17 +38,23 @@ import { createQuizBatchEngine } from './quiz/v3/quiz-batch.factory';
     SrsModule,
     SessionsModule,
   ],
-  controllers: [ChatController, QuizController, QuizJobsController],
+  controllers: [ChatController, QuizController],
   providers: [
     ChatService,
     QuizService,
     QuizSourceRepository,
+    QuizBankRepository,
+    QuizBankWorkerService,
     AiUsageService,
-    QuizJobsService,
     {
-      provide: QuizBatchEngine,
+      provide: QUIZ_BANK_GENERATOR_CLIENT,
       inject: [ConfigService],
-      useFactory: createQuizBatchEngine,
+      useFactory: createQuizBankGeneratorClient,
+    },
+    {
+      provide: QUIZ_BANK_VALIDATOR_CLIENT,
+      inject: [ConfigService],
+      useFactory: createQuizBankValidatorClient,
     },
     {
       provide: AI_CHAT_PROVIDER,
@@ -55,6 +67,6 @@ import { createQuizBatchEngine } from './quiz/v3/quiz-batch.factory';
       useFactory: createAiQuizProvider,
     },
   ],
-  exports: [AiUsageService],
+  exports: [AiUsageService, QuizBankRepository],
 })
 export class AiModule {}

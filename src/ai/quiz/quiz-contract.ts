@@ -87,6 +87,15 @@ export const evidenceSchema = z
   .strict();
 export type ContextEvidence = z.infer<typeof evidenceSchema>;
 
+export const segmentsSchema = z
+  .object({
+    before: z.string(),
+    highlight: z.string().min(1).nullable(),
+    after: z.string(),
+  })
+  .strict();
+export type PublicQuizSegments = z.infer<typeof segmentsSchema>;
+
 const questionMetaSchema = z
   .object({
     ordinal: z.number().int().positive(),
@@ -98,6 +107,8 @@ const questionMetaSchema = z
 export type QuizQuestionMetadata = z.infer<typeof questionMetaSchema> & {
   skill?: string;
   qualityFlags?: string[];
+  segments?: PublicQuizSegments | null;
+  bankQuestionId?: string | null;
 };
 export const metadataSchema = z
   .object({
@@ -127,7 +138,7 @@ export function readQuestionMetadata(
     typeof generator === 'object' &&
     generator !== null &&
     'version' in generator &&
-    generator.version === 'm11.3-v3' &&
+    generator.version === 'm11.5-v1' &&
     'questions' in generator &&
     Array.isArray(generator.questions)
   ) {
@@ -144,17 +155,24 @@ export function readQuestionMetadata(
         'Thiếu metadata câu hỏi',
         HttpStatus.CONFLICT,
       );
+    const parsedSegments =
+      raw.segments !== undefined && raw.segments !== null
+        ? segmentsSchema.parse(raw.segments)
+        : null;
     return {
       ...questionMetaSchema.parse({
         ordinal: raw.ordinal,
         style: raw.style,
-        context: raw.context,
+        context: raw.context ?? null,
         evidence: null,
       }),
       skill: typeof raw.skill === 'string' ? raw.skill : undefined,
       qualityFlags: Array.isArray(raw.qualityFlags)
         ? raw.qualityFlags.filter((v): v is string => typeof v === 'string')
         : [],
+      segments: parsedSegments,
+      bankQuestionId:
+        typeof raw.bankQuestionId === 'string' ? raw.bankQuestionId : null,
     };
   }
   if (

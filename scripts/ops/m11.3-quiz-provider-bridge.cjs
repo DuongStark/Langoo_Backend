@@ -42,12 +42,9 @@ process.stdin.on('end', async () => {
           provider: cfg.AI_PROVIDER,
           generatorModel: cfg.AI_QUIZ_MODEL,
           validatorModel: cfg.AI_QUIZ_VALIDATOR_MODEL,
-          v3Model: cfg.AI_QUIZ_V3_MODEL || 'deepseek-ai/deepseek-v4.1-flash',
-          v3CallTimeoutMs: Number(cfg.AI_QUIZ_V3_CALL_TIMEOUT_MS || 20000),
           reasoningEffort: cfg.AI_QUIZ_REASONING_EFFORT || undefined,
           providerOrigin: new URL(baseUrl).origin,
           serverCommit: sha,
-          v3Enabled: cfg.AI_QUIZ_V3_ENABLED === 'true',
         }),
       );
       return;
