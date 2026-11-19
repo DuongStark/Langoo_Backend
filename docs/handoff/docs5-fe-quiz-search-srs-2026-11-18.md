@@ -1,6 +1,6 @@
 # DOCS5 — Bàn giao FE cho Quiz, tra từ và ôn tập SRS
 
-Ngày 18/11/2026. Dành cho LanGoo-User và consumer Admin có dùng thống kê học. BE production đang chạy `dcd1830` tại `https://api.langoo.org` và sẵn sàng để FE tích hợp.
+Ngày 18/11/2026. Dành cho LanGoo-User và consumer Admin có dùng thống kê học. BE production đang chạy `8123233` tại `https://api.langoo.org` và sẵn sàng để FE tích hợp.
 
 | Phần | Trạng thái và thời điểm tích hợp |
 | --- | --- |
@@ -24,6 +24,7 @@ Ngày 18/11/2026. Dành cho LanGoo-User và consumer Admin có dùng thống kê
 - Quay lại hoặc đóng tab giữ phiên `in_progress`. Bản FE test đọc lại đúng phiên khi mở URL cũ, nhưng chưa có đường quay lại lượt dang dở từ danh sách. FE cần giữ đường dẫn phiên theo người dùng và hồ sơ, hiển thị **Tiếp tục lượt đang làm** khi phiên còn mở. Nếu đang có `quizId` và đề còn hạn, gọi `start` với `intent: "resume"` cũng trả lại phiên đang làm của chính đề đó.
 - **Kết thúc sớm** gọi `POST /v1/sessions/:sessionId/finish`. Phiên còn câu chưa nộp chuyển sang `abandoned`. Khi kết thúc lượt, bỏ đường dẫn **Tiếp tục**. **Làm lại đề này** gọi `start` với `{ intent: "new_attempt", idempotency_key: crypto.randomUUID() }` và mở session mới.
 - Báo lỗi qua `POST /v1/quizzes/:quizId/questions/:ordinal/report` với `{ reason, note?, idempotency_key }`. `reason` gồm `ambiguous`, `wrong_meaning`, `wrong_reading`, `unnatural` và `other`. Câu từ kho bị loại khỏi đề tiếp theo của người báo và bị khóa toàn cục sau hai báo cáo từ hai người. Dùng `status` và `cache_excluded` để hiển thị phản hồi.
+- Từ 19/11, BE loại các nghĩa EN fallback đã nhận diện khỏi câu hỏi nghĩa tiếng Nhật. Để kiểm thử bản sửa, tạo đề mới với `idempotency_key` mới. Mở lại hoặc làm lại cùng đề sẽ dùng phương án đã lưu của đề đó.
 - Quiz M11.5 trả `srs: null` và không cộng streak. API production đã bỏ `xp.amount` và `session.xp_awarded` theo M6.3.
 
 **Nghiệm thu** — Đề mở được ngay, hiện đáp án sau câu đầu và câu cuối. Câu chưa nộp giữ kín đáp án. Rời rồi mở lại cùng phiên tiếp tục đúng câu. Kết thúc sớm đóng lượt. Làm lại giữ cùng đề và có phiên mới. Kiểm tra cả câu ghép cặp, báo lỗi và lỗi hết hạn khi làm lại.

@@ -3,7 +3,7 @@
 ### 2026-11-19 — M11.5 — Lọc nghĩa EN fallback trong câu hỏi nghĩa tiếng Nhật
 
 - BE lọc nghĩa tiếng Anh fallback của sổ tay khi ghép đề Nhật. Dùng gloss tiếng Việt thay thế nếu có. Kiểm tra eligibility dùng cùng tập nghĩa với lúc tạo đề.
-- Unit 26/26, PostgreSQL E2E 7/7, build, lint và replay production chỉ đọc pass. Không cần migration. [Báo cáo](docs/reviews/m11.5-implementation-2026-11-18.md#2026-11-19--m115--bỏ-nghĩa-en-fallback-khỏi-đề-hỏi-nghĩa-nhật).
+- Unit 26/26, PostgreSQL E2E 7/7, build, lint và replay production chỉ đọc pass. Không cần migration. Đã push và deploy `8123233`; đề đã tạo giữ nguyên snapshot. [Báo cáo](docs/reviews/m11.5-implementation-2026-11-18.md#2026-11-19--m115--bỏ-nghĩa-en-fallback-khỏi-đề-hỏi-nghĩa-nhật).
 
 ### 2026-11-18 — M6.3, M11.5, M10.5 và M4.8 — Triển khai backend production
 
