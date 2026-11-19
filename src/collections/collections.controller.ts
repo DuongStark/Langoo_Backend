@@ -10,6 +10,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -18,6 +19,7 @@ import {
   ApiOperation,
   ApiTags,
   ApiUnauthorizedResponse,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -40,8 +42,13 @@ import {
   DeckPreviewResponseDto,
 } from './dto/deck-list-response.dto';
 import { AppendFromDeckDto } from './dto/append-from-deck.dto';
+import {
+  CreateCollectionAndImportDto,
+  ImportItemsResponseDto,
+} from './dto/import-items.dto';
 import { ListCollectionsQueryDto } from './dto/list-collections-query.dto';
 import { UpdateCollectionDto } from './dto/update-collection.dto';
+import { ItemsImportService } from './items-import.service';
 import {
   AppendFromDeckResult,
   ArchivedResponse,
@@ -56,7 +63,10 @@ import {
 @UseGuards(JwtAuthGuard)
 @Controller('collections')
 export class CollectionsController {
-  constructor(private readonly collectionsService: CollectionsService) {}
+  constructor(
+    private readonly collectionsService: CollectionsService,
+    private readonly itemsImportService: ItemsImportService,
+  ) {}
 
   @Get()
   @ApiOperation({ summary: 'Danh sách bộ sưu tập của tôi (chưa archive)' })
@@ -97,6 +107,37 @@ export class CollectionsController {
     @Body() dto: CloneFromDeckDto,
   ): Promise<CollectionResponse> {
     return this.collectionsService.cloneFromDeck(BigInt(payload.sub), dto);
+  }
+
+  @Post('import')
+  @ApiOperation({
+    summary:
+      'M5.3: Tạo bộ sưu tập mới và tự động import danh sách từ trong 1 bước',
+    description:
+      'Tối đa 500 dòng/lần. Nếu 0 từ nào khớp trong từ điển sẽ không tạo bộ rỗng và trả 422 IMPORT_NO_MATCHED_ITEMS kèm danh sách not_found.',
+  })
+  @ApiCreatedResponse({ type: ImportItemsResponseDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description: 'VALIDATION_FAILED',
+  })
+  @ApiConflictResponse({
+    type: ErrorResponseDto,
+    description: 'PROFILE_REQUIRED khi chưa có hồ sơ học',
+  })
+  @ApiUnprocessableEntityResponse({
+    type: ErrorResponseDto,
+    description:
+      'IMPORT_NO_MATCHED_ITEMS khi không có từ nào hợp lệ trong từ điển',
+  })
+  createAndImport(
+    @CurrentUser() payload: JwtPayload,
+    @Body() dto: CreateCollectionAndImportDto,
+  ): Promise<ImportItemsResponseDto> {
+    return this.itemsImportService.createCollectionAndImport(
+      BigInt(payload.sub),
+      dto,
+    );
   }
 
   @Get('decks')

@@ -211,10 +211,32 @@ curl -s -X POST localhost:3000/v1/collections/from-deck \
 # → collection kind="cloned", cloned_from_deck_id="1", item_count=11
 ```
 
-Mỗi `deck_item` → 1 item (face anchor) + 2 `srs_state`; `meaning_vi` lấy gloss vi
+Mỗi `deck_item` → 1 item (face anchor) + 1 `srs_state` (`recognize`); `meaning_vi` lấy gloss vi
 (gloss máy chưa duyệt → `meaning_source="machine"`, còn lại `"source"`),
 fallback en → lemma. Deck sai/chưa publish → `404 DECK_NOT_FOUND`; concept của
 deck item không còn là mapping curated confidence ≥ 0.7 → `409 DECK_CONCEPT_INVALID`.
+
+## M5.3 — Auto Import List vào sổ tay (mặt chữ + từ loại)
+
+Nhập danh sách từ 1 bước (tối đa **500 dòng/lần**), hỗ trợ cả **nhập vào bộ có sẵn** và **tạo bộ mới**:
+
+```bash
+# 1. Nhập vào bộ sưu tập có sẵn
+curl -s -X POST localhost:3000/v1/collections/<id>/items/import \
+  -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"items":[{"word":"支える","pos":"verb","reading":"ささえる つかえる","source_type":"word"},{"word":"khongtontai"}]}'
+
+# 2. Tạo bộ sưu tập mới và nhập luôn trong 1 bước
+curl -s -X POST localhost:3000/v1/collections/import \
+  -H "Authorization: Bearer <token>" -H "Content-Type: application/json" \
+  -d '{"name":"Kanji Shit","items":[{"word":"性質","reading":"せいしつ","source_type":"word"}]}'
+```
+
+- **Đối soát tự động:** khớp theo `word` + `pos` (ưu tiên đúng từ loại, tự chuẩn hóa viết tắt EN/VI/JA về 15 giá trị `core.lexeme.pos`; nếu lệch từ loại tự fallback theo mặt chữ tốt nhất) + tùy chọn `reading` (tách nhiều cách đọc như Mazii `"ささえる つかえる"`, chuẩn hóa Hiragana/Katakana). Tự chọn 1 nghĩa phổ biến nhất theo xếp hạng **M10.5 / M4.5** và lấy `meaning_vi` gọn từ từ điển (`gloss_vi` → `gloss_en` → `lemma`).
+- **Tạo bộ mới chống rỗng:** `POST /v1/collections/import` nếu 0 từ nào khớp sẽ **không tạo bộ**, trả `422 IMPORT_NO_MATCHED_ITEMS` kèm `details.not_found`.
+- **Response:** trả `collection`, `total_submitted`, `added_count`, `skipped_duplicate_count`, `not_found_count`, cùng 3 mảng `added`, `skipped_duplicates` (`already_in_collection` | `duplicate_in_request`), và `not_found` (`not_in_dictionary` | `language_not_in_profile` | `unsupported_type`).
+- **Pre-warm Quiz Bank (M11.5):** đẩy nền ở `priority = 50` (trần 100 sense/lần), không làm nghẽn hàng chờ `priority = 10`.
+- Chi tiết tích hợp FE: [Handoff FE M5.3](../handoff/m5.3-import-list-fe-2026-11-19.md).
 
 Các danh sách dùng keyset cursor, mặc định 20 dòng và tối đa 100 dòng/trang.
 Cursor phải dùng với cùng phạm vi/bộ lọc của trang đầu; item cursor ràng buộc thêm

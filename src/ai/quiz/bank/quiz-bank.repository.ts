@@ -460,6 +460,38 @@ export class QuizBankRepository {
     }
   }
 
+  /**
+   * M5.3: Đẩy nền pre-warm cho lô import lớn ở priority=50 (không ăn quota priority=10
+   * của người thêm từ lẻ), có trần số lượng mỗi lần import.
+   */
+  async enqueueBatchImportedSenses(
+    senses: { senseId: bigint; languageId: number }[],
+    maxCount = 100,
+  ): Promise<number> {
+    if (maxCount <= 0 || senses.length === 0) return 0;
+    const seen = new Set<string>();
+    const eligible: { senseId: bigint; languageId: number }[] = [];
+    for (const s of senses) {
+      if (s.languageId !== 1 && s.languageId !== 2) continue;
+      const key = s.senseId.toString();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      eligible.push(s);
+      if (eligible.length >= maxCount) break;
+    }
+
+    let enqueuedCount = 0;
+    for (const s of eligible) {
+      const enqueued = await this.enqueueSenseGeneration({
+        senseId: s.senseId,
+        languageId: s.languageId,
+        priority: 50,
+      });
+      if (enqueued) enqueuedCount += 1;
+    }
+    return enqueuedCount;
+  }
+
   async claimNextGenerationJob(
     leaseOwner: string,
     leaseSeconds = 180,

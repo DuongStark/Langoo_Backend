@@ -33,8 +33,10 @@ import {
   ItemResponseDto,
 } from './dto/collection-response.dto';
 import { CreateItemDto } from './dto/create-item.dto';
+import { ImportItemsDto, ImportItemsResponseDto } from './dto/import-items.dto';
 import { ListItemsQueryDto } from './dto/list-items-query.dto';
 import { UpdateItemDto } from './dto/update-item.dto';
+import { ItemsImportService } from './items-import.service';
 import { ItemsService } from './items.service';
 import {
   DeletedResponse,
@@ -47,7 +49,10 @@ import {
 @UseGuards(JwtAuthGuard)
 @Controller('collections/:collectionId/items')
 export class ItemsController {
-  constructor(private readonly itemsService: ItemsService) {}
+  constructor(
+    private readonly itemsService: ItemsService,
+    private readonly itemsImportService: ItemsImportService,
+  ) {}
 
   @Get()
   @ApiServiceUnavailableResponse({
@@ -100,6 +105,36 @@ export class ItemsController {
     @Body() dto: CreateItemDto,
   ): Promise<ItemResponse> {
     return this.itemsService.add(
+      BigInt(payload.sub),
+      parseUuidParam(collectionId, 'collection_id'),
+      dto,
+    );
+  }
+
+  @Post('import')
+  @ApiOperation({
+    summary:
+      'M5.3: Tự động import danh sách từ vào bộ có sẵn theo mặt chữ + từ loại',
+    description:
+      'Tối đa 500 dòng/lần. Tự khớp từ điển theo ngôn ngữ hồ sơ, ưu tiên đúng từ loại (lệch từ loại sẽ fallback theo mặt chữ), tự chọn nghĩa phổ biến nhất (M10.5/M4.5), bỏ qua từ trùng và trả danh sách not_found.',
+  })
+  @ApiParam({ name: 'collectionId' })
+  @ApiCreatedResponse({ type: ImportItemsResponseDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description:
+      'VALIDATION_FAILED (items rỗng, >500 dòng hoặc word không hợp lệ)',
+  })
+  @ApiNotFoundResponse({
+    type: ErrorResponseDto,
+    description: 'COLLECTION_NOT_FOUND',
+  })
+  importItems(
+    @CurrentUser() payload: JwtPayload,
+    @Param('collectionId') collectionId: string,
+    @Body() dto: ImportItemsDto,
+  ): Promise<ImportItemsResponseDto> {
+    return this.itemsImportService.importIntoCollection(
       BigInt(payload.sub),
       parseUuidParam(collectionId, 'collection_id'),
       dto,
