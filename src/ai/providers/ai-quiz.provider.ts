@@ -46,6 +46,7 @@ export interface QuizSourceItem {
   glossEn?: string[];
   glossViMachine?: boolean;
   dictGlossVi?: string | null;
+  dictGlossEn?: string | null;
   lexemeAttributes?: unknown;
   examples?: QuizExample[];
 }

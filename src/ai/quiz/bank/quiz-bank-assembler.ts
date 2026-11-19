@@ -222,6 +222,24 @@ function buildPublicContext(row: BankQuestionRow): PublicQuizContext {
   };
 }
 
+function localizedMeaningItems(items: QuizSourceItem[]): QuizSourceItem[] {
+  return items.flatMap((item) => {
+    const meaning = textKey(item.meaningVi);
+    const vietnamese = item.dictGlossVi?.trim();
+    const isKnownFallback =
+      meaning === textKey(item.dictGlossEn ?? '') ||
+      (!vietnamese && meaning === textKey(item.lemma));
+    if (
+      item.languageId !== 2 ||
+      !isKnownFallback ||
+      meaning === textKey(vietnamese ?? '')
+    ) {
+      return [item];
+    }
+    return vietnamese ? [{ ...item, meaningVi: vietnamese }] : [];
+  });
+}
+
 function unambiguousItems(items: QuizSourceItem[]): QuizSourceItem[] {
   const meaningsByLemma = new Map<string, Set<string>>();
   for (const item of items) {
@@ -244,8 +262,12 @@ export function evaluateBankEligibility(input: {
   sourceComplete?: boolean;
 }): QuizEligibilityResponse {
   const clean = cleanTargets(input.items, input.languageId);
-  const unambiguous = unambiguousItems(clean);
+  const meaningItems = localizedMeaningItems(clean);
+  const unambiguous = unambiguousItems(meaningItems);
   const distinctMeanings = new Set(clean.map((i) => textKey(i.meaningVi))).size;
+  const localizedMeaningCount = new Set(
+    meaningItems.map((item) => textKey(item.meaningVi)),
+  ).size;
   const anyKanji = clean.some(hasEligibleKanji);
 
   const bankBySenseSkill = new Map<string, BankQuestionRow[]>();
@@ -305,7 +327,7 @@ export function evaluateBankEligibility(input: {
     }
     if (skill === 'matching') {
       const matchReady =
-        distinctMeanings >= 4 && unambiguous.length >= 4
+        localizedMeaningCount >= 4 && unambiguous.length >= 4
           ? unambiguous.length
           : 0;
       return {
@@ -318,7 +340,14 @@ export function evaluateBankEligibility(input: {
     return {
       skill,
       requested,
-      eligible_targets: distinctMeanings >= 4 ? clean.length : 0,
+      eligible_targets:
+        skill === 'context_cloze'
+          ? distinctMeanings >= 4
+            ? clean.length
+            : 0
+          : localizedMeaningCount >= 4
+            ? meaningItems.length
+            : 0,
       source_policy: 'collection_only',
     };
   });
@@ -349,6 +378,7 @@ export function evaluateBankEligibility(input: {
   // Dry-run max achievable unique post-fallback questions (up to requestedCount)
   const dryRun = tryAssembleSlots({
     clean,
+    meaningItems,
     unambiguous,
     bankRows: input.bankRows,
     recentBankIds: new Set(),
@@ -406,7 +436,8 @@ export function assembleQuizFromBank(input: {
   const clean = input.drawIndex
     ? [...freshItems, ...seenItems]
     : [...shuffle(freshItems), ...shuffle(seenItems)];
-  const unambiguous = unambiguousItems(clean);
+  const meaningItems = localizedMeaningItems(clean);
+  const unambiguous = unambiguousItems(meaningItems);
   const distinctMeanings = new Set(clean.map((i) => textKey(i.meaningVi))).size;
   const anyKanji = clean.some(hasEligibleKanji);
 
@@ -433,6 +464,7 @@ export function assembleQuizFromBank(input: {
 
   const built = tryAssembleSlots({
     clean,
+    meaningItems,
     unambiguous,
     bankRows: input.bankRows,
     recentBankIds: input.recentBankIds,
@@ -477,6 +509,7 @@ export function assembleQuizFromBank(input: {
 
 function tryAssembleSlots(params: {
   clean: QuizSourceItem[];
+  meaningItems: QuizSourceItem[];
   unambiguous: QuizSourceItem[];
   bankRows: BankQuestionRow[];
   recentBankIds: Set<string>;
@@ -491,6 +524,7 @@ function tryAssembleSlots(params: {
 } {
   const {
     clean,
+    meaningItems,
     unambiguous,
     bankRows,
     recentBankIds,
@@ -678,7 +712,7 @@ function tryAssembleSlots(params: {
     requestedSkill: QuizSkill,
     ordinal: number,
   ): boolean => {
-    for (const item of prioritizeUnused(clean, 'context_meaning')) {
+    for (const item of prioritizeUnused(meaningItems, 'context_meaning')) {
       if (hasCustomMeaningOverride(item.meaningVi, item.dictGlossVi)) {
         continue;
       }
@@ -686,7 +720,7 @@ function tryAssembleSlots(params: {
         pickBankVariant(item.senseId, 'context_meaning') ??
         pickBankVariant(item.senseId, 'context_cloze');
       if (!row) continue;
-      const wrong = distinctMeaningDistractors(item, clean, drawIndex);
+      const wrong = distinctMeaningDistractors(item, meaningItems, drawIndex);
       if (wrong.length < 3) continue;
 
       const asMeaningRow: BankQuestionRow = {
@@ -737,7 +771,7 @@ function tryAssembleSlots(params: {
     ordinal: number,
   ): boolean => {
     for (const item of prioritizeUnused(unambiguous, 'meaning')) {
-      const wrong = distinctMeaningDistractors(item, clean, drawIndex);
+      const wrong = distinctMeaningDistractors(item, meaningItems, drawIndex);
       if (wrong.length < 3) continue;
 
       const { options, correctAnswer } = placeOptions(

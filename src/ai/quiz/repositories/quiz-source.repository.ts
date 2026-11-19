@@ -19,6 +19,7 @@ interface SourceRow {
   romanization: string | null;
   meaning_vi: string;
   dict_gloss_vi: string | null;
+  dict_gloss_en: string | null;
   gloss_vi_machine: boolean | null;
 }
 
@@ -57,6 +58,7 @@ export class QuizSourceRepository {
         sc.romanization,
         sc.gloss_vi_machine,
         sc.gloss_vi AS dict_gloss_vi,
+        sc.gloss_en AS dict_gloss_en,
         COALESCE(NULLIF(btrim(i.meaning_vi), ''), sc.gloss_vi, sc.gloss_en, sc.lemma) AS meaning_vi
       FROM app.collection_item i
       JOIN app.collection c ON c.id = i.collection_id
@@ -120,6 +122,7 @@ export class QuizSourceRepository {
       romanization: row.romanization,
       meaningVi: row.meaning_vi,
       dictGlossVi: row.dict_gloss_vi,
+      dictGlossEn: row.dict_gloss_en,
       ...(params.enrichKanji
         ? { glossViMachine: row.gloss_vi_machine ?? false }
         : {}),

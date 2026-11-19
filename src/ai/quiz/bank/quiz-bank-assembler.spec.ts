@@ -54,6 +54,81 @@ function makeBankRow(
 }
 
 describe('quiz-bank-assembler', () => {
+  it('keeps known English fallback glosses out of Japanese meaning options', () => {
+    const items = [
+      makeItem({
+        senseId: '1',
+        lemma: '朝食',
+        meaningVi: 'bữa sáng',
+        languageId: 2,
+      }),
+      makeItem({
+        senseId: '2',
+        lemma: 'おはようございます',
+        meaningVi: 'good morning',
+        dictGlossEn: 'Good morning',
+        languageId: 2,
+      }),
+      makeItem({
+        senseId: '3',
+        lemma: '午後',
+        meaningVi: 'afternoon',
+        dictGlossEn: 'afternoon',
+        dictGlossVi: 'buổi chiều',
+        languageId: 2,
+      }),
+      makeItem({
+        senseId: '4',
+        lemma: 'お茶',
+        meaningVi: 'trà',
+        languageId: 2,
+      }),
+      makeItem({ senseId: '5', lemma: '花', meaningVi: 'hoa', languageId: 2 }),
+    ];
+    const bankRows = [
+      makeBankRow({
+        id: 1n,
+        senseId: 1n,
+        skill: 'context_meaning',
+        languageId: 2,
+        sentenceBefore: '毎日',
+        targetSurface: '朝食',
+        sentenceAfter: 'を食べます。',
+      }),
+    ];
+    const result = assembleQuizFromBank({
+      items,
+      bankRows,
+      recentBankIds: new Set(),
+      languageId: 2,
+      skills: ['context_meaning', 'matching'],
+      questionCount: 2,
+      drawIndex: () => 0,
+    });
+    expect(result.metadata.questions[0].skill).toBe('context_meaning');
+    expect(result.questions[0].options).toHaveLength(4);
+    for (const text of ['bữa sáng', 'buổi chiều', 'trà', 'hoa']) {
+      expect(result.questions[0].options).toContainEqual(
+        expect.objectContaining({ text }),
+      );
+    }
+    expect(result.questions[1].questionType).toBe('matching');
+    expect(result.questions[1].options).not.toContainEqual(
+      expect.objectContaining({ text: 'good morning' }),
+    );
+    const eligibility = evaluateBankEligibility({
+      items: items.slice(0, 4),
+      bankRows,
+      languageId: 2,
+      skills: ['context_meaning'],
+      requestedCount: 1,
+    });
+    expect(eligibility).toMatchObject({
+      feasible: false,
+      by_skill: [{ eligible_targets: 0 }],
+    });
+  });
+
   it('detects custom user meaning overrides vs dictionary glosses', () => {
     expect(hasCustomMeaningOverride('vé tàu', 'vé, vé tàu')).toBe(false);
     expect(hasCustomMeaningOverride('Vé', 'vé')).toBe(false);
