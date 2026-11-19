@@ -13,7 +13,7 @@ const ARGON2_TIME_COST = 1;
 
 interface TxMock {
   user: { create: jest.Mock; update: jest.Mock };
-  userIdentity: { create: jest.Mock };
+  userIdentity: { create: jest.Mock; findUnique: jest.Mock };
   userSession: { create: jest.Mock };
   device: { create: jest.Mock };
   userSettings: { create: jest.Mock };
@@ -63,7 +63,7 @@ function createSetup(): {
 } {
   const tx: TxMock = {
     user: { create: jest.fn(), update: jest.fn() },
-    userIdentity: { create: jest.fn() },
+    userIdentity: { create: jest.fn(), findUnique: jest.fn() },
     userSession: { create: jest.fn() },
     device: { create: jest.fn() },
     userSettings: { create: jest.fn() },
@@ -339,8 +339,22 @@ describe('AuthService', () => {
         user: userRow(),
       });
       tx.user.update.mockResolvedValue(
-        userRow({ lastLoginAt: new Date('2026-09-26T01:00:00.000Z') }),
+        userRow({
+          lastLoginAt: new Date('2026-09-26T01:00:00.000Z'),
+          identities: [
+            {
+              id: 10n,
+              provider: 'password',
+              passwordHash,
+              createdAt: new Date('2026-09-26T00:00:00.000Z'),
+            },
+          ],
+        }),
       );
+      tx.userIdentity.findUnique.mockResolvedValue({
+        provider: 'password',
+        passwordHash,
+      });
       tx.userSession.create.mockResolvedValue({ id: 'session-2' });
 
       const result = await service.login({
@@ -355,6 +369,50 @@ describe('AuthService', () => {
       expect(result.user.last_login_at).toBe('2026-09-26T01:00:00.000Z');
       expect(result.access_token).toBeTruthy();
       expect(result.refresh_token).toBeTruthy();
+    });
+
+    it('password vừa verify nhưng hash đổi sau reset đồng thời → AUTH_INVALID_CREDENTIALS', async () => {
+      const { service, prisma, tx } = createSetup();
+      const oldHash = await argon2.hash('matkhau12345', {
+        type: argon2.argon2id,
+        memoryCost: ARGON2_MEMORY_COST,
+        timeCost: ARGON2_TIME_COST,
+      });
+      const newHash = await argon2.hash('matkhau-moi-12345', {
+        type: argon2.argon2id,
+        memoryCost: ARGON2_MEMORY_COST,
+        timeCost: ARGON2_TIME_COST,
+      });
+      prisma.userIdentity.findUnique.mockResolvedValue({
+        id: 10n,
+        userId: 1n,
+        passwordHash: oldHash,
+        user: userRow(),
+      });
+      tx.user.update.mockResolvedValue(
+        userRow({
+          identities: [
+            {
+              id: 10n,
+              provider: 'password',
+              passwordHash: newHash,
+              createdAt: new Date('2026-09-26T00:00:00.000Z'),
+            },
+          ],
+        }),
+      );
+      tx.userIdentity.findUnique.mockResolvedValue({
+        provider: 'password',
+        passwordHash: newHash,
+      });
+
+      await expect(
+        service.login({
+          email: 'new@example.com',
+          password: 'matkhau12345',
+        }),
+      ).rejects.toMatchObject({ code: 'AUTH_INVALID_CREDENTIALS' });
+      expect(tx.userSession.create).not.toHaveBeenCalled();
     });
   });
 

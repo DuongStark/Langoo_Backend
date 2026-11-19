@@ -1,5 +1,14 @@
 # PROGRESS — Langoo Backend
 
+### 2026-11-19 — M2.3 B — Quên và đặt lại mật khẩu
+
+- Thay đổi / lý do: Thêm recovery bằng email với `POST /v1/auth/password/forgot` (202 thống nhất) và `POST /v1/auth/password/reset` (200, không tự đăng nhập). Chỉ áp dụng identity mật khẩu đang active; không thêm mật khẩu cho tài khoản Google-only.
+- Bảo mật / vận hành: token 32 byte chỉ lưu SHA-256, hạn 15 phút, dùng một lần; link cố định `AUTH_PASSWORD_RESET_URL` + fragment `#token=...`; cooldown địa chỉ 1/phút và 5/giờ dưới khóa user; reset thu hồi mọi phiên và có race guard cho login. Thiếu bất kỳ biến `AUTH_PASSWORD_RESET_URL` / `RESEND_API_KEY` / `AUTH_PASSWORD_RESET_FROM` thì **cả hai** endpoint trả `503 AUTH_PASSWORD_RESET_UNAVAILABLE`, không đọc DB/gửi mail. Migration additive `052_password_reset_challenges.sql`.
+- File / phạm vi: [plan](docs/plans/m2.3-password-recovery-2026-11-19.md), [handoff FE](docs/handoff/m2.3-password-recovery-fe-2026-11-19.md), [API auth](docs/api/auth.md); BE `src/auth/password-reset.*`, `auth.controller.ts`, DTO, `env.schema.ts`, Prisma, migration 052; FE `src/pages/forgot-password`, `src/pages/reset-password`, `src/api/auth.ts`, route/login/i18n.
+- Kiểm tra / kết quả: Unit BE **10 suite / 96 test PASS** (auth, password-reset service/mailer, env schema), gồm test 503 fail closed. Build FE `tsc -b && vite build` và build BE `nest build` **PASS**. E2E PostgreSQL **25 test PASS**, trong đó **7 kịch bản recovery** chạy với mail giả. Migration `052_password_reset_challenges.sql` đã áp trên **DB test-only**, chưa áp production. Kiểm tra browser **PASS**: Chrome local với API giả xác nhận link từ màn đăng nhập, gửi quên mật khẩu, xóa fragment, đặt lại mật khẩu và quay về đăng nhập. Lint FE **các file sửa PASS**. Gộp từ entry “Bổ sung kết quả kiểm thử” cùng ngày để tránh trùng.
+- Gate còn thiếu / việc tiếp theo: Express đã đặt `trust proxy` là `loopback`, nên request từ Caddy trên cùng máy lấy đúng IP client. Tuy vậy, edge Caddy/Cloudflare vẫn có thể gộp IP (ví dụ cùng IP edge) khiến hạn mức 20/giờ thành giới hạn chung; throttler còn lưu in-memory nên mỗi instance đếm riêng. Phải kiểm tra header/IP thực tế lúc rollout. Áp migration 052 sau backup trên production, xác minh sender/domain Resend, đặt ba biến môi trường ứng dụng trên VPS production (không dùng dashboard Render; `render.yaml` không khai báo), rồi chạy lint/staging smoke với hộp thư test.
+- Git / triển khai: Code và tài liệu local, **chưa commit/push/deploy**; chưa gửi email thật, chưa áp migration production. Không nghiệm thu production chỉ từ adapter giả.
+
 ### 2026-11-19 — M11.5 — Lọc nghĩa EN fallback trong câu hỏi nghĩa tiếng Nhật
 
 - BE lọc nghĩa tiếng Anh fallback của sổ tay khi ghép đề Nhật. Dùng gloss tiếng Việt thay thế nếu có. Kiểm tra eligibility dùng cùng tập nghĩa với lúc tạo đề.

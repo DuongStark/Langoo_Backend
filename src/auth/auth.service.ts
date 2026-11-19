@@ -1,7 +1,6 @@
 import { HttpStatus, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
-import argon2 from 'argon2';
 import { v7 as uuidv7 } from 'uuid';
 import { DomainException } from '../common/errors/domain.exception';
 import { parseTtlSeconds } from '../config/jwt-ttl';
@@ -12,6 +11,7 @@ import {
 } from '../users/settings.constants';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { hashPassword, verifyPassword } from './password-hash';
 import {
   accessTokenTtl,
   assertUserActive,
@@ -56,7 +56,7 @@ export class AuthService {
       throw emailTaken();
     }
 
-    const passwordHash = await this.hashPassword(dto.password);
+    const passwordHash = await hashPassword(this.config, dto.password);
     const sessionId = uuidv7();
     const refreshToken = generateRefreshToken();
 
@@ -133,7 +133,7 @@ export class AuthService {
       throw invalidCredentials();
     }
 
-    const passwordOk = await this.verifyPassword(
+    const passwordOk = await verifyPassword(
       identity.passwordHash,
       dto.password,
     );
@@ -151,6 +151,20 @@ export class AuthService {
         data: { lastLoginAt: new Date() },
         include: { identities: true },
       });
+      // Read in a separate statement after taking the user row lock.
+      const currentPassword = await tx.userIdentity.findUnique({
+        where: { id: identity.id },
+        select: { provider: true, passwordHash: true },
+      });
+      if (
+        !currentPassword ||
+        currentPassword.provider !== 'password' ||
+        !currentPassword.passwordHash ||
+        currentPassword.passwordHash !== identity.passwordHash
+      ) {
+        throw invalidCredentials();
+      }
+      assertUserActive(updated.status);
       const deviceId = await createDevice(
         tx,
         identity.userId,
@@ -275,27 +289,6 @@ export class AuthService {
       );
     }
     return toUserResponse(user);
-  }
-
-  private async hashPassword(password: string): Promise<string> {
-    return argon2.hash(password, {
-      type: argon2.argon2id,
-      memoryCost: this.config.getOrThrow<number>('ARGON2_MEMORY_COST'),
-      timeCost: this.config.getOrThrow<number>('ARGON2_TIME_COST'),
-      parallelism: 1,
-    });
-  }
-
-  /** Hash lưu DB có thể hỏng (seed/di trú) — coi như sai mật khẩu, không 500. */
-  private async verifyPassword(
-    storedHash: string,
-    password: string,
-  ): Promise<boolean> {
-    try {
-      return await argon2.verify(storedHash, password);
-    } catch {
-      return false;
-    }
   }
 }
 

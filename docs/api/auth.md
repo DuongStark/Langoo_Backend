@@ -11,6 +11,12 @@ access token của session ở các request mới. Kiểm tra session thất b�
 `503 AUTH_SERVICE_UNAVAILABLE`; token/session không hợp lệ trả `401 AUTH_TOKEN_INVALID`.
 API cho guest vẫn nhận request không có Authorization, nhưng không bỏ qua token sai.
 
+Từ **M2.3 B (2026-11-19)**, khôi phục mật khẩu dùng hai endpoint `password/forgot`
+và `password/reset`. Tính năng chỉ bật khi BE đủ cấu hình email; thiếu cấu hình thì
+cả hai trả `503 AUTH_PASSWORD_RESET_UNAVAILABLE`. Link trong email dùng fragment
+`#token=...`, hạn 15 phút, chỉ áp dụng identity mật khẩu hiện có. Reset thành công
+thu hồi mọi phiên và không tự đăng nhập.
+
 ## POST /v1/auth/register
 
 Đăng ký tài khoản mới (tự đăng nhập luôn). Trả về user + cặp token.
@@ -60,6 +66,73 @@ curl -s -X POST http://localhost:3000/v1/auth/login \
 Response `200` giống register (cập nhật `last_login_at`).
 Lỗi: `401 AUTH_INVALID_CREDENTIALS` · `403 AUTH_ACCOUNT_LOCKED` / `AUTH_ACCOUNT_DELETED` ·
 `400 VALIDATION_FAILED` nếu `device` không phải object hợp lệ.
+
+## POST /v1/auth/password/forgot
+
+Gửi hướng dẫn đặt lại mật khẩu qua email. Response **luôn** cùng một nội dung cho
+email tồn tại, email lạ, tài khoản Google-only, tài khoản bị khóa và địa chỉ đang bị
+giới hạn tần suất, nên không dùng endpoint để dò tài khoản.
+
+```bash
+curl -s -X POST http://localhost:3000/v1/auth/password/forgot \
+  -H "Content-Type: application/json" \
+  -d '{ "email": "user@example.com" }'
+```
+
+Response `202`:
+
+```json
+{
+  "message": "Nếu email tồn tại, hướng dẫn đặt lại mật khẩu đã được gửi"
+}
+```
+
+Email được xếp gửi sau response (`setImmediate`); việc tra tài khoản và gửi mail
+không nằm trên đường phản hồi HTTP. Chỉ identity `provider=password` đang active,
+có hash mật khẩu và email hiện tại khớp email lúc phát token mới nhận mail. Giới hạn
+theo địa chỉ: 1 lần/phút và 5 lần/giờ; gửi lại không vô hiệu link cũ còn hạn.
+
+Lỗi: `400 VALIDATION_FAILED` (email sai/không có) · `429 RATE_LIMITED`
+(20 lần/giờ/IP) · `503 AUTH_PASSWORD_RESET_UNAVAILABLE` (BE chưa cấu hình đủ email).
+Khi có `503`, endpoint không đọc DB và không gửi mail.
+
+## POST /v1/auth/password/reset
+
+Đặt mật khẩu mới bằng token một lần trong email. Token đúng 43 ký tự base64url;
+`new_password` dùng cùng policy đăng ký (8–128 ký tự).
+
+```bash
+curl -s -X POST http://localhost:3000/v1/auth/password/reset \
+  -H "Content-Type: application/json" \
+  -d '{ "token": "<43 ký tự base64url>", "new_password": "matkhau-moi-123" }'
+```
+
+Response `200`:
+
+```json
+{
+  "user_id": "5",
+  "sessions_revoked": 2,
+  "next_action": "login"
+}
+```
+
+Token hết hạn sau **15 phút**, chỉ dùng một lần, DB chỉ lưu SHA-256. Thành công sẽ:
+đánh dấu mọi challenge chưa dùng của identity là đã dùng, cập nhật mật khẩu và
+`email_verified_at`, thu hồi **tất cả** session chưa revoke của user. Endpoint không
+tạo access/refresh token mới; FE phải xóa phiên local và đưa người dùng về đăng nhập.
+Login đã kiểm mật khẩu cũ trước khi reset cũng không tạo được phiên sau reset.
+
+Lỗi: `400 AUTH_CHALLENGE_INVALID` (token sai, đã dùng, hết hạn hoặc identity/địa chỉ/
+trạng thái user đã đổi) · `429 RATE_LIMITED` (10 lần/phút/IP) ·
+`503 AUTH_PASSWORD_RESET_UNAVAILABLE` (BE chưa cấu hình đủ email).
+
+Link email dùng URL FE cố định từ `AUTH_PASSWORD_RESET_URL` và đặt token trong
+fragment: `https://app.langoo.org/reset-password#token=<token>`. Token không nằm trong
+query string nên không tới web server của FE. Mở link không tiêu thụ token; chỉ gọi
+`reset` mới đổi trạng thái. BE chỉ bật khi đủ `AUTH_PASSWORD_RESET_URL`,
+`RESEND_API_KEY`, `AUTH_PASSWORD_RESET_FROM`; sender phải được Resend xác minh và
+migration `052_password_reset_challenges.sql` phải được áp trước khi bật.
 
 ## POST /v1/auth/oauth/google
 
@@ -201,3 +274,8 @@ Lỗi: `401 AUTH_TOKEN_MISSING` / `AUTH_TOKEN_INVALID`.
 > trước khi session bị thu hồi; FE cần abort luồng và xóa thông tin đăng nhập/cache.
 
 Swagger UI: `http://localhost:3000/docs` (nhóm **auth**).
+
+## Handoff FE — quên / đặt lại mật khẩu
+
+Xem [M2.3 B — Handoff FE](../handoff/m2.3-password-recovery-fe-2026-11-19.md) để biết
+luồng UI, cách đọc token từ fragment, i18n và checklist nghiệm thu.

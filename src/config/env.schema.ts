@@ -33,6 +33,25 @@ function isValidMediaBaseUrl(val: string): boolean {
   }
 }
 
+/** URL reset cố định: tuyệt đối, không query/hash; HTTP chỉ cho loopback dev/test. */
+function isValidPasswordResetUrl(val: string): boolean {
+  try {
+    const url = new URL(val);
+    if (url.username || url.password || /[?#]/.test(val)) return false;
+    if (url.protocol === 'https:') return true;
+    if (url.protocol !== 'http:') return false;
+    const host = url.hostname.toLowerCase();
+    return (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '[::1]' ||
+      host === '::1'
+    );
+  } catch {
+    return false;
+  }
+}
+
 /**
  * Schema biến môi trường (validate bằng zod khi app khởi động).
  *
@@ -91,6 +110,18 @@ export const envSchema = z
     GOOGLE_OAUTH_REQUIRE_CHALLENGE: z.preprocess(
       booleanEnv,
       z.boolean().default(false),
+    ),
+
+    // M2.3 B — Password recovery qua Resend. Đủ cả ba biến mới bật endpoint;
+    // thiếu bất kỳ biến nào thì API trả 503 AUTH_PASSWORD_RESET_UNAVAILABLE.
+    AUTH_PASSWORD_RESET_URL: z.preprocess(
+      emptyToUndefined,
+      z.string().optional(),
+    ),
+    RESEND_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+    AUTH_PASSWORD_RESET_FROM: z.preprocess(
+      emptyToUndefined,
+      z.string().optional(),
     ),
 
     // Biến AI — dùng từ M10, optional ở M0.
@@ -230,6 +261,27 @@ export const envSchema = z
     ),
   })
   .superRefine((data, ctx) => {
+    const resetUrl = data.AUTH_PASSWORD_RESET_URL;
+    if (resetUrl !== undefined) {
+      if (!isValidPasswordResetUrl(resetUrl)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['AUTH_PASSWORD_RESET_URL'],
+          message:
+            'phải là URL tuyệt đối không query/hash; HTTP chỉ cho loopback dev/test',
+        });
+      } else if (
+        data.NODE_ENV === 'production' &&
+        new URL(resetUrl).protocol !== 'https:'
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ['AUTH_PASSWORD_RESET_URL'],
+          message: 'phải dùng HTTPS trong production',
+        });
+      }
+    }
+
     if (!data.QUIZ_BANK_WORKER_ENABLED) return;
     const requiredFields = [
       'QUIZ_BANK_GENERATOR_BASE_URL',

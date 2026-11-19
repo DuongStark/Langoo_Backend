@@ -9,6 +9,8 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import {
+  ApiAcceptedResponse,
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
@@ -28,6 +30,12 @@ import {
   SessionResponseDto,
   UserResponseDto,
 } from './dto/auth-response.dto';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import {
+  PasswordResetMessageDto,
+  PasswordResetResultDto,
+} from './dto/password-reset-response.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { GoogleLinkDto, GoogleLoginDto } from './dto/google-login.dto';
 import { GoogleOAuthChallengeDto } from './dto/google-oauth-challenge.dto';
 import { LoginDto } from './dto/login.dto';
@@ -39,6 +47,11 @@ import { OptionalJwtAuthGuard } from './guards/optional-jwt-auth.guard';
 import { LogoutJwtAuthGuard } from './guards/logout-jwt-auth.guard';
 import { GoogleOauthService } from './oauth/google-oauth.service';
 import { GoogleOAuthChallengeService } from './oauth/google-oauth-challenge.service';
+import {
+  PasswordForgotResult,
+  PasswordResetService,
+  PasswordResetResult,
+} from './password-reset.service';
 import {
   AuthResult,
   AuthTokens,
@@ -56,6 +69,7 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly googleOauthService: GoogleOauthService,
     private readonly googleChallengeService: GoogleOAuthChallengeService,
+    private readonly passwordResetService: PasswordResetService,
   ) {}
 
   @Post('register')
@@ -89,6 +103,60 @@ export class AuthController {
   })
   login(@Body() dto: LoginDto): Promise<AuthResult> {
     return this.authService.login(dto);
+  }
+
+  @Post('password/forgot')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @Throttle({ default: { limit: 20, ttl: 3_600_000 } })
+  @ApiOperation({
+    summary: 'Gửi hướng dẫn đặt lại mật khẩu qua email',
+    description:
+      'Luôn trả cùng một thông điệp cho email tồn tại/không tồn tại, tài khoản ' +
+      'Google-only, tài khoản bị khoá hoặc địa chỉ đang bị giới hạn tần suất. ' +
+      'Email được gửi bất đồng bộ sau response.',
+  })
+  @ApiAcceptedResponse({ type: PasswordResetMessageDto })
+  @ApiServiceUnavailableResponse({
+    type: ErrorResponseDto,
+    description:
+      'AUTH_PASSWORD_RESET_UNAVAILABLE: chưa cấu hình đủ email đặt lại mật khẩu',
+  })
+  @ApiTooManyRequestsResponse({
+    type: ErrorResponseDto,
+    description: 'RATE_LIMITED (20 lần/giờ/IP)',
+  })
+  forgotPassword(
+    @Body() dto: ForgotPasswordDto,
+  ): Promise<PasswordForgotResult> {
+    return this.passwordResetService.forgot(dto);
+  }
+
+  @Post('password/reset')
+  @HttpCode(HttpStatus.OK)
+  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @ApiOperation({
+    summary: 'Đặt mật khẩu mới bằng token trong email',
+    description:
+      'Token dùng một lần, hết hạn sau 15 phút. Thành công đặt lại mật khẩu, ' +
+      'đánh dấu email đã xác minh và thu hồi mọi phiên; không tự đăng nhập.',
+  })
+  @ApiOkResponse({ type: PasswordResetResultDto })
+  @ApiBadRequestResponse({
+    type: ErrorResponseDto,
+    description:
+      'AUTH_CHALLENGE_INVALID: token sai, đã dùng, hết hạn hoặc identity/địa chỉ đã đổi',
+  })
+  @ApiServiceUnavailableResponse({
+    type: ErrorResponseDto,
+    description:
+      'AUTH_PASSWORD_RESET_UNAVAILABLE: chức năng chưa được cấu hình',
+  })
+  @ApiTooManyRequestsResponse({
+    type: ErrorResponseDto,
+    description: 'RATE_LIMITED (10 lần/phút/IP)',
+  })
+  resetPassword(@Body() dto: ResetPasswordDto): Promise<PasswordResetResult> {
+    return this.passwordResetService.reset(dto);
   }
 
   @Post('oauth/google')

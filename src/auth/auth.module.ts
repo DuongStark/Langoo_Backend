@@ -10,6 +10,8 @@ import { LogoutJwtAuthGuard } from './guards/logout-jwt-auth.guard';
 import { GoogleOAuthChallengeService } from './oauth/google-oauth-challenge.service';
 import { GoogleIdTokenVerifier } from './oauth/google-id-token.verifier';
 import { GoogleOauthService } from './oauth/google-oauth.service';
+import { PasswordResetMailer } from './password-reset.mailer';
+import { PasswordResetService } from './password-reset.service';
 
 @Module({
   imports: [
@@ -27,6 +29,8 @@ import { GoogleOauthService } from './oauth/google-oauth.service';
     GoogleOauthService,
     GoogleOAuthChallengeService,
     GoogleIdTokenVerifier,
+    PasswordResetService,
+    PasswordResetMailer,
     JwtAuthGuard,
     OptionalJwtAuthGuard,
     LogoutJwtAuthGuard,
