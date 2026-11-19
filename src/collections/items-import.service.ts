@@ -46,6 +46,7 @@ interface NormalizedInputRow {
   index: number;
   rawWord: string;
   word: string;
+  jmdictId: string | null;
   lookupKeys: string[];
   kanaKey: string | null;
   rawPos: string | null;
@@ -159,7 +160,7 @@ export class ItemsImportService {
             if (existingSet.has(row.sense.sense_id.toString())) {
               skippedDuplicates.push({
                 index: row.input.index,
-                word: row.input.rawWord,
+                word: row.input.rawWord || row.sense.lemma,
                 sense_id: row.sense.sense_id.toString(),
                 lemma: row.sense.lemma,
                 reason: 'already_in_collection',
@@ -414,7 +415,11 @@ export class ItemsImportService {
     notFound: ImportNotFoundItemDto[];
   }> {
     const normalizedRows: NormalizedInputRow[] = rawItems.map((item, index) => {
-      const extracted = extractInlineWordMetadata(item.word);
+      const jmdictId = item.jmdict_id?.trim() ? item.jmdict_id.trim() : null;
+      const rawWord = item.word?.trim() ? item.word : '';
+      const extracted = rawWord
+        ? extractInlineWordMetadata(rawWord)
+        : { word: '', inlinePos: null, inlineReading: null };
       const word = extracted.word;
       const lower = word.toLowerCase();
       const capitalized =
@@ -424,17 +429,19 @@ export class ItemsImportService {
       const kanaOnly = isKanaOnly(word);
       const kanaKey = kanaOnly ? normalizeKanaKey(word) : null;
       const katakanaKey = kanaOnly ? toKatakanaKey(word) : null;
-      const lookupKeys = [
-        ...new Set(
-          [
-            word,
-            lower,
-            capitalized,
-            ...(kanaKey ? [kanaKey] : []),
-            ...(katakanaKey ? [katakanaKey] : []),
-          ].filter((k) => k.length > 0),
-        ),
-      ];
+      const lookupKeys = word
+        ? [
+            ...new Set(
+              [
+                word,
+                lower,
+                capitalized,
+                ...(kanaKey ? [kanaKey] : []),
+                ...(katakanaKey ? [katakanaKey] : []),
+              ].filter((k) => k.length > 0),
+            ),
+          ]
+        : [];
       const rawReading =
         item.reading ?? item.phonetic ?? extracted.inlineReading;
       const rawSourceType = item.source_type ?? item.type;
@@ -444,8 +451,9 @@ export class ItemsImportService {
           : null;
       return {
         index,
-        rawWord: item.word,
+        rawWord,
         word,
+        jmdictId,
         lookupKeys,
         kanaKey,
         rawPos: item.pos ?? extracted.inlinePos ?? null,
@@ -458,60 +466,26 @@ export class ItemsImportService {
     });
 
     const notFound: ImportNotFoundItemDto[] = [];
+    const jmdictRows: NormalizedInputRow[] = [];
     const lookupRows: NormalizedInputRow[] = [];
 
     for (const row of normalizedRows) {
       if (!row.supportedType) {
         notFound.push({
           index: row.index,
-          word: row.rawWord,
+          word: row.rawWord || (row.jmdictId ? `jmdict:${row.jmdictId}` : ''),
           pos: row.rawPos,
           reason: 'unsupported_type',
         });
+      } else if (row.jmdictId !== null) {
+        jmdictRows.push(row);
       } else {
         lookupRows.push(row);
       }
     }
 
-    if (lookupRows.length === 0) {
+    if (jmdictRows.length === 0 && lookupRows.length === 0) {
       return { dedupedResolved: [], duplicateInRequest: [], notFound };
-    }
-
-    const uniqueLookupWords = [
-      ...new Set(lookupRows.flatMap((row) => row.lookupKeys)),
-    ];
-    const uniqueKanaReadings = [
-      ...new Set(
-        lookupRows.flatMap((row) =>
-          row.kanaKey !== null
-            ? [row.word, row.kanaKey, toKatakanaKey(row.kanaKey)]
-            : [],
-        ),
-      ),
-    ];
-
-    const candidates = await this.lookupRepo.findLexemeCandidates(
-      uniqueLookupWords,
-      uniqueKanaReadings,
-      allowedLanguageIds,
-    );
-
-    const byKey = new Map<string, ImportLexemeCandidate[]>();
-    const addCandidateKey = (key: string, candidate: ImportLexemeCandidate) => {
-      if (!key) return;
-      const list = byKey.get(key);
-      if (list) list.push(candidate);
-      else byKey.set(key, [candidate]);
-    };
-    for (const candidate of candidates) {
-      const key = candidate.matched_key;
-      addCandidateKey(key, candidate);
-      const lowerKey = key.toLowerCase();
-      if (lowerKey !== key) addCandidateKey(lowerKey, candidate);
-      if (isKanaOnly(key)) {
-        const hira = normalizeKanaKey(key);
-        if (hira !== key) addCandidateKey(hira, candidate);
-      }
     }
 
     const winningByRow: {
@@ -520,21 +494,90 @@ export class ItemsImportService {
       posMatched: boolean;
       deinflectedFrom: string | null;
     }[] = [];
+
+    // M5.3.2: Tra trực tiếp theo mã JMdict ent_seq (1 câu SQL ăn unique index external_id)
+    if (
+      jmdictRows.length > 0 &&
+      typeof this.lookupRepo.findJapaneseByJmdictIds === 'function'
+    ) {
+      const uniqueJmdictIds = [
+        ...new Set(jmdictRows.map((row) => row.jmdictId as string)),
+      ];
+      const foundByJmdict =
+        await this.lookupRepo.findJapaneseByJmdictIds(uniqueJmdictIds);
+      const jmdictMap = new Map(
+        foundByJmdict.map((cand) => [cand.matched_key, cand]),
+      );
+      const allowsJa = allowedLanguageIds.includes(2);
+
+      for (const row of jmdictRows) {
+        const id = row.jmdictId as string;
+        const hit = jmdictMap.get(id);
+        if (!hit) {
+          notFound.push({
+            index: row.index,
+            word: row.rawWord || `jmdict:${id}`,
+            pos: row.rawPos,
+            reason: 'jmdict_not_found',
+          });
+          continue;
+        }
+        if (!allowsJa) {
+          notFound.push({
+            index: row.index,
+            word: row.rawWord || hit.lemma,
+            pos: row.rawPos,
+            reason: 'language_not_in_profile',
+          });
+          continue;
+        }
+        winningByRow.push({
+          input: row,
+          lexemeId: hit.lexeme_id,
+          posMatched: true,
+          deinflectedFrom: null,
+        });
+      }
+    }
+
     let missedRows: NormalizedInputRow[] = [];
 
-    for (const row of lookupRows) {
-      const rowCandidates = collectCandidatesForRow(row, byKey);
-      if (rowCandidates.length === 0) {
-        missedRows.push(row);
-        continue;
+    if (lookupRows.length > 0) {
+      const uniqueLookupWords = [
+        ...new Set(lookupRows.flatMap((row) => row.lookupKeys)),
+      ];
+      const uniqueKanaReadings = [
+        ...new Set(
+          lookupRows.flatMap((row) =>
+            row.kanaKey !== null
+              ? [row.word, row.kanaKey, toKatakanaKey(row.kanaKey)]
+              : [],
+          ),
+        ),
+      ];
+
+      const candidates = await this.lookupRepo.findLexemeCandidates(
+        uniqueLookupWords,
+        uniqueKanaReadings,
+        allowedLanguageIds,
+      );
+
+      const byKey = indexCandidatesByKey(candidates);
+
+      for (const row of lookupRows) {
+        const rowCandidates = collectCandidatesForRow(row, byKey);
+        if (rowCandidates.length === 0) {
+          missedRows.push(row);
+          continue;
+        }
+        const picked = pickBestLexemeCandidate(row, rowCandidates);
+        winningByRow.push({
+          input: row,
+          lexemeId: picked.candidate.lexeme_id,
+          posMatched: picked.posMatched,
+          deinflectedFrom: null,
+        });
       }
-      const picked = pickBestLexemeCandidate(row, rowCandidates);
-      winningByRow.push({
-        input: row,
-        lexemeId: picked.candidate.lexeme_id,
-        posMatched: picked.posMatched,
-        deinflectedFrom: null,
-      });
     }
 
     // M4.9 Bước 2: Deinflection theo lô cho các dòng tiếng Nhật chưa khớp chính xác
@@ -724,9 +767,13 @@ export class ItemsImportService {
       if (!sense) {
         notFound.push({
           index: entry.input.index,
-          word: entry.input.rawWord,
+          word:
+            entry.input.rawWord ||
+            (entry.input.jmdictId ? `jmdict:${entry.input.jmdictId}` : ''),
           pos: entry.input.rawPos,
-          reason: 'not_in_dictionary',
+          reason: entry.input.jmdictId
+            ? 'jmdict_not_found'
+            : 'not_in_dictionary',
         });
         continue;
       }
@@ -735,7 +782,7 @@ export class ItemsImportService {
       if (seenSenseIds.has(senseKey)) {
         duplicateInRequest.push({
           index: entry.input.index,
-          word: entry.input.rawWord,
+          word: entry.input.rawWord || sense.lemma,
           sense_id: senseKey,
           lemma: sense.lemma,
           reason: 'duplicate_in_request',
@@ -1021,7 +1068,7 @@ function pickBestDeinflectedCandidate(
 function toAddedDto(row: ResolvedRow, itemId: string): ImportAddedItemDto {
   return {
     index: row.input.index,
-    word: row.input.rawWord,
+    word: row.input.rawWord || row.sense.lemma,
     item_id: itemId,
     sense_id: row.sense.sense_id.toString(),
     lemma: row.sense.lemma,

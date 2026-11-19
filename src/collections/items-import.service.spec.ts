@@ -135,6 +135,7 @@ function createSetup(profileOverrides?: {
     findTopSensesByLexemeIds: jest.fn().mockResolvedValue([]),
     findExistingWordsInLanguages: jest.fn().mockResolvedValue(new Set()),
     findJapaneseByReadings: jest.fn().mockResolvedValue([]),
+    findJapaneseByJmdictIds: jest.fn().mockResolvedValue([]),
   };
 
   const collectionsService = {
@@ -574,5 +575,99 @@ describe('ItemsImportService', () => {
       word: '恥ずかし',
       reason: 'not_in_dictionary',
     });
+  });
+
+  it('M5.3.2: resolves items by jmdict_id without word, deduplicates, and reports jmdict_not_found / language_not_in_profile', async () => {
+    const { service, lookupRepo } = createSetup({
+      primaryLanguageId: 2,
+      secondaryLanguageId: null,
+    });
+    lookupRepo.findJapaneseByJmdictIds.mockResolvedValue([
+      candidate({
+        lexeme_id: 64528n,
+        lemma: '乗る',
+        reading: 'のる',
+        pos: 'verb',
+        matched_key: '1355120',
+      }),
+    ]);
+    lookupRepo.findTopSensesByLexemeIds.mockResolvedValue([
+      topSense({
+        lexeme_id: 64528n,
+        sense_id: 2001n,
+        lemma: '乗る',
+        reading: 'のる',
+        pos: 'verb',
+        meaning_vi: 'lên xe, đi (phương tiện)',
+      }),
+    ]);
+
+    const res = await service.importIntoCollection(1n, COLLECTION_ID, {
+      items: [
+        { jmdict_id: '1355120' },
+        { jmdict_id: '1355120' },
+        { jmdict_id: '9999999' },
+        { word: 'nhãn hiển thị', jmdict_id: '8888888' },
+      ],
+    });
+
+    expect(lookupRepo.findLexemeCandidates).not.toHaveBeenCalled();
+    expect(res.added_count).toBe(1);
+    expect(res.added[0]).toMatchObject({
+      word: '乗る',
+      lemma: '乗る',
+      sense_id: '2001',
+      deinflected_from: null,
+    });
+    expect(res.skipped_duplicates).toEqual([
+      {
+        index: 1,
+        word: '乗る',
+        sense_id: '2001',
+        lemma: '乗る',
+        reason: 'duplicate_in_request',
+      },
+    ]);
+    expect(res.not_found).toEqual([
+      {
+        index: 2,
+        word: 'jmdict:9999999',
+        pos: null,
+        reason: 'jmdict_not_found',
+      },
+      {
+        index: 3,
+        word: 'nhãn hiển thị',
+        pos: null,
+        reason: 'jmdict_not_found',
+      },
+    ]);
+
+    // Hồ sơ chỉ học tiếng Anh -> jmdict_id hợp lệ trả language_not_in_profile
+    const enOnly = createSetup({
+      primaryLanguageId: 1,
+      secondaryLanguageId: null,
+    });
+    enOnly.lookupRepo.findJapaneseByJmdictIds.mockResolvedValue([
+      candidate({
+        lexeme_id: 64528n,
+        lemma: '乗る',
+        reading: 'のる',
+        pos: 'verb',
+        matched_key: '1355120',
+      }),
+    ]);
+    const enRes = await enOnly.service.importIntoCollection(1n, COLLECTION_ID, {
+      items: [{ jmdict_id: '1355120' }],
+    });
+    expect(enRes.added_count).toBe(0);
+    expect(enRes.not_found).toEqual([
+      {
+        index: 0,
+        word: '乗る',
+        pos: null,
+        reason: 'language_not_in_profile',
+      },
+    ]);
   });
 });

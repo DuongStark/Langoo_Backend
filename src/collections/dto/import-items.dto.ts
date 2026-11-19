@@ -7,6 +7,7 @@ import {
   IsIn,
   IsString,
   IsUUID,
+  Matches,
   MaxLength,
   MinLength,
   ValidateIf,
@@ -17,20 +18,40 @@ import { CollectionResponseDto } from './collection-response.dto';
 export const IMPORT_MAX_ITEMS = 500;
 export const IMPORT_STATUSES = ['learning', 'paused', 'known'] as const;
 export type ImportItemStatus = (typeof IMPORT_STATUSES)[number];
+const JMDICT_ID_PATTERN = /^\d{1,10}$/;
 
 export class ImportItemInputDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     example: '支える',
     maxLength: 120,
-    description: 'Mặt chữ của từ cần import (bắt buộc)',
+    description:
+      'Mặt chữ của từ cần import (bắt buộc nếu không gửi jmdict_id; khi có cả hai sẽ ưu tiên jmdict_id)',
   })
   @Transform(({ value }: { value: unknown }) =>
     typeof value === 'string' ? value.normalize('NFKC').trim() : value,
   )
+  @ValidateIf(
+    (o: ImportItemInputDto) =>
+      !o.jmdict_id ||
+      (o.word !== undefined && o.word !== null && o.word !== ''),
+  )
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-  word!: string;
+  word?: string;
+
+  @ApiPropertyOptional({
+    example: '1355120',
+    description:
+      'M5.3.2: Số hiệu mục từ JMdict (ent_seq, 1–10 chữ số, vd từ file backup .japanese). Có trường này sẽ tra thẳng theo mã jmdict:<id>',
+  })
+  @ValidateIf((_, value: unknown) => value !== undefined && value !== null)
+  @Transform(({ value }: { value: unknown }) =>
+    typeof value === 'string' ? value.trim() : value,
+  )
+  @IsString()
+  @Matches(JMDICT_ID_PATTERN)
+  jmdict_id?: string;
 
   @ApiPropertyOptional({
     example: 'verb',
@@ -255,10 +276,19 @@ export class ImportNotFoundItemDto {
   pos!: string | null;
 
   @ApiProperty({
-    enum: ['not_in_dictionary', 'language_not_in_profile', 'unsupported_type'],
+    enum: [
+      'not_in_dictionary',
+      'language_not_in_profile',
+      'unsupported_type',
+      'jmdict_not_found',
+    ],
     example: 'not_in_dictionary',
   })
-  reason!: 'not_in_dictionary' | 'language_not_in_profile' | 'unsupported_type';
+  reason!:
+    | 'not_in_dictionary'
+    | 'language_not_in_profile'
+    | 'unsupported_type'
+    | 'jmdict_not_found';
 }
 
 export class ImportItemsResponseDto {

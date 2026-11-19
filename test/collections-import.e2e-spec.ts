@@ -324,6 +324,73 @@ describe('Collections Auto Import List M5.3 (e2e — langoo_test)', () => {
     });
   });
 
+  it('M5.3.2: hỗ trợ import bằng jmdict_id (không cần word), báo jmdict_not_found và validate format', async () => {
+    const jmdictRows = await prisma.$queryRaw<
+      { ent_seq: string; lemma: string }[]
+    >`
+      SELECT
+        split_part(l.external_id, ':', 2) AS ent_seq,
+        l.lemma
+      FROM core.lexeme l
+      WHERE l.language_id = 2
+        AND l.external_id LIKE 'jmdict:%'
+        AND split_part(l.external_id, ':', 2) ~ '^[0-9]{1,10}$'
+        AND EXISTS (SELECT 1 FROM core.sense s WHERE s.lexeme_id = l.id)
+      ORDER BY l.id ASC
+      LIMIT 1
+    `;
+    const sample = jmdictRows[0];
+    if (!sample) return;
+
+    const res = await request(server)
+      .post('/v1/collections/import')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({
+        name: 'Japanese Backup M5.3.2',
+        items: [
+          { jmdict_id: sample.ent_seq, note: 'từ file .japanese' },
+          { jmdict_id: sample.ent_seq },
+          { jmdict_id: '999999999' },
+        ],
+      })
+      .expect(201);
+
+    const body = res.body as ImportItemsResponseDto;
+    expect(body.added_count).toBe(1);
+    expect(body.added[0]).toMatchObject({
+      word: sample.lemma,
+      lemma: sample.lemma,
+      deinflected_from: null,
+    });
+    expect(body.skipped_duplicate_count).toBe(1);
+    expect(body.skipped_duplicates[0]).toMatchObject({
+      word: sample.lemma,
+      reason: 'duplicate_in_request',
+    });
+    expect(body.not_found).toEqual([
+      {
+        index: 2,
+        word: 'jmdict:999999999',
+        pos: null,
+        reason: 'jmdict_not_found',
+      },
+    ]);
+
+    // Thiếu cả word lẫn jmdict_id -> 400
+    await request(server)
+      .post(`/v1/collections/${createdCollectionId}/items/import`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ items: [{}] })
+      .expect(400);
+
+    // jmdict_id sai định dạng (không phải số) -> 400
+    await request(server)
+      .post(`/v1/collections/${createdCollectionId}/items/import`)
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({ items: [{ jmdict_id: 'abc123' }] })
+      .expect(400);
+  });
+
   it('GET /v1/collections/:id/items?include=display & GET /v1/me/saved-senses — đồng bộ hoàn toàn với các từ vừa import', async () => {
     const listRes = await request(server)
       .get(

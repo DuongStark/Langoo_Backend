@@ -329,4 +329,37 @@ export class ItemImportLookupRepository {
         AND EXISTS (SELECT 1 FROM core.sense s WHERE s.lexeme_id = l.id)
     `);
   }
+
+  /**
+   * M5.3.2: Tra theo lô mã ent_seq JMdict (vd từ file backup `.japanese`) trong 1 câu SQL,
+   * ăn thẳng UNIQUE B-tree index `lexeme_external_id_key` (`external_id = 'jmdict:<id>'`).
+   */
+  async findJapaneseByJmdictIds(
+    jmdictIds: string[],
+  ): Promise<ImportLexemeCandidate[]> {
+    if (jmdictIds.length === 0) return [];
+    const externalIds = jmdictIds.map((id) => `jmdict:${id}`);
+    return this.prisma.$queryRaw<ImportLexemeCandidate[]>(Prisma.sql`
+      SELECT
+        l.id AS lexeme_id,
+        l.language_id,
+        l.lemma,
+        l.reading,
+        l.pos,
+        l.frequency_rank,
+        1::int AS match_source,
+        split_part(l.external_id, ':', 2) AS matched_key,
+        true AS is_jmdict,
+        EXISTS (
+          SELECT 1
+          FROM core.sense s
+          JOIN core.sense_gloss g ON g.sense_id = s.id AND g.language_id = 3
+          WHERE s.lexeme_id = l.id
+        ) AS has_vi_gloss,
+        NULL::int AS en_learner_rank
+      FROM core.lexeme l
+      WHERE l.external_id = ANY(${externalIds}::text[])
+        AND EXISTS (SELECT 1 FROM core.sense s WHERE s.lexeme_id = l.id)
+    `);
+  }
 }

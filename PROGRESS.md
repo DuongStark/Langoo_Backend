@@ -1,5 +1,13 @@
 # PROGRESS — Langoo Backend
 
+### 2026-11-19 — M5.3.2 — Hỗ trợ `jmdict_id` trong Auto Import List (file backup `.japanese`)
+
+- Thay đổi / lý do: Triển khai theo yêu cầu FE (`docs/fe/be-import-jmdict-ref-2026-11-19.md`), bổ sung trường tùy chọn `jmdict_id` (`/^\d{1,10}$/`) vào `ImportItemInputDto` và bỏ bắt buộc `word` khi đã có `jmdict_id` (bắt buộc ít nhất 1 trong 2; có cả hai ưu tiên `jmdict_id`). Thêm `findJapaneseByJmdictIds` tra 1 câu SQL `WHERE l.external_id = ANY(...)` ăn thẳng `UNIQUE B-TREE INDEX` `lexeme_external_id_key` (`jmdict:<ent_seq>`, 0 migration DB). Thêm reason `jmdict_not_found`; khi hồ sơ không học tiếng Nhật trả `language_not_in_profile`; `added[].word` trả `lemma` khi FE không gửi `word`, `not_found[].word` trả `word || "jmdict:<id>"`. Chữ Hán đơn (581 mã trong `.japanese`) giữ nguyên gửi qua `word`, chưa tạo bảng sổ tay Kanji riêng.
+- File / phạm vi: [Handoff FE M5.3.2](docs/handoff/m5.3.2-jmdict-id-import-fe-2026-11-19.md), [API Collections](docs/api/collections.md); BE `src/collections/{dto/import-items.dto.ts,repositories/item-import-lookup.repository.ts,items-import.service.ts,items-import.service.spec.ts}`, E2E `test/collections-import.e2e-spec.ts`.
+- Kiểm tra / kết quả: Prettier + ESLint (`--max-warnings 0`) PASS; `npm run build` PASS; Jest unit (`src/collections/`) **87/87 PASS**; PostgreSQL E2E (`test/collections-import.e2e-spec.ts`) **8/8 PASS** (test `M5.3.2` chạy 13 ms); kiểm chứng 5 mã mẫu trên DB production khớp `jmdict:<ent_seq>`; `git diff --check` sạch.
+- Gate còn thiếu / việc tiếp theo: Chờ CI/CD hoàn tất deploy lên VPS production; sau khi deploy, FE tích hợp theo [Handoff FE M5.3.2](docs/handoff/m5.3.2-jmdict-id-import-fe-2026-11-19.md).
+- Git / triển khai: Đã commit và push M5.3.2 lên `origin/main` (chỉ gồm phạm vi M5.3.2, giữ nguyên các WIP khác ngoài commit).
+
 ### 2026-11-19 — M4.9 — Japanese Deinflection dùng chung cho Search, Suggestions & Auto Import (M5.3)
 
 - Thay đổi / lý do: Triển khai theo yêu cầu FE (`docs/fe/be-jp-deinflection-2026-11-19.md`), chuyển bước đưa từ tiếng Nhật đã chia thể về dạng gốc (deinflection) về BE trong 1 module dùng chung `src/common/japanese/jp-deinflect.ts` (bảng A–E + ★ bảng B bỏ `な`/`く→い` + §4.3 cụm `してくれ`/`てください`, ưu tiên `exactScript` như `ほっと` thay vì `ホット`, khớp chính xác luôn thắng). Tích hợp vào cả `M5.3` Import (kèm §4.4 cứu file cụt chữ cuối theo `reading` kana duy nhất `引っ越` → `引っ越し` và deinflect `reading`) lẫn `GET /v1/dictionary/search` và `GET /v1/dictionary/suggestions` (1 câu SQL batch `findExactJapaneseCandidates` khi trang đầu chưa có hit `is_exact`, đẩy lên đầu kèm `deinflected_from: string | null`). 0 migration DB, 0 package npm mới.
