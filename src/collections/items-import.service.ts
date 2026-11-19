@@ -2,6 +2,11 @@ import { HttpStatus, Injectable, Logger, Optional } from '@nestjs/common';
 import { v7 as uuidv7 } from 'uuid';
 import { QuizBankRepository } from '../ai/quiz/bank/quiz-bank.repository';
 import { DomainException } from '../common/errors/domain.exception';
+import {
+  DeinflectCandidate,
+  deinflectJapanese,
+  deinflectJapaneseDetailed,
+} from '../common/japanese/jp-deinflect';
 import { PrismaService } from '../db/prisma.service';
 import {
   assertLanguagesInProfile,
@@ -54,6 +59,7 @@ interface ResolvedRow {
   input: NormalizedInputRow;
   sense: ImportTopSenseRow;
   posMatched: boolean;
+  deinflectedFrom: string | null;
 }
 
 /**
@@ -512,8 +518,9 @@ export class ItemsImportService {
       input: NormalizedInputRow;
       lexemeId: bigint;
       posMatched: boolean;
+      deinflectedFrom: string | null;
     }[] = [];
-    const missedRows: NormalizedInputRow[] = [];
+    let missedRows: NormalizedInputRow[] = [];
 
     for (const row of lookupRows) {
       const rowCandidates = collectCandidatesForRow(row, byKey);
@@ -526,8 +533,141 @@ export class ItemsImportService {
         input: row,
         lexemeId: picked.candidate.lexeme_id,
         posMatched: picked.posMatched,
+        deinflectedFrom: null,
       });
     }
+
+    // M4.9 Bước 2: Deinflection theo lô cho các dòng tiếng Nhật chưa khớp chính xác
+    if (missedRows.length > 0 && allowedLanguageIds.includes(2)) {
+      const deinflectPlan = missedRows.map((row) => ({
+        row,
+        candidates: deinflectJapaneseDetailed(row.word, 8),
+        expandedReadings: expandDeinflectedReadings(row.readings),
+      }));
+
+      const allDeinflectWords = [
+        ...new Set(
+          deinflectPlan.flatMap((entry) =>
+            entry.candidates.flatMap((c) => {
+              const keys = [c.word];
+              if (isKanaOnly(c.word)) {
+                const hira = normalizeKanaKey(c.word);
+                const kata = toKatakanaKey(hira);
+                keys.push(hira, kata);
+              }
+              return keys;
+            }),
+          ),
+        ),
+      ];
+      const allDeinflectKana = [
+        ...new Set(
+          deinflectPlan.flatMap((entry) =>
+            entry.candidates.flatMap((c) =>
+              isKanaOnly(c.word)
+                ? [normalizeKanaKey(c.word), toKatakanaKey(c.word)]
+                : [],
+            ),
+          ),
+        ),
+      ];
+
+      if (allDeinflectWords.length > 0) {
+        const deinflectRows = await this.lookupRepo.findLexemeCandidates(
+          allDeinflectWords,
+          allDeinflectKana,
+          [2],
+        );
+        const deinflectByKey = indexCandidatesByKey(deinflectRows);
+        const remainingMissed: NormalizedInputRow[] = [];
+
+        for (const entry of deinflectPlan) {
+          const picked = pickBestDeinflectedCandidate(
+            entry.row,
+            entry.candidates,
+            entry.expandedReadings,
+            deinflectByKey,
+          );
+          if (picked) {
+            winningByRow.push({
+              input: entry.row,
+              lexemeId: picked.candidate.lexeme_id,
+              posMatched: picked.posMatched,
+              deinflectedFrom: entry.row.rawWord,
+            });
+          } else {
+            remainingMissed.push(entry.row);
+          }
+        }
+        missedRows = remainingMissed;
+      }
+    }
+
+    // M4.9 Bước 3 (§4.4): Cứu trường hợp file bị cụt chữ cuối nhưng có reading kana duy nhất
+    if (
+      missedRows.length > 0 &&
+      allowedLanguageIds.includes(2) &&
+      typeof this.lookupRepo.findJapaneseByReadings === 'function'
+    ) {
+      const readingEligible = missedRows.filter(
+        (row) =>
+          row.word.length >= 2 &&
+          row.readings.some((r) => isKanaOnly(r) && r.length >= 2),
+      );
+      if (readingEligible.length > 0) {
+        const readingKeys = [
+          ...new Set(
+            readingEligible.flatMap((row) =>
+              row.readings.flatMap((r) =>
+                isKanaOnly(r) ? [r, toKatakanaKey(r)] : [],
+              ),
+            ),
+          ),
+        ];
+        const byReadingRows =
+          await this.lookupRepo.findJapaneseByReadings(readingKeys);
+        const byReadingMap = new Map<string, ImportLexemeCandidate[]>();
+        for (const cand of byReadingRows) {
+          if (!cand.reading) continue;
+          const rk = normalizeKanaKey(cand.reading);
+          const list = byReadingMap.get(rk);
+          if (list) list.push(cand);
+          else byReadingMap.set(rk, [cand]);
+        }
+
+        const rescuedIndexes = new Set<number>();
+        for (const row of readingEligible) {
+          const matched: ImportLexemeCandidate[] = [];
+          for (const r of row.readings) {
+            const list = byReadingMap.get(r);
+            if (!list) continue;
+            for (const cand of list) {
+              if (cand.lemma.startsWith(row.word) && cand.lemma !== row.word) {
+                matched.push(cand);
+              }
+            }
+          }
+          const uniqueLemmas = new Set(matched.map((c) => c.lemma));
+          if (uniqueLemmas.size === 1) {
+            const picked = pickBestLexemeCandidate(row, matched);
+            winningByRow.push({
+              input: row,
+              lexemeId: picked.candidate.lexeme_id,
+              posMatched: picked.posMatched,
+              deinflectedFrom: row.rawWord,
+            });
+            rescuedIndexes.add(row.index);
+          }
+        }
+        if (rescuedIndexes.size > 0) {
+          missedRows = missedRows.filter(
+            (row) => !rescuedIndexes.has(row.index),
+          );
+        }
+      }
+    }
+
+    winningByRow.sort((a, b) => a.input.index - b.input.index);
 
     if (missedRows.length > 0) {
       const otherLanguageIds = SUPPORTED_STUDY_LANGUAGE_IDS.filter(
@@ -607,6 +747,7 @@ export class ItemsImportService {
         input: entry.input,
         sense,
         posMatched: entry.posMatched,
+        deinflectedFrom: entry.deinflectedFrom,
       });
     }
 
@@ -776,6 +917,107 @@ function authoritativeSourceRank(candidate: ImportLexemeCandidate): number {
   return 0;
 }
 
+function indexCandidatesByKey(
+  candidates: ImportLexemeCandidate[],
+): Map<string, ImportLexemeCandidate[]> {
+  const byKey = new Map<string, ImportLexemeCandidate[]>();
+  const add = (key: string, candidate: ImportLexemeCandidate) => {
+    if (!key) return;
+    const list = byKey.get(key);
+    if (list) list.push(candidate);
+    else byKey.set(key, [candidate]);
+  };
+  for (const candidate of candidates) {
+    const key = candidate.matched_key;
+    add(key, candidate);
+    const lowerKey = key.toLowerCase();
+    if (lowerKey !== key) add(lowerKey, candidate);
+    if (isKanaOnly(key)) {
+      const hira = normalizeKanaKey(key);
+      if (hira !== key) add(hira, candidate);
+    }
+  }
+  return byKey;
+}
+
+function expandDeinflectedReadings(readings: string[]): string[] {
+  if (readings.length === 0) return [];
+  const expanded: string[] = [];
+  for (const r of readings) {
+    expanded.push(r);
+    if (isKanaOnly(r)) {
+      for (const base of deinflectJapanese(r, 4)) {
+        expanded.push(normalizeKanaKey(base));
+      }
+    }
+  }
+  return [...new Set(expanded)];
+}
+
+function pickBestDeinflectedCandidate(
+  row: NormalizedInputRow,
+  deinflectCandidates: DeinflectCandidate[],
+  expandedReadings: string[],
+  byKey: Map<string, ImportLexemeCandidate[]>,
+): { candidate: ImportLexemeCandidate; posMatched: boolean } | null {
+  const rowWithExpandedReadings: NormalizedInputRow = {
+    ...row,
+    readings: expandedReadings,
+  };
+
+  for (const dc of deinflectCandidates) {
+    const keys = isKanaOnly(dc.word)
+      ? [dc.word, normalizeKanaKey(dc.word), toKatakanaKey(dc.word)]
+      : [dc.word];
+    const bestByLexeme = new Map<string, ImportLexemeCandidate>();
+    for (const k of keys) {
+      const list = byKey.get(k);
+      if (!list) continue;
+      for (const cand of list) {
+        const idKey = cand.lexeme_id.toString();
+        const prev = bestByLexeme.get(idKey);
+        if (!prev || cand.match_source < prev.match_source) {
+          bestByLexeme.set(idKey, cand);
+        }
+      }
+    }
+    const matches = [...bestByLexeme.values()];
+    if (matches.length === 0) continue;
+
+    // Ưu tiên ứng viên khớp POS người dùng (nếu có), sau đó ưu tiên mềm theo expectedPos của quy tắc chia thể
+    let pool = matches;
+    let posMatched = true;
+    if (row.normalizedPos !== null) {
+      const userPosMatches = matches.filter((c) => c.pos === row.normalizedPos);
+      if (userPosMatches.length > 0) {
+        pool = userPosMatches;
+        posMatched = true;
+      } else {
+        posMatched = false;
+      }
+    } else if (dc.expectedPos.length > 0) {
+      const expectedMatches = matches.filter(
+        (c) =>
+          c.pos !== null &&
+          (dc.expectedPos as readonly string[]).includes(c.pos),
+      );
+      if (expectedMatches.length > 0) {
+        pool = expectedMatches;
+      }
+    }
+
+    const sorted = [...pool].sort((a, b) => {
+      const exactScriptA = a.matched_key === dc.word ? 0 : 1;
+      const exactScriptB = b.matched_key === dc.word ? 0 : 1;
+      if (exactScriptA !== exactScriptB) return exactScriptA - exactScriptB;
+      return compareCandidates(a, b, rowWithExpandedReadings);
+    });
+    return { candidate: sorted[0], posMatched };
+  }
+
+  return null;
+}
+
 function toAddedDto(row: ResolvedRow, itemId: string): ImportAddedItemDto {
   return {
     index: row.input.index,
@@ -787,5 +1029,6 @@ function toAddedDto(row: ResolvedRow, itemId: string): ImportAddedItemDto {
     pos: row.sense.pos,
     meaning_vi: row.sense.meaning_vi,
     pos_matched: row.posMatched,
+    deinflected_from: row.deinflectedFrom,
   };
 }

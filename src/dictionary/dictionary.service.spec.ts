@@ -1662,7 +1662,82 @@ describe('M4.7 canonical search heading', () => {
         lemma: '折り紙',
         surface: '折紙',
         is_exact: true,
+        deinflected_from: null,
       });
     },
   );
+});
+
+describe('M4.9 Japanese deinflection in search and suggest', () => {
+  it.each(['search', 'suggest'] as const)(
+    '%s returns deinflected base hit first with deinflected_from when no exact match exists',
+    async (method) => {
+      const { service, repos } = createSetup();
+      repos.scope.resolve.mockResolvedValue(null);
+      repos.languages.findIdByCode.mockResolvedValue(2);
+      repos.search.search.mockResolvedValue([]);
+      (
+        repos.search as unknown as { findExactJapaneseCandidates: jest.Mock }
+      ).findExactJapaneseCandidates = jest.fn().mockResolvedValue([
+        {
+          lexeme_id: 119021n,
+          language_id: 2,
+          lang_code: 'ja',
+          lemma: '応募',
+          surface: '応募',
+          reading: 'おうぼ',
+          pos: 'noun',
+          frequency_rank: 2500,
+          frequency_source: 'bccwj-suw',
+          homograph_no: 1,
+          surface_kind: 'lemma',
+          is_exact: true,
+          ja_source_rank: 0,
+          vi_translation_rank: 0,
+          matched_key: '応募',
+          match_source: 1,
+        },
+      ]);
+
+      const result = await service[method]({ q: '応募する', lang: 'ja' });
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0]).toMatchObject({
+        lexeme_id: '119021',
+        lemma: '応募',
+        is_exact: true,
+        deinflected_from: '応募する',
+      });
+    },
+  );
+
+  it('does not run deinflection when an exact match already exists', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue(null);
+    repos.languages.findIdByCode.mockResolvedValue(2);
+    const findExactMock = jest.fn();
+    (
+      repos.search as unknown as { findExactJapaneseCandidates: jest.Mock }
+    ).findExactJapaneseCandidates = findExactMock;
+    repos.search.search.mockResolvedValue([
+      {
+        lexeme_id: 500n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: 'みんな',
+        surface: 'みんな',
+        reading: 'みんな',
+        pos: 'noun',
+        frequency_rank: 100,
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+      },
+    ]);
+
+    const result = await service.search({ q: 'みんな', lang: 'ja' });
+
+    expect(findExactMock).not.toHaveBeenCalled();
+    expect(result.data[0].deinflected_from).toBeNull();
+  });
 });

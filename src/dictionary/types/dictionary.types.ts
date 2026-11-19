@@ -13,6 +13,8 @@ export interface SearchHit {
   homograph_no: number | null;
   surface_kind: string;
   is_exact: boolean;
+  /** M4.9: null khi khớp trực tiếp; chuỗi gốc người dùng nhập khi khớp qua deinflection tiếng Nhật. */
+  deinflected_from?: string | null;
 }
 
 export interface SearchResult {

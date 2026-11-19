@@ -131,6 +131,14 @@ export class SearchHitDto {
 
   @ApiPropertyOptional({
     nullable: true,
+    example: null,
+    description:
+      'M4.9: null khi khớp trực tiếp; chuỗi mặt chữ gốc người dùng gõ nếu kết quả đến từ chia thể tiếng Nhật (deinflection)',
+  })
+  deinflected_from?: string | null;
+
+  @ApiPropertyOptional({
+    nullable: true,
     description: 'bccwj-suw = word frequency, not sense frequency',
   })
   frequency_source?: string | null;

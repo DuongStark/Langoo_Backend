@@ -134,6 +134,7 @@ function createSetup(profileOverrides?: {
     findLexemeCandidates: jest.fn().mockResolvedValue([]),
     findTopSensesByLexemeIds: jest.fn().mockResolvedValue([]),
     findExistingWordsInLanguages: jest.fn().mockResolvedValue(new Set()),
+    findJapaneseByReadings: jest.fn().mockResolvedValue([]),
   };
 
   const collectionsService = {
@@ -462,5 +463,116 @@ describe('ItemsImportService', () => {
         items: [{ word: '性質' }],
       }),
     ).rejects.toBeInstanceOf(DomainException);
+  });
+
+  it('M4.9: deinflects conjugated JA words (応募する, 親切な, 細く, ほっとする) and rescues truncated word via unique reading (引っ越)', async () => {
+    const { service, lookupRepo } = createSetup({
+      primaryLanguageId: 2,
+      secondaryLanguageId: null,
+    });
+    // Lần 1 (exact) không khớp gì; lần 2 (deinflection batch) khớp các dạng gốc
+    lookupRepo.findLexemeCandidates
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        candidate({
+          lexeme_id: 119021n,
+          lemma: '応募',
+          reading: 'おうぼ',
+          pos: 'noun',
+          matched_key: '応募',
+        }),
+        candidate({
+          lexeme_id: 190094n,
+          lemma: '親切',
+          reading: 'しんせつ',
+          pos: 'adjective',
+          matched_key: '親切',
+        }),
+        candidate({
+          lexeme_id: 48118n,
+          lemma: 'ほっと',
+          reading: 'ほっと',
+          pos: 'adverb',
+          frequency_rank: 5000,
+          matched_key: 'ほっと',
+        }),
+        candidate({
+          lexeme_id: 99999n,
+          lemma: 'ホット',
+          reading: 'ホット',
+          pos: 'noun',
+          frequency_rank: 1000,
+          matched_key: 'ホット',
+        }),
+      ]);
+    lookupRepo.findJapaneseByReadings.mockResolvedValue([
+      candidate({
+        lexeme_id: 77777n,
+        lemma: '引っ越し',
+        reading: 'ひっこし',
+        pos: 'noun',
+        match_source: 3,
+        matched_key: 'ひっこし',
+      }),
+    ]);
+    lookupRepo.findTopSensesByLexemeIds.mockResolvedValue([
+      topSense({
+        lexeme_id: 119021n,
+        sense_id: 1001n,
+        lemma: '応募',
+        reading: 'おうぼ',
+        pos: 'noun',
+        meaning_vi: 'ứng tuyển',
+      }),
+      topSense({
+        lexeme_id: 190094n,
+        sense_id: 1002n,
+        lemma: '親切',
+        reading: 'しんせつ',
+        pos: 'adjective',
+        meaning_vi: 'tử tế',
+      }),
+      topSense({
+        lexeme_id: 48118n,
+        sense_id: 1003n,
+        lemma: 'ほっと',
+        reading: 'ほっと',
+        pos: 'adverb',
+        meaning_vi: 'thở phào nhẹ nhõm',
+      }),
+      topSense({
+        lexeme_id: 77777n,
+        sense_id: 1004n,
+        lemma: '引っ越し',
+        reading: 'ひっこし',
+        pos: 'noun',
+        meaning_vi: 'chuyển nhà',
+      }),
+    ]);
+
+    const res = await service.importIntoCollection(1n, COLLECTION_ID, {
+      items: [
+        { word: '応募する', phonetic: 'おうぼする' },
+        { word: '親切な', phonetic: 'しんせつな' },
+        { word: 'ほっとする', phonetic: 'ほっとする' },
+        { word: '引っ越', phonetic: 'ひっこし' },
+        { word: '恥ずかし', phonetic: 'Hazukashi' },
+      ],
+    });
+
+    expect(res.added_count).toBe(4);
+    expect(res.not_found_count).toBe(1);
+    expect(res.added.map((a) => [a.word, a.lemma, a.deinflected_from])).toEqual(
+      [
+        ['応募する', '応募', '応募する'],
+        ['親切な', '親切', '親切な'],
+        ['ほっとする', 'ほっと', 'ほっとする'],
+        ['引っ越', '引っ越し', '引っ越'],
+      ],
+    );
+    expect(res.not_found[0]).toMatchObject({
+      word: '恥ずかし',
+      reason: 'not_in_dictionary',
+    });
   });
 });

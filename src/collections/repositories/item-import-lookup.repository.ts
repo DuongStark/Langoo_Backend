@@ -294,4 +294,39 @@ export class ItemImportLookupRepository {
 
     return new Set(rows.map((r) => r.matched_key));
   }
+
+  /**
+   * M4.9 (§4.4): Tra các mục từ tiếng Nhật theo đúng reading kana (ăn B-tree
+   * `lexeme_reading_lookup`) để cứu trường hợp file bị cụt chữ cuối (vd `引っ越` + `ひっこし` -> `引っ越し`).
+   */
+  async findJapaneseByReadings(
+    kanaReadings: string[],
+  ): Promise<ImportLexemeCandidate[]> {
+    if (kanaReadings.length === 0) return [];
+    return this.prisma.$queryRaw<ImportLexemeCandidate[]>(Prisma.sql`
+      SELECT
+        l.id AS lexeme_id,
+        l.language_id,
+        l.lemma,
+        l.reading,
+        l.pos,
+        l.frequency_rank,
+        3::int AS match_source,
+        l.reading AS matched_key,
+        COALESCE(src.code = 'jmdict', false) AS is_jmdict,
+        EXISTS (
+          SELECT 1
+          FROM core.sense s
+          JOIN core.sense_gloss g ON g.sense_id = s.id AND g.language_id = 3
+          WHERE s.lexeme_id = l.id
+        ) AS has_vi_gloss,
+        NULL::int AS en_learner_rank
+      FROM core.lexeme l
+      LEFT JOIN public.source src ON src.id = l.source_id
+      WHERE l.language_id = 2
+        AND l.reading = ANY(${kanaReadings}::text[])
+        AND NOT (COALESCE(l.attributes->>'wikt_pos', '') = 'romanization')
+        AND EXISTS (SELECT 1 FROM core.sense s WHERE s.lexeme_id = l.id)
+    `);
+  }
 }

@@ -1,5 +1,11 @@
 # API: Dictionary (đọc)
 
+## M4.9 — Japanese Deinflection ở Search & Suggestions (19/11/2026)
+
+- Khi gọi `GET /v1/dictionary/search` (trang đầu `cursor = null`) hoặc `GET /v1/dictionary/suggestions` với ngôn ngữ cho phép tiếng Nhật và **chưa có hit `is_exact = true`**, BE tự sinh tối đa 8 dạng gốc ứng viên (bỏ `する`/`な`, `く→い`, thể `て`/`た`/`ます`/`ない`/`ている`/bị động/điều kiện/ý chí/`です`, bất quy tắc `する`/`来る`, cụm `してくれ`), tra **1 câu SQL duy nhất** và đẩy kết quả dạng gốc lên đầu `data[]` kèm trường **`deinflected_from: string | null`**.
+- Các hit khớp trực tiếp luôn có `deinflected_from: null`; khớp chính xác luôn thắng (`みんな`, `板`, `きれい`, `する` không bị cắt đuôi).
+- Chi tiết cho FE: [Handoff FE M4.9](../handoff/m4.9-jp-deinflection-fe-2026-11-19.md).
+
 ## M12-A06.1/A12 — Bổ sung A3F0C7 ngày17/11/2026
 
 **Đã deploy production `ac5dccf` ngày17/11/2026.** Reverse và suggestions/reverse cùng

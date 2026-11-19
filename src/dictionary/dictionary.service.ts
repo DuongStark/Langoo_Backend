@@ -3,6 +3,11 @@ import { StudyLanguageScopeService } from '../users/study-language-scope.service
 import { toHiragana } from 'wanakana';
 import { maxLength } from 'class-validator';
 import { DomainException } from '../common/errors/domain.exception';
+import {
+  DeinflectCandidate,
+  deinflectJapaneseDetailed,
+  katakanaToHiragana,
+} from '../common/japanese/jp-deinflect';
 import { LanguageRepository } from '../db/repositories/language.repository';
 import { STORAGE_SERVICE, StorageService } from '../storage/storage.service';
 import {
@@ -31,7 +36,10 @@ import {
   SearchHit,
 } from './types/dictionary.types';
 import { JapanesePriorityRepository } from './repositories/japanese-priority.repository';
-import { DictionarySearchRepository } from './repositories/dictionary-search.repository';
+import {
+  DeinflectSearchRow,
+  DictionarySearchRepository,
+} from './repositories/dictionary-search.repository';
 import {
   KanjiComponentRow,
   KanjiRepository,
@@ -150,8 +158,28 @@ export class DictionaryService {
     });
     const hasNext = rows.length > limit;
     const pageRows = hasNext ? rows.slice(0, limit) : rows;
+    let baseHits = pageRows.map(toSearchHit);
+
+    if (cursor === null) {
+      const deinflectedHits = await this.findDeinflectedJapaneseHits(
+        query,
+        languageCode,
+        scope,
+        baseHits,
+        limit,
+      );
+      if (deinflectedHits.length > 0) {
+        const seenIds = new Set(deinflectedHits.map((h) => h.lexeme_id));
+        const merged = [
+          ...deinflectedHits,
+          ...baseHits.filter((h) => !seenIds.has(h.lexeme_id)),
+        ];
+        baseHits = merged.slice(0, limit);
+      }
+    }
+
     const data = await this.addEnglishPreviews(
-      await this.addJapanesePreviews(pageRows.map(toSearchHit)),
+      await this.addJapanesePreviews(baseHits),
     );
 
     if (userId !== undefined && cursor === null) {
@@ -491,12 +519,187 @@ export class DictionaryService {
       deduplicateSurface: true,
     });
 
+    let baseHits = rows.map(toSearchHit);
+    const deinflectedHits = await this.findDeinflectedJapaneseHits(
+      query,
+      languageCode,
+      scope,
+      baseHits,
+      SUGGESTION_LIMIT,
+    );
+    if (deinflectedHits.length > 0) {
+      const seenIds = new Set(deinflectedHits.map((h) => h.lexeme_id));
+      baseHits = [
+        ...deinflectedHits,
+        ...baseHits.filter((h) => !seenIds.has(h.lexeme_id)),
+      ].slice(0, SUGGESTION_LIMIT);
+    }
+
     return {
       data: await this.addEnglishPreviews(
-        await this.addJapanesePreviews(rows.map(toSearchHit)),
+        await this.addJapanesePreviews(baseHits),
       ),
       next_cursor: null,
     };
+  }
+
+  /**
+   * M4.9: Khi không có hit `is_exact`, thử đưa từ tiếng Nhật về dạng gốc (deinflection)
+   * trong 1 câu SQL duy nhất và gắn `deinflected_from = query`.
+   */
+  private async findDeinflectedJapaneseHits(
+    query: string,
+    languageCode: string | null,
+    scope: { languageIds: number[] } | null,
+    existingHits: SearchHit[],
+    limit: number,
+  ): Promise<SearchHit[]> {
+    if (languageCode !== null && languageCode !== 'ja') return [];
+    if (scope && !scope.languageIds.includes(2)) return [];
+    if (existingHits.some((hit) => hit.is_exact)) return [];
+    if (typeof this.searchRepo.findExactJapaneseCandidates !== 'function') {
+      return [];
+    }
+
+    const rawCandidates = deinflectJapaneseDetailed(query, 8);
+    if (rawCandidates.length === 0) return [];
+
+    // Hỗ trợ romaji suru-verb (vd benkyousuru -> benkyou -> べんきょう)
+    const candidates: DeinflectCandidate[] = rawCandidates.map((c) => {
+      if (/^[a-z]+$/i.test(c.word)) {
+        const kana = toHiragana(c.word.toLowerCase());
+        return { ...c, word: kana };
+      }
+      return c;
+    });
+
+    const isKana = (s: string) => /^[\u3040-\u309f\u30a0-\u30ffー]+$/.test(s);
+    const toKatakana = (s: string) =>
+      s.replace(/[\u3041-\u3096]/g, (ch) =>
+        String.fromCharCode(ch.charCodeAt(0) + 0x60),
+      );
+
+    const candidateWords = [
+      ...new Set(
+        candidates.flatMap((c) =>
+          isKana(c.word)
+            ? [c.word, katakanaToHiragana(c.word), toKatakana(c.word)]
+            : [c.word],
+        ),
+      ),
+    ];
+    const kanaReadings = [
+      ...new Set(
+        candidates.flatMap((c) =>
+          isKana(c.word)
+            ? [katakanaToHiragana(c.word), toKatakana(c.word)]
+            : [],
+        ),
+      ),
+    ];
+
+    const rows = await this.searchRepo.findExactJapaneseCandidates(
+      candidateWords,
+      kanaReadings,
+      Math.max(limit * 3, 24),
+    );
+    if (rows.length === 0) return [];
+
+    const byKey = new Map<string, DeinflectSearchRow[]>();
+    const addKey = (key: string, row: DeinflectSearchRow) => {
+      const list = byKey.get(key);
+      if (list) list.push(row);
+      else byKey.set(key, [row]);
+    };
+    for (const row of rows) {
+      addKey(row.matched_key, row);
+      if (isKana(row.matched_key)) {
+        const hira = katakanaToHiragana(row.matched_key);
+        if (hira !== row.matched_key) addKey(hira, row);
+      }
+    }
+
+    const picked: SearchHit[] = [];
+    const seenLexemeIds = new Set<string>();
+    const maxDeinflected = Math.min(limit, 5);
+
+    for (const candidate of candidates) {
+      const keys = isKana(candidate.word)
+        ? [
+            candidate.word,
+            katakanaToHiragana(candidate.word),
+            toKatakana(candidate.word),
+          ]
+        : [candidate.word];
+
+      const matchedForCandidate = new Map<string, DeinflectSearchRow>();
+      for (const key of keys) {
+        const list = byKey.get(key);
+        if (!list) continue;
+        for (const row of list) {
+          const id = row.lexeme_id.toString();
+          if (seenLexemeIds.has(id)) continue;
+          const prev = matchedForCandidate.get(id);
+          if (!prev || row.match_source < prev.match_source) {
+            matchedForCandidate.set(id, row);
+          }
+        }
+      }
+
+      if (matchedForCandidate.size === 0) continue;
+
+      const sorted = [...matchedForCandidate.values()].sort((a, b) => {
+        if (a.ja_source_rank !== b.ja_source_rank) {
+          return a.ja_source_rank - b.ja_source_rank;
+        }
+        const exactScriptA = a.matched_key === candidate.word ? 0 : 1;
+        const exactScriptB = b.matched_key === candidate.word ? 0 : 1;
+        if (exactScriptA !== exactScriptB) {
+          return exactScriptA - exactScriptB;
+        }
+        const posA =
+          a.pos !== null &&
+          (candidate.expectedPos as readonly string[]).includes(a.pos)
+            ? 0
+            : 1;
+        const posB =
+          b.pos !== null &&
+          (candidate.expectedPos as readonly string[]).includes(b.pos)
+            ? 0
+            : 1;
+        if (posA !== posB) return posA - posB;
+        if (a.vi_translation_rank !== b.vi_translation_rank) {
+          return a.vi_translation_rank - b.vi_translation_rank;
+        }
+        if (a.match_source !== b.match_source) {
+          return a.match_source - b.match_source;
+        }
+        const freqA = a.frequency_rank ?? Number.MAX_SAFE_INTEGER;
+        const freqB = b.frequency_rank ?? Number.MAX_SAFE_INTEGER;
+        if (freqA !== freqB) return freqA - freqB;
+        return a.lexeme_id < b.lexeme_id
+          ? -1
+          : a.lexeme_id > b.lexeme_id
+            ? 1
+            : 0;
+      });
+
+      for (const row of sorted) {
+        const id = row.lexeme_id.toString();
+        if (seenLexemeIds.has(id)) continue;
+        seenLexemeIds.add(id);
+        picked.push({
+          ...toSearchHit(row),
+          deinflected_from: query,
+        });
+        if (picked.length >= maxDeinflected) break;
+      }
+
+      // Ưu tiên ứng viên đầu tiên có kết quả thật (tránh nhiễu từ ứng viên xếp sau)
+      if (picked.length > 0) break;
+    }
+
+    return picked;
   }
 
   async getLexemeSenses(
@@ -876,6 +1079,7 @@ function toSearchHit(row: {
     homograph_no: row.homograph_no,
     surface_kind: row.surface_kind,
     is_exact: row.is_exact,
+    deinflected_from: null,
   };
 }
 

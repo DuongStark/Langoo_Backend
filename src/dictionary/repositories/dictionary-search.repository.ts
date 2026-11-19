@@ -33,6 +33,25 @@ export interface ExactSearchHit {
   lexeme_id: bigint;
 }
 
+export interface DeinflectSearchRow {
+  lexeme_id: bigint;
+  language_id: number;
+  lang_code: string;
+  lemma: string;
+  surface: string;
+  reading: string | null;
+  pos: string | null;
+  frequency_rank: number | null;
+  frequency_source: string | null;
+  homograph_no: number | null;
+  surface_kind: string;
+  is_exact: boolean;
+  ja_source_rank: 0 | 1;
+  vi_translation_rank: 0 | 1;
+  matched_key: string;
+  match_source: number;
+}
+
 /**
  * Tìm "mặt chữ" trong serve.dictionary_search (view, schema serve KHÔNG map Prisma).
  * `queries` dùng so khớp chính xác; `patterns` đã escape ký tự LIKE để dùng trong ILIKE.
@@ -112,6 +131,165 @@ export class DictionarySearchRepository {
     return this.runSearchQuery<ExactSearchHit>(
       Prisma.sql`${Prisma.join(queries, ' UNION ALL ')}`,
     );
+  }
+
+  /**
+   * M4.9: Tra chính xác theo lô các ứng viên dạng gốc tiếng Nhật trong 1 câu SQL
+   * (dùng B-tree `lexeme_lemma_prefix`, `lexeme_form_text_trgm`, `lexeme_reading_lookup`).
+   * Chỉ gọi khi lượt tìm chính không có hit `is_exact`.
+   */
+  async findExactJapaneseCandidates(
+    candidateWords: string[],
+    kanaReadings: string[],
+    limit: number,
+  ): Promise<DeinflectSearchRow[]> {
+    if (candidateWords.length === 0) return [];
+    const readingBranch =
+      kanaReadings.length > 0
+        ? Prisma.sql`
+          UNION ALL
+          SELECT
+            l.id AS lexeme_id,
+            l.language_id,
+            lg.code AS lang_code,
+            l.lemma,
+            l.lemma AS surface,
+            l.reading,
+            l.pos,
+            l.frequency_rank,
+            l.homograph_no,
+            l.source_id,
+            l.attributes,
+            'reading'::text AS surface_kind,
+            l.reading AS matched_key,
+            3::int AS match_source
+          FROM core.lexeme l
+          JOIN public.language lg ON lg.id = l.language_id
+          WHERE l.language_id = 2
+            AND l.reading = ANY(${kanaReadings}::text[])
+        `
+        : Prisma.sql``;
+
+    return this.runSearchQuery<DeinflectSearchRow>(Prisma.sql`
+      WITH raw_hits AS (
+        SELECT
+          l.id AS lexeme_id,
+          l.language_id,
+          lg.code AS lang_code,
+          l.lemma,
+          l.lemma AS surface,
+          l.reading,
+          l.pos,
+          l.frequency_rank,
+          l.homograph_no,
+          l.source_id,
+          l.attributes,
+          'lemma'::text AS surface_kind,
+          l.lemma AS matched_key,
+          1::int AS match_source
+        FROM core.lexeme l
+        JOIN public.language lg ON lg.id = l.language_id
+        WHERE l.language_id = 2
+          AND l.lemma = ANY(${candidateWords}::text[])
+        UNION ALL
+        SELECT
+          l.id AS lexeme_id,
+          l.language_id,
+          lg.code AS lang_code,
+          l.lemma,
+          f.form_text AS surface,
+          l.reading,
+          l.pos,
+          l.frequency_rank,
+          l.homograph_no,
+          l.source_id,
+          l.attributes,
+          f.kind AS surface_kind,
+          f.form_text AS matched_key,
+          2::int AS match_source
+        FROM core.lexeme_form f
+        JOIN core.lexeme l ON l.id = f.lexeme_id
+        JOIN public.language lg ON lg.id = l.language_id
+        WHERE l.language_id = 2
+          AND f.form_text = ANY(${candidateWords}::text[])
+        ${readingBranch}
+      ),
+      filtered AS (
+        SELECT
+          r.lexeme_id,
+          r.language_id,
+          r.lang_code,
+          r.lemma,
+          r.surface,
+          r.reading,
+          r.pos,
+          COALESCE(jp.corpus_rank, r.frequency_rank) AS frequency_rank,
+          CASE
+            WHEN jp.corpus_rank IS NOT NULL THEN 'bccwj-suw'
+            WHEN r.frequency_rank IS NOT NULL THEN 'lexeme'
+            ELSE NULL
+          END AS frequency_source,
+          r.homograph_no,
+          r.surface_kind,
+          r.matched_key,
+          r.match_source,
+          CASE WHEN src.code = 'jmdict' THEN 0 ELSE 1 END::int AS ja_source_rank,
+          CASE
+            WHEN EXISTS (
+              SELECT 1
+              FROM core.sense s
+              JOIN core.sense_gloss g ON g.sense_id = s.id AND g.language_id = 3
+              WHERE s.lexeme_id = r.lexeme_id
+            ) THEN 0
+            ELSE 1
+          END::int AS vi_translation_rank
+        FROM raw_hits r
+        LEFT JOIN public.source src ON src.id = r.source_id
+        LEFT JOIN LATERAL (
+          SELECT p.corpus_rank
+          FROM serve.japanese_lexeme_priority p
+          WHERE p.lexeme_id = r.lexeme_id
+          LIMIT 1
+        ) jp ON true
+        WHERE NOT (COALESCE(r.attributes->>'wikt_pos', '') = 'romanization')
+          AND EXISTS (SELECT 1 FROM core.sense s WHERE s.lexeme_id = r.lexeme_id)
+      ),
+      deduped AS (
+        SELECT
+          *,
+          row_number() OVER (
+            PARTITION BY lexeme_id, matched_key
+            ORDER BY match_source ASC, surface_kind ASC, surface ASC
+          ) AS rn
+        FROM filtered
+      )
+      SELECT
+        lexeme_id,
+        language_id,
+        lang_code,
+        lemma,
+        surface,
+        reading,
+        pos,
+        frequency_rank,
+        frequency_source,
+        homograph_no,
+        surface_kind,
+        true AS is_exact,
+        ja_source_rank,
+        vi_translation_rank,
+        matched_key,
+        match_source
+      FROM deduped
+      WHERE rn = 1
+      ORDER BY
+        ja_source_rank ASC,
+        vi_translation_rank ASC,
+        match_source ASC,
+        frequency_rank ASC NULLS LAST,
+        lexeme_id ASC
+      LIMIT ${limit}
+    `);
   }
 
   private async searchRows(

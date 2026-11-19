@@ -214,6 +214,14 @@ export class ImportAddedItemDto {
       'true nếu không gửi pos hoặc khớp đúng pos; false nếu lệch pos và hệ thống fallback theo mặt chữ',
   })
   pos_matched!: boolean;
+
+  @ApiProperty({
+    nullable: true,
+    example: null,
+    description:
+      'M4.9: null nếu khớp chính xác; chuỗi mặt chữ gốc người dùng gửi nếu khớp qua đưa từ tiếng Nhật về dạng gốc (deinflection)',
+  })
+  deinflected_from!: string | null;
 }
 
 export class ImportSkippedDuplicateDto {

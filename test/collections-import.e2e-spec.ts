@@ -251,6 +251,7 @@ describe('Collections Auto Import List M5.3 (e2e — langoo_test)', () => {
     const fallbackItem = body.added.find((a) => a.word === sample3.lemma);
     expect(fallbackItem).toBeDefined();
     expect(fallbackItem?.pos_matched).toBe(false);
+    expect(fallbackItem?.deinflected_from).toBeNull();
     expect(body.not_found).toEqual([
       {
         index: 3,
@@ -259,6 +260,68 @@ describe('Collections Auto Import List M5.3 (e2e — langoo_test)', () => {
         reason: 'not_in_dictionary',
       },
     ]);
+  });
+
+  it('M4.9: deinflect dạng chia tiếng Nhật (danh từ + する) ở cả Import và Search/Suggestions', async () => {
+    const nounRows = await prisma.$queryRaw<SampleLexemeRow[]>`
+      SELECT l.lemma, l.reading, COALESCE(l.pos, 'noun') AS pos
+      FROM core.lexeme l
+      WHERE l.language_id = 2
+        AND l.pos = 'noun'
+        AND char_length(l.lemma) >= 2
+        AND NOT EXISTS (
+          SELECT 1 FROM core.lexeme l2
+          WHERE l2.language_id = 2 AND l2.lemma = l.lemma || 'する'
+        )
+        AND EXISTS (SELECT 1 FROM core.sense s WHERE s.lexeme_id = l.id)
+      ORDER BY l.id ASC
+      LIMIT 1
+    `;
+    const baseNoun = nounRows[0];
+    if (!baseNoun) return;
+
+    const conjugated = `${baseNoun.lemma}する`;
+
+    // 1. Search trả dạng gốc kèm deinflected_from
+    const searchRes = await request(server)
+      .get(`/v1/dictionary/search?lang=ja&q=${encodeURIComponent(conjugated)}`)
+      .expect(200);
+    const searchBody = searchRes.body as {
+      data: { lemma: string; deinflected_from: string | null }[];
+    };
+    expect(searchBody.data.length).toBeGreaterThan(0);
+    expect(searchBody.data[0].lemma).toBe(baseNoun.lemma);
+    expect(searchBody.data[0].deinflected_from).toBe(conjugated);
+
+    // 2. Suggestions cũng trả dạng gốc kèm deinflected_from
+    const suggestRes = await request(server)
+      .get(
+        `/v1/dictionary/suggestions?lang=ja&q=${encodeURIComponent(conjugated)}`,
+      )
+      .expect(200);
+    const suggestBody = suggestRes.body as {
+      data: { lemma: string; deinflected_from: string | null }[];
+    };
+    expect(suggestBody.data.length).toBeGreaterThan(0);
+    expect(suggestBody.data[0].lemma).toBe(baseNoun.lemma);
+    expect(suggestBody.data[0].deinflected_from).toBe(conjugated);
+
+    // 3. Import nhận dạng chia và trả deinflected_from
+    const importRes = await request(server)
+      .post('/v1/collections/import')
+      .set('Authorization', `Bearer ${tokenA}`)
+      .send({
+        name: 'Deinflect M4.9 Test',
+        items: [{ word: conjugated }],
+      })
+      .expect(201);
+    const importBody = importRes.body as ImportItemsResponseDto;
+    expect(importBody.added_count).toBe(1);
+    expect(importBody.added[0]).toMatchObject({
+      word: conjugated,
+      lemma: baseNoun.lemma,
+      deinflected_from: conjugated,
+    });
   });
 
   it('GET /v1/collections/:id/items?include=display & GET /v1/me/saved-senses — đồng bộ hoàn toàn với các từ vừa import', async () => {

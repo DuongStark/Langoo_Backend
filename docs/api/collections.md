@@ -232,11 +232,11 @@ curl -s -X POST localhost:3000/v1/collections/import \
   -d '{"name":"Kanji Shit","items":[{"word":"性質","reading":"せいしつ","source_type":"word"}]}'
 ```
 
-- **Đối soát tự động:** khớp theo `word` + `pos` (ưu tiên đúng từ loại, tự chuẩn hóa viết tắt EN/VI/JA về 15 giá trị `core.lexeme.pos`; nếu lệch từ loại tự fallback theo mặt chữ tốt nhất) + tùy chọn `reading` (tách nhiều cách đọc như Mazii `"ささえる つかえる"`, chuẩn hóa Hiragana/Katakana). Tự chọn 1 nghĩa phổ biến nhất theo xếp hạng **M10.5 / M4.5** và lấy `meaning_vi` gọn từ từ điển (`gloss_vi` → `gloss_en` → `lemma`).
+- **Đối soát tự động:** khớp theo `word` + `pos` (ưu tiên đúng từ loại, tự chuẩn hóa viết tắt EN/VI/JA về 15 giá trị `core.lexeme.pos`; nếu lệch từ loại tự fallback theo mặt chữ tốt nhất) + tùy chọn `reading` (tách nhiều cách đọc như Mazii `"ささえる つかえる"`, chuẩn hóa Hiragana/Katakana). Nếu từ tiếng Nhật chưa khớp chính xác, BE tự chạy **deinflection (M4.9)** (bỏ `する`/`な`, đổi `く→い`, thể `て`/`た`/`ます`/`ない`, cụm `してくれ`, và cứu chữ cụt theo `reading` kana duy nhất) rồi trả `deinflected_from` trong `added[]`. Tự chọn 1 nghĩa phổ biến nhất theo xếp hạng **M10.5 / M4.5** và lấy `meaning_vi` gọn từ từ điển (`gloss_vi` → `gloss_en` → `lemma`).
 - **Tạo bộ mới chống rỗng:** `POST /v1/collections/import` nếu 0 từ nào khớp sẽ **không tạo bộ**, trả `422 IMPORT_NO_MATCHED_ITEMS` kèm `details.not_found`.
-- **Response:** trả `collection`, `total_submitted`, `added_count`, `skipped_duplicate_count`, `not_found_count`, cùng 3 mảng `added`, `skipped_duplicates` (`already_in_collection` | `duplicate_in_request`), và `not_found` (`not_in_dictionary` | `language_not_in_profile` | `unsupported_type`).
+- **Response:** trả `collection`, `total_submitted`, `added_count`, `skipped_duplicate_count`, `not_found_count`, cùng 3 mảng `added` (gồm `deinflected_from: string | null`), `skipped_duplicates` (`already_in_collection` | `duplicate_in_request`), và `not_found` (`not_in_dictionary` | `language_not_in_profile` | `unsupported_type`).
 - **Pre-warm Quiz Bank (M11.5):** đẩy nền ở `priority = 50` (trần 100 sense/lần), không làm nghẽn hàng chờ `priority = 10`.
-- Chi tiết tích hợp FE: [Handoff FE M5.3](../handoff/m5.3-import-list-fe-2026-11-19.md).
+- Chi tiết tích hợp FE: [Handoff FE M5.3](../handoff/m5.3-import-list-fe-2026-11-19.md) · [Handoff FE M4.9 Deinflection](../handoff/m4.9-jp-deinflection-fe-2026-11-19.md).
 
 Các danh sách dùng keyset cursor, mặc định 20 dòng và tối đa 100 dòng/trang.
 Cursor phải dùng với cùng phạm vi/bộ lọc của trang đầu; item cursor ràng buộc thêm
