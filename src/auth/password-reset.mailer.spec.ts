@@ -34,13 +34,20 @@ describe('PasswordResetMailer', () => {
     expect(init?.method).toBe('POST');
     const body = JSON.parse(init?.body as string) as {
       to: string[];
+      subject: string;
+      html: string;
       text: string;
     };
+    const expectedLink = `https://app.langoo.org/reset-password#token=${token}`;
     expect(body.to).toEqual(['user@example.com']);
-    expect(body.text).toContain(
-      `https://app.langoo.org/reset-password#token=${token}`,
-    );
+    expect(body.text).toContain(expectedLink);
     expect(body.text).not.toContain(`/reset-password/${token}`);
+    expect(body.html).toContain(`href="${expectedLink}"`);
+    expect(body.html).toContain('https://langoo.org/favicon.png');
+    expect(body.html).toContain('#1c3a8c');
+    expect(body.html).toContain('#d22d02');
+    expect(body.html).toContain('Đặt lại mật khẩu');
+    expect(body.html).not.toContain(`/reset-password/${token}`);
   });
 
   it('thiếu một trong ba biến → không cấu hình, không gọi provider', async () => {

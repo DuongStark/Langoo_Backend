@@ -1,5 +1,13 @@
 # PROGRESS — Langoo Backend
 
+### 2026-11-20 — M2.3 B — Nâng cấp giao diện HTML email đặt lại mật khẩu theo đúng nhận diện Langoo
+
+- Thay đổi / lý do: Thiết kế lại mẫu email đặt lại mật khẩu trong `PasswordResetMailer` theo đúng ngôn ngữ thiết kế **“Phiếu mục lục & dấu kiểm duyệt”** từ `LanGoo-User`: dùng biểu tượng PNG chính thức `https://langoo.org/favicon.png` (tránh lỗi Gmail image proxy biến nền trong suốt của `.webp` thành nền đen) kèm chữ thương hiệu `Langoo` trên đầu phiếu trắng có đường đứt nét (`#dfe5f2`), thanh nhấn hai tông xanh mực navy (`#1c3a8c`) + đỏ cam con dấu (`#d22d02`), nhãn con dấu `Hạn 15 phút`, nút CTA navy `#1c3a8c` (`Đặt lại mật khẩu`), hộp lưu ý bảo mật viền trái `#d22d02`, link dự phòng dễ sao chép, preheader Gmail và bản `text` đầy đủ. Giữ nguyên cơ chế bảo mật `#token=...` và `escapeHtml`.
+- File / phạm vi: `src/auth/password-reset.mailer.ts`, `src/auth/password-reset.mailer.spec.ts`, `PROGRESS.md`.
+- Kiểm tra / kết quả: Prettier + ESLint (`--max-warnings 0`) PASS; Jest `src/auth/password-reset` (3 suites) PASS; `npm run build` PASS; `git diff --check` sạch; gửi email xem trước v3 tới `starkduong@gmail.com` qua Resend (`01a1f802-1a85-7326-80e3-7a50ebfb0796`, đã duyệt giao diện & logo PNG sạch nền).
+- Gate còn thiếu / việc tiếp theo: Chờ CI/CD hoàn tất deploy lên VPS production.
+- Git / triển khai: Đã commit và push M2.3 B lên `origin/main` (chỉ gồm phạm vi M2.3 B, giữ nguyên các WIP khác ngoài commit).
+
 ### 2026-11-19 — M5.3.2 — Hỗ trợ `jmdict_id` trong Auto Import List (file backup `.japanese`)
 
 - Thay đổi / lý do: Triển khai theo yêu cầu FE (`docs/fe/be-import-jmdict-ref-2026-11-19.md`), bổ sung trường tùy chọn `jmdict_id` (`/^\d{1,10}$/`) vào `ImportItemInputDto` và bỏ bắt buộc `word` khi đã có `jmdict_id` (bắt buộc ít nhất 1 trong 2; có cả hai ưu tiên `jmdict_id`). Thêm `findJapaneseByJmdictIds` tra 1 câu SQL `WHERE l.external_id = ANY(...)` ăn thẳng `UNIQUE B-TREE INDEX` `lexeme_external_id_key` (`jmdict:<ent_seq>`, 0 migration DB). Thêm reason `jmdict_not_found`; khi hồ sơ không học tiếng Nhật trả `language_not_in_profile`; `added[].word` trả `lemma` khi FE không gửi `word`, `not_found[].word` trả `word || "jmdict:<id>"`. Chữ Hán đơn (581 mã trong `.japanese`) giữ nguyên gửi qua `word`, chưa tạo bảng sổ tay Kanji riêng.
