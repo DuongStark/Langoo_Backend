@@ -84,6 +84,10 @@ export function katakanaToHiragana(text: string): string {
 }
 
 const HAS_KANA = /[\u3041-\u309f]/;
+const KATAKANA_ONLY = /^[\p{Script=Katakana}ー・]+$/u;
+/** Ký tự viết tiếp được của một từ tiếng Nhật (kana, Hán tự, dấu kéo dài). */
+const JA_WORD_CHAR =
+  /[\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Han}ー々]/u;
 
 const IRREGULAR_STEM: Record<string, string[]> = {
   し: ['する'],
@@ -440,6 +444,8 @@ function withSuruNoun(candidate: DeinflectCandidate): DeinflectCandidate[] {
 /**
  * Sinh tối đa `limit` ứng viên dạng gốc tiếng Nhật kèm gợi ý `expectedPos` mềm và `tier` ưu tiên.
  * - Trả `[]` nếu input không có kana (trừ romaji dạng `benkyousuru` -> `benkyou`).
+ * - Input chỉ gồm katakana: chỉ nhận danh từ + `スル` (`オウボスル` -> `おうぼ`); quy tắc chia khác
+ *   chỉ sinh rác (`トマス` -> `とる`, `スロウ` -> `する`). `サボった`/`ググった` vẫn deinflect đủ.
  * - Chỉ nên gọi khi khớp chính xác đã trượt.
  */
 export function deinflectJapaneseDetailed(
@@ -449,6 +455,11 @@ export function deinflectJapaneseDetailed(
   const trimmed = input.normalize('NFKC').trim();
   if (!trimmed) return [];
   const text = katakanaToHiragana(trimmed);
+  if (KATAKANA_ONLY.test(trimmed)) {
+    return text.length > 3 && text.endsWith('する')
+      ? [{ word: text.slice(0, -2), expectedPos: ['noun', 'adverb'], tier: 0 }]
+      : [];
+  }
 
   if (!HAS_KANA.test(text)) {
     const romaji = ROMAJI_SURU.exec(text);
@@ -581,4 +592,27 @@ export function deinflectJapaneseDetailed(
 /** Tiện ích chỉ lấy mảng chuỗi dạng gốc ứng viên (giữ đúng thứ tự ưu tiên). */
 export function deinflectJapanese(input: string, limit = 8): string[] {
   return deinflectJapaneseDetailed(input, limit).map((c) => c.word);
+}
+
+/**
+ * M4.9: definition của mục từ (vd Wiktionary "polite form of 読む (yomu)",
+ * "past tense and perfective aspect of 行う") có tự ghi là dạng chia của một trong `words` không.
+ * Ký tự ngay sau `<word>` phải không phải kana/Hán tự để `of 愛す` không khớp nhầm `of 愛する`.
+ */
+export function definitionReferencesCandidate(
+  definition: string | null | undefined,
+  words: readonly string[],
+): boolean {
+  if (!definition) return false;
+  for (const word of words) {
+    const needle = `of ${word}`;
+    let from = definition.indexOf(needle);
+    while (from !== -1) {
+      const before = from === 0 ? '' : definition[from - 1];
+      const after = definition[from + needle.length] ?? '';
+      if (!/[A-Za-z]/.test(before) && !JA_WORD_CHAR.test(after)) return true;
+      from = definition.indexOf(needle, from + 1);
+    }
+  }
+  return false;
 }

@@ -18,9 +18,11 @@ describe('M11.3 shared model dispatch', () => {
         ),
       );
     });
+    // Mốc pacing đặt ở gate; fetch chạy sau vài bước async nên đo ở fetch lệch vài ms.
+    // Interval 50 ms + ngưỡng 40 ms vẫn chứng minh có pacing (không pacing ≈ 0 ms).
     AiModelDispatch.configure(
       AiModelDispatch.scope(baseUrl, apiKey, model),
-      15,
+      50,
     );
     try {
       const a = new OpenAiChatProvider({ baseUrl, apiKey });
@@ -31,8 +33,8 @@ describe('M11.3 shared model dispatch', () => {
         ),
       );
       expect(starts).toHaveLength(3);
-      expect(starts[1] - starts[0]).toBeGreaterThanOrEqual(15);
-      expect(starts[2] - starts[1]).toBeGreaterThanOrEqual(15);
+      expect(starts[1] - starts[0]).toBeGreaterThanOrEqual(40);
+      expect(starts[2] - starts[1]).toBeGreaterThanOrEqual(40);
     } finally {
       global.fetch = original;
     }

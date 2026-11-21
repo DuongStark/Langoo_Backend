@@ -134,6 +134,30 @@ export class DictionarySearchRepository {
   }
 
   /**
+   * M4.9: Definition các sense của lexeme JA nguồn `wiktextract` (vd "polite form of 読む (yomu)")
+   * để nhận ra mục "dạng chia" có gloss VI máy. Chỉ gọi cho vài exact hit non-JMdict.
+   */
+  async findWiktionaryDefinitions(
+    lexemeIds: bigint[],
+  ): Promise<{ lexeme_id: bigint; definition: string }[]> {
+    if (lexemeIds.length === 0) return [];
+    return this.prisma.$queryRaw<{ lexeme_id: bigint; definition: string }[]>(
+      Prisma.sql`
+        SELECT s.lexeme_id, s.definition
+        FROM core.sense s
+        JOIN core.lexeme l ON l.id = s.lexeme_id
+        JOIN public.source src ON src.id = l.source_id
+        WHERE s.lexeme_id = ANY(${lexemeIds}::bigint[])
+          AND l.language_id = 2
+          AND src.code = 'wiktextract'
+          AND s.definition IS NOT NULL
+        ORDER BY s.lexeme_id, s.sense_no
+        LIMIT 50
+      `,
+    );
+  }
+
+  /**
    * M4.9: Tra chính xác theo lô các ứng viên dạng gốc tiếng Nhật trong 1 câu SQL
    * (dùng B-tree `lexeme_lemma_prefix`, `lexeme_form_text_trgm`, `lexeme_reading_lookup`).
    * Chỉ gọi khi lượt tìm chính không có hit `is_exact`.

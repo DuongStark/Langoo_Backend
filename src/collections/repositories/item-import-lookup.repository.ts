@@ -37,6 +37,29 @@ export interface ImportTopSenseRow {
 export class ItemImportLookupRepository {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * M4.9: Definition các sense của lexeme JA nguồn `wiktextract` (vd "polite form of 読む (yomu)")
+   * để nhận ra mục "dạng chia" khi import khớp exact vào mục đó.
+   */
+  async findWiktionaryDefinitions(
+    lexemeIds: bigint[],
+  ): Promise<{ lexeme_id: bigint; definition: string }[]> {
+    if (lexemeIds.length === 0) return [];
+    return this.prisma.$queryRaw<{ lexeme_id: bigint; definition: string }[]>(
+      Prisma.sql`
+        SELECT s.lexeme_id, s.definition
+        FROM core.sense s
+        JOIN core.lexeme l ON l.id = s.lexeme_id
+        JOIN public.source src ON src.id = l.source_id
+        WHERE s.lexeme_id = ANY(${lexemeIds}::bigint[])
+          AND l.language_id = 2
+          AND src.code = 'wiktextract'
+          AND s.definition IS NOT NULL
+        ORDER BY s.lexeme_id, s.sense_no
+      `,
+    );
+  }
+
   async findLexemeCandidates(
     lookupWords: string[],
     kanaReadings: string[],

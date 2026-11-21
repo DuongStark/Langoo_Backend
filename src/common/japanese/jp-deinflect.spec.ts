@@ -1,4 +1,8 @@
-import { deinflectJapanese, deinflectJapaneseDetailed } from './jp-deinflect';
+import {
+  deinflectJapanese,
+  deinflectJapaneseDetailed,
+  definitionReferencesCandidate,
+} from './jp-deinflect';
 
 describe('jp-deinflect (M4.9)', () => {
   describe('§7.1 — Dữ liệu thật từ file Mazii & các thể chia chuẩn', () => {
@@ -148,6 +152,38 @@ describe('jp-deinflect (M4.9)', () => {
       expect(okonau).toBeDefined();
       expect(iku).toBeDefined();
       expect(iku?.tier).toBe(okonau?.tier);
+    });
+  });
+
+  describe('M4.9 21/11 — katakana thuần và definition "form of"', () => {
+    it.each(['トマス', 'スロウ', 'パク', 'レバ', 'デニーロ', 'ハタ'])(
+      'không deinflect từ katakana thuần %s',
+      (word) => {
+        expect(deinflectJapaneseDetailed(word)).toEqual([]);
+      },
+    );
+
+    it('vẫn deinflect động từ katakana có okurigana hiragana', () => {
+      expect(deinflectJapanese('サボった')).toContain('さぼる');
+      expect(deinflectJapanese('ググった')).toContain('ぐぐる');
+    });
+
+    it.each([
+      ['polite form of 読む (yomu)', ['読む']],
+      ['past tense and perfective aspect of 行う (okonau)', ['行く', '行う']],
+      ['perfective of 答える', ['答える']],
+      ['見ている: present continuous of 見る', ['見る']],
+    ])('nhận definition "%s"', (definition, words) => {
+      expect(definitionReferencesCandidate(definition, words)).toBe(true);
+    });
+
+    it.each([
+      ['past tense and perfective aspect of 愛する (aisuru)', ['愛す']],
+      ['a male given name', ['しょうじる']],
+      ['clipping of フォートナイト', ['ふぉと']],
+      [null, ['読む']],
+    ])('không nhận definition %p', (definition, words) => {
+      expect(definitionReferencesCandidate(definition, words)).toBe(false);
     });
   });
 });

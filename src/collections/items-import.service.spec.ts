@@ -747,4 +747,91 @@ describe('ItemsImportService', () => {
       ],
     );
   });
+
+  it('M4.9 21/11: import exact hit on Wiktionary form-of entry (読みます) saves JMdict base 読む, keeps the entry when no base exists', async () => {
+    const { service, lookupRepo } = createSetup({
+      primaryLanguageId: 2,
+      secondaryLanguageId: null,
+    });
+    const wikt = (id: bigint, lemma: string) =>
+      candidate({
+        lexeme_id: id,
+        lemma,
+        reading: null,
+        pos: 'verb',
+        frequency_rank: null,
+        matched_key: lemma,
+        is_jmdict: false,
+        has_vi_gloss: true,
+      });
+    lookupRepo.findLexemeCandidates
+      .mockResolvedValueOnce([
+        wikt(2305965n, '読みます'),
+        wikt(2305966n, '詠みます'),
+        wikt(7001n, '踊ります'),
+      ])
+      .mockResolvedValueOnce([
+        candidate({
+          lexeme_id: 3001n,
+          lemma: '読む',
+          reading: 'よむ',
+          pos: 'verb',
+          frequency_rank: 420,
+          matched_key: '読む',
+        }),
+        candidate({
+          lexeme_id: 3002n,
+          lemma: '詠む',
+          reading: 'よむ',
+          pos: 'verb',
+          matched_key: '詠む',
+          is_jmdict: false,
+        }),
+      ]);
+    (
+      lookupRepo as unknown as { findWiktionaryDefinitions: jest.Mock }
+    ).findWiktionaryDefinitions = jest.fn().mockResolvedValue([
+      { lexeme_id: 2305965n, definition: 'polite form of 読む (yomu)' },
+      { lexeme_id: 2305966n, definition: 'polite form of 詠む (yomu)' },
+      { lexeme_id: 7001n, definition: 'a dance song title' },
+    ]);
+    lookupRepo.findTopSensesByLexemeIds.mockResolvedValue([
+      topSense({
+        lexeme_id: 3001n,
+        sense_id: 4001n,
+        lemma: '読む',
+        reading: 'よむ',
+        pos: 'verb',
+        meaning_vi: 'đọc',
+      }),
+      topSense({
+        lexeme_id: 2305966n,
+        sense_id: 4002n,
+        lemma: '詠みます',
+        reading: null,
+        pos: 'verb',
+        meaning_vi: 'dạng lịch sự của 詠む',
+      }),
+      topSense({
+        lexeme_id: 7001n,
+        sense_id: 4003n,
+        lemma: '踊ります',
+        reading: null,
+        pos: 'verb',
+        meaning_vi: 'tên bài hát',
+      }),
+    ]);
+
+    const res = await service.importIntoCollection(1n, COLLECTION_ID, {
+      items: [{ word: '読みます' }, { word: '詠みます' }, { word: '踊ります' }],
+    });
+
+    expect(res.added.map((a) => [a.word, a.lemma, a.deinflected_from])).toEqual(
+      [
+        ['読みます', '読む', '読みます'],
+        ['詠みます', '詠みます', null],
+        ['踊ります', '踊ります', null],
+      ],
+    );
+  });
 });

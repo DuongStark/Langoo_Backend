@@ -5,6 +5,7 @@ import { maxLength } from 'class-validator';
 import { DomainException } from '../common/errors/domain.exception';
 import {
   DeinflectCandidate,
+  definitionReferencesCandidate,
   deinflectJapaneseDetailed,
   katakanaToHiragana,
 } from '../common/japanese/jp-deinflect';
@@ -549,8 +550,9 @@ export class DictionaryService {
    * thử đưa từ tiếng Nhật về dạng gốc (deinflection) trong 1 câu SQL duy nhất
    * và gắn `deinflected_from = query`.
    *
-   * Lưu ý: nếu hit `is_exact` duy nhất chỉ là mục phụ non-JMdict chưa có nghĩa VI
-   * (vd mục Wiktionary "polite form of 読む" cho `読みます`), vẫn cho phép deinflect
+   * Lưu ý: nếu hit `is_exact` chỉ là mục phụ non-JMdict chưa có nghĩa VI, hoặc mục Wiktionary
+   * có gloss VI máy nhưng definition tự ghi là dạng chia của một ứng viên
+   * (vd "polite form of 読む" cho `読みます`), vẫn cho phép deinflect
    * nhưng chỉ nhận dạng gốc chính thống từ JMdict (`ja_source_rank === 0`).
    */
   private async findDeinflectedJapaneseHits(
@@ -559,29 +561,59 @@ export class DictionaryService {
     scope: { languageIds: number[] } | null,
     existingRows: Pick<
       SearchRow,
-      'is_exact' | 'lang_code' | 'ja_source_rank' | 'vi_translation_rank'
+      | 'lexeme_id'
+      | 'is_exact'
+      | 'lang_code'
+      | 'ja_source_rank'
+      | 'vi_translation_rank'
     >[],
     limit: number,
   ): Promise<SearchHit[]> {
     if (languageCode !== null && languageCode !== 'ja') return [];
     if (scope && !scope.languageIds.includes(2)) return [];
-    const hasAuthoritativeExact = existingRows.some(
+    const exactRows = existingRows.filter((row) => row.is_exact);
+    const blockingRows = exactRows.filter(
       (row) =>
-        row.is_exact &&
         !(
           row.lang_code === 'ja' &&
           row.ja_source_rank === 1 &&
           row.vi_translation_rank === 1
         ),
     );
-    if (hasAuthoritativeExact) return [];
-    const requireJmdictOnly = existingRows.some((row) => row.is_exact);
+    // JMdict hoặc ngôn ngữ khác khớp chính xác: luôn thắng, không cần sinh ứng viên.
+    if (
+      blockingRows.some(
+        (row) => row.lang_code !== 'ja' || row.ja_source_rank === 0,
+      )
+    ) {
+      return [];
+    }
+    const requireJmdictOnly = exactRows.length > 0;
     if (typeof this.searchRepo.findExactJapaneseCandidates !== 'function') {
       return [];
     }
 
     const rawCandidates = deinflectJapaneseDetailed(query, 8);
     if (rawCandidates.length === 0) return [];
+
+    // Còn lại là mục JA non-JMdict có gloss VI: chỉ bỏ qua khi definition tự ghi là
+    // dạng chia của một ứng viên (Wiktionary "polite form of 読む" cho `読みます`).
+    if (blockingRows.length > 0) {
+      if (typeof this.searchRepo.findWiktionaryDefinitions !== 'function') {
+        return [];
+      }
+      const words = rawCandidates.map((c) => c.word);
+      const definitions = await this.searchRepo.findWiktionaryDefinitions([
+        ...new Set(blockingRows.map((row) => row.lexeme_id)),
+      ]);
+      const formOfIds = new Set(
+        definitions
+          .filter((row) => definitionReferencesCandidate(row.definition, words))
+          .map((row) => row.lexeme_id.toString()),
+      );
+      if (!blockingRows.every((row) => formOfIds.has(row.lexeme_id.toString())))
+        return [];
+    }
 
     // Hỗ trợ romaji suru-verb (vd benkyousuru -> benkyou -> べんきょう)
     const candidates: DeinflectCandidate[] = rawCandidates.map((c) => {

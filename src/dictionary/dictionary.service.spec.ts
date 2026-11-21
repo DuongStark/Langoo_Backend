@@ -1943,4 +1943,136 @@ describe('M4.9 Japanese deinflection in search and suggest', () => {
     expect(result.data.map((h) => h.lemma)).toEqual(['行く', '行う']);
     expect(result.data[0].deinflected_from).toBe('行った');
   });
+
+  describe('M4.9 Wiktionary form-of entries with machine VI gloss', () => {
+    const jaRow = (
+      over: Partial<Record<string, unknown>> & { lexeme_id: bigint },
+    ) => ({
+      language_id: 2,
+      lang_code: 'ja',
+      pos: 'verb',
+      frequency_rank: null,
+      homograph_no: 1,
+      surface_kind: 'lemma',
+      is_exact: true,
+      ja_source_rank: 1,
+      vi_translation_rank: 0,
+      ...over,
+    });
+    const yomu = {
+      ...jaRow({ lexeme_id: 3001n }),
+      lemma: '読む',
+      surface: '読む',
+      reading: 'よむ',
+      frequency_rank: 420,
+      frequency_source: 'bccwj-suw',
+      ja_source_rank: 0,
+      matched_key: '読む',
+      match_source: 1,
+    };
+    const setupWith = (
+      exactRows: unknown[],
+      definitions: { lexeme_id: bigint; definition: string }[],
+    ) => {
+      const setup = createSetup();
+      setup.repos.scope.resolve.mockResolvedValue(null);
+      setup.repos.languages.findIdByCode.mockResolvedValue(2);
+      setup.repos.search.search.mockResolvedValue(exactRows);
+      const repo = setup.repos.search as unknown as {
+        findExactJapaneseCandidates: jest.Mock;
+        findWiktionaryDefinitions: jest.Mock;
+      };
+      repo.findExactJapaneseCandidates = jest.fn().mockResolvedValue([yomu]);
+      repo.findWiktionaryDefinitions = jest.fn().mockResolvedValue(definitions);
+      return { ...setup, repo };
+    };
+
+    it('deinflects 読みます when its Wiktionary entry says "polite form of 読む"', async () => {
+      const { service, repo } = setupWith(
+        [
+          jaRow({
+            lexeme_id: 2305965n,
+            lemma: '読みます',
+            surface: '読みます',
+            reading: null,
+          }),
+        ],
+        [{ lexeme_id: 2305965n, definition: 'polite form of 読む (yomu)' }],
+      );
+
+      const result = await service.search({ q: '読みます', lang: 'ja' });
+
+      expect(repo.findWiktionaryDefinitions).toHaveBeenCalledWith([2305965n]);
+      expect(result.data.map((h) => [h.lemma, h.deinflected_from])).toEqual([
+        ['読む', '読みます'],
+        ['読みます', null],
+      ]);
+    });
+
+    it('applies the same rule to suggestions', async () => {
+      const { service } = setupWith(
+        [
+          jaRow({
+            lexeme_id: 2305965n,
+            lemma: '読みます',
+            surface: '読みます',
+            reading: null,
+          }),
+        ],
+        [{ lexeme_id: 2305965n, definition: 'polite form of 読む (yomu)' }],
+      );
+
+      const result = await service.suggest({ q: '読みます', lang: 'ja' });
+
+      expect(result.data[0]).toMatchObject({
+        lemma: '読む',
+        deinflected_from: '読みます',
+      });
+    });
+
+    it('keeps a non-JMdict entry with VI gloss when its definition is not a form of a candidate', async () => {
+      const { service, repo } = setupWith(
+        [
+          jaRow({
+            lexeme_id: 7001n,
+            lemma: '読みます',
+            surface: '読みます',
+            reading: null,
+          }),
+        ],
+        [{ lexeme_id: 7001n, definition: 'a male given name' }],
+      );
+
+      const result = await service.search({ q: '読みます', lang: 'ja' });
+
+      expect(repo.findExactJapaneseCandidates).not.toHaveBeenCalled();
+      expect(result.data.map((h) => h.lemma)).toEqual(['読みます']);
+    });
+
+    it('does not read definitions when a JMdict entry matches exactly', async () => {
+      const { service, repo } = setupWith(
+        [
+          jaRow({
+            lexeme_id: 9002n,
+            lemma: '読みます',
+            surface: '読みます',
+            reading: null,
+          }),
+          jaRow({
+            lexeme_id: 9003n,
+            lemma: '読みます',
+            surface: '読みます',
+            reading: null,
+            ja_source_rank: 0,
+          }),
+        ],
+        [{ lexeme_id: 9002n, definition: 'polite form of 読む (yomu)' }],
+      );
+
+      await service.search({ q: '読みます', lang: 'ja' });
+
+      expect(repo.findWiktionaryDefinitions).not.toHaveBeenCalled();
+      expect(repo.findExactJapaneseCandidates).not.toHaveBeenCalled();
+    });
+  });
 });

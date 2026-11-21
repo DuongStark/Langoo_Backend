@@ -6,6 +6,7 @@ import {
   DeinflectCandidate,
   deinflectJapanese,
   deinflectJapaneseDetailed,
+  definitionReferencesCandidate,
 } from '../common/japanese/jp-deinflect';
 import { PrismaService } from '../db/prisma.service';
 import {
@@ -54,6 +55,13 @@ interface NormalizedInputRow {
   readings: string[];
   note: string | null;
   supportedType: boolean;
+}
+
+interface WinningRow {
+  input: NormalizedInputRow;
+  lexemeId: bigint;
+  posMatched: boolean;
+  deinflectedFrom: string | null;
 }
 
 interface ResolvedRow {
@@ -488,12 +496,10 @@ export class ItemsImportService {
       return { dedupedResolved: [], duplicateInRequest: [], notFound };
     }
 
-    const winningByRow: {
-      input: NormalizedInputRow;
-      lexemeId: bigint;
-      posMatched: boolean;
-      deinflectedFrom: string | null;
-    }[] = [];
+    const winningByRow: WinningRow[] = [];
+    // M4.9: dòng khớp exact vào mục Wiktionary "dạng chia" (vd `読みます` = "polite form of 読む")
+    // -> thử dạng gốc JMdict trước, trượt thì giữ mục exact này.
+    const formOfFallback = new Map<number, WinningRow>();
 
     // M5.3.2: Tra trực tiếp theo mã JMdict ent_seq (1 câu SQL ăn unique index external_id)
     if (
@@ -541,6 +547,7 @@ export class ItemsImportService {
     }
 
     let missedRows: NormalizedInputRow[] = [];
+    const formOfProbes: { row: NormalizedInputRow; win: WinningRow }[] = [];
 
     if (lookupRows.length > 0) {
       const uniqueLookupWords = [
@@ -571,18 +578,53 @@ export class ItemsImportService {
           continue;
         }
         const picked = pickBestLexemeCandidate(row, rowCandidates);
-        winningByRow.push({
+        const win: WinningRow = {
           input: row,
           lexemeId: picked.candidate.lexeme_id,
           posMatched: picked.posMatched,
           deinflectedFrom: null,
-        });
+        };
+        const probeFormOf =
+          picked.candidate.language_id === 2 &&
+          !picked.candidate.is_jmdict &&
+          !rowCandidates.some((c) => c.is_jmdict);
+        if (probeFormOf) formOfProbes.push({ row, win });
+        else winningByRow.push(win);
+      }
+    }
+
+    const formOfRows: NormalizedInputRow[] = [];
+    if (formOfProbes.length > 0) {
+      const definitions =
+        typeof this.lookupRepo.findWiktionaryDefinitions === 'function'
+          ? await this.lookupRepo.findWiktionaryDefinitions([
+              ...new Set(formOfProbes.map((p) => p.win.lexemeId)),
+            ])
+          : [];
+      const defsByLexeme = new Map<string, string[]>();
+      for (const d of definitions) {
+        const key = d.lexeme_id.toString();
+        defsByLexeme.set(key, [...(defsByLexeme.get(key) ?? []), d.definition]);
+      }
+      for (const { row, win } of formOfProbes) {
+        const words = deinflectJapanese(row.word, 8);
+        const isFormOf = (defsByLexeme.get(win.lexemeId.toString()) ?? []).some(
+          (def) => definitionReferencesCandidate(def, words),
+        );
+        if (isFormOf) {
+          formOfRows.push(row);
+          formOfFallback.set(row.index, win);
+        } else {
+          winningByRow.push(win);
+        }
       }
     }
 
     // M4.9 Bước 2: Deinflection theo lô cho các dòng tiếng Nhật chưa khớp chính xác
-    if (missedRows.length > 0 && allowedLanguageIds.includes(2)) {
-      const deinflectPlan = missedRows.map((row) => ({
+    // (kèm dòng khớp mục Wiktionary "dạng chia", chỉ nhận dạng gốc JMdict)
+    const deinflectTargets = [...missedRows, ...formOfRows];
+    if (deinflectTargets.length > 0 && allowedLanguageIds.includes(2)) {
+      const deinflectPlan = deinflectTargets.map((row) => ({
         row,
         candidates: deinflectJapaneseDetailed(row.word, 8),
         expandedReadings: expandDeinflectedReadings(row.readings),
@@ -622,14 +664,18 @@ export class ItemsImportService {
           [2],
         );
         const deinflectByKey = indexCandidatesByKey(deinflectRows);
+        const jmdictByKey = indexCandidatesByKey(
+          deinflectRows.filter((c) => c.is_jmdict),
+        );
         const remainingMissed: NormalizedInputRow[] = [];
 
         for (const entry of deinflectPlan) {
+          const fallback = formOfFallback.get(entry.row.index);
           const picked = pickBestDeinflectedCandidate(
             entry.row,
             entry.candidates,
             entry.expandedReadings,
-            deinflectByKey,
+            fallback ? jmdictByKey : deinflectByKey,
           );
           if (picked) {
             winningByRow.push({
@@ -638,11 +684,18 @@ export class ItemsImportService {
               posMatched: picked.posMatched,
               deinflectedFrom: entry.row.rawWord,
             });
+          } else if (fallback) {
+            winningByRow.push(fallback);
           } else {
             remainingMissed.push(entry.row);
           }
         }
         missedRows = remainingMissed;
+      } else {
+        for (const row of formOfRows) {
+          const fallback = formOfFallback.get(row.index);
+          if (fallback) winningByRow.push(fallback);
+        }
       }
     }
 
