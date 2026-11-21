@@ -1012,22 +1012,73 @@ function pickBestDeinflectedCandidate(
     readings: expandedReadings,
   };
 
+  const tierOrder: number[] = [];
+  const candidatesByTier = new Map<number, DeinflectCandidate[]>();
   for (const dc of deinflectCandidates) {
-    const keys = isKanaOnly(dc.word)
-      ? [dc.word, normalizeKanaKey(dc.word), toKatakanaKey(dc.word)]
-      : [dc.word];
-    const bestByLexeme = new Map<string, ImportLexemeCandidate>();
-    for (const k of keys) {
-      const list = byKey.get(k);
-      if (!list) continue;
-      for (const cand of list) {
-        const idKey = cand.lexeme_id.toString();
-        const prev = bestByLexeme.get(idKey);
-        if (!prev || cand.match_source < prev.match_source) {
-          bestByLexeme.set(idKey, cand);
+    const group = candidatesByTier.get(dc.tier);
+    if (group) {
+      group.push(dc);
+    } else {
+      tierOrder.push(dc.tier);
+      candidatesByTier.set(dc.tier, [dc]);
+    }
+  }
+
+  interface ScoredImportMatch {
+    candidate: ImportLexemeCandidate;
+    exactScriptRank: number;
+    expectedPosRank: number;
+    candidateOrder: number;
+  }
+
+  for (const tier of tierOrder) {
+    const tierCandidates = candidatesByTier.get(tier) ?? [];
+    const bestByLexeme = new Map<string, ScoredImportMatch>();
+
+    for (
+      let candidateOrder = 0;
+      candidateOrder < tierCandidates.length;
+      candidateOrder += 1
+    ) {
+      const dc = tierCandidates[candidateOrder];
+      const keys = isKanaOnly(dc.word)
+        ? [dc.word, normalizeKanaKey(dc.word), toKatakanaKey(dc.word)]
+        : [dc.word];
+
+      for (const k of keys) {
+        const list = byKey.get(k);
+        if (!list) continue;
+        for (const cand of list) {
+          const idKey = cand.lexeme_id.toString();
+          const exactScriptRank = cand.matched_key === dc.word ? 0 : 1;
+          const expectedPosRank =
+            dc.expectedPos.length > 0 &&
+            cand.pos !== null &&
+            (dc.expectedPos as readonly string[]).includes(cand.pos)
+              ? 0
+              : 1;
+          const entry: ScoredImportMatch = {
+            candidate: cand,
+            exactScriptRank,
+            expectedPosRank,
+            candidateOrder,
+          };
+          const prev = bestByLexeme.get(idKey);
+          if (
+            !prev ||
+            entry.exactScriptRank < prev.exactScriptRank ||
+            (entry.exactScriptRank === prev.exactScriptRank &&
+              entry.expectedPosRank < prev.expectedPosRank) ||
+            (entry.exactScriptRank === prev.exactScriptRank &&
+              entry.expectedPosRank === prev.expectedPosRank &&
+              entry.candidate.match_source < prev.candidate.match_source)
+          ) {
+            bestByLexeme.set(idKey, entry);
+          }
         }
       }
     }
+
     const matches = [...bestByLexeme.values()];
     if (matches.length === 0) continue;
 
@@ -1035,31 +1086,35 @@ function pickBestDeinflectedCandidate(
     let pool = matches;
     let posMatched = true;
     if (row.normalizedPos !== null) {
-      const userPosMatches = matches.filter((c) => c.pos === row.normalizedPos);
+      const userPosMatches = matches.filter(
+        (m) => m.candidate.pos === row.normalizedPos,
+      );
       if (userPosMatches.length > 0) {
         pool = userPosMatches;
         posMatched = true;
       } else {
         posMatched = false;
       }
-    } else if (dc.expectedPos.length > 0) {
-      const expectedMatches = matches.filter(
-        (c) =>
-          c.pos !== null &&
-          (dc.expectedPos as readonly string[]).includes(c.pos),
-      );
+    } else {
+      const expectedMatches = matches.filter((m) => m.expectedPosRank === 0);
       if (expectedMatches.length > 0) {
         pool = expectedMatches;
       }
     }
 
     const sorted = [...pool].sort((a, b) => {
-      const exactScriptA = a.matched_key === dc.word ? 0 : 1;
-      const exactScriptB = b.matched_key === dc.word ? 0 : 1;
-      if (exactScriptA !== exactScriptB) return exactScriptA - exactScriptB;
-      return compareCandidates(a, b, rowWithExpandedReadings);
+      if (a.exactScriptRank !== b.exactScriptRank) {
+        return a.exactScriptRank - b.exactScriptRank;
+      }
+      const cmp = compareCandidates(
+        a.candidate,
+        b.candidate,
+        rowWithExpandedReadings,
+      );
+      if (cmp !== 0) return cmp;
+      return a.candidateOrder - b.candidateOrder;
     });
-    return { candidate: sorted[0], posMatched };
+    return { candidate: sorted[0].candidate, posMatched };
   }
 
   return null;

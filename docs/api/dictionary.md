@@ -1,10 +1,10 @@
 # API: Dictionary (đọc)
 
-## M4.9 — Japanese Deinflection ở Search & Suggestions (19/11/2026)
+## M4.9 — Japanese Deinflection ở Search & Suggestions (19/11/2026; cập nhật 20/11/2026)
 
-- Khi gọi `GET /v1/dictionary/search` (trang đầu `cursor = null`) hoặc `GET /v1/dictionary/suggestions` với ngôn ngữ cho phép tiếng Nhật và **chưa có hit `is_exact = true`**, BE tự sinh tối đa 8 dạng gốc ứng viên (bỏ `する`/`な`, `く→い`, thể `て`/`た`/`ます`/`ない`/`ている`/bị động/điều kiện/ý chí/`です`, bất quy tắc `する`/`来る`, cụm `してくれ`), tra **1 câu SQL duy nhất** và đẩy kết quả dạng gốc lên đầu `data[]` kèm trường **`deinflected_from: string | null`**.
-- Các hit khớp trực tiếp luôn có `deinflected_from: null`; khớp chính xác luôn thắng (`みんな`, `板`, `きれい`, `する` không bị cắt đuôi).
-- Chi tiết cho FE: [Handoff FE M4.9](../handoff/m4.9-jp-deinflection-fe-2026-11-19.md).
+- Khi gọi `GET /v1/dictionary/search` (trang đầu `cursor = null`) hoặc `GET /v1/dictionary/suggestions` với ngôn ngữ cho phép tiếng Nhật và **chưa có hit `is_exact = true` đáng tin cậy** (JMdict hoặc đã có nghĩa tiếng Việt), BE tự sinh tối đa 8 dạng gốc ứng viên (bỏ `する`/`な`, `く→い`, thể `て`/`た`/`ます`/`ない`/`ている`/bị động/điều kiện/ý chí/`です`, bất quy tắc `する`/`来る`, cụm `してくれ`), tra **1 câu SQL duy nhất**, chấm điểm theo từng `tier` ứng viên và đẩy kết quả dạng gốc lên đầu `data[]` kèm trường **`deinflected_from: string | null`**.
+- Các hit khớp trực tiếp luôn có `deinflected_from: null`; khớp chính xác từ JMdict hoặc đã có nghĩa VI luôn thắng (`優れる`, `見せる`, `みんな`, `板`, `きれい`, `する` không bị cắt đuôi). Riêng trường hợp hit `is_exact` duy nhất chỉ là mục phụ non-JMdict chưa có nghĩa VI (vd mục Wiktionary `読みます`), BE tự deinflect sang dạng gốc JMdict (`読む`) ở đầu danh sách để FE không cần fallback phía client.
+- Chi tiết cho FE: [Handoff FE M4.9](../handoff/m4.9-jp-deinflection-fe-2026-11-19.md) và [Handoff sửa lỗi M4.9 (20/11)](../handoff/m4.9-jp-deinflection-fix-fe-2026-11-20.md).
 
 ## M12-A06.1/A12 — Bổ sung A3F0C7 ngày17/11/2026
 

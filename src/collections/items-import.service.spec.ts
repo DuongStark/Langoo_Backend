@@ -670,4 +670,81 @@ describe('ItemsImportService', () => {
       },
     ]);
   });
+
+  it('M4.9 fix: picks 優れる over 勝る (form 優る) for 優れた and picks higher-frequency 行く over 行う for 行った', async () => {
+    const { service, lookupRepo } = createSetup({
+      primaryLanguageId: 2,
+      secondaryLanguageId: null,
+    });
+    lookupRepo.findLexemeCandidates
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        candidate({
+          lexeme_id: 2001n,
+          lemma: '勝る',
+          reading: 'まさる',
+          pos: 'verb',
+          frequency_rank: 8256,
+          match_source: 2,
+          matched_key: '優る',
+        }),
+        candidate({
+          lexeme_id: 2002n,
+          lemma: '優れる',
+          reading: 'すぐれる',
+          pos: 'verb',
+          frequency_rank: 1913,
+          match_source: 1,
+          matched_key: '優れる',
+        }),
+        candidate({
+          lexeme_id: 4001n,
+          lemma: '行う',
+          reading: 'おこなう',
+          pos: 'verb',
+          frequency_rank: 350,
+          match_source: 1,
+          matched_key: '行う',
+        }),
+        candidate({
+          lexeme_id: 4002n,
+          lemma: '行く',
+          reading: 'いく',
+          pos: 'verb',
+          frequency_rank: 40,
+          match_source: 1,
+          matched_key: '行く',
+        }),
+      ]);
+    lookupRepo.findTopSensesByLexemeIds.mockResolvedValue([
+      topSense({
+        lexeme_id: 2002n,
+        sense_id: 3002n,
+        lemma: '優れる',
+        reading: 'すぐれる',
+        pos: 'verb',
+        meaning_vi: 'vượt trội, xuất sắc',
+      }),
+      topSense({
+        lexeme_id: 4002n,
+        sense_id: 3004n,
+        lemma: '行く',
+        reading: 'いく',
+        pos: 'verb',
+        meaning_vi: 'đi',
+      }),
+    ]);
+
+    const res = await service.importIntoCollection(1n, COLLECTION_ID, {
+      items: [{ word: '優れた' }, { word: '行った' }],
+    });
+
+    expect(res.added_count).toBe(2);
+    expect(res.added.map((a) => [a.word, a.lemma, a.deinflected_from])).toEqual(
+      [
+        ['優れた', '優れる', '優れた'],
+        ['行った', '行く', '行った'],
+      ],
+    );
+  });
 });

@@ -38,6 +38,14 @@ export type DeinflectExpectedPos = 'noun' | 'verb' | 'adjective' | 'adverb';
 export interface DeinflectCandidate {
   word: string;
   expectedPos: DeinflectExpectedPos[];
+  /**
+   * Mức ưu tiên nhóm ứng viên (số nhỏ ưu tiên cao hơn).
+   * Các ứng viên cùng 1 tầng (vd `行った` -> `行う`/`行く`, `降ります` -> `降りる`/`降る`)
+   * chia sẻ cùng `tier` để tầng gọi so sánh thêm tần suất / lemma vs form / cách đọc,
+   * trong khi ứng viên phải bóc thêm 1 lớp từ dạng từ điển hợp lệ (vd `優れた` -> `優れる` [tier 1]
+   * -> `優る` [tier 2]) luôn nằm ở tier sau.
+   */
+  tier: number;
 }
 
 function changeDan(char: string, toIndex: number): string | null {
@@ -109,19 +117,69 @@ function fromMasuStem(stem: string): string[] {
 function fromNegativeStem(stem: string): string[] {
   const irregular = IRREGULAR_STEM[stem];
   const u = uDan(stem);
-  const head = irregular ?? (isEDan(stem) ? [] : u ? [u] : []);
   const extra =
     stem.endsWith('し') && stem.length > 1 ? [stem.slice(0, -1) + 'する'] : [];
+  // Gốc hàng e (食べない -> 食べる) chỉ thuộc ichidan, không đổi sang hàng u (食ぶ)
+  if (isEDan(stem)) {
+    const list = [...(irregular ?? []), ...extra, stem + 'る'];
+    return [...new Set(list)];
+  }
+  const head = irregular ?? (u ? [u] : []);
   const rest = baseCandidates(stem).filter(
     (candidate) => !head.includes(candidate) && !extra.includes(candidate),
   );
   return [...head, ...extra, ...rest];
 }
 
+/**
+ * Thể て / た đơn (không có âm tiện った/いた/いだ/んだ/した):
+ * chỉ dành cho động từ nhóm 2 (ichidan: 食べて -> 食べる, 優れた -> 優れる) và bất quy tắc (来て -> 来る).
+ * Không đổi sang hàng u vì godan dùng các quy tắc âm tiện riêng.
+ */
 function fromTeStem(stem: string): string[] {
+  const irregular = IRREGULAR_STEM[stem] ?? [];
   const extra =
     stem.endsWith('し') && stem.length > 1 ? [stem.slice(0, -1) + 'する'] : [];
-  return [...extra, ...baseCandidates(stem)];
+  return [...new Set([...irregular, ...extra, stem + 'る'])];
+}
+
+/** Bị động godan (読まれる -> 読む: gốc hàng a) hoặc khả năng godan -る / ra-nuki (走れる -> 走る, 食べれる -> 食べる). */
+function fromReru(stem: string): string[] {
+  if (isADan(stem)) {
+    const u = uDan(stem);
+    return u ? [u] : [];
+  }
+  return [stem + 'る'];
+}
+
+/** Sai khiến godan (読ませる -> 読む, 書かせる -> 書く): chỉ hợp lệ sau gốc hàng a. Không biến 見せる -> 見る. */
+function fromSeru(stem: string): string[] {
+  if (!isADan(stem)) return [];
+  const u = uDan(stem);
+  return u ? [u] : [];
+}
+
+/** Bị động/khả năng hoặc ý chí ichidan/bất quy tắc (見られる -> 見る, 食べよう -> 食べる, 来られる -> 来る). */
+function fromIchidanStem(stem: string): string[] {
+  const irregular = IRREGULAR_STEM[stem] ?? [];
+  return [...new Set([...irregular, stem + 'る'])];
+}
+
+/** Sai khiến ichidan/bất quy tắc/suru (食べさせる -> 食べる, 勉強させる -> 勉強する). */
+function fromSaseru(stem: string): string[] {
+  const irregular = IRREGULAR_STEM[stem] ?? [];
+  const list = [...irregular, stem + 'る'];
+  if (stem.length >= 1 && !HAS_KANA.test(stem.at(-1) ?? '')) {
+    list.push(stem + 'する');
+  }
+  return [...new Set(list)];
+}
+
+/** Điều kiện れば (食べれば -> 食べる, 作れば -> 作る, すれば -> する, くれば -> くる). */
+function fromReba(stem: string): string[] {
+  if (stem === 'す') return ['する'];
+  if (stem === 'く') return ['くる'];
+  return [stem + 'る'];
 }
 
 function fromConditional(stem: string): string[] {
@@ -162,10 +220,14 @@ interface Rule {
   from: string;
   to: (stem: string) => string[];
   expectedPos: DeinflectExpectedPos[];
-  /** true với các quy tắc đuôi 1 ký tự nhạy cảm (な, く) để không coi dạng gốc là chưa terminal quá mạnh. */
+  /** true với các quy tắc đuôi nhạy cảm hoặc đã là thể từ điển (な, く, れる, せる, てる...) để không đánh nhầm `isTerminal`. */
   isSoftSuffix?: boolean;
-  /** Hậu tố ưu tiên thấp (vd §4.3 cụm câu nói `してくれ`), chỉ dùng khi các quy tắc chính trượt. */
-  lowPriority?: boolean;
+  /**
+   * Mức ưu tiên của quy tắc (mặc định 0 = chuẩn).
+   * - 1: dạng rút gọn khẩu ngữ dễ trùng động từ gốc (vd `てた` rút gọn của `ていた`: `捨てた`/`当てた` ưu tiên `捨てる`/`当てる` trước `捨る`/`当る`).
+   * - 2: hậu tố ưu tiên thấp (vd §4.3 cụm câu nói `してくれ`), chỉ dùng khi các quy tắc chính trượt.
+   */
+  priority?: number;
 }
 
 const RULES: Rule[] = [
@@ -174,31 +236,31 @@ const RULES: Rule[] = [
     from: 'してください',
     to: (s) => (s.length >= 1 ? [s, s + 'する'] : []),
     expectedPos: ['noun', 'verb'],
-    lowPriority: true,
+    priority: 2,
   },
   {
     from: 'してくれる',
     to: (s) => (s.length >= 1 ? [s, s + 'する'] : []),
     expectedPos: ['noun', 'verb'],
-    lowPriority: true,
+    priority: 2,
   },
   {
     from: 'してくれ',
     to: (s) => (s.length >= 1 ? [s, s + 'する'] : []),
     expectedPos: ['noun', 'verb'],
-    lowPriority: true,
+    priority: 2,
   },
   {
     from: 'てください',
     to: (s) => (s.length >= 1 ? [s + 'て'] : []),
     expectedPos: ['verb'],
-    lowPriority: true,
+    priority: 2,
   },
   {
     from: 'てくれ',
     to: (s) => (s.length >= 1 ? [s + 'て'] : []),
     expectedPos: ['verb'],
-    lowPriority: true,
+    priority: 2,
   },
 
   // Thể lịch sự
@@ -234,30 +296,83 @@ const RULES: Rule[] = [
   { from: 'だ', to: fromTeStem, expectedPos: ['verb'] },
 
   // Khả năng / bị động / sai khiến
-  { from: 'させられる', to: (s) => [s + 'させる'], expectedPos: ['verb'] },
-  { from: 'される', to: (s) => [s + 'する'], expectedPos: ['verb'] },
-  { from: 'られる', to: baseCandidates, expectedPos: ['verb'] },
-  { from: 'れる', to: baseCandidates, expectedPos: ['verb'] },
-  { from: 'させる', to: baseCandidates, expectedPos: ['verb'] },
-  { from: 'せる', to: baseCandidates, expectedPos: ['verb'] },
+  // Đều kết thúc bằng る (dạng từ điển hợp lệ: 優れる, 生まれる, 見せる, 切れる, 取れる, 売れる...)
+  // nên gắn `isSoftSuffix: true` để `isTerminal` không đánh nhầm động từ gốc là "chưa phải thể từ điển".
+  {
+    from: 'させられる',
+    to: (s) => [s + 'させる'],
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
+  {
+    from: 'される',
+    to: (s) => [s + 'する'],
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
+  {
+    from: 'られる',
+    to: fromIchidanStem,
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
+  {
+    from: 'れる',
+    to: fromReru,
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
+  {
+    from: 'させる',
+    to: fromSaseru,
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
+  {
+    from: 'せる',
+    to: fromSeru,
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
 
   // Điều kiện / ý chí / mệnh lệnh / nhờ vả
   { from: 'ければ', to: (s) => [s + 'い'], expectedPos: ['adjective'] },
-  { from: 'れば', to: baseCandidates, expectedPos: ['verb'] },
+  { from: 'れば', to: fromReba, expectedPos: ['verb'] },
   { from: 'ば', to: fromConditional, expectedPos: ['verb'] },
-  { from: 'よう', to: baseCandidates, expectedPos: ['verb'] },
+  { from: 'よう', to: fromIchidanStem, expectedPos: ['verb'] },
   { from: 'う', to: fromVolitional, expectedPos: ['verb'] },
   { from: 'なさい', to: (s) => fromMasuStem(s), expectedPos: ['verb'] },
   { from: 'ください', to: (s) => [s + 'て'], expectedPos: ['verb'] },
   { from: 'ろ', to: (s) => [s + 'る'], expectedPos: ['verb'] },
 
-  // Đang/đã làm gì đó (ている)
+  // Đang/đã làm gì đó (ている) — các đuôi kết thúc る (`ている`/`てる`/`でいる`) gắn `isSoftSuffix: true`
+  // để không đánh nhầm động từ gốc kết thúc `てる` (捨てる, 建てる, 慌てる...) là chưa terminal.
   { from: 'ています', to: (s) => [s + 'て'], expectedPos: ['verb'] },
   { from: 'ていた', to: (s) => [s + 'て'], expectedPos: ['verb'] },
-  { from: 'ている', to: (s) => [s + 'て'], expectedPos: ['verb'] },
-  { from: 'てる', to: (s) => [s + 'て'], expectedPos: ['verb'] },
-  { from: 'てた', to: (s) => [s + 'て'], expectedPos: ['verb'] },
-  { from: 'でいる', to: (s) => [s + 'で'], expectedPos: ['verb'] },
+  {
+    from: 'ている',
+    to: (s) => [s + 'て'],
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
+  {
+    from: 'てる',
+    to: (s) => [s + 'て'],
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
+  {
+    from: 'てた',
+    to: (s) => [s + 'て'],
+    expectedPos: ['verb'],
+    priority: 1,
+  },
+  {
+    from: 'でいる',
+    to: (s) => [s + 'で'],
+    expectedPos: ['verb'],
+    isSoftSuffix: true,
+  },
 
   // Tính từ -i và tính từ -na (★ Bảng B mới)
   { from: 'かった', to: (s) => [s + 'い'], expectedPos: ['adjective'] },
@@ -299,7 +414,7 @@ const isTerminal = (word: string) =>
   !RULES.some(
     (rule) =>
       !rule.isSoftSuffix &&
-      !rule.lowPriority &&
+      (rule.priority ?? 0) === 0 &&
       word.length > rule.from.length &&
       word.endsWith(rule.from) &&
       rule.to(word.slice(0, -rule.from.length)).length > 0,
@@ -315,6 +430,7 @@ function withSuruNoun(candidate: DeinflectCandidate): DeinflectCandidate[] {
       {
         word: candidate.word.slice(0, -2),
         expectedPos: ['noun', 'adverb'],
+        tier: candidate.tier,
       },
     ];
   }
@@ -322,7 +438,7 @@ function withSuruNoun(candidate: DeinflectCandidate): DeinflectCandidate[] {
 }
 
 /**
- * Sinh tối đa `limit` ứng viên dạng gốc tiếng Nhật kèm gợi ý `expectedPos` mềm.
+ * Sinh tối đa `limit` ứng viên dạng gốc tiếng Nhật kèm gợi ý `expectedPos` mềm và `tier` ưu tiên.
  * - Trả `[]` nếu input không có kana (trừ romaji dạng `benkyousuru` -> `benkyou`).
  * - Chỉ nên gọi khi khớp chính xác đã trượt.
  */
@@ -336,27 +452,39 @@ export function deinflectJapaneseDetailed(
 
   if (!HAS_KANA.test(text)) {
     const romaji = ROMAJI_SURU.exec(text);
-    return romaji ? [{ word: romaji[1], expectedPos: ['noun'] }] : [];
+    return romaji ? [{ word: romaji[1], expectedPos: ['noun'], tier: 0 }] : [];
   }
 
   interface InternalCandidate {
     word: string;
     expectedPos: DeinflectExpectedPos[];
     index: number;
-    ruleLength: number;
+    firstRuleLength: number;
+    dictHops: number;
     depth: number;
     lowPriority: number;
   }
 
+  interface FrontierNode {
+    word: string;
+    lowPriority: number;
+    firstRuleLength: number;
+    dictHops: number;
+  }
+
   const seen = new Set<string>([text]);
   const results: InternalCandidate[] = [];
-  let frontier: { word: string; lowPriority: number }[] = [
-    { word: text, lowPriority: 0 },
+  let frontier: FrontierNode[] = [
+    { word: text, lowPriority: 0, firstRuleLength: 0, dictHops: 0 },
   ];
 
   for (let depth = 0; depth < 4 && frontier.length > 0; depth += 1) {
-    const next: { word: string; lowPriority: number }[] = [];
+    const next: FrontierNode[] = [];
     for (const node of frontier) {
+      // Input gốc (depth === 0) đã trượt khớp chính xác nên bước đầu không tính là "bóc qua 1 dạng từ điển hợp lệ".
+      // Từ depth >= 1 trở đi, nếu node đã là dạng từ điển hợp lệ (vd `優れる`, `生まれる`, `捨てる`)
+      // mà vẫn tiếp tục bóc sâu hơn (vd `優れる` -> `優る`) thì tăng `dictHops` để luôn xếp sau dạng gốc trực tiếp.
+      const stepDictHop = depth > 0 && isTerminal(node.word) ? 1 : 0;
       for (const rule of RULES) {
         if (node.word.length <= rule.from.length) continue;
         if (!node.word.endsWith(rule.from)) continue;
@@ -368,13 +496,22 @@ export function deinflectJapaneseDetailed(
           // Bỏ ứng viên ngắn hơn 2 ký tự khi input dài hơn
           if (candidate.length < 2 && candidate.length < text.length) continue;
           seen.add(candidate);
-          const lowPriority = node.lowPriority || (rule.lowPriority ? 1 : 0);
-          next.push({ word: candidate, lowPriority });
+          const lowPriority = Math.max(node.lowPriority, rule.priority ?? 0);
+          const firstRuleLength =
+            depth === 0 ? rule.from.length : node.firstRuleLength;
+          const dictHops = node.dictHops + stepDictHop;
+          next.push({
+            word: candidate,
+            lowPriority,
+            firstRuleLength,
+            dictHops,
+          });
           results.push({
             word: candidate,
             expectedPos: rule.expectedPos,
             index: results.length,
-            ruleLength: rule.from.length,
+            firstRuleLength,
+            dictHops,
             depth,
             lowPriority,
           });
@@ -384,25 +521,44 @@ export function deinflectJapaneseDetailed(
     frontier = next;
   }
 
-  const sorted: DeinflectCandidate[] = results
+  const ranked = results
     .map((entry) => ({ ...entry, terminal: isTerminal(entry.word) ? 0 : 1 }))
     .sort(
       (a, b) =>
         a.lowPriority - b.lowPriority ||
         a.terminal - b.terminal ||
-        b.ruleLength - a.ruleLength ||
+        b.firstRuleLength - a.firstRuleLength ||
+        a.dictHops - b.dictHops ||
         b.depth - a.depth ||
         a.index - b.index,
-    )
-    .map((entry) => ({ word: entry.word, expectedPos: entry.expectedPos }));
+    );
 
-  // Danh từ + する từ chính input (応募する -> 応募) luôn đứng đầu tiên
+  // Gán `tier` tăng dần cho từng cụm (lowPriority, terminal, firstRuleLength, dictHops)
+  let nextTier = 1;
+  let prevKey: string | null = null;
+  let currentTier = 1;
+  const sorted: DeinflectCandidate[] = ranked.map((entry) => {
+    const key = `${entry.lowPriority}:${entry.terminal}:${entry.firstRuleLength}:${entry.dictHops}`;
+    if (prevKey !== key) {
+      currentTier = nextTier;
+      nextTier += 1;
+      prevKey = key;
+    }
+    return {
+      word: entry.word,
+      expectedPos: entry.expectedPos,
+      tier: currentTier,
+    };
+  });
+
+  // Danh từ + する từ chính input (応募する -> 応募) luôn đứng đầu tiên ở tier 0
   const directSuru =
     text.length > 2 && text.endsWith('する')
       ? [
           {
             word: text.slice(0, -2),
             expectedPos: ['noun', 'adverb'] as DeinflectExpectedPos[],
+            tier: 0,
           },
         ]
       : [];

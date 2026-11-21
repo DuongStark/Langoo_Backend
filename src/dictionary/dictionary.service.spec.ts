@@ -1740,4 +1740,207 @@ describe('M4.9 Japanese deinflection in search and suggest', () => {
     expect(findExactMock).not.toHaveBeenCalled();
     expect(result.data[0].deinflected_from).toBeNull();
   });
+
+  it('prefers 優れる (tier 1) over 勝る via form 優る (tier 2) when searching 優れた', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue(null);
+    repos.languages.findIdByCode.mockResolvedValue(2);
+    repos.search.search.mockResolvedValue([]);
+    (
+      repos.search as unknown as { findExactJapaneseCandidates: jest.Mock }
+    ).findExactJapaneseCandidates = jest.fn().mockResolvedValue([
+      {
+        lexeme_id: 2001n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: '勝る',
+        surface: '優る',
+        reading: 'まさる',
+        pos: 'verb',
+        frequency_rank: 8256,
+        frequency_source: 'bccwj-suw',
+        homograph_no: 1,
+        surface_kind: 'kanji_form',
+        is_exact: true,
+        ja_source_rank: 0,
+        vi_translation_rank: 0,
+        matched_key: '優る',
+        match_source: 2,
+      },
+      {
+        lexeme_id: 2002n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: '優れる',
+        surface: '優れる',
+        reading: 'すぐれる',
+        pos: 'verb',
+        frequency_rank: 1913,
+        frequency_source: 'bccwj-suw',
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+        ja_source_rank: 0,
+        vi_translation_rank: 0,
+        matched_key: '優れる',
+        match_source: 1,
+      },
+    ]);
+
+    const result = await service.search({ q: '優れた', lang: 'ja' });
+
+    expect(result.data).toHaveLength(1);
+    expect(result.data[0]).toMatchObject({
+      lexeme_id: '2002',
+      lemma: '優れる',
+      surface: '優れる',
+      deinflected_from: '優れた',
+    });
+  });
+
+  it('does not run deinflection for exact JMdict verb 優れる', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue(null);
+    repos.languages.findIdByCode.mockResolvedValue(2);
+    const findExactMock = jest.fn();
+    (
+      repos.search as unknown as { findExactJapaneseCandidates: jest.Mock }
+    ).findExactJapaneseCandidates = findExactMock;
+    repos.search.search.mockResolvedValue([
+      {
+        lexeme_id: 2002n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: '優れる',
+        surface: '優れる',
+        reading: 'すぐれる',
+        pos: 'verb',
+        frequency_rank: 1913,
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+        ja_source_rank: 0,
+        vi_translation_rank: 0,
+      },
+    ]);
+
+    const result = await service.search({ q: '優れる', lang: 'ja' });
+
+    expect(findExactMock).not.toHaveBeenCalled();
+    expect(result.data[0]).toMatchObject({
+      lexeme_id: '2002',
+      lemma: '優れる',
+      deinflected_from: null,
+    });
+  });
+
+  it('deinflects to JMdict base form when the only exact hit is a non-JMdict stub without VI gloss (e.g. 読みます)', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue(null);
+    repos.languages.findIdByCode.mockResolvedValue(2);
+    repos.search.search.mockResolvedValue([
+      {
+        lexeme_id: 9001n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: '読みます',
+        surface: '読みます',
+        reading: 'よみます',
+        pos: 'verb',
+        frequency_rank: null,
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+        ja_source_rank: 1,
+        vi_translation_rank: 1,
+      },
+    ]);
+    (
+      repos.search as unknown as { findExactJapaneseCandidates: jest.Mock }
+    ).findExactJapaneseCandidates = jest.fn().mockResolvedValue([
+      {
+        lexeme_id: 3001n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: '読む',
+        surface: '読む',
+        reading: 'よむ',
+        pos: 'verb',
+        frequency_rank: 420,
+        frequency_source: 'bccwj-suw',
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+        ja_source_rank: 0,
+        vi_translation_rank: 0,
+        matched_key: '読む',
+        match_source: 1,
+      },
+    ]);
+
+    const result = await service.search({ q: '読みます', lang: 'ja' });
+
+    expect(result.data[0]).toMatchObject({
+      lexeme_id: '3001',
+      lemma: '読む',
+      deinflected_from: '読みます',
+    });
+    expect(result.data[1]).toMatchObject({
+      lexeme_id: '9001',
+      lemma: '読みます',
+      deinflected_from: null,
+    });
+  });
+
+  it('ranks higher-frequency candidate first within the same deinflection tier (行った -> 行く before 行う)', async () => {
+    const { service, repos } = createSetup();
+    repos.scope.resolve.mockResolvedValue(null);
+    repos.languages.findIdByCode.mockResolvedValue(2);
+    repos.search.search.mockResolvedValue([]);
+    (
+      repos.search as unknown as { findExactJapaneseCandidates: jest.Mock }
+    ).findExactJapaneseCandidates = jest.fn().mockResolvedValue([
+      {
+        lexeme_id: 4001n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: '行う',
+        surface: '行う',
+        reading: 'おこなう',
+        pos: 'verb',
+        frequency_rank: 350,
+        frequency_source: 'bccwj-suw',
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+        ja_source_rank: 0,
+        vi_translation_rank: 0,
+        matched_key: '行う',
+        match_source: 1,
+      },
+      {
+        lexeme_id: 4002n,
+        language_id: 2,
+        lang_code: 'ja',
+        lemma: '行く',
+        surface: '行く',
+        reading: 'いく',
+        pos: 'verb',
+        frequency_rank: 40,
+        frequency_source: 'bccwj-suw',
+        homograph_no: 1,
+        surface_kind: 'lemma',
+        is_exact: true,
+        ja_source_rank: 0,
+        vi_translation_rank: 0,
+        matched_key: '行く',
+        match_source: 1,
+      },
+    ]);
+
+    const result = await service.search({ q: '行った', lang: 'ja' });
+
+    expect(result.data.map((h) => h.lemma)).toEqual(['行く', '行う']);
+    expect(result.data[0].deinflected_from).toBe('行った');
+  });
 });

@@ -39,6 +39,7 @@ import { JapanesePriorityRepository } from './repositories/japanese-priority.rep
 import {
   DeinflectSearchRow,
   DictionarySearchRepository,
+  SearchRow,
 } from './repositories/dictionary-search.repository';
 import {
   KanjiComponentRow,
@@ -165,7 +166,7 @@ export class DictionaryService {
         query,
         languageCode,
         scope,
-        baseHits,
+        pageRows,
         limit,
       );
       if (deinflectedHits.length > 0) {
@@ -524,7 +525,7 @@ export class DictionaryService {
       query,
       languageCode,
       scope,
-      baseHits,
+      rows,
       SUGGESTION_LIMIT,
     );
     if (deinflectedHits.length > 0) {
@@ -544,19 +545,37 @@ export class DictionaryService {
   }
 
   /**
-   * M4.9: Khi không có hit `is_exact`, thử đưa từ tiếng Nhật về dạng gốc (deinflection)
-   * trong 1 câu SQL duy nhất và gắn `deinflected_from = query`.
+   * M4.9: Khi chưa có hit `is_exact` đáng tin cậy (JMdict hoặc đã có nghĩa VI),
+   * thử đưa từ tiếng Nhật về dạng gốc (deinflection) trong 1 câu SQL duy nhất
+   * và gắn `deinflected_from = query`.
+   *
+   * Lưu ý: nếu hit `is_exact` duy nhất chỉ là mục phụ non-JMdict chưa có nghĩa VI
+   * (vd mục Wiktionary "polite form of 読む" cho `読みます`), vẫn cho phép deinflect
+   * nhưng chỉ nhận dạng gốc chính thống từ JMdict (`ja_source_rank === 0`).
    */
   private async findDeinflectedJapaneseHits(
     query: string,
     languageCode: string | null,
     scope: { languageIds: number[] } | null,
-    existingHits: SearchHit[],
+    existingRows: Pick<
+      SearchRow,
+      'is_exact' | 'lang_code' | 'ja_source_rank' | 'vi_translation_rank'
+    >[],
     limit: number,
   ): Promise<SearchHit[]> {
     if (languageCode !== null && languageCode !== 'ja') return [];
     if (scope && !scope.languageIds.includes(2)) return [];
-    if (existingHits.some((hit) => hit.is_exact)) return [];
+    const hasAuthoritativeExact = existingRows.some(
+      (row) =>
+        row.is_exact &&
+        !(
+          row.lang_code === 'ja' &&
+          row.ja_source_rank === 1 &&
+          row.vi_translation_rank === 1
+        ),
+    );
+    if (hasAuthoritativeExact) return [];
+    const requireJmdictOnly = existingRows.some((row) => row.is_exact);
     if (typeof this.searchRepo.findExactJapaneseCandidates !== 'function') {
       return [];
     }
@@ -612,6 +631,7 @@ export class DictionaryService {
       else byKey.set(key, [row]);
     };
     for (const row of rows) {
+      if (requireJmdictOnly && row.ja_source_rank !== 0) continue;
       addKey(row.matched_key, row);
       if (isKana(row.matched_key)) {
         const hira = katakanaToHiragana(row.matched_key);
@@ -619,83 +639,127 @@ export class DictionaryService {
       }
     }
 
+    // Gom ứng viên theo `tier` để các ứng viên cùng mức ưu tiên (vd `行った` -> `行う`/`行く`,
+    // `降ります` -> `降りる`/`降る`) được so sánh công bằng theo lemma/form & tần suất,
+    // trong khi tầng bóc sâu hơn (vd `優れた` -> `優れる` [tier 1] vs `優る` [tier 2]) không xen vào.
+    const tierOrder: number[] = [];
+    const candidatesByTier = new Map<number, DeinflectCandidate[]>();
+    for (const candidate of candidates) {
+      const group = candidatesByTier.get(candidate.tier);
+      if (group) {
+        group.push(candidate);
+      } else {
+        tierOrder.push(candidate.tier);
+        candidatesByTier.set(candidate.tier, [candidate]);
+      }
+    }
+
     const picked: SearchHit[] = [];
     const seenLexemeIds = new Set<string>();
     const maxDeinflected = Math.min(limit, 5);
 
-    for (const candidate of candidates) {
-      const keys = isKana(candidate.word)
-        ? [
-            candidate.word,
-            katakanaToHiragana(candidate.word),
-            toKatakana(candidate.word),
-          ]
-        : [candidate.word];
+    interface ScoredDeinflectMatch {
+      row: DeinflectSearchRow;
+      exactScriptRank: number;
+      posRank: number;
+      candidateOrder: number;
+    }
 
-      const matchedForCandidate = new Map<string, DeinflectSearchRow>();
-      for (const key of keys) {
-        const list = byKey.get(key);
-        if (!list) continue;
-        for (const row of list) {
-          const id = row.lexeme_id.toString();
-          if (seenLexemeIds.has(id)) continue;
-          const prev = matchedForCandidate.get(id);
-          if (!prev || row.match_source < prev.match_source) {
-            matchedForCandidate.set(id, row);
+    for (const tier of tierOrder) {
+      const tierCandidates = candidatesByTier.get(tier) ?? [];
+      const matchedInTier = new Map<string, ScoredDeinflectMatch>();
+
+      for (
+        let candidateOrder = 0;
+        candidateOrder < tierCandidates.length;
+        candidateOrder += 1
+      ) {
+        const candidate = tierCandidates[candidateOrder];
+        const keys = isKana(candidate.word)
+          ? [
+              candidate.word,
+              katakanaToHiragana(candidate.word),
+              toKatakana(candidate.word),
+            ]
+          : [candidate.word];
+
+        for (const key of keys) {
+          const list = byKey.get(key);
+          if (!list) continue;
+          for (const row of list) {
+            const id = row.lexeme_id.toString();
+            if (seenLexemeIds.has(id)) continue;
+            const exactScriptRank = row.matched_key === candidate.word ? 0 : 1;
+            const posRank =
+              row.pos !== null &&
+              (candidate.expectedPos as readonly string[]).includes(row.pos)
+                ? 0
+                : 1;
+            const entry: ScoredDeinflectMatch = {
+              row,
+              exactScriptRank,
+              posRank,
+              candidateOrder,
+            };
+            const prev = matchedInTier.get(id);
+            if (
+              !prev ||
+              entry.exactScriptRank < prev.exactScriptRank ||
+              (entry.exactScriptRank === prev.exactScriptRank &&
+                entry.posRank < prev.posRank) ||
+              (entry.exactScriptRank === prev.exactScriptRank &&
+                entry.posRank === prev.posRank &&
+                entry.row.match_source < prev.row.match_source)
+            ) {
+              matchedInTier.set(id, entry);
+            }
           }
         }
       }
 
-      if (matchedForCandidate.size === 0) continue;
+      if (matchedInTier.size === 0) continue;
 
-      const sorted = [...matchedForCandidate.values()].sort((a, b) => {
-        if (a.ja_source_rank !== b.ja_source_rank) {
-          return a.ja_source_rank - b.ja_source_rank;
+      const sorted = [...matchedInTier.values()].sort((a, b) => {
+        if (a.row.ja_source_rank !== b.row.ja_source_rank) {
+          return a.row.ja_source_rank - b.row.ja_source_rank;
         }
-        const exactScriptA = a.matched_key === candidate.word ? 0 : 1;
-        const exactScriptB = b.matched_key === candidate.word ? 0 : 1;
-        if (exactScriptA !== exactScriptB) {
-          return exactScriptA - exactScriptB;
+        if (a.exactScriptRank !== b.exactScriptRank) {
+          return a.exactScriptRank - b.exactScriptRank;
         }
-        const posA =
-          a.pos !== null &&
-          (candidate.expectedPos as readonly string[]).includes(a.pos)
-            ? 0
-            : 1;
-        const posB =
-          b.pos !== null &&
-          (candidate.expectedPos as readonly string[]).includes(b.pos)
-            ? 0
-            : 1;
-        if (posA !== posB) return posA - posB;
-        if (a.vi_translation_rank !== b.vi_translation_rank) {
-          return a.vi_translation_rank - b.vi_translation_rank;
+        if (a.posRank !== b.posRank) {
+          return a.posRank - b.posRank;
         }
-        if (a.match_source !== b.match_source) {
-          return a.match_source - b.match_source;
+        if (a.row.vi_translation_rank !== b.row.vi_translation_rank) {
+          return a.row.vi_translation_rank - b.row.vi_translation_rank;
         }
-        const freqA = a.frequency_rank ?? Number.MAX_SAFE_INTEGER;
-        const freqB = b.frequency_rank ?? Number.MAX_SAFE_INTEGER;
+        if (a.row.match_source !== b.row.match_source) {
+          return a.row.match_source - b.row.match_source;
+        }
+        const freqA = a.row.frequency_rank ?? Number.MAX_SAFE_INTEGER;
+        const freqB = b.row.frequency_rank ?? Number.MAX_SAFE_INTEGER;
         if (freqA !== freqB) return freqA - freqB;
-        return a.lexeme_id < b.lexeme_id
+        if (a.candidateOrder !== b.candidateOrder) {
+          return a.candidateOrder - b.candidateOrder;
+        }
+        return a.row.lexeme_id < b.row.lexeme_id
           ? -1
-          : a.lexeme_id > b.lexeme_id
+          : a.row.lexeme_id > b.row.lexeme_id
             ? 1
             : 0;
       });
 
-      for (const row of sorted) {
-        const id = row.lexeme_id.toString();
+      for (const item of sorted) {
+        const id = item.row.lexeme_id.toString();
         if (seenLexemeIds.has(id)) continue;
         seenLexemeIds.add(id);
         picked.push({
-          ...toSearchHit(row),
+          ...toSearchHit(item.row),
           deinflected_from: query,
         });
         if (picked.length >= maxDeinflected) break;
       }
 
-      // Ưu tiên ứng viên đầu tiên có kết quả thật (tránh nhiễu từ ứng viên xếp sau)
+      // Ưu tiên tầng ứng viên cao nhất có kết quả thật (tránh nhiễu từ tầng bóc sâu hơn)
       if (picked.length > 0) break;
     }
 
